@@ -53,7 +53,7 @@ namespace aevol {
 //                            Class Test_ae_list                             #
 //                                                                           #
 //############################################################################
-CPPUNIT_TEST_SUITE_REGISTRATION( Test_ae_list );
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_ae_list);
 
 // ===========================================================================
 //                               Static attributes
@@ -64,14 +64,14 @@ const int Test_ae_list::INT_LIST_SIZE = 20;
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
-Test_ae_list::Test_ae_list( void )
+Test_ae_list::Test_ae_list(void)
 {
 }
 
 // ===========================================================================
 //                                  Destructors
 // ===========================================================================
-Test_ae_list::~Test_ae_list( void )
+Test_ae_list::~Test_ae_list(void)
 {
 }
 
@@ -82,7 +82,7 @@ Test_ae_list::~Test_ae_list( void )
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
-void Test_ae_list::setUp( void )
+void Test_ae_list::setUp(void)
 {
   printf("Test_ae_list setUp\n");
   int_list = new ae_list<int*>();
@@ -92,13 +92,13 @@ void Test_ae_list::setUp( void )
   }
 }
 
-void Test_ae_list::tearDown( void )
+void Test_ae_list::tearDown(void)
 {
   int_list->erase(true);
   delete int_list;
 }
 
-void Test_ae_list::basic_tests1( void )
+void Test_ae_list::basic_tests1(void)
 {
   printf("Test_ae_list basic_tests1\n");
   // Manually check the content of int_list (checks add(T*))
@@ -133,7 +133,7 @@ void Test_ae_list::basic_tests1( void )
   CPPUNIT_ASSERT_EQUAL((void*)NULL, (void*)int_list->get_last());
 }
 
-void Test_ae_list::basic_tests2( void )
+void Test_ae_list::basic_tests2(void)
 {
   // Check get_object(int32_t pos)
   CPPUNIT_ASSERT_EQUAL((void*)NULL, (void*)int_list->get_object(-1));
@@ -172,7 +172,7 @@ void Test_ae_list::basic_tests2( void )
   delete expected;
 }
 
-void Test_ae_list::test_extract_sublist( void )
+void Test_ae_list::test_extract_sublist(void)
 {
   // Construct the same list as int_list
   ae_list<int*>* expected = new ae_list<int*>();

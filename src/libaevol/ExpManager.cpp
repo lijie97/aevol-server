@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -78,21 +78,21 @@ namespace aevol {
 ExpManager::ExpManager()
 {
   // ------------------------------------------------------ Experimental setup
-  _exp_s = new ExpSetup(this);
+  exp_s_ = new ExpSetup(this);
 
   // ------------------------------------------------------------------- World
   world_ = nullptr;
 
   // ---------------------------------------------------------- Output manager
-  _output_m = new OutputManager(this);
+  output_m_ = new OutputManager(this);
 
 
   // -------------------------------- Timestep up to which we want to simulate
-  t_end = 0;
+  t_end_ = 0;
 
 
   // ------------------------------------------------------------- Quit signal
-  _quit_signal_received = false;
+  quit_signal_received_ = false;
 }
 
 // ===========================================================================
@@ -100,19 +100,14 @@ ExpManager::ExpManager()
 // ===========================================================================
 ExpManager::~ExpManager() noexcept
 {
-  delete _exp_s;
-  delete _output_m;
+  delete exp_s_;
+  delete output_m_;
   delete world_;
 }
 
 // ===========================================================================
 //                                   Algorithms
 // ===========================================================================
-// void ExpManager::foreach_indiv(void (*processor)(Individual& indiv)) const
-// {
-//   for (const auto& indiv: get_indivs_std())
-//     processor(*indiv);
-// }
 
 // ===========================================================================
 //                                 Public Methods
@@ -134,9 +129,7 @@ void ExpManager::InitializeWorld(int16_t grid_width,
 void ExpManager::Save() const
 {
   WriteSetupFiles();
-  //printf("Appel a _output_m->write_current_generation_outputs\n");
-  _output_m->write_current_generation_outputs();
-  //printf("Après _output_m->write_current_generation_outputs\n");
+  output_m_->write_current_generation_outputs();
 }
 
 /*!
@@ -160,7 +153,7 @@ void ExpManager::Save() const
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see WriteDynamicFiles(void)
+  \see WriteDynamicFiles()
   \see save_copy(char* dir, int64_t t)
 */
 void ExpManager::WriteSetupFiles() const
@@ -170,14 +163,12 @@ void ExpManager::WriteSetupFiles() const
 
   // 2) Open setup files (experimental setup and output profile)
   gzFile exp_s_file, out_p_file;
-  open_setup_files(exp_s_file, out_p_file, AeTime::get_time(), "w");
+  open_setup_files(exp_s_file, out_p_file, AeTime::time(), "w");
 
   // 4) Write setup data
-  //printf("Appel a _exp_s->write_setup_file\n");
-  _exp_s->write_setup_file(exp_s_file);
-  //printf("Appel a _output_m->WriteSetupFile\n");
-  _output_m->WriteSetupFile(out_p_file);
-  //printf("Après _output_m->WriteSetupFile\n");
+  exp_s_->write_setup_file(exp_s_file);
+  output_m_->WriteSetupFile(out_p_file);
+
   // 5) Close setup files
   close_setup_files(exp_s_file, out_p_file);
 }
@@ -203,20 +194,20 @@ void ExpManager::WriteSetupFiles() const
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see WriteSetupFiles(void)
+  \see WriteSetupFiles()
   \see save_copy(char* dir, int64_t t)
 */
-void ExpManager::WriteDynamicFiles(void) const
+void ExpManager::WriteDynamicFiles() const
 {
   // Create missing directories
   create_missing_directories();
 
   // Open backup files
   gzFile sel_file, world_file;
-  open_backup_files(sel_file, world_file, AeTime::get_time(), "w");
+  open_backup_files(sel_file, world_file, AeTime::time(), "w");
 
   // Save experiment
-  get_sel()->save(sel_file);
+  sel()->save(sel_file);
   world_->save(world_file);
 
   // Close backup files
@@ -244,8 +235,8 @@ void ExpManager::WriteDynamicFiles(void) const
              char* sel_file_name,
              char* world_file_name,
              bool verbose)
-  \see WriteSetupFiles(void)
-  \see WriteDynamicFiles(void)
+  \see WriteSetupFiles()
+  \see WriteDynamicFiles()
 */
 void ExpManager::save_copy(char* dir, int64_t time) const
 {
@@ -261,11 +252,11 @@ void ExpManager::save_copy(char* dir, int64_t time) const
   open_backup_files(sel_file, world_file, time, "w", dir);
 
   // Write setup data
-  _exp_s->write_setup_file(exp_s_file);
-  _output_m->WriteSetupFile(out_p_file);
+  exp_s_->write_setup_file(exp_s_file);
+  output_m_->WriteSetupFile(out_p_file);
 
   // Write the state of selection and world into the backups
-  get_sel()->save(sel_file);
+  sel()->save(sel_file);
   world_->save(world_file);
 
   // Close setup and backup files
@@ -273,10 +264,10 @@ void ExpManager::save_copy(char* dir, int64_t time) const
   close_backup_files(sel_file, world_file);
 
   // Copy stats
-  _output_m->CopyStats(dir, time);
+  output_m_->CopyStats(dir, time);
 
   // Write last gener file
-  _output_m->WriteLastGenerFile(dir);
+  output_m_->WriteLastGenerFile(dir);
 }
 
 void ExpManager::step_to_next_generation() {
@@ -287,10 +278,10 @@ void ExpManager::step_to_next_generation() {
   AeTime::plusplus();
 
   // Create the corresponding new generation
-  _exp_s->step_to_next_generation();
+  exp_s_->step_to_next_generation();
 
   // Write statistical data and store phylogenetic data (tree)
-  _output_m->write_current_generation_outputs();
+  output_m_->write_current_generation_outputs();
 }
 
 /*!
@@ -307,7 +298,7 @@ void ExpManager::load(gzFile& exp_s_file,
   // ---------------------------------------- Retrieve experimental setup data
   printf("  Loading experimental setup...");
   fflush(stdout);
-  _exp_s->load(exp_s_file, exp_backup_file, verbose);
+  exp_s_->load(exp_s_file, exp_backup_file, verbose);
   printf(" OK\n");
 
   // ---------------------------------------------------------- Retrieve world
@@ -320,17 +311,17 @@ void ExpManager::load(gzFile& exp_s_file,
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
-  _output_m->load(out_p_file, verbose, to_be_run);
+  output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
 
   // -------------------------------------------- Link world and output profile
-  if (get_record_tree()) {
-    get_sel()->addObserver(get_tree(), NEW_INDIV);
-    for (auto indiv : world_->get_indivs())
+  if (record_tree()) {
+    sel()->addObserver(tree(), NEW_INDIV);
+    for (auto indiv : world_->indivs())
       indiv->addObserver(
-          get_tree()->get_report_by_index(AeTime::get_time(), indiv->get_id()),
+        tree()->report_by_index(AeTime::time(), indiv->id()),
           END_REPLICATION);
-    get_sel()->addObserver(get_tree(), END_GENERATION);
+    sel()->addObserver(tree(), END_GENERATION);
   }
 
   // --------------------------------------------------- Recompute unsaved data
@@ -438,7 +429,7 @@ void ExpManager::load(int64_t t0,
 /**
  * Run the simulation
  */
-void ExpManager::run_evolution(void)
+void ExpManager::run_evolution()
 {
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
@@ -461,11 +452,11 @@ void ExpManager::run_evolution(void)
   while (true) { // termination condition is into the loop
 
     printf("============================== %" PRId64 " ==============================\n",
-           AeTime::get_time());
+           AeTime::time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
-           get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
+           best_indiv()->dist_to_target_by_feature(METABOLISM));
 
-    if (AeTime::get_time() >= t_end or quit_signal_received())
+    if (AeTime::time() >= t_end_ or quit_signal_received())
       break;
 
 #ifdef __X11
@@ -495,11 +486,11 @@ void ExpManager::run_evolution(void)
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
-  fputs(get_best_indiv()->get_genetic_unit_sequence(0), org_file);
+  fputs(best_indiv()->genetic_unit_sequence(0), org_file);
   fclose(org_file);
 }
 
-void ExpManager::update_best(void)
+void ExpManager::update_best()
 {
   world_->update_best();
 }
@@ -641,8 +632,8 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 // ===========================================================================
 //                               Non inline accessors
 // ===========================================================================
-Individual* ExpManager::get_indiv_by_id(int32_t id) const {
-  return world_->get_indiv_by_id(id);
+Individual* ExpManager::indiv_by_id(int32_t id) const {
+  return world_->indiv_by_id(id);
 }
 
 } // namespace aevol

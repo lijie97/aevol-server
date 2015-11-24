@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -130,41 +130,41 @@ int main(int argc, char** argv)
   };
 
   int option;
-  while( (option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1 )
+  while((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
   {
-    switch( option )
+    switch(option)
     {
       case 'h' :
       {
         print_help(argv[0]);
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'V' :
       {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'v' : verbose = true;                    break;
       case 'n' : check = NO_CHECK;                  break;
       case 'c' : check = FULL_CHECK;                break;
       case 'f' :
       {
-        if ( strcmp( optarg, "" ) == 0 )
+        if (strcmp(optarg, "") == 0)
         {
-          fprintf( stderr, "ERROR : Option -f or --file : missing argument.\n" );
-          exit( EXIT_FAILURE );
+          fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
+          exit(EXIT_FAILURE);
         }
 
         lineage_file_name = new char[strlen(optarg) + 1];
-        sprintf( lineage_file_name, "%s", optarg );
+        sprintf(lineage_file_name, "%s", optarg);
         break;
       }
       case 't' :
       {
-        if ( strcmp( optarg, "" ) == 0 )
+        if (strcmp(optarg, "") == 0)
         {
-          fprintf( stderr, "ERROR : Option -t or --tolerance : missing argument.\n" );
-          exit( EXIT_FAILURE );
+          fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
+          exit(EXIT_FAILURE);
         }
         check = ENV_CHECK;
         tolerance = atof(optarg);
@@ -172,23 +172,23 @@ int main(int argc, char** argv)
       }
       default :
       {
-        fprintf( stderr, "ERROR : Unknown option, check your syntax.\n" );
+        fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
         print_help(argv[0]);
-        exit( EXIT_FAILURE );
+        exit(EXIT_FAILURE);
       }
     }
   }
 
-  if ( lineage_file_name == NULL )
+  if (lineage_file_name == NULL)
   {
-    fprintf( stderr, "ERROR : Option -f or --file missing. \n" );
-    exit( EXIT_FAILURE );
+    fprintf(stderr, "ERROR : Option -f or --file missing. \n");
+    exit(EXIT_FAILURE);
   }
 
 
   printf("\n");
-  printf( "WARNING : Parameter change during simulation is not managed in general.\n" );
-  printf( "          Only changes in environmental target done with aevol_modify are handled.\n" );
+  printf("WARNING : Parameter change during simulation is not managed in general.\n");
+  printf("          Only changes in environmental target done with aevol_modify are handled.\n");
   printf("\n");
 
 
@@ -196,11 +196,11 @@ int main(int argc, char** argv)
   //  Open the lineage file
   // =======================
 
-  gzFile lineage_file = gzopen( lineage_file_name, "r" );
+  gzFile lineage_file = gzopen(lineage_file_name, "r");
   if (lineage_file == Z_NULL)
   {
-    fprintf( stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name );
-    exit( EXIT_FAILURE );
+    fprintf(stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name);
+    exit(EXIT_FAILURE);
   }
 
   int64_t t0;
@@ -208,10 +208,10 @@ int main(int argc, char** argv)
   int32_t  final_index, final_indiv_rank;
   gzread(lineage_file, &t0, sizeof(t0));
   gzread(lineage_file, &t_end, sizeof(t_end));
-  gzread(lineage_file, &final_index, sizeof(final_index) );
-  gzread(lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank) );
+  gzread(lineage_file, &final_index, sizeof(final_index));
+  gzread(lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank));
 
-  if ( verbose )
+  if (verbose)
   {
     printf("\n\n");
     printf("================================================================================\n");
@@ -230,23 +230,23 @@ int main(int argc, char** argv)
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load(t0, true, false);
-  Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
+  Environment* env = new Environment(*(exp_manager->env())); // independent copy
 
-  int64_t backup_step = exp_manager->get_backup_step();
+  int64_t backup_step = exp_manager->backup_step();
 
 
   // ==============================
   //  Prepare the initial ancestor
   // ==============================
 
-  ae_individual * indiv = new ae_individual(exp_manager, lineage_file );
-  indiv->evaluate( env );
+  ae_individual * indiv = new ae_individual(exp_manager, lineage_file);
+  indiv->evaluate(env);
   indiv->compute_statistical_data();
 
-  if ( verbose )
+  if (verbose)
   {
-    printf("Initial fitness     = %e\n", indiv->get_fitness());
-    printf("Initial genome size = %" PRId32 "\n", indiv->get_total_genome_size());
+    printf("Initial fitness     = %e\n", indiv->fitness());
+    printf("Initial genome size = %" PRId32 "\n", indiv->total_genome_size());
   }
 
 
@@ -259,11 +259,11 @@ int main(int argc, char** argv)
 
   std::list<ae_gene_tree> gene_trees;
 
-  for (const auto& unit: indiv->get_genetic_unit_list())
+  for (const auto& unit: indiv->genetic_unit_list())
   {
-    for (const auto& prot: unit.get_protein_list(LEADING))
+    for (const auto& prot: unit.protein_list(LEADING))
       gene_trees.emplace_back(t0, prot);
-    for (const auto& prot: unit.get_protein_list(LAGGING))
+    for (const auto& prot: unit.protein_list(LAGGING))
       gene_trees.emplace_back(t0, prot);
   }
 
@@ -293,41 +293,41 @@ int main(int argc, char** argv)
 
 
   aevol::Time::plusplus();
-  while (get_time() <= t_end)
+  while (time() <= t_end)
   {
     env->build();
 
-    rep = new ae_replication_report( lineage_file, indiv );
-    index = rep->get_id(); // who are we building...
+    rep = new ae_replication_report(lineage_file, indiv);
+    index = rep->id(); // who are we building...
     indiv->set_replication_report(rep);
 
     // Check now?
-    check_now = ((check == FULL_CHECK && ae_utils::mod(get_time(), backup_step ) == 0) ||
-                 (check == ENV_CHECK && ae_utils::mod(get_time(), backup_step ) == 0) ||
-                 (check == LIGHT_CHECK && get_time() == t_end));
+    check_now = ((check == FULL_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
+                 (check == ENV_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
+                 (check == LIGHT_CHECK && time() == t_end));
 
 
     if (verbose)
       printf("Rebuilding ancestor at time %" PRId64 " (index %" PRId32 ")...",
-          get_time(), index);
+          time(), index);
 
     env->build();
     env->apply_variation();
     indiv->reevaluate(env);
 
     // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
-    if (ae_utils::mod( get_time(), backup_step ) == 0)
+    if (ae_utils::mod(time(), backup_step) == 0)
       {
         char env_file_name[255];
-        sprintf( env_file_name, "./" ENV_FNAME_FORMAT, get_time() );
-        gzFile env_file = gzopen( env_file_name, "r" );
+        sprintf(env_file_name, "./" ENV_FNAME_FORMAT, time());
+        gzFile env_file = gzopen(env_file_name, "r");
         backup_env = new Environment();
-        backup_env->load( env_file );
+        backup_env->load(env_file);
 
-        if ( ! env->is_identical_to(*backup_env, tolerance) )
+        if (! env->is_identical_to(*backup_env, tolerance))
           {
-            printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", get_time());
-            printf("         as the one saved at t=%" PRId64 "... \n", get_time() );
+            printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", time());
+            printf("         as the one saved at t=%" PRId64 "... \n", time());
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
@@ -341,22 +341,22 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    auto unit = indiv->get_genetic_unit_list_nonconst().begin();
+    auto unit = indiv->genetic_unit_list_nonconst().begin();
 
 
-    if ( check_now )
+    if (check_now)
     {
       exp_manager_backup = new ae_exp_manager();
-      exp_manager_backup->load(get_time(), true, false);
+      exp_manager_backup->load(time(), true, false);
       // TODO: disabled tmp
-      // stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
-      stored_unit = stored_indiv->get_genetic_unit_list().begin();
+      // stored_indiv = new ae_individual(* (ae_individual *)exp_manager_backup->indiv_by_id(index), false);
+      stored_unit = stored_indiv->genetic_unit_list().begin();
     }
 
 
-    for (const auto& dnarep: rep->get_dna_replic_reports()) {
-      assert(unit != indiv->get_genetic_unit_list().cend());
-      unit->get_dna()->set_replic_report( dnarep );
+    for (const auto& dnarep: rep->dna_replic_reports()) {
+      assert(unit != indiv->genetic_unit_list().cend());
+      unit->dna()->set_replic_report(dnarep);
       update_pointers_in_trees(gene_trees, &*unit); // because of the reevaluate at each new generation (envir. variation possible)
 
       // ***************************************
@@ -365,33 +365,33 @@ int main(int argc, char** argv)
 
       // TO DO
      /*
-      mnode = dnarep->get_HT()->get_first();
-      while ( mnode != NULL )
+      mnode = dnarep->HT()->first();
+      while (mnode != NULL)
       {
-        mut = (ae_mutation *) mnode->get_obj();
+        mut = (ae_mutation *) mnode->obj();
 
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit.get_dna()->get_length();
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+        unitlen_before = unit.dna()->length();
         unit.compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
-        unit.get_dna()->undergo_this_mutation( mut );
+        unit.dna()->undergo_this_mutation(mut);
         indiv->reevaluate(env);
 
 
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
 
-        mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId64 " %"PRId32 " %s %"PRId32 " %.15f  %"PRId32 " %"PRId32 " %"PRId32 " \n",\
-                 get_time(), genetic_unit_number, \
+        mut->generic_description_string(mut_descr_string);
+        fprintf(output, "%"PRId64 " %"PRId32 " %s %"PRId32 " %.15f  %"PRId32 " %"PRId32 " %"PRId32 " \n",\
+                 time(), genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
-                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
+                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
 
-        mnode = mnode->get_next();
+        mnode = mnode->next();
       } */
 
 
@@ -399,29 +399,29 @@ int main(int argc, char** argv)
       //           Rearrangement events
       // ***************************************
 
-      for (const auto& mut: dnarep->get_rearrangements()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit->get_dna()->get_length();
+      for (const auto& mut: dnarep->rearrangements()) {
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+        unitlen_before = unit->dna()->length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
 
-        unit->get_dna()->undergo_this_mutation(&mut);
+        unit->dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, get_time(), impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, time(), impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        for (const auto& prot: unit->get_protein_list(LEADING)) {
+        for (const auto& prot: unit->protein_list(LEADING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
           if (not found)
-            gene_trees.emplace_back(get_time(), prot, &mut);
+            gene_trees.emplace_back(time(), prot, &mut);
         }
-        for (const auto& prot: unit->get_protein_list(LAGGING)) {
+        for (const auto& prot: unit->protein_list(LAGGING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
           if (not found)
-            gene_trees.emplace_back(get_time(), prot, &mut);
+            gene_trees.emplace_back(time(), prot, &mut);
         }
          // print_gene_trees_to_screen(gene_trees);// DEBUG
          // indiv->print_protein_list(); // DEBUG
@@ -432,61 +432,61 @@ int main(int argc, char** argv)
       // Local events (point mutations & small indels)
       // ***************************************
 
-      for (const auto& mut: dnarep->get_mutations()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature(METABOLISM);
-        unitlen_before = unit->get_dna()->get_length();
+      for (const auto& mut: dnarep->mutations()) {
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+        unitlen_before = unit->dna()->length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
-        unit->get_dna()->undergo_this_mutation(&mut);
+        unit->dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
-        metabolic_error_after = indiv->get_dist_to_target_by_feature(METABOLISM);
+        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, get_time(), impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, time(), impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        for (const auto& prot: unit->get_protein_list(LEADING)) {
+        for (const auto& prot: unit->protein_list(LEADING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
           if (not found)
-            gene_trees.emplace_back(get_time(), prot, &mut);
+            gene_trees.emplace_back(time(), prot, &mut);
         }
-        for (const auto& prot: unit->get_protein_list(LAGGING)) {
+        for (const auto& prot: unit->protein_list(LAGGING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
           if (not found)
-            gene_trees.emplace_back(get_time(), prot, &mut);
+            gene_trees.emplace_back(time(), prot, &mut);
         }
       }
 
-      if ( check_now && ae_utils::mod(get_time(), backup_step) == 0)
+      if (check_now && ae_utils::mod(time(), backup_step) == 0)
       {
-        if ( verbose )
+        if (verbose)
         {
           printf("Checking the sequence of the unit...");
           fflush(NULL);
         }
 
-        assert(stored_unit != stored_indiv->get_genetic_unit_list().end());
+        assert(stored_unit != stored_indiv->genetic_unit_list().end());
 
-        char * str1 = new char[unit->get_dna()->get_length() + 1];
-        memcpy(str1, unit->get_dna()->get_data(), \
-               unit->get_dna()->get_length()*sizeof(char));
-        str1[unit->get_dna()->get_length()] = '\0';
+        char * str1 = new char[unit->dna()->length() + 1];
+        memcpy(str1, unit->dna()->data(), \
+               unit->dna()->length()*sizeof(char));
+        str1[unit->dna()->length()] = '\0';
 
-        char * str2 = new char[(stored_unit->get_dna())->get_length() + 1];
-        memcpy(str2, (stored_unit->get_dna())->get_data(), (stored_unit->get_dna())->get_length()*sizeof(char));
-        str2[(stored_unit->get_dna())->get_length()] = '\0';
+        char * str2 = new char[(stored_unit->dna())->length() + 1];
+        memcpy(str2, (stored_unit->dna())->data(), (stored_unit->dna())->length()*sizeof(char));
+        str2[(stored_unit->dna())->length()] = '\0';
 
-        if(strncmp(str1,str2, (stored_unit->get_dna())->get_length())==0)
+        if(strncmp(str1,str2, (stored_unit->dna())->length())==0)
         {
-          if ( verbose ) printf(" OK\n");
+          if (verbose) printf(" OK\n");
         }
         else
         {
-          if ( verbose ) printf( " ERROR !\n" );
-          fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one saved at generation %" PRId64 "... ", t0);
-          fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
-          fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
+          if (verbose) printf(" ERROR !\n");
+          fprintf(stderr, "Error: the rebuilt unit is not the same as \n");
+          fprintf(stderr, "the one saved at generation %" PRId64 "... ", t0);
+          fprintf(stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1);
+          fprintf(stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2);
           delete [] str1;
           delete [] str2;
           gzclose(lineage_file);
@@ -506,16 +506,16 @@ int main(int argc, char** argv)
       genetic_unit_number ++;
     }
 
-    assert(unit ==  indiv->get_genetic_unit_list().cend());
+    assert(unit ==  indiv->genetic_unit_list().cend());
 
 
-    if ( verbose ) printf(" OK\n");
+    if (verbose) printf(" OK\n");
 
     delete rep;
 
-    if ( check_now && ae_utils::mod(get_time(), backup_step) == 0 )
+    if (check_now && ae_utils::mod(time(), backup_step) == 0)
     {
-      assert(stored_unit == stored_indiv->get_genetic_unit_list().end());
+      assert(stored_unit == stored_indiv->genetic_unit_list().end());
       delete stored_indiv;
       delete exp_manager_backup;
     }
@@ -606,26 +606,26 @@ void write_gene_trees_to_files(std::list<ae_gene_tree>& gene_trees, int32_t end_
   char directory_name[] = "gene_trees";
 
   // Check whether the directory already exists and is writable
-  if ( access( directory_name, F_OK ) == 0 )
+  if (access(directory_name, F_OK) == 0)
     {
       //       struct stat status;
-      //       stat( directory_name, &status );
-      //       if ( status.st_mode & S_IFDIR ) cout << "The directory exists." << endl;
+      //       stat(directory_name, &status);
+      //       if (status.st_mode & S_IFDIR) cout << "The directory exists." << endl;
       //       else cout << "This path is a file." << endl;
 
-      if ( access( directory_name, X_OK | W_OK) != 0 )
+      if (access(directory_name, X_OK | W_OK) != 0)
         {
           fprintf(stderr, "Error: cannot enter or write in directory %s.\n", directory_name);
-          exit( EXIT_FAILURE );
+          exit(EXIT_FAILURE);
         }
     }
   else
     {
       // Create the directory with permissions : rwx r-x r-x
-      if ( mkdir( directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0 )
+      if (mkdir(directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
         {
           fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
-          exit( EXIT_FAILURE );
+          exit(EXIT_FAILURE);
         }
     }
 
@@ -653,11 +653,11 @@ void write_gene_trees_to_files(std::list<ae_gene_tree>& gene_trees, int32_t end_
 
   for (auto& n: gene_trees) {
       fprintf(tree_statistics_file, "%" PRId32 " ", tree_number);
-      if (n.get_creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
-      else if (n.get_creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
-      else if (n.get_creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
+      if (n.creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
+      else if (n.creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
+      else if (n.creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
       else fprintf(tree_statistics_file, "TRANSFER ");
-      fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", n.get_begin_gener(), n.get_end_gener(), n.get_total_nb_nodes(), n.get_nb_internal_nodes(), n.get_nb_leaves(), n.get_nb_active_leaves());
+      fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", n.begin_gener(), n.end_gener(), n.total_nb_nodes(), n.nb_internal_nodes(), n.nb_leaves(), n.nb_active_leaves());
       sprintf(topol_file_name, "gene_trees/genetree%06" PRId32 "-topology.tre", tree_number);
       sprintf(node_attr_file_name, "gene_trees/genetree%06" PRId32 "-nodeattr.txt", tree_number);
       n.write_to_files(topol_file_name, node_attr_file_name, end_gener);
@@ -678,51 +678,51 @@ void write_gene_trees_to_files(std::list<ae_gene_tree>& gene_trees, int32_t end_
 */
 void print_help(char* prog_path)
 {
-  printf( "\n" );
-  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
-  printf( "*                                                                      * \n" );
-  printf( "*                 Gene families post-treatment program                 * \n" );
-  printf( "*                                                                      * \n" );
-  printf( "************************************************************************ \n" );
-  printf( "\n\n" );
-  printf( "This program is Free Software. No Warranty.\n" );
-  printf( "Copyright (C) 2009  LIRIS.\n" );
-  printf( "\n" );
+  printf("\n");
+  printf("*********************** aevol - Artificial Evolution ******************* \n");
+  printf("*                                                                      * \n");
+  printf("*                 Gene families post-treatment program                 * \n");
+  printf("*                                                                      * \n");
+  printf("************************************************************************ \n");
+  printf("\n\n");
+  printf("This program is Free Software. No Warranty.\n");
+  printf("Copyright (C) 2009  LIRIS.\n");
+  printf("\n");
 #ifdef __REGUL
-  printf( "Usage : rgene_families -h\n");
-  printf( "or :    rgene_families [-vn] -f lineage_file \n" );
+  printf("Usage : rgene_families -h\n");
+  printf("or :    rgene_families [-vn] -f lineage_file \n");
 #else
-  printf( "Usage : gene_families -h\n");
-  printf( "or :    gene_families [-vn] -f lineage_file \n" );
+  printf("Usage : gene_families -h\n");
+  printf("or :    gene_families [-vn] -f lineage_file \n");
 #endif
-  printf( "\n" );
-  printf( "This program traces the evolution of gene families on a lineage.\n" );
-  printf( "of lineage_file\n" );
-  printf( "\n" );
-  printf( "WARNING: This program should not be used for simulations run with several genetic units\n" );
-  printf( "(eg chromosome + plasmids). It works only for simulations with only a single chromosome.\n" );
-  printf( "\n" );
-  printf( "\t-h or --help       : Display this help.\n" );
-  printf( "\n" );
-  printf( "\t-v or --verbose    : Be verbose, listing generations as they are \n" );
-  printf( "\t                       treated.\n" );
-  printf( "\n" );
-  printf( "\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
-  printf( "\t                       program faster, but it is not recommended. \n");
-  printf( "\t                       It is better to let the program check that \n");
-  printf( "\t                       when we rebuild the genomes of the ancestors\n");
-  printf( "\t                       from the lineage file, we get the same sequences\n");
-  printf( "\t                       as those stored in the backup files.\n" );
-  printf( "\n" );
-  printf( "\t-c or --fullcheck  : Will perform the genome and environment checks every\n" );
-  printf( "\t                       <BACKUP_STEP> generations. Default behaviour is\n" );
-  printf( "\t                       lighter as it only perform sthese checks at the\n" );
-  printf( "\t                       ending generation.\n" );
-  printf( "\n" );
-  printf( "\t-f lineage_file or --file lineage_file : \n" );
-  printf( "\t                       Compute the fixed mutations of the individuals within lineage_file.\n" );
-  printf( "\n" );
-  printf( "\t-t tolerance or --tolerance tolerance : \n");
-  printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
-  printf( "\n" );
+  printf("\n");
+  printf("This program traces the evolution of gene families on a lineage.\n");
+  printf("of lineage_file\n");
+  printf("\n");
+  printf("WARNING: This program should not be used for simulations run with several genetic units\n");
+  printf("(eg chromosome + plasmids). It works only for simulations with only a single chromosome.\n");
+  printf("\n");
+  printf("\t-h or --help       : Display this help.\n");
+  printf("\n");
+  printf("\t-v or --verbose    : Be verbose, listing generations as they are \n");
+  printf("\t                       treated.\n");
+  printf("\n");
+  printf("\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
+  printf("\t                       program faster, but it is not recommended. \n");
+  printf("\t                       It is better to let the program check that \n");
+  printf("\t                       when we rebuild the genomes of the ancestors\n");
+  printf("\t                       from the lineage file, we get the same sequences\n");
+  printf("\t                       as those stored in the backup files.\n");
+  printf("\n");
+  printf("\t-c or --fullcheck  : Will perform the genome and environment checks every\n");
+  printf("\t                       <BACKUP_STEP> generations. Default behaviour is\n");
+  printf("\t                       lighter as it only perform sthese checks at the\n");
+  printf("\t                       ending generation.\n");
+  printf("\n");
+  printf("\t-f lineage_file or --file lineage_file : \n");
+  printf("\t                       Compute the fixed mutations of the individuals within lineage_file.\n");
+  printf("\n");
+  printf("\t-t tolerance or --tolerance tolerance : \n");
+  printf("\t                       Tolerance used to compare the replayed environment to environment in backup\n");
+  printf("\n");
 }

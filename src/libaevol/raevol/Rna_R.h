@@ -3,30 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
-#ifndef  __AE_RNA_R_H__
-#define  __AE_RNA_R_H__
+#ifndef  AEVOL_RNA_R_H_
+#define  AEVOL_RNA_R_H_
 
 
 // =================================================================
@@ -65,7 +65,6 @@ class Rna_R : public Rna
     // =================================================================
     //                              Accessors
     // =================================================================
-//    inline  ae_list*  get_influence_list( void );
     inline std::vector<Protein_R*> get_protein_list( void );
     // =================================================================
     //                            Public Methods
@@ -87,12 +86,11 @@ class Rna_R : public Rna
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_rna( void )
+    /*    ae_rna()
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
       };*/
-
 
     // =================================================================
     //                           Protected Methods
@@ -104,23 +102,16 @@ class Rna_R : public Rna
     //                          Protected Attributes
     // =================================================================
 
-
 };
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-/*
-ae_rna_R* ae_rna_R::copy( void )
-{
-  return new ae_rna_R( this );
-}
-*/
+
 
 } // namespace aevol
 
-#endif // __AE_RNA_R_H__
+#endif // AEVOL_RNA_R_H_

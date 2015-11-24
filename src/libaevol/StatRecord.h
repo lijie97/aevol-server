@@ -3,30 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
-#ifndef AEVOL_STAT_RECORD_H__
-#define AEVOL_STAT_RECORD_H__
+#ifndef AEVOL_STAT_RECORD_H_
+#define AEVOL_STAT_RECORD_H_
 
 
 // =================================================================
@@ -106,7 +106,7 @@ class StatRecord
     // =================================================================
     //                             Constructors
     // =================================================================
-    StatRecord(void) = delete;
+    StatRecord() = delete;
     StatRecord(ExpManager * exp_m);
     StatRecord(const StatRecord &model);
     StatRecord(ExpManager * exp_m,
@@ -129,7 +129,7 @@ class StatRecord
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~StatRecord(void);
+    virtual ~StatRecord();
 
     // =================================================================
     //                              Accessors
@@ -138,15 +138,15 @@ class StatRecord
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void initialize_data( void );
-    void write_to_file( FILE* stat_file, stats_type stat_type_to_print ) const;
-    
-    void divide( double divisor );
-    void divide_record( StatRecord const * means, double power );
+    void initialize_data();
+    void write_to_file(FILE* stat_file, stats_type stat_type_to_print) const;
 
-    void add( StatRecord * to_add, int32_t index );
-    void substract_power( StatRecord const * means, StatRecord const * to_substract, double power );
-    
+    void divide(double divisor);
+    void divide_record(StatRecord const * means, double power);
+
+    void add(StatRecord * to_add, int32_t index);
+    void substract_power(StatRecord const * means, StatRecord const * to_substract, double power);
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -163,62 +163,63 @@ class StatRecord
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager * _exp_m;
-    
+    ExpManager * exp_m_;
+
     // NB : All the attributes are doubles because they will be used to
     //      compute averages over the population.
-    indiv_or_pop _record_type;
-    
-    int32_t _pop_size;
+    indiv_or_pop record_type_;
 
-    double  _fitness;
+    int32_t pop_size_;
 
-    double  _metabolic_error;
-    double  _parent_metabolic_error;
-    double  _metabolic_fitness;
+    double  fitness_;
 
-    double  _secretion_error;
-    double  _parent_secretion_error;
-    double  _secretion_fitness;
-  
-    double  _compound_amount;
-    
-    int32_t  _amount_of_dna;
-    int32_t  _nb_coding_rnas;
-    int32_t  _nb_non_coding_rnas;
-    double  _av_size_coding_rnas;      // NOT including promoter but including terminator
-    double  _av_size_non_coding_rnas;  // NOT including promoter but including terminator
-    int32_t  _nb_functional_genes;
-    int32_t  _nb_non_functional_genes;
-    double  _av_size_functional_gene;     // NOT including START and STOP codons
-    double  _av_size_non_functional_gene; // NOT including START and STOP codons
+    double  metabolic_error_;
+    double  parent_metabolic_error_;
+    double  metabolic_fitness_;
 
-    int32_t  _nb_mut;
-    int32_t  _nb_rear;
-    int32_t  _nb_switch;
-    int32_t  _nb_indels;
-    int32_t  _nb_dupl;
-    int32_t  _nb_del;
-    int32_t  _nb_trans;
-    int32_t  _nb_inv;
-    
-    double  _dupl_rate;
-    double  _del_rate;
-    double  _trans_rate;
-    double  _inv_rate;
-    double  _mean_align_score;
-    
-    int32_t  _nb_bases_in_0_CDS;
-    int32_t  _nb_bases_in_0_functional_CDS;
-    int32_t  _nb_bases_in_0_non_functional_CDS;
-    int32_t  _nb_bases_in_0_RNA;
-    int32_t  _nb_bases_in_0_coding_RNA;
-    int32_t  _nb_bases_in_0_non_coding_RNA;
-    
-    int32_t  _nb_bases_non_essential;
-    int32_t  _nb_bases_non_essential_including_nf_genes;
-    
+    double  secretion_error_;
+    double  parent_secretion_error_;
+    double  secretion_fitness_;
+
+    double  compound_amount_;
+
+    int32_t  amount_of_dna_;
+    int32_t  nb_coding_rnas_;
+    int32_t  nb_non_coding_rnas_;
+    double  av_size_coding_rnas_;      // NOT including promoter but including terminator
+    double  av_size_non_coding_rnas_;  // NOT including promoter but including terminator
+    int32_t  nb_functional_genes_;
+    int32_t  nb_non_functional_genes_;
+    double  av_size_functional_gene_;     // NOT including START and STOP codons
+    double  av_size_non_functional_gene_; // NOT including START and STOP codons
+
+    int32_t  nb_mut_;
+    int32_t  nb_rear_;
+    int32_t  nb_switch_;
+    int32_t  nb_indels_;
+    int32_t  nb_dupl_;
+    int32_t  nb_del_;
+    int32_t  nb_trans_;
+    int32_t  nb_inv_;
+
+    double  dupl_rate_;
+    double  del_rate_;
+    double  trans_rate_;
+    double  inv_rate_;
+    double  mean_align_score_;
+
+    int32_t  nb_bases_in_0_CDS_;
+    int32_t  nb_bases_in_0_functional_CDS_;
+    int32_t  nb_bases_in_0_non_functional_CDS_;
+    int32_t  nb_bases_in_0_RNA_;
+    int32_t  nb_bases_in_0_coding_RNA_;
+    int32_t  nb_bases_in_0_non_coding_RNA_;
+
+    int32_t  nb_bases_non_essential_;
+    int32_t  nb_bases_non_essential_including_nf_genes_;
+
     #ifdef __REGUL
+<<<<<<< HEAD
       int32_t  _nb_influences;
       int32_t  _nb_enhancing_influences;
       int32_t  _nb_operating_influences;
@@ -227,6 +228,14 @@ class StatRecord
       double  _av_value_operating_influences;
       double  _nb_TF;
       double  _nb_pure_TF;
+=======
+      int32_t  nb_influences_;
+      int32_t  nb_enhancing_influences_;
+      int32_t  nb_operating_influences_;
+      double  av_value_influences_;
+      double  av_value_enhancing_influences_;
+      double  av_value_operating_influences_;
+>>>>>>> 7555493ee0d1aa6ba92a457044bfed6828b1661f
     #endif
 };
 
@@ -241,4 +250,4 @@ class StatRecord
 
 } // namespace aevol
 
-#endif // AEVOL_STAT_RECORD_H__
+#endif // AEVOL_STAT_RECORD_H_

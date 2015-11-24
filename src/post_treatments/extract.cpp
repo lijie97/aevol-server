@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 
   // If num_gener is not provided, assume last gener
   if (num_gener == -1) {
-    num_gener = OutputManager::get_last_gener();
+    num_gener = OutputManager::last_gener();
   }
 
   if (triangles_file_name == NULL && sequence_file_name == NULL) {
@@ -168,13 +168,13 @@ int main(int argc, char* argv[])
   // Parse the individuals
   if (best_only)
   {
-    Individual* best = exp_manager->get_best_indiv();
+    Individual* best = exp_manager->best_indiv();
     best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
     analyse_indiv(best, triangles_file, sequence_file, gu, best->habitat().phenotypic_target());
   }
   else
   {
-    for (const auto& indiv: exp_manager->get_indivs()) {
+    for (const auto& indiv: exp_manager->indivs()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
       analyse_indiv(indiv, triangles_file, sequence_file, gu, indiv->habitat().phenotypic_target());
     }
@@ -206,15 +206,15 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   if (gu == -1) // We want to treat all genetic units
   {
     int32_t gen_unit_number = 0;
-    for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
+    for (auto& gen_unit: indiv->genetic_unit_list_nonconst()) {
       if (triangles_file != NULL)
       {
         analyse_gu(&gen_unit, gen_unit_number, triangles_file, phenotypicTarget); // We call the triangle parser for each GU successively
       }
       if (sequence_file != NULL)
       {
-        const char* dna = gen_unit.get_dna()->get_data();
-        int32_t length = gen_unit.get_dna()->get_length();
+        const char* dna = gen_unit.dna()->data();
+        int32_t length = gen_unit.dna()->length();
         fprintf(sequence_file,"%.*s ",length,dna); // We output the sequences of each GU separated by a space
       }
 
@@ -223,15 +223,15 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   }
   else // User specified a genetic unit
   {
-    GeneticUnit* gen_unit = &indiv->get_genetic_unit_nonconst(gu);
+    GeneticUnit* gen_unit = &indiv->genetic_unit_nonconst(gu);
     if (triangles_file != NULL)
     {
       analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget); // We call the triangle parser
     }
     if (sequence_file != NULL)
     {
-      const char* dna = gen_unit->get_dna()->get_data();
-      int32_t length = gen_unit->get_dna()->get_length();
+      const char* dna = gen_unit->dna()->data();
+      int32_t length = gen_unit->dna()->length();
       fprintf(sequence_file,"%.*s",length,dna); // We output the sequence
     }
   }
@@ -253,15 +253,15 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
                        const PhenotypicTarget& phenotypicTarget)
 {
   // Construct the list of all rnas
-  auto llrnas = gen_unit->get_rna_list();
+  auto llrnas = gen_unit->rna_list();
   auto lrnas = llrnas[LEADING];
   lrnas.splice(lrnas.end(), llrnas[LAGGING]);
 
   // Parse this list
   int rna_nb = 0;
   for (const auto& rna: lrnas) {
-    for (const auto& protein: rna.get_transcribed_proteins()) {
-      double mean = protein->get_mean();
+    for (const auto& protein: rna.transcribed_proteins()) {
+      double mean = protein->mean();
 
       int nfeat = -1;
 
@@ -276,23 +276,23 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
       fprintf(triangles_file,
               "%" PRId32 " %s %s %" PRId32 " %" PRId32 " %" PRId32
                   " %s %f %f %f %f %d %" PRId32 " %" PRId32 " %f\n",
-              gen_unit->get_indiv()->get_id(),
+              gen_unit->indiv()->id(),
               gen_unit_number != 0 ? "PLASMID" :
               "CHROM  ",
-              protein->get_strand() == LEADING ? "LEADING" :
+              protein->strand() == LEADING ? "LEADING" :
               "LAGGING",
-              protein->get_first_translated_pos(),
-              protein->get_length(),
-              protein->get_last_translated_pos(),
-              dummy = protein->get_AA_sequence('_'),
+              protein->first_translated_pos(),
+              protein->length(),
+              protein->last_translated_pos(),
+              dummy = protein->AA_sequence('_'),
               mean,
-              protein->get_width(),
-              protein->get_height(),
-              protein->get_concentration(),
+              protein->width(),
+              protein->height(),
+              protein->concentration(),
               nfeat,
-              rna.get_promoter_pos(),
-              rna.get_transcript_length(),
-              rna.get_basal_level());
+              rna.promoter_pos(),
+              rna.transcript_length(),
+              rna.basal_level());
       delete dummy;
     }
     rna_nb++;

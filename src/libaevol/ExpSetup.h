@@ -3,32 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 
+#ifndef AEVOL_EXP_SETUP_H_
+#define AEVOL_EXP_SETUP_H_
 
-#ifndef AEVOL_EXP_SETUP_H__
-#define AEVOL_EXP_SETUP_H__
- 
- 
 // =================================================================
 //                              Includes
 // =================================================================
@@ -50,60 +48,61 @@ namespace aevol {
 // ===========================================================================
 class ParamLoader;
 
-
-
-
- 
-class ExpSetup
-{
+class ExpSetup {
   friend class ExpManager;
-  
-  public :
-  
-    // =======================================================================
-    //                             Constructors
-    // =======================================================================
-    ExpSetup() = delete;
-    ExpSetup(const ExpSetup&) = delete;
-    ExpSetup(ExpManager * exp_m);
-  
-  
-    // =======================================================================
-    //                             Destructors
-    // =======================================================================
-    virtual ~ExpSetup( void );
-  
-  
-    // =======================================================================
-    //                         Accessors: getters
-    // =======================================================================
-    // ----------------------------------------------------- Selection context
-    inline Selection * get_sel( void ) const;
-  
-    // --------------------------------------------------------------- Transfer
-    inline bool   get_with_HT( void ) const;
-    inline bool   get_repl_HT_with_close_points ( void ) const;
-    inline double get_HT_ins_rate( void ) const;
-    inline double get_HT_repl_rate( void ) const;
-    inline double get_repl_HT_detach_rate( void ) const;
-    
-    // --------------------------------------------------------------- Plasmids
-    // See comments in ExpManager.h on how plasmids are handled
-    inline bool   get_with_plasmids( void ) const;
-    inline double get_prob_plasmid_HT( void ) const;
-    inline double get_tune_donor_ability( void ) const;
-    inline double get_tune_recipient_ability( void ) const;
-    inline double get_donor_cost( void ) const;
-    inline double get_recipient_cost( void ) const;
-    inline bool   get_swap_GUs( void ) const;
-    
-    // -------------------------------------------------------------- Secretion
-    inline bool   get_with_secretion( void ) const;
-    inline double get_secretion_contrib_to_fitness( void ) const;
-    inline double get_secretion_cost( void ) const;
 
-    inline int    get_fuzzy_flavor( void ) const;
-  
+  public:
+  // =======================================================================
+  //                             Constructors
+  // =======================================================================
+  ExpSetup() = delete;
+  ExpSetup(const ExpSetup&) = delete;
+  ExpSetup(ExpManager* exp_m) :
+    sel_{ new Selection(exp_m) },
+    with_HT_{false},
+    repl_HT_with_close_points_{false},
+    HT_ins_rate_{0.0},
+    HT_repl_rate_{0.0},
+    repl_HT_detach_rate_{0.0},
+    with_plasmids_{false},
+    prob_plasmid_HT_{0.0},
+    tune_donor_ability_{0.0},
+    tune_recipient_ability_{0.0},
+    donor_cost_{0.0},
+    recipient_cost_{0.0},
+    swap_GUs_{false},
+    with_secretion_{false},
+    secretion_contrib_to_fitness_{0.0},
+    secretion_cost_{0.0}
+  {}
+
+  // =======================================================================
+  //                             Destructors
+  // =======================================================================
+  virtual ~ExpSetup() { delete sel_; }
+
+  // =======================================================================
+  //                         Accessors: getters
+  // =======================================================================
+  // ----------------------------------------------------- Selection context
+  Selection * sel() const { return sel_; }
+
+  // --------------------------------------------------------------- Transfer
+  double repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
+
+  // --------------------------------------------------------------- Plasmids
+  // See comments in ExpManager.h on how plasmids are handled
+  bool   with_plasmids() const { return with_plasmids_; }
+  double prob_plasmid_HT() const { return prob_plasmid_HT_; }
+  double tune_donor_ability() const { return tune_donor_ability_; }
+  double tune_recipient_ability() const { return tune_recipient_ability_; }
+  bool   swap_GUs() const { return swap_GUs_; }
+
+  // -------------------------------------------------------------- Secretion
+  bool   with_secretion() const { return with_secretion_; }
+  double secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
+  double secretion_cost() const { return secretion_cost_; }
+
 #ifdef __REGUL
     inline bool   get_with_heredity( void ) const;
     inline double get_degradation_rate( void ) const;
@@ -120,32 +119,31 @@ class ExpSetup
       return _list_eval_step;
     }
 #endif
-    // =======================================================================
-    //                         Accessors: setters
-    // =======================================================================
-    // --------------------------------------------------------------- Transfer
-    inline void set_with_HT( bool with_HT );
-    inline void set_repl_HT_with_close_points( bool repl_HT_with_close_points );
-    inline void set_HT_ins_rate( double HT_ins_rate );
-    inline void set_HT_repl_rate( double HT_repl_rate );
-    inline void set_repl_HT_detach_rate( double repl_HT_detach_rate );
-  
-    // --------------------------------------------------------------- Plasmids
-    inline void set_with_plasmids( bool with_p );
-    //~ inline void set_nb_plasmid_HT( int16_t nb_p_HT );
-    inline void set_prob_plasmid_HT( double prob_p_HT );
-    inline void set_tune_donor_ability( double tune_donor_ability );
-    inline void set_tune_recipient_ability( double tune_recipient_ability );
-    inline void set_donor_cost( double donor_cost );
-    inline void set_recipient_cost( double recipient_cost );
-    inline void set_swap_GUs( bool swap_GUs );
-    
-    // -------------------------------------------------------------- Secretion
-    inline void set_with_secretion( bool with_secretion );
-    inline void set_secretion_contrib_to_fitness( double secretion_contrib );
-    inline void set_secretion_cost( double secretion_cost );
-    inline void set_fuzzy_flavor( int fuzzy_flavor );
-  
+
+  // =======================================================================
+  //                         Accessors: setters
+  // =======================================================================
+  // --------------------------------------------------------------- Transfer
+  void set_with_HT(bool with_HT) { with_HT_ = with_HT; }
+  void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { repl_HT_with_close_points_ = repl_HT_with_close_points; }
+  void set_HT_ins_rate(double HT_ins_rate) { HT_ins_rate_ = HT_ins_rate; }
+  void set_HT_repl_rate(double HT_repl_rate) { HT_repl_rate_ = HT_repl_rate; }
+  void set_repl_HT_detach_rate(double repl_HT_detach_rate) { repl_HT_detach_rate_ = repl_HT_detach_rate; }
+
+  // --------------------------------------------------------------- Plasmids
+  void set_with_plasmids(bool with_p) { with_plasmids_ = with_p; }
+  void set_prob_plasmid_HT(double prob_p_HT) { prob_plasmid_HT_ = prob_p_HT; }
+  void set_tune_donor_ability(double tune_donor_ability) { tune_donor_ability_ = tune_donor_ability; }
+  void set_tune_recipient_ability(double tune_recipient_ability) { tune_recipient_ability_ = tune_recipient_ability; }
+  void set_donor_cost(double donor_cost) { donor_cost_ = donor_cost; }
+  void set_recipient_cost(double recipient_cost) { recipient_cost_ = recipient_cost; }
+  void set_swap_GUs(bool swap_GUs) { swap_GUs_ = swap_GUs; }
+
+  // -------------------------------------------------------------- Secretion
+  void set_with_secretion(bool with_secretion) { with_secretion_ = with_secretion; }
+  void set_secretion_contrib_to_fitness(double secretion_contrib) { secretion_contrib_to_fitness_ = secretion_contrib; }
+  void set_secretion_cost(double secretion_cost) { secretion_cost_ = secretion_cost; }
+
 #ifdef __REGUL
     inline void set_with_heredity( bool with_heredity );
     inline void set_degradation_rate( double degradation_rate );
@@ -161,17 +159,15 @@ class ExpSetup
 
     inline void set_list_eval_step(std::set<int> list_eval_step);
 #endif
-    // =======================================================================
-    //                            Public Methods
-    // =======================================================================
-    void write_setup_file( gzFile exp_setup_file ) const;
-    void write_setup_file( FILE* exp_setup_file ) const;
-    void save( gzFile backup_file ) const;
-    void load( gzFile setup_file, gzFile backup_file, bool verbose );
-    void load( FILE*  setup_file, gzFile backup_file, bool verbose );
-    
-    inline void step_to_next_generation( void );
-    
+
+  // =======================================================================
+  //                            Public Methods
+  // =======================================================================
+  void write_setup_file(gzFile exp_setup_file) const;
+  void save(gzFile backup_file) const;
+  void load(gzFile setup_file, gzFile backup_file, bool verbose);
+  /// Make the individuals reproduce
+  void step_to_next_generation() { sel_->step_to_next_generation(); }
 #ifdef __REGUL
     // Regulation
     void     init_binding_matrix( bool random_binding_matrix, double binding_zeros_percentage,
@@ -185,50 +181,45 @@ class ExpSetup
 
     double get_binding_matrix( int row, int column ) const;
 #endif
-    // =======================================================================
-    //                           Public Attributes
-    // =======================================================================
-  
-  
-  
-  
-  protected :
-    // =======================================================================
-    //                           Protected Methods
-    // =======================================================================
-    virtual void display() {};
-  
-    // =======================================================================
-    //                          Protected Attributes
-    // =======================================================================
-    ExpManager* _exp_m;
-      
-    // ----------------------------------------------------- Selection context
-    Selection* _sel;
-    
-    // --------------------------------------------------- Transfer parameters
-    bool    _with_HT;
-    bool    _repl_HT_with_close_points;
-    double  _HT_ins_rate;
-    double  _HT_repl_rate;
-    double  _repl_HT_detach_rate;
-  
-    // --------------------------------------------------- Plasmids parameters
-    bool    _with_plasmids;
-    double  _prob_plasmid_HT; // Base transfer ability independent of evolvable donor and recipient ability
-    double  _tune_donor_ability; // How much the individuals can tune their ability to send plasmids
-    double  _tune_recipient_ability; // How much the individuals can tune their ability to receive plasmids
-    double  _donor_cost;
-    double  _recipient_cost;
-    bool    _swap_GUs; // Whether plasmid HT is uni- or bidirectional
-    
-    // -------------------------------------------------- Secretion parameters
-    bool    _with_secretion;
-    double  _secretion_contrib_to_fitness;
-    double  _secretion_cost;
 
-    int     _fuzzy_flavor;
+  // =======================================================================
+  //                           Public Attributes
+  // =======================================================================
 
+ protected :
+  // =======================================================================
+  //                           Protected Methods
+  // =======================================================================
+  virtual void display() {};
+
+  // =======================================================================
+  //                          Protected Attributes
+  // =======================================================================
+  ExpManager* exp_m_;
+
+  // ----------------------------------------------------- Selection context
+  Selection* sel_;
+
+  // --------------------------------------------------- Transfer parameters
+  bool   with_HT_;
+  bool   repl_HT_with_close_points_;
+  double HT_ins_rate_;
+  double HT_repl_rate_;
+  double repl_HT_detach_rate_;
+
+  // --------------------------------------------------- Plasmids parameters
+  bool   with_plasmids_;
+  double prob_plasmid_HT_; // Base transfer ability independent of evolvable donor and recipient ability
+  double tune_donor_ability_; // How much the individuals can tune their ability to send plasmids
+  double tune_recipient_ability_; // How much the individuals can tune their ability to receive plasmids
+  double donor_cost_;
+  double recipient_cost_;
+  bool   swap_GUs_; // Whether plasmid HT is uni- or bidirectional
+
+  // -------------------------------------------------- Secretion parameters
+  bool   with_secretion_;
+  double secretion_contrib_to_fitness_;
+  double secretion_cost_;
 #ifdef __REGUL
     // Binding matrix
     double  _binding_matrix[MAX_QUADON][MAX_CODON];
@@ -248,91 +239,13 @@ class ExpSetup
 
     std::set<int>* _list_eval_step;
 #endif
+
 };
 
 
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline Selection *ExpSetup::get_sel( void ) const
-{
-  return _sel;
-}
-
-inline bool ExpSetup::get_with_HT( void ) const
-{
-  return _with_HT;
-}
-
-inline bool ExpSetup::get_repl_HT_with_close_points( void ) const
-{
-  return _repl_HT_with_close_points;
-}
-
-inline double ExpSetup::get_HT_ins_rate( void ) const
-{
-  return _HT_ins_rate;
-}
-
-inline double ExpSetup::get_HT_repl_rate( void ) const
-{
-  return _HT_repl_rate;
-}
-
-inline double ExpSetup::get_repl_HT_detach_rate( void ) const
-{
-  return _repl_HT_detach_rate;
-}
-
-inline bool ExpSetup::get_with_plasmids( void ) const
-{
-  return _with_plasmids;
-}
-
-inline double ExpSetup::get_prob_plasmid_HT( void ) const
-{
-  return _prob_plasmid_HT;
-}
-
-inline double ExpSetup::get_tune_donor_ability( void ) const
-{
-  return _tune_donor_ability;
-}
-
-inline double ExpSetup::get_tune_recipient_ability( void ) const
-{
-  return _tune_recipient_ability;
-}
-
-inline double ExpSetup::get_donor_cost( void ) const
-{
-  return _donor_cost;
-}
-
-inline double ExpSetup::get_recipient_cost( void ) const
-{
-  return _recipient_cost;
-}
-
-inline bool   ExpSetup::get_swap_GUs( void ) const
-{
-  return _swap_GUs;
-}
-
-inline bool ExpSetup::get_with_secretion( void ) const
-{
-  return _with_secretion;
-}
-
-inline double ExpSetup::get_secretion_contrib_to_fitness( void ) const
-{
-  return _secretion_contrib_to_fitness;
-}
-
-inline double ExpSetup::get_secretion_cost( void ) const
-{
-  return _secretion_cost;
-}
 
 inline int ExpSetup::get_fuzzy_flavor( void ) const
 {
@@ -526,13 +439,8 @@ inline void ExpSetup::set_list_eval_step( std::set<int> list_eval_step )
 #endif
 
 // =====================================================================
-//                       Inline functions' definition
+//                       functions' definition
 // =====================================================================
-inline void ExpSetup::step_to_next_generation( void )
-{ 
-  // Make the individuals reproduce
-  _sel->step_to_next_generation();
-}
 
 #ifdef __REGUL
 inline double ExpSetup::get_binding_matrix( int row, int column ) const
@@ -543,4 +451,4 @@ inline double ExpSetup::get_binding_matrix( int row, int column ) const
 
 } // namespace aevol
 
-#endif // AEVOL_EXP_SETUP_H__
+#endif // AEVOL_EXP_SETUP_H_

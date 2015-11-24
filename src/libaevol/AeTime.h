@@ -3,46 +3,40 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
-#ifndef AEVOL_TIME_H__
-#define AEVOL_TIME_H__
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
-#include <inttypes.h>
-
+#ifndef AEVOL_TIME_H_
+#define AEVOL_TIME_H_
 
 
 // =================================================================
-//                            Project Files
+//                              Includes
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+
 
 namespace aevol {
 
@@ -55,34 +49,33 @@ namespace aevol {
 
 
 /**
- * The time value represents the step that is currently being computed
+ * The time_ value represents the step that is currently being computed
  *
- * e.g. when creating generation 1 from generation 0, time == 1
+ * e.g. when creating generation 1 from generation 0, time_ == 1
  */
-class AeTime
-{
+class AeTime {
  public :
   // =================================================================
   //                             Constructors
   // =================================================================
-  AeTime(void) = delete; //< Default ctor
+  AeTime() = delete; //< Default ctor
   AeTime(const AeTime &) = delete; //< Copy ctor
   AeTime(AeTime &&) = delete; //< Move ctor
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~AeTime(void) = delete;
+  virtual ~AeTime() = delete;
 
   // =================================================================
   //                        Accessors: getters
   // =================================================================
-  static inline int64_t get_time(void) { return time; };
+  static inline int64_t time() {return time_;}
 
   // =================================================================
   //                        Accessors: setters
   // =================================================================
-  static inline void set_time(int64_t t) { time = t; };
+  static inline void set_time(int64_t t) { time_ = t;}
 
   // =================================================================
   //                              Operators
@@ -91,7 +84,7 @@ class AeTime
   // =================================================================
   //                            Public Methods
   // =================================================================
-  static inline void plusplus(void) { time++; };
+  static inline void plusplus() { time_++;}
 
   // =================================================================
   //                           Public Attributes
@@ -109,7 +102,7 @@ class AeTime
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  static int64_t time;
+  static int64_t time_;
 };
 
 
@@ -129,8 +122,8 @@ class AeTime
 //                       Inline functions' definition
 // =====================================================================
 
-int64_t get_time(void);
+int64_t time();
 
 } // namespace aevol
 
-#endif // AEVOL_TIME_H__
+#endif // AEVOL_TIME_H_

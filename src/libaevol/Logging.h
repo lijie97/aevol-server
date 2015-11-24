@@ -3,30 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 
 
-#ifndef AEVOL_LOGS_H__
-#define AEVOL_LOGS_H__
+#ifndef AEVOL_LOGS_H_
+#define AEVOL_LOGS_H_
 
 
 // =================================================================
@@ -61,19 +61,19 @@ class Logging
     // =================================================================
     //                             Constructors
     // =================================================================
-    Logging( void );
+    Logging();
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Logging( void );
+    virtual ~Logging();
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline FILE* get_log( LogType log_type )   const;
-    inline int8_t get_logs() const;
-    inline bool  is_logged( LogType log_type ) const;
+    inline FILE* log(LogType log_type)   const;
+    inline int8_t logs() const;
+    inline bool  is_logged(LogType log_type) const;
 
     // =================================================================
     //                              Operators
@@ -82,12 +82,12 @@ class Logging
     // =================================================================
     //                            Public Methods
     // =================================================================
-    //void save( gzFile backup_file ) const;
-    void load( int8_t logs, int32_t num_gener  );
-    void print_to_file( FILE* file ) const;
-    
-    void set_logs( int8_t logs );
-    void flush( void );
+    //void save(gzFile backup_file) const;
+    void load(int8_t logs, int32_t num_gener);
+    void print_to_file(FILE* file) const;
+
+    void set_logs(int8_t logs);
+    void flush();
 
     // =================================================================
     //                           Public Attributes
@@ -102,94 +102,94 @@ class Logging
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    Logging( void )
+    /*    Logging()
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-    Logging( const Logging &model )
+    Logging(const Logging &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };*/
 
 
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void write_headers( void ) const;
+    void write_headers() const;
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    int8_t  _logs; // Which logs are "turned on" (bitmap)
-    FILE*   _transfer_log;
-    FILE*   _rear_log;
-    FILE*   _barrier_log;
-    //FILE*   _param_modification_log;
+    int8_t  logs_; // Which logs are "turned on" (bitmap)
+    FILE*   transfer_log_;
+    FILE*   rear_log_;
+    FILE*   barrier_log_;
+    //FILE*   param_modification_log_;
 };
 
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline FILE*Logging::get_log( LogType log_type ) const
+inline FILE*Logging::log(LogType log_type) const
 {
-  switch ( log_type )
+  switch (log_type)
   {
     case LOG_TRANSFER :
     {
-      return _transfer_log;
+      return transfer_log_;
     }
     case LOG_REAR :
     {
-      return _rear_log;
+      return rear_log_;
     }
     case LOG_BARRIER :
     {
-      return _barrier_log;
+      return barrier_log_;
     }
     /*case LOG_LOADS :
     {
-      return _param_modification_log;
+      return param_modification_log_;
     }*/
     default:
     {
-      printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     }
   }
 }
 
-inline int8_t Logging::get_logs() const
+inline int8_t Logging::logs() const
 {
-  return _logs;
+  return logs_;
 }
 
-inline bool Logging::is_logged( LogType log_type ) const
+inline bool Logging::is_logged(LogType log_type) const
 {
-  switch ( log_type )
+  switch (log_type)
   {
     case LOG_TRANSFER :
     {
-      return ( _logs & LOG_TRANSFER );
+      return (logs_ & LOG_TRANSFER);
     }
     case LOG_REAR :
     {
-      return ( _logs & LOG_REAR );
+      return (logs_ & LOG_REAR);
     }
     case LOG_BARRIER :
     {
-      return ( _logs & LOG_BARRIER );
+      return (logs_ & LOG_BARRIER);
     }
     /*case LOG_LOADS :
     {
-      return ( _logs & LOG_LOADS );
+      return (logs_ & LOG_LOADS);
     }*/
     default:
     {
-      printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     }
   }
 }
@@ -204,4 +204,4 @@ inline bool Logging::is_logged( LogType log_type ) const
 
 } // namespace aevol
 
-#endif // AEVOL_LOGS_H__
+#endif // AEVOL_LOGS_H_

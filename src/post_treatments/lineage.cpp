@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 // =================================================================
 //                              Libraries
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 
   // Set undefined command line parameters to default values
   if (t_end == -1) {
-    // Set t_end to the content of the LAST_GENER file if it exists.
+    // Set t_end_ to the content of the LAST_GENER file if it exists.
     // If it doesn't, print help and exit
     FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
     if (lg_file != NULL) {
@@ -164,12 +164,12 @@ int main(int argc, char** argv)
   exp_manager->load(t_end, true, false);
 
   // Check that the tree was recorded
-  if (not exp_manager->get_record_tree()) {
+  if (not exp_manager->record_tree()) {
     Utils::ExitWithUsrMsg("The phylogenetic tree wasn't recorded during "
                               "evolution, could not reconstruct the lineage");
   }
 
-  int64_t tree_step = exp_manager->get_tree_step();
+  int64_t tree_step = exp_manager->tree_step();
 
   //delete exp_manager;
 
@@ -208,7 +208,7 @@ int main(int argc, char** argv)
   }
 
 
-  // Example for ae_common::rec_params->get_tree_step() == 100 :
+  // Example for ae_common::rec_params->tree_step() == 100 :
   //
   // tree_000100.ae ==>  generations   1 to 100.
   // tree_000200.ae ==>  generations 101 to 200.
@@ -216,11 +216,11 @@ int main(int argc, char** argv)
   // etc.
   //
   // Thus, the information for generation end_gener are located
-  // in the file called (end_gener/ae_common::rec_params->get_tree_step() + 1) * ae_common::rec_params->get_tree_step(),
-  // except if end_gener%ae_common::rec_params->get_tree_step()==0.
+  // in the file called (end_gener/ae_common::rec_params->tree_step() + 1) * ae_common::rec_params->tree_step(),
+  // except if end_gener%ae_common::rec_params->tree_step()==0.
 
   #ifdef __REGUL
-    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end);
+    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end_);
   #else
     sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t_end);
   #endif
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
   {
     // The index was directly provided, get the replication report and update the indices and ranks tables
     reports[t_end - t0 - 1] =
-        new ReplicationReport(*(tree->get_report_by_index(t_end,
+        new ReplicationReport(*(tree->report_by_index(t_end,
                                                           final_indiv_index)));
     final_indiv_rank = reports[t_end - t0 - 1]->rank();
 
@@ -254,11 +254,11 @@ int main(int argc, char** argv)
       // No index nor rank was given in the command line.
       // By default, we construct the lineage of the best individual, the rank of which
       // is simply the number of individuals in the population.
-      final_indiv_rank = exp_manager->get_nb_indivs();
+      final_indiv_rank = exp_manager->nb_indivs();
     }
 
-    // Retrieve the replication report of the individual of interest (at t_end)
-    reports[t_end - t0 - 1] = new ReplicationReport(*(tree->get_report_by_rank(t_end, final_indiv_rank)));
+    // Retrieve the replication report of the individual of interest (at t_end_)
+    reports[t_end - t0 - 1] = new ReplicationReport(*(tree->report_by_rank(t_end, final_indiv_rank)));
     final_indiv_index = reports[t_end - t0 - 1]->id();
 
     indices[t_end - t0]  = final_indiv_index;
@@ -276,7 +276,7 @@ int main(int argc, char** argv)
   #ifdef __REGUL
     snprintf(output_file_name, 100,
         "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".rae",
-        t0, t_end, final_indiv_index, final_indiv_rank);
+        t0, t_end_, final_indiv_index, final_indiv_rank);
   #else
     snprintf(output_file_name, 100,
         "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".ae",
@@ -308,7 +308,7 @@ int main(int argc, char** argv)
 
 
   // Retrieve the index of the first ancestor from the last replication report
-  indices[t_end - t0 -1] = reports[t_end - t0 - 1]->get_parent_id();
+  indices[t_end - t0 -1] = reports[t_end - t0 - 1]->parent_id();
 
   // For each generation (going backwards), retrieve the index of the parent and
   // the corresponding replication report
@@ -337,10 +337,10 @@ int main(int argc, char** argv)
     }
 
     // Copy the replication report of the ancestor
-    reports[i] = new ReplicationReport(*(tree->get_report_by_index(t, indices[i + 1])));
+    reports[i] = new ReplicationReport(*(tree->report_by_index(t, indices[i + 1])));
 
     // Retreive the index and rank of the next ancestor from the report
-    indices[i] = reports[i]->get_parent_id();
+    indices[i] = reports[i]->parent_id();
   }
   delete exp_manager;
 
@@ -366,14 +366,14 @@ int main(int argc, char** argv)
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  const Individual* const initial_ancestor = exp_manager->get_indiv_by_id(indices[0]);
+  const Individual* const initial_ancestor = exp_manager->indiv_by_id(indices[0]);
 
   gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzwrite(lineage_file, &final_indiv_rank, sizeof(final_indiv_rank));
 
-  initial_ancestor->get_grid_cell()->save(lineage_file);
+  initial_ancestor->grid_cell()->save(lineage_file);
 
 
   if (verbose)
@@ -416,7 +416,7 @@ int main(int argc, char** argv)
 
     // Do we need to check the genome now?
     check_genome_now = ((check_genome == FULL_CHECK &&
-        Utils::mod(t, exp_manager->get_backup_step()) == 0) ||
+        Utils::mod(t, exp_manager->backup_step()) == 0) ||
         (check_genome == LIGHT_CHECK && t == t_end));
 
     // Write the replication report of the ancestor for current generation
@@ -436,8 +436,8 @@ int main(int argc, char** argv)
       exp_manager_backup->load(t, true, false);
 
       // Copy the ancestor from the backup
-      stored_indiv = exp_manager_backup->get_indiv_by_id(indices[i+1]);
-      stored_gen_unit = stored_indiv->get_genetic_unit_list().cbegin();
+      stored_indiv = exp_manager_backup->indiv_by_id(indices[i + 1]);
+      stored_gen_unit = stored_indiv->genetic_unit_list().cbegin();
     }
 
 
@@ -446,15 +446,15 @@ int main(int argc, char** argv)
 
     // Replay the mutations stored in the current replication report on the
     // current genome
-    unit = initial_ancestor->get_genetic_unit_list().cbegin();
-    for (const auto& mut: reports[i]->dna_replic_report().get_HT()) {
-      (unit->get_dna())->undergo_this_mutation(*mut);
+    unit = initial_ancestor->genetic_unit_list().cbegin();
+    for (const auto& mut: reports[i]->dna_replic_report().HT()) {
+      (unit->dna())->undergo_this_mutation(*mut);
     }
-    for (const auto& mut: reports[i]->dna_replic_report().get_rearrangements()) {
-      (unit->get_dna())->undergo_this_mutation(*mut);
+    for (const auto& mut: reports[i]->dna_replic_report().rearrangements()) {
+      (unit->dna())->undergo_this_mutation(*mut);
     }
-    for (const auto& mut: reports[i]->dna_replic_report().get_mutations()) {
-      unit->get_dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: reports[i]->dna_replic_report().mutations()) {
+      unit->dna()->undergo_this_mutation(*mut);
     }
 
     if (check_genome_now)
@@ -464,17 +464,19 @@ int main(int argc, char** argv)
         printf("Checking the sequence of the unit...");
         fflush(stdout);
       }
-      assert(stored_gen_unit != stored_indiv->get_genetic_unit_list().cend());
+      assert(stored_gen_unit != stored_indiv->genetic_unit_list().cend());
 
-      char * str1 = new char[unit->get_dna()->get_length() + 1];
-      memcpy(str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char));
-      str1[unit->get_dna()->get_length()] = '\0';
+      char * str1 = new char[unit->dna()->length() + 1];
+      memcpy(str1, unit->dna()->data(),
+             unit->dna()->length() * sizeof(char));
+      str1[unit->dna()->length()] = '\0';
 
-      char * str2 = new char[stored_gen_unit->get_dna()->get_length() + 1];
-      memcpy(str2, stored_gen_unit->get_dna()->get_data(), stored_gen_unit->get_dna()->get_length() * sizeof(char));
-      str2[stored_gen_unit->get_dna()->get_length()] = '\0';
+      char * str2 = new char[stored_gen_unit->dna()->length() + 1];
+      memcpy(str2, stored_gen_unit->dna()->data(),
+             stored_gen_unit->dna()->length() * sizeof(char));
+      str2[stored_gen_unit->dna()->length()] = '\0';
 
-      if (strncmp(str1, str2, stored_gen_unit->get_dna()->get_length()) == 0)
+      if (strncmp(str1, str2, stored_gen_unit->dna()->length()) == 0)
       {
         if (verbose) printf(" OK\n");
       }
@@ -489,7 +491,7 @@ int main(int argc, char** argv)
                 (int32_t)strlen(str2), str2);
         delete [] str1;
         delete [] str2;
-        gzclose( lineage_file );
+        gzclose(lineage_file);
         delete exp_manager_backup;
         delete exp_manager;
         delete [] reports;
@@ -504,10 +506,10 @@ int main(int argc, char** argv)
     }
     ++unit;
 
-    assert(unit == initial_ancestor->get_genetic_unit_list().cend());
+    assert(unit == initial_ancestor->genetic_unit_list().cend());
     if (check_genome_now)
     {
-      assert(stored_gen_unit == stored_indiv->get_genetic_unit_list().cend());
+      assert(stored_gen_unit == stored_indiv->genetic_unit_list().cend());
       delete exp_manager_backup;
     }
   }

@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_MUTATION_H__
-#define AEVOL_MUTATION_H__
+#ifndef AEVOL_MUTATION_H_
+#define AEVOL_MUTATION_H_
 
 
 // =================================================================
@@ -110,12 +110,12 @@ class Mutation {
   // =================================================================
   virtual void save(gzFile backup_file) const = 0;
   virtual void load(gzFile backup_file) = 0;
-  virtual void get_generic_description_string(char* str) const = 0;
+  virtual void generic_description_string(char* str) const = 0;
 
   // =================================================================
   //                        Accessors: Getters
   // =================================================================
-  virtual MutationType get_mut_type() const = 0;
+  virtual MutationType mut_type() const = 0;
   virtual bool is_local_mut() const { return false; };
   virtual bool is_rear() const { return false; };
   virtual bool is_ht() const { return false; };
@@ -143,4 +143,4 @@ class Mutation {
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_MUTATION_H__
+#endif // AEVOL_MUTATION_H_

@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 //
 // MersenneTwister.h
@@ -43,7 +43,7 @@
 
 // Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
 // Copyright (C) 2000 - 2003, Richard J. Wagner
-// All rights reserved.                          
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -56,8 +56,8 @@
 //      notice, this list of conditions and the following disclaimer in the
 //      documentation and/or other materials provided with the distribution.
 //
-//   3. The names of its contributors may not be used to endorse or promote 
-//      products derived from this software without specific prior written 
+//   3. The names of its contributors may not be used to endorse or promote
+//      products derived from this software without specific prior written
 //      permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -81,8 +81,8 @@
 // when you write.
 
 
-#ifndef AEVOL_MERSENNE_TWISTER_H__
-#define AEVOL_MERSENNE_TWISTER_H__
+#ifndef AEVOL_MERSENNE_TWISTER_H_
+#define AEVOL_MERSENNE_TWISTER_H_
 
 
 #include <inttypes.h>
@@ -116,7 +116,7 @@ class MersenneTwister
 
   protected:
     enum { M = 397 };  // period parameter
-    
+
     uint32_t state[N];   // internal state
     uint32_t *pNext;     // next value to get from state
     int16_t  left;       // number of values left before reload needed
@@ -125,56 +125,56 @@ class MersenneTwister
   //Methods
   public:
     // Constructors
-    MersenneTwister( const uint32_t& oneSeed );  // initialize with a simple uint32_t
-    MersenneTwister( gzFile backup_file );      // Load from a gz backup file
-    MersenneTwister( const MersenneTwister & model );
-  
+    MersenneTwister(const uint32_t& oneSeed);  // initialize with a simple uint32_t
+    MersenneTwister(gzFile backup_file);      // Load from a gz backup file
+    MersenneTwister(const MersenneTwister & model);
+
     // Destructors
-    virtual ~MersenneTwister( void );
-    
+    virtual ~MersenneTwister();
+
     // Main generator
-    inline uint32_t rand_next( void ); // Draw a 32-bit-long integer in [0, 2e32[
-  
+    inline uint32_t rand_next(); // Draw a 32-bit-long integer in [0, 2e32[
+
     // AEvol wrappers
-    inline double   random( void );         // Double in [0, 1[ (uniform distribution)
-    inline int8_t   random( int8_t max );   // ~
-    inline int16_t  random( int16_t max );  // ~ > Integer in [0, max[ (uniform distribution)
-    inline int32_t  random( int32_t max );  // ~
-    int32_t         binomial_random( int32_t nb, double prob ); // Binomial drawing of parameters (nb, prob)
-    double          gaussian_random( void );
-    void            multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t colors );
-    void            multinomial_roulette( int32_t* destination, double* source, int32_t nb_drawings, int32_t colors );
-    // Multinomial drawing of parameters ( nb, {source[0], source[1], ... source[colors-1]} )
+    inline double   random();         // Double in [0, 1[ (uniform distribution)
+    inline int8_t   random(int8_t max);   // ~
+    inline int16_t  random(int16_t max);  // ~ > Integer in [0, max[ (uniform distribution)
+    inline int32_t  random(int32_t max);  // ~
+    int32_t         binomial_random(int32_t nb, double prob); // Binomial drawing of parameters (nb, prob)
+    double          gaussian_random();
+    void            multinomial_drawing(int32_t* destination, double* source, int32_t nb_drawings, int32_t colors);
+    void            multinomial_roulette(int32_t* destination, double* source, int32_t nb_drawings, int32_t colors);
+    // Multinomial drawing of parameters (nb, {source[0], source[1], ... source[colors-1]})
     // WARNING : The roulette implementation as it is, is 40 times slower that the other implementation
-  
-    //~ inline int32_t   norm_geometric_random( double p, int32_t max_nb_trials );
-  
-    
+
+    //~ inline int32_t   norm_geometric_random(double p, int32_t max_nb_trials);
+
+
     // Re-seeding functions with same behavior as initializers
-    inline void seed( const uint32_t oneSeed );
-    
+    inline void seed(const uint32_t oneSeed);
+
     // Saving and loading generator state
-    inline void save( uint32_t* saveArray ) const;  // to array of size SAVE
-    inline void load( uint32_t *const loadArray );  // from such array
-    inline void write_to_backup( gzFile backup_file ) const;
+    inline void save(uint32_t* saveArray) const;  // to array of size SAVE
+    inline void load(uint32_t *const loadArray);  // from such array
+    inline void write_to_backup(gzFile backup_file) const;
 
   protected:
-    MersenneTwister( void )
+    MersenneTwister()
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-    inline void initialize( const uint32_t oneSeed );
+    inline void initialize(const uint32_t oneSeed);
     inline void reload();
-    inline uint32_t hiBit( const uint32_t& u ) const { return u & 0x80000000UL; }
-    inline uint32_t loBit( const uint32_t& u ) const { return u & 0x00000001UL; }
-    inline uint32_t loBits( const uint32_t& u ) const { return u & 0x7fffffffUL; }
-    inline uint32_t mixBits( const uint32_t& u, const uint32_t& v ) const
+    inline uint32_t hiBit(const uint32_t& u) const { return u & 0x80000000UL; }
+    inline uint32_t loBit(const uint32_t& u) const { return u & 0x00000001UL; }
+    inline uint32_t loBits(const uint32_t& u) const { return u & 0x7fffffffUL; }
+    inline uint32_t mixBits(const uint32_t& u, const uint32_t& v) const
       { return hiBit(u) | loBits(v); }
-    inline uint32_t twist( const uint32_t& m, const uint32_t& s0, const uint32_t& s1 ) const
+    inline uint32_t twist(const uint32_t& m, const uint32_t& s0, const uint32_t& s1) const
       { return m ^ (mixBits(s0,s1)>>1) ^ (-loBit(s1) & 0x9908b0dfUL); }
-    static inline uint32_t hash( time_t t, clock_t c );
-    double gammln( double X );
+    static inline uint32_t hash(time_t t, clock_t c);
+    double gammln(double X);
 };
 
 
@@ -183,46 +183,46 @@ inline uint32_t MersenneTwister::rand_next()
 {
   // Pull a 32-bit integer from the generator state
   // Every other access function simply transforms the numbers extracted here
-  
-  if( left == 0 ) reload();
+
+  if(left == 0) reload();
   --left;
-    
+
   register uint32_t s1;
   s1 = *pNext++;
   s1 ^= (s1 >> 11);
   s1 ^= (s1 <<  7) & 0x9d2c5680UL;
   s1 ^= (s1 << 15) & 0xefc60000UL;
-  return ( s1 ^ (s1 >> 18) );
+  return (s1 ^ (s1 >> 18));
 }
 
-inline double MersenneTwister::random( void )  // Double in [0, 1) (uniform distribution)
+inline double MersenneTwister::random()  // Double in [0, 1) (uniform distribution)
 {
   return ((double)rand_next()) / MT_RAND_MAX_PLUS_1;
 }
 
-inline int8_t MersenneTwister::random( int8_t max ) // Integer in [0, max[ (uniform distribution)
+inline int8_t MersenneTwister::random(int8_t max) // Integer in [0, max[ (uniform distribution)
 {
-  return (int8_t)( ((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1) );
+  return (int8_t)(((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1));
 }
 
-inline int16_t MersenneTwister::random( int16_t max ) // Integer in [0, max[ (uniform distribution)
+inline int16_t MersenneTwister::random(int16_t max) // Integer in [0, max[ (uniform distribution)
 {
-  return (int16_t)( ((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1) );
+  return (int16_t)(((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1));
 }
 
-inline int32_t MersenneTwister::random( int32_t max ) // Integer in [0, max[ (uniform distribution)
+inline int32_t MersenneTwister::random(int32_t max) // Integer in [0, max[ (uniform distribution)
 {
-  return (int32_t)( ((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1) );
+  return (int32_t)(((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1));
 }
 
-inline void MersenneTwister::seed( const uint32_t oneSeed )
+inline void MersenneTwister::seed(const uint32_t oneSeed)
 {
   // Seed the generator with a simple uint32_t
-  initialize( oneSeed );
+  initialize(oneSeed);
   reload();
 }
 
-inline void MersenneTwister::initialize( const uint32_t seed )
+inline void MersenneTwister::initialize(const uint32_t seed)
 {
   // Initialize generator state with seed
   // See Knuth TAOCP Vol 2, 3rd Ed, p.106 for multiplier.
@@ -232,9 +232,9 @@ inline void MersenneTwister::initialize( const uint32_t seed )
   register uint32_t *r = state;
   register int16_t  i  = 1;
   *s++ = seed & 0xffffffffUL;
-  for( ; i < N; ++i )
+  for(; i < N; ++i)
   {
-    *s++ = ( 1812433253UL * ( *r ^ (*r >> 30) ) + i ) & 0xffffffffUL;
+    *s++ = (1812433253UL * (*r ^ (*r >> 30)) + i) & 0xffffffffUL;
     r++;
   }
 }
@@ -246,17 +246,17 @@ void MersenneTwister::reload()
   // Made clearer and faster by Matthew Bellew (matthew.bellew@home.com)
   register uint32_t *p = state;
   register int16_t i;
-  for( i = N - M; i--; ++p )
-    *p = twist( p[M], p[0], p[1] );
-  for( i = M; --i; ++p )
-    *p = twist( p[M-N], p[0], p[1] );
-  *p = twist( p[M-N], p[0], state[0] );
+  for(i = N - M; i--; ++p)
+    *p = twist(p[M], p[0], p[1]);
+  for(i = M; --i; ++p)
+    *p = twist(p[M-N], p[0], p[1]);
+  *p = twist(p[M-N], p[0], state[0]);
 
   left = N, pNext = state;
 }
 
 
-uint32_t MersenneTwister::hash( time_t t, clock_t c )
+uint32_t MersenneTwister::hash(time_t t, clock_t c)
 {
   // Get a uint32_t from t and c
   // Better than uint32_t(x) in case x is floating point in [0,1]
@@ -266,48 +266,48 @@ uint32_t MersenneTwister::hash( time_t t, clock_t c )
 
   uint32_t h1 = 0;
   unsigned char *p = (unsigned char *) &t;
-  for( size_t i = 0; i < sizeof(t); ++i )
+  for(size_t i = 0; i < sizeof(t); ++i)
   {
     h1 *= UCHAR_MAX + 2U;
     h1 += p[i];
   }
   uint32_t h2 = 0;
   p = (unsigned char *) &c;
-  for( size_t j = 0; j < sizeof(c); ++j )
+  for(size_t j = 0; j < sizeof(c); ++j)
   {
     h2 *= UCHAR_MAX + 2U;
     h2 += p[j];
   }
-  return ( h1 + differ++ ) ^ h2;
+  return (h1 + differ++) ^ h2;
 }
 
 
-void MersenneTwister::save( uint32_t* saveArray ) const
+void MersenneTwister::save(uint32_t* saveArray) const
 {
   register uint32_t *sa = saveArray;
   register const uint32_t *s = state;
   register int16_t i = N;
-  for( ; i--; *sa++ = *s++ ) {}
+  for(; i--; *sa++ = *s++) {}
   *sa = left;
 }
 
 
-void MersenneTwister::load( uint32_t *const loadArray )
+void MersenneTwister::load(uint32_t *const loadArray)
 {
   register uint32_t *s = state;
   register uint32_t *la = loadArray;
   register int16_t i = N;
-  for( ; i--; *s++ = *la++ ) {}
+  for(; i--; *s++ = *la++) {}
   left = *la;
   pNext = &state[N-left];
 }
 
-void MersenneTwister::write_to_backup( gzFile backup_file ) const
+void MersenneTwister::write_to_backup(gzFile backup_file) const
 {
   uint32_t saveArray[SAVE];
-  save( saveArray );
-  gzwrite( backup_file, saveArray, SAVE * sizeof( saveArray[0] ) );
+  save(saveArray);
+  gzwrite(backup_file, saveArray, SAVE * sizeof(saveArray[0]));
 }
 } // namespace aevol
-  
+
 #endif

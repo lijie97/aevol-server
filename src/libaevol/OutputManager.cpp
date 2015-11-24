@@ -3,26 +3,26 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
 
@@ -63,138 +63,137 @@ namespace aevol {
 // =================================================================
 OutputManager::OutputManager(ExpManager * exp_m)
 {
-  _exp_m  = exp_m;
-  _stats  = nullptr;
-  _tree   = nullptr;
-  _dump   = nullptr;
-  _compute_phen_contrib_by_GU = false;
-  _record_tree = false;
-  _make_dumps = false;
-  _dump_step = 0;
-  _logs  = new Logging();
+  exp_m_  = exp_m;
+  stats_  = nullptr;
+  tree_   = nullptr;
+  dump_   = nullptr;
+  compute_phen_contrib_by_GU_ = false;
+  record_tree_ = false;
+  make_dumps_ = false;
+  dump_step_ = 0;
+  logs_  = new Logging();
 }
 
 // =================================================================
 //                             Destructors
 // =================================================================
-OutputManager::~OutputManager( void )
+OutputManager::~OutputManager()
 {
-  delete _stats;
-  delete _tree;
-  delete _dump;
-  delete _logs;
+  delete stats_;
+  delete tree_;
+  delete dump_;
+  delete logs_;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
 void OutputManager::InitStats() {
-  _stats = new Stats(_exp_m);
+  stats_ = new Stats(exp_m_);
 }
 
 void OutputManager::WriteSetupFile(gzFile setup_file) const
 {
   // Write the backup steps
-  gzwrite( setup_file, &_backup_step,      sizeof(_backup_step) );
-  gzwrite( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
-  
+  gzwrite(setup_file, &backup_step_,      sizeof(backup_step_));
+  gzwrite(setup_file, &big_backup_step_,  sizeof(big_backup_step_));
+
   // Stats
-  gzwrite( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
-  
+  gzwrite(setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_));
+
   // Tree
-  int8_t record_tree = _record_tree;
-  gzwrite( setup_file, &record_tree, sizeof(record_tree) );
-  if ( _record_tree )
+  int8_t record_tree = record_tree_;
+  gzwrite(setup_file, &record_tree, sizeof(record_tree));
+  if (record_tree_)
   {
-    auto tmp_tree_step = _tree->get_tree_step();
-    gzwrite( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
+    auto tmp_tree_step = tree_->tree_step();
+    gzwrite(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
   }
-  
+
   // Dumps
-  int8_t make_dumps = _make_dumps;
-  gzwrite( setup_file, &make_dumps,  sizeof(make_dumps) );
-  gzwrite( setup_file, &_dump_step,  sizeof(_dump_step) );
-  
+  int8_t make_dumps = make_dumps_;
+  gzwrite(setup_file, &make_dumps,  sizeof(make_dumps));
+  gzwrite(setup_file, &dump_step_,  sizeof(dump_step_));
+
   // Logs
-  int8_t logs = _logs->get_logs();
-  gzwrite( setup_file, &logs,  sizeof(logs) );
+  int8_t logs = logs_->logs();
+  gzwrite(setup_file, &logs,  sizeof(logs));
 }
 
 void OutputManager::CopyStats(const std::string& outdir, int64_t time) const {
-  _stats->CreateTmpFiles(time);
-  _stats->MoveTmpFiles(outdir);
+  stats_->CreateTmpFiles(time);
+  stats_->MoveTmpFiles(outdir);
 }
 
 void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
 {
   // Write the backup steps
-  gzread( setup_file, &_backup_step,      sizeof(_backup_step) );
-  gzread( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
-  
+  gzread(setup_file, &backup_step_,      sizeof(backup_step_));
+  gzread(setup_file, &big_backup_step_,  sizeof(big_backup_step_));
+
   // Stats
   if (to_be_run)
   {
-    delete _stats;
-    _stats = new Stats(_exp_m, AeTime::get_time());
+    delete stats_;
+    stats_ = new Stats(exp_m_, AeTime::time());
   }
-  gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
-  
+  gzread(setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_));
+
   // Tree
   int8_t record_tree;
-  gzread( setup_file, &record_tree, sizeof(record_tree) );
-  _record_tree = record_tree;
-  if ( _record_tree )
+  gzread(setup_file, &record_tree, sizeof(record_tree));
+  record_tree_ = record_tree;
+  if (record_tree_)
   {
     int32_t tmp_tree_step;
-    gzread( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
-    
-    _tree = new Tree( _exp_m, tmp_tree_step );
+    gzread(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
+
+    tree_ = new Tree(exp_m_, tmp_tree_step);
   }
-  
+
   // Dumps
   int8_t make_dumps;
-  gzread( setup_file, &make_dumps, sizeof(make_dumps) );
-  _make_dumps = make_dumps;
-  gzread( setup_file, &_dump_step,  sizeof(_dump_step) );
-  if( _make_dumps == true)
+  gzread(setup_file, &make_dumps, sizeof(make_dumps));
+  make_dumps_ = make_dumps;
+  gzread(setup_file, &dump_step_,  sizeof(dump_step_));
+  if(make_dumps_ == true)
   {
-    _dump = new Dump(_exp_m);
+    dump_ = new Dump(exp_m_);
   }
-  
+
   // Logs
   int8_t logs;
   gzread(setup_file, &logs, sizeof(logs));
   if (to_be_run)
   {
-    _logs->load(logs, AeTime::get_time());
+    logs_->load(logs, AeTime::time());
   }
 }
 
-
-void OutputManager::write_current_generation_outputs( void ) const
+void OutputManager::write_current_generation_outputs() const
 {
   // Write stats
-  _stats->write_current_generation_statistics();
+  stats_->write_current_generation_statistics();
 
   // Manage tree
-  if (_record_tree &&
-      AeTime::get_time() > 0 &&
-      (AeTime::get_time() % _tree->get_tree_step() == 0)) {
+  if (record_tree_ &&
+      AeTime::time() > 0 &&
+      (AeTime::time() % tree_->tree_step() == 0)) {
     write_tree();
   }
 
   // Write backup
-  if (AeTime::get_time() % _backup_step == 0) {
-    _stats->flush();
-    _exp_m->WriteDynamicFiles();
+  if (AeTime::time() % backup_step_ == 0) {
+    stats_->flush();
+    exp_m_->WriteDynamicFiles();
 
     WriteLastGenerFile();
   }
 
   // Write dumps
-  if (_make_dumps) {
-    if(AeTime::get_time() % _dump_step == 0) {
-      _dump->write_current_generation_dump();
+  if (make_dumps_) {
+    if(AeTime::time() % dump_step_ == 0) {
+      dump_->write_current_generation_dump();
     }
   }
 }
@@ -207,13 +206,13 @@ void OutputManager::WriteLastGenerFile(const string& output_dir) const {
     Utils::ExitWithUsrMsg(string("could not open file ") + LAST_GENER_FNAME);
   }
   else {
-    last_gener_file << AeTime::get_time() << endl;
+    last_gener_file << AeTime::time() << endl;
     last_gener_file.close();
   }
 }
 
 // TODO <david.parsons@inria.fr> we need an input_dir attribute in this class !
-int64_t OutputManager::get_last_gener() {
+int64_t OutputManager::last_gener() {
   int64_t time;
   FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
   if (lg_file != NULL) {
@@ -229,27 +228,26 @@ int64_t OutputManager::get_last_gener() {
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void OutputManager::write_tree( void ) const
+void OutputManager::write_tree() const
 {
   // Create the tree directory if it doesn't exist
   int status;
-  status = mkdir( TREE_DIR, 0755 );
-  if ( (status == -1) && (errno != EEXIST) )
+  status = mkdir(TREE_DIR, 0755);
+  if ((status == -1) && (errno != EEXIST))
   {
-    err( EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR );
+    err(EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR);
   }
-  
+
   char tree_file_name[50];
 
   sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::get_time());
 
   
   gzFile tree_file = gzopen( tree_file_name, "w" );
-  
   // Write phylogenetic data (tree)
-  _tree->write_to_tree_file( tree_file );
-  
-  gzclose( tree_file );
+  tree_->write_to_tree_file(tree_file);
+
+  gzclose(tree_file);
 }
 
 // =================================================================

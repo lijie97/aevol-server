@@ -3,26 +3,26 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
 
@@ -62,99 +62,99 @@ ReplicationReport::ReplicationReport(Individual* indiv,
                                      const Individual* parent,
                                      Individual* donor /*= NULL*/)
 {
-  _indiv = indiv;
+  indiv_ = indiv;
 
-  _id   = indiv->get_id();
-  _rank = indiv->get_rank();
-  
-  _parent_id = parent->get_id();
-  // _donor_id is set further down
-    
-  _genome_size        = 0;
-  _metabolic_error    = 0.0;
-  _nb_genes_activ     = 0;
-  _nb_genes_inhib     = 0;
-  _nb_non_fun_genes   = 0;
-  _nb_coding_RNAs     = 0;
-  _nb_non_coding_RNAs = 0;
-  
-  _parent_metabolic_error = parent->get_dist_to_target_by_feature(METABOLISM);
-  _parent_secretion_error = parent->get_dist_to_target_by_feature(SECRETION);
-  _parent_genome_size     = parent->get_total_genome_size();
-  _mean_align_score       = 0.0;
-  
+  id_   = indiv->id();
+  rank_ = indiv->rank();
+
+  parent_id_ = parent->id();
+  // donor_id_ is set further down
+
+  genome_size_        = 0;
+  metabolic_error_    = 0.0;
+  nb_genes_activ_     = 0;
+  nb_genes_inhib_     = 0;
+  nb_non_fun_genes_   = 0;
+  nb_coding_RNAs_     = 0;
+  nb_non_coding_RNAs_ = 0;
+
+  parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
+  parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
+  parent_genome_size_     = parent->total_genome_size();
+  mean_align_score_       = 0.0;
+
   if (donor == NULL)
   {
-    _donor_id               = -1;
-    _donor_metabolic_error  = 0.0;
-    _donor_secretion_error	= 0.0;
-    _donor_genome_size      = 0;
+    donor_id_               = -1;
+    donor_metabolic_error_  = 0.0;
+    donor_secretion_error_	= 0.0;
+    donor_genome_size_      = 0;
   }
   else
   {
-    _donor_id              = donor->get_id();
-    _donor_metabolic_error = donor->get_dist_to_target_by_feature(METABOLISM);
-    _donor_secretion_error = donor->get_dist_to_target_by_feature(SECRETION);
-    _donor_genome_size     = donor->get_total_genome_size();
+    donor_id_              = donor->id();
+    donor_metabolic_error_ = donor->dist_to_target_by_feature(METABOLISM);
+    donor_secretion_error_ = donor->dist_to_target_by_feature(SECRETION);
+    donor_genome_size_     = donor->total_genome_size();
   }
 }
 
 
 // Creates an independent copy of the original report
 ReplicationReport::ReplicationReport(const ReplicationReport& other) :
-    _dna_replic_report(other._dna_replic_report)
+    dna_replic_report_(other.dna_replic_report_)
 {
-  _parent_id  = other._parent_id;
-  _donor_id   = other._donor_id;
+  parent_id_  = other.parent_id_;
+  donor_id_   = other.donor_id_;
 
-  _id   = other._id;
-  _rank = other._rank;
+  id_   = other.id_;
+  rank_ = other.rank_;
 
-  _genome_size        = other._genome_size;
-  _metabolic_error    = other._metabolic_error;
-  _nb_genes_activ     = other._nb_genes_activ;
-  _nb_genes_inhib     = other._nb_genes_inhib;
-  _nb_non_fun_genes   = other._nb_non_fun_genes;
-  _nb_coding_RNAs     = other._nb_coding_RNAs;
-  _nb_non_coding_RNAs = other._nb_non_coding_RNAs;
+  genome_size_        = other.genome_size_;
+  metabolic_error_    = other.metabolic_error_;
+  nb_genes_activ_     = other.nb_genes_activ_;
+  nb_genes_inhib_     = other.nb_genes_inhib_;
+  nb_non_fun_genes_   = other.nb_non_fun_genes_;
+  nb_coding_RNAs_     = other.nb_coding_RNAs_;
+  nb_non_coding_RNAs_ = other.nb_non_coding_RNAs_;
 
-  _parent_metabolic_error = other._parent_metabolic_error;
-  _parent_secretion_error = other._parent_secretion_error;
-  _donor_metabolic_error  = other._donor_metabolic_error;
-  _donor_secretion_error  = other._donor_secretion_error;
-  _parent_genome_size     = other._parent_genome_size;
-  _donor_genome_size      = other._donor_genome_size;
-  _mean_align_score       = other._mean_align_score;
+  parent_metabolic_error_ = other.parent_metabolic_error_;
+  parent_secretion_error_ = other.parent_secretion_error_;
+  donor_metabolic_error_  = other.donor_metabolic_error_;
+  donor_secretion_error_  = other.donor_secretion_error_;
+  parent_genome_size_     = other.parent_genome_size_;
+  donor_genome_size_      = other.donor_genome_size_;
+  mean_align_score_       = other.mean_align_score_;
 }
 
 
 ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
 {
-  _indiv = indiv;
-    
-  gzread(tree_file, &_id,        sizeof(_id)        );
-  gzread(tree_file, &_rank,      sizeof(_rank)      );
-  gzread(tree_file, &_parent_id, sizeof(_parent_id) );
-  gzread(tree_file, &_donor_id,  sizeof(_donor_id)  );
-  
-  gzread(tree_file, &_genome_size,         sizeof(_genome_size));
-  gzread(tree_file, &_metabolic_error,     sizeof(_metabolic_error));
-  gzread(tree_file, &_nb_genes_activ,      sizeof(_nb_genes_activ));
-  gzread(tree_file, &_nb_genes_inhib,      sizeof(_nb_genes_inhib));
-  gzread(tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes));
-  gzread(tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs));
-  gzread(tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs));
+  indiv_ = indiv;
 
-  _dna_replic_report.read_from_tree_file(tree_file);
+  gzread(tree_file, &id_,        sizeof(id_));
+  gzread(tree_file, &rank_,      sizeof(rank_));
+  gzread(tree_file, &parent_id_, sizeof(parent_id_));
+  gzread(tree_file, &donor_id_,  sizeof(donor_id_));
 
-  _dna_replic_report.compute_stats();
-  
-  _parent_metabolic_error = -1;
-  _parent_secretion_error = -1;
-  _donor_metabolic_error  = -1;
-  _parent_genome_size     = -1;
-  _donor_genome_size      = -1;
-  _mean_align_score       = 0.0;
+  gzread(tree_file, &genome_size_,         sizeof(genome_size_));
+  gzread(tree_file, &metabolic_error_,     sizeof(metabolic_error_));
+  gzread(tree_file, &nb_genes_activ_,      sizeof(nb_genes_activ_));
+  gzread(tree_file, &nb_genes_inhib_,      sizeof(nb_genes_inhib_));
+  gzread(tree_file, &nb_non_fun_genes_,    sizeof(nb_non_fun_genes_));
+  gzread(tree_file, &nb_coding_RNAs_,      sizeof(nb_coding_RNAs_));
+  gzread(tree_file, &nb_non_coding_RNAs_,  sizeof(nb_non_coding_RNAs_));
+
+  dna_replic_report_.read_from_tree_file(tree_file);
+
+  dna_replic_report_.compute_stats();
+
+  parent_metabolic_error_ = -1;
+  parent_secretion_error_ = -1;
+  donor_metabolic_error_  = -1;
+  parent_genome_size_     = -1;
+  donor_genome_size_      = -1;
+  mean_align_score_       = 0.0;
 }
 
 
@@ -174,27 +174,27 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
  */
 void ReplicationReport::init(Individual* offspring, Individual* parent)
 {
-  _indiv = offspring;
+  indiv_ = offspring;
 
-  _id = _indiv->get_id();
-  _parent_id = parent->get_id();
+  id_ = indiv_->id();
+  parent_id_ = parent->id();
 
-  _genome_size        = 0;
-  _metabolic_error    = 0.0;
-  _nb_genes_activ     = 0;
-  _nb_genes_inhib     = 0;
-  _nb_non_fun_genes   = 0;
-  _nb_coding_RNAs     = 0;
-  _nb_non_coding_RNAs = 0;
+  genome_size_        = 0;
+  metabolic_error_    = 0.0;
+  nb_genes_activ_     = 0;
+  nb_genes_inhib_     = 0;
+  nb_non_fun_genes_   = 0;
+  nb_coding_RNAs_     = 0;
+  nb_non_coding_RNAs_ = 0;
 
-  _parent_metabolic_error = parent->get_dist_to_target_by_feature(METABOLISM);
-  _parent_secretion_error = parent->get_dist_to_target_by_feature(SECRETION);
-  _parent_genome_size     = parent->get_total_genome_size();
-  _mean_align_score       = 0.0;
+  parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
+  parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
+  parent_genome_size_     = parent->total_genome_size();
+  mean_align_score_       = 0.0;
 
-  // Set ourselves an observer of _indiv's MUTATION and END_REPLICATION
-  _indiv->addObserver(this, MUTATION);
-  _indiv->addObserver(this, END_REPLICATION);
+  // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
+  indiv_->addObserver(this, MUTATION);
+  indiv_->addObserver(this, END_REPLICATION);
 }
 
 /**
@@ -203,16 +203,16 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
  */
 void ReplicationReport::signal_end_of_replication(Individual* indiv) {
   // TODO <david.parsons@inria.fr> tmp patch
-  if (_indiv == NULL) _indiv = indiv;
+  if (indiv_ == NULL) indiv_ = indiv;
 
   // Retrieve data from the individual
-  _genome_size        = _indiv->get_total_genome_size();
-  _metabolic_error    = _indiv->get_dist_to_target_by_feature(METABOLISM);
-  _nb_genes_activ     = _indiv->get_nb_genes_activ();
-  _nb_genes_inhib     = _indiv->get_nb_genes_inhib();
-  _nb_non_fun_genes   = _indiv->get_nb_functional_genes();
-  _nb_coding_RNAs     = _indiv->get_nb_coding_RNAs();
-  _nb_non_coding_RNAs = _indiv->get_nb_non_coding_RNAs();
+  genome_size_        = indiv_->total_genome_size();
+  metabolic_error_    = indiv_->dist_to_target_by_feature(METABOLISM);
+  nb_genes_activ_     = indiv_->nb_genes_activ();
+  nb_genes_inhib_     = indiv_->nb_genes_inhib();
+  nb_non_fun_genes_   = indiv_->nb_functional_genes();
+  nb_coding_RNAs_     = indiv_->nb_coding_RNAs();
+  nb_non_coding_RNAs_ = indiv_->nb_non_coding_RNAs();
 }
 
 /**
@@ -220,27 +220,27 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
  * Actions such as update the individuals' ranks can be done here.
  */
 void ReplicationReport::signal_end_of_generation() {
-  _rank = _indiv->get_rank();
+  rank_ = indiv_->rank();
 }
 
 void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
-  gzwrite(tree_file, &_id,         sizeof(_id)        );
-  assert(_rank != -1);
-  gzwrite(tree_file, &_rank,       sizeof(_rank)      );
-  gzwrite(tree_file, &_parent_id,  sizeof(_parent_id) );
-  gzwrite(tree_file, &_donor_id,   sizeof(_donor_id)  );
-  
-  gzwrite(tree_file, &_genome_size,         sizeof(_genome_size));
-  gzwrite(tree_file, &_metabolic_error,     sizeof(_metabolic_error));
-  gzwrite(tree_file, &_nb_genes_activ,      sizeof(_nb_genes_activ));
-  gzwrite(tree_file, &_nb_genes_inhib,      sizeof(_nb_genes_inhib));
-  gzwrite(tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes));
-  gzwrite(tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs));
-  gzwrite(tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs));
+  gzwrite(tree_file, &id_,         sizeof(id_));
+  assert(rank_ != -1);
+  gzwrite(tree_file, &rank_,       sizeof(rank_));
+  gzwrite(tree_file, &parent_id_,  sizeof(parent_id_));
+  gzwrite(tree_file, &donor_id_,   sizeof(donor_id_));
 
-  _dna_replic_report.write_to_tree_file(tree_file);
+  gzwrite(tree_file, &genome_size_,         sizeof(genome_size_));
+  gzwrite(tree_file, &metabolic_error_,     sizeof(metabolic_error_));
+  gzwrite(tree_file, &nb_genes_activ_,      sizeof(nb_genes_activ_));
+  gzwrite(tree_file, &nb_genes_inhib_,      sizeof(nb_genes_inhib_));
+  gzwrite(tree_file, &nb_non_fun_genes_,    sizeof(nb_non_fun_genes_));
+  gzwrite(tree_file, &nb_coding_RNAs_,      sizeof(nb_coding_RNAs_));
+  gzwrite(tree_file, &nb_non_coding_RNAs_,  sizeof(nb_non_coding_RNAs_));
+
+  dna_replic_report_.write_to_tree_file(tree_file);
 }
 
 
@@ -261,7 +261,7 @@ void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
       signal_end_of_replication(dynamic_cast<Individual*>(&o));
       break;
     case MUTATION :
-      _dna_replic_report.add_mut(reinterpret_cast<Mutation*>(arg));
+      dna_replic_report_.add_mut(reinterpret_cast<Mutation*>(arg));
       break;
     default :
       Utils::ExitWithDevMsg("Event not handled", __FILE__, __LINE__);

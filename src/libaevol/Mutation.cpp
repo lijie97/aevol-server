@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -97,6 +97,7 @@ Mutation* Mutation::Load(gzFile backup_file) {
       break;
     default :
       Utils::ExitWithDevMsg("invalid mutation type ", __FILE__, __LINE__);
+      exit(-1); // Superfluous but suppresses a warning
   }
 
   // Load from backup file
@@ -109,134 +110,134 @@ Mutation* Mutation::Load(gzFile backup_file) {
 
 //Mutation::Mutation(gzFile backup_file)
 //{
-//  _pos = NULL;
-//  _length = NULL;
-//  _seq = NULL;
-//  _align_score = NULL;
+//  pos_ = NULL;
+//  length_ = NULL;
+//  seq_ = NULL;
+//  align_score_ = NULL;
 //
 //  int8_t tmp_mut_type;
 //  gzread(backup_file, &tmp_mut_type,  sizeof(tmp_mut_type));
-//  _mut_type = (MutationType) tmp_mut_type;
-//  //~ printf("mut type %d\n", _mut_type);
+//  mut_type_ = (MutationType) tmp_mut_type;
+//  //~ printf("mut type %d\n", mut_type_);
 //
-//  switch (_mut_type)
+//  switch (mut_type_)
 //  {
 //    case SWITCH :
 //    {
-//      _pos = new int32_t;
-//      gzread(backup_file, _pos,  sizeof(*_pos));
+//      pos_ = new int32_t;
+//      gzread(backup_file, pos_,  sizeof(*pos_));
 //      break;
 //    }
 //    case S_INS :
 //    {
-//      _pos = new int32_t;
-//      gzread(backup_file, _pos,      sizeof(*_pos));
-//      _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
+//      pos_ = new int32_t;
+//      gzread(backup_file, pos_,      sizeof(*pos_));
+//      length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
 //
-//      _seq = new char[_length[0] + 1];
-//      gzread(backup_file, _seq,  _length[0] * sizeof(_seq[0]));
-//      _seq[_length[0]] = '\0';
+//      seq_ = new char[length_[0] + 1];
+//      gzread(backup_file, seq_,  length_[0] * sizeof(seq_[0]));
+//      seq_[length_[0]] = '\0';
 //      break;
 //    }
 //    case S_DEL :
 //    {
-//      _pos = new int32_t;
-//      gzread(backup_file, _pos,      sizeof(*_pos));
-//      _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
+//      pos_ = new int32_t;
+//      gzread(backup_file, pos_,      sizeof(*pos_));
+//      length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
 //      break;
 //    }
 //    case DUPL :
 //    {
-//      _pos = new int32_t[3];
-//      gzread(backup_file, _pos,  3 * sizeof(_pos[0]));
-//      _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
-//      _align_score = new int16_t;
-//      gzread(backup_file, _align_score, sizeof(*_align_score));
+//      pos_ = new int32_t[3];
+//      gzread(backup_file, pos_,  3 * sizeof(pos_[0]));
+//      length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
+//      align_score_ = new int16_t;
+//      gzread(backup_file, align_score_, sizeof(*align_score_));
 //
 //      break;
 //    }
 //    case DEL :
 //    {
-//      _pos = new int32_t[2];
-//      gzread(backup_file, _pos,  2 * sizeof(_pos[0]));
-//      _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
-//      _align_score = new int16_t;
-//      gzread(backup_file, _align_score, sizeof(*_align_score));
+//      pos_ = new int32_t[2];
+//      gzread(backup_file, pos_,  2 * sizeof(pos_[0]));
+//      length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
+//      align_score_ = new int16_t;
+//      gzread(backup_file, align_score_, sizeof(*align_score_));
 //
 //      break;
 //    }
 //    case TRANS :
 //    {
-//      _pos = new int32_t[4];
-//      gzread(backup_file, _pos,  4 * sizeof(_pos[0]));
+//      pos_ = new int32_t[4];
+//      gzread(backup_file, pos_,  4 * sizeof(pos_[0]));
 //      int8_t tmp_invert;
 //      gzread(backup_file, &tmp_invert,  sizeof(tmp_invert));
-//      _invert = (tmp_invert != 0);
-//      _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
-//      _align_score = new int16_t[2];
-//      gzread(backup_file, _align_score, 2 * sizeof(_align_score[0]));
+//      invert_ = (tmp_invert != 0);
+//      length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
+//      align_score_ = new int16_t[2];
+//      gzread(backup_file, align_score_, 2 * sizeof(align_score_[0]));
 //
 //      break;
 //    }
 //    case INV :
 //    {
-//      _pos = new int32_t[2];
-//      gzread(backup_file, _pos,  2 * sizeof(_pos[0]));
-//      _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
-//      _align_score = new int16_t;
-//      gzread(backup_file, _align_score, sizeof(*_align_score));
+//      pos_ = new int32_t[2];
+//      gzread(backup_file, pos_,  2 * sizeof(pos_[0]));
+//      length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
+//      align_score_ = new int16_t;
+//      gzread(backup_file, align_score_, sizeof(*align_score_));
 //
 //      break;
 //    }
 //    case INSERT:
 //    {
-//      _pos = new int32_t;
-//      gzread(backup_file, _pos,  sizeof(*_pos));
-//     _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
-//      _seq = new char[_length[0] + 1];
-//      gzread(backup_file, _seq,  _length[0] * sizeof(_seq[0]));
-//      _seq[_length[0]] = '\0';
+//      pos_ = new int32_t;
+//      gzread(backup_file, pos_,  sizeof(*pos_));
+//     length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
+//      seq_ = new char[length_[0] + 1];
+//      gzread(backup_file, seq_,  length_[0] * sizeof(seq_[0]));
+//      seq_[length_[0]] = '\0';
 //    }
 //    case INS_HT:
 //    {
-//      _pos = new int32_t[4];
-//      gzread(backup_file, _pos,  4 * sizeof(_pos[0]));
-//      _length = new int32_t;
-//      gzread(backup_file, _length,  sizeof(*_length));
-//      _seq = new char[_length[0] + 1];
-//      gzread(backup_file, _seq,  _length[0] * sizeof(_seq[0]));
-//      _seq[_length[0]] = '\0';
-//      _align_score = new int16_t[2];
-//      gzread(backup_file, _align_score, 2 * sizeof(_align_score[0]));
-//      gzread(backup_file, &_donor_id,  sizeof(_donor_id));
-//      gzread(backup_file, &_sense,  sizeof(_sense));
+//      pos_ = new int32_t[4];
+//      gzread(backup_file, pos_,  4 * sizeof(pos_[0]));
+//      length_ = new int32_t;
+//      gzread(backup_file, length_,  sizeof(*length_));
+//      seq_ = new char[length_[0] + 1];
+//      gzread(backup_file, seq_,  length_[0] * sizeof(seq_[0]));
+//      seq_[length_[0]] = '\0';
+//      align_score_ = new int16_t[2];
+//      gzread(backup_file, align_score_, 2 * sizeof(align_score_[0]));
+//      gzread(backup_file, &donor_id_,  sizeof(donor_id_));
+//      gzread(backup_file, &sense_,  sizeof(sense_));
 //      break;
 //    }
 //    case REPL_HT:
 //    {
-//      _pos = new int32_t[4];
-//      gzread(backup_file, _pos,  4 * sizeof(_pos[0]));
-//      _length = new int32_t[2];
-//      gzread(backup_file, _length, 2 *sizeof(_length[0]));
-//      _seq = new char[_length[1] + 1];
-//      gzread(backup_file, _seq,  _length[1] * sizeof(_seq[0]));
-//      _seq[_length[1]] = '\0';
-//      _align_score = new int16_t[2];
-//      gzread(backup_file, _align_score, 2 * sizeof(_align_score[0]));
-//      gzread(backup_file, &_donor_id,  sizeof(_donor_id));
-//      gzread(backup_file, &_sense,  sizeof(_sense));
+//      pos_ = new int32_t[4];
+//      gzread(backup_file, pos_,  4 * sizeof(pos_[0]));
+//      length_ = new int32_t[2];
+//      gzread(backup_file, length_, 2 *sizeof(length_[0]));
+//      seq_ = new char[length_[1] + 1];
+//      gzread(backup_file, seq_,  length_[1] * sizeof(seq_[0]));
+//      seq_[length_[1]] = '\0';
+//      align_score_ = new int16_t[2];
+//      gzread(backup_file, align_score_, 2 * sizeof(align_score_[0]));
+//      gzread(backup_file, &donor_id_,  sizeof(donor_id_));
+//      gzread(backup_file, &sense_,  sizeof(sense_));
 //      break;
 //    }
 //    default :
 //    {
-//      fprintf(stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__);
+//      fprintf(stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", mut_type_, __FILE__, __LINE__);
 //      exit(EXIT_FAILURE);
 //      break;
 //    }

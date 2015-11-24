@@ -3,40 +3,34 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
-
-
-
+//
+// ****************************************************************************
 
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <stdio.h>
 #include <zlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <set>
-
-
 
 // =================================================================
 //                            Project Files
@@ -45,6 +39,7 @@
 #include "JumpingMT.h"
 
 
+#include "GzHelpers.h"
 
 namespace aevol {
 //##############################################################################
@@ -110,56 +105,41 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 // ===========================================================================
 //                                 Destructor
 // ===========================================================================
-ExpSetup::~ExpSetup( void )
-{
-  delete _sel;
-}
 
-// ===========================================================================
-//                                 Public Methods
-// ===========================================================================
 /*!
 */
-void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
-{
+void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT = _with_HT;
-  gzwrite( exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  int8_t tmp_repl_HT_with_close_points = _repl_HT_with_close_points;
-  gzwrite( exp_setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points) );
-  if ( _with_HT )
-  {
-    gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
-  }
-  if(_repl_HT_with_close_points)
-  {
-    gzwrite( exp_setup_file, &_repl_HT_detach_rate,  sizeof(_repl_HT_detach_rate) );
-  }
-  
-  // --------------------------------------------------------------- Plasmids
-  int8_t tmp_with_plasmids = get_with_plasmids();
-  gzwrite( exp_setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
-  if ( tmp_with_plasmids )
-  {
-    gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    gzwrite( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
-    gzwrite( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
-    gzwrite( exp_setup_file, &_donor_cost,  sizeof(_donor_cost) );
-    gzwrite( exp_setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
-    int8_t tmp_swap_GUs = _swap_GUs;
-    gzwrite( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-  }
-  
-  // -------------------------------------------------------------- Secretion
-  int8_t tmp_with_secretion = _with_secretion;
-  gzwrite( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-  gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  
-  get_sel()->write_setup_file( exp_setup_file );
+  gzwrite(exp_setup_file,
+          static_cast<int8_t>(with_HT_),
+          static_cast<int8_t>(repl_HT_with_close_points_));
+  if (with_HT_)
+    gzwrite(exp_setup_file,
+            HT_ins_rate_,
+            HT_repl_rate_);
+  if(repl_HT_with_close_points_)
+    gzwrite(exp_setup_file,
+            repl_HT_detach_rate_);
 
-  gzwrite( exp_setup_file, &_fuzzy_flavor, sizeof(_fuzzy_flavor) );
+  // --------------------------------------------------------------- Plasmids
+  int8_t tmp_with_plasmids = with_plasmids();
+  gzwrite(exp_setup_file, tmp_with_plasmids);
+  if (tmp_with_plasmids)
+    gzwrite(exp_setup_file,
+            prob_plasmid_HT_,
+            tune_donor_ability_,
+            tune_recipient_ability_,
+            donor_cost_,
+            recipient_cost_,
+            static_cast<int8_t>(swap_GUs_));
+
+  // -------------------------------------------------------------- Secretion
+  gzwrite(exp_setup_file,
+          static_cast<int8_t>(with_secretion_),
+          secretion_contrib_to_fitness_,
+          secretion_cost_);
+
+  sel()->write_setup_file(exp_setup_file);
 
 #ifdef __REGUL
   gzwrite( exp_setup_file, &_hill_shape,  sizeof(_hill_shape) );
@@ -203,64 +183,51 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
 
 }
 
-void ExpSetup::write_setup_file( FILE* exp_setup_file ) const
-{
-  // --------------------------------------------------------------- Transfer
-  //...
-  
-  // -------------------------------------------------------------- Secretion
-  //...
-  
-  get_sel()->write_setup_file( exp_setup_file );
-}
-
-void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
-{
+void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
-  gzread( setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  _with_HT = tmp_with_HT ? 1 : 0;
   int8_t tmp_repl_HT_with_close_points;
-  gzread( setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points) );
-  _repl_HT_with_close_points = tmp_repl_HT_with_close_points ? 1 : 0;
-  if ( _with_HT )
+  gzread(setup_file,
+         tmp_with_HT,
+         tmp_repl_HT_with_close_points);
+  with_HT_ = static_cast<bool>(tmp_with_HT);
+  repl_HT_with_close_points_ = static_cast<bool>(tmp_repl_HT_with_close_points);
+  if (with_HT_)
   {
-    gzread( setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzread( setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
+    gzread(setup_file,
+           HT_ins_rate_,
+           HT_repl_rate_);
   }
-   if(_repl_HT_with_close_points)
-  {
-    gzread( setup_file, &_repl_HT_detach_rate,  sizeof(_repl_HT_detach_rate) );
-  }
-  
-  
+   if(repl_HT_with_close_points_)
+    gzread(setup_file, repl_HT_detach_rate_);
+
+
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;
-  gzread( setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
-  _with_plasmids = tmp_with_plasmids ? 1 : 0;
-  if ( _with_plasmids )
+  gzread(setup_file, tmp_with_plasmids);
+  with_plasmids_ = static_cast<bool>(tmp_with_plasmids);
+  if (with_plasmids_)
   {
-    gzread( setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    gzread( setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
-    gzread( setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
-    gzread( setup_file, &_donor_cost,  sizeof(_donor_cost) );
-    gzread( setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
     int8_t tmp_swap_GUs;
-    gzread( setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-    _swap_GUs = tmp_swap_GUs ? 1 : 0;
+    gzread(setup_file,
+           prob_plasmid_HT_,
+           tune_donor_ability_,
+           tune_recipient_ability_,
+           donor_cost_,
+           recipient_cost_,
+           tmp_swap_GUs);
+    swap_GUs_ = static_cast<bool>(tmp_swap_GUs);
   }
-  
+
   // ------------------------------------------ Retrieve secretion parameters
   int8_t tmp_with_secretion;
-  gzread( setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  _with_secretion = tmp_with_secretion ? true : false;
-  gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-  gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
+  gzread(setup_file, tmp_with_secretion,
+         secretion_contrib_to_fitness_,
+         secretion_cost_);
+  with_secretion_ = static_cast<bool>(tmp_with_secretion);
 
   // ---------------------------------------------- Retrieve selection context
-  get_sel()->load( setup_file, backup_file, verbose );
-
-  gzread( setup_file, &_fuzzy_flavor, sizeof(_fuzzy_flavor) );
+  sel()->load(setup_file, backup_file, verbose);
 
 #ifdef __REGUL
   gzread( setup_file, &_hill_shape,  sizeof(_hill_shape) );
@@ -306,12 +273,6 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
 
 #endif
 
-}
-
-void ExpSetup::load( FILE* setup_file, gzFile backup_file, bool verbose )
-{
-  printf( "Plain text setup file support not implemented yet (sorry)\n" );
-  exit( EXIT_FAILURE );
 }
 
 #ifdef __REGUL
@@ -401,7 +362,6 @@ void ExpSetup::print_binding_matrix()
   }
 }
 #endif
-
 
 // ===========================================================================
 //                                Protected Methods

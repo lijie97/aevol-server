@@ -1,4 +1,8 @@
-// Aevol - An in silico experimental evolution platform
+// ****************************************************************************
+//
+//          Aevol - An in silico experimental evolution platform
+//
+// ****************************************************************************
 //
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -17,9 +21,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ****************************************************************************
 
-#ifndef OBSERVER_OBSERVER_H__
-#define OBSERVER_OBSERVER_H__
+#ifndef AEVOL_OBSERVER_H_
+#define AEVOL_OBSERVER_H_
 
 
 // ============================================================================
@@ -39,14 +45,15 @@ class Observer {
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Observer(void) = default; //< Default ctor
+  Observer() = default; //< Default ctor
   Observer(const Observer&) = delete; //< Copy ctor
   Observer(Observer&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Observer(void) noexcept = default; //< Destructor
+
+  virtual ~Observer() = default; //< Destructor
 
   // ==========================================================================
   //                                Operators
@@ -79,4 +86,4 @@ class Observer {
 };
 
 
-#endif //OBSERVER_OBSERVER_H__
+#endif // AEVOL_OBSERVER_H_

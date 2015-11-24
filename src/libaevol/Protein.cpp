@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -68,27 +68,27 @@ namespace aevol {
  *
  * Copies the protein but does nothing regarding the RNAs transcribing it (creates an empty list).
  */
-Protein::Protein( GeneticUnit* gen_unit, const Protein &model )
+Protein::Protein(GeneticUnit* gen_unit, sconst Protein &model)
 {
-  _gen_unit  = gen_unit;
+  gen_unit_  = gen_unit;
 
-  _strand                 = model._strand;
-  _shine_dal_pos          = model._shine_dal_pos;
-  _first_translated_pos   = model._first_translated_pos;
-  _last_translated_pos    = model._last_translated_pos;
-  _length                 = model._length;
-  _concentration          = model._concentration;
-  _is_functional          = model._is_functional;
+  strand_                 = model.strand_;
+  shine_dal_pos_          = model.shine_dal_pos_;
+  first_translated_pos_   = model.first_translated_pos_;
+  last_translated_pos_    = model.last_translated_pos_;
+  length_                 = model.length_;
+  concentration_          = model.concentration_;
+  is_functional_          = model.is_functional_;
 
   // Copy the list of amino-acids
 
   // TODO vld: check if deep copy needed
-  _AA_list = model._AA_list;
+  AA_list_ = model.AA_list_;
 
   // Copy triangle parameters
-  _mean   = model._mean;
-  _width  = model._width;
-  _height = model._height;
+  mean_   = model.mean_;
+  width_  = model.width_;
+  height_ = model.height_;
 }
 
 Protein::Protein(GeneticUnit* gen_unit,
@@ -98,45 +98,49 @@ Protein::Protein(GeneticUnit* gen_unit,
                  Rna* rna,
                  double w_max)
 {
-  assert( shine_dal_pos >= 0 );
-  assert( shine_dal_pos < gen_unit->get_seq_length() );
+  assert(shine_dal_pos >= 0);
+  assert(shine_dal_pos < gen_unit->seq_length());
 
-  _gen_unit       = gen_unit;
-  _strand         = strand;
-  _shine_dal_pos  = shine_dal_pos;
-  _length         = codon_list.size();
+  gen_unit_       = gen_unit;
+  strand_         = strand;
+  shine_dal_pos_  = shine_dal_pos;
+  length_         = codon_list.size();
 
   #ifndef __REGUL
     // In Aevol the concentration of a new protein is set at the basal level
-    _concentration  = rna->get_basal_level();
+    concentration_  = rna->basal_level();
   #else
     // In Raevol, there is two case, depending on the heredity
     if ( _gen_unit->get_exp_m()->get_exp_s()->get_with_heredity() )
     {
       // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
-      _concentration = 0;
+      concentration_ = 0;
     }
     else
     {
       // Without heredity, we use the same concentration as in Aevol (No inherited proteins)
-      _concentration = rna->get_basal_level();
+      concentration_ = rna->basal_level();
     }
   #endif
 
   // TODO : make this cleaner...
-  _AA_list = codon_list;
+  AA_list_ = codon_list;
 
-  rna_list.push_back(rna);
+  rna_list_.push_back(rna);
 
-  if ( _strand == LEADING )
+  if (strand_ == LEADING)
   {
-    _first_translated_pos = Utils::mod( _shine_dal_pos + (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE), _gen_unit->get_dna()->get_length() );
-    _last_translated_pos  = Utils::mod( _first_translated_pos + (_length * CODON_SIZE - 1), _gen_unit->get_dna()->get_length() );
+    first_translated_pos_ = Utils::mod(shine_dal_pos_ + (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE),
+                                        gen_unit_->dna()->length());
+    last_translated_pos_  = Utils::mod(first_translated_pos_ + (length_ * CODON_SIZE - 1),
+                                        gen_unit_->dna()->length());
   }
   else
   {
-    _first_translated_pos = Utils::mod( _shine_dal_pos - (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE), _gen_unit->get_dna()->get_length() );
-    _last_translated_pos = Utils::mod( _first_translated_pos - (_length * CODON_SIZE - 1), _gen_unit->get_dna()->get_length() );
+    first_translated_pos_ = Utils::mod(shine_dal_pos_ - (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE),
+                                        gen_unit_->dna()->length());
+    last_translated_pos_ = Utils::mod(first_translated_pos_ - (length_ * CODON_SIZE - 1),
+                                       gen_unit_->dna()->length());
   }
 
 
@@ -165,7 +169,7 @@ Protein::Protein(GeneticUnit* gen_unit,
   bool bin_h = false;
 
   for (const auto& codon: codon_list) {
-    switch ( codon->get_value() )
+    switch (codon->value())
     {
       case CODON_M0 :
       {
@@ -180,7 +184,7 @@ Protein::Protein(GeneticUnit* gen_unit,
         M *= 2;
 
         // Add this nucleotide's contribution to M
-        if ( bin_m ) M += 1;
+        if (bin_m) M += 1;
 
         break;
       }
@@ -197,7 +201,7 @@ Protein::Protein(GeneticUnit* gen_unit,
         M *= 2;
 
         // Add this nucleotide's contribution to M
-        if ( bin_m ) M += 1;
+        if (bin_m) M += 1;
 
         break;
       }
@@ -214,7 +218,7 @@ Protein::Protein(GeneticUnit* gen_unit,
         W *= 2;
 
         // Add this nucleotide's contribution to W
-        if ( bin_w ) W += 1;
+        if (bin_w) W += 1;
 
         break;
       }
@@ -231,7 +235,7 @@ Protein::Protein(GeneticUnit* gen_unit,
         W *= 2;
 
         // Add this nucleotide's contribution to W
-        if ( bin_w ) W += 1;
+        if (bin_w) W += 1;
 
         break;
       }
@@ -249,7 +253,7 @@ Protein::Protein(GeneticUnit* gen_unit,
         H *= 2;
 
         // Add this nucleotide's contribution to H
-        if ( bin_h ) H += 1;
+        if (bin_h) H += 1;
 
         break;
       }
@@ -266,7 +270,7 @@ Protein::Protein(GeneticUnit* gen_unit,
         H *= 2;
 
         // Add this nucleotide's contribution to H
-        if ( bin_h ) H += 1;
+        if (bin_h) H += 1;
 
         break;
       }
@@ -278,16 +282,16 @@ Protein::Protein(GeneticUnit* gen_unit,
   //  ----------------------------------------------------------------------------------
   //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
   //  ----------------------------------------------------------------------------------
-  if ( nb_m != 0 )  _mean = M / (pow(2, nb_m) - 1);
-  else              _mean = 0.5;
-  if ( nb_w != 0 )  _width = W / (pow(2, nb_w) - 1);
-  else              _width = 0.0;
-  if ( nb_h != 0 )  _height = H / (pow(2, nb_h) - 1);
-  else              _height = 0.5;
+  if (nb_m != 0)  mean_ = M / (pow(2, nb_m) - 1);
+  else              mean_ = 0.5;
+  if (nb_w != 0)  width_ = W / (pow(2, nb_w) - 1);
+  else              width_ = 0.0;
+  if (nb_h != 0)  height_ = H / (pow(2, nb_h) - 1);
+  else              height_ = 0.5;
 
-  assert( _mean >= 0.0 && _mean <= 1.0 );
-  assert( _width >= 0.0 && _width <= 1.0 );
-  assert( _height >= 0.0 && _height <= 1.0 );
+  assert(mean_ >= 0.0 && mean_ <= 1.0);
+  assert(width_ >= 0.0 && width_ <= 1.0);
+  assert(height_ >= 0.0 && height_ <= 1.0);
 
 
 
@@ -297,40 +301,39 @@ Protein::Protein(GeneticUnit* gen_unit,
   // x_min <= M <= x_max
   // w_min <= W <= w_max
   // h_min <= H <= h_max
-  _mean   = (X_MAX - X_MIN) * _mean + X_MIN;
-  _width  = (w_max - W_MIN) * _width + W_MIN;
-  _height = (H_MAX - H_MIN) * _height + H_MIN;
+  mean_   = (X_MAX - X_MIN) * mean_ + X_MIN;
+  width_  = (w_max - W_MIN) * width_ + W_MIN;
+  height_ = (H_MAX - H_MIN) * height_ + H_MIN;
 
-  if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )
+  if (nb_m == 0 || nb_w == 0 || nb_h == 0 || width_ == 0.0 || height_ == 0.0)
   {
-    _is_functional = false;
+    is_functional_ = false;
   }
   else
   {
-    _is_functional = true;
+    is_functional_ = true;
   }
 
-  assert( _mean >= X_MIN && _mean <= X_MAX );
-  assert( _width >= W_MIN && _width <= get_indiv()->get_w_max() );
-  assert( _height >= H_MIN && _height <= H_MAX );
+  assert(mean_ >= X_MIN && mean_ <= X_MAX);
+  assert(width_ >= W_MIN && width_ <= indiv()->w_max());
+  assert(height_ >= H_MIN && height_ <= H_MAX);
 }
 
 /*
-Protein::Protein( Protein* parent )
+Protein::Protein(Protein* parent)
 {
-  _gen_unit             = parent->_gen_unit;
-  _strand               = parent->_strand;
-  _shine_dal_pos        = parent->_shine_dal_pos;
-  _first_translated_pos = parent->_first_translated_pos;
-  _last_translated_pos  = parent->_last_translated_pos;
-  _length               = parent->_length;
-  _concentration        = parent->_concentration;
-  _mean                 = parent->_mean;
-  _width                = parent->_width;
-  _height               = parent->_height;
+  gen_unit_             = parent->gen_unit_;
+  strand_               = parent->strand_;
+  shine_dal_pos_        = parent->shine_dal_pos_;
+  first_translated_pos_ = parent->first_translated_pos_;
+  last_translated_pos_  = parent->last_translated_pos_;
+  length_               = parent->length_;
+  concentration_        = parent->concentration_;
+  mean_                 = parent->mean_;
+  width_                = parent->width_;
+  height_               = parent->height_;
 }
 */
-
 
 //Constructor for the signal proteins
 //modif raevol_yo_3 : now we really copy the codon list
@@ -524,83 +527,83 @@ Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
 }
 
 
-Protein::Protein( gzFile backup_file )
+Protein::Protein(gzFile backup_file)
 {
-  _gen_unit = NULL;
+  gen_unit_ = NULL;
   int8_t tmp_strand;
-  gzread( backup_file, &tmp_strand, sizeof(tmp_strand) );
-  _strand = (Strand) tmp_strand;
-  gzread( backup_file, &_shine_dal_pos,			    sizeof(_shine_dal_pos)        );
-  gzread( backup_file, &_first_translated_pos, 	sizeof(_first_translated_pos) );
-  gzread( backup_file, &_last_translated_pos,  	sizeof(_last_translated_pos)  );
-  gzread( backup_file, &_length,     			      sizeof(_length)               );
-  gzread( backup_file, &_concentration,     		sizeof(_concentration)        );
-  gzread( backup_file, &_is_functional,         sizeof(_is_functional)         );
-  gzread( backup_file, &_mean,  			          sizeof(_mean)                 );
-  gzread( backup_file, &_width,    			        sizeof(_width)                );
-  gzread( backup_file, &_height,                sizeof(_height)               );
+  gzread(backup_file, &tmp_strand, sizeof(tmp_strand));
+  strand_ = (Strand) tmp_strand;
+  gzread(backup_file, &shine_dal_pos_,			    sizeof(shine_dal_pos_));
+  gzread(backup_file, &first_translated_pos_, 	sizeof(first_translated_pos_));
+  gzread(backup_file, &last_translated_pos_,  	sizeof(last_translated_pos_));
+  gzread(backup_file, &length_,     			      sizeof(length_));
+  gzread(backup_file, &concentration_,     		sizeof(concentration_));
+  gzread(backup_file, &is_functional_,         sizeof(is_functional_));
+  gzread(backup_file, &mean_,  			          sizeof(mean_));
+  gzread(backup_file, &width_,    			        sizeof(width_));
+  gzread(backup_file, &height_,                sizeof(height_));
 
   // Retreive the AA
   int16_t nb_AA = 0;
-  gzread( backup_file, &nb_AA,  sizeof(nb_AA) );
+  gzread(backup_file, &nb_AA,  sizeof(nb_AA));
 
   for (int16_t i = 0 ; i < nb_AA ; i++)
-    _AA_list.push_back(new Codon(backup_file));
+    AA_list_.push_back(new Codon(backup_file));
 
 }
 
 // =================================================================
 //                             Destructors
 // =================================================================
-Protein::~Protein( void )
+Protein::~Protein()
 {
-  for (const auto& AA: _AA_list)
+  for (const auto& AA: AA_list_)
     delete AA;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t Protein::get_last_STOP_base_pos( void ) const
+int32_t Protein::last_STOP_base_pos() const
 {
-  if ( _strand == LEADING )
+  if (strand_ == LEADING)
   {
-    return Utils::mod( _last_translated_pos + 3, _gen_unit->get_dna()->get_length() );
+    return Utils::mod(last_translated_pos_ + 3, gen_unit_->dna()->length());
   }
   else
   {
-    return Utils::mod( _last_translated_pos - 3, _gen_unit->get_dna()->get_length() );
+    return Utils::mod(last_translated_pos_ - 3, gen_unit_->dna()->length());
   }
 }
 
-void Protein::add_RNA( Rna * rna )
+void Protein::add_RNA(Rna * rna)
 {
-  rna_list.push_back(rna);
+  rna_list_.push_back(rna);
 
 #ifndef __REGUL
-  _concentration += rna->get_basal_level();
+  concentration_ += rna->get_basal_level();
 #else
 	if ( _gen_unit->get_exp_m()->get_exp_s()->get_with_heredity() )
 	{
 	  // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
-	  _concentration = 0;
+	 concentration_ = 0;
 	}
 	else
 	{
 	  // Without heredity, we use the same concentration as in Aevol (No inherited proteins)
-	  _concentration += rna->get_basal_level();
+	  concentration_ += rna->get_basal_level();
 	}
 #endif
 }
 
-char* Protein::get_AA_sequence(char separator /*= ' '*/) const
+char* Protein::AA_sequence(char separator /*= ' '*/) const
 {
-  char* seq = new char[3*_length]; // + 1 (for the '\0')  - 1 (_length - 1 spaces)
+  char* seq = new char[3*length_]; // + 1 (for the '\0')  - 1 (length_ - 1 spaces)
 
   int32_t i = 0;
-  for (const auto& codon: _AA_list) {
-    if ( i != 0 ) seq[i++] = separator;
-    switch ( codon->get_value() )
+  for (const auto& codon: AA_list_) {
+    if (i != 0) seq[i++] = separator;
+    switch (codon->value())
     {
       case CODON_START :
       {
@@ -647,31 +650,31 @@ char* Protein::get_AA_sequence(char separator /*= ' '*/) const
     }
   }
 
-  seq[3*_length-1] = '\0';
+  seq[3*length_-1] = '\0';
   return seq;
 }
 
-void Protein::save( gzFile backup_file )
+void Protein::save(gzFile backup_file)
 {
-  // The rna_list is not write because there is no need to, it is an empty list.
-  int8_t tmp_strand = _strand;
-  gzwrite( backup_file, &tmp_strand,            sizeof(tmp_strand)            );
-  gzwrite( backup_file, &_shine_dal_pos,        sizeof(_shine_dal_pos)        );
-  gzwrite( backup_file, &_first_translated_pos, sizeof(_first_translated_pos) );
-  gzwrite( backup_file, &_last_translated_pos,  sizeof(_last_translated_pos)  );
-  gzwrite( backup_file, &_length,     			    sizeof(_length)               );
-  gzwrite( backup_file, &_concentration,     		sizeof(_concentration)        );
-  gzwrite( backup_file, &_is_functional,        sizeof(_is_functional)         );
-  gzwrite( backup_file, &_mean,  			          sizeof(_mean)                 );
-  gzwrite( backup_file, &_width,    			      sizeof(_width)                );
-  gzwrite( backup_file, &_height,		     	      sizeof(_height)               );
+  // The rna_list_ is not write because there is no need to, it is an empty list.
+  int8_t tmp_strand = strand_;
+  gzwrite(backup_file, &tmp_strand,            sizeof(tmp_strand));
+  gzwrite(backup_file, &shine_dal_pos_,        sizeof(shine_dal_pos_));
+  gzwrite(backup_file, &first_translated_pos_, sizeof(first_translated_pos_));
+  gzwrite(backup_file, &last_translated_pos_,  sizeof(last_translated_pos_));
+  gzwrite(backup_file, &length_,     			    sizeof(length_));
+  gzwrite(backup_file, &concentration_,     		sizeof(concentration_));
+  gzwrite(backup_file, &is_functional_,        sizeof(is_functional_));
+  gzwrite(backup_file, &mean_,  			          sizeof(mean_));
+  gzwrite(backup_file, &width_,    			      sizeof(width_));
+  gzwrite(backup_file, &height_,		     	      sizeof(height_));
 
   // Write the Acide Amino in the backup file
-  int16_t nb_AA = _AA_list.size();
-  gzwrite( backup_file, &nb_AA,  sizeof(nb_AA) );
+  int16_t nb_AA = AA_list_.size();
+  gzwrite(backup_file, &nb_AA,  sizeof(nb_AA));
 
-  for (const auto& AA: _AA_list)
-    AA->save( backup_file );
+  for (const auto& AA: AA_list_)
+    AA->save(backup_file);
 }
 
 // =================================================================
@@ -681,9 +684,9 @@ void Protein::save( gzFile backup_file )
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-Individual *Protein::get_indiv( void ) const
+Individual *Protein::indiv() const
 {
-  return _gen_unit->get_indiv();
+  return gen_unit_->indiv();
 }
 
 

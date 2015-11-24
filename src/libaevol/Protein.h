@@ -3,30 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 
 
-#ifndef AEVOL_PROTEIN_H__
-#define AEVOL_PROTEIN_H__
+#ifndef AEVOL_PROTEIN_H_
+#define AEVOL_PROTEIN_H_
 
 
 // =================================================================
@@ -79,39 +79,40 @@ class Protein
                Rna * rna,
                double w_max);
     Protein( const std::vector<Codon*> codon_list, double concentration);
-    //Protein( Protein* parent );
-    Protein( gzFile backup_file );
+    //Protein(Protein* parent);
+    Protein(gzFile backup_file);
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Protein( void );
+    virtual ~Protein();
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline Strand get_strand( void )                const;
-    inline const std::list<Rna *> get_rna_list()          const;
-    inline int32_t            get_shine_dal_pos( void )         const;
-    inline int32_t            get_first_translated_pos( void )  const;
-    inline int32_t            get_last_translated_pos( void )   const;
-           int32_t            get_last_STOP_base_pos( void )    const;
-    inline double             get_mean( void )                  const;
-    inline double             get_width( void )                 const; // returns the half-width
-    inline double             get_height( void )                const;
-    inline int32_t            get_length( void )                const; // Number of Amino-Acids (not including START and STOP)
-    inline double             get_concentration( void )         const;
-    inline  bool              get_is_functional( void )         const;
     GeneticUnit*       get_gen_unit( void )              const;
     inline std::vector<Codon*>     get_AA_list( void ) const;
 
-    Individual * get_indiv( void ) const;
+    inline Strand strand()                const;
+    inline const std::list<Rna *> rna_list()          const;
+    inline int32_t            shine_dal_pos()         const;
+    inline int32_t            first_translated_pos()  const;
+    inline int32_t            last_translated_pos()   const;
+           int32_t            last_STOP_base_pos()    const;
+    inline double             mean()                  const;
+    inline double             width()                 const; // returns the half-width
+    inline double             height()                const;
+    inline int32_t            length()                const; // Number of Amino-Acids (not including START and STOP)
+    inline double             concentration()         const;
+    inline  bool              is_functional()         const;
+
+    Individual * indiv() const;
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void  add_RNA( Rna * rna );
-    char* get_AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
-    virtual void  save( gzFile backup_file );
+    void  add_RNA(Rna * rna);
+    char* AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
+    virtual void  save(gzFile backup_file);
 
     // =================================================================
     //                           Public Attributes
@@ -129,80 +130,80 @@ class Protein
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    GeneticUnit*  _gen_unit;
-    Strand _strand;
-    std::list<Rna *> rna_list;              // RNAs transcribing this protein
-    int32_t           _shine_dal_pos;         // Index of the corresponding shine dalgarno sequence in the genome
-    int32_t           _first_translated_pos;  // Index of the first base following the START codon
-    int32_t           _last_translated_pos;   // Index of the last base before the STOP codon
-    int32_t           _length;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
-    double            _concentration;
-    bool              _is_functional;
-    
-    std::vector<Codon *> _AA_list;
+    GeneticUnit*  gen_unit_;
+    Strand strand_;
+    std::list<Rna *>  rna_list_;              // RNAs transcribing this protein
+    int32_t           shine_dal_pos_;         // Index of the corresponding shine dalgarno sequence in the genome
+    int32_t           first_translated_pos_;  // Index of the first base following the START codon
+    int32_t           last_translated_pos_;   // Index of the last base before the STOP codon
+    int32_t           length_;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
+    double            concentration_;
+    bool              is_functional_;
+
+    std::list<Codon *> AA_list_;
 
     // Phenotypic contribution (triangle) parameters
-    double _mean;
-    double _width;   // in fact, half-width
-    double _height;
+    double mean_;
+    double width_;   // in fact, half-width
+    double height_;
 };
 
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline Strand Protein::get_strand( void ) const
+inline Strand Protein::strand() const
 {
-  return _strand;
+  return strand_;
 }
 
-inline const std::list<Rna *> Protein::get_rna_list() const {
-  return rna_list;
+inline const std::list<Rna *> Protein::rna_list() const {
+  return rna_list_;
 }
 
-int32_t Protein::get_shine_dal_pos( void ) const
+int32_t Protein::shine_dal_pos() const
 {
-  return _shine_dal_pos;
+  return shine_dal_pos_;
 }
 
-int32_t Protein::get_first_translated_pos( void ) const
+int32_t Protein::first_translated_pos() const
 {
-  return _first_translated_pos;
+  return first_translated_pos_;
 }
 
-int32_t Protein::get_last_translated_pos( void ) const
+int32_t Protein::last_translated_pos() const
 {
-  return _last_translated_pos;
+  return last_translated_pos_;
 }
 
-double Protein::get_mean( void ) const
+double Protein::mean() const
 {
-  return _mean;
+  return mean_;
 }
 
-double Protein::get_width( void ) const
+double Protein::width() const
 {
-  return _width;
+  return width_;
 }
 
-double Protein::get_height( void ) const
+double Protein::height() const
 {
-  return _height;
+  return height_;
 }
 
-int32_t Protein::get_length( void ) const
+int32_t Protein::length() const
 {
-  return _length;
+  return length_;
 }
 
-double Protein::get_concentration( void ) const
+double Protein::concentration() const
 {
-  return _concentration;
+  return concentration_;
 }
 
-bool Protein::get_is_functional( void ) const
+bool Protein::is_functional() const
 {
-  return _is_functional;
+  return is_functional_;
 }
 
 
@@ -214,4 +215,4 @@ std::vector<Codon*>     Protein::get_AA_list( void ) const {
 //                       Inline functions' definition
 // =====================================================================
 } // namespace aevol
-#endif // AEVOL_PROTEIN_H__
+#endif // AEVOL_PROTEIN_H_

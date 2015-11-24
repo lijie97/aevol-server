@@ -1,42 +1,42 @@
-//*****************************************************************************
+// ****************************************************************************
 //
-//                         aevol - Artificial Evolution
+//          Aevol - An in silico experimental evolution platform
 //
-// Copyright (C) 2004  LIRIS.
-// Web: https://liris.cnrs.fr/
-// E-mail: carole.knibbe@liris.cnrs.fr
-// Original Authors : Guillaume Beslon, Carole Knibbe, Virginie Lefort
-//                    David Parsons
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-// 
+// ****************************************************************************
+//
+// Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
+// Web: http://www.aevol.fr/
+// E-mail: See <http://www.aevol.fr/contact/>
+// Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//*****************************************************************************
-
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ****************************************************************************
 
 /** \class GeneTreeNode
  *  \brief Currently used only by post-treatments, on a specific lineage, to monitor the fate of paralogs.
  *         Each node corresponds to a coding RNA. When it is duplicated, two new nodes are added in the tree,
  *         as children of the ancestral version. The left child corresponds to the original DNA segment, while
- *         the right child corresponds to the copy that was reinserted elsewhere, possibly in another genetic 
- *         unit.  
+ *         the right child corresponds to the copy that was reinserted elsewhere, possibly in another genetic
+ *         unit.
  */
- 
- 
- #ifndef AEVOL_GENE_TREE_H__
-#define  AEVOL_GENE_TREE_H__
- 
- 
+
+
+ #ifndef AEVOL_GENE_TREE_H_
+#define  AEVOL_GENE_TREE_H_
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -75,38 +75,38 @@ enum ae_gene_creation_type
 
 class GeneTreeNode;
 
- 
+
 class GeneTree
-{  
+{
   friend class GeneTreeNode;
 
   public :
-  
+
     // =================================================================
     //                             Constructors
     // =================================================================
-    GeneTree( void );
-    GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut = NULL ); // Creates a tree with just a root node.
-   
+    GeneTree();
+    GeneTree(int32_t nodeCreationDate, Protein * protein, const Mutation * mut = NULL); // Creates a tree with just a root node.
 
-  
+
+
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~GeneTree( void );
-  
+    virtual ~GeneTree();
+
     // =================================================================
     //                              Accessors
     // =================================================================
-    
-    inline ae_gene_creation_type get_creation_type() const;
-    inline int32_t get_begin_gener() const;
-    inline int32_t get_end_gener() const;
-    inline int32_t get_total_nb_nodes() const;
-    inline int32_t get_nb_internal_nodes() const;
-    inline int32_t get_nb_leaves() const;
-    inline int32_t get_nb_active_leaves() const;
-  
+
+    inline ae_gene_creation_type creation_type() const;
+    inline int32_t begin_gener() const;
+    inline int32_t end_gener() const;
+    inline int32_t total_nb_nodes() const;
+    inline int32_t nb_internal_nodes() const;
+    inline int32_t nb_leaves() const;
+    inline int32_t nb_active_leaves() const;
+
 
     // =================================================================
     //                            Public Methods
@@ -122,50 +122,50 @@ class GeneTree
     /* void report_gene_loss(GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType); */
 
     GeneTreeNode * search_in_leaves(const Protein * protein); // Returns NULL if not found
-    void print_to_screen(void); // for debug purposes
+    void print_to_screen(); // for debug purposes
     void write_to_files(const char * topologyFileName, const char * nodeAttributesFileName, int32_t end_gener); // Newick format for the topology file
-    void write_nodes_in_tabular_file(int32_t treeID, FILE * f);  // f must already be open 
+    void write_nodes_in_tabular_file(int32_t treeID, FILE * f);  // f must already be open
 
-  
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
-  
-  
-  
-  
-  
+
+
+
+
+
   protected :
-  
+
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
 
-    GeneTree( const GeneTree &model )
+    GeneTree(const GeneTree &model)
       {
-        printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-        exit( EXIT_FAILURE );
+        printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
       };
-    
-  
+
+
     // =================================================================
     //                           Protected Methods
     // =================================================================
 
-  
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-     
-    GeneTreeNode * _root;
-    ae_gene_creation_type _creation_type;
-    int32_t _begin_gener;
-    int32_t _end_gener;
-    int32_t _total_nb_nodes;
-    int32_t _nb_internal_nodes;
-    int32_t _nb_leaves;
-    int32_t _nb_active_leaves;
-    
+
+    GeneTreeNode * root_;
+    ae_gene_creation_type creation_type_;
+    int32_t begin_gener_;
+    int32_t end_gener_;
+    int32_t total_nb_nodes_;
+    int32_t nb_internal_nodes_;
+    int32_t nb_leaves_;
+    int32_t nb_active_leaves_;
+
 };
 
 
@@ -173,39 +173,39 @@ class GeneTree
 //                          Accessors' definitions
 // =====================================================================
 
-inline ae_gene_creation_type GeneTree::get_creation_type() const
+inline ae_gene_creation_type GeneTree::creation_type() const
 {
-  return _creation_type;
+  return creation_type_;
 }
 
-inline int32_t GeneTree::get_begin_gener() const
+inline int32_t GeneTree::begin_gener() const
 {
-  return _begin_gener;
+  return begin_gener_;
 }
 
-inline int32_t GeneTree::get_end_gener() const
+inline int32_t GeneTree::end_gener() const
 {
-  return _end_gener;
+  return end_gener_;
 }
 
-inline int32_t GeneTree::get_total_nb_nodes() const
+inline int32_t GeneTree::total_nb_nodes() const
 {
-  return _total_nb_nodes;
+  return total_nb_nodes_;
 }
 
-inline int32_t GeneTree::get_nb_internal_nodes() const
+inline int32_t GeneTree::nb_internal_nodes() const
 {
-  return _nb_internal_nodes;
+  return nb_internal_nodes_;
 }
 
-inline int32_t GeneTree::get_nb_leaves() const
+inline int32_t GeneTree::nb_leaves() const
 {
-  return _nb_leaves;
+  return nb_leaves_;
 }
 
-inline int32_t GeneTree::get_nb_active_leaves() const
+inline int32_t GeneTree::nb_active_leaves() const
 {
-  return _nb_active_leaves;
+  return nb_active_leaves_;
 }
 
 // =====================================================================
@@ -214,4 +214,4 @@ inline int32_t GeneTree::get_nb_active_leaves() const
 
 } // namespace aevol
 
-#endif // AEVOL_GENE_TREE_H__
+#endif // AEVOL_GENE_TREE_H_

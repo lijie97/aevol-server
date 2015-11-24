@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 
 #ifndef AE_PROTEIN_R_H
@@ -74,13 +74,10 @@ class Protein_R : public Protein
     // =================================================================
     //                              Accessors
     // =================================================================
-//    inline std::vector<ae_influence_R*> get_influence_list( void );
     inline void     set_inherited( bool is_inherited );
     inline void     set_signal( bool is_signal);
     inline bool     is_inherited( void );
     inline bool     is_signal( void );
-
-
 
     // =================================================================
     //                            Public Methods
@@ -99,7 +96,6 @@ class Protein_R : public Protein
     inline int8_t  get_cod_tab(int32_t index) const;
 
     void  add_RNA( Rna * rna );
-
 
     // =================================================================
     //                           Public Attributes
@@ -174,15 +170,9 @@ inline bool Protein_R::is_signal( void )
   return _signal;
 }
 
-/*
-ae_protein_R* ae_protein_R::copy( void )
-{
-  ae_protein_R* new_prot = new ae_protein_R( this );
-  new_prot->_shine_dal_pos = -1;
-
-  return new_prot;
-}
-*/
+// =====================================================================
+//                       Inline functions' definition
+// =====================================================================
 
 inline void Protein_R::multiply_concentration( double factor )
 {

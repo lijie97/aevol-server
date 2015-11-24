@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef  AEVOL_INDIVIDUAL_X11_H__
-#define  AEVOL_INDIVIDUAL_X11_H__
+#ifndef  AEVOL_INDIVIDUAL_X11_H_
+#define  AEVOL_INDIVIDUAL_X11_H_
 
 
 // =================================================================
@@ -85,7 +85,8 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Individual_X11(void) noexcept;
+
+    virtual ~Individual_X11();
 
     // =================================================================
     //                              Accessors
@@ -94,7 +95,7 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                            Public Methods
     // =================================================================
-    virtual void display(void);
+    virtual void display();
     virtual void display_cdss(X11Window * win);
     virtual void display_rnas(X11Window * win);
 
@@ -110,16 +111,16 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void reset_sectors(void);
-    void add_layer(void);
-    void init_occupied_sectors(void);
+    void reset_sectors();
+    void add_layer();
+    void init_occupied_sectors();
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
     // These are used to manage overlapping CDS and RNA display
-    int16_t _outmost_layer;
-    bool*   _occupied_sectors[2][100];  // TODO : find a way to manage this table's size properly?
+    int16_t outmost_layer_;
+    bool*   occupied_sectors_[2][100];  // TODO : find a way to manage this table's size properly?
 };
 
 
@@ -129,4 +130,4 @@ class Individual_X11 : public virtual Individual
 
 } // namespace aevol
 
-#endif // AEVOL_INDIVIDUAL_X11_H__
+#endif // AEVOL_INDIVIDUAL_X11_H_

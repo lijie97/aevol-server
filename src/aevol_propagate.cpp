@@ -3,28 +3,28 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
- 
+
 const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   char* input_dir   = NULL;
   char* output_dir  = NULL;
   bool  verbose     = false;
-  
+
   // 2) Define allowed options
 //  const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
   const char * options_list = "g:ho:vVS:s:m:t:e:n:";
@@ -100,12 +100,12 @@ int main(int argc, char* argv[])
     { "env-noise-seed",    required_argument,  NULL, 'n' },
     { 0, 0, 0, 0 }
   };
-      
+
   // 3) Get actual values of the command-line options
   int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1) 
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch (option) 
+    switch (option)
     {
     case 'h' :
       {
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
       exit(EXIT_FAILURE);
     }
 
-  
+
   // 4) Set undefined command line parameters to default values
   if (input_dir == NULL)
   {
@@ -215,8 +215,8 @@ int main(int argc, char* argv[])
       Utils::ExitWithUsrMsg("You must provide a generation number");
     }
   }
-  
-  
+
+
   // 5) Check whether the output directory is missing
   struct stat stat_buf;
   if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT))
@@ -232,17 +232,17 @@ int main(int argc, char* argv[])
     // char flush = answer;
     // while(flush != '\n' && flush != EOF) flush = getchar(); // "flush" stdin
     // if (answer == '\n') answer = 'y';
-    
+
     // if (answer == 'n') exit(EXIT_SUCCESS);
-    
+
     if (mkdir(output_dir, 0755))
     {
       err(EXIT_FAILURE, output_dir, errno);
     }
   }
-  
-  
-  
+
+
+
   // =================================================================
   //                    Load the model experiment
   // =================================================================
@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
   #else
     ExpManager* exp_manager = new ExpManager();
   #endif
-  
+
   exp_manager->load(input_dir, num_gener, verbose, true);
 
   if (generalseed != -1)
@@ -259,14 +259,14 @@ int main(int argc, char* argv[])
 #if __cplusplus == 201103L
     auto prng = make_unique<JumpingMT>(generalseed);
 
-    exp_manager->get_sel()->set_prng(
+    exp_manager->sel()->set_prng(
         make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
         make_unique<JumpingMT>(prng->random(1000000)));
 #else
     auto prng = std::make_unique<JumpingMT>(generalseed);
 
-    exp_manager->get_sel()->set_prng(
+    exp_manager->sel()->set_prng(
         std::make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
         std::make_unique<JumpingMT>(prng->random(1000000)));
@@ -287,12 +287,12 @@ int main(int argc, char* argv[])
 #if __cplusplus == 201103L
       exp_manager->world()->set_prng(
           make_unique<JumpingMT>(selseed));
-      exp_manager->get_sel()->set_prng(
+      exp_manager->sel()->set_prng(
           make_unique<JumpingMT>(selseed));
 #else
       exp_manager->world()->set_prng(
           std::make_unique<JumpingMT>(selseed));
-      exp_manager->get_sel()->set_prng(
+      exp_manager->sel()->set_prng(
           std::make_unique<JumpingMT>(selseed));
 #endif
     }
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
       // TODO <david.parsons@inria.fr> adapt to new organization
       printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
-//      exp_manager->get_env()->set_var_prng(
+//      exp_manager->env()->set_var_prng(
 //          std::make_shared<JumpingMT>(envvarseed));
     }
 
@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
       // TODO <david.parsons@inria.fr> adapt to new organization
       printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
-//      exp_manager->get_env()->set_noise_prng(
+//      exp_manager->env()->set_noise_prng(
 //          std::make_shared<JumpingMT>(envnoiseseed));
     }
   }
@@ -339,16 +339,16 @@ int main(int argc, char* argv[])
 
 
 /*!
-  \brief 
-  
+  \brief
+
 */
-void print_help(char* prog_path) 
+void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
   if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
-  
+
   printf("******************************************************************************\n");
   printf("*                                                                            *\n");
   printf("*                        aevol - Artificial Evolution                        *\n");

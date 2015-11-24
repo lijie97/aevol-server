@@ -3,26 +3,26 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 // =================================================================
 //                              Libraries
@@ -69,15 +69,15 @@ int main(int argc, char* argv[])
   #ifndef __NO_X
     signal(SIGUSR1, catch_usr1);
   #endif
-  
-  
+
+
   // Print warning for debug mode
   #ifdef DEBUG
     printf("aevol is being run in DEBUG mode\n");
   #endif
-  
- 
-  
+
+
+
   // =========================================================================
   //                           Get command-line options
   // =========================================================================
@@ -87,24 +87,24 @@ int main(int argc, char* argv[])
   // 4) Check the consistancy of the command-line options
   // 5) Set file names according to options
   // =========================================================================
-  
+
   // -------------------------------------------------------------------------
   // 1) Initialize command-line option variables with default values
   // -------------------------------------------------------------------------
   // bool pause_on_startup = false;
   bool verbose          = false;
-  
+
   int64_t t0 = -1;
   int64_t t_end = -1;
   int64_t nb_steps = -1;
-  
+
   #ifndef __NO_X
     bool show_display_on_startup = true;
   #endif
 
   bool run_in_parallel = false;
-  
-  
+
+
   // -------------------------------------------------------------------------
   // 2) Define allowed options
   // -------------------------------------------------------------------------
@@ -130,8 +130,8 @@ int main(int argc, char* argv[])
     { "parallel", required_argument,  NULL, 'p' },
     { 0, 0, 0, 0 }
   };
-  
-  
+
+
   // -------------------------------------------------------------------------
   // 3) Get actual values of the command-line options
   // -------------------------------------------------------------------------
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
       }
       case 'r' : {
         t0 = atol(optarg);
-        break;      
+        break;
       }
       case 'v' : {
         verbose = true;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
         #else
           show_display_on_startup = false;
         #endif
-        
+
         break;
       }
       case 'p' : {
@@ -202,22 +202,23 @@ int main(int argc, char* argv[])
 
   // If t0 wasn't provided, use default
   if (t0 < 0)
-    t0 = OutputManager::get_last_gener();
+    t0 = OutputManager::last_gener();
 
-  // If t_end wasn't provided, set it according to nb_steps or use default (run
+  // If t_end_ wasn't provided, set it according to nb_steps or use default (run
   // for 1000 timesteps)
-  if (t_end < 0)
+  if (t_end < 0) {
     if (nb_steps >= 0)
       t_end = t0 + nb_steps;
     else
       t_end = t0 + 1000;
+  }
 
   // It the user didn't ask for a parallel run, set number of threads to 1
   #ifdef _OPENMP
   if (not run_in_parallel)
     omp_set_num_threads(1);
   #endif
-  
+
   // =================================================================
   //                          Load the simulation
   // =================================================================
@@ -226,11 +227,11 @@ int main(int argc, char* argv[])
   #else
     exp_manager = new ExpManager();
   #endif
-  
+
   exp_manager->load(t0, verbose, true);
   exp_manager->set_t_end(t_end);
-  
- 
+
+
 
   // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
   // TODO (?)
@@ -241,14 +242,14 @@ int main(int argc, char* argv[])
       ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
     }
   #endif
-  
-  
+
+
   // =================================================================
   //                         Run the simulation
   // =================================================================
   exp_manager->run_evolution();
-  
-  
+
+
   delete exp_manager;
   //~ return EXIT_SUCCESS;
 }
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
 void catch_usr1(int sig_num)
 {
   signal(SIGUSR1, catch_usr1);
-  
+
   printf("display on/off\n");
   if (exp_manager != NULL)
   {
@@ -274,16 +275,16 @@ void catch_usr1(int sig_num)
 
 
 /*!
-  \brief 
-  
+  \brief
+
 */
-void print_help(char* prog_path) 
+void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
   if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
-  
+
 	printf("******************************************************************************\n");
 	printf("*                                                                            *\n");
 	printf("*                        aevol - Artificial Evolution                        *\n");

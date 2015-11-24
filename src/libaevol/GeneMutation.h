@@ -1,28 +1,28 @@
-//*****************************************************************************
+// ****************************************************************************
 //
-//                         aevol - Artificial Evolution
+//          Aevol - An in silico experimental evolution platform
 //
-// Copyright (C) 2004  LIRIS.
-// Web: https://liris.cnrs.fr/
-// E-mail: carole.knibbe@liris.cnrs.fr
-// Original Authors : Guillaume Beslon, Carole Knibbe, Virginie Lefort
-//                    David Parsons
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-// 
+// ****************************************************************************
+//
+// Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
+// Web: http://www.aevol.fr/
+// E-mail: See <http://www.aevol.fr/contact/>
+// Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//*****************************************************************************
-
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ****************************************************************************
 
 /*! \class GeneMutation
     \brief Currently used only by post-treatments, on a specific lineage, to monitor the fate of paralogs.
@@ -30,12 +30,12 @@
          enriched with the generation when it occurred and the position where it occurred in the coding RNA
          (relative to the first bp of the promoter).
 */
- 
- 
- #ifndef AEVOL_GENE_MUTATION_H__
-#define  AEVOL_GENE_MUTATION_H__
- 
- 
+
+
+ #ifndef AEVOL_GENE_MUTATION_H_
+#define  AEVOL_GENE_MUTATION_H_
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -87,72 +87,72 @@ enum ae_gene_mutation_region
 class GeneMutation : public Mutation
 {
   friend class GeneTreeNode;
-  
+
  public :
 
   // =================================================================
   //                             Constructors
   // =================================================================
-  
+
   // Creates a copy of the mutation mut, but enriched with the generation when it occured
   // and the position where it occurred in the RNA, relative to the first bp of the promoter
-  GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region );
-  
-  GeneMutation( const GeneMutation &model );
-  
+  GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region);
+
+  GeneMutation(const GeneMutation &model);
+
   // =================================================================
   //                             Destructors
   // =================================================================
-  
-  virtual ~GeneMutation() noexcept;
-  
+
+
+  virtual ~GeneMutation();
   // =================================================================
   //                              Accessors
   // =================================================================
-  
-  inline int32_t get_generation() const;
-  inline double get_impact_on_metabolic_error() const;
-  inline ae_gene_mutation_region get_region();
+
+  inline int32_t generation() const;
+  inline double impact_on_metabolic_error() const;
+  inline ae_gene_mutation_region region();
   inline void set_impact_on_metabolic_error(double impact);
-  
- 
+
+
   // =================================================================
   //                            Public Methods
   // =================================================================
-  void get_description_string_for_gene_mut(char * str); // str must be at least of size 60
+  void description_string_for_gene_mut(char * str); // str must be at least of size 60
   int8_t type_of_event(); // 0 if local mut, 1 if rearrangement, 2 if transfer
 
-     
+
  protected :
-  
+
   // =================================================================
   //                         Forbidden Constructors
   // =================================================================
-  
-  GeneMutation( void )
+
+  GeneMutation()
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-  /* GeneMutation( const GeneMutation &model ) */
+  /* GeneMutation(const GeneMutation &model) */
   /*   { */
-  /*     printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ ); */
-  /*     exit( EXIT_FAILURE ); */
+  /*     printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__); */
+  /*     exit(EXIT_FAILURE); */
   /*   }; */
-  
+
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  
+
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  
-  int32_t*  _position_relative_to_shine_dal; /* array of positions similar to the _pos array of the Mutation class (size 1 for the switch, 2 for an inversion, etc.) */
-  int32_t   _generation;
-  double    _impact_on_metabolic_error;
-  ae_gene_mutation_region _region;
-  
+
+  int32_t*  position_relative_to_shine_dal_; /* array of positions similar to the pos_ array of the Mutation class (size 1 for the switch, 2 for an inversion, etc.) */
+  int32_t   generation_;
+  double    impact_on_metabolic_error_;
+  ae_gene_mutation_region region_;
+
 };
 
 
@@ -163,27 +163,27 @@ class GeneMutation : public Mutation
 //                         Inline Accessors' definitions
 // =====================================================================
 
-inline int32_t GeneMutation::get_generation() const
+inline int32_t GeneMutation::generation() const
 {
-  return _generation;
+  return generation_;
 }
 
-inline double GeneMutation::get_impact_on_metabolic_error() const
+inline double GeneMutation::impact_on_metabolic_error() const
 {
-  return _impact_on_metabolic_error;
+  return impact_on_metabolic_error_;
 
 }
 
 
 inline void GeneMutation::set_impact_on_metabolic_error(double impact)
 {
-  _impact_on_metabolic_error = impact;
+  impact_on_metabolic_error_ = impact;
 }
 
 
-inline ae_gene_mutation_region GeneMutation::get_region()
+inline ae_gene_mutation_region GeneMutation::region()
 {
-  return _region;
+  return region_;
 }
 
 // =====================================================================
@@ -191,4 +191,4 @@ inline ae_gene_mutation_region GeneMutation::get_region()
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_GENE_MUTATION_H__
+#endif // AEVOL_GENE_MUTATION_H_

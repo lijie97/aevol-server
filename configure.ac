@@ -10,6 +10,12 @@ AC_INIT([AEVOL], [5.0-beta5], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.f
 # Set C++ as the main language
 AC_LANG([C++])
 
+# Change default value for CXXFLAGS
+test_CXXFLAGS=${CXXFLAGS+set}
+if test "$test_CXXFLAGS" != set; then
+  CXXFLAGS=""
+fi
+
 # Specify the location of additional local Autoconf macros
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -23,21 +29,14 @@ AC_PROG_CXX([gcc,icc])
 AX_CXX_COMPILE_STDCXX_14([noext],[optional])
 AX_CXX_COMPILE_STDCXX_11([noext])
 
-
 #if test -z "$HAVE_CXX14";
 #fi
- 
+
 # Check the existance of an arbitrary source file
 AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 
 # Build config.h using config.h.in as a template
 #AC_CONFIG_HEADERS([config.h:config.h.in])
-
-# Change default value for CXXFLAGS
-test_CXXFLAGS=${CXXFLAGS+set}
-if test "$test_CXXFLAGS" != set; then
-  CXXFLAGS=""
-fi
 
 # Checks for programs
 AC_PROG_CXX([clang-omp++ clang++ g++])

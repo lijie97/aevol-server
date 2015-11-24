@@ -3,30 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
-#ifndef AEVOL_SELECTION_H__
-#define AEVOL_SELECTION_H__
+#ifndef AEVOL_SELECTION_H_
+#define AEVOL_SELECTION_H_
 
 
 // =================================================================
@@ -67,22 +67,23 @@ class Selection : public Observable
     // =================================================================
     //                             Constructors
     // =================================================================
-    Selection(void) = delete;
+    Selection() = delete;
     Selection(const Selection&) = delete;
     Selection(ExpManager* exp_m);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Selection(void) noexcept;
+
+    virtual ~Selection();
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline SelectionScheme get_selection_scheme(void) const;
-    inline double               get_selection_pressure(void) const;
-    inline double*              get_prob_reprod(void) const;
-    // inline std::unique_ptr<JumpingMT> get_prng(void) const;
+    inline SelectionScheme selection_scheme() const;
+    inline double               selection_pressure() const;
+    inline double*              prob_reprod() const;
+    // inline std::unique_ptr<JumpingMT> prng() const;
 
     // =================================================================
     //                        Accessors: setters
@@ -101,10 +102,9 @@ class Selection : public Observable
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void step_to_next_generation(void);
-    void PerformPlasmidTransfers(void);
+    void step_to_next_generation();
+    void PerformPlasmidTransfers();
     void write_setup_file(gzFile setup_file) const;
-    void write_setup_file(FILE* setup_file) const;
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
 
@@ -131,53 +131,53 @@ class Selection : public Observable
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void compute_prob_reprod(void);
-    void compute_local_prob_reprod(void);
+    void compute_prob_reprod();
+    void compute_local_prob_reprod();
     Individual* do_local_competition(int16_t x, int16_t y);
 
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    ExpManager* _exp_m;
-    
+    ExpManager* exp_m_;
+
     // ----------------------------------------- Pseudo-random number generator
     std::unique_ptr<JumpingMT> prng_;
 
     // -------------------------------------------------------------- Selection
-    SelectionScheme _selection_scheme;
-    double _selection_pressure;
+    SelectionScheme selection_scheme_;
+    double selection_pressure_;
 
     // --------------------------- Probability of reproduction of each organism
-    double* _prob_reprod;
+    double* prob_reprod_;
 };
 
 
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-// inline std::unique_ptr<JumpingMT> Selection::get_prng(void) const
+// inline std::unique_ptr<JumpingMT> Selection::prng() const
 // {
 //   return prng_;
 // }
 
-inline SelectionScheme Selection::get_selection_scheme(void) const
+inline SelectionScheme Selection::selection_scheme() const
 {
-  return _selection_scheme;
+  return selection_scheme_;
 }
 
-inline double Selection::get_selection_pressure(void) const
+inline double Selection::selection_pressure() const
 {
-  return _selection_pressure;
+  return selection_pressure_;
 }
 
-inline double*Selection::get_prob_reprod(void) const
+inline double*Selection::prob_reprod() const
 {
-  if (_prob_reprod == NULL)
+  if (prob_reprod_ == NULL)
   {
-    printf("ERROR, _prob_reprod has not been computed %s:%d\n", __FILE__, __LINE__);
+    printf("ERROR, prob_reprod_ has not been computed %s:%d\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
-  return _prob_reprod;
+  return prob_reprod_;
 }
 
 // =====================================================================
@@ -192,12 +192,12 @@ inline void Selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
 // -------------------------------------------------------------- Selection
 inline void Selection::set_selection_scheme(SelectionScheme sel_scheme)
 {
-  _selection_scheme = sel_scheme;
+  selection_scheme_ = sel_scheme;
 }
 
 inline void Selection::set_selection_pressure(double sel_pressure)
 {
-  _selection_pressure = sel_pressure;
+  selection_pressure_ = sel_pressure;
 }
 
 
@@ -210,4 +210,4 @@ inline void Selection::set_selection_pressure(double sel_pressure)
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_SELECTION_H__
+#endif // AEVOL_SELECTION_H_

@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -63,17 +63,17 @@ const int32_t Tree::NO_PARENT = -1;
 //                             Constructors
 // =================================================================
 Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
-  _exp_m = exp_m;
-  _tree_step = tree_step;
+  exp_m_ = exp_m;
+  tree_step_ = tree_step;
 
-  _replics = new ReplicationReport** [_tree_step];
+  replics_ = new ReplicationReport** [tree_step_];
 
   for (int32_t time = 0 ; time < tree_step ; time++) {
-    _replics[time] = new ReplicationReport* [exp_m->get_nb_indivs()];
+    replics_[time] = new ReplicationReport* [exp_m->nb_indivs()];
     for (int32_t num_indiv = 0 ;
-         num_indiv < exp_m->get_nb_indivs() ;
+         num_indiv < exp_m->nb_indivs() ;
          num_indiv++) {
-      _replics[time][num_indiv] = new ReplicationReport();
+      replics_[time][num_indiv] = new ReplicationReport();
     }
   }
 }
@@ -83,31 +83,31 @@ Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
  *
  */
 Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
-  _exp_m = exp_m;
-  _tree_step = _exp_m->get_tree_step();
+  exp_m_ = exp_m;
+  tree_step_ = exp_m_->tree_step();
 
-  gzFile tree_file = gzopen( tree_file_name, "r" );
+  gzFile tree_file = gzopen(tree_file_name, "r");
   if (tree_file == Z_NULL) {
-    printf( "ERROR : Could not read tree file %s\n", tree_file_name );
-    exit( EXIT_FAILURE );
+    printf("ERROR : Could not read tree file %s\n", tree_file_name);
+    exit(EXIT_FAILURE);
   }
 
-  _replics = new ReplicationReport** [_tree_step];
+  replics_ = new ReplicationReport** [tree_step_];
 
-  for (int64_t t = 0 ; t < _tree_step ; t++) {
-    _replics[t] = new ReplicationReport* [_exp_m->get_nb_indivs()];
+  for (int64_t t = 0 ; t < tree_step_ ; t++) {
+    replics_[t] = new ReplicationReport* [exp_m_->nb_indivs()];
     for (int32_t indiv_i = 0 ;
-         indiv_i < _exp_m->get_nb_indivs() ;
+         indiv_i < exp_m_->nb_indivs() ;
          indiv_i++) {
       // Retrieve a replication report
       ReplicationReport* replic_report = new ReplicationReport(tree_file,
                                                                nullptr);
 
       // Put it at its rightful position
-      _replics[t][replic_report->id()] = replic_report;
+      replics_[t][replic_report->id()] = replic_report;
     }
   }
-  gzclose( tree_file );
+  gzclose(tree_file);
 }
 
 
@@ -116,37 +116,37 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
 // =================================================================
 //                             Destructors
 // =================================================================
-Tree::~Tree() noexcept {
-  if ( _replics != NULL )  {
-    for (int32_t i = 0 ; i < _tree_step ; i++)
-      if (_replics[i] != NULL) {
-        for (int32_t j = 0 ; j < _exp_m->get_nb_indivs() ; j++)
-          delete _replics[i][j];
-        delete [] _replics[i];
+Tree::~Tree() {
+  if (replics_ != NULL)  {
+    for (int32_t i = 0 ; i < tree_step_ ; i++)
+      if (replics_[i] != NULL) {
+        for (int32_t j = 0 ; j < exp_m_->nb_indivs() ; j++)
+          delete replics_[i][j];
+        delete [] replics_[i];
       }
-    delete [] _replics;
+    delete [] replics_;
   }
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-ReplicationReport** Tree::get_reports(int64_t t) const {
-  return _replics[Utils::mod(t - 1, _tree_step)];
+ReplicationReport** Tree::reports(int64_t t) const {
+  return replics_[Utils::mod(t - 1, tree_step_)];
 }
 
-ReplicationReport* Tree::get_report_by_index(int64_t t, int32_t index) const {
-  return _replics[Utils::mod(t - 1, _tree_step)][index];
+ReplicationReport* Tree::report_by_index(int64_t t, int32_t index) const {
+  return replics_[Utils::mod(t - 1, tree_step_)][index];
 }
 
 
-ReplicationReport* Tree::get_report_by_rank(int64_t t, int32_t rank) const {
-  int32_t nb_indivs = _exp_m->get_nb_indivs();
+ReplicationReport* Tree::report_by_rank(int64_t t, int32_t rank) const {
+  int32_t nb_indivs = exp_m_->nb_indivs();
   assert(rank <= nb_indivs);
 
   for (int32_t i = 0 ; i < nb_indivs ; i++) {
-    if (_replics[Utils::mod(t - 1, _tree_step)][i]->rank() == rank) {
-      return _replics[Utils::mod(t - 1, _tree_step)][i];
+    if (replics_[Utils::mod(t - 1, tree_step_)][i]->rank() == rank) {
+      return replics_[Utils::mod(t - 1, tree_step_)][i];
     }
   }
 
@@ -157,25 +157,25 @@ ReplicationReport* Tree::get_report_by_rank(int64_t t, int32_t rank) const {
 }
 
 void Tree::signal_end_of_generation() {
-  auto cur_reports = get_reports(AeTime::get_time());
-  for (int32_t i = 0; i < _exp_m->get_nb_indivs(); i++) {
+  auto cur_reports = reports(AeTime::time());
+  for (int32_t i = 0; i < exp_m_->nb_indivs(); i++) {
     cur_reports[i]->signal_end_of_generation();
   }
 }
 
 void Tree::write_to_tree_file(gzFile tree_file) {
   // Write the tree in the backup
-  for (int64_t t = 0 ; t < _tree_step ; t++)
-    for (int32_t indiv_i = 0 ; indiv_i < _exp_m->get_nb_indivs() ; indiv_i++) {
-      assert(_replics[t][indiv_i] != NULL);
-      _replics[t][indiv_i]->write_to_tree_file(tree_file);
+  for (int64_t t = 0 ; t < tree_step_ ; t++)
+    for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
+      assert(replics_[t][indiv_i] != NULL);
+      replics_[t][indiv_i]->write_to_tree_file(tree_file);
     }
 
   // Reinitialize the tree
-  for (int32_t t = 0 ; t < _tree_step ; t++)
-    for (int32_t indiv_i = 0 ; indiv_i < _exp_m->get_nb_indivs() ; indiv_i++) {
-      delete _replics[t][indiv_i];
-      _replics[t][indiv_i] = new ReplicationReport();
+  for (int32_t t = 0 ; t < tree_step_ ; t++)
+    for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
+      delete replics_[t][indiv_i];
+      replics_[t][indiv_i] = new ReplicationReport();
     }
 }
 
@@ -184,7 +184,7 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
     case NEW_INDIV : {
       // Initialize the replication report corresponding to the new individual
       auto indivs = reinterpret_cast<Individual**>(arg);
-      get_report_by_index(AeTime::get_time(), indivs[0]->get_id())->
+      report_by_index(AeTime::time(), indivs[0]->id())->
           init(indivs[0], indivs[1]);
       break;
     }

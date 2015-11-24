@@ -22,11 +22,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
-#ifndef AEVOL_RNA_H__
-#define AEVOL_RNA_H__
+#ifndef AEVOL_RNA_H_
+#define AEVOL_RNA_H_
 
 
 // =================================================================
@@ -65,47 +65,47 @@ class Rna
     // =================================================================
     //                             Constructors
     // =================================================================
-    Rna(void) = delete;
+    Rna() = delete;
     Rna(const GeneticUnit&) = delete;
-    Rna( GeneticUnit* gen_unit, const Rna &model );
-    Rna( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
-    //Rna( Rna* parent );
+    Rna(GeneticUnit* gen_unit, const Rna &model);
+    Rna(GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff);
+    //Rna(Rna* parent);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Rna( void );
+    virtual ~Rna();
 
     // =================================================================
     //                              Accessors
     // =================================================================
 
     // <DEBUG>
-    void check( GeneticUnit* gen_unit ) { assert( gen_unit == _gen_unit ); };
-    //~ void* get_indiv( void ) const { return (void*)_indiv; };
+    void check(GeneticUnit* gen_unit) { assert(gen_unit == gen_unit_); };
+    //~ void* indiv() const { return (void*)indiv_; };
     // </DEBUG>
 
-    inline const GeneticUnit * get_genetic_unit(void) const;
+    inline const GeneticUnit * genetic_unit() const;
     inline void set_genetic_unit(const GeneticUnit*  gen_unit);
-    inline Strand get_strand( void ) const;
-    inline void       set_strand( Strand strand );
-    inline int32_t    get_promoter_pos( void ) const;
-    inline void       set_promoter_pos( int32_t pos );
-    inline double     get_basal_level( void ) const;
-    inline int32_t    get_transcript_length( void ) const; // The promoter is NOT transcribed.
-    inline void       set_transcript_length( int32_t length );
-    inline bool       is_coding( void ) const;
+    inline Strand strand() const;
+    inline void       set_strand(Strand strand);
+    inline int32_t    promoter_pos() const;
+    inline void       set_promoter_pos(int32_t pos);
+    inline double     basal_level() const;
+    inline int32_t    transcript_length() const; // The promoter is NOT transcribed.
+    inline void       set_transcript_length(int32_t length);
+    inline bool       is_coding() const;
 
-    inline const std::list<Protein *>& get_transcribed_proteins() const;
-    inline void clear_transcribed_proteins() { transcribed_proteins.clear(); };
+    inline const std::list<Protein *>& transcribed_proteins() const;
+    inline void clear_transcribed_proteins() { transcribed_proteins_.clear(); };
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    int32_t get_first_transcribed_pos( void ) const;   // The promoter is NOT transcribed.
-    int32_t get_last_transcribed_pos( void ) const;    // The terminator is transcribed.
-    inline void add_transcribed_protein( Protein * prot );
-    inline void shift_position( int32_t delta_pos, int32_t genome_length );
+    int32_t first_transcribed_pos() const;   // The promoter is NOT transcribed.
+    int32_t last_transcribed_pos() const;    // The terminator is transcribed.
+    inline void add_transcribed_protein(Protein * prot);
+    inline void shift_position(int32_t delta_pos, int32_t genome_length);
 
     // =================================================================
     //                           Public Attributes
@@ -127,88 +127,88 @@ class Rna
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    const GeneticUnit*  _gen_unit;
-    Strand _strand;
-    int32_t _pos; // Index of the promoter on the genome.
+    const GeneticUnit*  gen_unit_;
+    Strand strand_;
+    int32_t pos_; // Index of the promoter on the genome.
                   // The promoter itself is NOT transcribed
                   // The terminator is transcribed.
-    int32_t _transcript_length;
-    double _basal_level;
+    int32_t transcript_length_;
+    double basal_level_;
 
     // Access list to the proteins transcribed by this rna
-    std::list<Protein*> transcribed_proteins;
+    std::list<Protein*> transcribed_proteins_;
 };
 
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const GeneticUnit*Rna::get_genetic_unit( void ) const
+inline const GeneticUnit*Rna::genetic_unit() const
 {
-  return _gen_unit;
+  return gen_unit_;
 }
 
 inline void Rna::set_genetic_unit(const GeneticUnit*  gen_unit)
 {
-  _gen_unit = gen_unit;
+  gen_unit_ = gen_unit;
 }
 
-inline Strand Rna::get_strand( void ) const
+inline Strand Rna::strand() const
 {
-  return _strand;
+  return strand_;
 }
 
-inline void Rna::set_strand( Strand strand )
+inline void Rna::set_strand(Strand strand)
 {
-  _strand = strand;
+  strand_ = strand;
 }
 
-void Rna::set_promoter_pos( int32_t pos )
+void Rna::set_promoter_pos(int32_t pos)
 {
-  _pos = pos;
+  pos_ = pos;
 }
 
-inline int32_t Rna::get_promoter_pos( void ) const
+inline int32_t Rna::promoter_pos() const
 {
-  return _pos;
+  return pos_;
 }
 
-inline double Rna::get_basal_level( void ) const
+inline double Rna::basal_level() const
 {
-  return _basal_level;
+  return basal_level_;
 }
 
-inline int32_t Rna::get_transcript_length( void ) const
+inline int32_t Rna::transcript_length() const
 {
-  return _transcript_length;
+  return transcript_length_;
 }
 
-inline void Rna::set_transcript_length( int32_t transcript_length )
+inline void Rna::set_transcript_length(int32_t transcript_length)
 {
-  _transcript_length = transcript_length;
+  transcript_length_ = transcript_length;
 }
 
-inline const std::list<Protein *>&Rna::get_transcribed_proteins() const {
-  return transcribed_proteins;
+inline const std::list<Protein *>&Rna::transcribed_proteins() const {
+  return transcribed_proteins_;
 }
 
-inline bool Rna::is_coding( void ) const
+inline bool Rna::is_coding() const
 {
-  return (not transcribed_proteins.empty());
+  return (not transcribed_proteins_.empty());
 }
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void Rna::add_transcribed_protein( Protein * prot )
+void Rna::add_transcribed_protein(Protein * prot)
 {
-  transcribed_proteins.push_back(prot);
+  transcribed_proteins_.push_back(prot);
 }
 
-void Rna::shift_position( int32_t delta_pos, int32_t genome_length )
+void Rna::shift_position(int32_t delta_pos, int32_t genome_length)
 {
-  _pos = Utils::mod( _pos + delta_pos, genome_length );
+  pos_ = Utils::mod(pos_ + delta_pos, genome_length);
 }
 
 } // namespace aevol
-#endif // AEVOL_RNA_H__
+#endif // AEVOL_RNA_H_

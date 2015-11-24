@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
           nb_children = atol(optarg);
           break;
         case 'r' :
-          if (index_already_set) 
+          if (index_already_set)
             {
               fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
               exit(EXIT_FAILURE);
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
           rank_already_set = true;
           break;
         case 'i' :
-          if (rank_already_set) 
+          if (rank_already_set)
             {
               fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
               fprintf(stderr, "           Use %s --help for more information.\n", argv[0]);
@@ -148,9 +148,9 @@ int main(int argc, char* argv[])
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load(num_gener, true, false);
 
-  if ((wanted_rank == -1) && (wanted_index == -1)) 
+  if ((wanted_rank == -1) && (wanted_index == -1))
     {
-      wanted_rank = exp_manager->get_nb_indivs();  // the best one has rank N
+      wanted_rank = exp_manager->nb_indivs();  // the best one has rank N
     }
 
   // TODO: factor with duplicated code in mutagenesis.cpp
@@ -159,10 +159,10 @@ int main(int argc, char* argv[])
     bool found = false;
     int32_t current_rank = -1;
     int32_t current_index = -1;
-    std::list<ae_individual*> indivs = exp_manager->get_indivs();
+    std::list<ae_individual*> indivs = exp_manager->indivs();
     for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
-      current_index = (*indiv)->get_id();
-      current_rank = (*indiv)->get_rank();
+      current_index = (*indiv)->id();
+      current_rank = (*indiv)->rank();
 
       if (wanted_index != -1 and current_index == wanted_index) {
         found = true;
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
 
   char directory_name[64];
   sprintf(directory_name, "analysis-generation%06" PRId64, num_gener);
-  
+
   // Check whether the directory already exists and is writable
   if (access(directory_name, F_OK) == 0)
     {
@@ -210,12 +210,12 @@ int main(int argc, char* argv[])
           exit(EXIT_FAILURE);
         }
     }
-  
+
 
   char filename[256];
-  snprintf( filename, 255, "%s/robustness-allindivs-g%06" PRId64 ".out", directory_name, num_gener);
+  snprintf(filename, 255, "%s/robustness-allindivs-g%06" PRId64 ".out", directory_name, num_gener);
   FILE * outputfile_wholepop = fopen(filename, "w");
-  
+
   snprintf(filename, 255,
            "%s/robustness-singleindiv-details-g%06" PRId64
                "-i%" PRId32 "-r%" PRId32 ".out",
@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
   fprintf(outputfile_wholepop, "#  16. Functional gene number mean of offsprings\n");
   fprintf(outputfile_wholepop, "#  17. Functional gene number variance of offsprings\n");
   fprintf(outputfile_wholepop, "# ######################################################################\n");
-  
+
   fprintf(outputfile_details, "# #######################################################################################################\n");
   fprintf(outputfile_details, "#  Offspring details of individual with rank %" PRId32 " and index %" PRId32 " at generation %" PRId64 " \n", \
           wanted_rank, wanted_index, num_gener);
@@ -263,23 +263,23 @@ int main(int argc, char* argv[])
 
 
   // ---------------------------------------------------------------------------
-  //  Force each individual of the population to produce nb_children offspring 
+  //  Force each individual of the population to produce nb_children offspring
   // ---------------------------------------------------------------------------
 
-  
+
   double reproduction_statistics[3];
   double offsprings_statistics[6];
   double th_fv;
-  
-  // exp_manager->get_exp_s()->get_sel()->compute_prob_reprod();
-  // double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->get_prob_reprod();
+
+  // exp_manager->exp_s()->sel()->compute_prob_reprod();
+  // double* tmp_reprod = exp_manager->exp_s()->sel()->prob_reprod();
 
   { // (local scope for `indivs` used as a shorthand)
-    list<ae_individual*> indivs = exp_manager->get_indivs();
+    list<ae_individual*> indivs = exp_manager->indivs();
     for (auto indiv : indivs)
     {
-      int32_t current_index = indiv->get_id();
-      int32_t current_rank = indiv->get_rank();
+      int32_t current_index = indiv->id();
+      int32_t current_rank = indiv->rank();
 
       // Compute Fv ----------------------------------------------------------------
       th_fv = indiv->compute_theoritical_f_nu();
@@ -301,10 +301,10 @@ int main(int argc, char* argv[])
               " %le %le %le %le %le %le %le %le %le %le\n",
               current_rank,
               current_index,
-              indiv->get_fitness(),
-              indiv->get_dist_to_target_by_feature(METABOLISM),
-              indiv->get_total_genome_size(),
-              indiv->get_nb_functional_genes(),
+              indiv->fitness(),
+              indiv->dist_to_target_by_feature(METABOLISM),
+              indiv->total_genome_size(),
+              indiv->nb_functional_genes(),
               reproduction_statistics[0],
               reproduction_statistics[1],
               reproduction_statistics[2],
@@ -315,17 +315,17 @@ int main(int argc, char* argv[])
               offsprings_statistics[3],
               offsprings_statistics[4],
               offsprings_statistics[5]
-             );
+);
     }
   }
 
 
 
   fclose(outputfile_wholepop);
-  fclose(outputfile_details); 
+  fclose(outputfile_details);
   delete exp_manager;
 
-  
+
   return EXIT_SUCCESS;
 }
 

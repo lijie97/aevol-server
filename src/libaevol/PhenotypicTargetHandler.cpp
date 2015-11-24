@@ -3,26 +3,26 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
 
@@ -214,13 +214,13 @@ void PhenotypicTargetHandler::ApplyAutoregressiveMeanVariation() {
   // For each gaussian :
   // current_mean = ref_mean + delta_m, where
   // delta_m follows an autoregressive stochastic process
-  // with the parameters _var_sigma and _var_tau
+  // with the parameters var_sigma_ and var_tau_
   for (auto cur_gaussian = current_gaussians_.begin(),
            initial_gaussian = initial_gaussians_.begin() ;
        cur_gaussian != current_gaussians_.end() ;
        cur_gaussian++, initial_gaussian++) {
     // Find the current delta_mean = current_mean - ref_mean
-    double delta_mean = cur_gaussian->get_mean() - initial_gaussian->get_mean();
+    double delta_mean = cur_gaussian->mean() - initial_gaussian->mean();
 
     // Compute the next value :
     // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
@@ -230,7 +230,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveMeanVariation() {
                                                 *var_prng_);
 
     // Deduce the new value of the mean : ref_mean + delta_m
-    cur_gaussian->set_mean(initial_gaussian->get_mean() + delta_mean );
+    cur_gaussian->set_mean(initial_gaussian->mean() + delta_mean);
   }
 
   BuildPhenotypicTarget();
@@ -240,14 +240,14 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
   // For each gaussian :
   // current_height = ref_height + delta_h, where
   // delta_h follows an autoregressive stochastic process
-  // with the parameters _var_sigma and _var_tau
+  // with the parameters var_sigma_ and var_tau_
   for (auto cur_gaussian = current_gaussians_.begin(),
            initial_gaussian = initial_gaussians_.begin() ;
        cur_gaussian != current_gaussians_.end() ;
        cur_gaussian++, initial_gaussian++) {
     // Find the current delta_height = current_height - ref_height
-    double delta_height = cur_gaussian->get_height() -
-        initial_gaussian->get_height();
+    double delta_height = cur_gaussian->height() -
+      initial_gaussian->height();
 
     // Compute the next value :
     // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
@@ -257,7 +257,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
                                                 *var_prng_);
 
     // Deduce the new value of the height : ref_height + delta_h
-    cur_gaussian->set_height(initial_gaussian->get_height() + delta_height);
+    cur_gaussian->set_height(initial_gaussian->height() + delta_height);
   }
 
   BuildPhenotypicTarget();

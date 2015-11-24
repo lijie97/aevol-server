@@ -1,4 +1,8 @@
-// Aevol - An in silico experimental evolution platform
+// ****************************************************************************
+//
+//          Aevol - An in silico experimental evolution platform
+//
+// ****************************************************************************
 //
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -17,6 +21,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ****************************************************************************
 
 // ============================================================================
 //                                   Includes

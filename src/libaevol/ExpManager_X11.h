@@ -3,32 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
- 
- 
-#ifndef AEVOL_EXP_SETUP_X11_H__
-#define AEVOL_EXP_SETUP_X11_H__
- 
- 
+
+#ifndef AEVOL_EXP_SETUP_X11_H_
+#define AEVOL_EXP_SETUP_X11_H_
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -53,8 +51,7 @@ namespace aevol {
 class ExpSetup;
 class X11Window;
 
-enum key_map
-{
+enum key_map {
   KEY_ESCAPE = 0,
   KEY_F1 = 1,
   KEY_F2 = 2,
@@ -106,9 +103,6 @@ enum key_map
 };
 
 
-
-
- 
 class ExpManager_X11 : public ExpManager
 {
   friend class ExpSetup;
@@ -179,75 +173,35 @@ class ExpManager_X11 : public ExpManager
   //                           Protected Methods
   // =================================================================
   void initialize(bool with_grid = false, bool with_plasmids = false);
-  void compute_colormap(void);  
-  void set_codes(void);
+  void compute_colormap();
+  void set_codes();
   int8_t identify_window(Window winID);
   void draw_window(int8_t win_number);
   void refresh_window(int8_t win_number);
 
-  
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  bool      _display_on;
-  bool      _handle_display_on_off;
-  uint32_t  _show_window;     // (bitmap) windows that have to be displayed (user switches value pressing F1, F2, ...)
-  uint32_t  _new_show_window; // (bitmap) windows that have to be displayed but were not displayed at the last refresh
-  Display*  _display;
-  int8_t    _screen;
-  Atom*     _atoms;
-  KeyCode*  _key_codes;
-  
-  X11Window ** _win;       // Table containing the <nb_windows> windows
-  char **         _win_name;  // window names
-  unsigned int**  _win_size;  // window sizes
-  int**           _win_pos;   // window positions
+  bool     display_on_;
+  bool     handle_display_on_off_;
+  uint32_t show_window_;     // (bitmap) windows that have to be displayed (user switches value pressing F1, F2, ...)
+  uint32_t new_show_window_; // (bitmap) windows that have to be displayed but were not displayed at the last refresh
+  Display* display_;
+  int8_t   screen_;
+  Atom*    atoms_;
+  KeyCode* key_codes_;
 
-  std::vector<char*> _col_map;
+  X11Window**    win_;      // Table containing the <nb_windows> windows
+  char**         win_name_; // window names
+  unsigned int** win_size_; // window sizes
+  int**          win_pos_;  // window positions
+
+  std::vector<char*> col_map_;
 };
-
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-bool ExpManager_X11::get_display_on(void)
-{
-  return _display_on;
-}
-
-Display *ExpManager_X11::get_display(void)
-{
-  return _display;
-}
-
-
-bool ExpManager_X11::get_show_window( int8_t win )
-{
-  return ( (_show_window >> win) & 1 );
-}
-
-bool ExpManager_X11::get_new_show_window( int8_t win )
-{
-  return ( (_new_show_window >> win) & 1 );
-}
-
-
-int8_t ExpManager_X11::get_screen(void)
-{
-  return _screen;
-}
-
-
-Atom*ExpManager_X11::get_atoms(void)
-{
-  return _atoms;
-}
-
-
-X11Window *ExpManager_X11::get_window( int8_t win )
-{
-  return _win[win];
-}
 
 // =====================================================================
 //                       Inline functions' definition
@@ -255,4 +209,4 @@ X11Window *ExpManager_X11::get_window( int8_t win )
 
 } // namespace aevol
 
-#endif // AEVOL_EXP_SETUP_X11_H__
+#endif // AEVOL_EXP_SETUP_X11_H_

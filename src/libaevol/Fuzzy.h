@@ -1,4 +1,8 @@
-// Aevol - An in silico experimental evolution platform
+// ****************************************************************************
+//
+//          Aevol - An in silico experimental evolution platform
+//
+// ****************************************************************************
 //
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -17,9 +21,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ****************************************************************************
 
-#ifndef AEVOL_FUZZY_H__
-#define AEVOL_FUZZY_H__
+#ifndef AEVOL_FUZZY_H_
+#define AEVOL_FUZZY_H_
 
 #include <list>
 
@@ -62,11 +68,11 @@ namespace aevol {
 ///            X_MIN x1        x2    x3 x4 x5    x6      x7    x8  x9  x10 X_MAX
 /// \\endcode
 /// \endverbatim
-/// fs.points would hold the list {(X_MIN,0),(x1,y1),...,(x10,y10)(X_MAX,0)}
+/// fs.points_ would hold the list {(X_MIN,0),(x1,y1),...,(x10,y10)(X_MAX,0)}
 ///
-/// \invariant{`points.size()` ≥ 2}
-/// \invariant{`points.begin()->x == X_MIN`}
-/// \invariant{`prev(points.end())->x == X_MAX`}
+/// \invariant{`points_.size()` ≥ 2}
+/// \invariant{`points_.begin()->x == X_MIN`}
+/// \invariant{`prev(points_.end())->x == X_MAX`}
 /// \invariant{`is_increasing()`}
 class Fuzzy : public AbstractFuzzy
 {
@@ -74,8 +80,8 @@ class Fuzzy : public AbstractFuzzy
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Fuzzy(): points({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
-  Fuzzy(const Fuzzy& f): points(f.points) {};
+  Fuzzy(): points_({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
+  Fuzzy(const Fuzzy& f): points_(f.points_) {};
   Fuzzy(const gzFile backup) { load(backup); };
 
   // ==========================================================================
@@ -102,7 +108,7 @@ class Fuzzy : public AbstractFuzzy
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  const std::list<Point>& get_points() const {return points;};
+  const std::list<Point>& points() const {return points_;}
   // TODO: should be made protected or removed (looks like implementation specific)
   const std::list<Point>& get_points(void) {return points;};
   double get_geometric_area() const;
@@ -130,9 +136,9 @@ class Fuzzy : public AbstractFuzzy
   // ==========================================================================
   bool invariant() const {
     return
-        points.size() >= 2             and
-        points.begin()->x == X_MIN     and
-        prev(points.end())->x == X_MAX and
+        points_.size() >= 2             and
+        points_.begin()->x == X_MIN     and
+        prev(points_.end())->x == X_MAX and
         is_increasing();
   };
   bool is_increasing() const;
@@ -141,7 +147,7 @@ class Fuzzy : public AbstractFuzzy
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  std::list<Point> points;
+  std::list<Point> points_;
 
   std::list<Point>::iterator create_interpolated_point(
           double x,
@@ -150,4 +156,4 @@ class Fuzzy : public AbstractFuzzy
 
 double trapezoid_area(const Point& p1, const Point& p2);
 } // namespace aevol
-#endif // AEVOL_FUZZY_H__
+#endif // AEVOL_FUZZY_H_

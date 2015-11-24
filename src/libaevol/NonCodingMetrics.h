@@ -3,30 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
-#ifndef AEVOL_NON_CODING_STATS_H__
-#define AEVOL_NON_CODING_STATS_H__
+#ifndef AEVOL_NON_CODING_STATS_H_
+#define AEVOL_NON_CODING_STATS_H_
 
 
 // ============================================================================
@@ -59,14 +59,14 @@ class NonCodingMetrics
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  NonCodingMetrics(void) = default; //< Default ctor
+  NonCodingMetrics() = default; //< Default ctor
   NonCodingMetrics(const NonCodingMetrics&) = default; //< Copy ctor
   NonCodingMetrics(NonCodingMetrics&&) = default; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~NonCodingMetrics(void) = default; //< Destructor
+  virtual ~NonCodingMetrics() = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters
@@ -159,16 +159,16 @@ class NonCodingMetrics
 //                       Inline functions' definition
 // ============================================================================
 void NonCodingMetrics::Accumulate(const GeneticUnit& gen_unit) {
-  nb_bases_in_0_CDS_ += gen_unit.get_nb_bases_in_0_CDS();
-  nb_bases_in_0_functional_CDS_ += gen_unit.get_nb_bases_in_0_functional_CDS();
+  nb_bases_in_0_CDS_ += gen_unit.nb_bases_in_0_CDS();
+  nb_bases_in_0_functional_CDS_ += gen_unit.nb_bases_in_0_functional_CDS();
   nb_bases_in_0_non_functional_CDS_ +=
-      gen_unit.get_nb_bases_in_0_non_functional_CDS();
-  nb_bases_in_0_RNA_ += gen_unit.get_nb_bases_in_0_RNA();
-  nb_bases_in_0_coding_RNA_ += gen_unit.get_nb_bases_in_0_coding_RNA();
-  nb_bases_in_0_non_coding_RNA_ += gen_unit.get_nb_bases_in_0_non_coding_RNA();
-  nb_bases_in_neutral_regions_ += gen_unit.get_nb_bases_in_neutral_regions();
-  nb_neutral_regions_ += gen_unit.get_nb_neutral_regions();
+      gen_unit.nb_bases_in_0_non_functional_CDS();
+  nb_bases_in_0_RNA_ += gen_unit.nb_bases_in_0_RNA();
+  nb_bases_in_0_coding_RNA_ += gen_unit.nb_bases_in_0_coding_RNA();
+  nb_bases_in_0_non_coding_RNA_ += gen_unit.nb_bases_in_0_non_coding_RNA();
+  nb_bases_in_neutral_regions_ += gen_unit.nb_bases_in_neutral_regions();
+  nb_neutral_regions_ += gen_unit.nb_neutral_regions();
 }
 } // namespace aevol
 
-#endif // AEVOL_NON_CODING_STATS_H__
+#endif // AEVOL_NON_CODING_STATS_H_

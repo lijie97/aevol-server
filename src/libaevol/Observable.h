@@ -1,4 +1,8 @@
-// Aevol - An in silico experimental evolution platform
+// ****************************************************************************
+//
+//          Aevol - An in silico experimental evolution platform
+//
+// ****************************************************************************
 //
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -17,9 +21,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ****************************************************************************
 
-#ifndef OBSERVER_OBSERVABLE_H__
-#define OBSERVER_OBSERVABLE_H__
+#ifndef AEVOL_OBSERVABLE_H_
+#define AEVOL_OBSERVABLE_H_
 
 
 // ============================================================================
@@ -45,14 +51,15 @@ using std::map;
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Observable(void) = default; //< Default ctor
+  Observable() = default; //< Default ctor
   Observable(const Observable&) = delete; //< Copy ctor
   Observable(Observable&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Observable(void) noexcept = default; //< Destructor
+
+  virtual ~Observable() = default; //< Destructor
 
   // ==========================================================================
   //                                Operators
@@ -91,4 +98,4 @@ using std::map;
 };
 
 
-#endif //OBSERVER_OBSERVABLE_H__
+#endif // AEVOL_OBSERVABLE_H_

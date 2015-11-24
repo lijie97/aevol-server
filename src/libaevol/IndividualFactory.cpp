@@ -3,26 +3,26 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
+//
+// ****************************************************************************
 
 
 
@@ -119,13 +119,12 @@ Individual* IndividualFactory::create_random_individual(
 
     indiv->EvaluateInContext(habitat);
 
-    // TODO: Find a more elegant way of doing it
-    double r_compare = round((indiv->get_dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
-
-    while (r_compare >= 0.0) {
-      #ifdef __REGUL
+    while (indiv->dist_to_target_by_feature(METABOLISM) >=
+        env_metabolic_area) {
+#ifdef __REGUL
       indiv->set_networked(false);
-      #endif
+#endif
+
       // Replace the former chromosome by a new random one and re-evaluate the
       // individual
       indiv->remove_GU(0);
@@ -133,7 +132,7 @@ Individual* IndividualFactory::create_random_individual(
       indiv->EvaluateInContext(habitat);
       //debug :
       //printf("Dist to target du nouveau clone : %f\n", indiv->get_dist_to_target_by_feature(METABOLISM));
-      r_compare = round((indiv->get_dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+      //r_compare = round((indiv->get_dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
     }
   }
   if (allow_plasmids) // We create a plasmid
@@ -145,8 +144,8 @@ Individual* IndividualFactory::create_random_individual(
       if (better_than_flat) {
         indiv->EvaluateInContext(habitat);
 
-        while (indiv->get_genetic_unit(1).
-            get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area) {
+        while (indiv->genetic_unit(1).
+            dist_to_target_by_feature(METABOLISM) >= env_metabolic_area) {
           indiv->remove_GU(1);
           indiv->add_GU(indiv, plasmid_initial_length, local_prng);
           indiv->EvaluateInContext(habitat);
@@ -157,14 +156,14 @@ Individual* IndividualFactory::create_random_individual(
       // The plasmid is a copy of the chromosome
       char* plasmid_genome = new char[chromosome_initial_length + 1];
       strncpy(plasmid_genome,
-              indiv->get_genetic_unit_list().back().get_sequence(),
+              indiv->genetic_unit_list().back().sequence(),
               chromosome_initial_length + 1);
       indiv->add_GU(plasmid_genome, chromosome_initial_length);
     }
   }
 
   // Insert a few IS in the sequence
-  /*if (ae_common::init_params->get_init_method() & WITH_INS_SEQ)
+  /*if (ae_common::init_params->init_method() & WITH_INS_SEQ)
   {
     // Create a random sequence
     int32_t seq_len = 50;
@@ -183,7 +182,7 @@ Individual* IndividualFactory::create_random_individual(
     Mutation* mut1 = NULL;
     for (int16_t i = 0 ; i < nb_insert ; i++)
     {
-      mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion(ins_seq, seq_len);
+      mut1 = indiv->genetic_unit(0)->dna()->do_insertion(ins_seq, seq_len);
       delete mut1;
     }
 
@@ -198,7 +197,7 @@ Individual* IndividualFactory::create_random_individual(
 
     for (int16_t i = 0 ; i < nb_invert ; i++)
     {
-      mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion(inverted_seq, seq_len);
+      mut1 = indiv->genetic_unit(0)->dna()->do_insertion(inverted_seq, seq_len);
       delete mut1;
     }
 

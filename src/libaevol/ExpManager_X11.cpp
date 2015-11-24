@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -84,155 +84,150 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 //                             Constructors
 // =================================================================
-ExpManager_X11::ExpManager_X11(void) : ExpManager()
+ExpManager_X11::ExpManager_X11() : ExpManager()
 {
   // Basic initializations
-  _win      = NULL;
-  _win_size = NULL;
-  _win_pos  = NULL;
-  _win_name = NULL;
+  win_ = NULL;
+  win_size_ = NULL;
+  win_pos_ = NULL;
+  win_name_ = NULL;
 
-  _display_on             = false;
-  _handle_display_on_off  = false;
+  display_on_ = false;
+  handle_display_on_off_ = false;
 
   // Initialize XLib stuff
-  _display  = XOpenDisplay(NULL);
-  if (_display == NULL)
+  display_ = XOpenDisplay(NULL);
+  if (display_ == NULL)
   {
     printf("ERROR:\tCould not open connection to X server.\n");
     printf("\tIf you are using aevol through SSH, you may use ssh -X.\n");
     exit(EXIT_FAILURE);
   }
-  _screen   = XDefaultScreen(_display);
-  _atoms    = new Atom[2];
-  _atoms[0] = XInternAtom(_display, "WM_DELETE_WINDOW", False);
-  _atoms[1] = XInternAtom(_display, "WM_PROTOCOLS", False);
+  screen_ = XDefaultScreen(display_);
+  atoms_ = new Atom[2];
+  atoms_[0] = XInternAtom(display_, "WM_DELETE_WINDOW", False);
+  atoms_[1] = XInternAtom(display_, "WM_PROTOCOLS", False);
   set_codes();
 }
 
 // =================================================================
 //                             Destructor
 // =================================================================
-ExpManager_X11::~ExpManager_X11(void) noexcept
+ExpManager_X11::~ExpManager_X11()
 {
-  delete [] _key_codes;
-  delete [] _atoms;
+  delete [] key_codes_;
+  delete [] atoms_;
 
   for (int8_t i = 0 ; i < NB_WIN ; i++)
   {
-    if (_win != NULL)
+    if (win_ != NULL)
     {
-      if (_win[i] != NULL) delete _win[i];
+      if (win_[i] != NULL) delete win_[i];
     }
-    if (_win_size != NULL)
+    if (win_size_ != NULL)
     {
-      if (_win_size[i] != NULL) delete [] _win_size[i];
+      if (win_size_[i] != NULL) delete [] win_size_[i];
     }
-    if (_win_pos != NULL)
+    if (win_pos_ != NULL)
     {
-      if (_win_pos[i] != NULL) delete [] _win_pos[i];
+      if (win_pos_[i] != NULL) delete [] win_pos_[i];
     }
   }
-  if (_win != NULL) delete [] _win;
+  if (win_ != NULL) delete [] win_;
 
-  XCloseDisplay(_display);
+  XCloseDisplay(display_);
 
-  if (_win_name != NULL) delete [] _win_name;
-  if (_win_size != NULL) delete [] _win_size;
-  if (_win_pos != NULL) delete [] _win_pos;
+  if (win_name_ != NULL) delete [] win_name_;
+  if (win_size_ != NULL) delete [] win_size_;
+  if (win_pos_ != NULL) delete [] win_pos_;
 
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-
-
-bool ExpManager_X11::quit_signal_received(void)
-{
-  return _quit_signal_received;
-}
-
-void ExpManager_X11::display(void)
+void ExpManager_X11::display()
 {
   // ---------------------
   // 1) Handle user events
   // ---------------------
-  if (_display_on) handle_events();
+  if (display_on_) handle_events();
 
 
 
   // --------------------------------------------------
   // 2) Handle signal that toggle the display on or off
   // --------------------------------------------------
-  if (_handle_display_on_off)
+  if (handle_display_on_off_)
   {
-    _handle_display_on_off = false;
+    handle_display_on_off_ = false;
 
-    if (_display_on)
+    if (display_on_)
     // Display was "on", close all windows
     // (after saving their current size and position)
     {
       for (int8_t num_win = 0 ; num_win < NB_WIN ; num_win++)
       {
-        if (_win[num_win] != NULL)
+        if (win_[num_win] != NULL)
         {
           // 1) Save current window position and size
           Window aWindow; // Unused
           int x_return, y_return;
           int dest_x_return, dest_y_return;
           unsigned int border_width_return, depth_return; // Unused
-          XGetGeometry(_display, _win[num_win]->get_window(), &aWindow,
+          XGetGeometry(display_, win_[num_win]->window(), &aWindow,
               &x_return, &y_return,
-              &_win_size[num_win][0], &_win_size[num_win][1],
+              &win_size_[num_win][0], &win_size_[num_win][1],
               &border_width_return, &depth_return);
-          XTranslateCoordinates(_display, _win[num_win]->get_window(),
-              DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
+          XTranslateCoordinates(display_, win_[num_win]->window(),
+              DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
 
           _win_pos[num_win][0] = dest_x_return - x_return;
           _win_pos[num_win][1] = dest_y_return - y_return;
           // 2) Delete window
-          delete _win[num_win];
-          _win[num_win] = NULL;
+          delete win_[num_win];
+          win_[num_win] = NULL;
         }
       }
 
-      XFlush(_display);
-      delete _win;
-      _win = NULL;
+      XFlush(display_);
+      delete win_;
+      win_ = NULL;
 
-      _display_on = false;
+      display_on_ = false;
     }
     else // Display was "off", open windows
     {
-      _show_window |= 1;
-      _new_show_window = _show_window;
+      show_window_ |= 1;
+      new_show_window_ = show_window_;
+
       // If it's the first time the display is switched on, initialize it.
-      if (_win == NULL) initialize(true,this->get_exp_s()->get_with_plasmids());
+      if (win_ == NULL) initialize();
 
       for (int8_t i = 0 ; i < NB_WIN ; i++)
       {
-        if (get_show_window(i))
+        if (show_window(i))
         {
-          _win[i] = new X11Window(_display, _screen, _atoms,
-              _win_pos[i][0], _win_pos[i][1],
-              _win_size[i][0], _win_size[i][1], _win_name[i]);
+          win_[i] = new X11Window(display_, screen_, atoms_,
+              win_pos_[i][0], win_pos_[i][1],
+              win_size_[i][0], win_size_[i][1], win_name_[i]);
         }
       }
-      _display_on = true;
+
+      display_on_ = true;
     }
   }
 
   // ----------
   // 3) Display
   // ----------
-  if (_display_on)
+  if (display_on_)
   {
     for (int8_t i = 0 ; i < NB_WIN ; i++)
     {
-      if (get_show_window(i))
+      if (show_window(i))
       {
-        if (get_new_show_window(i))
+        if (new_show_window(i))
         {
           draw_window(i);
         }
@@ -244,11 +239,11 @@ void ExpManager_X11::display(void)
     }
 
     // Refresh all windows
-    XFlush(_display);
+    XFlush(display_);
   }
 }
 
-void ExpManager_X11::handle_events(void)
+void ExpManager_X11::handle_events()
 {
   XEvent event;
   int8_t win_number;
@@ -259,7 +254,7 @@ void ExpManager_X11::handle_events(void)
   // events are needed in order to catch "WM_DELETE_WINDOW")
   int iCurrEvent    = 0;
   int iIgnoreNoise  = 0;
-  while(XCheckIfEvent(_display, &event, AlwaysTruePredicate, 0))
+  while(XCheckIfEvent(display_, &event, AlwaysTruePredicate, 0))
   {
     iCurrEvent ++;
     win_number = identify_window(event.xany.window);
@@ -273,11 +268,11 @@ void ExpManager_X11::handle_events(void)
     {
       case ConfigureNotify :
       {
-        _win[win_number]->resize(event.xconfigure.width, event.xconfigure.height);
-        //~ _win[win_number]->repos(event.xconfigure.x, event.xconfigure.y);
+        win_[win_number]->resize(event.xconfigure.width, event.xconfigure.height);
+        //~ win_[win_number]->repos(event.xconfigure.x, event.xconfigure.y);
 
         // Mark window as having to be entirely redrawn
-        _new_show_window |= 1 << win_number;
+        new_show_window_ |= 1 << win_number;
         break;
       }
       case MapNotify :
@@ -290,35 +285,35 @@ void ExpManager_X11::handle_events(void)
         if(iCurrEvent > iIgnoreNoise)
         {
           draw_window(win_number);
-          iIgnoreNoise = iCurrEvent + XQLength(_display);
+          iIgnoreNoise = iCurrEvent + XQLength(display_);
         }
         break;
       }
       case ClientMessage :
       {
-        if (((Atom) event.xclient.data.l[0]) == _atoms[0]) // The user closed the window by clicking on the cross
+        if (((Atom) event.xclient.data.l[0]) == atoms_[0]) // The user closed the window by clicking on the cross
         {
           // 1) Save current window position and size
           Window aWindow; // Unused
           int x_return, y_return;
           int dest_x_return, dest_y_return;
           unsigned int border_width_return, depth_return; // Unused
-          XGetGeometry(_display, _win[win_number]->get_window(), &aWindow, &x_return, &y_return,
-                        &_win_size[win_number][0], &_win_size[win_number][1], &border_width_return, &depth_return);
-          XTranslateCoordinates(_display, _win[win_number]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
+          XGetGeometry(display_, win_[win_number]->window(), &aWindow, &x_return, &y_return,
+                        &win_size_[win_number][0], &win_size_[win_number][1], &border_width_return, &depth_return);
+          XTranslateCoordinates(display_, win_[win_number]->window(), DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
 
-          _win_pos[win_number][0] = dest_x_return - x_return;
-          _win_pos[win_number][1] = dest_y_return - y_return;
+          win_pos_[win_number][0] = dest_x_return - x_return;
+          win_pos_[win_number][1] = dest_y_return - y_return;
 
           // 2) Delete window and mark as "not to be shown"
-          delete _win[win_number];
-          _win[win_number] = NULL;
-          _show_window &= ~(1 << win_number);
+          delete win_[win_number];
+          win_[win_number] = NULL;
+          show_window_ &= ~(1 << win_number);
 
           // 3) If it was the main that was closed, turn display off.
           if (win_number == 0)
           {
-            _handle_display_on_off = true;
+            handle_display_on_off_ = true;
           }
         }
         break;
@@ -326,70 +321,70 @@ void ExpManager_X11::handle_events(void)
       case KeyPress :
       {
         // Not sure a switch would work on any platform => use ifs instead
-        if (event.xkey.keycode == _key_codes[KEY_F1] ||
-             event.xkey.keycode == _key_codes[KEY_F2] ||
-             event.xkey.keycode == _key_codes[KEY_F3] ||
-             event.xkey.keycode == _key_codes[KEY_F4] ||
-             event.xkey.keycode == _key_codes[KEY_F5] ||
-             event.xkey.keycode == _key_codes[KEY_F6])
+        if (event.xkey.keycode == key_codes_[KEY_F1] ||
+             event.xkey.keycode == key_codes_[KEY_F2] ||
+             event.xkey.keycode == key_codes_[KEY_F3] ||
+             event.xkey.keycode == key_codes_[KEY_F4] ||
+             event.xkey.keycode == key_codes_[KEY_F5] ||
+             event.xkey.keycode == key_codes_[KEY_F6])
         {
           int8_t num_win;
 
           // Not sure a switch would work on any platform => use ifs instead
-          if (event.xkey.keycode == _key_codes[KEY_F1]) num_win = 1;
-          else if (event.xkey.keycode == _key_codes[KEY_F2]) num_win = 2;
-          else if (event.xkey.keycode == _key_codes[KEY_F3]) num_win = 3;
-          else if (event.xkey.keycode == _key_codes[KEY_F4]) num_win = 4;
-          else if (event.xkey.keycode == _key_codes[KEY_F5]) num_win = 5;
-          else  num_win = 6; // case where (event.xkey.keycode == _key_codes[KEY_F6])
+          if (event.xkey.keycode == key_codes_[KEY_F1]) num_win = 1;
+          else if (event.xkey.keycode == key_codes_[KEY_F2]) num_win = 2;
+          else if (event.xkey.keycode == key_codes_[KEY_F3]) num_win = 3;
+          else if (event.xkey.keycode == key_codes_[KEY_F4]) num_win = 4;
+          else if (event.xkey.keycode == key_codes_[KEY_F5]) num_win = 5;
+          else  num_win = 6; // case where (event.xkey.keycode == key_codes_[KEY_F6])
 
-          if (get_show_window(num_win))
+          if (show_window(num_win))
           {
             // 1) Save current window position and size
             Window aWindow; // Unused
             int x_return, y_return;
             int dest_x_return, dest_y_return;
             unsigned int border_width_return, depth_return; // Unused
-            XGetGeometry(_display, _win[num_win]->get_window(), &aWindow, &x_return, &y_return,
-                          &_win_size[num_win][0], &_win_size[num_win][1], &border_width_return, &depth_return);
-            XTranslateCoordinates(_display, _win[num_win]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
+            XGetGeometry(display_, win_[num_win]->window(), &aWindow, &x_return, &y_return,
+                          &win_size_[num_win][0], &win_size_[num_win][1], &border_width_return, &depth_return);
+            XTranslateCoordinates(display_, win_[num_win]->window(), DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
 
-            _win_pos[num_win][0] = dest_x_return - x_return;
-            _win_pos[num_win][1] = dest_y_return - y_return;
+            win_pos_[num_win][0] = dest_x_return - x_return;
+            win_pos_[num_win][1] = dest_y_return - y_return;
 
             // 2) Delete window and mark as "not to be shown"
-            delete _win[num_win];
-            _win[num_win] = NULL;
-            _show_window &= ~(1 << num_win);
+            delete win_[num_win];
+            win_[num_win] = NULL;
+            show_window_ &= ~(1 << num_win);
           }
           else
           {
-            _win[num_win] = new X11Window( _display, _screen, _atoms, _win_pos[num_win][0], _win_pos[num_win][1],
-                                                _win_size[num_win][0], _win_size[num_win][1], _win_name[num_win]);
-            _new_show_window |= 1 << num_win;
-            _show_window |= _new_show_window;
+            win_[num_win] = new X11Window(display_, screen_, atoms_, win_pos_[num_win][0], win_pos_[num_win][1],
+                                                win_size_[num_win][0], win_size_[num_win][1], win_name_[num_win]);
+            new_show_window_ |= 1 << num_win;
+            show_window_ |= new_show_window_;
             draw_window(num_win);
           }
         }
-        else if (event.xkey.keycode == _key_codes[KEY_P])
+        else if (event.xkey.keycode == key_codes_[KEY_P])
         {
           printf(" P A U S E D \n");
           bool pause_key  = false;
           while (! pause_key)
           {
-            if (XCheckIfEvent(_display, &event, AlwaysTruePredicate, 0))
+            if (XCheckIfEvent(display_, &event, AlwaysTruePredicate, 0))
             {
-              if (event.xkey.keycode == _key_codes[KEY_P])
+              if (event.xkey.keycode == key_codes_[KEY_P])
               {
                 pause_key = true;
               }
             }
           }
         }
-        else if ((event.xkey.state & ControlMask) && (event.xkey.keycode == _key_codes[KEY_Q]))
+        else if ((event.xkey.state & ControlMask) && (event.xkey.keycode == key_codes_[KEY_Q]))
         {
           printf(" Q U I T   R E Q U E S T E D\n");
-          _quit_signal_received = true;
+          quit_signal_received_ = true;
           // We do not exit here, because it is cleaner to let the main program
           // interpret the signal and call the destructor of the simulation.
           // This ensures that the connection to the X server will be closed
@@ -408,10 +403,10 @@ void ExpManager_X11::handle_events(void)
   }
 }
 
-void ExpManager_X11::toggle_display_on_off(void)
+void ExpManager_X11::toggle_display_on_off()
 {
   // Mark action to be done
-  _handle_display_on_off = true;
+  handle_display_on_off_ = true;
 }
 
 
@@ -426,7 +421,7 @@ void ExpManager_X11::display(X11Window * win,
   double y_max = Y_MAX * 1.1;         // Yields a top margin
   double delta_x = X_MAX - X_MIN;
   double delta_y = y_max - y_min;
-  
+
   int16_t cur_x;
   int16_t cur_y;
   int16_t next_x;
@@ -685,16 +680,16 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
 {
   // printf("display grid\n");
   char t[40];
-  int nb_colors = 50; 
-  
-  sprintf(t, "Generation = %" PRId64, AeTime::get_time());
-  win->draw_string(15, 15, t);
-  
-  
-  const int grid_width  = get_grid_width();
-  const int grid_height = get_grid_height();
+  int nb_colors = 50;
 
-  int nb_slots_in_a_row = (int) grid_height;
+  sprintf(t, "Generation = %" PRId64, AeTime::time());
+  win->draw_string(15, 15, t);
+
+
+  const int grid_width_ = grid_width();
+  const int grid_height_ = grid_height();
+
+  int nb_slots_in_a_row = (int) grid_height_;
   int slot_width = 200/nb_slots_in_a_row;
   int x1 = 50 + 50 + slot_width/2;
   int y1 = 75 + 50 + slot_width/2;
@@ -703,20 +698,20 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   int cell_size = 5;
 
   // draw the color scale for fitness
-  int y_step_size = grid_height*cell_size/nb_colors;
+  int y_step_size = grid_height_ *cell_size/nb_colors;
   for (int i = 0; i  < nb_colors; i++)
   {
     win->fill_rectangle(x1 - 30, y1 - 80 + y_step_size * i,
                          cell_size * 5, y_step_size,
-                         _col_map[nb_colors-1-i]);
+                         col_map_[nb_colors-1-i]);
   }
 
   // find min/max of the matrix
   double grid_max = 0;
   double grid_min = 1000000;
-  for (int x = 0 ; x < grid_width ; x++)
+  for (int x = 0 ; x < grid_width_; x++)
   {
-    for (int y = 0 ; y < grid_height ; y++)
+    for (int y = 0 ; y < grid_height_; y++)
     {
        if (cell_grid[x][y] > grid_max) {grid_max = cell_grid[x][y];}
        if (cell_grid[x][y] < grid_min) {grid_min = cell_grid[x][y];}
@@ -728,11 +723,11 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   sprintf(scale_txt,"%.2e", grid_max);
   win->draw_string(x1-80, y1-80,scale_txt);
   sprintf(scale_txt,"%.2e", grid_min);
-  win->draw_string(x1-80, y1-80+grid_height*cell_size,scale_txt);
+  win->draw_string(x1-80, y1-80+ grid_height_ *cell_size,scale_txt);
 
-  for (int x = 0; x < grid_width; x++)
+  for (int x = 0; x < grid_width_; x++)
   {
-    for (int y = 0; y < grid_height; y++)
+    for (int y = 0; y < grid_height_; y++)
     {
       char * col_string;
       // calculate the color
@@ -745,7 +740,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
       {
         new_col = (int) floor((cell_grid[x][y] - grid_min) / col_sec_interval);
       }
-      col_string = _col_map[new_col];
+      col_string = col_map_[new_col];
 
       // draw a colored rectangle for each cell
       win->fill_rectangle(x1 + 50 + x*cell_size, y1 - 80 + y*cell_size, cell_size, cell_size, col_string);
@@ -760,88 +755,88 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
 void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /*= false*/)
 {
   // Initialize window structures
-  _win      = new X11Window * [NB_WIN];
-  _win_size = new unsigned int* [NB_WIN];
-  _win_pos  = new int* [NB_WIN];
+  win_ = new X11Window * [NB_WIN];
+  win_size_ = new unsigned int* [NB_WIN];
+  win_pos_ = new int* [NB_WIN];
 
   for (int8_t i = 0 ; i < NB_WIN ; i++)
   {
-    _win[i] = NULL;
+    win_[i] = NULL;
 
     // Default values
-    _win_size[i] = new unsigned int[2];
-    _win_size[i][0] = 300;
-    _win_size[i][1] = 300;
-    _win_pos[i] = new int[2];
-    _win_pos[i][0]  = 0;
-    _win_pos[i][1]  = 0;
+    win_size_[i] = new unsigned int[2];
+    win_size_[i][0] = 300;
+    win_size_[i][1] = 300;
+    win_pos_[i] = new int[2];
+    win_pos_[i][0]  = 0;
+    win_pos_[i][1]  = 0;
   }
 
   // Set phenotype window width
-  _win_size[1][0] = 600;
+  win_size_[1][0] = 600;
 
   // Set CDS and RNA window width
   if (with_plasmids)
   {
-    _win_size[2][0] = 600;
-    _win_size[3][0] = 600;
+    win_size_[2][0] = 600;
+    win_size_[3][0] = 600;
   }
 
   // Set initial positions if screen is large enough
   if (with_plasmids && with_grid)
   {
-    //if (XDisplayWidth(_display, _screen) >= 900 && XDisplayHeight(_display, _screen) >= 650)
+    //if (XDisplayWidth(display_, screen_) >= 900 && XDisplayHeight(display_, screen_) >= 650)
     {
-      _win_pos[0][0]  = 0;
-      _win_pos[0][1]  = 0;
-      _win_pos[1][0]  = 300;
-      _win_pos[1][1]  = 0;
-      _win_pos[2][0]  = 0;
-      _win_pos[2][1]  = 350;
-      _win_pos[3][0]  = 0;
-      _win_pos[3][1]  = 700;
+      win_pos_[0][0]  = 0;
+      win_pos_[0][1]  = 0;
+      win_pos_[1][0]  = 300;
+      win_pos_[1][1]  = 0;
+      win_pos_[2][0]  = 0;
+      win_pos_[2][1]  = 350;
+      win_pos_[3][0]  = 0;
+      win_pos_[3][1]  = 700;
     }
   }
   else if (with_plasmids)
   {
-    //if (XDisplayWidth(_display, _screen) >= 900 && XDisplayHeight(_display, _screen) >= 650)
+    //if (XDisplayWidth(display_, screen_) >= 900 && XDisplayHeight(display_, screen_) >= 650)
     {
-      _win_pos[0][0]  = 0;
-      _win_pos[0][1]  = 0;
-      _win_pos[1][0]  = 300;
-      _win_pos[1][1]  = 0;
-      _win_pos[2][0]  = 0;
-      _win_pos[2][1]  = 350;
-      _win_pos[3][0]  = 0;
-      _win_pos[3][1]  = 700;
+      win_pos_[0][0]  = 0;
+      win_pos_[0][1]  = 0;
+      win_pos_[1][0]  = 300;
+      win_pos_[1][1]  = 0;
+      win_pos_[2][0]  = 0;
+      win_pos_[2][1]  = 350;
+      win_pos_[3][0]  = 0;
+      win_pos_[3][1]  = 700;
     }
   }
   else if (with_grid)
   {
-    //if (XDisplayWidth(_display, _screen) >= 900 && XDisplayHeight(_display, _screen) >= 650)
+    //if (XDisplayWidth(display_, screen_) >= 900 && XDisplayHeight(display_, screen_) >= 650)
     {
-      _win_pos[0][0]  = 0;
-      _win_pos[0][1]  = 0;
-      _win_pos[1][0]  = 300;
-      _win_pos[1][1]  = 0;
-      _win_pos[2][0]  = 0;
-      _win_pos[2][1]  = 350;
-      _win_pos[3][0]  = 300;
-      _win_pos[3][1]  = 350;
+      win_pos_[0][0]  = 0;
+      win_pos_[0][1]  = 0;
+      win_pos_[1][0]  = 300;
+      win_pos_[1][1]  = 0;
+      win_pos_[2][0]  = 0;
+      win_pos_[2][1]  = 350;
+      win_pos_[3][0]  = 300;
+      win_pos_[3][1]  = 350;
     }
   }
   else // (! with_plasmids && ! with_grid)
   {
-    //if (XDisplayWidth(_display, _screen) >= 900 && XDisplayHeight(_display, _screen) >= 650)
+    //if (XDisplayWidth(display_, screen_) >= 900 && XDisplayHeight(display_, screen_) >= 650)
     {
-      _win_pos[0][0]  = 0;
-      _win_pos[0][1]  = 0;
-      _win_pos[1][0]  = 300;
-      _win_pos[1][1]  = 0;
-      _win_pos[2][0]  = 0;
-      _win_pos[2][1]  = 350;
-      _win_pos[3][0]  = 300;
-      _win_pos[3][1]  = 350;
+      win_pos_[0][0]  = 0;
+      win_pos_[0][1]  = 0;
+      win_pos_[1][0]  = 300;
+      win_pos_[1][1]  = 0;
+      win_pos_[2][0]  = 0;
+      win_pos_[2][1]  = 350;
+      win_pos_[3][0]  = 300;
+      win_pos_[3][1]  = 350;
     }
   }
 
@@ -864,12 +859,12 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
     _show_window  = 0x000F;   // hex for bin 1111   => show first 4 windows
     #endif
   }
-  _new_show_window = _show_window;
+  new_show_window_ = show_window_;
 
 
-  _win_name = new char*[NB_WIN];
-  if (with_grid)  _win_name[0] = (char*) "Population grid";
-  else              _win_name[0] = (char*) "Population";
+  win_name_ = new char*[NB_WIN];
+  if (with_grid)  win_name_[0] = (char*) "Population grid";
+  else              win_name_[0] = (char*) "Population";
 
   _win_name[1] = (char*) "Phenotypic profile";
   _win_name[2] = (char*) "Genes";
@@ -887,9 +882,9 @@ int8_t ExpManager_X11::identify_window(Window winID)
 {
   for (int8_t i = 0 ; i < NB_WIN ; i++)
   {
-    if (_win[i] != NULL)
+    if (win_[i] != NULL)
     {
-      if (_win[i]->get_window() == winID) return i;
+      if (win_[i]->window() == winID) return i;
     }
   }
 
@@ -898,13 +893,13 @@ int8_t ExpManager_X11::identify_window(Window winID)
 
 void ExpManager_X11::draw_window(int8_t win_number)
 {
-  if (_win[win_number] == NULL)
+  if (win_[win_number] == NULL)
   {
     fprintf(stderr, "Error: cannot draw this window, it doesn't exist.\n");
     return;
   }
 
-  X11Window * cur_win = _win[win_number];
+  X11Window * cur_win = win_[win_number];
 
   switch (win_number)
   {
@@ -919,11 +914,11 @@ void ExpManager_X11::draw_window(int8_t win_number)
 
       // Display colour bar
       char* color;
-      for (int16_t i = 0 ; i < cur_win->get_width() ; i++)
+      for (int16_t i = 0 ; i < cur_win->width() ; i++)
       {
-        color = X11Window::get_color(((double)i / cur_win->get_width()) * (X_MAX - X_MIN));
-        //~ cur_win->draw_line(i, 0, i, cur_win->get_height() / 20, color);
-        cur_win->draw_line(i, cur_win->get_height() * 19 / 20, i, cur_win->get_height(), color);
+        color = X11Window::color(((double)i / cur_win->width()) * (X_MAX - X_MIN));
+        //~ cur_win->draw_line(i, 0, i, cur_win->height() / 20, color);
+        cur_win->draw_line(i, cur_win->height() * 19 / 20, i, cur_win->height(), color);
         delete [] color;
       }
 
@@ -970,19 +965,19 @@ void ExpManager_X11::draw_window(int8_t win_number)
   }
 
   refresh_window(win_number);
-  _new_show_window &= ~(1 << win_number);
+  new_show_window_ &= ~(1 << win_number);
 
-  XFlush(_display);
+  XFlush(display_);
 }
 
 void ExpManager_X11::refresh_window(int8_t win_number) {
-  if (_win[win_number] == NULL)
+  if (win_[win_number] == NULL)
   {
     fprintf(stderr, "Error: cannot draw this window, it doesn't exist.\n");
     return;
   }
 
-  X11Window * cur_win = _win[win_number];
+  X11Window * cur_win = win_[win_number];
 
   switch (win_number)
   {
@@ -991,11 +986,11 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      double** grid = world()->get_total_fitness_grid();
+      double** grid = world()->total_fitness_grid();
       display_grid(cur_win, grid);
 
-      // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
-      for (int16_t x = 0 ; x < get_grid_width() ; x++)
+      // Has been allocated in ae_spatial_structure::total_fitness_grid()
+      for (int16_t x = 0 ; x < grid_width() ; x++)
       {
         delete [] grid[x];
       }
@@ -1007,10 +1002,10 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     case 1 :
     {
       // Blacken all the window except the colour bar
-      cur_win->fill_rectangle(0, 0, cur_win->get_width(), cur_win->get_height() * 19 / 20, BLACK);
+      cur_win->fill_rectangle(0, 0, cur_win->width(), cur_win->height() * 19 / 20, BLACK);
 
       // Get phenotypic target shorthand
-      const PhenotypicTarget& phenotypic_target = get_best_indiv()->phenotypic_target();
+      const PhenotypicTarget& phenotypic_target = best_indiv()->phenotypic_target();
 
       // Mark all the non-metabolic segments (paint them in grey)
       if (phenotypic_target.nb_segments() > 1)
@@ -1022,22 +1017,21 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
           {
             if (segments[i]->feature == NEUTRAL)
             {
-              cur_win->fill_rectangle( cur_win->get_width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
-                                        cur_win->get_width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
-                                        cur_win->get_height() * 19 / 20, DARKER_GREY);
+              cur_win->fill_rectangle(cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
+                                        cur_win->width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
+                                        cur_win->height() * 19 / 20, DARKER_GREY);
             }
             else
             {
-              cur_win->fill_rectangle( cur_win->get_width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
-                                        cur_win->get_width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
-                                        cur_win->get_height() * 19 / 20, GREY);
+              cur_win->fill_rectangle(cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
+                                        cur_win->width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
+                                        cur_win->height() * 19 / 20, GREY);
             }
           }
         }
       }
 
       // Display all the phenotypes (blue)
-
       for (const auto& indiv: get_indivs())
       {
         #ifndef __REGUL
@@ -1079,7 +1073,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(get_best_indiv());
+      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(best_indiv());
       indiv->display_cdss(cur_win);
     }
     break;
@@ -1089,7 +1083,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(get_best_indiv());
+      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(best_indiv());
       indiv->display_rnas(cur_win);
     }
     break;
@@ -1099,7 +1093,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      display_grid(cur_win, world()->get_secretion_present_grid());
+      display_grid(cur_win, world()->secretion_present_grid());
     }
     break;
 
@@ -1108,7 +1102,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      display_grid(cur_win, world()->get_metabolic_fitness_grid());
+      display_grid(cur_win, world()->metabolic_fitness_grid());
     }
     break;
 
@@ -1117,7 +1111,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      display_grid(cur_win, world()->get_secreted_amount_grid());
+      display_grid(cur_win, world()->secreted_amount_grid());
     }
     break;
 #ifdef __REGUL
@@ -1136,72 +1130,67 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
 #endif
   }
 
-  XFlush(_display);
+  XFlush(display_);
 }
 
+void ExpManager_X11::set_codes() {
+  key_codes_ = new KeyCode[50];
+  assert(key_codes_);
 
-
-
-
-void ExpManager_X11::set_codes(void) {
-  _key_codes = new KeyCode[50];
-  assert(_key_codes);
-
-  _key_codes[KEY_ESCAPE]  = XKeysymToKeycode(_display, XK_Escape);
-  _key_codes[KEY_F1]      = XKeysymToKeycode(_display, XK_F1);
-  _key_codes[KEY_F2]      = XKeysymToKeycode(_display, XK_F2);
-  _key_codes[KEY_F3]      = XKeysymToKeycode(_display, XK_F3);
-  _key_codes[KEY_F4]      = XKeysymToKeycode(_display, XK_F4);
-  _key_codes[KEY_F5]      = XKeysymToKeycode(_display, XK_F5);
-  _key_codes[KEY_F6]      = XKeysymToKeycode(_display, XK_F6);
-  _key_codes[KEY_F7]      = XKeysymToKeycode(_display, XK_F7);
-  _key_codes[KEY_F8]      = XKeysymToKeycode(_display, XK_F8);
-  _key_codes[KEY_F9]      = XKeysymToKeycode(_display, XK_F9);
-  _key_codes[KEY_F10]     = XKeysymToKeycode(_display, XK_F10);
-  _key_codes[KEY_F11]     = XKeysymToKeycode(_display, XK_F11);
-  _key_codes[KEY_F12]     = XKeysymToKeycode(_display, XK_F12);
-  _key_codes[KEY_A]       = XKeysymToKeycode(_display, XK_A);
-  _key_codes[KEY_Q]       = XKeysymToKeycode(_display, XK_Q);
-  _key_codes[KEY_W]       = XKeysymToKeycode(_display, XK_W);
-  _key_codes[KEY_Z]       = XKeysymToKeycode(_display, XK_Z);
-  _key_codes[KEY_S]       = XKeysymToKeycode(_display, XK_S);
-  _key_codes[KEY_X]       = XKeysymToKeycode(_display, XK_X);
-  _key_codes[KEY_E]       = XKeysymToKeycode(_display, XK_E);
-  _key_codes[KEY_D]       = XKeysymToKeycode(_display, XK_D);
-  _key_codes[KEY_C]       = XKeysymToKeycode(_display, XK_C);
-  _key_codes[KEY_R]       = XKeysymToKeycode(_display, XK_R);
-  _key_codes[KEY_F]       = XKeysymToKeycode(_display, XK_F);
-  _key_codes[KEY_V]       = XKeysymToKeycode(_display, XK_V);
-  _key_codes[KEY_T]       = XKeysymToKeycode(_display, XK_T);
-  _key_codes[KEY_G]       = XKeysymToKeycode(_display, XK_G);
-  _key_codes[KEY_B]       = XKeysymToKeycode(_display, XK_B);
-  _key_codes[KEY_Y]       = XKeysymToKeycode(_display, XK_Y);
-  _key_codes[KEY_H]       = XKeysymToKeycode(_display, XK_H);
-  _key_codes[KEY_N]       = XKeysymToKeycode(_display, XK_N);
-  _key_codes[KEY_U]       = XKeysymToKeycode(_display, XK_U);
-  _key_codes[KEY_J]       = XKeysymToKeycode(_display, XK_J);
-  _key_codes[KEY_I]       = XKeysymToKeycode(_display, XK_I);
-  _key_codes[KEY_K]       = XKeysymToKeycode(_display, XK_K);
-  _key_codes[KEY_O]       = XKeysymToKeycode(_display, XK_O);
-  _key_codes[KEY_L]       = XKeysymToKeycode(_display, XK_L);
-  _key_codes[KEY_P]       = XKeysymToKeycode(_display, XK_P);
-  _key_codes[KEY_M]       = XKeysymToKeycode(_display, XK_M);
-  _key_codes[KEY_1]       = XKeysymToKeycode(_display, XK_1);
-  _key_codes[KEY_2]       = XKeysymToKeycode(_display, XK_2);
-  _key_codes[KEY_3]       = XKeysymToKeycode(_display, XK_3);
-  _key_codes[KEY_4]       = XKeysymToKeycode(_display, XK_4);
-  _key_codes[KEY_5]       = XKeysymToKeycode(_display, XK_5);
-  _key_codes[KEY_6]       = XKeysymToKeycode(_display, XK_6);
-  _key_codes[KEY_7]       = XKeysymToKeycode(_display, XK_7);
-  _key_codes[KEY_8]       = XKeysymToKeycode(_display, XK_8);
-  _key_codes[KEY_9]       = XKeysymToKeycode(_display, XK_9);
+  key_codes_[KEY_ESCAPE]  = XKeysymToKeycode(display_, XK_Escape);
+  key_codes_[KEY_F1]      = XKeysymToKeycode(display_, XK_F1);
+  key_codes_[KEY_F2]      = XKeysymToKeycode(display_, XK_F2);
+  key_codes_[KEY_F3]      = XKeysymToKeycode(display_, XK_F3);
+  key_codes_[KEY_F4]      = XKeysymToKeycode(display_, XK_F4);
+  key_codes_[KEY_F5]      = XKeysymToKeycode(display_, XK_F5);
+  key_codes_[KEY_F6]      = XKeysymToKeycode(display_, XK_F6);
+  key_codes_[KEY_F7]      = XKeysymToKeycode(display_, XK_F7);
+  key_codes_[KEY_F8]      = XKeysymToKeycode(display_, XK_F8);
+  key_codes_[KEY_F9]      = XKeysymToKeycode(display_, XK_F9);
+  key_codes_[KEY_F10]     = XKeysymToKeycode(display_, XK_F10);
+  key_codes_[KEY_F11]     = XKeysymToKeycode(display_, XK_F11);
+  key_codes_[KEY_F12]     = XKeysymToKeycode(display_, XK_F12);
+  key_codes_[KEY_A]       = XKeysymToKeycode(display_, XK_A);
+  key_codes_[KEY_Q]       = XKeysymToKeycode(display_, XK_Q);
+  key_codes_[KEY_W]       = XKeysymToKeycode(display_, XK_W);
+  key_codes_[KEY_Z]       = XKeysymToKeycode(display_, XK_Z);
+  key_codes_[KEY_S]       = XKeysymToKeycode(display_, XK_S);
+  key_codes_[KEY_X]       = XKeysymToKeycode(display_, XK_X);
+  key_codes_[KEY_E]       = XKeysymToKeycode(display_, XK_E);
+  key_codes_[KEY_D]       = XKeysymToKeycode(display_, XK_D);
+  key_codes_[KEY_C]       = XKeysymToKeycode(display_, XK_C);
+  key_codes_[KEY_R]       = XKeysymToKeycode(display_, XK_R);
+  key_codes_[KEY_F]       = XKeysymToKeycode(display_, XK_F);
+  key_codes_[KEY_V]       = XKeysymToKeycode(display_, XK_V);
+  key_codes_[KEY_T]       = XKeysymToKeycode(display_, XK_T);
+  key_codes_[KEY_G]       = XKeysymToKeycode(display_, XK_G);
+  key_codes_[KEY_B]       = XKeysymToKeycode(display_, XK_B);
+  key_codes_[KEY_Y]       = XKeysymToKeycode(display_, XK_Y);
+  key_codes_[KEY_H]       = XKeysymToKeycode(display_, XK_H);
+  key_codes_[KEY_N]       = XKeysymToKeycode(display_, XK_N);
+  key_codes_[KEY_U]       = XKeysymToKeycode(display_, XK_U);
+  key_codes_[KEY_J]       = XKeysymToKeycode(display_, XK_J);
+  key_codes_[KEY_I]       = XKeysymToKeycode(display_, XK_I);
+  key_codes_[KEY_K]       = XKeysymToKeycode(display_, XK_K);
+  key_codes_[KEY_O]       = XKeysymToKeycode(display_, XK_O);
+  key_codes_[KEY_L]       = XKeysymToKeycode(display_, XK_L);
+  key_codes_[KEY_P]       = XKeysymToKeycode(display_, XK_P);
+  key_codes_[KEY_M]       = XKeysymToKeycode(display_, XK_M);
+  key_codes_[KEY_1]       = XKeysymToKeycode(display_, XK_1);
+  key_codes_[KEY_2]       = XKeysymToKeycode(display_, XK_2);
+  key_codes_[KEY_3]       = XKeysymToKeycode(display_, XK_3);
+  key_codes_[KEY_4]       = XKeysymToKeycode(display_, XK_4);
+  key_codes_[KEY_5]       = XKeysymToKeycode(display_, XK_5);
+  key_codes_[KEY_6]       = XKeysymToKeycode(display_, XK_6);
+  key_codes_[KEY_7]       = XKeysymToKeycode(display_, XK_7);
+  key_codes_[KEY_8]       = XKeysymToKeycode(display_, XK_8);
+  key_codes_[KEY_9]       = XKeysymToKeycode(display_, XK_9);
 }
 
-
-void ExpManager_X11::compute_colormap(void) {
-  _col_map = {
+void ExpManager_X11::compute_colormap() {
+  col_map_ = {
     (char*)"RGBi:1.0/0.0/0.0",
-    (char*)"RGBi:1.0/0.1/0.0",   
+    (char*)"RGBi:1.0/0.1/0.0",
     (char*)"RGBi:1.0/0.2/0.0",
     (char*)"RGBi:1.0/0.3/0.0",
     (char*)"RGBi:1.0/0.4/0.0",

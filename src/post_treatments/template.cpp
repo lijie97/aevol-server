@@ -22,7 +22,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//*****************************************************************************
+// ****************************************************************************
 
 
 
@@ -53,7 +53,7 @@ void print_help(char* prog_path);
 
 
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // 1) Initialize command-line option variables with default values
   // bool  opt = false;
@@ -75,19 +75,19 @@ int main( int argc, char* argv[] )
 
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch ( option )
+    switch (option)
     {
       case 'h' :
       {
         print_help(argv[0]);
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'V' :
       {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'o' :
       {
@@ -97,7 +97,7 @@ int main( int argc, char* argv[] )
       case 'i' :
       {
         input_dir = new char[strlen(optarg)+1];
-        strcpy( input_dir, optarg );
+        strcpy(input_dir, optarg);
         break;
       }
       case 'g' :
@@ -108,7 +108,7 @@ int main( int argc, char* argv[] )
       default :
       {
         // An error message is printed in getopt_long, we just need to exit
-        exit( EXIT_FAILURE );
+        exit(EXIT_FAILURE);
       }
     }
   }
@@ -116,13 +116,13 @@ int main( int argc, char* argv[] )
   // 4) Check for missing mandatory arguments
   if (input_dir == NULL)
   {
-    printf( "%s: error: You must provide an input directory.\n", argv[0] );
-    exit( EXIT_FAILURE );
+    printf("%s: error: You must provide an input directory.\n", argv[0]);
+    exit(EXIT_FAILURE);
   }
-  if ( num_gener == -1 )
+  if (num_gener == -1)
   {
-    printf( "%s: error: You must provide a generation number.\n", argv[0] );
-    exit( EXIT_FAILURE );
+    printf("%s: error: You must provide a generation number.\n", argv[0]);
+    exit(EXIT_FAILURE);
   }
 
 
@@ -150,25 +150,25 @@ void print_help(char* prog_path)
   if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
 
-  printf( "******************************************************************************\n" );
-  printf( "*                                                                            *\n" );
-  printf( "*                        aevol - Artificial Evolution                        *\n" );
-  printf( "*                                                                            *\n" );
-  printf( "* Aevol is a simulation platform that allows one to let populations of       *\n" );
-  printf( "* digital organisms evolve in different conditions and study experimentally  *\n" );
-  printf( "* the mechanisms responsible for the structuration of the genome and the     *\n" );
-  printf( "* transcriptome.                                                             *\n" );
-  printf( "*                                                                            *\n" );
-  printf( "******************************************************************************\n" );
-  printf( "\n" );
-  printf( "%s: does nothing (template file).\n", prog_name );
-  printf( "\n" );
-  printf( "Usage : %s -h or --help\n", prog_name );
-  printf( "   or : %s -V or --version\n", prog_name );
-  printf( "   or : %s [-o] -a arg\n", prog_name );
-  printf( "\nOptions\n" );
-  printf( "  -h, --help\n\tprint this help, then exit\n\n" );
-  printf( "  -V, --version\n\tprint version number, then exit\n\n" );
-  printf( "  -o, --opt\n\toption with no argument\n" );
-  printf( "  -a, --arg argument\n\toption with an argument\n" );
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
+  printf("\n");
+  printf("%s: does nothing (template file).\n", prog_name);
+  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s [-o] -a arg\n", prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n\n");
+  printf("  -V, --version\n\tprint version number, then exit\n\n");
+  printf("  -o, --opt\n\toption with no argument\n");
+  printf("  -a, --arg argument\n\toption with an argument\n");
 }

@@ -3,30 +3,30 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 
 
-#ifndef AEVOL_GRID_CELL_H__
-#define AEVOL_GRID_CELL_H__
+#ifndef AEVOL_GRID_CELL_H_
+#define AEVOL_GRID_CELL_H_
 
 
 // =================================================================
@@ -71,7 +71,7 @@ class GridCell
   // =================================================================
   //                             Constructors
   // =================================================================
-  GridCell(void) = delete;
+  GridCell() = delete;
   GridCell(const GridCell &) = delete;
   GridCell(int16_t x, int16_t y,
                std::unique_ptr<Habitat>&& habitat,
@@ -83,7 +83,7 @@ class GridCell
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~GridCell(void);
+  virtual ~GridCell();
 
 
   // =================================================================
@@ -91,12 +91,12 @@ class GridCell
   // =================================================================
   inline int16_t x() const {return x_;};
   inline int16_t y() const {return y_;};
-  inline double compound_amount(void) const;
-  inline Individual * get_individual(void) const;
+  inline double compound_amount() const;
+  inline Individual * individual() const;
 
-  inline double get_secreted_amount(void) const;
-  inline double get_metabolic_fitness(void) const;
-  inline double get_total_fitness(void) const;
+  inline double secreted_amount() const;
+  inline double metabolic_fitness() const;
+  inline double total_fitness() const;
 
   const Habitat& habitat() const {
     return *habitat_;
@@ -143,29 +143,29 @@ class GridCell
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline double GridCell::compound_amount(void) const
+inline double GridCell::compound_amount() const
 {
   return habitat_->compound_amount();
 }
 
-inline Individual *GridCell::get_individual(void) const
+inline Individual *GridCell::individual() const
 {
   return individual_;
 }
 
-inline double GridCell::get_secreted_amount(void) const
+inline double GridCell::secreted_amount() const
 {
-  return individual_->get_fitness_by_feature(SECRETION);
+  return individual_->fitness_by_feature(SECRETION);
 }
 
-inline double GridCell::get_metabolic_fitness(void) const
+inline double GridCell::metabolic_fitness() const
 {
-  return individual_->get_fitness_by_feature(METABOLISM);
+  return individual_->fitness_by_feature(METABOLISM);
 }
 
-inline double GridCell::get_total_fitness(void) const
+inline double GridCell::total_fitness() const
 {
-  return individual_->get_fitness();
+  return individual_->fitness();
 }
 
 // =====================================================================
@@ -179,7 +179,7 @@ inline void GridCell::set_compound_amount(double compound_amount)
 inline void GridCell::set_individual(Individual * indiv)
 {
   individual_ = indiv;
-  if (individual_->get_grid_cell() != this)
+  if (individual_->grid_cell() != this)
   {
     individual_->set_grid_cell(this);
   }
@@ -192,4 +192,4 @@ inline void GridCell::set_individual(Individual * indiv)
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_GRID_CELL_H__
+#endif // AEVOL_GRID_CELL_H_
