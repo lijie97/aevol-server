@@ -264,7 +264,6 @@ ParamLoader::ParamLoader(const char* file_name)
 
 #ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
-<<<<<<< HEAD
     _binding_zeros_percentage = 75;
 
     _protein_presence_limit = 1e-2;
@@ -279,9 +278,6 @@ ParamLoader::ParamLoader(const char* file_name)
 
     _list_eval_step.insert(_nb_indiv_age);
     _env_switch_probability = 0.1;
-=======
-    binding_zeros_percentage_ = 75;
->>>>>>> 7555493ee0d1aa6ba92a457044bfed6828b1661f
   #endif
 
   // Read parameter file
@@ -904,7 +900,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       else
       {
         printf( " ERROR in param file \"%s\" on line %" PRId32 " : There is only %ld environment.\n",
-         _param_file_name, cur_line, _env_gaussians_list.size() );
+         param_file_name_, cur_line, _env_gaussians_list.size() );
         exit( EXIT_FAILURE );
       }
       
@@ -989,12 +985,12 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       if (line->nb_words != 3) {
         printf("ERROR in param file \"%s\" on line %" PRId32
                    ": wrong number of parameters.\n",
-               _param_file_name, cur_line);
+               param_file_name_, cur_line);
         printf("usage: %s %s probability to switch between different environments\n",
                line->words[0], line->words[1]);
         exit(EXIT_FAILURE);
       }
-      _env_var_method = SWITCH_IN_A_LIST;
+      env_var_method_ = SWITCH_IN_A_LIST;
       _env_switch_probability = atof(line->words[2]);
     }
     #endif
@@ -1200,35 +1196,22 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
 #ifdef __REGUL
     else if (strcmp(line->words[0], "HILL_SHAPE_N") == 0)
     {
-      hill_shape_n_ = atof(line->words[1]);
+      _hill_shape_n = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "HILL_SHAPE_THETA") == 0)
     {
-      hill_shape_theta_ = atof(line->words[1]);
+      _hill_shape_theta = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "DEGRADATION_RATE") == 0)
     {
-      degradation_rate_ = atof(line->words[1]);
+      _degradation_rate = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "NB_DEGRADATION_STEP") == 0)
     {
-<<<<<<< HEAD
       _nb_degradation_step = atoi(line->words[1]);
-=======
-      degradation_step_ = atof(line->words[1]);
-      // Check that 1/degradation_step is an integer
-      if(1/degradation_step_ != ((int) 1/degradation_step_))
-      {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : DEGRADATION STEP\n",
-               param_file_name_, cur_line);
-        printf("This step has to divide 1.\n");
-        exit(EXIT_FAILURE);
-      }
->>>>>>> 7555493ee0d1aa6ba92a457044bfed6828b1661f
     }
     else if (strcmp(line->words[0], "NB_INDIV_AGE") == 0)
     {
-<<<<<<< HEAD
       _nb_indiv_age = atoi(line->words[1]);
     }
     else if (strcmp(line->words[0], "RANDOM_BINDING_MATRIX") == 0)
@@ -1244,29 +1227,13 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
         else
         {
           printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown more random_binding_matrix option (use true/false).\n",
-                 _param_file_name, cur_line);
+                 param_file_name_, cur_line);
           exit(EXIT_FAILURE);
         }
-=======
-      individual_evaluation_nbr_ = line->nb_words - 1;
-      if(individual_evaluation_nbr_ == 0)
-      {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : no evaluation dates provided\n",
-               param_file_name_, cur_line);
-        exit(EXIT_FAILURE);
-      }
-      ae_array_short* individual_evaluation_dates  = new ae_array_short(individual_evaluation_nbr_);
-      for(int16_t i = 0 ; i < individual_evaluation_nbr_ ; i++)
-      {
-        individual_evaluation_dates->set_value(i, atoi(line->words[1 + i]));
-      }
-      individual_evaluation_dates->sort();
-      individual_evaluation_dates_ = individual_evaluation_dates;
->>>>>>> 7555493ee0d1aa6ba92a457044bfed6828b1661f
     }
     else if (strcmp(line->words[0], "BINDING_ZEROS_PERCENTAGE") == 0)
     {
-      binding_zeros_percentage_ = atof(line->words[1]);
+      _binding_zeros_percentage = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "INDIVIDUAL_EVALUATION_AGES") == 0)
     {
@@ -1277,11 +1244,11 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       if (strncmp(line->words[1], "true", 4) == 0)
       {
-        with_heredity_ = true;
+        _with_heredity = true;
       }
       else if (strncmp(line->words[1], "false", 5) == 0)
       {
-        with_heredity_ = false;
+        _with_heredity = false;
       }
       else
       {
@@ -1292,7 +1259,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else if (strcmp(line->words[0], "PROTEIN_PRESENCE_LIMIT") == 0)
     {
-      protein_presence_limit_ = atof(line->words[1]);
+      _protein_presence_limit = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "NB_ENVIRONMENTS") == 0)
     {
@@ -1300,7 +1267,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       
       if( nb_env < 1 )
       {
-        printf( "ERROR in param file \"%s\" on line %" PRId32 " : you must have at least one environment\n", _param_file_name, cur_line );
+        printf( "ERROR in param file \"%s\" on line %" PRId32 " : you must have at least one environment\n", param_file_name_, cur_line );
         printf("you put %" PRId16 "\n", nb_env);
         exit( EXIT_FAILURE );
       }
@@ -1482,7 +1449,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_hill_shape(pow( _hill_shape_theta, _hill_shape_n ));
   exp_s->set_hill_shape_n( _hill_shape_n );
 
-  exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,_prng);
+  exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,prng_);
 #endif
 
   // 2) --------------------------------------------- Create and init a Habitat
@@ -1532,7 +1499,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     phenotypic_target_handler.set_var_prng(std::make_shared<JumpingMT>(env_var_seed_));
     phenotypic_target_handler.set_var_sigma_tau(env_var_sigma_, env_var_tau_);
 #ifdef __REGUL
-    phenotypic_target_handler.set_switch_probability(env_switch_probability_);
+    phenotypic_target_handler.set_switch_probability(_env_switch_probability);
 #endif
   }
 
@@ -1612,12 +1579,12 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
                                          mut_prng,
                                          stoch_prng,
                                          param_mut,
-                                         _w_max,
-                                         _min_genome_length,
-                                         _max_genome_length,
-                                         _allow_plasmids,
+                                         w_max_,
+                                         min_genome_length_,
+                                         max_genome_length_,
+                                         allow_plasmids_,
                                          id_new_indiv++,
-                                         _strain_name,
+                                         strain_name_,
                                          0);
 
     #endif

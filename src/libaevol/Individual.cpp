@@ -290,9 +290,9 @@ Individual::Individual(const Individual& other) {
 
   // Copy phenotype
   if (phenotype_computed_) {
-    phenotype_activ_  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other._phenotype_activ)));
-    phenotype_inhib_  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other._phenotype_inhib)));
-    phenotype_        = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other._phenotype)));
+    phenotype_activ_  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other.phenotype_activ_)));
+    phenotype_inhib_  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other.phenotype_inhib_)));
+    phenotype_        = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other.phenotype_)));
   }
   else {
     phenotype_activ_ = NULL;
@@ -1263,8 +1263,8 @@ void Individual::compute_phenotype() {
   phenotype_inhib_->clip(AbstractFuzzy::min, - Y_MAX);
 
   phenotype_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  phenotype_->add(*_phenotype_activ);
-  phenotype_->add(*_phenotype_inhib);
+  phenotype_->add(*phenotype_activ_);
+  phenotype_->add(*phenotype_inhib_);
   phenotype_->clip(AbstractFuzzy::min, Y_MIN);
   phenotype_->simplify();
 }
@@ -1298,7 +1298,7 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   //      already been through them!)
 
   for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
-    dist_to_target_by_segment_[i] = delta->geometric_area(
+    dist_to_target_by_segment_[i] = delta->get_geometric_area(
       segments[i]->start, segments[i]->stop);
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_by_segment_[i];
   }
@@ -1378,7 +1378,7 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
 
 
 void Individual::clear_everything_except_dna_and_promoters() {
-  _protein_list.clear();
+  protein_list_.clear();
 
   evaluated_ = false;
   transcribed_ = false;

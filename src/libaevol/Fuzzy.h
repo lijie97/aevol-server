@@ -109,16 +109,15 @@ class Fuzzy : public AbstractFuzzy
   //                                 Getters
   // ==========================================================================
   const std::list<Point>& points() const {return points_;}
-  // TODO: should be made protected or removed (looks like implementation specific)
-  const std::list<Point>& get_points(void) {return points;};
+
   double get_geometric_area() const;
   double get_geometric_area(std::list<Point>::const_iterator begin,
                             std::list<Point>::const_iterator end) const;
   double get_geometric_area(double start_segment, double end_segment) const;
-  double get_y(double x, std::list<Point>::const_iterator begin) const;
-  double get_y(double x) const;
+  double y(double x, std::list<Point>::const_iterator begin) const;
+  double y(double x) const;
   // get_x should be moved out of fuzzy class as it really applies to pair of points
-  double get_x(const Point& left, const Point& right, double y) const;
+  double x(const Point& left, const Point& right, double y) const;
   bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const;
   void print() const;
   void clear();

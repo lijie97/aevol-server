@@ -182,19 +182,19 @@ StatRecord::StatRecord(ExpManager* exp_m,
   }
 
 
-  _nb_enhancing_influences       = nb_activators;
-  _nb_operating_influences       = nb_operators;
-  _nb_influences                 = _nb_operating_influences + _nb_enhancing_influences;
-  _av_value_influences           = ( mean_activator_activity + mean_operator_activity ) / double ( nb_activators + nb_operators);
-  _av_value_enhancing_influences = ( mean_activator_activity ) / double ( nb_activators );
-  _av_value_operating_influences = ( mean_operator_activity ) / double ( nb_operators);
+  nb_enhancing_influences_       = nb_activators;
+  nb_operating_influences_       = nb_operators;
+  nb_influences_                 = nb_operating_influences_ + nb_enhancing_influences_;
+  av_value_influences_           = ( mean_activator_activity + mean_operator_activity ) / double ( nb_activators + nb_operators);
+  av_value_enhancing_influences_ = ( mean_activator_activity ) / double ( nb_activators );
+  av_value_operating_influences_ = ( mean_operator_activity ) / double ( nb_operators);
 
   //ajout raevol_yo_2
   int32_t nb_TF = 0;
   int32_t nb_pure_TF = 0;
 
-  for (auto& prot: indiv_r->get_protein_list()) {
-    if(prot->get_is_functional())
+  for (auto& prot: indiv_r->protein_list()) {
+    if(prot->is_functional())
     {
       if(!((Protein_R*)prot)->not_pure_TF)
       {
@@ -211,8 +211,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     }
   }
 
-	_nb_TF = nb_TF;
-	_nb_pure_TF = nb_pure_TF;
+	nb_TF_ = nb_TF;
+	nb_pure_TF_ = nb_pure_TF;
   #endif  
     
   // TODO : These conditions are not well managed!!!

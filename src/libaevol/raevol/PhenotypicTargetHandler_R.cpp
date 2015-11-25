@@ -310,25 +310,25 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int8_t id) {
       HybridFuzzy* fuz = (HybridFuzzy*) phenotypic_target->fuzzy();
 
       for (int i = 1; i < fuz->get_pheno_size(); i++) {
-        if (fuz->get_points()[i] == 0.0) {
+        if (fuz->points()[i] == 0.0) {
           int minL = i - 1;
           int maxL = i + 1;
           int dist = 1;
 
-          while (fuz->get_points()[maxL] == 0.0) {
+          while (fuz->points()[maxL] == 0.0) {
             maxL++;
             dist++;
           }
           double inc = 0.0;
-          if (fuz->get_points()[maxL] > fuz->get_points()[minL]) {
-            inc = (fuz->get_points()[maxL] - fuz->get_points()[minL]) / dist;
+          if (fuz->points()[maxL] > fuz->points()[minL]) {
+            inc = (fuz->points()[maxL] - fuz->points()[minL]) / dist;
           } else {
-            inc = (fuz->get_points()[minL] - fuz->get_points()[maxL]) / dist;
+            inc = (fuz->points()[minL] - fuz->points()[maxL]) / dist;
             minL = maxL;
           }
 
           for (int j = i; j < maxL; j++) {
-            fuz->get_points()[j] = fuz->get_points()[minL] + inc;
+            fuz->points()[j] = fuz->points()[minL] + inc;
             inc += inc;
           }
 

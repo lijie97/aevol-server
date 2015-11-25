@@ -57,33 +57,33 @@ namespace aevol {
 // ===========================================================================
 ExpSetup::ExpSetup( ExpManager * exp_m )
 {
-  _exp_m  = exp_m;
+  exp_m_  = exp_m;
   
   // -------------------------------------------------------------- Selection
-  _sel = new Selection( exp_m );
+  sel_ = new Selection( exp_m );
   
   // --------------------------------------------------------------- Transfer
-  _with_HT                    = false;
-  _repl_HT_with_close_points  = false;
-  _HT_ins_rate                = 0.0;
-  _HT_repl_rate               = 0.0;
-  _repl_HT_detach_rate         = 0.0;
+  with_HT_                    = false;
+  repl_HT_with_close_points_  = false;
+  HT_ins_rate_                = 0.0;
+  HT_repl_rate_               = 0.0;
+  repl_HT_detach_rate_         = 0.0;
   
   // --------------------------------------------------------------- Plasmids
-  _with_plasmids    = false;
-  _prob_plasmid_HT  = 0.0;
-  _tune_donor_ability     = 0.0;
-  _tune_recipient_ability = 0.0;
-  _donor_cost       = 0.0;
-  _recipient_cost   = 0.0;
-  _swap_GUs         = false;
+  with_plasmids_    = false;
+  prob_plasmid_HT_  = 0.0;
+  tune_donor_ability_     = 0.0;
+  tune_recipient_ability_ = 0.0;
+  donor_cost_       = 0.0;
+  recipient_cost_   = 0.0;
+  swap_GUs_         = false;
   
   // -------------------------------------------------------------- Secretion
-  _with_secretion = false;
-  _secretion_contrib_to_fitness = 0.0;
-  _secretion_cost               = 0.0;
+  with_secretion_ = false;
+  secretion_contrib_to_fitness_ = 0.0;
+  secretion_cost_               = 0.0;
 
-  _fuzzy_flavor                 = 0;
+  fuzzy_flavor_                 = 0;
 
 #ifdef __REGUL
   _protein_presence_limit = 1e-2;

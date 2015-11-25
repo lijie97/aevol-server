@@ -198,7 +198,7 @@ void Selection::step_to_next_generation() {
 
   for (int16_t x = 0 ; x < grid_width ; x++)
     for (int16_t y = 0 ; y < grid_height ; y++)
-      new_generation.emplace_back(pop_grid[x][y]->get_individual());
+      new_generation.emplace_back(pop_grid[x][y]->individual());
   #else
   std::vector<Individual*> new_generation;
   tbb::task_group tgroup;
@@ -506,35 +506,21 @@ void Selection::compute_local_prob_reprod() {
 
 Individual* Selection::do_replication(Individual* parent, int32_t index,
                                       int16_t x, int16_t y) {
-  Individual* new_indiv = NULL;
+  //Individual* new_indiv = NULL;
   // ===========================================================================
   //  1) Copy parent
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-<<<<<<< HEAD
-      Individual* new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      Individual* new_indiv = new Individual(parent, index, parent->mut_prng(), parent->stoch_prng() );
     #else
-      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->mut_prng(), parent->stoch_prng() );
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->mut_prng(), parent->stoch_prng() );
     #else
-      Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
-=======
-      new_indiv = new Individual(parent, index, parent->mut_prng(), parent->stoch_prng());
-    #else
-      new_indiv = new ae_individual_R(dynamic_cast<ae_individual_R*>(parent), index, parent->mut_prng(), parent->stoch_prng());
-    #endif
-  #elif defined __X11
-    #ifndef __REGUL
-      new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent),
-                                     index, parent->mut_prng(),
-                                     parent->stoch_prng());
-    #else
-      new_indiv = new ae_individual_R_X11(dynamic_cast<ae_individual_R_X11*>(parent), index, parent->mut_prng(), parent->stoch_prng());
->>>>>>> 7555493ee0d1aa6ba92a457044bfed6828b1661f
+      Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->mut_prng(), parent->stoch_prng() );
     #endif
   #endif
 

@@ -192,7 +192,6 @@ class GeneticUnit {
 
   int32_t max_gu_length() const;
 
-
   void set_min_gu_length(int32_t min_gu_length);
 
   void set_max_gu_length(int32_t max_gu_length);

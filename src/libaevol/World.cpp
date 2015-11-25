@@ -146,9 +146,9 @@ void World::evaluate_individuals()
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
       #ifndef __REGUL
-      Individual* indiv       = get_indiv_at(x, y);
+      Individual* indiv       = indiv_at(x, y);
       #else
-      Individual_R* indiv       = dynamic_cast <Individual_R*> (get_indiv_at(x, y));
+      Individual_R* indiv       = dynamic_cast <Individual_R*> (indiv_at(x, y));
       #endif
 
       indiv->Evaluate();

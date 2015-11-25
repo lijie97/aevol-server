@@ -47,7 +47,7 @@ class HybridFuzzy : public AbstractFuzzy
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  double* get_points() const { return _points; };
+  double* points() const { return _points; };
 
   double get_geometric_area() const;
 

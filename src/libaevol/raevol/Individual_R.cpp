@@ -81,7 +81,7 @@ Individual_R::Individual_R(const Individual_R& other)
   _networked = false;
   _dist_sum = 0;
 
-  if (get_exp_m()->get_exp_s()->get_with_heredity()) {
+  if (exp_m_->exp_s()->get_with_heredity()) {
     _inherited_protein_list = std::vector<Protein_R*>(
         other._inherited_protein_list);
   }
@@ -97,10 +97,10 @@ Individual_R::Individual_R( Individual_R* parent, int32_t id,
     _networked = false;
     _dist_sum = 0;
 
-  if (get_exp_m()->get_exp_s()->get_with_heredity()) {
-    for (const auto& prot : parent->_protein_list) {
-      if (prot->get_concentration() >
-          parent->get_exp_m()->get_exp_s()->get_protein_presence_limit()) {
+  if (exp_m_->exp_s()->get_with_heredity()) {
+    for (const auto& prot : parent->protein_list_) {
+      if (prot->concentration() >
+          parent->exp_m_->exp_s()->get_protein_presence_limit()) {
         Protein_R* inherited_prot = new Protein_R(prot->get_gen_unit(),
                                                   (Protein_R&) *prot);
         inherited_prot->set_inherited(true);
@@ -115,7 +115,7 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
     _indiv_age = 0;
   _networked = false;
 
-  if( get_exp_m()->get_exp_s()->get_with_heredity() )
+  if( exp_m_->exp_s()->get_with_heredity() )
   {
     // Retreive inherited proteins
     // _inherited_protein_list = new ae_list();
@@ -134,7 +134,7 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
 // =================================================================
 Individual_R::~Individual_R( void ) noexcept
 {
-//  assert( !get_exp_m()->get_exp_s()->get_with_heredity()  );
+//  assert( !exp_m_->exp_s()->get_with_heredity()  );
 
   /*
   for (const auto& prot : parent->_protein_list)
@@ -142,7 +142,7 @@ Individual_R::~Individual_R( void ) noexcept
 	  delete dp;
   }*/
 
-  if (get_exp_m()->get_exp_s()->get_with_heredity()) {
+  if (exp_m_->exp_s()->get_with_heredity()) {
     for (unsigned int i = 0; i < _inherited_protein_list.size(); i++)
       delete _inherited_protein_list[i];
 
@@ -165,24 +165,24 @@ Individual_R* Individual_R::CreateClone(const Individual_R* dolly, int32_t id) {
 }
 
 void Individual_R::Evaluate() {
-		EvaluateInContext(_grid_cell->habitat());
+		EvaluateInContext(grid_cell_->habitat());
 }
 
 void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
-	if (_evaluated == true) return; // Individual has already been evaluated, nothing to do.
+	if (evaluated_ == true) return; // Individual has already been evaluated, nothing to do.
 
   if (!_networked) {
     init_indiv();
   }
 
-  std::set<int>* eval = get_exp_m()->get_exp_s()->get_list_eval_step();
+  std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
   //printf("Nombre d'env dans l'habitat : %d\n", habitat.number_of_phenotypic_targets());
 
   int8_t id = 0;
 
   // i is thus the age of the individual
-  for (int8_t i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
-    for (int j = 0; j < get_exp_m()->get_exp_s()->get_nb_degradation_step(); j++) {
+  for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+    for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
       one_step();
     }
 
@@ -197,7 +197,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
     }
   }
 
-  final_step(habitat, get_exp_m()->get_exp_s()->get_nb_indiv_age());
+  final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
 }
 
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
@@ -209,24 +209,24 @@ void Individual_R::init_indiv( void )
   // ---------------------------------------------------------------------------
   // 1) Transcription - Translation - Folding - make_protein_list
   // ---------------------------------------------------------------------------
-  _transcribed = false;
-  _translated = false;
-  _folded = false;
+  transcribed_ = false;
+  translated_ = false;
+  folded_ = false;
 
   do_transcription_translation_folding();
 
-  if (_phenotype != NULL) {
-    delete _phenotype;
-    delete _phenotype_activ;
-    delete _phenotype_inhib;
+  if (phenotype_ != NULL) {
+    delete phenotype_;
+    delete phenotype_activ_;
+    delete phenotype_inhib_;
 
-    _phenotype = NULL;
-    _phenotype_activ = NULL;
-    _phenotype_inhib = NULL;
+    phenotype_ = NULL;
+    phenotype_activ_ = NULL;
+    phenotype_inhib_ = NULL;
   }
-  _phenotype = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  _phenotype_activ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  _phenotype_inhib = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  phenotype_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  phenotype_activ_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  phenotype_inhib_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
 
   //----------------------------------------------------------------------------
   // 2) Make a list of all the rna present in the individual
@@ -254,29 +254,29 @@ void Individual_R::one_step( void )
 
 void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
   update_phenotype();
-  _distance_to_target_computed = false;
-  _phenotype_computed = true;
+  distance_to_target_computed_ = false;
+  phenotype_computed_ = true;
 
   for (int i=0; i<NB_FEATURES; i++) {
-    _dist_to_target_by_feature[i] = 0;
+    dist_to_target_by_feature_[i] = 0;
   }
 
   compute_distance_to_target( habitat.phenotypic_target( age ) );
   //printf("Dist to target à l'age %d du nouveau clone : %f\n", age, _dist_to_target_by_feature[METABOLISM]);
-  _dist_sum += _dist_to_target_by_feature[METABOLISM];
+  _dist_sum += dist_to_target_by_feature_[METABOLISM];
 }
 
 
 void Individual_R::final_step( const Habitat_R& habitat, int8_t age ) {
-  //printf("Nombre final d'évaluations : %d\n", get_exp_m()->get_exp_s()->get_list_eval_step()->size());
-  _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_list_eval_step()->size());
+  //printf("Nombre final d'évaluations : %d\n", exp_m_->exp_s()->get_list_eval_step()->size());
+  dist_to_target_by_feature_[METABOLISM] = _dist_sum / (double) (exp_m_->exp_s()->get_list_eval_step()->size());
 
 
-  _fitness_computed=false;
+  fitness_computed_=false;
   // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
   compute_fitness(habitat.phenotypic_target( age ));
 
-  _phenotype_computed = true;
+  phenotype_computed_ = true;
 }
 
 void Individual_R::set_influences( void )
@@ -285,7 +285,7 @@ void Individual_R::set_influences( void )
 // so we don't care if proteins activate or inhibit their transcription.
 {
 	  for(auto& rna : _rna_list_coding) {
-		  rna->set_influences( _protein_list );
+		  rna->set_influences( protein_list_ );
 	  }
 }
 
@@ -293,12 +293,12 @@ void Individual_R::update_concentrations( void )
 {
 	// Compute all the changes that will be applied to the concentrations
 	// Concentrations must not be changed at this stage
-  for (auto& prot : _protein_list) {
+  for (auto& prot : protein_list_) {
     if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->compute_delta_concentration();
 	}
 
 	// Apply the changes in concentrations we have just computed
-  for (auto& prot : _protein_list) {
+  for (auto& prot : protein_list_) {
 		if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->update_concentration();
 	}
 }
@@ -306,15 +306,15 @@ void Individual_R::update_concentrations( void )
 // Multiply the concentration of each protein by <factor>
 void Individual_R::multiply_concentrations( double factor )
 {
-  for (auto& prot : _protein_list) {
+  for (auto& prot : protein_list_) {
 	 	  ((Protein_R*)prot)->multiply_concentration( factor );
 	}
 }
 
 int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos )
 {
-  const char* dna = gen_unit->get_dna()->get_data();
-  int32_t  len    = gen_unit->get_dna()->get_length();
+  const char* dna = gen_unit->dna()->data();
+  int32_t  len    = gen_unit->dna()->length();
   int8_t quadon_1 = 0,quadon_2 = 0,quadon_3 = 0,quadon_4   = 0;
 
 //  printf("Length %d : %s\n\n",len,dna);
@@ -356,7 +356,7 @@ void Individual_R::save( gzFile backup_file )
   //printf("Appel à la sauvegarde de Individual_R\n");
   Individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).
-  if (this->get_exp_m()->get_exp_s()->get_with_heredity() && !_inherited_protein_list.empty() )
+  if (this->exp_m_->exp_s()->get_with_heredity() && !_inherited_protein_list.empty() )
   {
     // Write inherited proteins
     int16_t nb_inherited_proteins = _inherited_protein_list.size();
@@ -374,9 +374,9 @@ void Individual_R::make_protein_list( void )
 {
 	  Individual::make_protein_list();
 
-    if (this->get_exp_m()->get_exp_s()->get_with_heredity()) {
+    if (this->exp_m_->exp_s()->get_with_heredity()) {
       for (auto& prot : _inherited_protein_list)
-        _protein_list.push_back(prot);
+        protein_list_.push_back(prot);
     }
 }
 
@@ -386,10 +386,10 @@ void Individual_R::make_rna_list( void )
   _rna_list_coding = {};
 
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
-  for (const auto& gen_unit: _genetic_unit_list) {
+  for (const auto& gen_unit: genetic_unit_list_) {
     GeneticUnit* genu = const_cast<GeneticUnit*>(&gen_unit);
     // Create proxies
-    const auto& rna_list = gen_unit.get_rna_list();
+    const auto& rna_list = gen_unit.rna_list();
     const auto& lead = rna_list[LEADING];
     const auto& lagg = rna_list[LAGGING];
 
@@ -410,47 +410,47 @@ void Individual_R::update_phenotype( void )
   //   * _phenotype_inhib for the proteins inhibitting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
 
-  _phenotype_activ->reset();
-  _phenotype_inhib->reset();
-  _phenotype->reset();
+  phenotype_activ_->reset();
+  phenotype_inhib_->reset();
+  phenotype_->reset();
 
-  for (auto& prot : _protein_list) {
-    if ( ((Protein_R*)prot)->get_is_functional() )
+  for (auto& prot : protein_list_) {
+    if ( ((Protein_R*)prot)->is_functional() )
     {
-      if ( ((Protein_R*)prot)->get_height() > 0 )
+      if ( ((Protein_R*)prot)->height() > 0 )
       {
 //    	  added=true;
-        _phenotype_activ->add_triangle(  ((Protein_R*)prot)->get_mean(),
-                                         ((Protein_R*)prot)->get_width(),
-                                         ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration() );
+        phenotype_activ_->add_triangle(  ((Protein_R*)prot)->mean(),
+                                         ((Protein_R*)prot)->width(),
+                                         ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration() );
 
-/*        printf("Add triangle ACTIV %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
-               ((Protein_R*)prot)->get_width(),
-               ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration(),
-               ((Protein_R*)prot)->get_height(), ((Protein_R*)prot)->get_concentration() );*/
+/*        printf("Add triangle ACTIV %f %f %f (%f %f)\n",((Protein_R*)prot)->mean(),
+               ((Protein_R*)prot)->width(),
+               ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
+               ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );*/
       }
       else
       {
-        _phenotype_inhib->add_triangle(  ((Protein_R*)prot)->get_mean(),
-                                         ((Protein_R*)prot)->get_width(),
-                                         ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration() );
+        phenotype_inhib_->add_triangle(  ((Protein_R*)prot)->mean(),
+                                         ((Protein_R*)prot)->width(),
+                                         ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration() );
 
-  /*      printf("Add triangle INHIB %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
-               ((Protein_R*)prot)->get_width(),
-               ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration(),
-               ((Protein_R*)prot)->get_height(), ((Protein_R*)prot)->get_concentration() );*/
+  /*      printf("Add triangle INHIB %f %f %f (%f %f)\n",((Protein_R*)prot)->mean(),
+               ((Protein_R*)prot)->width(),
+               ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
+               ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );*/
       }
     }
   }
 
 
-    _phenotype_activ->clip(AbstractFuzzy::max,   Y_MAX);
-    _phenotype_inhib->clip(AbstractFuzzy::min, - Y_MAX);
+    phenotype_activ_->clip(AbstractFuzzy::max,   Y_MAX);
+    phenotype_inhib_->clip(AbstractFuzzy::min, - Y_MAX);
 
-    _phenotype->add(*_phenotype_activ);
-    _phenotype->add(*_phenotype_inhib);
-    _phenotype->clip(AbstractFuzzy::min, Y_MIN);
-    _phenotype->simplify();
+    phenotype_->add(*phenotype_activ_);
+    phenotype_->add(*phenotype_inhib_);
+    phenotype_->clip(AbstractFuzzy::min, Y_MIN);
+    phenotype_->simplify();
 
 //  _phenotype->simplify();
 }

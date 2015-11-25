@@ -219,24 +219,15 @@ class StatRecord
     int32_t  nb_bases_non_essential_including_nf_genes_;
 
     #ifdef __REGUL
-<<<<<<< HEAD
-      int32_t  _nb_influences;
-      int32_t  _nb_enhancing_influences;
-      int32_t  _nb_operating_influences;
-      double  _av_value_influences;
-      double  _av_value_enhancing_influences;
-      double  _av_value_operating_influences;
-      double  _nb_TF;
-      double  _nb_pure_TF;
-=======
       int32_t  nb_influences_;
       int32_t  nb_enhancing_influences_;
       int32_t  nb_operating_influences_;
       double  av_value_influences_;
       double  av_value_enhancing_influences_;
       double  av_value_operating_influences_;
->>>>>>> 7555493ee0d1aa6ba92a457044bfed6828b1661f
-    #endif
+      double  nb_TF_;
+      double  nb_pure_TF_;
+#endif
 };
 
 

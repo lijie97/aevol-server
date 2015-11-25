@@ -240,13 +240,13 @@ double trapezoid_area(const Point& p1, const Point& p2) {
               (p2.x - p1.x));
 }
 
-double Fuzzy::geometric_area() const {
-  return geometric_area(points_.begin(), points_.end());
+double Fuzzy::get_geometric_area() const {
+  return get_geometric_area(points_.begin(), points_.end());
 }
 
 /// Get integral of the absolute of probability function.
 ///
-double Fuzzy::geometric_area(list<Point>::const_iterator begin,
+double Fuzzy::get_geometric_area(list<Point>::const_iterator begin,
                              list<Point>::const_iterator end) const {
   // Precondition would be along the lines of:
   // assert(points_.begin() <= begin < end < points_.end());
@@ -256,7 +256,7 @@ double Fuzzy::geometric_area(list<Point>::const_iterator begin,
   return area;
 }
 
-double Fuzzy::geometric_area(double x_start, double x_stop) const {
+double Fuzzy::get_geometric_area(double x_start, double x_stop) const {
   // assert(invariant());
   // Precondition: X_MIN ≤ x_start < x_stop ≤ X_MAX
   assert(X_MIN <= x_start and x_start < x_stop and x_stop <= X_MAX);
@@ -273,7 +273,7 @@ double Fuzzy::geometric_area(double x_start, double x_stop) const {
   // area after prev(end)
   double last_part = trapezoid_area(*prev(end), Point(x_stop, y(x_stop)));
 
-  return first_part + geometric_area(begin, end) + last_part;
+  return first_part + get_geometric_area(begin, end) + last_part;
 }
 
 // double Fuzzy::geometric_area(double start_segment, double end_segment) const {
@@ -288,7 +288,7 @@ double Fuzzy::geometric_area(double x_start, double x_stop) const {
 double area_test() {
   Fuzzy f;
   f.add_triangle(0.5, 1.0, 0.5);
-  double a = f.geometric_area(0.0, 1.0);
+  double a = f.get_geometric_area(0.0, 1.0);
   return a;
 }
 
@@ -418,22 +418,22 @@ void Fuzzy::reset() {
 }
 
 void Fuzzy::clear() {
-  points.clear();
+  points_.clear();
 }
 
 void Fuzzy::add_point(double x, double y)
 {
-  list<Point>::iterator p = find_if(points.begin(), points.end(), [x](Point& q){return q.x > x;});
+  list<Point>::iterator p = find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
   if (prev(p)->x == x) {
     prev(p)->y += y;
   } else {
-    points.insert(p,Point(x,y));
+    points_.insert(p,Point(x,y));
   }
 }
 
 void Fuzzy::print() const
 {
-  for (const Point& p : points)
+  for (const Point& p : points_)
     printf("[%f : %f] ",p.x,p.y);
   printf("\n");
 }

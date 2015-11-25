@@ -122,22 +122,21 @@ class ExpManager_X11 : public ExpManager
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline bool             get_display_on(void);
-    inline Display *        get_display(void);
-    inline int8_t           get_screen(void);
-    inline Atom *           get_atoms (void);
-    inline bool             get_show_window(int8_t win);
-    inline bool             get_new_show_window(int8_t win);
-    inline X11Window *  get_window(int8_t win);
+    inline bool display_on();
+    inline Display* get_display();
+    inline int8_t screen();
+    inline Atom* atoms();
+    bool show_window(int8_t win) { return static_cast<bool>((show_window_ >> win) & 1); }
+    bool new_show_window(int8_t win) { return static_cast<bool>((new_show_window_ >> win) & 1); }
+    inline X11Window * window(int8_t win);
   
     // =================================================================
     //                            Public Methods
     // =================================================================
-    KeyCode* get_key_codes(void)  { return _key_codes;  };
+    KeyCode* key_codes() { return key_codes_;  };
     virtual void display(void);
     void toggle_display_on_off(void);
     void handle_events(void);
-    bool quit_signal_received(void);
     void display(X11Window * win, const AbstractFuzzy& fuzzy, color_map color,
         bool fill = false, bool bold = false);
     void display_3D(X11Window * win,

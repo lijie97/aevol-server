@@ -57,49 +57,49 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model ) : Protein::Protein( gen_unit, model ) {
-  _concentration = model._concentration;
-  _initial_concentration = model._concentration;
+  concentration_ = model.concentration_;
+  _initial_concentration = model.concentration_;
   _delta_concentration = model._delta_concentration;
   _signal = model._signal;
   _inherited = model._inherited;
   not_pure_TF = false;
 
-  if (!_AA_list.empty()) {
-    _cod_tab = new int8_t[_AA_list.size()];
+  if (!AA_list_.empty()) {
+    _cod_tab = new int8_t[AA_list_.size()];
     int i = 0;
-    for (auto cod : _AA_list) {
-      _cod_tab[i] = cod->get_value();
+    for (auto cod : AA_list_) {
+      _cod_tab[i] = cod->value();
       i++;
     }
   }
 }
 
 
-Protein_R::Protein_R( GeneticUnit* gen_unit, const std::vector<Codon*> codon_list,
+Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
 							Strand strand, int32_t shine_dal_pos,
                             Rna* rna, double w_max )  :
 		Protein::Protein( gen_unit, codon_list, strand, shine_dal_pos, rna, w_max )
 {
   _rna_R_list.push_back((Rna_R*)rna);
 
-	_initial_concentration = _concentration;
+	_initial_concentration = concentration_;
   _delta_concentration   = 0;
   _inherited             = false;
   _signal                = false;
   not_pure_TF			       = false;
 
-  if (!_AA_list.empty()) {
-    _cod_tab = new int8_t[_AA_list.size()];
+  if (!AA_list_.empty()) {
+    _cod_tab = new int8_t[AA_list_.size()];
     int i = 0;
-    for (auto cod : _AA_list) {
-      _cod_tab[i] = cod->get_value();
+    for (auto cod : AA_list_) {
+      _cod_tab[i] = cod->value();
       i++;
     }
   }
 }
 
 //used to build the signal protein
-Protein_R::Protein_R( const std::vector<Codon*> codon_list, double concentration)  :
+Protein_R::Protein_R( const std::list<Codon*> codon_list, double concentration)  :
 		Protein::Protein( codon_list, concentration )
 {
   _initial_concentration = 0;
@@ -108,11 +108,11 @@ Protein_R::Protein_R( const std::vector<Codon*> codon_list, double concentration
   _signal               = true;
   not_pure_TF			 = false;
 
-  if (!_AA_list.empty()) {
-    _cod_tab = new int8_t[_AA_list.size()];
+  if (!AA_list_.empty()) {
+    _cod_tab = new int8_t[AA_list_.size()];
     int i = 0;
-    for (auto cod : _AA_list) {
-      _cod_tab[i] = cod->get_value();
+    for (auto cod : AA_list_) {
+      _cod_tab[i] = cod->value();
       i++;
     }
   }
@@ -126,11 +126,11 @@ Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
   gzread( backup_file, &_signal,   			sizeof(_signal) );
   not_pure_TF			 = false;
 
-  if (!_AA_list.empty()) {
-    _cod_tab = new int8_t[_AA_list.size()];
+  if (!AA_list_.empty()) {
+    _cod_tab = new int8_t[AA_list_.size()];
     int i = 0;
-    for (auto cod : _AA_list) {
-      _cod_tab[i] = cod->get_value();
+    for (auto cod : AA_list_) {
+      _cod_tab[i] = cod->value();
       i++;
     }
   }
@@ -151,7 +151,7 @@ Protein_R::~Protein_R( void )
 // =================================================================
 void Protein_R::compute_delta_concentration( void )
 {
-  delta_concentration_ = 0;
+  _delta_concentration = 0;
 
   if( _signal == false )
   {
@@ -163,8 +163,8 @@ void Protein_R::compute_delta_concentration( void )
 
     }
 
-    _delta_concentration -= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_rate() * _concentration;
-    _delta_concentration *= 1/_gen_unit->get_exp_m()->get_exp_s()->get_nb_degradation_step();
+    _delta_concentration -= gen_unit_->exp_m()->exp_s()->get_degradation_rate() * concentration_;
+    _delta_concentration *= 1/gen_unit_->exp_m()->exp_s()->get_nb_degradation_step();
 
   }
 }

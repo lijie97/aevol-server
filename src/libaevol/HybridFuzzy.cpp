@@ -112,7 +112,7 @@ void HybridFuzzy::add( const AbstractFuzzy& f )
 {
   const HybridFuzzy to_add = (HybridFuzzy&)(f);
 #ifdef __BLAS__
-  cblas_daxpy(_pheno_size, 1.0, to_add.get_points(), 1, _points, 1);
+  cblas_daxpy(_pheno_size, 1.0, to_add.points(), 1, _points, 1);
 #else
 		for (int i = 0; i < _pheno_size; i++) {
 			if (to_add._points[i] != 0) _points[i] = _points[i] + to_add._points[i];
@@ -124,7 +124,7 @@ void HybridFuzzy::sub( const AbstractFuzzy& f )
 {
   const HybridFuzzy to_sub = (HybridFuzzy&)(f);
 #ifdef __BLAS__
-  cblas_daxpy(_pheno_size, -1.0, to_sub.get_points(), 1, _points, 1);
+  cblas_daxpy(_pheno_size, -1.0, to_sub.points(), 1, _points, 1);
 #else
 		for (int i = 0; i < _pheno_size; i++) {
 			if (to_sub._points[i] !=0 ) _points[i] = _points[i] - to_sub._points[i];
@@ -164,8 +164,8 @@ bool HybridFuzzy::is_identical_to( const AbstractFuzzy& f, double tolerance  ) c
     return false;
 
   for (int i = 0; i < _pheno_size; i++)
-    if (fabs(_points[i] - fs.get_points()[i]) > tolerance * (fabs(_points[i]) + fabs(fs.get_points()[i])) or
-        fabs(_points[i] - fs.get_points()[i]) > tolerance * (fabs(_points[i]) + fabs(fs.get_points()[i])))
+    if (fabs(_points[i] - fs.points()[i]) > tolerance * (fabs(_points[i]) + fabs(fs.points()[i])) or
+        fabs(_points[i] - fs.points()[i]) > tolerance * (fabs(_points[i]) + fabs(fs.points()[i])))
       return false;
   return true;
 }

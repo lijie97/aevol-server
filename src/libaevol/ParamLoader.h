@@ -96,9 +96,6 @@ class ParamLoader {
   //                                  Setters
   // =========================================================================
 
-  void read_file(void);
-
-
   ParameterLine * get_line( int32_t* );
 
  protected :
@@ -284,7 +281,6 @@ class ParamLoader {
   bool more_stats_;  // TODO : explain
 
   #ifdef __REGUL
-<<<<<<< HEAD
     // Regulation factors
     double  _hill_shape_n;
     double  _hill_shape_theta;
@@ -311,10 +307,6 @@ class ParamLoader {
     //Specific variatio method
     double _env_switch_probability;
     std::vector<std::list<Gaussian>> _env_gaussians_list;
-=======
-    // ------------------------------------------------------- Binding matrix
-    double binding_zeros_percentage_;
->>>>>>> 7555493ee0d1aa6ba92a457044bfed6828b1661f
   #endif
 };
 

@@ -545,15 +545,15 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  if (indiv->get_exp_m()->get_exp_s()->get_fuzzy_flavor() == 0)
-    for (const auto& p: ((Fuzzy*)indiv->get_phenotype_activ())->get_points())
+  if (indiv->exp_m()->exp_s()->get_fuzzy_flavor() == 0)
+    for (const auto& p: ((Fuzzy*)indiv->phenotype_activ())->points())
       fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   else
-    for (int i=0; i < ((HybridFuzzy*)indiv->get_phenotype_activ())->get_pheno_size(); i++) {
-      int xi = (int) ( i / ((HybridFuzzy*)indiv->get_phenotype_activ())->get_pheno_size());
+    for (int i=0; i < ((HybridFuzzy*)indiv->phenotype_activ())->get_pheno_size(); i++) {
+      int xi = (int) ( i / ((HybridFuzzy*)indiv->phenotype_activ())->get_pheno_size());
       fprintf(drawingfile, "%lf %lf lineto\n", margin +
                                                scale * xi, 0.5 + scale *
-                                               ((HybridFuzzy*) indiv->get_phenotype_activ())->get_points()[i]);
+                                               ((HybridFuzzy*) indiv->phenotype_activ())->points()[i]);
     }
   fprintf(drawingfile, "stroke\n" );
 
@@ -565,15 +565,15 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  if (indiv->get_exp_m()->get_exp_s()->get_fuzzy_flavor() == 0)
-    for (const auto& p: ((Fuzzy*)indiv->get_phenotype_inhib())->get_points())
+  if (indiv->exp_m()->exp_s()->get_fuzzy_flavor() == 0)
+    for (const auto& p: ((Fuzzy*)indiv->phenotype_inhib())->points())
       fprintf( drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   else
-    for (int i=0; i < ((HybridFuzzy*)indiv->get_phenotype_inhib())->get_pheno_size(); i++) {
-      int xi = (int) ( i / ((HybridFuzzy*)indiv->get_phenotype_inhib())->get_pheno_size());
+    for (int i=0; i < ((HybridFuzzy*)indiv->phenotype_inhib())->get_pheno_size(); i++) {
+      int xi = (int) ( i / ((HybridFuzzy*)indiv->phenotype_inhib())->get_pheno_size());
       fprintf(drawingfile, "%lf %lf lineto\n", margin +
                                                scale * xi, 0.5 + scale *
-                                                                 ((HybridFuzzy*) indiv->get_phenotype_inhib())->get_points()[i]);
+                                                                 ((HybridFuzzy*) indiv->phenotype_inhib())->points()[i]);
     }
   fprintf( drawingfile, "stroke\n" );
 
@@ -680,15 +680,15 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
   fprintf( drawingfile, "0.002 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
 
-  if (indiv->get_exp_m()->get_exp_s()->get_fuzzy_flavor() == 0)
-    for (const auto& p: ((Fuzzy*)indiv->get_phenotype_activ())->get_points())
+  if (indiv->exp_m()->exp_s()->get_fuzzy_flavor() == 0)
+    for (const auto& p: ((Fuzzy*)indiv->phenotype_activ())->points())
       fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   else
-    for (int i=0; i < ((HybridFuzzy*)indiv->get_phenotype_activ())->get_pheno_size(); i++) {
-      int xi = (int) ( i / ((HybridFuzzy*)indiv->get_phenotype_activ())->get_pheno_size());
+    for (int i=0; i < ((HybridFuzzy*)indiv->phenotype_activ())->get_pheno_size(); i++) {
+      int xi = (int) ( i / ((HybridFuzzy*)indiv->phenotype_activ())->get_pheno_size());
       fprintf(drawingfile, "%lf %lf lineto\n", margin +
                                              scale * xi, margin + scale *
-                                                               ((HybridFuzzy*) indiv->get_phenotype_activ())->get_points()[i]);
+                                                               ((HybridFuzzy*) indiv->phenotype_activ())->points()[i]);
   }
   fprintf( drawingfile, "stroke\n" );
 
@@ -699,15 +699,15 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
   fprintf( drawingfile,"[ ] 0 setdash\n" );
   fprintf( drawingfile, "0.001 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
-  if (indiv->get_exp_m()->get_exp_s()->get_fuzzy_flavor() == 0)
-    for (const auto& p: ((Fuzzy*)target.fuzzy())->get_points())
+  if (indiv->exp_m()->exp_s()->get_fuzzy_flavor() == 0)
+    for (const auto& p: ((Fuzzy*)target.fuzzy())->points())
       fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   else
   for (int i=0; i < ((HybridFuzzy*)target.fuzzy())->get_pheno_size(); i++) {
     int xi = (int) ( i / ((HybridFuzzy*)target.fuzzy())->get_pheno_size());
     fprintf(drawingfile, "%lf %lf lineto\n", margin +
                                              scale * xi, margin + scale *
-                                                                  ((HybridFuzzy*) target.fuzzy())->get_points()[i]);
+                                                                  ((HybridFuzzy*) target.fuzzy())->points()[i]);
   }
   fprintf( drawingfile, "stroke\n" );
 

@@ -68,7 +68,7 @@ namespace aevol {
  *
  * Copies the protein but does nothing regarding the RNAs transcribing it (creates an empty list).
  */
-Protein::Protein(GeneticUnit* gen_unit, sconst Protein &model)
+Protein::Protein(GeneticUnit* gen_unit, const Protein &model)
 {
   gen_unit_  = gen_unit;
 
@@ -92,7 +92,7 @@ Protein::Protein(GeneticUnit* gen_unit, sconst Protein &model)
 }
 
 Protein::Protein(GeneticUnit* gen_unit,
-                 const std::vector<Codon*>& codon_list,
+                 const std::list<Codon*>& codon_list,
                  Strand strand,
                  int32_t shine_dal_pos,
                  Rna* rna,
@@ -111,7 +111,7 @@ Protein::Protein(GeneticUnit* gen_unit,
     concentration_  = rna->basal_level();
   #else
     // In Raevol, there is two case, depending on the heredity
-    if ( _gen_unit->get_exp_m()->get_exp_s()->get_with_heredity() )
+    if (gen_unit_->exp_m()->exp_s()->get_with_heredity() )
     {
       // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
       concentration_ = 0;
@@ -337,18 +337,18 @@ Protein::Protein(Protein* parent)
 
 //Constructor for the signal proteins
 //modif raevol_yo_3 : now we really copy the codon list
-Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
+Protein::Protein(const std::list<Codon*> codon_list, double concentration)
 {
-  _gen_unit             = NULL;
-  _strand               = LEADING;
-  _shine_dal_pos        = 0;
-  _length               = codon_list.size();
-  _first_translated_pos = 0;
-  _last_translated_pos  = 0;
-  _concentration        = concentration;
+  gen_unit_             = NULL;
+  strand_               = LEADING;
+  shine_dal_pos_        = 0;
+  length_               = codon_list.size();
+  first_translated_pos_ = 0;
+  last_translated_pos_  = 0;
+  concentration_        = concentration;
 
   // Copy the list of amino-acids
-  _AA_list  = codon_list;
+  AA_list_  = codon_list;
 
 
 
@@ -376,7 +376,7 @@ Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
    bool bin_h = false;
 
    for (const auto& codon: codon_list) {
-     switch ( codon->get_value() )
+     switch ( codon->value() )
      {
        case CODON_M0 :
        {
@@ -489,16 +489,16 @@ Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
    //  ----------------------------------------------------------------------------------
    //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
    //  ----------------------------------------------------------------------------------
-   if ( nb_m != 0 )  _mean = M / (pow(2, nb_m) - 1);
-   else              _mean = 0.5;
-   if ( nb_w != 0 )  _width = W / (pow(2, nb_w) - 1);
-   else              _width = 0.0;
-   if ( nb_h != 0 )  _height = H / (pow(2, nb_h) - 1);
-   else              _height = 0.5;
+   if ( nb_m != 0 )  mean_ = M / (pow(2, nb_m) - 1);
+   else              mean_ = 0.5;
+   if ( nb_w != 0 )  width_ = W / (pow(2, nb_w) - 1);
+   else              width_ = 0.0;
+   if ( nb_h != 0 )  height_ = H / (pow(2, nb_h) - 1);
+   else              height_ = 0.5;
 
-   assert( _mean >= 0.0 && _mean <= 1.0 );
-   assert( _width >= 0.0 && _width <= 1.0 );
-   assert( _height >= 0.0 && _height <= 1.0 );
+   assert( mean_ >= 0.0 && mean_ <= 1.0 );
+   assert( width_ >= 0.0 && width_ <= 1.0 );
+   assert( height_ >= 0.0 && height_ <= 1.0 );
 
 
 
@@ -508,22 +508,22 @@ Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
    // x_min <= M <= x_max
    // w_min <= W <= w_max
    // h_min <= H <= h_max
-   _mean   = (X_MAX - X_MIN) * _mean + X_MIN;
-   _width  = (get_indiv()->get_w_max() - W_MIN) * _width + W_MIN;
-   _height = (H_MAX - H_MIN) * _height + H_MIN;
+   mean_   = (X_MAX - X_MIN) * mean_ + X_MIN;
+   width_  = (indiv()->w_max() - W_MIN) * width_ + W_MIN;
+   height_ = (H_MAX - H_MIN) * height_ + H_MIN;
 
-   if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )
+   if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || width_ == 0.0 || height_ == 0.0 )
    {
-     _is_functional = false;
+     is_functional_ = false;
    }
    else
    {
-     _is_functional = true;
+     is_functional_ = true;
    }
 
-   assert( _mean >= X_MIN && _mean <= X_MAX );
-   assert( _width >= W_MIN && _width <= get_indiv()->get_w_max() );
-   assert( _height >= H_MIN && _height <= H_MAX );
+   assert( mean_ >= X_MIN && mean_ <= X_MAX );
+   assert( width_ >= W_MIN && width_ <= get_indiv()->get_w_max() );
+   assert( height_ >= H_MIN && height_ <= H_MAX );
 }
 
 
@@ -581,9 +581,9 @@ void Protein::add_RNA(Rna * rna)
   rna_list_.push_back(rna);
 
 #ifndef __REGUL
-  concentration_ += rna->get_basal_level();
+  concentration_ += rna->basal_level();
 #else
-	if ( _gen_unit->get_exp_m()->get_exp_s()->get_with_heredity() )
+	if ( gen_unit_->exp_m()->exp_s()->get_with_heredity() )
 	{
 	  // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
 	 concentration_ = 0;
@@ -591,7 +591,7 @@ void Protein::add_RNA(Rna * rna)
 	else
 	{
 	  // Without heredity, we use the same concentration as in Aevol (No inherited proteins)
-	  concentration_ += rna->get_basal_level();
+	  concentration_ += rna->basal_level();
 	}
 #endif
 }
@@ -692,6 +692,6 @@ Individual *Protein::indiv() const
 
 GeneticUnit* Protein::get_gen_unit( void ) const
 {
-  return _gen_unit;
+  return gen_unit_;
 }
 } // namespace aevol

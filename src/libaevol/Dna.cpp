@@ -1662,13 +1662,13 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
 #pragma simd
 #pragma distribute_point
   for (int32_t i = 0, j = pos_2 - 1; i < seg_length; i = i + 4, j = j - 4) {
-    if (_data[j] == '0') inverted_segment[i] = '1';
+    if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
-    if (_data[j - 1] == '0') inverted_segment[i + 1] = '1';
+    if (data_[j - 1] == '0') inverted_segment[i + 1] = '1';
     else inverted_segment[i + 1] = '0';
-    if (_data[j - 2] == '0') inverted_segment[i + 2] = '1';
+    if (data_[j - 2] == '0') inverted_segment[i + 2] = '1';
     else inverted_segment[i + 2] = '0';
-    if (_data[j - 3] == '0') inverted_segment[i + 3] = '1';
+    if (data_[j - 3] == '0') inverted_segment[i + 3] = '1';
     else inverted_segment[i + 3] = '0';
   }
   inverted_segment[seg_length] = '\0';
@@ -2930,7 +2930,7 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 #pragma simd
 #pragma distribute_point
   for (int32_t i = 0, j = pos_C - 1; i < len_B; i++, j--) {
-    if (_data[j] == '0') inverted_segment[i] = '1';
+    if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
   }
   inverted_segment[len_B] = '\0';
@@ -2946,7 +2946,7 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 #pragma simd
 #pragma distribute_point
   for (int32_t i = 0, j = pos_D - 1; i < len_C; i++, j--) {
-    if (_data[j] == '0') inverted_segment[i] = '1';
+    if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
   }
   inverted_segment[len_C] = '\0';
@@ -3067,7 +3067,7 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 #pragma simd
 #pragma distribute_point
   for (int32_t i = 0, j = pos_D - 1; i < len_C; i++, j--) {
-    if (_data[j] == '0') inverted_segment[i] = '1';
+    if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
   }
   inverted_segment[len_C] = '\0';
@@ -3083,7 +3083,7 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 #pragma simd
 #pragma distribute_point
   for (int32_t i = 0, j = pos_E - 1; i < len_D; i++, j--) {
-    if (_data[j] == '0') inverted_segment[i] = '1';
+    if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
   }
   inverted_segment[len_D] = '\0';

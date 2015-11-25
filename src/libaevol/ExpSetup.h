@@ -57,24 +57,7 @@ class ExpSetup {
   // =======================================================================
   ExpSetup() = delete;
   ExpSetup(const ExpSetup&) = delete;
-  ExpSetup(ExpManager* exp_m) :
-    sel_{ new Selection(exp_m) },
-    with_HT_{false},
-    repl_HT_with_close_points_{false},
-    HT_ins_rate_{0.0},
-    HT_repl_rate_{0.0},
-    repl_HT_detach_rate_{0.0},
-    with_plasmids_{false},
-    prob_plasmid_HT_{0.0},
-    tune_donor_ability_{0.0},
-    tune_recipient_ability_{0.0},
-    donor_cost_{0.0},
-    recipient_cost_{0.0},
-    swap_GUs_{false},
-    with_secretion_{false},
-    secretion_contrib_to_fitness_{0.0},
-    secretion_cost_{0.0}
-  {}
+  ExpSetup(ExpManager* exp_m);
 
   // =======================================================================
   //                             Destructors
@@ -84,6 +67,8 @@ class ExpSetup {
   // =======================================================================
   //                         Accessors: getters
   // =======================================================================
+  inline int get_fuzzy_flavor( void ) const;
+
   // ----------------------------------------------------- Selection context
   Selection * sel() const { return sel_; }
 
@@ -123,6 +108,7 @@ class ExpSetup {
   // =======================================================================
   //                         Accessors: setters
   // =======================================================================
+  inline void set_fuzzy_flavor( int fuzzy_flavor );
   // --------------------------------------------------------------- Transfer
   void set_with_HT(bool with_HT) { with_HT_ = with_HT; }
   void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { repl_HT_with_close_points_ = repl_HT_with_close_points; }
@@ -197,6 +183,7 @@ class ExpSetup {
   // =======================================================================
   ExpManager* exp_m_;
 
+  int fuzzy_flavor_;
   // ----------------------------------------------------- Selection context
   Selection* sel_;
 
@@ -249,7 +236,7 @@ class ExpSetup {
 
 inline int ExpSetup::get_fuzzy_flavor( void ) const
 {
-  return _fuzzy_flavor;
+  return fuzzy_flavor_;
 }
 
 #ifdef __REGUL
@@ -304,85 +291,9 @@ inline double ExpSetup::get_nb_indiv_age( void ) const
 //                           Setters' definitions
 // =====================================================================
 // --------------------------------------------------------------- Transfer
-inline void ExpSetup::set_with_HT( bool with_HT )
-{
-  _with_HT = with_HT;
-}
-
-inline void ExpSetup::set_repl_HT_with_close_points( bool repl_HT_with_close_points )
-{
-  _repl_HT_with_close_points = repl_HT_with_close_points;
-}
-
-inline void ExpSetup::set_HT_ins_rate( double HT_ins_rate )
-{
-  _HT_ins_rate = HT_ins_rate;
-}
-
-inline void ExpSetup::set_HT_repl_rate( double HT_repl_rate )
-{
-  _HT_repl_rate = HT_repl_rate;
-}
-
-inline void ExpSetup::set_repl_HT_detach_rate( double repl_HT_detach_rate )
-{
-  _repl_HT_detach_rate = repl_HT_detach_rate;
-}
-
-inline void ExpSetup::set_with_plasmids( bool with_p )
-{
-  _with_plasmids = with_p;
-}
-
-inline void ExpSetup::set_prob_plasmid_HT( double prob_p_HT )
-{
-  _prob_plasmid_HT = prob_p_HT;
-}
-
-inline void ExpSetup::set_tune_donor_ability( double tune_donor_ability )
-{
-  _tune_donor_ability = tune_donor_ability;
-}
-
-inline void ExpSetup::set_tune_recipient_ability( double tune_recipient_ability )
-{
-  _tune_recipient_ability = tune_recipient_ability;
-}
-
-inline void ExpSetup::set_donor_cost( double donor_cost )
-{
-  _donor_cost = donor_cost;
-}
-
-inline void ExpSetup::set_recipient_cost( double recipient_cost )
-{
-  _recipient_cost = recipient_cost;
-}
-
-inline void ExpSetup::set_swap_GUs( bool swap_GUs )
-{
-  _swap_GUs = swap_GUs;
-}
-
-// -------------------------------------------------------------- Secretion
-inline void ExpSetup::set_with_secretion( bool with_secretion )
-{
-  _with_secretion = with_secretion;
-}
-
-inline void ExpSetup::set_secretion_contrib_to_fitness( double secretion_contrib )
-{
-  _secretion_contrib_to_fitness = secretion_contrib;
-}
-
-inline void ExpSetup::set_secretion_cost( double secretion_cost )
-{
-  _secretion_cost = secretion_cost;
-}
-
 inline void ExpSetup::set_fuzzy_flavor( int fuzzy_flavor )
 {
-  _fuzzy_flavor = fuzzy_flavor;
+  fuzzy_flavor_ = fuzzy_flavor;
 }
 
 #ifdef __REGUL

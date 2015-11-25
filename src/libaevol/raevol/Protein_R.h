@@ -58,12 +58,12 @@ class Protein_R : public Protein
   Protein_R(const Protein_R &model) = delete;
 	Protein_R( GeneticUnit* gen_unit, const Protein_R &model );
 	Protein_R( GeneticUnit* gen_unit,
-    		const std::vector<Codon*> codon_list,
+    		const std::list<Codon*> codon_list,
     		Strand strand,
     		int32_t shine_dal_pos,
     		Rna* rna,
         double w_max ); // TODO Rna_R?
-	Protein_R( const std::vector<Codon*> codon_list, double concentration);
+	Protein_R( const std::list<Codon*> codon_list, double concentration);
 	Protein_R( gzFile backup_file );
 
     // =================================================================
@@ -137,7 +137,7 @@ class Protein_R : public Protein
 // =====================================================================
 inline void Protein_R::update_concentration( void )
 {
-  _concentration += _delta_concentration;
+  concentration_ += _delta_concentration;
 }
 
 inline void Protein_R::set_inherited( bool is_inherited )
@@ -152,12 +152,12 @@ inline void Protein_R::set_signal( bool is_signal )
 
 inline void Protein_R::reset_concentration( void )
 {
-  _concentration = _initial_concentration;
+  concentration_ = _initial_concentration;
 }
 
 inline void Protein_R::set_initial_concentration( void )
 {
-  _initial_concentration = _concentration;
+  _initial_concentration = concentration_;
 }
 
 inline bool Protein_R::is_inherited( void )
@@ -176,12 +176,12 @@ inline bool Protein_R::is_signal( void )
 
 inline void Protein_R::multiply_concentration( double factor )
 {
-  _concentration *= factor;
+  concentration_ *= factor;
 }
 
 inline void Protein_R::set_concentration( double concentration )
 {
-  _concentration = concentration;
+  concentration_ = concentration;
 }
 
 inline int8_t Protein_R::get_cod_tab(int32_t index) const

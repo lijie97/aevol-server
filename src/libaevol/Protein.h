@@ -73,12 +73,12 @@ class Protein
     Protein(const Protein &model) = delete;
     Protein(GeneticUnit* gen_unit, const Protein &model);
     Protein(GeneticUnit* gen_unit,
-               const std::vector<Codon*>& codon_list,
+               const std::list<Codon*>& codon_list,
                Strand strand,
                int32_t shine_dal_pos,
                Rna * rna,
                double w_max);
-    Protein( const std::vector<Codon*> codon_list, double concentration);
+    Protein( const std::list<Codon*> codon_list, double concentration);
     //Protein(Protein* parent);
     Protein(gzFile backup_file);
     // =================================================================
@@ -90,7 +90,7 @@ class Protein
     //                              Accessors
     // =================================================================
     GeneticUnit*       get_gen_unit( void )              const;
-    inline std::vector<Codon*>     get_AA_list( void ) const;
+    inline std::list<Codon*>     AA_list() const;
 
     inline Strand strand()                const;
     inline const std::list<Rna *> rna_list()          const;
@@ -207,8 +207,8 @@ bool Protein::is_functional() const
 }
 
 
-std::vector<Codon*>     Protein::get_AA_list( void ) const {
-  return _AA_list;
+std::list<Codon*>     Protein::AA_list() const {
+  return AA_list_;
 }
 
 // =====================================================================

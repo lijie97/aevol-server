@@ -116,7 +116,7 @@ void PhenotypicTarget::ComputeArea() {
   //      already been through them!)
   for (int8_t i = 0 ; i < nb_segments_ ; i++) {
     area_by_feature_[segments_[i]->feature] +=
-      geometric_area(segments_[i]->start, segments_[i]->stop);
+      fuzzy_->get_geometric_area(segments_[i]->start, segments_[i]->stop);
   }
 }
 

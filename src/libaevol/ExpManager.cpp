@@ -339,7 +339,7 @@ void ExpManager::load(const char* dir,
   AeTime::set_time(t0);
 
   if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(_exp_s);
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
 
   // -------------------------------------------------------------------------
   // Open setup files and backup files
@@ -481,7 +481,7 @@ void ExpManager::run_evolution()
 	  	  ae_logger::addLog(TOTAL,duration);
 	  	  ae_logger::flush(AeTime::get_time());
 #endif
-  _output_m->flush();
+  output_m_->flush();
   printf("================================================================\n");
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");

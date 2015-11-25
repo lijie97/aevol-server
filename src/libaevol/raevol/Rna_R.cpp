@@ -122,15 +122,15 @@ double Rna_R::get_synthesis_rate( void )
     operator_activity  += _operating_coef_list[i];
   }
 
-  double enhancer_activity_pow_n  = pow( enhancer_activity, _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape_n() );
-  double operator_activity_pow_n  = pow( operator_activity, _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape_n() );
+  double enhancer_activity_pow_n  = pow( enhancer_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
+  double operator_activity_pow_n  = pow( operator_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
 
-  return   _basal_level
-           * (_gen_unit->get_exp_m()->get_exp_s()->get_hill_shape()
-              / (operator_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape()))
-           * (1 + ((1 / _basal_level) - 1)
+  return   basal_level_
+           * (gen_unit_->exp_m()->exp_s()->get_hill_shape()
+              / (operator_activity_pow_n + gen_unit_->exp_m()->exp_s()->get_hill_shape()))
+           * (1 + ((1 / basal_level_) - 1)
                   * (enhancer_activity_pow_n /
-                     (enhancer_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape())));
+                     (enhancer_activity_pow_n + gen_unit_->exp_m()->exp_s()->get_hill_shape())));
 }
 
 // =================================================================
@@ -138,25 +138,25 @@ double Rna_R::get_synthesis_rate( void )
 // =================================================================
 int32_t Rna_R::get_enhancer_position( void )
 {
-  if(_strand == LEADING)
+  if(strand_ == LEADING)
   {
-    return (_pos - 20)  % ( _gen_unit->get_dna()->get_length() );
+    return (pos_ - 20)  % ( gen_unit_->dna()->length() );
   }
-  else  // _strand = LAGGING
+  else  // strand_ = LAGGING
   {
-    return (_pos + 20)  % ( _gen_unit->get_dna()->get_length() );
+    return (pos_ + 20)  % ( gen_unit_->dna()->length() );
   }
 }
 
 int32_t Rna_R::get_operator_position( void )
 {
-  if(_strand == LEADING)
+  if(strand_ == LEADING)
   {
-    return (_pos + PROM_SIZE)  % ( _gen_unit->get_dna()->get_length() );
+    return (pos_ + PROM_SIZE)  % ( gen_unit_->dna()->length() );
   }
-  else  // _strand = LAGGING
+  else  // strand_ = LAGGING
   {
-    return (_pos - PROM_SIZE)  % ( _gen_unit->get_dna()->get_length() );
+    return (pos_ - PROM_SIZE)  % ( gen_unit_->dna()->length() );
   }
 }
 
@@ -164,7 +164,7 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 {
 	  double  max = 0;
 	  double  temp;
-	  int32_t len = protein->get_length();
+	  int32_t len = protein->length();
 	  int32_t quadon_tab[5];
 	//  int32_t* codon_tab;
 	//  codon_tab = new int32_t[len];
@@ -175,11 +175,11 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	  // printf("affinity_with_protein - len = %d\n",len);
 
 	  // Putting the quadons and the codons on local tab
-	  indiv = dynamic_cast< Individual_R* >( _gen_unit->get_indiv() );
+	  indiv = dynamic_cast< Individual_R* >( gen_unit_->indiv() );
 	  prot  = ( Protein_R* )( protein );
 	  for ( int32_t i = 0 ; i < 5; i++ )
 	  {
-	    quadon_tab[i] = indiv->get_quadon( _gen_unit, _strand, (index+i) );
+	    quadon_tab[i] = indiv->get_quadon( gen_unit_, strand_, (index+i) );
 	  }
 	//  for (int32_t i = 0 ; i < len ; i++ )
 	//  {
@@ -195,11 +195,11 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	  for ( int32_t i = 0 ; i < len - 4; i++ )
 	  {
 	    temp  = 1 *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[0],prot->get_cod_tab(i)) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[1],prot->get_cod_tab(i+1)) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[2],prot->get_cod_tab(i+2)) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[3],prot->get_cod_tab(i+3)) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[4],prot->get_cod_tab(i+4));
+	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[0],prot->get_cod_tab(i)) *
+	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[1],prot->get_cod_tab(i+1)) *
+	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[2],prot->get_cod_tab(i+2)) *
+	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[3],prot->get_cod_tab(i+3)) *
+	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[4],prot->get_cod_tab(i+4));
 
 	//    for ( int32_t j = 0 ; j < 5 ; j++ )
 	//    {

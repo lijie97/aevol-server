@@ -447,11 +447,11 @@ int main(int argc, char** argv)
     mystats->write_statistics_of_this_indiv(indiv);
 
     // Optional outputs
-    write_environment_stats(get_time(), phenotypicTargetHandler, env_output_file);
-    write_terminators_stats(get_time(), indiv, term_output_file);
+    write_environment_stats(time(), phenotypicTargetHandler, env_output_file);
+    write_terminators_stats(time(), indiv, term_output_file);
     if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
     {
-      write_zones_stats(get_time(), indiv, phenotypicTargetHandler, zones_output_file);
+      write_zones_stats(time(), indiv, phenotypicTargetHandler, zones_output_file);
     }
     write_operons_stats(time(), indiv, operons_output_file);
 
@@ -650,9 +650,9 @@ void write_zones_stats(int64_t t,
 
   for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
-    geom_area_activ[num_segment]  = activ->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
-    geom_area_inhib[num_segment]  = inhib->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
-    geom_area_phen[num_segment]   = phen->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_activ[num_segment]  = activ->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_inhib[num_segment]  = inhib->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_phen[num_segment]   = phen->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
   }
 
 
