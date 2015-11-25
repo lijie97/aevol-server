@@ -1035,11 +1035,11 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       for (const auto& indiv: indivs())
       {
         #ifndef __REGUL
-        display(cur_win, *(indiv->get_phenotype()), BLUE);
-        if (indiv->get_allow_plasmids())
+        display(cur_win, *(indiv->phenotype()), BLUE);
+        if (indiv->allow_plasmids())
         {
-          display(cur_win, *(indiv->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
-          display(cur_win, *(indiv->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
+          display(cur_win, *(indiv->genetic_unit(0).phenotypic_contribution()), YELLOW);
+          display(cur_win, *(indiv->genetic_unit(1).phenotypic_contribution()), GREEN);
         }
         #else
         /*Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(indiv);
@@ -1055,7 +1055,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
 
       // Display best indiv's phenotype (white)
       #ifndef __REGUL
-      display(cur_win, *(best_indiv()->get_phenotype()), WHITE, true);
+      display(cur_win, *(best_indiv()->phenotype()), WHITE, true);
       display(cur_win, *(phenotypic_target.fuzzy()), RED, false, true);
       #else
       Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(best_indiv());
