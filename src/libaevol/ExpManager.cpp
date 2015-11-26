@@ -434,7 +434,6 @@ void ExpManager::run_evolution()
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
   WriteSetupFiles();
-
 #ifdef __TRACING__
     ae_logger::init("logger_csv.log");
 

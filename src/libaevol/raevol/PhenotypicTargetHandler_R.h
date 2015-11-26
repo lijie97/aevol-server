@@ -102,12 +102,12 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   }
 
   const PhenotypicTarget_R& phenotypic_target_model(int8_t env_id) const {
-    assert(env_id > 0 && env_id <= phenotypic_target_models_.size());
+    assert(env_id > 0 && env_id <= (int8_t) phenotypic_target_models_.size());
     return *(phenotypic_target_models_.at(env_id));
   }
 
   const PhenotypicTarget_R& phenotypic_target(int8_t age) const {
-    assert(age > 0 && age <= phenotypic_targets_.size());
+    assert(age > 0 && age <= (int8_t) phenotypic_targets_.size());
     return *(phenotypic_targets_.at(age-1));
   }
 
@@ -117,7 +117,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
 
   virtual double mean_environmental_area() const {
     double total_dist = 0.0;
-    for(int8_t i = 0; i<phenotypic_targets_.size(); i++) {
+    for(int8_t i = 0; i< (int8_t) phenotypic_targets_.size(); i++) {
       total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
     }
 

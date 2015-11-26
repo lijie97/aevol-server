@@ -249,7 +249,7 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
 
   BuildPhenotypicTargetsModels();
   //Debug
-  print_geometric_areas();
+  //print_geometric_areas();
 
   // We load the phenotypic targets after having built the models
   int8_t nb_env = 0;

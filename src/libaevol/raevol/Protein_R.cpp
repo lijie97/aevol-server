@@ -164,7 +164,7 @@ void Protein_R::compute_delta_concentration( void )
     }
 
     _delta_concentration -= gen_unit_->exp_m()->exp_s()->get_degradation_rate() * concentration_;
-    _delta_concentration *= 1/gen_unit_->exp_m()->exp_s()->get_nb_degradation_step();
+    _delta_concentration *= 1/((double)gen_unit_->exp_m()->exp_s()->get_nb_degradation_step());
 
   }
 }

@@ -176,9 +176,6 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
   }
 
   std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
-  //printf("Nombre d'env dans l'habitat : %d\n", habitat.number_of_phenotypic_targets());
-
-  int8_t id = 0;
 
   // i is thus the age of the individual
   for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
@@ -186,13 +183,8 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
       one_step();
     }
 
-    //id = habitat.phenotypic_target(i).get_id();
-    //printf("Id de l'env à l'instant %d : %d\n", i, id);
-
-
     if (eval->find(i) != eval->end())
     {
-      //printf("Evaluation à l'age %d\n", i);
       eval_step(habitat, i); 
     }
   }

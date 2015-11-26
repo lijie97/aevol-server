@@ -88,10 +88,9 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 #ifdef __REGUL
   _protein_presence_limit = 1e-2;
   _degradation_rate  = 1;
-  _degradation_step  = 10;
+  _nb_degradation_step  = 10;
   _with_heredity          = false;
-  _nb_indiv_age      = 20*_degradation_step;
-  _eval_step         = 5;
+  _nb_indiv_age      = 20;
 
   _hill_shape_n      = 4;
   _hill_shape_theta  = 0.5;
@@ -142,19 +141,9 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   sel()->write_setup_file(exp_setup_file);
 
 #ifdef __REGUL
-  gzwrite( exp_setup_file, &_hill_shape,  sizeof(_hill_shape) );
-  gzwrite( exp_setup_file, &_hill_shape_n,  sizeof(_hill_shape_n) );
-  gzwrite( exp_setup_file, &_hill_shape_theta,  sizeof(_hill_shape_theta) );
-
-  gzwrite( exp_setup_file, &_degradation_rate,  sizeof(_degradation_rate) );
-  gzwrite( exp_setup_file, &_degradation_step,  sizeof(_degradation_step) );
-
-  gzwrite( exp_setup_file, &_nb_indiv_age,  sizeof(_nb_indiv_age) );
-
-  gzwrite( exp_setup_file, &_with_heredity,  sizeof(_with_heredity) );
-  gzwrite( exp_setup_file, &_protein_presence_limit,  sizeof(_protein_presence_limit) );
-
-  gzwrite( exp_setup_file, &_eval_step,  sizeof(_eval_step) );
+  gzwrite( exp_setup_file, _hill_shape, _hill_shape_n, _hill_shape_theta,
+          _degradation_rate, _nb_degradation_step, _nb_indiv_age, _with_heredity,
+          _protein_presence_limit);
 
   char* binding_matrix_file_name = new char[100];
 
@@ -174,10 +163,10 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   delete[] binding_matrix_file_name;
 
   unsigned int eval_step_size = _list_eval_step->size();
-  gzwrite(exp_setup_file, &eval_step_size,  sizeof(eval_step_size));
+  gzwrite(exp_setup_file, eval_step_size);
 
   for(auto eval_step : *_list_eval_step) {
-    gzwrite(exp_setup_file, &eval_step,  sizeof(eval_step));
+    gzwrite(exp_setup_file, eval_step);
   }
 #endif
 
@@ -200,7 +189,6 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   }
    if(repl_HT_with_close_points_)
     gzread(setup_file, repl_HT_detach_rate_);
-
 
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;
@@ -227,22 +215,13 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   with_secretion_ = static_cast<bool>(tmp_with_secretion);
 
   // ---------------------------------------------- Retrieve selection context
+
   sel()->load(setup_file, backup_file, verbose);
 
 #ifdef __REGUL
-  gzread( setup_file, &_hill_shape,  sizeof(_hill_shape) );
-  gzread( setup_file, &_hill_shape_n,  sizeof(_hill_shape_n) );
-  gzread( setup_file, &_hill_shape_theta,  sizeof(_hill_shape_theta) );
-
-  gzread( setup_file, &_degradation_rate,  sizeof(_degradation_rate) );
-  gzread( setup_file, &_degradation_step,  sizeof(_degradation_step) );
-
-  gzread( setup_file, &_nb_indiv_age,  sizeof(_nb_indiv_age) );
-
-  gzread( setup_file, &_with_heredity,  sizeof(_with_heredity) );
-  gzread( setup_file, &_protein_presence_limit,  sizeof(_protein_presence_limit) );
-
-  gzread( setup_file, &_eval_step,  sizeof(_eval_step) );
+  gzread( setup_file, _hill_shape, _hill_shape_n, _hill_shape_theta,
+          _degradation_rate, _nb_degradation_step, _nb_indiv_age, _with_heredity,
+          _protein_presence_limit);
 
   char* binding_matrix_file_name = new char[100];
 //    _binding_matrix = new double[MAX_QUADON][MAX_CODON];
@@ -263,14 +242,13 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   delete[] binding_matrix_file_name;
 
   unsigned int eval_step_size;
-  gzread(setup_file, &eval_step_size,  sizeof(eval_step_size));
+  gzread(setup_file, eval_step_size);
 
   int eval_val;
   for(unsigned int i = 0; i < eval_step_size; i++) {
-    gzread(setup_file, &eval_val,  sizeof(eval_val));
+    gzread(setup_file, eval_val);
     _list_eval_step->insert(eval_val);
   }
-
 #endif
 
 }
@@ -324,19 +302,21 @@ void ExpSetup::init_binding_matrix( bool random_binding_matrix, double binding_z
 }
 
 void ExpSetup::read_binding_matrix_from_backup(gzFile binding_matrix_file) {
-	for (int i=0; i < MAX_QUADON; i++)
+	for (int i=0; i < MAX_QUADON; i++) {
 		for (int j=0; j < MAX_CODON; j++) {
-			gzread( binding_matrix_file, &(_binding_matrix[i][j]), sizeof(double) );
+			gzread( binding_matrix_file, (_binding_matrix[i][j]));
 		}
+	}
 }
 
 void ExpSetup::write_binding_matrix_to_backup(gzFile binding_matrix_file) const {
 	double value;
-	for (int i=0; i < MAX_QUADON; i++)
+	for (int i=0; i < MAX_QUADON; i++) {
 		for (int j=0; j < MAX_CODON; j++) {
 			value = _binding_matrix[i][j];
-			gzwrite( binding_matrix_file, &value, sizeof(double) );
+			gzwrite( binding_matrix_file, (_binding_matrix[i][j]));
 		}
+	}
 }
 
 void ExpSetup::write_binding_matrix_to_file( FILE* file ) const

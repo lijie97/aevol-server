@@ -98,8 +98,7 @@ class ExpSetup {
     inline double get_hill_shape_n( void ) const;
     inline double get_hill_shape_theta( void ) const;
 
-    inline double get_eval_step( void ) const;
-    inline double get_nb_indiv_age( void ) const;
+    inline int get_nb_indiv_age( void ) const;
     std::set<int>* get_list_eval_step( void ) const {
       return _list_eval_step;
     }
@@ -140,8 +139,7 @@ class ExpSetup {
     inline void set_hill_shape_n( double hill_shape_n );
     inline void set_hill_shape_theta( double hill_shape_theta );
 
-    inline void set_eval_step( double eval_step );
-    inline void set_nb_indiv_age( double nb_indiv_age );
+    inline void set_nb_indiv_age( int nb_indiv_age );
 
     inline void set_list_eval_step(std::set<int> list_eval_step);
 #endif
@@ -215,14 +213,13 @@ class ExpSetup {
     double  _protein_presence_limit;
 
     double  _degradation_rate;
-    double  _degradation_step;
+    int     _nb_degradation_step;
 
     double _hill_shape_n;
     double _hill_shape;
     double _hill_shape_theta;
 
     int    _nb_indiv_age;
-    int    _eval_step;
 
     std::set<int>* _list_eval_step;
 #endif
@@ -253,7 +250,7 @@ inline double ExpSetup::get_degradation_rate( void ) const
 
 inline int ExpSetup::get_nb_degradation_step( void ) const
 {
-  return _degradation_step;
+  return _nb_degradation_step;
 }
 
 inline double ExpSetup::get_protein_presence_limit( void ) const
@@ -276,12 +273,7 @@ inline double ExpSetup::get_hill_shape_theta( void ) const
   return _hill_shape_theta;
 }
 
-inline double ExpSetup::get_eval_step( void ) const
-{
-  return _eval_step;
-}
-
-inline double ExpSetup::get_nb_indiv_age( void ) const
+inline int ExpSetup::get_nb_indiv_age( void ) const
 {
   return _nb_indiv_age;
 }
@@ -309,7 +301,7 @@ inline void ExpSetup::set_degradation_rate( double degradation_rate )
 
 inline void ExpSetup::set_nb_degradation_step( int degradation_step )
 {
-  _degradation_step = degradation_step;
+  _nb_degradation_step = degradation_step;
 }
 
 inline void ExpSetup::set_protein_presence_limit( double protein_presence_limit )
@@ -332,13 +324,8 @@ inline void ExpSetup::set_hill_shape_n( double hill_shape_n )
   _hill_shape_n = hill_shape_n;
 }
 
-inline void ExpSetup::set_eval_step( double eval_step )
-{
-  _eval_step = eval_step;
-}
 
-
-inline void ExpSetup::set_nb_indiv_age( double nb_indiv_age )
+inline void ExpSetup::set_nb_indiv_age( int nb_indiv_age )
 {
   _nb_indiv_age = nb_indiv_age;
 }

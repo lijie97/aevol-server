@@ -39,7 +39,7 @@ ENV_ADD_GAUSSIAN  0.3   0.8   0.03
 MAX_TRIANGLE_WIDTH      0.033333333
 
 ##### 7. Recording ################
-BACKUP_STEP             1000
+BACKUP_STEP             100
 RECORD_TREE             false
 MORE_STATS              false
 
