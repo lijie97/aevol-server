@@ -171,18 +171,30 @@ void Individual_R::Evaluate() {
 void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
 	if (evaluated_ == true) return; // Individual has already been evaluated, nothing to do.
 
+  std::list<Protein*> initial_protein_list = _protein_list;
+
   if (!_networked) {
-    init_indiv();
+    init_indiv(habitat);
   }
 
   std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
 
   // i is thus the age of the individual
   for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+    //Set the concentration of signals for this age
+    for(Protein_R* prot1 : habitat.signals()) {
+      prot1->set_concentration(0.0);
+    }
+    for(Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
+      prot2->set_concentration(0.9);
+    }
+
+
     for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
       one_step();
     }
 
+    // If we have to evaluate the individual at this age
     if (eval->find(i) != eval->end())
     {
       eval_step(habitat, i); 
@@ -190,13 +202,15 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
   }
 
   final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
+  _protein_list.clear();
+  _protein_list = initial_protein_list;
 }
 
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
   EvaluateInContext(dynamic_cast<const Habitat_R&> (habitat));
 }
 
-void Individual_R::init_indiv( void )
+void Individual_R::init_indiv(const Habitat_R& habitat)
 {
   // ---------------------------------------------------------------------------
   // 1) Transcription - Translation - Folding - make_protein_list
@@ -225,6 +239,13 @@ void Individual_R::init_indiv( void )
   //    and initialise the concentrations of the proteins
   //----------------------------------------------------------------------------
   make_rna_list();
+
+  //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
+  for(Protein_R* prot : habitat.signals()) {
+    _protein_list.push_back(prot);
+  }
+
+
 
   //----------------------------------------------------------------------------
   // 3) Create influence graph (including the signals)
@@ -271,7 +292,7 @@ void Individual_R::final_step( const Habitat_R& habitat, int8_t age ) {
   phenotype_computed_ = true;
 }
 
-void Individual_R::set_influences( void )
+void Individual_R::set_influences()
 // Compute the influence of each protein over each coding RNA
 // As non-coding RNAs are completely inert, we don't care about their concentration
 // so we don't care if proteins activate or inhibit their transcription.

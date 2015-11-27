@@ -86,11 +86,16 @@ class PhenotypicTarget_R : public PhenotypicTarget
   int8_t get_id() const {
     return id_;
   }
+  std::list<Protein_R*> signals() const {
+    return signals_;
+  }
 
 // ==========================================================================
   //                                 Setters
   // ==========================================================================
-
+  void set_signals(const std::list<Protein_R*>& signals_list) {
+    signals_ = signals_list;
+  }
 
  protected :
   // ==========================================================================
@@ -102,8 +107,7 @@ class PhenotypicTarget_R : public PhenotypicTarget
   // ==========================================================================
   // An identifier used to know the position of this Phenotypic target in PhenotypicTargetHandler
   int8_t id_;
-  //std::list<Protein_R*> signals_;
-
+  std::list<Protein_R*> signals_;
 };
 
 

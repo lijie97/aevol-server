@@ -1279,17 +1279,77 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
         _env_gaussians_list.clear();
       }
 
-      /*
+      
       if( _env_signals_list.size() > 0 )
       {
         _env_signals_list.clear();
       }
-      */
+      
 
       for( int16_t i = 0; i < nb_env; i++)
       {
         _env_gaussians_list.push_back(std::list<Gaussian>());
-        //_env_signals_list.push_back(std::list<Protein_R>());
+        _env_signals_list.push_back(std::list<int8_t>());
+      }
+    }
+    else if (strcmp(line->words[0], "CREATE_SIGNAL") == 0)
+    {
+      int signal_lenght = line->nb_words - 1;     
+
+      std::list<Codon*> codon_list;
+      Codon* codon = NULL;
+      for (int8_t i = 0; i < signal_lenght; i++)
+      {
+        if(strcmp(line->words[i+1], "h0")==0)
+        {
+          codon = new Codon(CODON_H0);
+        }
+        else if(strcmp(line->words[i+1], "h1")==0)
+        {
+          codon = new Codon(CODON_H1);
+        }
+        else if(strcmp(line->words[i+1], "w0")==0)
+        {
+          codon = new Codon(CODON_W0);
+        }
+        else if(strcmp(line->words[i+1], "w1")==0)
+        {
+          codon = new Codon(CODON_W1);
+        }
+        else if(strcmp(line->words[i+1], "m0")==0)
+        {
+          codon = new Codon(CODON_M0);
+        }
+        else if(strcmp(line->words[i+1], "m1")==0)
+        {
+          codon = new Codon(CODON_M1);
+        }
+        else
+        {
+          printf("Error this codon doesn't exist\n");
+          exit( EXIT_FAILURE );
+        }
+        codon_list.push_back(codon);
+      }
+      _signals_models.push_back(new Protein_R(codon_list, 0.5, _w_max));
+
+      for (auto cod : codon_list) delete cod;
+
+      codon_list.clear();
+    }
+    else if (strcmp(line->words[0], "ENV_ADD_SIGNAL") == 0)
+    {
+      // le premier chiffre est l'indice d'environment en convention humaine ( le premier a 1)
+      // On vérifie que cet indice n'est pas trop élevé ni négatif pour éviter les crash
+      if ( atoi(line->words[1]) - 1 < _env_signals_list.size() && atoi(line->words[1]) > 0)
+      {
+        (_env_signals_list.at( atoi(line->words[1]) - 1)).push_back(atoi(line->words[2]) - 1);
+      }
+      else
+      {
+        printf( " ERROR in param file \"%s\" on line %" PRId32 " : There are only %ld environment.\n",
+         _param_file_name, cur_line, _env_gaussians_list.size() );
+        exit( EXIT_FAILURE );
       }
     }
   #endif
@@ -1473,6 +1533,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   phenotypic_target_handler.set_gaussians(std_env_gaussians);
   #else
   phenotypic_target_handler.set_gaussians(_env_gaussians_list);
+  phenotypic_target_handler.set_signals_models(_signals_models);
+  phenotypic_target_handler.set_signals(_env_signals_list);
   #endif
 
   // Copy the sampling

@@ -124,11 +124,28 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     return total_dist/(double) phenotypic_targets_.size();
   }
 
+  const std::list<Protein_R*> signals() const {
+    return signals_models_list_;
+  }
+
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
   void set_gaussians(const std::vector<std::list<Gaussian>>& gaussians_list) {
     env_gaussians_list_ = gaussians_list;
+  }
+
+  void set_signals(const std::vector<std::list<int8_t>>& signals_list) {
+    env_signals_list_ = signals_list;
+  }
+
+  void set_signals_models(const std::vector<Protein_R*>& signals_list) {
+    signals_models_ = signals_list;
+    std::list<Protein_R*> temp_list;
+    for(Protein_R* prot : signals_list) {
+      temp_list.push_back(prot);
+    }
+    signals_models_list_ = temp_list;
   }
 
   void set_switch_probability(double p) {
@@ -166,6 +183,9 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
   std::vector<PhenotypicTarget_R*> phenotypic_targets_;
   std::vector<std::list<Gaussian>> env_gaussians_list_;
+  std::vector<std::list<int8_t>> env_signals_list_;
+  std::vector<Protein_R*> signals_models_;
+  std::list<Protein_R*> signals_models_list_;
   double env_switch_probability_;
 };
 

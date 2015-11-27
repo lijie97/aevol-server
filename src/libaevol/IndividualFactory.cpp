@@ -122,6 +122,8 @@ Individual* IndividualFactory::create_random_individual(
 #endif
 
     indiv->EvaluateInContext(habitat);
+    //TESTING
+    //exit(EXIT_FAILURE);
 
     double r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
 

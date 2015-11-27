@@ -99,8 +99,8 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
 }
 
 //used to build the signal protein
-Protein_R::Protein_R( const std::list<Codon*> codon_list, double concentration)  :
-		Protein::Protein( codon_list, concentration )
+Protein_R::Protein_R( const std::list<Codon*> codon_list, double concentration, double w_max)  :
+		Protein::Protein( codon_list, concentration, w_max )
 {
   _initial_concentration = 0;
   _delta_concentration  = 0;
