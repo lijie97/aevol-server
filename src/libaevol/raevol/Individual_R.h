@@ -97,7 +97,7 @@ class Individual_R : public virtual Individual
      virtual void EvaluateInContext(const Habitat_R& habitat);
      virtual void EvaluateInContext(const Habitat& habitat);
 
-     virtual void init_indiv( void );
+     virtual void init_indiv(const Habitat_R& habitat);
      virtual void one_step( void );
      virtual void eval_step(const Habitat_R& habitat, int8_t age);
      virtual void final_step(const Habitat_R& habitat, int8_t age);

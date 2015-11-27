@@ -107,6 +107,9 @@ class Habitat_R : public virtual Habitat
   virtual PhenotypicTargetHandler_R& phenotypic_target_handler_nonconst() const {
     return *(dynamic_cast<PhenotypicTargetHandler_R*> (phenotypic_target_handler_));;
   }
+  const std::list<Protein_R*> signals() const {
+    return (dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_))->signals();
+  }
 
   // ==========================================================================
   //                                 Setters

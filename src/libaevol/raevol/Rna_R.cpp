@@ -87,29 +87,28 @@ Rna_R::~Rna_R( void )
 // =================================================================
 void Rna_R::set_influences( const std::list<Protein*> protein_list )
 {
-    int32_t enhancer_position = get_enhancer_position();
-	  int32_t operator_position = get_operator_position();
+	int32_t enhancer_position = get_enhancer_position();
+	int32_t operator_position = get_operator_position();
 
-	  _protein_list.clear();
+	_protein_list.clear();
     _protein_list.resize(protein_list.size());
     _enhancing_coef_list.clear();
-	  _enhancing_coef_list.resize(protein_list.size());
+	_enhancing_coef_list.resize(protein_list.size());
     _operating_coef_list.clear();
-	  _operating_coef_list.resize(protein_list.size());
+	_operating_coef_list.resize(protein_list.size());
 
     int i = 0;
-	  for (auto& prot : protein_list) {
-      _protein_list[i] = (Protein_R*) prot;
+	for (auto& prot : protein_list) {
+      	_protein_list[i] = (Protein_R*) prot;
 
-		  _enhancing_coef_list[i] = affinity_with_protein( enhancer_position, prot );
-		  _operating_coef_list[i] = affinity_with_protein( operator_position, prot );
+		_enhancing_coef_list[i] = affinity_with_protein( enhancer_position, prot );
+		_operating_coef_list[i] = affinity_with_protein( operator_position, prot );
 
 	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
 	    	((Protein_R*)prot)->not_pure_TF = true;
 
       i++;
-	  }
-
+	}
 }
 
 double Rna_R::get_synthesis_rate( void )

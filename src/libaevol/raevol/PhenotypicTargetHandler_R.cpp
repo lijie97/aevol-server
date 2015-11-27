@@ -71,9 +71,11 @@ PhenotypicTargetHandler(), phenotypic_target_models_(0), phenotypic_targets_(0) 
 PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(
     const PhenotypicTargetHandler_R& rhs) : PhenotypicTargetHandler(rhs) {
   phenotypic_target_models_ = rhs.phenotypic_target_models_;
-  phenotypic_targets_ = rhs.phenotypic_targets_;
-  env_gaussians_list_ = rhs.env_gaussians_list_;
-  env_switch_probability_ = rhs.env_switch_probability_;
+  phenotypic_targets_       = rhs.phenotypic_targets_;
+  env_gaussians_list_       = rhs.env_gaussians_list_;
+  env_signals_list_         = rhs.env_signals_list_;
+  signals_models_           = rhs.signals_models_;
+  env_switch_probability_   = rhs.env_switch_probability_;
 }
 
 PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(gzFile backup_file) {
@@ -84,7 +86,10 @@ PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(gzFile backup_file) {
 //                                 Destructor
 // ============================================================================
 PhenotypicTargetHandler_R::~PhenotypicTargetHandler_R() {
-  delete cur_noise_;
+  for(Protein_R* prot : signals_models_) {
+    delete prot;
+  }
+  signals_models_.clear();
 }
 
 // ============================================================================
@@ -104,8 +109,6 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
       break;
     case SWITCH_IN_A_LIST : {
       //printf("ApplyVariation SWITCH_IN_A_LIST\n");
-      // Yoram : reprise du code que j'avais rajouté dans Raevol 3
-      // Pour l'instant les signaux ne sont pas gérés, mais j'aimerais ne pas avoir à les gérer manuellement
 
       // A security in order to preserve the program from an infinite loop : while( id_new_env == id_old_env )
       int8_t nb_env_in_list = phenotypic_target_models_.size();
@@ -154,10 +157,6 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
       Utils::ExitWithDevMsg("Unknown variation method", __FILE__, __LINE__);
       break;
   }
-
-  // Phenotypic target has changed, recompute its area
-  // Yoram : il faudra vérifier ce que ça fait et si on en a besoin
-  //phenotypic_target_->ComputeArea();
 }
 
 void PhenotypicTargetHandler_R::InitPhenotypicTargetsAndModels( int8_t nb_indiv_age ) {
@@ -190,6 +189,27 @@ void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
     gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
     for (const Gaussian & g: gaussian_list) {
       g.save(backup_file);
+    }
+  }
+
+  // Save signals_models :
+  int8_t nb_signals_models = signals_models_.size();
+  gzwrite(backup_file, &nb_signals_models, sizeof(nb_signals_models)); 
+  for (Protein_R* p: signals_models_) {
+    p->save(backup_file);
+  }
+
+  // We do not need to save signals_models_list as its just a copy
+
+  // Save env_signals_list :
+  int8_t nb_signal_list = env_signals_list_.size();
+  int8_t nb_signals = 0;
+  gzwrite(backup_file, &nb_signal_list, sizeof(nb_signal_list));
+  for (const std::list<int8_t>& signals_list: env_signals_list_) {
+    nb_signals = signals_list.size();
+    gzwrite(backup_file, &nb_signals, sizeof(nb_signals));
+    for (const int8_t & id: signals_list) {
+      gzwrite(backup_file, &id, sizeof(id));
     }
   }
 
@@ -237,6 +257,32 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
     }
   }
 
+  // Load signals_models
+  int8_t nb_signals_models = 0;
+  gzread(backup_file, &nb_signals_models, sizeof(nb_signals_models)); 
+  for (int8_t i = 0; i< nb_signals_models; i++) {
+    signals_models_.push_back(new Protein_R(backup_file));
+  }
+
+  // Rebuild signals_models_list
+  for(Protein_R* prot : signals_models_) {
+    signals_models_list_.push_back(prot);
+  }
+
+  // Load env_signals_list
+  int8_t nb_signal_list = 0;
+  int8_t nb_signals = 0;
+  int8_t id = 0;
+  gzread(backup_file, &nb_signal_list, sizeof(nb_signal_list));
+  for( int8_t i = 0; i<nb_signal_list; i++) {
+    env_signals_list_.push_back( std::list<int8_t>());
+    gzread(backup_file, &nb_signals, sizeof(nb_signals));
+    for (int8_t j = 0 ; j < nb_signals ; j++) {
+      gzread(backup_file, &id, sizeof(id));
+      env_signals_list_.back().push_back(id);
+    }
+  }
+
   // Now that gaussians are loaded we can build our PhenotypicTargetsModels
   InitPhenotypicTargetsModels();
 
@@ -254,7 +300,7 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   // We load the phenotypic targets after having built the models
   int8_t nb_env = 0;
   gzread(backup_file, &nb_env, sizeof(nb_env));
-  int8_t id = 0;
+  id = 0;
   PhenotypicTarget_R* env_to_add = NULL;
   for (int8_t i = 0 ; i < nb_env ; i++) {
     gzread(backup_file, &id, sizeof(id));
@@ -347,6 +393,15 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int8_t id) {
   phenotypic_target->ComputeArea();
   double area = phenotypic_target->fuzzy()->get_geometric_area();
     //printf("Entire geometric area of the phenotypic target %d: %f\n", id, area);
+
+  //Add its signals to the env
+  // build a temporary real signals list (not a id list)
+  std::list<Protein_R*> signals_list;
+  for(int8_t & signal_id : env_signals_list_.at(id))
+  {
+    signals_list.push_back(signals_models_.at(signal_id));
+  }
+  phenotypic_target->set_signals(signals_list);
 }
 
 void PhenotypicTargetHandler_R::ResetPhenotypicTargets() {

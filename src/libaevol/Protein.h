@@ -78,7 +78,7 @@ class Protein
                int32_t shine_dal_pos,
                Rna * rna,
                double w_max);
-    Protein( const std::vector<Codon*> codon_list, double concentration);
+    Protein( const std::vector<Codon*> codon_list, double concentration, double w_max);
     //Protein( Protein* parent );
     Protein( gzFile backup_file );
     // =================================================================

@@ -333,8 +333,10 @@ Protein::Protein( Protein* parent )
 
 
 //Constructor for the signal proteins
-//modif raevol_yo_3 : now we really copy the codon list
-Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
+// WARNING this constructor should not being used for other purpose
+// In particular codon list should be destroyer by the caller of this constructor
+// since we will copy the list to be sure to own it
+Protein::Protein(const std::vector<Codon*> codon_list, double concentration, double w_max)
 {
   _gen_unit             = NULL;
   _strand               = LEADING;
@@ -345,7 +347,9 @@ Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
   _concentration        = concentration;
 
   // Copy the list of amino-acids
-  _AA_list  = codon_list;
+  for(Codon* c : codon_list) {
+    _AA_list.push_back(new Codon(*c));
+  }
 
 
 
@@ -506,7 +510,7 @@ Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
    // w_min <= W <= w_max
    // h_min <= H <= h_max
    _mean   = (X_MAX - X_MIN) * _mean + X_MIN;
-   _width  = (get_indiv()->get_w_max() - W_MIN) * _width + W_MIN;
+   _width  = (w_max - W_MIN) * _width + W_MIN;
    _height = (H_MAX - H_MIN) * _height + H_MIN;
 
    if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )

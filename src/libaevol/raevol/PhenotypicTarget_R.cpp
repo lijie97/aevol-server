@@ -64,15 +64,14 @@ PhenotypicTarget_R::PhenotypicTarget_R( int8_t id) : PhenotypicTarget() {
 
 PhenotypicTarget_R::PhenotypicTarget_R(const PhenotypicTarget_R& rhs) : PhenotypicTarget(rhs) {
   id_ = rhs.id_;
-  // WARNING MEMOIRE A GERER
-  //signals_ = NULL;
+  signals_ = rhs.signals_;
 }
 
 // ============================================================================
 //                                 Destructor
 // ============================================================================
 PhenotypicTarget_R::~PhenotypicTarget_R() {
-//TODO : handle signals
+
 }
 
 // ============================================================================

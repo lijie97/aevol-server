@@ -63,7 +63,7 @@ class Protein_R : public Protein
     		int32_t shine_dal_pos,
     		Rna* rna,
         double w_max ); // TODO Rna_R?
-	Protein_R( const std::vector<Codon*> codon_list, double concentration);
+	Protein_R( const std::vector<Codon*> codon_list, double concentration, double w_max);
 	Protein_R( gzFile backup_file );
 
     // =================================================================
