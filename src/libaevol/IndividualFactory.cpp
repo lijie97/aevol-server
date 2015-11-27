@@ -115,12 +115,18 @@ Individual* IndividualFactory::create_random_individual(
   // satisfied
   double env_metabolic_area;
   if (better_than_flat) {
-    env_metabolic_area = habitat.mean_environmental_area();
+#ifdef __REGUL
+    env_metabolic_area = dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->phenotypic_target_handler().mean_environmental_area();
+#else
+    env_metabolic_area = habitat.phenotypic_target_handler().mean_environmental_area();
+#endif
 
     indiv->EvaluateInContext(habitat);
 
-    while (indiv->dist_to_target_by_feature(METABOLISM) >=
-        env_metabolic_area) {
+    double r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+
+    // indiv->dist_to_target_by_feature(METABOLISM) >= env_metabolic_area
+    while (r_compare >= 0.0) {
 #ifdef __REGUL
       indiv->set_networked(false);
 #endif
@@ -132,7 +138,7 @@ Individual* IndividualFactory::create_random_individual(
       indiv->EvaluateInContext(habitat);
       //debug :
       //printf("Dist to target du nouveau clone : %f\n", indiv->get_dist_to_target_by_feature(METABOLISM));
-      //r_compare = round((indiv->get_dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+      r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
     }
   }
   if (allow_plasmids) // We create a plasmid
