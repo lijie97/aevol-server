@@ -1332,6 +1332,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
         codon_list.push_back(codon);
       }
       _signals_models.push_back(new Protein_R(codon_list, 0.5, _w_max));
+      
       codon_list.clear();
     }
     else if (strcmp(line->words[0], "ENV_ADD_SIGNAL") == 0)
