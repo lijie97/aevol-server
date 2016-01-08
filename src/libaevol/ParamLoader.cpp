@@ -1331,7 +1331,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
         }
         codon_list.push_back(codon);
       }
-      _signals_models.push_back(new Protein_R(codon_list, 0.5, _w_max));
+      _signals_models.push_back(new Protein_R(codon_list, 0.5, w_max_));
+
       for (auto cod : codon_list) delete cod;
 
       codon_list.clear();

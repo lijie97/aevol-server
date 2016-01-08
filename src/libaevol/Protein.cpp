@@ -527,7 +527,8 @@ Protein::Protein(const std::list<Codon*> codon_list, double concentration, doubl
    }
 
    assert( mean_ >= X_MIN && mean_ <= X_MAX );
-   assert( width_ >= W_MIN && width_ <= indiv()->w_max() );
+   //NOT WORKING if indiv is nullptr
+  // assert( width_ >= W_MIN && width_ <= indiv()->w_max() );
    assert( height_ >= H_MIN && height_ <= H_MAX );
 }
 

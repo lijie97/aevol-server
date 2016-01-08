@@ -427,7 +427,7 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargets(int8_t nb_indiv_age) {
 }
 
 void PhenotypicTargetHandler_R::addEnv( int8_t env_id ) {
-  assert(env_id > 0 && env_id <= phenotypic_target_models_.size());
+  assert(env_id >= 0 && env_id <= phenotypic_target_models_.size());
   phenotypic_targets_.push_back( phenotypic_target_models_.at(env_id) );
 }
 
