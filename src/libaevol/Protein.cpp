@@ -352,7 +352,7 @@ Protein::Protein(const std::list<Codon*> codon_list, double concentration, doubl
 
   // Copy the list of amino-acids
   for(Codon* c : codon_list) {
-    _AA_list.push_back(new Codon(*c));
+    AA_list_.push_back(new Codon(*c));
   }
 
 

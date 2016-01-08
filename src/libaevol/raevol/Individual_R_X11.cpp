@@ -520,8 +520,21 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   //}
 
   std::set<int>* eval = exp_m()->exp_s()->get_list_eval_step();
+  std::list<Protein*> initial_protein_list = protein_list_;
+
+  for(Protein_R* prot : habitat.signals()) {
+    protein_list_.push_back(prot);
+  }
 
   for (int i = 1; i <= exp_m()->exp_s()->get_nb_indiv_age(); i++) {
+    //Set the concentration of signals for this age
+    for(Protein_R* prot1 : habitat.signals()) {
+      prot1->set_concentration(0.0);
+    }
+    for(Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
+      prot2->set_concentration(0.9);
+    }
+
     for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++)
       update_concentrations();
 
@@ -581,7 +594,8 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   //Draw the evaluation result
   sprintf( display_string, "Mean dist_to_target =  %lf",dist_temp/(double)nb_eval);
   win->draw_string( 15, 15*(nb_eval + 1), display_string );
-
+  protein_list_.clear();
+  protein_list_ = initial_protein_list;
   //Remove the signals of the last environment
   /*for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
   {

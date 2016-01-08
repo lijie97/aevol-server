@@ -171,7 +171,7 @@ void Individual_R::Evaluate() {
 void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
 	if (evaluated_ == true) return; // Individual has already been evaluated, nothing to do.
 
-  std::list<Protein*> initial_protein_list = _protein_list;
+  std::list<Protein*> initial_protein_list = protein_list_;
 
   if (!_networked) {
     init_indiv(habitat);
@@ -202,8 +202,8 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
   }
 
   final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
-  _protein_list.clear();
-  _protein_list = initial_protein_list;
+  protein_list_.clear();
+  protein_list_ = initial_protein_list;
 }
 
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
@@ -242,7 +242,7 @@ void Individual_R::init_indiv(const Habitat_R& habitat)
 
   //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
   for(Protein_R* prot : habitat.signals()) {
-    _protein_list.push_back(prot);
+    protein_list_.push_back(prot);
   }
 
 
