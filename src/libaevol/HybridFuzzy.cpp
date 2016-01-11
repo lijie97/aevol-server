@@ -220,7 +220,7 @@ double HybridFuzzy::get_y( double x ) const
 void HybridFuzzy::print() const
 {
   for (int i = 0; i < _pheno_size; i++)
-    printf("[%d : %f] ",i,_points[i]);
+    if (_points[i]!=0) printf("[%d : %f] ",i,_points[i]);
   printf("\n");
 }
 }

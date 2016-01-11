@@ -301,6 +301,10 @@ void ExpManager::load(gzFile& exp_s_file,
   exp_s_->load(exp_s_file, exp_backup_file, verbose);
   printf(" OK\n");
 
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
+
+
   // ---------------------------------------------------------- Retrieve world
   printf("  Loading world...");
   fflush(stdout);
@@ -338,9 +342,6 @@ void ExpManager::load(const char* dir,
 {
   AeTime::set_time(t0);
 
-  if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
-
   // -------------------------------------------------------------------------
   // Open setup files and backup files
   // -------------------------------------------------------------------------
@@ -362,6 +363,11 @@ void ExpManager::load(const char* dir,
   // -------------------------------------------------------------------------
   close_setup_files(exp_s_file, out_p_file);
   close_backup_files(exp_backup_file, world_file);
+
+
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
+  printf("Factory flavor %d : %d\n",exp_s_->get_fuzzy_flavor(),FuzzyFactory::fuzzyFactory->get_fuzzy_flavor());
 }
 
 

@@ -161,7 +161,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   double x_step = 0.8 * win->width() / (double)(exp_m()->exp_s()->get_nb_indiv_age());
   double y_step = 0.7 * win->height();
 
-  for (int i = 1; i <= exp_m()->exp_s()->get_nb_indiv_age(); i++) {
+  for (int i = 0; i < exp_m()->exp_s()->get_nb_indiv_age(); i++) {
     for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++)
       update_concentrations();
 
@@ -390,15 +390,14 @@ void Individual_R_X11::display_regulation( X11Window* win )
           if (max_merged_activator_activity > 0) {
             //printf("ONE %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
             //printf("COLOR : #%02x%02x%02x\n", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
-            //sprintf( color, "#%02x%02x%02x", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
+            sprintf( color, "#%02x%02x%02x", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
           }
         }
         else {
           if (max_merged_activator_activity > 0) {
             //printf("TWO %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
             //printf("COLOR : #%02x%02x%02x\n", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
-            //sprintf( color, "#%02x%02x%02x", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
-
+            sprintf( color, "#%02x%02x%02x", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
           }
 
         }
@@ -450,6 +449,8 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
 void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habitat )
 {
+  init_indiv(habitat);
+
   double dist_temp = 0;
   char* color = new char[8];
   char* color2 = NULL;
@@ -461,46 +462,11 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   int16_t nb_prot = 0;
   int16_t life_time = exp_m()->exp_s()->get_nb_indiv_age();
 
-  //deux pointeurs utilisés pour défiler dans la liste de protéines
-  //  ae_list_node* prot_node  = NULL;
-  //  ae_protein_R* prot       = NULL;
-
-  // save the initial list of proteins
-  //  ae_list* init_prot_list = new ae_list;
-  //  init_prot_list->add_list(protein_list_);
-  // Add the signals to the list of proteins
-  //ae_environment* envir = NULL;
-  //std::vector<ae_protein*> init_protein = protein_list_;
-  //std::unordered_map<int,std::vector<ae_protein_R*>> _cloned_signals;
-
-
-  //for(int i = 0; i < env_list.size(); i++)
-  //{
-    //envir = env_list[i];
-    //    _signals = envir->get_signals();
-    //initialise all concentrations of signals to 0
-    //std::vector<ae_protein_R*> loc_signals;
-    //for ( int8_t j = 0; j < envir->get_signals().size(); j++)
-    //{
-    //  ae_protein_R* cloned_signal = new ae_protein_R(NULL,*envir->get_signals()[j]);
-     // cloned_signal->set_concentration(0.0);
-     // protein_list_.push_back(cloned_signal);
-     // loc_signals.push_back(cloned_signal);
-      //      ((ae_protein_R*)  envir->get_signals()[j])->set_concentration(0.);
-      //      protein_list_->add(new ae_list_node(_signals[j]));
-    //}
-    //_cloned_signals.insert(std::make_pair(envir->get_id(),loc_signals));
-    //    protein_list_->add_list(_signals);
-  //}
-
   //set the concentrations of proteins to their initial value
   double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
   int16_t prot_index = 0;
   for (auto& prot : protein_list_) {
-    ((Protein_R*)prot)->reset_concentration();
-    //    printf("prot %d : concentration initiale : %e\n",prot_index,prot->concentration());
     concentrations[prot_index++] = ((Protein_R*)prot)->concentration();
-    //    prot_node = prot_node->get_next();
   }
 
   // compute steps
@@ -520,11 +486,8 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   //}
 
   std::set<int>* eval = exp_m()->exp_s()->get_list_eval_step();
-  std::list<Protein*> initial_protein_list = protein_list_;
 
-  for(Protein_R* prot : habitat.signals()) {
-    protein_list_.push_back(prot);
-  }
+  std::list<Protein*> initial_protein_list = protein_list_;
 
   for (int i = 1; i <= exp_m()->exp_s()->get_nb_indiv_age(); i++) {
     //Set the concentration of signals for this age
@@ -535,44 +498,21 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
       prot2->set_concentration(0.9);
     }
 
-    for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++)
+    for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++) {
       update_concentrations();
+    }
 
     update_phenotype();
 
-    //  if (!(indiv_age % 2))
-    dynamic_cast<ExpManager_X11*>(exp_m())->display_3D(win, *phenotype_,
+    dynamic_cast<ExpManager_X11*>(exp_m())->display_3D(win, *(phenotype()),
                                                            WHITE, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i),true);
 
     dynamic_cast<ExpManager_X11*>(exp_m())->display_3D(win, *(habitat.phenotypic_target(i ).fuzzy()),
                                                            RED, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i), false);
 
 
-    // if we have to change of environment
-    /*if( ae_common::individual_environment_dates->search(indiv_age) != -1)
-    {
-      //Remove the signals of this environment
-      for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
-      {
-        _cloned_signals[compteur_env][i]->set_concentration(0.);
-      }
-      // Change the environment at is next value
-      compteur_env+=1;
-      envir = env_list[compteur_env];
-
-      // Add the signals of this new environment
-      for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
-      {
-        _cloned_signals[compteur_env][i]->set_concentration(0.9);
-      }
-    }*/
-
-
     // if its an evaluation date
     if (eval->find(i) != eval->end()) {
-      //  printf("indiv_age : %d\n",indiv_age);
-      dynamic_cast<ExpManager_X11*>(exp_m())->display_3D(win, *phenotype_, WHITE,  (life_time * 5) - (5 * i), (life_time * -3) + (3 * i),false);
-      //    compute_distance_to_target( envir );
       for (int i=0; i<NB_FEATURES; i++) {
         dist_to_target_by_feature_[i] = 0;
       }
@@ -596,19 +536,7 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   win->draw_string( 15, 15*(nb_eval + 1), display_string );
   protein_list_.clear();
   protein_list_ = initial_protein_list;
-  //Remove the signals of the last environment
-  /*for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
-  {
-    _cloned_signals[compteur_env][i]->set_concentration(0.0);
-  }*/
-
-  //  protein_list_->erase(NO_DELETE);
-  //  protein_list_->add_list(init_prot_list);
-  //protein_list_.clear();
-  //protein_list_ = init_protein;
-  //init_protein.clear();
   delete[] concentrations;
-  //  delete init_prot_list;
   delete[] color;
 }
 

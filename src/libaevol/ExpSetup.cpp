@@ -108,6 +108,9 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 /*!
 */
 void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
+  gzwrite(exp_setup_file,
+          fuzzy_flavor_);
+
   // --------------------------------------------------------------- Transfer
   gzwrite(exp_setup_file,
           static_cast<int8_t>(with_HT_),
@@ -173,6 +176,7 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
 }
 
 void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
+  gzread(setup_file,fuzzy_flavor_);
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
   int8_t tmp_repl_HT_with_close_points;

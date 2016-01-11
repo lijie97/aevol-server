@@ -1461,8 +1461,6 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   OutputManager* output_m = exp_m->output_m();
   output_m->InitStats();
 
-  if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
 
   // 1) ------------------------------------- Initialize the experimental setup
 #if __cplusplus == 201103L
@@ -1511,6 +1509,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,prng_);
 #endif
+
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
 
   // 2) --------------------------------------------- Create and init a Habitat
   #ifndef __REGUL

@@ -596,12 +596,17 @@ void ExpManager_X11::display_3D(X11Window * win,
       next_y = (1 - ((fuzzy.points()[j + 1] - y_min) / delta_y)) * win->height();
 
 
+      /*if (fill) printf("Indiv ");
+      else printf("Env ");
+      printf("Curve seg %f %f %f %f\n",hi,hi1,fuzzy.points()[j],fuzzy.points()[j+1]);
+      */
       if (fuzzy.points()[j] >= 0 && fuzzy.points()[j + 1] >= 0) {
         if (fill) {
           char* fill_color;
           for (int16_t i = cur_x; i < next_x; i++) {
             fill_color = X11Window::color(
                 ((double) i / win->width()) * (X_MAX - X_MIN));
+
             win->draw_line(i + x0,
                            (1 - ((0 - y_min) / delta_y)) * win->height() +
                            y0,
@@ -1059,6 +1064,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       display(cur_win, *(phenotypic_target.fuzzy()), RED, false, true);
       #else
       Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(best_indiv());
+
       indiv_r->display_phenotype(cur_win, dynamic_cast<const Habitat_R&>(best_indiv()->grid_cell()->habitat()));
       //display_3D(cur_win, *(indiv_r->get_phenotype()), WHITE, true);
       #endif

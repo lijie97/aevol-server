@@ -432,7 +432,7 @@ void PhenotypicTargetHandler_R::addEnv( int8_t env_id ) {
 }
 
 void PhenotypicTargetHandler_R::changeEnv( int8_t ind, int8_t env_id ) {
-  assert(env_id > 0 && env_id <= phenotypic_target_models_.size());
+  assert(env_id >= 0 && env_id <= phenotypic_target_models_.size());
   phenotypic_targets_.at(ind) = phenotypic_target_models_.at(env_id);
 }
 // ============================================================================
