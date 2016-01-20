@@ -149,8 +149,9 @@ Individual_R::~Individual_R( void ) noexcept
     _inherited_protein_list.clear();
   }
 
-  for (unsigned int i = 0; i < _rna_list_coding.size(); i++)
-    delete _rna_list_coding[i];
+  for (unsigned int i = 0; i < _rna_list_coding.size(); i++) {
+    _rna_list_coding[i] = NULL;
+  }
 
   _rna_list_coding.clear();
 }
@@ -170,8 +171,6 @@ void Individual_R::Evaluate() {
 
 void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
 	if (evaluated_ == true) return; // Individual has already been evaluated, nothing to do.
-
-  std::list<Protein*> initial_protein_list = protein_list_;
 
   if (!_networked) {
     init_indiv(habitat);
@@ -203,7 +202,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
 
   final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
   protein_list_.clear();
-  protein_list_ = initial_protein_list;
+  protein_list_ = _initial_protein_list;
 }
 
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
@@ -240,6 +239,8 @@ void Individual_R::init_indiv(const Habitat_R& habitat)
   //----------------------------------------------------------------------------
   make_rna_list();
 
+  _initial_protein_list = protein_list_;
+
   //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
   for(Protein_R* prot : habitat.signals()) {
     protein_list_.push_back(prot);
@@ -250,6 +251,7 @@ void Individual_R::init_indiv(const Habitat_R& habitat)
   //----------------------------------------------------------------------------
   // 3) Create influence graph (including the signals)
   //----------------------------------------------------------------------------
+  //printf("Protein %ld RNA %ld\n",protein_list_.size(),rna_list_.size());
   set_influences();
 
   _networked = true;
@@ -410,7 +412,12 @@ void Individual_R::make_rna_list( void )
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: rna_list[strand]) {
         //TODO Ugly fix, change it to avoid memory usage double
-        _rna_list_coding.push_back(new Rna_R(genu, rna));
+        if (rna.is_coding()) {
+          Rna_R* prna =  const_cast<Rna_R*>(&rna);
+          //printf("COPY OR NOT : %ld == %ld",prna->get_id(),((Rna_R)rna).get_id());
+          _rna_list_coding.push_back(
+             prna);//new Rna_R(genu, rna));
+        }
     }
 
   }

@@ -120,7 +120,8 @@ class Individual_R : public virtual Individual
 
     inline std::vector<Protein_R*> get_inherited_protein_list( void) const;
     inline void set_networked( bool networked );
-
+    std::vector<Rna_R *> _rna_list_coding;   // Please note that these RNAs are
+    // actually managed via genetic units.
 
     // =================================================================
     //                           Public Attributes
@@ -148,8 +149,9 @@ class Individual_R : public virtual Individual
     //                          Protected Attributes
     // =================================================================
     std::vector<Protein_R*> _inherited_protein_list;
-    std::vector<Rna_R *> _rna_list_coding;   // Please note that these RNAs are
-                                // actually managed via genetic units.
+
+    std::list<Protein*> _initial_protein_list;
+
     int _indiv_age;
     bool _networked;
     double _dist_sum;

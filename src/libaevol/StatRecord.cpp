@@ -196,14 +196,14 @@ StatRecord::StatRecord(ExpManager* exp_m,
   for (auto& prot: indiv_r->protein_list()) {
     if(prot->is_functional())
     {
-      if(!((Protein_R*)prot)->not_pure_TF)
+      if(!((Protein_R*)prot)->is_TF_)
       {
 				nb_TF+=1;
       }
     }
     else
     {
-      if(!((Protein_R*)prot)->not_pure_TF)
+      if(((Protein_R*)prot)->is_TF_)
       {
 				nb_TF+=1;
 				nb_pure_TF+=1;

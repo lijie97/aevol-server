@@ -48,7 +48,7 @@ INVERSION_RATE          1e-5
 #                                    Recording
 ####################################################################################
 BACKUP_STEP             1000
-RECORD_TREE             true
+RECORD_TREE             false
 #TREE_STEP               100
 MORE_STATS              true
 #DUMP_STEP               0
@@ -67,7 +67,7 @@ INDIVIDUAL_EVALUATION_AGES    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
 #EVAL_STEP 1 à trouver
 BINDING_ZEROS_PERCENTAGE       0.75
 #permit to choose wheter we want to run the simulation with a random binding matrix or not
-RANDOM_BINDING_MATRIX          false
+RANDOM_BINDING_MATRIX          true
 WITH_HEREDITY                  false
 PROTEIN_PRESENCE_LIMIT         1e-2
 

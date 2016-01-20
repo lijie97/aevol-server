@@ -2,9 +2,9 @@
 #         AEVOL PARAMATERS        #
 ###################################
 
-##### 1. Initial setup ############
+##### 1. Initial setup ############ 725099
 STRAIN_NAME             basic_example
-SEED                    725099
+SEED                    751514564
 INIT_POP_SIZE           1024
 WORLD_SIZE              32 32
 INIT_METHOD             ONE_GOOD_GENE CLONE
@@ -22,10 +22,10 @@ MAX_INDEL_SIZE          6
 
 ##### 4. Rearrangement rates (w/o alignements)
 WITH_ALIGNMENTS         false
-DUPLICATION_RATE        1e-5
-DELETION_RATE           1e-5
-TRANSLOCATION_RATE      1e-5
-INVERSION_RATE          1e-5
+DUPLICATION_RATE        1e-6
+DELETION_RATE           1e-6
+TRANSLOCATION_RATE      1e-6
+INVERSION_RATE          1e-6
 
 
 ##### 5. Population Structure #####

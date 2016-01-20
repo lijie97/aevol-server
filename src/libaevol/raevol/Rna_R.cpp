@@ -51,17 +51,22 @@ namespace aevol {
 //                    Definition of static attributes
 // =================================================================
 
+long Rna_R::id = 0;
 // =================================================================
 //                             Constructors
 // =================================================================
 Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna_R &model ) : Rna( gen_unit, model )
 {
   _protein_list = model._protein_list;
+  _enhancing_coef_list = model._enhancing_coef_list;
+  _operating_coef_list = model._operating_coef_list;
+  _id = model._id;
 }
 
 Rna_R::Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff ) :
 		Rna( gen_unit, strand, index, diff )
 {
+  _id = id++;
 }
 
 /*
@@ -91,30 +96,45 @@ void Rna_R::set_influences( const std::list<Protein*> protein_list )
 	int32_t operator_position = get_operator_position();
 
 	_protein_list.clear();
-    _protein_list.resize(protein_list.size());
-    _enhancing_coef_list.clear();
+  _protein_list.resize(protein_list.size());
+  _enhancing_coef_list.clear();
 	_enhancing_coef_list.resize(protein_list.size());
-    _operating_coef_list.clear();
+  _operating_coef_list.clear();
 	_operating_coef_list.resize(protein_list.size());
 
-    int i = 0;
+  int i = 0;
+  double enhance=0,operate=0;
 	for (auto& prot : protein_list) {
-      	_protein_list[i] = (Protein_R*) prot;
+    enhance = affinity_with_protein( enhancer_position, prot );
+    operate = affinity_with_protein( operator_position, prot );
 
-		_enhancing_coef_list[i] = affinity_with_protein( enhancer_position, prot );
-		_operating_coef_list[i] = affinity_with_protein( operator_position, prot );
+    if (enhance != 0.0 || operate != 0.0) {
+      _protein_list[i] = (Protein_R*) prot;
 
-	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
-	    	((Protein_R*)prot)->not_pure_TF = true;
+      _enhancing_coef_list[i] = enhance;
+      _operating_coef_list[i] = operate;
 
-      i++;
+      _protein_list[i]->is_TF_ = true;
+    } else
+      _protein_list[i] = nullptr;
+
+
+    i++;
 	}
+
+  /*if (protein_list.size() > 0)
+    printf("Set Influences of RNA %ld with %ld %ld %ld\n",_id,_enhancing_coef_list.size(),_operating_coef_list.size(),
+         _protein_list.size());*/
+
 }
 
 double Rna_R::get_synthesis_rate( void )
 {
   double enhancer_activity  = 0;
   double operator_activity  = 0;
+
+  /*if (_id == 132073) printf("Get synthesis of RNA %ld with %ld %ld %ld\n",_id,_enhancing_coef_list.size(),_operating_coef_list.size(),
+          _protein_list.size());*/
 
   for (unsigned int i = 0; i < _enhancing_coef_list.size(); i++) {
   	enhancer_activity  += _enhancing_coef_list[i];
@@ -123,6 +143,11 @@ double Rna_R::get_synthesis_rate( void )
 
   double enhancer_activity_pow_n  = pow( enhancer_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
   double operator_activity_pow_n  = pow( operator_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
+
+  //if (enhancer_activity != 0.0 || operator_activity != 0.0)
+  /*if (_id == 132073) printf("Synthesis of RNA %ld : E %f O %f EP %f OP %f SN %f S %f B %f\n",_id,enhancer_activity,operator_activity,enhancer_activity_pow_n,
+                                                operator_activity_pow_n,gen_unit_->exp_m()->exp_s()->get_hill_shape_n(),
+         gen_unit_->exp_m()->exp_s()->get_hill_shape(),basal_level_);*/
 
   return   basal_level_
            * (gen_unit_->exp_m()->exp_s()->get_hill_shape()

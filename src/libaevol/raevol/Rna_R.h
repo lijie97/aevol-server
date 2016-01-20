@@ -74,12 +74,15 @@ class Rna_R : public Rna
     double  get_affinity_with_protein( int32_t index, Protein *protein );
     int32_t get_enhancer_position( void );
     int32_t get_operator_position( void );
+
+    long get_id() { return _id; };
     // =================================================================
     //                           Public Attributes
     // =================================================================
     std::vector<Protein_R*> _protein_list;
     std::vector<double> _enhancing_coef_list;
-    std::vector<int> _operating_coef_list;
+    std::vector<double> _operating_coef_list;
+    static long id;
 
   protected :
 
@@ -100,9 +103,14 @@ class Rna_R : public Rna
 
     // =================================================================
     //                          Protected Attributes
-    // =================================================================
+    // ================================================================
+
+    long _id;
 
 };
+
+
+
 
 // =====================================================================
 //                          Accessors definitions

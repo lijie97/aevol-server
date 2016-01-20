@@ -97,10 +97,14 @@ class Protein_R : public Protein
 
     void  add_RNA( Rna * rna );
 
+    long get_id() { return _id; };
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
-	bool not_pure_TF;
+	bool is_TF_;
+
+    static long id;
 
   protected :
 
@@ -122,6 +126,7 @@ class Protein_R : public Protein
     bool      _inherited;
     bool      _signal;
     double    _initial_concentration; // concentration at cell birth
+    long      _id;
 };
 
 // =====================================================================
