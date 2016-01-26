@@ -106,6 +106,8 @@ class Protein_R : public Protein
 
     static long id;
 
+    int8_t*   _cod_tab;
+    //bool _concentration_has_change = true;
   protected :
 
     // =================================================================
@@ -121,12 +123,12 @@ class Protein_R : public Protein
     //                          Protected Attributes
     // =================================================================
     std::vector<Rna_R*>  _rna_R_list;
-    int8_t*   _cod_tab;
     double    _delta_concentration;
     bool      _inherited;
     bool      _signal;
     double    _initial_concentration; // concentration at cell birth
     long      _id;
+
 };
 
 // =====================================================================
@@ -142,6 +144,8 @@ class Protein_R : public Protein
 // =====================================================================
 inline void Protein_R::update_concentration( void )
 {
+ // _concentration_has_change = _delta_concentration != 0 ? true : false;
+
   concentration_ += _delta_concentration;
 }
 

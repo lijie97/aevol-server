@@ -31,7 +31,9 @@
 //                              Libraries
 // =================================================================
 #include <math.h>
-
+#ifdef __BLAS__
+#include <cblas.h>
+#endif
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -61,12 +63,14 @@ Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna_R &model ) : Rna( gen_unit, model
   _enhancing_coef_list = model._enhancing_coef_list;
   _operating_coef_list = model._operating_coef_list;
   _id = model._id;
+  _nb_influences = model._nb_influences;
 }
 
 Rna_R::Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff ) :
 		Rna( gen_unit, strand, index, diff )
 {
   _id = id++;
+  _nb_influences = 0;
 }
 
 /*
@@ -90,7 +94,7 @@ Rna_R::~Rna_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Rna_R::set_influences( const std::list<Protein*> protein_list )
+void Rna_R::set_influences( std::list<Protein*>& protein_list )
 {
 	int32_t enhancer_position = get_enhancer_position();
 	int32_t operator_position = get_operator_position();
@@ -104,23 +108,27 @@ void Rna_R::set_influences( const std::list<Protein*> protein_list )
 
   int i = 0;
   double enhance=0,operate=0;
+  //#pragma omp simd
 	for (auto& prot : protein_list) {
     enhance = affinity_with_protein( enhancer_position, prot );
     operate = affinity_with_protein( operator_position, prot );
 
     if (enhance != 0.0 || operate != 0.0) {
+
       _protein_list[i] = (Protein_R*) prot;
 
       _enhancing_coef_list[i] = enhance;
       _operating_coef_list[i] = operate;
 
       _protein_list[i]->is_TF_ = true;
-    } else
-      _protein_list[i] = nullptr;
-
-
-    i++;
+     // _protein_concentration_list[i] = prot->concentration();
+      i++;
+    }
+    //else
+    // _protein_list[i] = nullptr;
 	}
+
+  _nb_influences = i==0 ? 0 : i-1;
 
   /*if (protein_list.size() > 0)
     printf("Set Influences of RNA %ld with %ld %ld %ld\n",_id,_enhancing_coef_list.size(),_operating_coef_list.size(),
@@ -133,13 +141,23 @@ double Rna_R::get_synthesis_rate( void )
   double enhancer_activity  = 0;
   double operator_activity  = 0;
 
-  /*if (_id == 132073) printf("Get synthesis of RNA %ld with %ld %ld %ld\n",_id,_enhancing_coef_list.size(),_operating_coef_list.size(),
-          _protein_list.size());*/
-
-  for (unsigned int i = 0; i < _enhancing_coef_list.size(); i++) {
-  	enhancer_activity  += _enhancing_coef_list[i];
-    operator_activity  += _operating_coef_list[i];
+//#ifndef __BLAS__
+  for (int i = 0; i < _nb_influences; i++) {
+  	enhancer_activity  += _enhancing_coef_list[i] * _protein_list[i]->concentration_;
+    operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
   }
+/*#else
+  double enhancer_tab[_nb_influences];
+  double operator_tab[_nb_influences];
+
+  for (int i = 0; i < _nb_influences; i++) {
+  	enhancer_tab[i] = _enhancing_coef_list[i] * _protein_list[i]->concentration_;
+    operator_tab[i] = _operating_coef_list[i] * _protein_list[i]->concentration_;
+  }
+
+  enhancer_activity = cblas_dasum(_nb_influences,enhancer_tab,1);
+  operator_activity = cblas_dasum(_nb_influences,operator_tab,1);
+#endif*/
 
   double enhancer_activity_pow_n  = pow( enhancer_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
   double operator_activity_pow_n  = pow( operator_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
@@ -186,9 +204,21 @@ int32_t Rna_R::get_operator_position( void )
 
 double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 {
-	  double  max = 0;
-	  double  temp;
-	  int32_t len = protein->length();
+  int32_t len = protein->length();
+
+  if (len < 5)
+    return 0.0;
+
+#ifndef __BLAS__
+  double  max = 0;
+  double temp = 1;
+#else
+  double  tab_temp[len-4];
+#endif
+
+
+
+
 	  int32_t quadon_tab[5];
 	//  int32_t* codon_tab;
 	//  codon_tab = new int32_t[len];
@@ -215,26 +245,36 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	//    	  ae_logger::addLog(CODON,duration);
 	//    	  t1 = t2;
 
-	  // Calculate the affinity
+	  //// Calculate the affinity
+
+    double (*binding_matrix)[MAX_QUADON][MAX_CODON] = &(gen_unit_->exp_m()->exp_s()->_binding_matrix);
+    #pragma omp simd
 	  for ( int32_t i = 0 ; i < len - 4; i++ )
 	  {
-	    temp  = 1 *
-	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[0],prot->get_cod_tab(i)) *
-	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[1],prot->get_cod_tab(i+1)) *
-	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[2],prot->get_cod_tab(i+2)) *
-	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[3],prot->get_cod_tab(i+3)) *
-	    		gen_unit_->exp_m()->exp_s()->get_binding_matrix(quadon_tab[4],prot->get_cod_tab(i+4));
 
-	//    for ( int32_t j = 0 ; j < 5 ; j++ )
-	//    {
-	//      temp *= ae_common::_binding_matrix[quadon_tab[j]][prot->_AA_list[i+j]];
-	//
-	//      if ( temp == 0.0 ) break;
-	//    }
+#ifndef __BLAS__
+      temp = 1;
+#else
+      tab_temp[i]  = (*binding_matrix)[quadon_tab[0]][prot->_cod_tab[i]];
+      tab_temp[i]  *= (*binding_matrix)[quadon_tab[1]][prot->_cod_tab[i+1]];
+      tab_temp[i]  *= (*binding_matrix)[quadon_tab[2]][prot->_cod_tab[i+2]];
+      tab_temp[i]  *= (*binding_matrix)[quadon_tab[3]][prot->_cod_tab[i+3]];
+      tab_temp[i]  *= (*binding_matrix)[quadon_tab[4]][prot->_cod_tab[i+4]];
+#endif
 
-	    max = (max < temp) ? temp : max;
+#ifndef __BLAS__
+      for ( int8_t j = 0 ; j < 5 ; j++ ) {
+        temp *=    gen_unit_->exp_m()->exp_s()->_binding_matrix[quadon_tab[0]][prot->_cod_tab[i+j]];
+      }
+
+      max = (max < temp) ? temp : max;
+#endif
 	  }
-	//  delete [] codon_tab;
-	  return max;
+
+#ifdef __BLAS__
+  return tab_temp[cblas_idamax(len-4,tab_temp,1)];
+#else
+  return max;
+#endif
 }
 } // namespace aevol

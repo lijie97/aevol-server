@@ -453,7 +453,7 @@ void ExpManager::run_evolution()
 	  high_resolution_clock::time_point t_t2,t1,t2;
 	#endif
 
-  // For each generation
+  // For each generation  
   while (true) { // termination condition is into the loop
 
     printf("============================== %" PRId64 " ==============================\n",
@@ -473,7 +473,7 @@ void ExpManager::run_evolution()
     int nb_protein = 0;
     for (const auto& rnax: test->_rna_list_coding) {
       Rna_R* rna = (Rna_R*) rnax;
-      for (unsigned int i = 0; i < rna->_protein_list.size(); i++) {
+      for (unsigned int i = 0; i < rna->nb_influences(); i++) {
         nb_protein++;
         if (rna->_enhancing_coef_list[i] > 0) {
           nb_activators++;

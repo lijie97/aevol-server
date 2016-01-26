@@ -170,6 +170,10 @@ class ExpSetup {
   //                           Public Attributes
   // =======================================================================
 
+#ifdef __REGUL
+double  _binding_matrix[MAX_QUADON][MAX_CODON];
+#endif
+
  protected :
   // =======================================================================
   //                           Protected Methods
@@ -207,7 +211,7 @@ class ExpSetup {
   double secretion_cost_;
 #ifdef __REGUL
     // Binding matrix
-    double  _binding_matrix[MAX_QUADON][MAX_CODON];
+
 
     bool    _with_heredity;
     double  _protein_presence_limit;

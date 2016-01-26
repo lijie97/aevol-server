@@ -118,7 +118,7 @@ class Protein
     //                           Public Attributes
     // =================================================================
 
-
+    double            concentration_;
 
 
 
@@ -137,7 +137,7 @@ class Protein
     int32_t           first_translated_pos_;  // Index of the first base following the START codon
     int32_t           last_translated_pos_;   // Index of the last base before the STOP codon
     int32_t           length_;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
-    double            concentration_;
+
     bool              is_functional_;
 
     std::list<Codon *> AA_list_;

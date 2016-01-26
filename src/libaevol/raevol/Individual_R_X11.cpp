@@ -146,6 +146,12 @@ void Individual_R_X11::display_concentrations( X11Window* win )
 
   // save the initial list of proteins
   //std::list<Protein*> init_prot_list = protein_list_;
+  _initial_protein_list = protein_list_;
+
+  //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
+  for(Protein_R* prot :dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
+    protein_list_.push_back(prot);
+  }
 
   //set the concentrations of proteins to their initial value
   double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
@@ -157,12 +163,22 @@ void Individual_R_X11::display_concentrations( X11Window* win )
     i++;
   }
 
+  set_influences();
+
   // compute steps
   double x_step = 0.8 * win->width() / (double)(exp_m()->exp_s()->get_nb_indiv_age());
   double y_step = 0.7 * win->height();
 
   //printf("START IN HERE .......\n \n");
-  for (int i = 0; i < exp_m()->exp_s()->get_nb_indiv_age(); i++) {
+  for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+    //Set the concentration of signals for this age
+    for(Protein_R* prot1 : dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
+      prot1->set_concentration(0.0);
+    }
+    for(Protein_R* prot2 : dynamic_cast<const Habitat_R&>(this->habitat()).phenotypic_target(i).signals()) {
+      prot2->set_concentration(0.9);
+    }
+
     for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++)
       update_concentrations();
 
@@ -183,9 +199,9 @@ void Individual_R_X11::display_concentrations( X11Window* win )
         strcpy( color2, "#FFFFFF" );
       }
 
-      win->draw_line( (int16_t)((win->width() / 10) + (i*x_step)),
+      win->draw_line( (int16_t)((win->width() / 10) + ((i-1)*x_step)),
                       (int16_t)(( 9 * win->height() / 10)-(concentrations[proti]*y_step)),
-                      (int16_t)((win->width() / 10) + (( i + 1)  * x_step)),
+                      (int16_t)((win->width() / 10) + (( i)  * x_step)),
                       (int16_t)((9 * win->height() / 10)-(((Protein_R*)prot)->concentration()*y_step)) ,color2);
       concentrations[proti]=((Protein_R*)prot)->concentration();
 
@@ -202,8 +218,8 @@ void Individual_R_X11::display_concentrations( X11Window* win )
     //printf("\n");
   }
 
-  //protein_list_.clear();
-  //protein_list_ = init_prot_list;
+  protein_list_.clear();
+  protein_list_ = _initial_protein_list;
   //init_prot_list.clear();
 
   delete[] concentrations;
@@ -298,14 +314,14 @@ void Individual_R_X11::display_regulation( X11Window* win )
     //  Draw each regulation link
     // ---------------
 
-    for (unsigned int i = 0; i < rna->_protein_list.size(); i++) {
+    for (unsigned int i = 0; i < rna->nb_influences(); i++) {
       if (rna->_protein_list[i] != nullptr) {
         //compute the activity
         if (rna->_enhancing_coef_list[i] > 0) {
           nb_activators++;
           mean_activator_activity += rna->_enhancing_coef_list[i];
-          //printf("RNA %ld is activated by %ld at %f (mean %f)\n",
-          //        rna->get_id(),rna->_protein_list[i]->get_id(),rna->_enhancing_coef_list[i],mean_activator_activity);
+          printf("RNA %ld is activated by %ld at %f (mean %f)\n",
+                  rna->get_id(),rna->_protein_list[i]->get_id(),rna->_enhancing_coef_list[i],mean_activator_activity);
 
           if (rna->_enhancing_coef_list[i] >
               max_activator_activity)
@@ -319,9 +335,9 @@ void Individual_R_X11::display_regulation( X11Window* win )
           nb_operators++;
           mean_operator_activity += rna->_operating_coef_list[i];
 
-          //printf("RNA %ld is activated by %ld at %f (mean %f)\n",
-          //       rna->get_id(),rna->_protein_list[i]->get_id(),rna->_enhancing_coef_list[i],mean_activator_activity,
-          //       mean_operator_activity);
+          printf("RNA %ld is activated by %ld at %f (mean %f)\n",
+                 rna->get_id(),rna->_protein_list[i]->get_id(),rna->_enhancing_coef_list[i],mean_activator_activity,
+                 mean_operator_activity);
 
           if (rna->_operating_coef_list[i] >
               max_operator_activity)

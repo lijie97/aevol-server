@@ -330,18 +330,22 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
 {
   const char* dna = gen_unit->dna()->data();
   int32_t  len    = gen_unit->dna()->length();
-  int8_t quadon_1 = 0,quadon_2 = 0,quadon_3 = 0,quadon_4   = 0;
+  //int8_t quadon_1 = 0,quadon_2 = 0,quadon_3 = 0,quadon_4   = 0;
+  int8_t quadon[4];
 
 //  printf("Length %d : %s\n\n",len,dna);
 
   if ( strand == LEADING )
   {
-    //for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
-    //{
-    quadon_1 += (dna[(pos+0) % len] == '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
+    #pragma omp simd
+    for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
+    {
+      quadon[i] = (dna[(pos+i) % len] == '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
+    }
+    /*quadon_1 += (dna[(pos+0) % len] == '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
     quadon_2 += (dna[(pos+1) % len] == '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
     quadon_3 += (dna[(pos+2) % len] == '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
-    quadon_4 += (dna[(pos+3) % len] == '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;
+    quadon_4 += (dna[(pos+3) % len] == '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;*/
       //if ( dna[(pos+i) % len] == '1' )
       //{
       //  quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
@@ -350,20 +354,22 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
   }
   else  // ( strand == LAGGING )
   {
-    /*for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
+    #pragma omp simd
+    for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     {
-      if ( dna[(pos-i) % len] != '1' ) // == and not != because we are on the complementary strand...
+      quadon[i] = (dna[(pos-i) % len] != '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
+      /*if ( dna[(pos-i) % len] != '1' ) // == and not != because we are on the complementary strand...
       {
         quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
-      }
-    }*/
-    quadon_1 += (dna[(pos-0) % len] != '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
+      }*/
+    }
+    /*quadon_1 += (dna[(pos-0) % len] != '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
     quadon_2 += (dna[(pos-1) % len] != '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
     quadon_3 += (dna[(pos-2) % len] != '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
-    quadon_4 += (dna[(pos-3) % len] != '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;
+    quadon_4 += (dna[(pos-3) % len] != '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;*/
   }
 
-  return quadon_1+quadon_2+quadon_3+quadon_4;
+  return quadon[0]+quadon[1]+quadon[2]+quadon[3];
 }
 
 void Individual_R::save( gzFile backup_file )

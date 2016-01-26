@@ -15,7 +15,7 @@ WORLD_SIZE              32 32
 INIT_METHOD             ONE_GOOD_GENE CLONE
 CHROMOSOME_INITIAL_LENGTH   5000
 MAX_TRIANGLE_WIDTH      0.05
-FUZZY_FLAVOR   1
+FUZZY_FLAVOR   0
 
 
 
@@ -23,16 +23,16 @@ FUZZY_FLAVOR   1
 #                                    Selection
 ####################################################################################
 # SELECTION_SCHEME linear_ranking | exponential_ranking | fitness | fittest
-SELECTION_SCHEME        fitness_proportionate 750
+SELECTION_SCHEME        fitness_proportionate 5000
 
 
 ####################################################################################
 #                          Mutation / Rearrangement / Transfer
 ####################################################################################
 ############ Mutation rates ############
-POINT_MUTATION_RATE     1e-6
-SMALL_INSERTION_RATE    1e-6
-SMALL_DELETION_RATE     1e-6
+POINT_MUTATION_RATE     1e-5
+SMALL_INSERTION_RATE    1e-5
+SMALL_DELETION_RATE     1e-5
 MAX_INDEL_SIZE          6
 
 
@@ -67,7 +67,7 @@ INDIVIDUAL_EVALUATION_AGES    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
 #EVAL_STEP 1 à trouver
 BINDING_ZEROS_PERCENTAGE       0.75
 #permit to choose wheter we want to run the simulation with a random binding matrix or not
-RANDOM_BINDING_MATRIX          true
+RANDOM_BINDING_MATRIX          false
 WITH_HEREDITY                  false
 PROTEIN_PRESENCE_LIMIT         1e-2
 

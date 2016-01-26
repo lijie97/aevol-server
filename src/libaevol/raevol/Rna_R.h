@@ -69,19 +69,22 @@ class Rna_R : public Rna
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void    set_influences( const std::list<Protein*> protein_list );
+    void    set_influences( std::list<Protein*>& protein_list );
     double  get_synthesis_rate( void );
     double  get_affinity_with_protein( int32_t index, Protein *protein );
     int32_t get_enhancer_position( void );
     int32_t get_operator_position( void );
 
     long get_id() { return _id; };
+
+    int nb_influences() { return _nb_influences; }
     // =================================================================
     //                           Public Attributes
     // =================================================================
     std::vector<Protein_R*> _protein_list;
     std::vector<double> _enhancing_coef_list;
     std::vector<double> _operating_coef_list;
+    //std::vector<double> _protein_concentration_list;
     static long id;
 
   protected :
@@ -106,6 +109,8 @@ class Rna_R : public Rna
     // ================================================================
 
     long _id;
+
+    int _nb_influences = 0;
 
 };
 

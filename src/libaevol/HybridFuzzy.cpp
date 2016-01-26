@@ -192,12 +192,15 @@ void HybridFuzzy::load( gzFile backup_file ) {
   }
 }
 
+
 void HybridFuzzy::clip(clipping_direction direction, double bound) {
-  for (int i = 0; i < _pheno_size; i++) {
-    if ((direction == clipping_direction::min and _points[i] < bound) or
-        (direction == clipping_direction::max and _points[i] > bound))
-      _points[i] = bound;
-  }
+
+  if (direction == clipping_direction::min)
+    for (int i = 0; i < _pheno_size; i++)
+      _points[i] = _points[i] < bound ? bound : _points[i];
+  else if (direction == clipping_direction::max)
+    for (int i = 0; i < _pheno_size; i++)
+      _points[i] = _points[i] > bound ? bound : _points[i];
 }
 
 void HybridFuzzy::add_point(double x, double y) {
