@@ -315,13 +315,13 @@ void Individual_R_X11::display_regulation( X11Window* win )
     // ---------------
 
     for (unsigned int i = 0; i < rna->nb_influences(); i++) {
-      if (rna->_protein_list[i] != nullptr) {
+      //if (rna->_protein_list[i] != nullptr) {
         //compute the activity
         if (rna->_enhancing_coef_list[i] > 0) {
           nb_activators++;
           mean_activator_activity += rna->_enhancing_coef_list[i];
-          printf("RNA %ld is activated by %ld at %f (mean %f)\n",
-                  rna->get_id(),rna->_protein_list[i]->get_id(),rna->_enhancing_coef_list[i],mean_activator_activity);
+          //printf("RNA %ld is activated by %ld at %f (mean %f)\n",
+          //        rna->get_id(),rna->_protein_list[i]->get_id(),rna->_enhancing_coef_list[i],mean_activator_activity);
 
           if (rna->_enhancing_coef_list[i] >
               max_activator_activity)
@@ -335,9 +335,9 @@ void Individual_R_X11::display_regulation( X11Window* win )
           nb_operators++;
           mean_operator_activity += rna->_operating_coef_list[i];
 
-          printf("RNA %ld is activated by %ld at %f (mean %f)\n",
-                 rna->get_id(),rna->_protein_list[i]->get_id(),rna->_enhancing_coef_list[i],mean_activator_activity,
-                 mean_operator_activity);
+          //printf("RNA %ld is operated by %ld at %f (mean %f %f)\n",
+          //       rna->get_id(),rna->_protein_list[i]->get_id(),rna->_operating_coef_list[i],mean_activator_activity,
+          //       mean_operator_activity);
 
           if (rna->_operating_coef_list[i] >
               max_operator_activity)
@@ -367,7 +367,7 @@ void Individual_R_X11::display_regulation( X11Window* win )
               min_merged_operator_activity)
             min_merged_operator_activity = merged_activity;
         }
-      }
+     // }
     }
   }
 
@@ -403,105 +403,100 @@ void Individual_R_X11::display_regulation( X11Window* win )
     //  Draw each regulation link
     // ---------------
     nb_signals = 0;
-    for (unsigned int i = 0; i < rna->_protein_list.size(); i++) {
-      if (rna->_protein_list[i] != nullptr) {
-        Protein_R* prot = rna->_protein_list[i];
+    for (unsigned int i = 0; i < rna->_nb_influences; i++) {
+      Protein_R* prot = rna->_protein_list[i];
 
-        if (!(prot->is_signal())) {
-          alpha_prot_first = (int16_t) round(360 *
-                                             ((double) prot->first_translated_pos() /
-                                              (double) genome_length));
-          theta_prot_first = std::fmod(90 - alpha_prot_first, 360);
+      if (!(prot->is_signal())) {
+        alpha_prot_first = (int16_t) round(360 *
+                                           ((double) prot->first_translated_pos() /
+                                            (double) genome_length));
+        theta_prot_first = std::fmod(90 - alpha_prot_first, 360);
 
-          alpha_prot_first_64 = (int16_t) round(64 * 360 *
-                                                ((double) prot->first_translated_pos() /
-                                                 (double) genome_length));
-          theta_prot_first_64 = std::fmod(64 * 90 - alpha_prot_first_64,
-                                          64 * 360);
+        alpha_prot_first_64 = (int16_t) round(64 * 360 *
+                                              ((double) prot->first_translated_pos() /
+                                               (double) genome_length));
+        theta_prot_first_64 = std::fmod(64 * 90 - alpha_prot_first_64,
+                                        64 * 360);
 
-          pos_prot_x = (win->width() / 2.0) +
-                       (cos((theta_prot_first_64 / (64 * 180.0) * M_PI)) *
-                        diam /
-                        2.0);
-          pos_prot_y = (win->height() / 2.0) -
-                       (sin((theta_prot_first_64 / (64 * 180.0) * M_PI)) *
-                        diam /
-                        2.0);
+        pos_prot_x = (win->width() / 2.0) +
+                     (cos((theta_prot_first_64 / (64 * 180.0) * M_PI)) *
+                      diam /
+                      2.0);
+        pos_prot_y = (win->height() / 2.0) -
+                     (sin((theta_prot_first_64 / (64 * 180.0) * M_PI)) *
+                      diam /
+                      2.0);
+      }
+      else {
+        nb_signals += 1;
+        pos_prot_x = (win->width() / 10.0) * nb_signals;
+        pos_prot_y = (win->height() * 0.9);
+      }
+
+      // compute the color of the link
+      double merged_influence =
+          rna->_enhancing_coef_list[i] - rna->_operating_coef_list[i];
+
+      //printf("Merged influence of RNA %ld with prot %ld is %f (%f %f)\n",rna->get_id(),rna->_protein_list[i]->get_id(),
+      //       merged_influence,rna->_enhancing_coef_list[i],rna->_operating_coef_list[i]);
+      if (merged_influence > 0) {
+            //printf("ONE %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
+            //printf("COLOR : #%02x%02x%02x\n", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
+            sprintf(color, "#%02x%02x%02x", 0,
+                    (int) ((255 * merged_influence) /
+                           max_merged_activator_activity), 0);
+
         }
         else {
-          nb_signals += 1;
-          pos_prot_x = (win->width() / 10.0) * nb_signals;
-          pos_prot_y = (win->height() * 0.9);
+            //printf("TWO %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
+            //printf("COLOR : #%02x%02x%02x\n", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
+            sprintf(color, "#%02x%02x%02x", (int) ((255 * merged_influence) /
+                                                   max_merged_operator_activity),
+                    0, 0);
+
         }
 
-        // compute the color of the link
-        double merged_influence =
-            rna->_enhancing_coef_list[i] - rna->_operating_coef_list[i];
 
-        //printf("Merged influence of RNA %ld with prot %ld is %f (%f %f)\n",rna->get_id(),rna->_protein_list[i]->get_id(),
-        //       merged_influence,rna->_enhancing_coef_list[i],rna->_operating_coef_list[i]);
-        if (merged_influence > 0) {
-          if (max_merged_activator_activity > 0) {
-            if (max_merged_activator_activity > 0) {
-              //printf("ONE %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
-              //printf("COLOR : #%02x%02x%02x\n", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
-              sprintf(color, "#%02x%02x%02x", 0,
-                      (int) ((255 * merged_influence) /
-                             max_merged_activator_activity), 0);
-            }
-          }
-          else {
-            if (max_merged_activator_activity > 0) {
-              //printf("TWO %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
-              //printf("COLOR : #%02x%02x%02x\n", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
-              sprintf(color, "#%02x%02x%02x", (int) ((255 * merged_influence) /
-                                                     max_merged_operator_activity),
-                      0, 0);
-            }
+        if (merged_influence != 0.0) {
+          //compute the lenght of the line
+          len_link = sqrt(
+              ((pos_rna_x - pos_prot_x) * (pos_rna_x - pos_prot_x)) +
+              ((pos_rna_y - pos_prot_y) * (pos_rna_y - pos_prot_y)));
 
-          }
+          //draw the link
+          win->draw_line(pos_rna_x, pos_rna_y, pos_prot_x, pos_prot_y, color);
+          //printf("Draw link from %d %d to %d %f with color\n",pos_rna_x, pos_rna_y, pos_prot_x, pos_prot_y);
 
+          //draw the arrow going to the protein to the rna regulated the arrow is well centered
+          win->draw_line(
+              (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) +
+                         (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
+              (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) +
+                         (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
+              (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) +
+                         (5.0 * (pos_rna_y - pos_prot_y) / len_link) -
+                         (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
+              (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) -
+                         (5.0 * (pos_rna_x - pos_prot_x) / len_link) -
+                         (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
+              color);
 
-          if (merged_influence != 0.0) {
-            //compute the lenght of the line
-            len_link = sqrt(
-                ((pos_rna_x - pos_prot_x) * (pos_rna_x - pos_prot_x)) +
-                ((pos_rna_y - pos_prot_y) * (pos_rna_y - pos_prot_y)));
-
-            //draw the link
-            win->draw_line(pos_rna_x, pos_rna_y, pos_prot_x, pos_prot_y, color);
-            //printf("Draw link from %d %d to %d %f with color\n",pos_rna_x, pos_rna_y, pos_prot_x, pos_prot_y);
-
-            //draw the arrow going to the protein to the rna regulated the arrow is well centered
-            win->draw_line(
-                (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) +
-                           (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
-                (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) +
-                           (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
-                (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) +
-                           (5.0 * (pos_rna_y - pos_prot_y) / len_link) -
-                           (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
-                (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) -
-                           (5.0 * (pos_rna_x - pos_prot_x) / len_link) -
-                           (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
-                color);
-
-            win->draw_line(
-                (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) +
-                           (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
-                (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) +
-                           (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
-                (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) -
-                           (5.0 * (pos_rna_y - pos_prot_y) / len_link) -
-                           (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
-                (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) +
-                           (5.0 * (pos_rna_x - pos_prot_x) / len_link) -
-                           (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
-                color);
-          }
+          win->draw_line(
+              (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) +
+                         (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
+              (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) +
+                         (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
+              (int16_t) (((pos_rna_x + pos_prot_x) / 2.0) -
+                         (5.0 * (pos_rna_y - pos_prot_y) / len_link) -
+                         (5.0 * (pos_rna_x - pos_prot_x) / len_link)),
+              (int16_t) (((pos_rna_y + pos_prot_y) / 2.0) +
+                         (5.0 * (pos_rna_x - pos_prot_x) / len_link) -
+                         (5.0 * (pos_rna_y - pos_prot_y) / len_link)),
+              color);
         }
       }
-    }
+
+
   }
   delete[] color;
 }

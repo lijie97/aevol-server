@@ -87,6 +87,7 @@ class Rna_R : public Rna
     //std::vector<double> _protein_concentration_list;
     static long id;
 
+    int _nb_influences = 0;
   protected :
 
     // =================================================================
@@ -110,7 +111,6 @@ class Rna_R : public Rna
 
     long _id;
 
-    int _nb_influences = 0;
 
 };
 
