@@ -287,7 +287,7 @@ class raevol_matrix(Engine):
 	      f = os.fdopen(fd, 'w')
 		
 	      for line in f_template:
-		if line == 'CONFIGURE_ENVIRONMENT_VALUES':
+		if 'CONFIGURE_ENVIRONMENT_VALUES' in line:
                     if comb['env'] == 'const':
                         line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 1')
                         f.write(line)
@@ -400,8 +400,12 @@ class raevol_matrix(Engine):
                         f.write('ENV_ADD_GAUSSIAN  16  0.5   0.45  0.05'+ os.linesep)
                         f.write('ENV_ADD_GAUSSIAN  16  0.5   0.65  0.05'+ os.linesep)
                         f.write('ENV_ADD_GAUSSIAN  16  0.5   0.85  0.05'+ os.linesep)
-                elif line == 'CONFIGURE_SIGNAL_VALUES':
-                    if comb['env'] == 'lat_3':
+                elif 'CONFIGURE_SIGNAL_VALUES' in line:
+                    if comb['env'] == 'const':
+                        line.replace('CONFIGURE_SIGNAL_VALUES','')
+                        f.write(line)
+                        
+                    elif comb['env'] == 'lat_3':
                         line.replace('CONFIGURE_SIGNAL_VALUES','CREATE_SIGNAL h0 h0 h0 w0 m0 m1 m0 h1 h0 m0 h0 m1 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 w0 h0 h1 m1 w0 m0 m1 m0 w0 h1 h0 m0 h0 m1 h1 w0 h0 w0 m0 m1 m0 w0 h1 h0 w0 w0 h1')
                         f.write(line)
                 
