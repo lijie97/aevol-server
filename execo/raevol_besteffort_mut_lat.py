@@ -289,14 +289,14 @@ class raevol_matrix(Engine):
 	      for line in f_template:
 		if 'CONFIGURE_ENVIRONMENT_VALUES' in line:
                     if comb['env'] == 'const':
-                        line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 1')
+                        line = line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 1')
                         f.write(line)
                         f.write('ENV_ADD_GAUSSIAN  1  0.5   0.2   0.05'+ os.linesep)
                         f.write('ENV_ADD_GAUSSIAN  1  0.5   0.4   0.05'+ os.linesep)
                         f.write('ENV_ADD_GAUSSIAN  1  0.5   0.6   0.05'+ os.linesep)
                         f.write('ENV_ADD_GAUSSIAN  1  0.5   0.8   0.05'+ os.linesep)
                     elif comb['env'] == 'lat_3':
-                        line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 2')
+                        line = line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 2')
                         f.write(line)
                         f.write('ENV_ADD_GAUSSIAN  1  0.5   0.2   0.05'+ os.linesep)
                         f.write('ENV_ADD_GAUSSIAN  1  0.5   0.4   0.05'+ os.linesep)
@@ -308,7 +308,7 @@ class raevol_matrix(Engine):
                         f.write('ENV_ADD_GAUSSIAN  2  0.5   0.65  0.05'+ os.linesep)
                         f.write('ENV_ADD_GAUSSIAN  2  0.5   0.8   0.05'+ os.linesep)
                     elif comb['env'] == 'lat_all':
-                        line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 16')
+                        line = line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 16')
                         f.write(line)
                         
                         #const
@@ -402,16 +402,16 @@ class raevol_matrix(Engine):
                         f.write('ENV_ADD_GAUSSIAN  16  0.5   0.85  0.05'+ os.linesep)
                 elif 'CONFIGURE_SIGNAL_VALUES' in line:
                     if comb['env'] == 'const':
-                        line.replace('CONFIGURE_SIGNAL_VALUES','')
+                        line = line.replace('CONFIGURE_SIGNAL_VALUES','')
                         f.write(line)
                         
                     elif comb['env'] == 'lat_3':
-                        line.replace('CONFIGURE_SIGNAL_VALUES','CREATE_SIGNAL h0 h0 h0 w0 m0 m1 m0 h1 h0 m0 h0 m1 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 w0 h0 h1 m1 w0 m0 m1 m0 w0 h1 h0 m0 h0 m1 h1 w0 h0 w0 m0 m1 m0 w0 h1 h0 w0 w0 h1')
+                        line = line.replace('CONFIGURE_SIGNAL_VALUES','CREATE_SIGNAL h0 h0 h0 w0 m0 m1 m0 h1 h0 m0 h0 m1 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 w0 h0 h1 m1 w0 m0 m1 m0 w0 h1 h0 m0 h0 m1 h1 w0 h0 w0 m0 m1 m0 w0 h1 h0 w0 w0 h1')
                         f.write(line)
                 
                         f.write('ENV_ADD_SIGNAL 2 1'+ os.linesep)
                     elif comb['env'] == 'lat_all':
-                        line.replace('CONFIGURE_SIGNAL_VALUES','CREATE_SIGNAL h0 w0 h1 m1 w0 h1 m0 h0 h1 w0 h0 m1 h1 h1 m1 m0 h0 w0 h1 m1 w0 h1 m0 h0 h1 w0 h0 m1 h1 h1 m1 m0 h1 m0 m1')
+                        line = line.replace('CONFIGURE_SIGNAL_VALUES','CREATE_SIGNAL h0 w0 h1 m1 w0 h1 m0 h0 h1 w0 h0 m1 h1 h1 m1 m0 h0 w0 h1 m1 w0 h1 m0 h0 h1 w0 h0 m1 h1 h1 m1 m0 h1 m0 m1')
                         f.write(line)
                         f.write('CREATE_SIGNAL m0 h0 m1 h1 m1 w0 m0 m1 m0 h0 m1 h1 w0 h0 h0 h1 m1 m0 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 m1 w0 w0 h1 h0 w0 h1 h0 h0 m0 h0 w0 h0 m1 m0 w0 h1 w0 w0 h1 m0'+ os.linesep)
                         f.write('CREATE_SIGNAL h0 h0 h0 w0 m0 m1 m0 h1 h0 m0 h0 m1 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 w0 h0 h1 m1 w0 m0 m1 m0 w0 h1 h0 m0 h0 m1 h1 w0 h0 w0 m0 m1 m0 w0 h1 h0 w0 w0 h1'+ os.linesep)
