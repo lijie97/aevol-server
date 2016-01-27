@@ -278,7 +278,7 @@ class raevol_matrix(Engine):
 	    else:
 	      Remote('mkdir -p '+bucketname,[host]).run()
 		
-	      param_file = '/home/jorouzaudcornabas/aevol_binary/execo/mut_lat/param_tmpl.in'
+	      param_file = '/home/jorouzaudcornabas/aevol_binary/aevol/execo/mut_lat/param_tmpl.in'
 	      
 	      logger.info(thread_name + 'Generate config file ' + param_file)
 	      
@@ -471,7 +471,7 @@ class raevol_matrix(Engine):
 		
 	      os.remove(outfile)
 	      
-	      Remote('cd '+bucketname+'; cp ' + outfile.split('/')[-1] + ' param.in; cp /home/jorouzaudcornabas/aevol_binary/execo/mut_lat/binding_matrix.rae .',
+	      Remote('cd '+bucketname+'; cp ' + outfile.split('/')[-1] + ' param.in; cp /home/jorouzaudcornabas/aevol_binary/aevol/execo/mut_lat/binding_matrix.rae .',
 			  [host]).run()
 		
 	      logger.info(thread_name + "Launching AEVOL Create")
