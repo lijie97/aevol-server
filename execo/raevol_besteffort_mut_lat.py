@@ -61,7 +61,7 @@ class raevol_matrix(Engine):
         else:
             self.oar_job_id = None
             
-        self.list_of_clusters = ['parasilo','paravance','parapluie','paranoia']
+        self.list_of_clusters = ['parasilo','paravance','parapluie','paranoia','parapide']
 
         try:
             # Creation of the main iterator which is used for the first control loop.
@@ -253,7 +253,15 @@ class raevol_matrix(Engine):
         comb_ok = False
         thread_name = style.Thread(str(host).split('.')[0]) + ': '
         logger.info(thread_name + 'Starting combination ' + slugify(comb))
-
+        if 'parapluie' in str(host):
+            nb_proc = 24
+        elif 'paranoia' in str(host):
+            nb_proc = 20
+        elif 'parapide' in str(host):
+            nb_proc = 8
+        else:
+            nb_proc = 16
+            
         try:
 	    self.export = "source ~/aevol_binary/intel/linux/mkl/bin/mklvars.sh intel64; "
 	    
@@ -268,7 +276,7 @@ class raevol_matrix(Engine):
 	      
 	      if int(last_gen) < 500000:
                 logger.info(thread_name + "Resuming AEVOL Run from "+str(int(last_gen)))
-                rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p 16'
+                rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p '+str(nb_proc)
 		      + ' -e 300000 -r '+last_gen+' >> aevol_run.log',
 			  [host]).run()
                 if rem.ok:
@@ -483,7 +491,7 @@ class raevol_matrix(Engine):
 			  [host]).run()
 	      
 	      logger.info(thread_name + "Launching AEVOL Run")
-	      rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p 16 -n 300000 > aevol_run.log',
+	      rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p '+str(nb_proc)+' -n 300000 > aevol_run.log',
 			  [host]).run()
               if rem.ok:
                     comb_ok = True
