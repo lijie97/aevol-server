@@ -287,16 +287,180 @@ class raevol_matrix(Engine):
 	      f = os.fdopen(fd, 'w')
 		
 	      for line in f_template:
-		line = line.replace('SEED_NUMBER',str(comb['seed']))
-		line = line.replace('FUZZY_VERSION',str(comb['fuzzy']))
-		if comb['move']:
-                    line = line.replace('FIRST_GAUSSIAN_MEDIAN','0.25') 
-                    line = line.replace('THIRD_GAUSSIAN_MEDIAN','0.65') 
+		if line == 'CONFIGURE_ENVIRONMENT_VALUES':
+                    if comb['env'] == 'const':
+                        line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 1')
+                        f.write(line)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.8   0.05'+ os.linesep)
+                    elif comb['env'] == 'lat_3':
+                        line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 2')
+                        f.write(line)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.8   0.05'+ os.linesep)
+                        
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.8   0.05'+ os.linesep)
+                    elif comb['env'] == 'lat_all':
+                        line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 16')
+                        f.write(line)
+                        
+                        #const
+                        
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  1  0.5   0.8   0.05'+ os.linesep)
+
+                        # 1
+
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  2  0.5   0.8   0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  3  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  3  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  3  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  3  0.5   0.8   0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  4  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  4  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  4  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  4  0.5   0.8   0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  5  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  5  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  5  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  5  0.5   0.85  0.05'+ os.linesep)
+
+                        # 2
+
+                        f.write('ENV_ADD_GAUSSIAN  6  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  6  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  6  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  6  0.5   0.8   0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  7  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  7  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  7  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  7  0.5   0.8   0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  8  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  8  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  8  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  8  0.5   0.85  0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  9  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  9  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  9  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  9  0.5   0.8   0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  10  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  10  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  10  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  10  0.5   0.85  0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  11  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  11  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  11  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  11  0.5   0.85  0.05'+ os.linesep)
+
+                        # 3
+
+                        f.write('ENV_ADD_GAUSSIAN  12  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  12  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  12  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  12  0.5   0.8   0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  13  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  13  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  13  0.5   0.6   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  13  0.5   0.85  0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  14  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  14  0.5   0.4   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  14  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  14  0.5   0.85  0.05'+ os.linesep)
+
+                        f.write('ENV_ADD_GAUSSIAN  15  0.5   0.2   0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  15  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  15  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  15  0.5   0.85  0.05'+ os.linesep)
+
+                        # 4
+
+                        f.write('ENV_ADD_GAUSSIAN  16  0.5   0.25  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  16  0.5   0.45  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  16  0.5   0.65  0.05'+ os.linesep)
+                        f.write('ENV_ADD_GAUSSIAN  16  0.5   0.85  0.05'+ os.linesep)
+                elif line == 'CONFIGURE_SIGNAL_VALUES':
+                    if comb['env'] == 'lat_3':
+                        line.replace('CONFIGURE_SIGNAL_VALUES','CREATE_SIGNAL h0 h0 h0 w0 m0 m1 m0 h1 h0 m0 h0 m1 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 w0 h0 h1 m1 w0 m0 m1 m0 w0 h1 h0 m0 h0 m1 h1 w0 h0 w0 m0 m1 m0 w0 h1 h0 w0 w0 h1')
+                        f.write(line)
+                
+                        f.write('ENV_ADD_SIGNAL 2 1'+ os.linesep)
+                    elif comb['env'] == 'lat_all':
+                        line.replace('CONFIGURE_SIGNAL_VALUES','CREATE_SIGNAL h0 w0 h1 m1 w0 h1 m0 h0 h1 w0 h0 m1 h1 h1 m1 m0 h0 w0 h1 m1 w0 h1 m0 h0 h1 w0 h0 m1 h1 h1 m1 m0 h1 m0 m1')
+                        f.write(line)
+                        f.write('CREATE_SIGNAL m0 h0 m1 h1 m1 w0 m0 m1 m0 h0 m1 h1 w0 h0 h0 h1 m1 m0 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 m1 w0 w0 h1 h0 w0 h1 h0 h0 m0 h0 w0 h0 m1 m0 w0 h1 w0 w0 h1 m0'+ os.linesep)
+                        f.write('CREATE_SIGNAL h0 h0 h0 w0 m0 m1 m0 h1 h0 m0 h0 m1 h1 w0 h1 h0 m1 h1 m0 w0 w0 m0 w0 h0 h1 m1 w0 m0 m1 m0 w0 h1 h0 m0 h0 m1 h1 w0 h0 w0 m0 m1 m0 w0 h1 h0 w0 w0 h1'+ os.linesep)
+                        f.write('CREATE_SIGNAL h1 h1 m0 w0 w0 h1 m1 h1 h1 m1 m0 w0 m1 m0 m0 w0 m0 h0 m0 h0 w0 h0 m0 h0 h1 m1 h0 h1 w0 h0 h1 m1 h1 m1 m0'+ os.linesep)
+                        
+                        f.write('ENV_ADD_SIGNAL 2 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 3 2'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 4 3'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 5 4'+ os.linesep)
+                        
+                        f.write('ENV_ADD_SIGNAL 6 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 6 2'+ os.linesep)
+
+                        f.write('ENV_ADD_SIGNAL 7 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 7 3'+ os.linesep)
+
+                        f.write('ENV_ADD_SIGNAL 8 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 8 4'+ os.linesep)
+                        
+                        f.write('ENV_ADD_SIGNAL 9 2'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 9 3'+ os.linesep)
+
+                        f.write('ENV_ADD_SIGNAL 10 2'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 10 4'+ os.linesep)
+                        
+                        f.write('ENV_ADD_SIGNAL 11 3'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 11 4'+ os.linesep)
+                        
+                        f.write('ENV_ADD_SIGNAL 12 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 12 2'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 12 3'+ os.linesep)
+
+                        f.write('ENV_ADD_SIGNAL 13 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 13 2'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 13 4'+ os.linesep)
+
+                        f.write('ENV_ADD_SIGNAL 14 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 14 3'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 14 4'+ os.linesep)
+
+                        f.write('ENV_ADD_SIGNAL 15 2'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 15 3'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 15 4'+ os.linesep)
+
+                        f.write('ENV_ADD_SIGNAL 16 1'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 16 2'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 16 3'+ os.linesep)
+                        f.write('ENV_ADD_SIGNAL 16 4'+ os.linesep)
                 else:
-                    line = line.replace('FIRST_GAUSSIAN_MEDIAN','0.2') 
-                    line = line.replace('THIRD_GAUSSIAN_MEDIAN','0.6')
-                line = line.replace('GAUSSIAN_HEIGHT',str(comb['height']))
-		f.write(line)
+                    line = line.replace('SEED_NUMBER',str(comb['seed']))
+                    line = line.replace('MUTATION_RATE_VALUE',comb['mutation'])
+                    line = line.replace('SELECTION_PRESSURE',str(comb['selection']))
+                    f.write(line)
 		
 	      f_template.close()
 	      f.close()
@@ -307,15 +471,15 @@ class raevol_matrix(Engine):
 		
 	      os.remove(outfile)
 	      
-	      Remote('cd '+bucketname+'; cp ' + outfile.split('/')[-1] + ' param.in',
+	      Remote('cd '+bucketname+'; cp ' + outfile.split('/')[-1] + ' param.in; cp /home/jorouzaudcornabas/aevol_binary/execo/mut_lat/binding_matrix.rae .',
 			  [host]).run()
 		
 	      logger.info(thread_name + "Launching AEVOL Create")
-	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_create > aevol_create.log',
+	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_create > aevol_create.log',
 			  [host]).run()
 	      
 	      logger.info(thread_name + "Launching AEVOL Run")
-	      rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16 -n 500000 > aevol_run.log',
+	      rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p 16 -n 300000 > aevol_run.log',
 			  [host]).run()
               if rem.ok:
                     comb_ok = True
