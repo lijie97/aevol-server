@@ -154,7 +154,7 @@ class raevol_matrix(Engine):
             if self.oar_job_id is not None:
                 if not self.options.keep_alive:
                     logger.info('Deleting job')
-                    oardel(self.oar_job_id)
+                    #oardel(self.oar_job_id)
                 else:
                     logger.info('Keeping job alive for debugging')
 
