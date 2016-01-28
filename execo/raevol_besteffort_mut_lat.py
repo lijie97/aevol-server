@@ -275,7 +275,7 @@ class raevol_matrix(Engine):
                                                                                                                                                                                                                                                    
               last_gen = gen_file.read()
 	      
-	      if int(last_gen) < 500000:
+	      if int(last_gen) < 300000:
                 logger.info(thread_name + "Resuming AEVOL Run from "+str(int(last_gen)))
                 rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p '+str(nb_proc)
 		      + ' -e 300000 -r '+last_gen+' >> aevol_run.log',
