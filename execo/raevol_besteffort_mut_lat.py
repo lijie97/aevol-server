@@ -538,7 +538,7 @@ class raevol_matrix(Engine):
         rez=get_oar_job_info(self.oar_job_id)
         if rez['state'] == 'Error':
           return False
-
+        print str(rez)
         if (rez["start_date"]+rez["walltime"] > time.time()):
             return True
         else:
