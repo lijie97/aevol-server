@@ -141,7 +141,7 @@ class raevol_matrix(Engine):
                     threads[t] = {'host': host}
                     t.daemon = True
                     t.start()
-                    sleep(10)
+                    sleep(3)
 
                 if not self.is_job_alive():
                     job_is_dead = True
