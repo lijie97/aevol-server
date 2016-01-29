@@ -551,9 +551,19 @@ class raevol_matrix(Engine):
         slots = compute_slots(planning, walltime)
         wanted = { cluster: 0 for cluster in list_of_clusters }
         start_date, end_date, resources = find_first_slot(slots, wanted)
-        actual_resources = { resource: n_nodes
-                            for resource, n_nodes in resources.iteritems()
-                            if resource in list_of_clusters and n_nodes > 0 }
+        g_nodes = 0
+        actual_resources = {}
+        for resource, n_nodes in resources.iteritems():
+            if resource in list_of_clusters and n_nodes > 0:
+                if g_nodes >= 83:
+                    break
+                elif g_nodes + n_nodes >= 83:
+                    l_nodes = 83 - g_nodes
+                    actual_resources = { resource : l_nodes }
+                    break
+                else:
+                    actual_resources = { resource : n_nodes }
+                    g_nodes += n_nodes
         return start_date, end_date, actual_resources
 
     def submit_all_available_best_effort(self,list_of_clusters, walltime):
