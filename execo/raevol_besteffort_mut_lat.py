@@ -135,7 +135,7 @@ class raevol_matrix(Engine):
                     
                     host = available_hosts[0]
                     available_hosts = available_hosts[1:]
-                    logger.info("Launching thread")
+                    logger.info("Launching thread "+str(self.is_job_alive())+" "+str(len(threads.keys())))
                     t = Thread(target=self.workflow,
                                args=(comb, host, comb_dir))
                     threads[t] = {'host': host}
