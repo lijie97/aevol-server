@@ -279,7 +279,7 @@ class raevol_matrix(Engine):
                 logger.info(thread_name + "Resuming AEVOL Run from "+str(int(last_gen)))
                 rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p '+str(nb_proc)
 		      + ' -e 300000 -r '+last_gen+' >> aevol_run.log',
-			  [host],default_stdout_handler=False,default_stderr_handler=False).run()
+			  [host],process_args={ 'default_stdout_handler' : False, 'default_stderr_handler'  : False}).run()
                 if rem.ok:
                     comb_ok = True
               else:
@@ -489,11 +489,11 @@ class raevol_matrix(Engine):
 		
 	      logger.info(thread_name + "Launching AEVOL Create")
 	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_create > aevol_create.log',
-			  [host],default_stdout_handler=False,default_stderr_handler=False).run()
+			  [host],process_args={ 'default_stdout_handler' : False, 'default_stderr_handler'  : False}).run()
 	      
 	      logger.info(thread_name + "Launching AEVOL Run")
 	      rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/aevol/src/aevol_run -p '+str(nb_proc)+' -n 300000 > aevol_run.log',
-			  [host],default_stdout_handler=False,default_stderr_handler=False).run()
+			  [host],process_args={ 'default_stdout_handler' : False, 'default_stderr_handler'  : False}).run()
               if rem.ok:
                     comb_ok = True
             
