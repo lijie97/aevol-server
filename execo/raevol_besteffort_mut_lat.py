@@ -61,7 +61,7 @@ class raevol_matrix(Engine):
         else:
             self.oar_job_id = None
             
-        self.list_of_clusters = ['parasilo','paravance','parapluie','paranoia','parapide']
+        self.list_of_clusters = ['parasilo','paravance','parapluie','paranoia']
 
         try:
             # Creation of the main iterator which is used for the first control loop.
