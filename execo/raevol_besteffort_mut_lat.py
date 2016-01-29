@@ -121,26 +121,27 @@ class raevol_matrix(Engine):
                     if job_is_dead:
                         break
 
-                    # Getting the next combination
-                    comb = self.sweeper.get_next()
-                    if not comb:
-                        while len(threads.keys()) > 0:
-                            tmp_threads = dict(threads)
-                            for t in tmp_threads:
-                                if not t.is_alive():
-                                    del threads[t]
-                            logger.info('Waiting for threads to complete')
-                            sleep(20)
-                        break
-                    
-                    host = available_hosts[0]
-                    available_hosts = available_hosts[1:]
-                    logger.info("Launching thread "+str(self.is_job_alive())+" "+str(len(threads.keys())))
-                    t = Thread(target=self.workflow,
-                               args=(comb, host, comb_dir))
-                    threads[t] = {'host': host}
-                    t.daemon = True
-                    t.start()
+                    if len(threads.keys()) < 83:
+                        # Getting the next combination
+                        comb = self.sweeper.get_next()
+                        if not comb:
+                            while len(threads.keys()) > 0:
+                                tmp_threads = dict(threads)
+                                for t in tmp_threads:
+                                    if not t.is_alive():
+                                        del threads[t]
+                                logger.info('Waiting for threads to complete')
+                                sleep(20)
+                            break
+                        
+                        host = available_hosts[0]
+                        available_hosts = available_hosts[1:]
+                        logger.info("Launching thread "+str(self.is_job_alive())+" "+str(len(threads.keys())))
+                        t = Thread(target=self.workflow,
+                                args=(comb, host, comb_dir))
+                        threads[t] = {'host': host}
+                        t.daemon = True
+                        t.start()
                     sleep(3)
 
                 if not self.is_job_alive():
