@@ -33,6 +33,9 @@ target_link_libraries(lineage PUBLIC aevol)
 add_executable(mutagenesis mutagenesis.cpp)
 target_link_libraries(mutagenesis PUBLIC aevol)
 
+add_executable(mutationalrobustness mutationalrobustness.cpp)
+target_link_libraries(mutationalrobustness PUBLIC aevol)
+
 
 # ============================================================================
 # Set behaviour on make install

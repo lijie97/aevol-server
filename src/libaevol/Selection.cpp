@@ -478,12 +478,11 @@ void Selection::compute_local_prob_reprod() {
   }
 }
 
-Individual* Selection::do_replication(Individual* parent, int32_t index,
-                                      int16_t x, int16_t y) {
-  Individual* new_indiv = NULL;
+Individual* Selection::do_replication(Individual* parent, int32_t index) {
+  Individual* new_indiv = nullptr;
 
   // ===========================================================================
-  //  1) Copy parent
+  // Copy parent
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
@@ -507,9 +506,6 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
     notifyObservers(NEW_INDIV, msg);
   }
 
-  // Set the new individual's location on the grid
-  exp_m_->world()->PlaceIndiv(new_indiv, x, y);
-
   // Perform transfer, rearrangements and mutations
   if (not new_indiv->allow_plasmids()) {
     const GeneticUnit* chromosome = &new_indiv->genetic_unit_list().front();
@@ -532,6 +528,16 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
       }
     }
   }
+
+  return new_indiv;
+}
+
+Individual* Selection::do_replication(Individual* parent, int32_t index,
+                                      int16_t x, int16_t y) {
+  Individual* new_indiv = do_replication(parent, index);
+
+  // Set the new individual's location on the grid
+  exp_m_->world()->PlaceIndiv(new_indiv, x, y);
 
   // Evaluate new individual
   new_indiv->Evaluate();
