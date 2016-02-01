@@ -32,17 +32,19 @@
  of a population.
 */
 
-#include <getopt.h>
-#include <libgen.h>
-
 #include <list>
+
+#include <getopt.h>
 
 #include "aevol.h"
 
 using namespace aevol;
 
 void print_help(char* prog_name);
-void analyse_indiv(ae_exp_manager*, ae_individual*, FILE*, int32_t);
+void analyse_indiv(ExpManager* exp,
+                   Individual* initial_indiv,
+                   FILE* output,
+                   int32_t ndiv);
 
 int main(int argc, char* argv[]) {
   // Load parameters from command line
@@ -66,7 +68,7 @@ int main(int argc, char* argv[]) {
   while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
     switch (option) {
-      case 'h' : print_help(basename(argv[0])); exit(EXIT_SUCCESS); break;
+      case 'h' : print_help(basename(argv[0])); exit(EXIT_SUCCESS);
       case 'n' : ndiv = atol(optarg); break;
       case 'r' : gener = atol(optarg); break;
       case 'o' : {
@@ -84,10 +86,6 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load(gener, true, false);
-  // int32_t nb_indivs = exp_manager->nb_indivs();
-
   // Open output file and write the header
   FILE * output = fopen(output_file_name, "w");
   if (output == NULL) {
@@ -95,21 +93,27 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
+  // Load experiment
+  ExpManager* exp_manager = new ExpManager();
+  exp_manager->load(gener, true, false);
+
   // Positive impact means
-  fprintf(output, "# #################################################################\n");
-  fprintf(output, "#              Mutations produced by mutationalrobustness\n");
-  fprintf(output, "# #################################################################\n");
-  fprintf(output, "# Number of replicate per individual : %" PRId32 " \n",ndiv);
-  fprintf(output, "# Impact on metabolism SPACE impact on secretion\n");
-  fprintf(output, "#\n");
+  fprintf(output,
+      "# #################################################################\n"
+      "#              Mutations produced by mutationalrobustness\n"
+      "# #################################################################\n"
+      "# Number of replicate per individual : %" PRId32 "\n"
+      "# Impact on metabolism SPACE impact on secretion\n"
+      "#\n", ndiv);
 
   // Parse and treat the individuals
   if (!best_only) {
-    for (ae_individual* indiv: exp_manager->world()->indivs())
+    for (Individual* indiv: exp_manager->world()->indivs()) {
       analyse_indiv(exp_manager, indiv, output, ndiv);
+    }
   }
   else {
-    ae_individual* indiv = exp_manager->world()->best_indiv();
+    Individual* indiv = exp_manager->world()->best_indiv();
     analyse_indiv(exp_manager, indiv, output, ndiv);
   }
 
@@ -120,34 +124,40 @@ int main(int argc, char* argv[]) {
 }
 
 // Treatment of one individual
-void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* output, int32_t ndiv) {
-  Environment* env = exp->env();
-  double initial_metabolic_error = initial_indiv->dist_to_target_by_feature(METABOLISM);
-  double initial_secretion_error = initial_indiv->dist_to_target_by_feature(SECRETION);
+void analyse_indiv(ExpManager* exp,
+                   Individual* initial_indiv,
+                   FILE* output,
+                   int32_t ndiv) {
+  double initial_metabolic_error = initial_indiv->
+      dist_to_target_by_feature(METABOLISM);
+  double initial_secretion_error = initial_indiv->
+      dist_to_target_by_feature(SECRETION);
   double final_metabolic_error      = 0.0;
   double impact_on_metabolic_error  = 0.0;
   double final_secretion_error      = 0.0;
   double impact_on_secretion_error  = 0.0;
 
-  ae_individual*  indiv       = NULL;
+  Individual* indiv = nullptr;
   int32_t i;
 
   // Perform ndiv reproductions with mutations
   for (i = 0; i < ndiv; i++) {
-    if (i % 1000 == 0){
+    if (i % 1000 == 0) {
       printf("*");
       fflush(stdout);
     }
 
     indiv = exp->sel()->do_replication(initial_indiv, -1);
 
-    indiv->reevaluate(env);
+    indiv->Evaluate();
     final_metabolic_error     = indiv->dist_to_target_by_feature(METABOLISM);
     impact_on_metabolic_error = final_metabolic_error - initial_metabolic_error;
     final_secretion_error     = indiv->dist_to_target_by_feature(SECRETION);
     impact_on_secretion_error = final_secretion_error - initial_secretion_error;
 
-    fprintf(output, "%+.15f %+.15f \n",impact_on_metabolic_error, impact_on_secretion_error);
+    fprintf(output, "%+.15f %+.15f \n",
+            impact_on_metabolic_error,
+            impact_on_secretion_error);
 
     delete indiv;
   }
