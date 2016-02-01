@@ -52,8 +52,7 @@ namespace aevol {
 
 
 
-class IndividualFactory
-{
+class IndividualFactory {
  public :
   // ==========================================================================
   //                               Constructors

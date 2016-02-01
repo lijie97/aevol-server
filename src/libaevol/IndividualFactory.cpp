@@ -76,8 +76,7 @@ Individual* IndividualFactory::create_random_individual(
     int32_t plasmid_initial_length,
     char* strain_name,
     std::shared_ptr<JumpingMT> local_prng,
-    bool better_than_flat)
-{
+    bool better_than_flat) {
   // Create a genome-less individual with the provided parameters
   Individual* indiv = new Individual(exp_m,
                                      mut_prng,
