@@ -137,6 +137,8 @@ void analyse_indiv(ExpManager* exp,
   double final_secretion_error      = 0.0;
   double impact_on_secretion_error  = 0.0;
 
+  const Habitat& habitat = initial_indiv->habitat();
+
   Individual* indiv = nullptr;
   int32_t i;
 
@@ -149,7 +151,7 @@ void analyse_indiv(ExpManager* exp,
 
     indiv = exp->sel()->do_replication(initial_indiv);
 
-    indiv->Evaluate();
+    indiv->EvaluateInContext(habitat);
     final_metabolic_error     = indiv->dist_to_target_by_feature(METABOLISM);
     impact_on_metabolic_error = final_metabolic_error - initial_metabolic_error;
     final_secretion_error     = indiv->dist_to_target_by_feature(SECRETION);
