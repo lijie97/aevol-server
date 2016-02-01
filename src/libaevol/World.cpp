@@ -109,7 +109,8 @@ void World::InitGrid(int16_t width, int16_t height,
         grid_[x][y] =
             new GridCell(x, y,
                 HabitatFactory::create_unique_habitat(habitat,share_phenotypic_target),
-                             NULL);
+                             NULL,std::make_shared<JumpingMT>(mut_prng_->random(1000000)),
+                             std::make_shared<JumpingMT>(stoch_prng_->random(1000000)));
     }
 }
 
@@ -127,6 +128,8 @@ void World::MallocGrid()
 
 void World::PlaceIndiv(Individual * indiv, int16_t x, int16_t y) {
   grid_[x][y]->set_individual(indiv);
+  indiv->set_mut_prng(grid_[x][y]->mut_prng());
+  indiv->set_stoch_prng(grid_[x][y]->stoch_prng());
 }
 
 void World::FillGridWithClones(Individual & dolly)
@@ -236,6 +239,8 @@ void World::WellMixIndivs()
     Individual * tmp = grid_1d_[i]->individual();
     grid_1d_[i]->set_individual(grid_1d_[j]->individual());
     grid_1d_[j]->set_individual(tmp);
+    tmp->set_mut_prng(grid_1d_[j]->mut_prng());
+    tmp->set_stoch_prng(grid_1d_[j]->stoch_prng());
   }
 }
 
@@ -257,6 +262,12 @@ void World::PartiallyMixIndivs()
     Individual * tmp_swap = grid_[old_x][old_y]->individual();
     grid_[old_x][old_y]->set_individual(grid_[new_x][new_y]->individual());
     grid_[new_x][new_y]->set_individual(tmp_swap);
+
+    grid_[old_x][old_y]->individual()->set_mut_prng(grid_[old_x][old_y]->mut_prng());
+    grid_[old_x][old_y]->individual()->set_stoch_prng(grid_[old_x][old_y]->stoch_prng());
+
+    grid_[new_x][new_y]->individual()->set_mut_prng(grid_[new_x][new_y]->mut_prng());
+    grid_[new_x][new_y]->individual()->set_stoch_prng(grid_[new_x][new_y]->stoch_prng());
   }
 }
 

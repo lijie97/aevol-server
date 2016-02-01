@@ -115,12 +115,16 @@ ExpManager::~ExpManager() noexcept
 void ExpManager::InitializeWorld(int16_t grid_width,
                                      int16_t grid_height,
                                      std::shared_ptr<JumpingMT> prng,
+                                     std::shared_ptr<JumpingMT> mut_prng,
+                                     std::shared_ptr<JumpingMT> stoch_prng,
                                      Habitat& habitat,
                                      bool share_phenotypic_target)
 {
   world_ = new World();
-  world_->InitGrid(grid_width, grid_height, habitat, share_phenotypic_target);
   world_->set_prng(prng);
+  world_->set_mut_prng(mut_prng);
+  world_->set_stoch_prng(stoch_prng);
+  world_->InitGrid(grid_width, grid_height, habitat, share_phenotypic_target);
 }
 
 /*!

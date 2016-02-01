@@ -134,6 +134,8 @@ class ExpManager : public Observer {
   void InitializeWorld(int16_t grid_width,
                        int16_t grid_height,
                        std::shared_ptr<JumpingMT> prng,
+                       std::shared_ptr<JumpingMT> mut_prng,
+                       std::shared_ptr<JumpingMT> stoch_prng,
                        Habitat& habitat,
                        bool share_phenotypic_target);
   void Save() const;

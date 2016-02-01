@@ -1866,9 +1866,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   }
 
   // -------------------------------------------------------- Spatial structure
-
   exp_m->InitializeWorld(grid_width_, grid_height_,
-                         world_prng,
+                         world_prng,mut_prng,stoch_prng,
                          habitat,
                          true);
   World* world = exp_m->world();
@@ -1876,9 +1875,6 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   world->set_secretion_diffusion_prop(secretion_diffusion_prop_);
   world->set_is_well_mixed(well_mixed);
   world->set_partial_mix_nb_permutations(partial_mix_nb_permutations);
-
-  world->set_mut_prng(mut_prng);
-  world->set_stoch_prng(stoch_prng);
 
   // Set each individual's position on the grid
   int16_t x, y;

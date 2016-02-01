@@ -276,6 +276,21 @@ int main(int argc, char* argv[])
         std::make_shared<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_stoch_prng(
         std::make_shared<JumpingMT>(prng->random(1000000)));
+
+    for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
+      for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++)
+      {
+        exp_manager->world()->grid(x,y)->set_mut_prng(std::make_shared<JumpingMT>(
+            exp_manager->world()->mut_prng()->random(1000000)));
+        exp_manager->world()->grid(x,y)->individual()->set_mut_prng(
+            exp_manager->world()->grid(x,y)->mut_prng());
+
+        exp_manager->world()->grid(x,y)->set_stoch_prng(std::make_shared<JumpingMT>(
+            exp_manager->world()->stoch_prng()->random(1000000)));
+        exp_manager->world()->grid(x,y)->individual()->set_stoch_prng(
+            exp_manager->world()->grid(x,y)->stoch_prng());
+      }
+
     exp_manager->world()->set_phen_target_prngs(
         std::make_shared<JumpingMT>(prng->random(1000000)),
         std::make_shared<JumpingMT>(prng->random(1000000)));
@@ -301,12 +316,30 @@ int main(int argc, char* argv[])
     {
       exp_manager->world()->set_mut_prng(
           std::make_shared<JumpingMT>(mutseed));
+
+      for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
+        for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++)
+        {
+          exp_manager->world()->grid(x,y)->set_mut_prng(
+              std::make_shared<JumpingMT>(exp_manager->world()->mut_prng()->random(1000000)));
+          exp_manager->world()->grid(x,y)->individual()->set_mut_prng(
+              exp_manager->world()->grid(x,y)->mut_prng());
+        }
     }
 
     if (stochseed != -1)
     {
       exp_manager->world()->set_stoch_prng(
           std::make_shared<JumpingMT>(stochseed));
+
+      for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
+        for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++)
+        {
+          exp_manager->world()->grid(x,y)->set_stoch_prng(
+              std::make_shared<JumpingMT>(exp_manager->world()->stoch_prng()->random(1000000)));
+          exp_manager->world()->grid(x,y)->individual()->set_stoch_prng(
+              exp_manager->world()->grid(x,y)->stoch_prng());
+        }
     }
 
     if (envvarseed != -1)
