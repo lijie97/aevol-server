@@ -147,7 +147,7 @@ void analyse_indiv(ExpManager* exp,
       fflush(stdout);
     }
 
-    indiv = exp->sel()->do_replication(initial_indiv, -1);
+    indiv = exp->sel()->do_replication(initial_indiv);
 
     indiv->Evaluate();
     final_metabolic_error     = indiv->dist_to_target_by_feature(METABOLISM);
