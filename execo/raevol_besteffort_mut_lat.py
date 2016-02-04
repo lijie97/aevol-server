@@ -121,7 +121,7 @@ class raevol_matrix(Engine):
                     if job_is_dead:
                         break
 
-                    if len(threads.keys()) < 83:
+                    if True: #len(threads.keys()) < 83:
                         # Getting the next combination
                         comb = self.sweeper.get_next()
                         if not comb:
@@ -163,7 +163,7 @@ class raevol_matrix(Engine):
     def define_parameters(self):
         """ """
         parameters = {
-	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842],
+	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842, 9875026, 76469871],
 	  'mutation' : ['5e-4','1e-4','5e-5','5e-6'],
 	  'env' : ['const','lat_3','lat_all'],
 	  'selection' : [750,2000,4000]
