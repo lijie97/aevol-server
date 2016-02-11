@@ -269,6 +269,10 @@ class raevol_matrix(Engine):
 	    
 	    bucketname = self.working_dir+'/raevol_5_mut_lat/'+slugify(comb)+'/'
 	      
+            logger.info(thread_name + "Killing other RAevol")
+            
+            Remote("killall -9 aevol_run",[host]).run()
+		
 	    if os.path.isdir(bucketname) and os.path.exists(bucketname+'/last_gener.txt'):
 	      logger.info(thread_name + "Resuming AEVOL from NFS backup")
 	      
