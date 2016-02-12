@@ -271,7 +271,10 @@ class raevol_matrix(Engine):
 	      
             logger.info(thread_name + "Killing other RAevol")
             
-            Remote("killall -9 aevol_run",[host]).run()
+            killa = Remote("killall -9 aevol_run",[host])
+            for killp in killall.processes:
+                killp.ignore_error = True
+            killa.run()
 		
 	    if os.path.isdir(bucketname) and os.path.exists(bucketname+'/last_gener.txt'):
 	      logger.info(thread_name + "Resuming AEVOL from NFS backup")
