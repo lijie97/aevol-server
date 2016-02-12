@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   // 1) Initialize command-line option variables with default values
   // 2) Define allowed options
   // 3) Get actual values of the command-line options
-  // 4) Check the consistancy of the command-line options
+  // 4) Check the consistency of the command-line options
   // 5) Set file names according to options
   // =========================================================================
 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   // 1) Initialize command-line option variables with default values
   // -------------------------------------------------------------------------
   // bool pause_on_startup = false;
-  bool verbose          = false;
+  bool verbose = false;
 
   int64_t t0 = -1;
   int64_t t_end = -1;

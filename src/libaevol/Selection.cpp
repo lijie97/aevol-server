@@ -508,7 +508,7 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
                                       int16_t x, int16_t y) {
   //Individual* new_indiv = NULL;
   // ===========================================================================
-  //  1) Copy parent
+  // Copy parent
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
@@ -529,9 +529,6 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
     Individual* msg[2] = {new_indiv, parent};
     notifyObservers(NEW_INDIV, msg);
   }
-
-  // Set the new individual's location on the grid
-  exp_m_->world()->PlaceIndiv(new_indiv, x, y);
 
   // Perform transfer, rearrangements and mutations
   if (not new_indiv->allow_plasmids()) {
@@ -555,6 +552,16 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
       }
     }
   }
+
+  return new_indiv;
+}
+
+Individual* Selection::do_replication(Individual* parent, int32_t index,
+                                      int16_t x, int16_t y) {
+  Individual* new_indiv = do_replication(parent, index);
+
+  // Set the new individual's location on the grid
+  exp_m_->world()->PlaceIndiv(new_indiv, x, y);
 
   // Evaluate new individual
   new_indiv->Evaluate();
