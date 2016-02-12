@@ -504,8 +504,7 @@ void Selection::compute_local_prob_reprod() {
   }
 }
 
-Individual* Selection::do_replication(Individual* parent, int32_t index,
-                                      int16_t x, int16_t y) {
+Individual* Selection::do_replication(Individual* parent, int32_t index) {
   //Individual* new_indiv = NULL;
   // ===========================================================================
   // Copy parent
