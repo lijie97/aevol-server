@@ -172,7 +172,8 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
     gzwrite(exp_setup_file, eval_step);
   }
 #endif
-
+  gzwrite(exp_setup_file,
+          first_regul_);
 }
 
 void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
@@ -255,6 +256,8 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   }
 #endif
 
+  gzread(setup_file,
+          first_regul_);
 }
 
 #ifdef __REGUL

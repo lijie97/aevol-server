@@ -104,6 +104,8 @@ class ExpSetup {
     }
 #endif
 
+    bool first_regul() const { return first_regul_; }
+
   // =======================================================================
   //                         Accessors: setters
   // =======================================================================
@@ -143,6 +145,7 @@ class ExpSetup {
 
     inline void set_list_eval_step(std::set<int> list_eval_step);
 #endif
+    void set_first_regul(bool first_regul) { first_regul_ = first_regul; }
 
   // =======================================================================
   //                            Public Methods
@@ -227,7 +230,7 @@ double  _binding_matrix[MAX_QUADON][MAX_CODON];
 
     std::set<int>* _list_eval_step;
 #endif
-
+  bool first_regul_;
 };
 
 

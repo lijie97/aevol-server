@@ -131,6 +131,9 @@ class raevol_matrix(Engine):
                                     if not t.is_alive():
                                         del threads[t]
                                 logger.info('Waiting for threads to complete')
+                                if not self.is_job_alive():
+                                    job_is_dead = True
+                                    break
                                 sleep(20)
                             break
                         

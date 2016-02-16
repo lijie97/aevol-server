@@ -457,7 +457,18 @@ void ExpManager::run_evolution()
 	  high_resolution_clock::time_point t_t2,t1,t2;
 	#endif
 
-  // For each generation  
+  if (exp_s_->first_regul())
+    if (AeTime::time() < 10000 || AeTime::time() > 20000)
+      regul_or_not_ = true;
+    else
+      regul_or_not_ = false;
+  else
+    if (AeTime::time() < 10000 || AeTime::time() > 20000)
+      regul_or_not_ = false;
+    else
+      regul_or_not_ = true;
+
+    // For each generation
   while (true) { // termination condition is into the loop
 
     printf("============================== %" PRId64 " ==============================\n",
@@ -505,6 +516,11 @@ void ExpManager::run_evolution()
 	  t1 = high_resolution_clock::now();
 #endif
     // Take one step in the evolutionary loop
+
+    if (AeTime::time() == 10000 || AeTime::time() == 20000)
+      regul_or_not_ = !regul_or_not_;
+
+
     step_to_next_generation();
 #ifdef __TRACING__
 	  	  t2 = high_resolution_clock::now();

@@ -278,7 +278,9 @@ ParamLoader::ParamLoader(const char* file_name)
 
     _list_eval_step.insert(_nb_indiv_age);
     _env_switch_probability = 0.1;
-  #endif
+#endif
+
+  first_regul_ = true;
 
   // Read parameter file
   param_file_name_ = strdup(file_name);
@@ -1351,6 +1353,16 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
          param_file_name_, cur_line, _env_gaussians_list.size() );
         exit( EXIT_FAILURE );
       }
+    } else if (strcmp(line->words[0], "REGUL_FIRST") == 0)
+    {
+        if (strncmp(line->words[1], "true", 4) == 0)
+        {
+        	first_regul_ = true;
+        }
+        else if (strncmp(line->words[1], "false", 5) == 0)
+        {
+        	first_regul_ = false;
+        }
     }
   #endif
 
@@ -1509,6 +1521,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,prng_);
 #endif
+  exp_s->set_first_regul(first_regul_);
 
   if (FuzzyFactory::fuzzyFactory == NULL)
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);

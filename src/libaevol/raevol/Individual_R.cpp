@@ -264,7 +264,7 @@ void Individual_R::one_step( void )
   //    fitnesses
   //----------------------------------------------------------------------------
 
-  update_concentrations();
+  if (exp_m_->regul_or_not()) update_concentrations();
 }
 
 void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {

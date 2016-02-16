@@ -313,6 +313,8 @@ class ParamLoader {
     std::vector<std::list<int8_t>> _env_signals_list;
     std::vector<Protein_R*> _signals_models;
   #endif
+
+  bool first_regul_;
 };
 
 } // namespace aevol
