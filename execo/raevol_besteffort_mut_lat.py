@@ -70,7 +70,7 @@ class raevol_matrix(Engine):
         
             job_is_dead = False
             # While there are combinations to treat
-            while len(self.sweeper.get_remaining()) > 0:
+            while len(self.sweeper.get_remaining()) > 0 or len(self.sweeper.get_inprogress()) > 0:
                 # If no job, we make a reservation and prepare the hosts for the experiments
                 if self.oar_job_id is None:
                     self.submit_all_available_best_effort(self.list_of_clusters, self.options.walltime)
@@ -275,7 +275,7 @@ class raevol_matrix(Engine):
             logger.info(thread_name + "Killing other RAevol")
             
             killa = Remote("killall -9 aevol_run",[host])
-            for killp in killall.processes:
+            for killp in killa.processes:
                 killp.ignore_error = True
             killa.run()
 		

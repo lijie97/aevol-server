@@ -61,7 +61,7 @@ class raevol_matrix(Engine):
         else:
             self.oar_job_id = None
             
-        self.list_of_clusters = ['hercule','orion','taurus']
+        self.list_of_clusters = ['taurus','hercule','orion']
 
         try:
             # Creation of the main iterator which is used for the first control loop.
@@ -70,7 +70,7 @@ class raevol_matrix(Engine):
         
             job_is_dead = False
             # While there are combinations to treat
-            while len(self.sweeper.get_remaining()) > 0:
+            while len(self.sweeper.get_remaining()) > 0 or len(self.sweeper.get_inprogress()) > 0:
                 # If no job, we make a reservation and prepare the hosts for the experiments
                 if self.oar_job_id is None:
                     self.submit_all_available_best_effort(self.list_of_clusters, self.options.walltime)
@@ -121,26 +121,30 @@ class raevol_matrix(Engine):
                     if job_is_dead:
                         break
 
-                    # Getting the next combination
-                    comb = self.sweeper.get_next()
-                    if not comb:
-                        while len(threads.keys()) > 0:
-                            tmp_threads = dict(threads)
-                            for t in tmp_threads:
-                                if not t.is_alive():
-                                    del threads[t]
-                            logger.info('Waiting for threads to complete')
-                            sleep(20)
-                        break
-                    
-                    host = available_hosts[0]
-                    available_hosts = available_hosts[1:]
-                    logger.info("Launching thread "+str(self.is_job_alive())+" "+str(len(threads.keys())))
-                    t = Thread(target=self.workflow,
-                               args=(comb, host, comb_dir))
-                    threads[t] = {'host': host}
-                    t.daemon = True
-                    t.start()
+                    if True: #len(threads.keys()) < 83:
+                        # Getting the next combination
+                        comb = self.sweeper.get_next()
+                        if not comb:
+                            while len(threads.keys()) > 0:
+                                tmp_threads = dict(threads)
+                                for t in tmp_threads:
+                                    if not t.is_alive():
+                                        del threads[t]
+                                logger.info('Waiting for threads to complete')
+                                if not self.is_job_alive():
+                                    job_is_dead = True
+                                    break
+                                sleep(20)
+                            break
+                        
+                        host = available_hosts[0]
+                        available_hosts = available_hosts[1:]
+                        logger.info("Launching thread "+str(self.is_job_alive())+" "+str(len(threads.keys())))
+                        t = Thread(target=self.workflow,
+                                args=(comb, host, comb_dir))
+                        threads[t] = {'host': host}
+                        t.daemon = True
+                        t.start()
                     sleep(3)
 
                 if not self.is_job_alive():
@@ -162,8 +166,8 @@ class raevol_matrix(Engine):
     def define_parameters(self):
         """ """
         parameters = {
-	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842],
-	  'mutation' : ['5e-4','1e-4','5e-5','5e-6'],
+	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842, 9875026, 76469871],
+	  'mutation' : ['5e-7','1e-7'],
 	  'env' : ['const','lat_3','lat_all'],
 	  'selection' : [750,2000,4000]
         }
@@ -268,6 +272,13 @@ class raevol_matrix(Engine):
 	    
 	    bucketname = self.working_dir+'/raevol_5_mut_lat/'+slugify(comb)+'/'
 	      
+            logger.info(thread_name + "Killing other RAevol")
+            
+            killa = Remote("killall -9 aevol_run",[host])
+            for killp in killa.processes:
+                killp.ignore_error = True
+            killa.run()
+		
 	    if os.path.isdir(bucketname) and os.path.exists(bucketname+'/last_gener.txt'):
 	      logger.info(thread_name + "Resuming AEVOL from NFS backup")
 	      
@@ -551,9 +562,19 @@ class raevol_matrix(Engine):
         slots = compute_slots(planning, walltime)
         wanted = { cluster: 0 for cluster in list_of_clusters }
         start_date, end_date, resources = find_first_slot(slots, wanted)
-        actual_resources = { resource: n_nodes
-                            for resource, n_nodes in resources.iteritems()
-                            if resource in list_of_clusters and n_nodes > 0 }
+        g_nodes = 0
+        actual_resources = {}
+        for resource, n_nodes in resources.iteritems():
+            if resource in list_of_clusters and n_nodes > 0:
+                if g_nodes >= 83:
+                    break
+                elif g_nodes + n_nodes >= 83:
+                    l_nodes = 83 - g_nodes
+                    actual_resources = { resource : l_nodes }
+                    break
+                else:
+                    actual_resources = { resource : n_nodes }
+                    g_nodes += n_nodes
         return start_date, end_date, actual_resources
 
     def submit_all_available_best_effort(self,list_of_clusters, walltime):
