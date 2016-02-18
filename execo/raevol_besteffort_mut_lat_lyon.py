@@ -547,7 +547,7 @@ class raevol_matrix(Engine):
 
     def is_job_alive(self):
         rez=get_oar_job_info(self.oar_job_id)
-        while 'start_date' not in rez and 'Error' not in rez:
+        while 'start_date' not in rez and 'state' not in rez:
             rez=get_oar_job_info(self.oar_job_id)
             if rez['state'] == 'Error':
                 return False
