@@ -79,6 +79,8 @@ class Protein_R : public Protein
     inline bool     is_inherited( void );
     inline bool     is_signal( void );
 
+    int set_local_id(int local_id) { _local_id = local_id; }
+
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -99,9 +101,12 @@ class Protein_R : public Protein
 
     long get_id() { return _id; };
 
+    int get_local_id() { return _local_id; }
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
+    std::vector<Rna_R*>  _rna_R_list;
 	bool is_TF_;
 
     static long id;
@@ -122,12 +127,13 @@ class Protein_R : public Protein
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    std::vector<Rna_R*>  _rna_R_list;
+
     double    _delta_concentration;
     bool      _inherited;
     bool      _signal;
     double    _initial_concentration; // concentration at cell birth
     long      _id;
+    int       _local_id;
 
 };
 

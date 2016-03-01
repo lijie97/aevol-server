@@ -239,6 +239,10 @@ void Individual_R::init_indiv(const Habitat_R& habitat)
   //----------------------------------------------------------------------------
   make_rna_list();
 
+  int local_prot_id = 0;
+  for (auto prot : protein_list_)
+    ((Protein_R*)prot)->set_local_id(local_prot_id++);
+
   _initial_protein_list = protein_list_;
 
   //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
@@ -406,6 +410,8 @@ void Individual_R::make_rna_list( void )
   Individual::make_rna_list();
   _rna_list_coding = {};
 
+  int local_rna_id = 0;
+
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
   for (const auto& gen_unit: genetic_unit_list_) {
     GeneticUnit* genu = const_cast<GeneticUnit*>(&gen_unit);
@@ -423,6 +429,8 @@ void Individual_R::make_rna_list( void )
           //printf("COPY OR NOT : %ld == %ld",prna->get_id(),((Rna_R)rna).get_id());
           _rna_list_coding.push_back(
              prna);//new Rna_R(genu, rna));
+
+          prna->set_local_id(local_rna_id++);
         }
     }
 

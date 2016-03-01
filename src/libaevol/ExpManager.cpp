@@ -42,6 +42,8 @@
 #include "ExpManager.h"
 #include "Individual.h"
 
+#include "raevol/cuda_struct.h"
+
 #ifdef __REGUL
 #include "raevol/Individual_R.h"
 #endif
@@ -455,7 +457,46 @@ void ExpManager::run_evolution()
   #ifdef __TRACING__
 	  high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
 	  high_resolution_clock::time_point t_t2,t1,t2;
-	#endif
+  #endif
+
+
+  int max_protein=0;
+  int max_rna=0;
+  int max_influence=0;
+
+  const Habitat_R& hab = dynamic_cast<const Habitat_R&>(world()->grid(0,0)->habitat());
+
+  int nb_signals=hab.signals().size();
+  int life_time=exp_s()->get_nb_indiv_age();
+  int nb_eval_=exp_s()->get_nb_degradation_step();
+  float selection_pressure=sel()->selection_pressure();
+
+  for (auto indiv : indivs()) {
+    Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
+
+    if (indiv_r->protein_list().size() > max_protein)
+      max_protein = indiv_r->protein_list().size();
+
+    if (indiv_r->_rna_list_coding.size() > max_rna)
+      max_protein = indiv_r->protein_list().size();
+
+    for (auto rna : indiv_r->_rna_list_coding)
+      if (rna->_nb_influences > max_influence)
+        max_influence = rna->_nb_influences;
+  }
+
+  cuda_struct* cstruct = new cuda_struct();
+  cstruct->init_struct(max_protein,max_rna,max_influence,
+            nb_signals,life_time,nb_eval_,selection_pressure);
+  cstruct->transfert_to_gpu(best_indiv()->exp_m());
+  cstruct->compute_a_generation(best_indiv()->exp_m());
+  /*
+
+   * int max_protein, int max_rna, int max_influence,
+   * int nb_signals, int life_time, int nb_eval_,
+   * float selection_pressure
+
+   */
 
   // For each generation  
   while (true) { // termination condition is into the loop

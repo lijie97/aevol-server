@@ -127,6 +127,7 @@ class Individual_R : public virtual Individual
     //                           Public Attributes
     // =================================================================
 
+    std::list<Protein*> _initial_protein_list;
   protected :
 
     // =================================================================
@@ -150,7 +151,6 @@ class Individual_R : public virtual Individual
     // =================================================================
     std::vector<Protein_R*> _inherited_protein_list;
 
-    std::list<Protein*> _initial_protein_list;
 
     int _indiv_age;
     bool _networked;
