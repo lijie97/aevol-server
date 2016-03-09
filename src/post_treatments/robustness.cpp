@@ -357,10 +357,10 @@ void print_help(char* prog_path)
   printf("   or : %s -g GENER [-n NBCHILDREN] [-r RANK | -i INDEX]\n", prog_name);
   printf("\n");
   printf("This program computes the replication statistics of all the individuals of a given generation,\n");
-  printf("like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating\n");
+  printf("like the proportion of neutral, beneficial and deleterious offsprings. This is done by simulating\n");
   printf("NBCHILDREN replications for each individual, with its mutation, rearrangement and transfer rates.\n");
   printf("Depending on those rates and genome size, there can be several events per replication.\n");
-  printf("Those statistics are written in analysis-generationGENER/robustness-allindivs-gGENER.out, with one \n");
+  printf("These statistics are written in analysis-generationGENER/robustness-allindivs-gGENER.out, with one \n");
   printf("line per individual in the specified generation. \n\n");
   printf("The program also outputs detailed statistics for one of the individuals (the best one by default). \n");
   printf("The detailed statistics for this individual are written in the file called \n");
