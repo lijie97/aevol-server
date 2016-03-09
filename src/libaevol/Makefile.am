@@ -34,6 +34,7 @@ Fuzzy.h \
 Gaussian.h \
 GeneticUnit.h \
 GridCell.h \
+GzHelpers.h \
 Individual.h \
 IndividualFactory.h \
 Logging.h \
