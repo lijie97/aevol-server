@@ -117,6 +117,8 @@ class ExpManager : public Observer {
   int32_t tree_step() const { return static_cast<int32_t>(output_m()->tree_step()); }
   Tree* tree() const { return output_m()->tree(); }
 
+  bool regul_or_not() const { return regul_or_not_; }
+
   // =======================================================================
   //                          Accessors: setters
   // =======================================================================
@@ -134,7 +136,9 @@ class ExpManager : public Observer {
   void InitializeWorld(int16_t grid_width,
                        int16_t grid_height,
                        std::shared_ptr<JumpingMT> prng,
-                       const Habitat& habitat,
+                       std::shared_ptr<JumpingMT> mut_prng,
+                       std::shared_ptr<JumpingMT> stoch_prng,
+                       Habitat& habitat,
                        bool share_phenotypic_target);
   void Save() const;
   void WriteSetupFiles() const;
@@ -197,6 +201,8 @@ class ExpManager : public Observer {
   /// Should the simulation be stopped? Set to true when ctrl-Q is received.
   /// Will cause the simulation to be ended after the current time step is completed.
   bool quit_signal_received_;
+
+    bool regul_or_not_;
 };
 
 // ===========================================================================

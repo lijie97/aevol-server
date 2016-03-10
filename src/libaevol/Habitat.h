@@ -66,7 +66,7 @@ class Habitat
   Habitat(Habitat&&) = delete; //< Move ctor
   Habitat(const Habitat&, bool share_phenotypic_target);
   Habitat(gzFile backup_file,
-          std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
+          PhenotypicTargetHandler* phenotypic_target_handler);
 
   // ==========================================================================
   //                                Destructor
@@ -76,15 +76,17 @@ class Habitat
   // ==========================================================================
   //                                Operators
   // ==========================================================================
+  Habitat& operator=(const Habitat&) = default;
+  Habitat& operator=(Habitat&&) = default;
 
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void ApplyVariation();
+  virtual void ApplyVariation();
   void save(gzFile backup_file,
             bool skip_phenotypic_target = false) const;
   void load(gzFile backup_file,
-            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
+            PhenotypicTargetHandler* phenotypic_target_handler);
 
   // ==========================================================================
   //                                 Getters
@@ -93,11 +95,15 @@ class Habitat
   const PhenotypicTarget& phenotypic_target() const {
     return phenotypic_target_handler_->phenotypic_target();
   }
-  const PhenotypicTargetHandler& phenotypic_target_handler() const {
+  virtual const PhenotypicTargetHandler& phenotypic_target_handler() const {
     return *phenotypic_target_handler_;
   }
-  PhenotypicTargetHandler& phenotypic_target_handler_nonconst() const {
+  virtual PhenotypicTargetHandler& phenotypic_target_handler_nonconst() const {
     return *phenotypic_target_handler_;
+  }
+
+  double mean_environmental_area() const {
+    return phenotypic_target_handler_->mean_environmental_area();
   }
 
   // ==========================================================================
@@ -119,7 +125,7 @@ class Habitat
   double compound_amount_;
 
   /** Handler for the phenotypic target and its "evolution" over time */
-  std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_;
+  PhenotypicTargetHandler* phenotypic_target_handler_;
 };
 
 

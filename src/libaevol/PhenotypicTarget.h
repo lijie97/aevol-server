@@ -53,7 +53,7 @@ namespace aevol {
 
 
 
-class PhenotypicTarget : public Fuzzy
+class PhenotypicTarget
 {
   friend class PhenotypicTargetHandler;
 
@@ -95,6 +95,9 @@ class PhenotypicTarget : public Fuzzy
     return segments_;
   }
 
+  AbstractFuzzy* fuzzy() const {
+    return fuzzy_;
+  }
 // ==========================================================================
   //                                 Setters
   // ==========================================================================
@@ -123,6 +126,8 @@ class PhenotypicTarget : public Fuzzy
   PhenotypicSegment ** segments_;
   /// Geometric area of each feature
   double* area_by_feature_;
+
+  AbstractFuzzy* fuzzy_;
 };
 
 

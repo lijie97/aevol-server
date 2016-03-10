@@ -99,7 +99,7 @@ class World
   bool phenotypic_target_shared() const {
     return phenotypic_target_shared_;
   }
-  const std::shared_ptr<PhenotypicTargetHandler>&
+  PhenotypicTargetHandler*
   phenotypic_target_handler() const {
     return phenotypic_target_handler_;
   }
@@ -126,7 +126,7 @@ class World
   //                            Public Methods
   // =================================================================
   void InitGrid(int16_t width, int16_t height,
-                const Habitat& habitat,
+                Habitat& habitat,
                 bool share_phenotypic_target);
   void PlaceIndiv(Individual * indiv, int16_t x, int16_t y);
   void FillGridWithClones(Individual & dolly);
@@ -173,7 +173,8 @@ class World
   int32_t partial_mix_nb_permutations_ = 0;
 
   bool phenotypic_target_shared_ = true;
-  std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_ = nullptr;
+  PhenotypicTargetHandler* phenotypic_target_handler_ = NULL;
+
 
   double  secretion_diffusion_prop_ = -1;
   double  secretion_degradation_prop_ = -1;

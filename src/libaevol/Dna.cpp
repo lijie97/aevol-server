@@ -89,7 +89,7 @@ Dna::Dna(GeneticUnit* gen_unit,
 /**
  * Create a new piece of dna identical to the model but belonging to <gen_unit>
  */
-Dna::Dna(GeneticUnit* gen_unit, const Dna &model) :
+Dna::Dna(GeneticUnit* gen_unit, const Dna& model) :
     ae_string(model) {
   gen_unit_ = gen_unit;
   exp_m_ = gen_unit->exp_m();
@@ -100,8 +100,8 @@ Dna::Dna(GeneticUnit* gen_unit, const Dna &model) :
  * Create a new piece of dna identical to the parent's but belonging to
  * <gen_unit>
  */
-Dna::Dna(GeneticUnit* gen_unit, Dna * const parent_dna) :
-ae_string(parent_dna->data_, parent_dna->length_) {
+Dna::Dna(GeneticUnit* gen_unit, Dna* const parent_dna) :
+    ae_string(parent_dna->data_, parent_dna->length_) {
   gen_unit_ = gen_unit;
   exp_m_ = gen_unit->exp_m();
   indiv_ = gen_unit->indiv();
@@ -151,40 +151,40 @@ Dna::~Dna() = default;
 char* Dna::subsequence(int32_t from, int32_t to, Strand strand) const {
   char* subseq = NULL;
 
-  from  = Utils::mod(from, length_);
-  to    = Utils::mod(to, length_);
+  from = Utils::mod(from, length_);
+  to = Utils::mod(to, length_);
 
   if (strand == LEADING) {
     if (from < to) {
-      subseq = new char[to-from+1];
-      subseq[to-from] = '\0';
-      strncpy(subseq, &(data_[from]), to-from);
+      subseq = new char[to - from + 1];
+      subseq[to - from] = '\0';
+      strncpy(subseq, &(data_[from]), to - from);
     }
     else {
-      subseq = new char[length_ -from+to+1];
-      subseq[length_ -from+to] = '\0';
-      strncpy(subseq, &(data_[from]), length_ -from);
-      strncpy(&subseq[length_ -from], data_, to);
+      subseq = new char[length_ - from + to + 1];
+      subseq[length_ - from + to] = '\0';
+      strncpy(subseq, &(data_[from]), length_ - from);
+      strncpy(&subseq[length_ - from], data_, to);
     }
   }
   else { // if (strand == LAGGING)
     if (from > to) {
-      subseq = new char[from-to+1];
-      subseq[from-to] = '\0';
+      subseq = new char[from - to + 1];
+      subseq[from - to] = '\0';
 
-      for (int32_t i = 0 ; i < from - to ; i++) {
-        subseq[i] = (data_[from-1-i] == '1') ? '0' : '1';
+      for (int32_t i = 0; i < from - to; i++) {
+        subseq[i] = (data_[from - 1 - i] == '1') ? '0' : '1';
       }
     }
     else {
-      subseq = new char[from+ length_ -to+1];
-      subseq[from+ length_ -to] = '\0';
+      subseq = new char[from + length_ - to + 1];
+      subseq[from + length_ - to] = '\0';
 
-      for (int32_t i = 0 ; i < from ; i++) {
-        subseq[i] = (data_[from-1-i] == '1') ? '0' : '1';
+      for (int32_t i = 0; i < from; i++) {
+        subseq[i] = (data_[from - 1 - i] == '1') ? '0' : '1';
       }
-      for (int32_t i = 0 ; i < length_ -to ; i++) {
-        subseq[from+i] = (data_[length_ -1-i] == '1') ? '0' : '1';
+      for (int32_t i = 0; i < length_ - to; i++) {
+        subseq[from + i] = (data_[length_ - 1 - i] == '1') ? '0' : '1';
       }
     }
   }
@@ -253,7 +253,7 @@ void Dna::do_small_mutations() {
   int32_t random_value;
   Mutation* mut = nullptr;
 
-  for (int32_t i = nb_mut ; i >= 1 ; i--) {
+  for (int32_t i = nb_mut; i >= 1; i--) {
     random_value = indiv_->mut_prng_->random(i);
 
     if (random_value < nb_swi) {
@@ -288,15 +288,15 @@ void Dna::do_rearrangements() {
   // Given the rate p (by nucl.) of duplication - for instance -, the number of
   // duplications we perform on the genome follows a binomial law B(n, p), with
   // n = genome length.
-  int32_t nb_dupl  = indiv_->mut_prng_->
+  int32_t nb_dupl = indiv_->mut_prng_->
       binomial_random(length_, indiv_->duplication_rate());
-  int32_t nb_del   = indiv_->mut_prng_->
+  int32_t nb_del = indiv_->mut_prng_->
       binomial_random(length_, indiv_->deletion_rate());
   int32_t nb_trans = indiv_->mut_prng_->
       binomial_random(length_, indiv_->translocation_rate());
-  int32_t nb_inv   = indiv_->mut_prng_->
+  int32_t nb_inv = indiv_->mut_prng_->
       binomial_random(length_, indiv_->inversion_rate());
-  int32_t nb_rear  = nb_dupl + nb_del + nb_trans + nb_inv;
+  int32_t nb_rear = nb_dupl + nb_del + nb_trans + nb_inv;
 
   // ===================================================
   //  2. Perform those rearrangements in a random order
@@ -321,7 +321,7 @@ void Dna::do_rearrangements() {
   int32_t random_value;
   Mutation* mut = nullptr;
 
-  for (int32_t i = nb_rear ; i >= 1 ; i--) {
+  for (int32_t i = nb_rear; i >= 1; i--) {
     random_value = indiv_->mut_prng_->random(i);
 
     if (random_value < nb_dupl) {
@@ -368,7 +368,7 @@ void Dna::do_rearrangements_with_align() {
   int32_t genome_size = length_;
 
   Mutation* mut = nullptr;
-  VisAVis * alignment = NULL;
+  VisAVis* alignment = NULL;
 
   /////////////////////////////////////////////////////////////////////////////
   // For each pair of points to be tested
@@ -387,7 +387,7 @@ void Dna::do_rearrangements_with_align() {
   /////////////////////////////////////////////////////////////////////////////
   nb_pairs = static_cast<int32_t>(
       ceil(ttl * length_ * indiv_->neighbourhood_rate()));
-  for (; nb_pairs > 0 ; nb_pairs--) {
+  for (; nb_pairs > 0; nb_pairs--) {
     /////////////////////////////////////////////////
     // 1) Draw a random sense (direct or indirect) //
     /////////////////////////////////////////////////
@@ -406,9 +406,9 @@ void Dna::do_rearrangements_with_align() {
     if (indiv_->align_fun_shape() == LINEAR) {
       needed_score = static_cast<int16_t>(
           ceil(indiv_->align_lin_min() +
-                   indiv_->mut_prng_->random() *
-                       (indiv_->align_lin_max() -
-                           indiv_->align_lin_min())));
+               indiv_->mut_prng_->random() *
+               (indiv_->align_lin_max() -
+                indiv_->align_lin_min())));
     }
     else {
       // I want the probability of rearrangement for an alignment of score
@@ -417,8 +417,8 @@ void Dna::do_rearrangements_with_align() {
       // drawing is hence needed_score = ceil(-lambda * log(1/rand - 1) + mean)
       needed_score = static_cast<int16_t>(
           ceil(-indiv_->align_sigm_lambda() *
-                   log(1/ indiv_->mut_prng_->random() - 1) +
-                   indiv_->align_sigm_mean()));
+               log(1 / indiv_->mut_prng_->random() - 1) +
+               indiv_->align_sigm_mean()));
       if (needed_score < 0) needed_score = 0;
 
       //~ <DEBUG>
@@ -435,8 +435,8 @@ void Dna::do_rearrangements_with_align() {
 
     if (direct_sense) {
       if (rand1 >= indiv_->duplication_proportion() +
-                       indiv_->deletion_proportion() +
-                       indiv_->translocation_proportion()) {
+                   indiv_->deletion_proportion() +
+                   indiv_->translocation_proportion()) {
         // rand1 corresponds to "no rearrangement" => Nothing to do
         continue;
       }
@@ -461,11 +461,11 @@ void Dna::do_rearrangements_with_align() {
       if (rand1 < indiv_->duplication_proportion()) {
         // Remember the length of the segment to be duplicated and of the
         // genome before the duplication
-        int32_t segment_length  = Utils::mod(alignment->i_2() -
-                                                alignment->i_1(),
-                                             length_);
-        int32_t gu_size_before  = length_;
-        int32_t gu_size_after   = gu_size_before + segment_length;
+        int32_t segment_length = Utils::mod(alignment->i_2() -
+                                            alignment->i_1(),
+                                            length_);
+        int32_t gu_size_before = length_;
+        int32_t gu_size_after = gu_size_before + segment_length;
         int32_t genome_size_before = indiv_->amount_of_dna();
         int32_t genome_size_after = genome_size_before + segment_length;
 
@@ -506,11 +506,11 @@ void Dna::do_rearrangements_with_align() {
                        indiv_->deletion_proportion()) {
         // Remember the length of the segment to be duplicated and of the
         // genome before the deletion
-        int32_t segment_length  = Utils::mod(alignment->i_2() -
-                                                alignment->i_1() - 1,
-                                             length_) + 1;
-        int32_t gu_size_before  = length_;
-        int32_t gu_size_after   = gu_size_before - segment_length;
+        int32_t segment_length = Utils::mod(alignment->i_2() -
+                                            alignment->i_1() - 1,
+                                            length_) + 1;
+        int32_t gu_size_before = length_;
+        int32_t gu_size_after = gu_size_before - segment_length;
         int32_t genome_size_before = indiv_->amount_of_dna();
         int32_t genome_size_after = genome_size_before - length_;
 
@@ -568,25 +568,25 @@ void Dna::do_rearrangements_with_align() {
         // the rest of the genome
         bool direct_sense;
         int16_t needed_score_2;
-        VisAVis * alignment_2 = NULL;
+        VisAVis* alignment_2 = NULL;
         int32_t seed1, seed2;
         nb_pairs = static_cast<int32_t>(
             ceil(ttl * length_ * indiv_->neighbourhood_rate()));
-        for (; nb_pairs > 0 ; nb_pairs--) {
+        for (; nb_pairs > 0; nb_pairs--) {
           direct_sense = (indiv_->mut_prng_->random() < 0.5);
 
           if (indiv_->align_fun_shape() == LINEAR) {
-            needed_score_2  = static_cast<int16_t>(
+            needed_score_2 = static_cast<int16_t>(
                 ceil(indiv_->align_lin_min() +
-                         indiv_->mut_prng_->random() *
-                             (indiv_->align_lin_max() -
-                                 indiv_->align_lin_min())));
+                     indiv_->mut_prng_->random() *
+                     (indiv_->align_lin_max() -
+                      indiv_->align_lin_min())));
           }
           else {
             needed_score_2 = static_cast<int16_t>(
                 ceil(-indiv_->align_sigm_lambda() *
-                         log(1/ indiv_->mut_prng_->random() - 1) +
-                         indiv_->align_sigm_mean()));
+                     log(1 / indiv_->mut_prng_->random() - 1) +
+                     indiv_->align_sigm_mean()));
             if (needed_score_2 < 0) needed_score_2 = 0;
           }
 
@@ -683,7 +683,7 @@ void Dna::do_rearrangements_with_align() {
 
       // Remember the length of the segment to be duplicated
       int32_t segment_length = Utils::mod(alignment->i_2() -
-                                             alignment->i_1(),
+                                          alignment->i_1(),
                                           length_);
 
       // Proceed
@@ -712,12 +712,12 @@ void Dna::do_rearrangements_with_align() {
     //    update the individual's TTL and nb_pairs according to new genome size
     ///////////////////////////////////////////////////////////////////////////
     if (genome_size != length_) {
-      ttl = (static_cast<double>(nb_pairs-1)) /
-          (static_cast<double>(genome_size)) /
-          indiv_->neighbourhood_rate();
+      ttl = (static_cast<double>(nb_pairs - 1)) /
+            (static_cast<double>(genome_size)) /
+            indiv_->neighbourhood_rate();
       genome_size = length_;
       nb_pairs = static_cast<int32_t>(
-          ceil(ttl * length_ * indiv_->neighbourhood_rate())) + 1;
+                     ceil(ttl * length_ * indiv_->neighbourhood_rate())) + 1;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -796,8 +796,8 @@ SmallInsertion* Dna::do_small_insertion() {
 
   // Prepare the sequence to be inserted
   char* inserted_seq = new char[nb_insert + 1];
-  char  inserted_char;
-  for (int16_t j = 0 ; j < nb_insert ; j++) {
+  char inserted_char;
+  for (int16_t j = 0; j < nb_insert; j++) {
     inserted_char = static_cast<char>('0' + indiv_->mut_prng_->random(NB_BASE));
     inserted_seq[j] = inserted_char;
   }
@@ -810,7 +810,7 @@ SmallInsertion* Dna::do_small_insertion() {
   }
 
   // Delete the sequence
-  delete [] inserted_seq;
+  delete[] inserted_seq;
 
   return mut;
 }
@@ -855,8 +855,8 @@ SmallDeletion* Dna::do_small_deletion() {
 
 bool Dna::do_switch(int32_t pos) {
   // Perform the mutation
-  if (data_[pos] == '0')  data_[pos] = '1';
-  else                    data_[pos] = '0';
+  if (data_[pos] == '0') data_[pos] = '1';
+  else data_[pos] = '0';
 
   // Remove promoters containing the switched base
   gen_unit_->remove_promoters_around(pos, Utils::mod(pos + 1, length_));
@@ -868,11 +868,11 @@ bool Dna::do_switch(int32_t pos) {
   return true;
 }
 
-bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char * seq) {
+bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
   // Check genome size limit
   assert(length_ + nb_insert <= gen_unit_->max_gu_length());
   assert(indiv_->amount_of_dna() + nb_insert <=
-             indiv_->max_genome_length());
+         indiv_->max_genome_length());
 
   // Remove the promoters that will be broken
   gen_unit_->remove_promoters_around(pos);
@@ -904,7 +904,7 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
   // Check genome size limit
   assert(length_ - nb_del >= gen_unit_->min_gu_length());
   assert(indiv_->amount_of_dna() - nb_del >=
-             indiv_->min_genome_length());
+         indiv_->min_genome_length());
 
   // Remove promoters containing at least one nucleotide from the sequence to
   // delete
@@ -912,7 +912,7 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
 
   // Do the deletion and update promoter list
   if (pos + nb_del <= length_) { // the deletion does not contain the origin of
-                                 // replication
+    // replication
     // Do the deletion
     remove(pos, pos + nb_del);
 
@@ -949,9 +949,9 @@ Duplication* Dna::do_duplication() {
 
   // Remember the length of the segment to be duplicated and of the former
   // genome
-  int32_t segment_length      = Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
-  int32_t gu_size_before  = length_;
-  int32_t gu_size_after   = gu_size_before + segment_length;
+  int32_t segment_length = Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
+  int32_t gu_size_before = length_;
+  int32_t gu_size_after = gu_size_before + segment_length;
   int32_t genome_size_before = indiv_->amount_of_dna();
   int32_t genome_size_after = genome_size_before + segment_length;
   if ((gu_size_after > gen_unit_->max_gu_length()) ||
@@ -993,9 +993,9 @@ Deletion* Dna::do_deletion() {
 
   // Remember the length of the segment to be deleted and of the genome
   // before the deletion
-  int32_t segment_length  = Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
-  int32_t gu_size_before  = length_;
-  int32_t gu_size_after   = gu_size_before - segment_length;
+  int32_t segment_length = Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
+  int32_t gu_size_before = length_;
+  int32_t gu_size_after = gu_size_before - segment_length;
   int32_t genome_size_before = indiv_->amount_of_dna();
   int32_t genome_size_after = genome_size_before - segment_length;
 
@@ -1043,11 +1043,11 @@ Translocation* Dna::do_translocation() {
     // -----------------------------------------------------------------
     int32_t pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel;
 
-    Individual * indiv = indiv_;
+    Individual* indiv = indiv_;
     const GeneticUnit* chromosome = &indiv->genetic_unit_list().front();
     const GeneticUnit* plasmid =
         &*std::next(indiv->genetic_unit_list().begin());
-    int32_t chrom_length        = chromosome->dna()->length();
+    int32_t chrom_length = chromosome->dna()->length();
     int32_t total_amount_of_dna = indiv->amount_of_dna();
 
     // 1) What sequence are we translocating?
@@ -1140,8 +1140,8 @@ Translocation* Dna::do_translocation() {
       }
     }
     else {
-      if (do_translocation(pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert))
-      { // NOLINT(whitespace/braces)
+      if (do_translocation(pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel,
+                           invert)) { // NOLINT(whitespace/braces)
         mut = new Translocation(pos_1_rel, pos_2_rel,
                                 pos_3_rel, pos_4_rel,
                                 segment_length, invert);
@@ -1270,7 +1270,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     //
 
     seg_length = pos_2 - pos_1;
-    duplicate_segment = new char[seg_length+1];
+    duplicate_segment = new char[seg_length + 1];
     memcpy(duplicate_segment, &data_[pos_1], seg_length);
     duplicate_segment[seg_length] = '\0';
   }
@@ -1291,7 +1291,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     int32_t tmp1_len = length_ - pos_1;
     int32_t tmp2_len = pos_2;
     seg_length = tmp1_len + tmp2_len;
-    duplicate_segment = new char[seg_length+1];
+    duplicate_segment = new char[seg_length + 1];
     memcpy(duplicate_segment, &data_[pos_1], tmp1_len);     // Copy tmp1
     memcpy(&duplicate_segment[tmp1_len], data_, tmp2_len);  // Copy tmp2
     duplicate_segment[seg_length] = '\0';
@@ -1299,7 +1299,8 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 
   // Create a copy of the promoters beared by the segment to be duplicated
   // (they will be inserted in the individual's RNA list later)
-  Promoters2Strands duplicated_promoters = {{}, {}};
+  Promoters2Strands duplicated_promoters = {{},
+                                            {}};
   gen_unit_->duplicate_promoters_included_in(pos_1, pos_2,
                                              duplicated_promoters);
 
@@ -1327,7 +1328,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   }
 
 
-  delete [] duplicate_segment;
+  delete[] duplicate_segment;
 
   return true;
 }
@@ -1551,7 +1552,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
 
   //
   const GeneticUnit& chromosome = indiv_->genetic_unit(0);
-  const GeneticUnit& plasmid    = indiv_->genetic_unit(1);
+  const GeneticUnit& plasmid = indiv_->genetic_unit(1);
   // TODO(vld) (2015-02-23): check if this == is sound
   const GeneticUnit& destination_GU = (gen_unit_ == &chromosome) ?
                                       plasmid :
@@ -1656,10 +1657,19 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
 
   // Create the inverted sequence
   char* inverted_segment = NULL;
-  inverted_segment = new char[seg_length+1];
-  for (int32_t i = 0, j = pos_2 - 1 ; i < seg_length ; i++, j--) {
+  inverted_segment = new char[seg_length + 1];
+
+//#pragma simd
+//#pragma distribute_point
+  for (int32_t i = 0, j = pos_2 - 1; i < seg_length; i = i + 4, j = j - 4) {
     if (data_[j] == '0') inverted_segment[i] = '1';
-    else                   inverted_segment[i] = '0';
+    else inverted_segment[i] = '0';
+    if (data_[j - 1] == '0') inverted_segment[i + 1] = '1';
+    else inverted_segment[i + 1] = '0';
+    if (data_[j - 2] == '0') inverted_segment[i + 2] = '1';
+    else inverted_segment[i + 2] = '0';
+    if (data_[j - 3] == '0') inverted_segment[i + 3] = '1';
+    else inverted_segment[i + 3] = '0';
   }
   inverted_segment[seg_length] = '\0';
 
@@ -1678,7 +1688,7 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
     gen_unit_->look_for_new_promoters_around(pos_2);
   }
 
-  delete [] inverted_segment;
+  delete[] inverted_segment;
 
   return true;
 }
@@ -2094,8 +2104,8 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
   return mut;
 }
 
-bool Dna::do_ins_HT(int32_t pos, const char* seq_to_insert, int32_t seq_length)
-{ // NOLINT(whitespace/braces)
+bool Dna::do_ins_HT(int32_t pos, const char* seq_to_insert,
+                    int32_t seq_length) { // NOLINT(whitespace/braces)
   // Remove the promoters that will be broken
   gen_unit_->remove_promoters_around(pos);
 
@@ -2201,13 +2211,33 @@ void Dna::compute_statistical_data() {
   assert(false);
 }
 
-void Dna::set_GU(std::vector<std::list<Rna>> rna_list, const GeneticUnit* GU) {
-  for (auto& strand : {LEADING, LAGGING})
-    for (auto& rna : rna_list[strand])
+#ifndef __REGUL
+
+void Dna::set_GU(std::vector<std::list < Rna>>
+
+rna_list,
+const GeneticUnit* GU
+) {
+for (
+
+auto& strand : { LEADING, LAGGING }
+
+)
+for (
+auto& rna :
+rna_list[strand])
+rna.
+set_genetic_unit(GU);
+}
+#else
+void Dna::set_GU(std::vector<std::list<Rna_R>> rna_list, const GeneticUnit* GU) {
+  for (auto& strand: {LEADING, LAGGING})
+    for (auto& rna: rna_list[strand])
       rna.set_genetic_unit(GU);
 }
+#endif
 
-GeneticUnit*Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2) {
+GeneticUnit* Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2) {
   assert(pos_1 < pos_2);
   int32_t seq_length = pos_2 - pos_1;
 
@@ -2219,21 +2249,22 @@ GeneticUnit*Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2) {
   // Remove promoters belonging to the sequence (to be extracted) from the
   // "old" GU and put them in a stand-alone promoter list (with indices
   // ranging from 0 to seq_length-1)
-  Promoters2Strands proms_GU_1 = {{}, {}};
+  Promoters2Strands proms_GU_1 = {{},
+                                  {}};
   gen_unit_->extract_promoters_included_in(pos_1, pos_2, proms_GU_1);
   GeneticUnit::shift_promoters(proms_GU_1, -pos_1, length_);
 
   // ==================== Manage sequences ====================
   // Copy the sequence in a stand-alone char* (size must be multiple of
   // BLOCK_SIZE)
-  int32_t length_GU_1     = seq_length;
-  char*   sequence_GU_1   = new char[nb_blocks(length_GU_1) * BLOCK_SIZE];
+  int32_t length_GU_1 = seq_length;
+  char* sequence_GU_1 = new char[nb_blocks(length_GU_1) * BLOCK_SIZE];
   memcpy(sequence_GU_1, &data_[pos_1], length_GU_1 * sizeof(char));
   sequence_GU_1[length_GU_1] = '\0';
 
   // Remove the sequence from the "old" GU
-  int32_t  length_GU_0     = length_ - seq_length;
-  char*    sequence_GU_0   = new char[nb_blocks(length_GU_0) * BLOCK_SIZE];
+  int32_t length_GU_0 = length_ - seq_length;
+  char* sequence_GU_0 = new char[nb_blocks(length_GU_0) * BLOCK_SIZE];
   memcpy(sequence_GU_0, data_, pos_1 * sizeof(char));
   memcpy(&sequence_GU_0[pos_1], &data_[pos_2],
          (length_ - pos_2) * sizeof(char));
@@ -2264,7 +2295,7 @@ GeneticUnit*Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2) {
   The new genetic unit's list of promoter is up-to-date.
   if (pos_1 == pos_2), the whole genome is copied
 */
-GeneticUnit*Dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const {
+GeneticUnit* Dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const {
   int32_t seq_length = Utils::mod(pos_2 - pos_1, length_);
   if (seq_length == 0) seq_length = length_;
 
@@ -2272,7 +2303,8 @@ GeneticUnit*Dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const {
   // Copy the promoters belonging to the sequence to be copied from the "old"
   // GU into a stand-alone promoter list (with indices ranging from 0 to
   // seq_length - 1)
-  Promoters2Strands proms_new_GU = {{}, {}};
+  Promoters2Strands proms_new_GU = {{},
+                                    {}};
   gen_unit_->copy_promoters_included_in(pos_1, pos_2, proms_new_GU);
   GeneticUnit::shift_promoters(proms_new_GU, -pos_1, length_);
 
@@ -2280,8 +2312,8 @@ GeneticUnit*Dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const {
   // ==================== Manage sequences ====================
   // Copy the sequence in a stand-alone char* (size must be multiple of
   // BLOCK_SIZE)
-  int32_t length_new_GU     = seq_length;
-  char*   sequence_new_GU   = new char[nb_blocks(length_new_GU) * BLOCK_SIZE];
+  int32_t length_new_GU = seq_length;
+  char* sequence_new_GU = new char[nb_blocks(length_new_GU) * BLOCK_SIZE];
   if (pos_1 < pos_2) {
     memcpy(sequence_new_GU, &data_[pos_1], length_new_GU * sizeof(char));
   }
@@ -2341,18 +2373,18 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
                     bool invert) {
   // Compute segment lengths
   const char* GUti_data = GU_to_insert->dna()->data();
-  int32_t len_A     = pos_B;
-  int32_t len_B     = length_ - pos_B;
-  int32_t len_C     = pos_D;
-  int32_t len_D     = GU_to_insert->dna()->length() - pos_D;
-  int32_t len_AB    = length_;
-  int32_t len_CD    = GU_to_insert->dna()->length();
-  int32_t len_ABCD  = len_AB + len_CD;
+  int32_t len_A = pos_B;
+  int32_t len_B = length_ - pos_B;
+  int32_t len_C = pos_D;
+  int32_t len_D = GU_to_insert->dna()->length() - pos_D;
+  int32_t len_AB = length_;
+  int32_t len_CD = GU_to_insert->dna()->length();
+  int32_t len_ABCD = len_AB + len_CD;
 
 
   // ==================== Insert the sequence ====================
   // Create new genome
-  char* new_seq = new char[ BLOCK_SIZE * nb_blocks(len_ABCD) ];
+  char* new_seq = new char[BLOCK_SIZE * nb_blocks(len_ABCD)];
 
   // Insert A
   memcpy(new_seq, data_, len_A * sizeof(char));
@@ -2360,37 +2392,37 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
   // Insert C and D (inverted?)
   if (invert) {
     // Build Cp and Dp
-    char* seq_Cp = new char[pos_D+1];
-    for (int32_t i = 0, j = pos_D - 1 ; i < len_C ; i++, j--) {
+    char* seq_Cp = new char[pos_D + 1];
+    for (int32_t i = 0, j = pos_D - 1; i < len_C; i++, j--) {
       if (GUti_data[j] == '0') seq_Cp[i] = '1';
-      else                       seq_Cp[i] = '0';
+      else seq_Cp[i] = '0';
     }
     seq_Cp[len_C] = '\0';
 
-    char* seq_Dp = new char[len_D+1];
-    for (int32_t i = 0, j = len_CD - 1 ; i < len_D ; i++, j--) {
+    char* seq_Dp = new char[len_D + 1];
+    for (int32_t i = 0, j = len_CD - 1; i < len_D; i++, j--) {
       if (GUti_data[j] == '0') seq_Dp[i] = '1';
-      else                       seq_Dp[i] = '0';
+      else seq_Dp[i] = '0';
     }
     seq_Dp[len_D] = '\0';
 
     // Insert Cp and DP
     // TODO(???) Maybe we should construct Cp and Dp directly at their rightful
     // place...
-    memcpy(&new_seq[len_A],        seq_Cp, len_C * sizeof(char));
-    memcpy(&new_seq[len_A+len_C],  seq_Dp, len_D * sizeof(char));
+    memcpy(&new_seq[len_A], seq_Cp, len_C * sizeof(char));
+    memcpy(&new_seq[len_A + len_C], seq_Dp, len_D * sizeof(char));
 
-    delete [] seq_Cp;
-    delete [] seq_Dp;
+    delete[] seq_Cp;
+    delete[] seq_Dp;
   }
   else { // if (invert == false)
     // Insert D and C
-    memcpy(&new_seq[len_A],        &GUti_data[pos_D],  len_D * sizeof(char));
-    memcpy(&new_seq[len_A+len_D],  GUti_data,          len_C * sizeof(char));
+    memcpy(&new_seq[len_A], &GUti_data[pos_D], len_D * sizeof(char));
+    memcpy(&new_seq[len_A + len_D], GUti_data, len_C * sizeof(char));
   }
 
   // Insert B
-  memcpy(&new_seq[len_A+len_C+len_D], &data_[pos_B], len_B * sizeof(char));
+  memcpy(&new_seq[len_A + len_C + len_D], &data_[pos_B], len_B * sizeof(char));
   new_seq[len_ABCD] = '\0';
 
 
@@ -2419,8 +2451,10 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
   //        is precisely the promoters starting on sequence C (and they are
   //        at their rightful position). We can hence directly use the list
   //        of promoters from GU_to_insert.
-  Promoters2Strands proms_C = {{}, {}};
-  Promoters2Strands proms_D = {{}, {}};
+  Promoters2Strands proms_C = {{},
+                               {}};
+  Promoters2Strands proms_D = {{},
+                               {}};
 
   if (pos_D != 0) {
     // TODO(???) : Manage this in the different functions? with a parameter
@@ -2477,15 +2511,15 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
  * In the latter case, the sense will be randomly drawn (uniformly between
  * DIRECT and INDIRECT) for each pair of points.
  */
-VisAVis *Dna::search_alignment(Dna* chrom2, int32_t& nb_pairs,
+VisAVis* Dna::search_alignment(Dna* chrom2, int32_t& nb_pairs,
                                AlignmentSense sense) {
-  VisAVis * alignment = NULL;
+  VisAVis* alignment = NULL;
   // Which sense (direct or indirect)
   AlignmentSense cur_sense = sense;
   // Minimum alignement score needed to recombine (stochastic)
   int16_t needed_score;
 
-  for (; nb_pairs > 0 ; nb_pairs--) {
+  for (; nb_pairs > 0; nb_pairs--) {
     ///////////////////////////////////////
     //  1) Draw random sense (if needed) //
     ///////////////////////////////////////
@@ -2499,9 +2533,9 @@ VisAVis *Dna::search_alignment(Dna* chrom2, int32_t& nb_pairs,
     if (indiv_->align_fun_shape() == LINEAR) {
       needed_score = static_cast<int16_t>(
           ceil(indiv_->align_lin_min() +
-                   indiv_->mut_prng_->random() *
-                       (indiv_->align_lin_max() -
-                           indiv_->align_lin_min())));
+               indiv_->mut_prng_->random() *
+               (indiv_->align_lin_max() -
+                indiv_->align_lin_min())));
     }
     else {
       // I want the probability of rearrangement for an alignment of score
@@ -2511,8 +2545,8 @@ VisAVis *Dna::search_alignment(Dna* chrom2, int32_t& nb_pairs,
       // needed_score = ceil(-lambda * log(1/rand - 1) + mean)
       needed_score = static_cast<int16_t>(
           ceil(-indiv_->align_sigm_lambda() *
-                   log(1/ indiv_->mut_prng_->random() - 1) +
-                   indiv_->align_sigm_mean()));
+               log(1 / indiv_->mut_prng_->random() - 1) +
+               indiv_->align_sigm_mean()));
       if (needed_score < 0) needed_score = 0;
     }
 
@@ -2567,8 +2601,8 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
                                                 int32_t chrom2_pos_1,
                                                 AlignmentSense sense,
                                                 int8_t& search_sense) {
-  VisAVis * alignment = NULL;
-  VisAVis * tmp_alignment = NULL;
+  VisAVis* alignment = NULL;
+  VisAVis* tmp_alignment = NULL;
   // Which sense (direct or indirect)
   AlignmentSense cur_sense = sense;
   // Minimum alignement score needed to recombine (stochastic)
@@ -2583,18 +2617,18 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
   if (sense == BOTH_SENSES) {
     printf("WARNING : Alignment could not be searched in both senses "
                "in %s:%d\n", __FILE__, __LINE__);
-    return(NULL);
+    return (NULL);
   }
 
   /////////////////////////////////////////////////////
   // 2) Determine the minimum alignment score needed //
   /////////////////////////////////////////////////////
   if (indiv_->align_fun_shape() == LINEAR) {
-    needed_score =  static_cast<int16_t>(
+    needed_score = static_cast<int16_t>(
         ceil(indiv_->align_lin_min() +
-                 indiv_->mut_prng_->random() *
-                     (indiv_->align_lin_max() -
-                         indiv_->align_lin_min())));
+             indiv_->mut_prng_->random() *
+             (indiv_->align_lin_max() -
+              indiv_->align_lin_min())));
   }
   else {
     // I want the probability of rearrangement for an alignment of score
@@ -2604,8 +2638,8 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
     // needed_score = ceil(-lambda * log(1/rand - 1) + mean)
     needed_score = static_cast<int16_t>(
         ceil(-indiv_->align_sigm_lambda() *
-                 log(1/ indiv_->mut_prng_->random() - 1) +
-                 indiv_->align_sigm_mean()));
+             log(1 / indiv_->mut_prng_->random() - 1) +
+             indiv_->align_sigm_mean()));
     if (needed_score < 0) needed_score = 0;
   }
 
@@ -2613,7 +2647,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
   // 3) Determine the sense by which the research begins //
   /////////////////////////////////////////////////////////
   int16_t first_research_sense = (indiv_->mut_prng_->random() < 0.5) ? 1 : -1;
-  int16_t second_research_sense = -1*first_research_sense;
+  int16_t second_research_sense = -1 * first_research_sense;
 
   /////////////////////////////////////////////////////////////////////////////
   // 4) Test the first sense for the existence of an alignment with a high
@@ -2623,15 +2657,15 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
   chrom2_pos_for_research = chrom2_pos_1;
   int16_t i = 0;
 
-  while (indiv_->mut_prng_->random() < 1- exp_m_->repl_HT_detach_rate()) {
+  while (indiv_->mut_prng_->random() < 1 - exp_m_->repl_HT_detach_rate()) {
     chrom1_pos_for_research =
         Utils::mod(chrom1_pos_for_research +
-                       first_research_sense * size_between_two_alignments,
+                   first_research_sense * size_between_two_alignments,
                    this->length());
     if (cur_sense == DIRECT) {
       chrom2_pos_for_research =
           Utils::mod(chrom2_pos_for_research +
-                         first_research_sense * size_between_two_alignments,
+                     first_research_sense * size_between_two_alignments,
                      chrom2->length());
       tmp_alignment =
           Alignment::search_alignment_direct(this, chrom1_pos_for_research,
@@ -2641,7 +2675,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
     else { // if (cur_sense = INDIRECT)
       chrom2_pos_for_research =
           Utils::mod(chrom2_pos_for_research -
-                         first_research_sense * size_between_two_alignments,
+                     first_research_sense * size_between_two_alignments,
                      chrom2->length());
       tmp_alignment =
           Alignment::search_alignment_indirect(this, chrom1_pos_for_research,
@@ -2685,15 +2719,15 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
   chrom1_pos_for_research = chrom1_pos_1;
   chrom2_pos_for_research = chrom2_pos_1;
   i = 0;
-  while (indiv_->mut_prng_->random() < 1- exp_m_->repl_HT_detach_rate()) {
+  while (indiv_->mut_prng_->random() < 1 - exp_m_->repl_HT_detach_rate()) {
     chrom1_pos_for_research =
         Utils::mod(chrom1_pos_for_research +
-                       second_research_sense * size_between_two_alignments,
+                   second_research_sense * size_between_two_alignments,
                    this->length());
     if (cur_sense == DIRECT) {
       chrom2_pos_for_research =
           Utils::mod(chrom2_pos_for_research +
-                         second_research_sense * size_between_two_alignments,
+                     second_research_sense * size_between_two_alignments,
                      chrom2->length());
       tmp_alignment =
           Alignment::search_alignment_direct(this, chrom1_pos_for_research,
@@ -2703,7 +2737,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
     else { // if (cur_sense = INDIRECT)
       chrom2_pos_for_research =
           Utils::mod(chrom2_pos_for_research -
-                         second_research_sense * size_between_two_alignments,
+                     second_research_sense * size_between_two_alignments,
                      chrom2->length());
       tmp_alignment =
           Alignment::search_alignment_indirect(this, chrom1_pos_for_research,
@@ -2778,24 +2812,24 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   int32_t len_C = pos_D - pos_C;
   int32_t len_D = pos_E - pos_D;
   int32_t len_E = length_ - pos_E;
-  int32_t len_AD   = len_A + len_D;
-  int32_t len_ADC  = len_AD + len_C;
+  int32_t len_AD = len_A + len_D;
+  int32_t len_ADC = len_AD + len_C;
   int32_t len_ADCB = len_ADC + len_B;
 
   // Create new sequence
   char* new_genome = new char[nb_blocks_ * BLOCK_SIZE];
 
-  memcpy(new_genome, data_,          len_A * sizeof(char));
-  memcpy(&new_genome[len_A],     &data_[pos_D],  len_D * sizeof(char));
-  memcpy(&new_genome[len_AD],    &data_[pos_C],  len_C * sizeof(char));
-  memcpy(&new_genome[len_ADC],   &data_[pos_B],  len_B * sizeof(char));
-  memcpy(&new_genome[len_ADCB],  &data_[pos_E],  len_E * sizeof(char));
+  memcpy(new_genome, data_, len_A * sizeof(char));
+  memcpy(&new_genome[len_A], &data_[pos_D], len_D * sizeof(char));
+  memcpy(&new_genome[len_AD], &data_[pos_C], len_C * sizeof(char));
+  memcpy(&new_genome[len_ADC], &data_[pos_B], len_B * sizeof(char));
+  memcpy(&new_genome[len_ADCB], &data_[pos_E], len_E * sizeof(char));
   new_genome[length_] = '\0';
 
   // Replace sequence
   // NB : The size of the genome doesn't change. Therefore, we don't nee
   // to update length_ and nb_blocks_
-  delete [] data_;
+  delete[] data_;
   data_ = new_genome;
 
 
@@ -2808,9 +2842,12 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     gen_unit_->remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2Strands promoters_B = {{}, {}};
-    Promoters2Strands promoters_C = {{}, {}};
-    Promoters2Strands promoters_D = {{}, {}};
+    Promoters2Strands promoters_B = {{},
+                                     {}};
+    Promoters2Strands promoters_C = {{},
+                                     {}};
+    Promoters2Strands promoters_D = {{},
+                                     {}};
 
     // Extract promoters that are totally included in each segment to be moved
     // and shift them to their new positions
@@ -2867,7 +2904,7 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
   // Check points' order and range
   assert(pos_B >= 0 && pos_C >= pos_B && pos_D >= pos_C && pos_E >= pos_D &&
-             pos_E <= length_);
+                                                           pos_E <= length_);
 
   // Compute segment lengths
   int32_t len_A = pos_B;
@@ -2875,44 +2912,48 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   int32_t len_C = pos_D - pos_C;
   int32_t len_D = pos_E - pos_D;
   int32_t len_E = length_ - pos_E;
-  int32_t len_AD   = len_A + len_D;
-  int32_t len_ADB  = len_AD + len_B;
+  int32_t len_AD = len_A + len_D;
+  int32_t len_ADB = len_AD + len_B;
   int32_t len_ADBC = len_ADB + len_C;
 
   // Create new sequence
   char* new_genome = new char[nb_blocks_ * BLOCK_SIZE];
 
   // Copy segments A and D
-  memcpy(new_genome, data_,            len_A * sizeof(char));
-  memcpy(&new_genome[len_A], &data_[pos_D],  len_D * sizeof(char));
+  memcpy(new_genome, data_, len_A * sizeof(char));
+  memcpy(&new_genome[len_A], &data_[pos_D], len_D * sizeof(char));
 
 
   // Build Bp and put it in the new genome
-  char* inverted_segment = new char[len_B+1];
+  char* inverted_segment = new char[len_B + 1];
 
-  for (int32_t i = 0, j = pos_C - 1 ; i < len_B ; i++, j--) {
+//#pragma simd
+//#pragma distribute_point
+  for (int32_t i = 0, j = pos_C - 1; i < len_B; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
-    else                   inverted_segment[i] = '0';
+    else inverted_segment[i] = '0';
   }
   inverted_segment[len_B] = '\0';
 
   memcpy(&new_genome[len_AD], inverted_segment, len_B * sizeof(char));
 
-  delete [] inverted_segment;
+  delete[] inverted_segment;
 
 
   // Build Cp and put it in the new genome
-  inverted_segment = new char[len_C+1];
+  inverted_segment = new char[len_C + 1];
 
-  for (int32_t i = 0, j = pos_D - 1 ; i < len_C ; i++, j--) {
+//#pragma simd
+//#pragma distribute_point
+  for (int32_t i = 0, j = pos_D - 1; i < len_C; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
-    else                   inverted_segment[i] = '0';
+    else inverted_segment[i] = '0';
   }
   inverted_segment[len_C] = '\0';
 
   memcpy(&new_genome[len_ADB], inverted_segment, len_C * sizeof(char));
 
-  delete [] inverted_segment;
+  delete[] inverted_segment;
 
   // Copy segment E into the new genome
   memcpy(&new_genome[len_ADBC], &data_[pos_E], len_E * sizeof(char));
@@ -2920,7 +2961,7 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 
   // Replace sequence
-  delete [] data_;
+  delete[] data_;
   data_ = new_genome;
 
 
@@ -2933,9 +2974,12 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     gen_unit_->remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2Strands promoters_B = {{}, {}};
-    Promoters2Strands promoters_C = {{}, {}};
-    Promoters2Strands promoters_D = {{}, {}};
+    Promoters2Strands promoters_B = {{},
+                                     {}};
+    Promoters2Strands promoters_C = {{},
+                                     {}};
+    Promoters2Strands promoters_D = {{},
+                                     {}};
 
     // 2) Extract promoters that are totally included in each segment to be
     //    moved (B, C and D)
@@ -2996,9 +3040,9 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   //       |-----<]=======>=======<]------->-------|
 
 
-      // Check points' order and range
+  // Check points' order and range
   assert(pos_B >= 0 && pos_C >= pos_B && pos_D >= pos_C && pos_E >= pos_D &&
-             pos_E <= length_);
+                                                           pos_E <= length_);
 
   // Compute segment lengths
   int32_t len_A = pos_B;
@@ -3006,8 +3050,8 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   int32_t len_C = pos_D - pos_C;
   int32_t len_D = pos_E - pos_D;
   int32_t len_E = length_ - pos_E;
-  int32_t len_AC   = len_A + len_C;
-  int32_t len_ACD  = len_AC + len_D;
+  int32_t len_AC = len_A + len_C;
+  int32_t len_ACD = len_AC + len_D;
   int32_t len_ACDB = len_ACD + len_B;
 
   // Create new sequence
@@ -3018,40 +3062,44 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 
   // Build Cp and put it in the new genome
-  char* inverted_segment = new char[len_C+1];
+  char* inverted_segment = new char[len_C + 1];
 
-  for (int32_t i = 0, j = pos_D - 1 ; i < len_C ; i++, j--) {
+#pragma simd
+#pragma distribute_point
+  for (int32_t i = 0, j = pos_D - 1; i < len_C; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
-    else                   inverted_segment[i] = '0';
+    else inverted_segment[i] = '0';
   }
   inverted_segment[len_C] = '\0';
 
   memcpy(&new_genome[len_A], inverted_segment, len_C * sizeof(char));
 
-  delete [] inverted_segment;
+  delete[] inverted_segment;
 
 
   // Build Dp and put it in the new genome
-  inverted_segment = new char[len_D+1];
+  inverted_segment = new char[len_D + 1];
 
-  for (int32_t i = 0, j = pos_E - 1 ; i < len_D ; i++, j--) {
+#pragma simd
+#pragma distribute_point
+  for (int32_t i = 0, j = pos_E - 1; i < len_D; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
-    else                   inverted_segment[i] = '0';
+    else inverted_segment[i] = '0';
   }
   inverted_segment[len_D] = '\0';
 
   memcpy(&new_genome[len_AC], inverted_segment, len_D * sizeof(char));
 
-  delete [] inverted_segment;
+  delete[] inverted_segment;
 
   // Copy segments B and E
-  memcpy(&new_genome[len_ACD],   &data_[pos_B], len_B * sizeof(char));
-  memcpy(&new_genome[len_ACDB],  &data_[pos_E], len_E * sizeof(char));
+  memcpy(&new_genome[len_ACD], &data_[pos_B], len_B * sizeof(char));
+  memcpy(&new_genome[len_ACDB], &data_[pos_E], len_E * sizeof(char));
   new_genome[length_] = '\0';
 
 
   // Replace sequence
-  delete [] data_;
+  delete[] data_;
   data_ = new_genome;
 
 
@@ -3070,9 +3118,12 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     gen_unit_->remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2Strands promoters_B = {{}, {}};
-    Promoters2Strands promoters_C = {{}, {}};
-    Promoters2Strands promoters_D = {{}, {}};
+    Promoters2Strands promoters_B = {{},
+                                     {}};
+    Promoters2Strands promoters_C = {{},
+                                     {}};
+    Promoters2Strands promoters_D = {{},
+                                     {}};
 
     // 2) Extract promoters that are totally included in each segment to be
     //    moved (B, C and D)
@@ -3117,9 +3168,9 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
 
   if (pos_B != pos_C) {
     // Useful values
-    Individual * indiv            = indiv_;
-    GeneticUnit& chromosome     = indiv->genetic_unit_nonconst(0);
-    GeneticUnit& plasmid        = indiv->genetic_unit_nonconst(1);
+    Individual* indiv = indiv_;
+    GeneticUnit& chromosome = indiv->genetic_unit_nonconst(0);
+    GeneticUnit& plasmid = indiv->genetic_unit_nonconst(1);
     GeneticUnit& destination_GU = (gen_unit_ == &chromosome) ?
                                   plasmid : chromosome;
 
@@ -3138,9 +3189,9 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
     int32_t tmp = ae_string::nb_blocks(len_AC);
     char* new_sequence_this = new char[tmp * BLOCK_SIZE];
 
-    memcpy(new_sequence_this, data_,          len_A * sizeof(char));
-    memcpy(&new_sequence_this[len_A],   &data_[pos_C],  len_C * sizeof(char));
-    new_sequence_this[len_AC]='\0';
+    memcpy(new_sequence_this, data_, len_A * sizeof(char));
+    memcpy(&new_sequence_this[len_A], &data_[pos_C], len_C * sizeof(char));
+    new_sequence_this[len_AC] = '\0';
 
     // Create the new sequence of the destination genetic unit
     tmp = ae_string::nb_blocks(len_DBE) * BLOCK_SIZE;
@@ -3151,7 +3202,7 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
     memcpy(&new_sequence_dest[len_D], &data_[pos_B], len_B * sizeof(char));
     memcpy(&new_sequence_dest[len_DB], &dest_GU_former_seq[pos_E],
            len_E * sizeof(char));
-    new_sequence_dest[len_DBE]='\0';
+    new_sequence_dest[len_DBE] = '\0';
 
 
 
@@ -3173,7 +3224,8 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
     destination_GU.remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2Strands promoters_B = {{}, {}};
+    Promoters2Strands promoters_B = {{},
+                                     {}};
 
     // 2) Extract promoters that are totally included in each segment to be
     // moved (B, C and E)
@@ -3222,7 +3274,7 @@ void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
   int32_t len_DA = len_A + pos_E;
 
   inter_GU_ABCDE_to_ACDBE(0, pos_B, pos_E);
-  inter_GU_ABCDE_to_ACDBE(len_B, (len_B+len_C), len_DA);
+  inter_GU_ABCDE_to_ACDBE(len_B, (len_B + len_C), len_DA);
 }
 
-} // namespace aevol
+}// namespace aevol

@@ -42,6 +42,20 @@
 #include "ExpManager.h"
 #include "Individual.h"
 
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#endif
+
+#ifdef __TRACING__
+#include "ae_logger.h"
+#include<chrono>
+
+using namespace std::chrono;
+
+unordered_map<int,unordered_multiset<string>> ae_logger::logMap;
+string ae_logger::logFile = "logger_csv.log";
+mutex ae_logger::loggerMtx;
+#endif
 
 using std::cout;
 using std::endl;
@@ -84,7 +98,7 @@ ExpManager::ExpManager()
 // ===========================================================================
 //                                  Destructor
 // ===========================================================================
-ExpManager::~ExpManager()
+ExpManager::~ExpManager() noexcept
 {
   delete exp_s_;
   delete output_m_;
@@ -101,12 +115,16 @@ ExpManager::~ExpManager()
 void ExpManager::InitializeWorld(int16_t grid_width,
                                      int16_t grid_height,
                                      std::shared_ptr<JumpingMT> prng,
-                                     const Habitat& habitat,
+                                     std::shared_ptr<JumpingMT> mut_prng,
+                                     std::shared_ptr<JumpingMT> stoch_prng,
+                                     Habitat& habitat,
                                      bool share_phenotypic_target)
 {
   world_ = new World();
-  world_->InitGrid(grid_width, grid_height, habitat, share_phenotypic_target);
   world_->set_prng(prng);
+  world_->set_mut_prng(mut_prng);
+  world_->set_stoch_prng(stoch_prng);
+  world_->InitGrid(grid_width, grid_height, habitat, share_phenotypic_target);
 }
 
 /*!
@@ -273,7 +291,7 @@ void ExpManager::step_to_next_generation() {
 /*!
   \brief Load an experiment with the provided files
  */
-// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
+// TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(gzFile& exp_s_file,
                           gzFile& exp_backup_file,
                           gzFile& world_file,
@@ -286,6 +304,10 @@ void ExpManager::load(gzFile& exp_s_file,
   fflush(stdout);
   exp_s_->load(exp_s_file, exp_backup_file, verbose);
   printf(" OK\n");
+
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
+
 
   // ---------------------------------------------------------- Retrieve world
   printf("  Loading world...");
@@ -345,6 +367,11 @@ void ExpManager::load(const char* dir,
   // -------------------------------------------------------------------------
   close_setup_files(exp_s_file, out_p_file);
   close_backup_files(exp_backup_file, world_file);
+
+
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
+  printf("Factory flavor %d : %d\n",exp_s_->get_fuzzy_flavor(),FuzzyFactory::fuzzyFactory->get_fuzzy_flavor());
 }
 
 
@@ -418,6 +445,29 @@ void ExpManager::run_evolution()
   // Save the setup files to keep track of the setup history
   WriteSetupFiles();
 
+#ifdef __TRACING__
+  ae_logger::init("logger_csv.log");
+  printf("Launching TRACING...\n");
+#else
+  printf("Launching NOT TRACING...\n");
+#endif
+
+#ifdef __TRACING__
+  high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
+  high_resolution_clock::time_point t_t2,t1,t2;
+#endif
+
+  if (exp_s_->first_regul())
+    if (AeTime::time() < 10000 || AeTime::time() > 20000)
+      regul_or_not_ = true;
+    else
+      regul_or_not_ = false;
+  else
+    if (AeTime::time() < 10000 || AeTime::time() > 20000)
+      regul_or_not_ = false;
+    else
+      regul_or_not_ = true;
+
   // For each generation
   while (true) { // termination condition is into the loop
     printf("============================== %" PRId64 " ==============================\n",
@@ -425,16 +475,35 @@ void ExpManager::run_evolution()
     printf("  Best individual's distance to target (metabolic) : %f\n",
            best_indiv()->dist_to_target_by_feature(METABOLISM));
 
-    if (AeTime::time() >= t_end_ or quit_signal_received())
+   if (AeTime::time() >= t_end_ or quit_signal_received())
       break;
 
 #ifdef __X11
     display();
 #endif
+#ifdef __TRACING__
+    t1 = high_resolution_clock::now();
+#endif
 
     // Take one step in the evolutionary loop
+    if (AeTime::time() == 10000 || AeTime::time() == 20000)
+      regul_or_not_ = !regul_or_not_;
     step_to_next_generation();
+
+#ifdef __TRACING__
+    t2 = high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    ae_logger::addLog(SELECTION,duration);
+    ae_logger::flush(AeTime::get_time());
+#endif
   }
+
+#ifdef __TRACING__
+  t_t2 = high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
+  ae_logger::addLog(TOTAL,duration);
+  ae_logger::flush(AeTime::get_time());
+#endif
 
   output_m_->flush();
   printf("================================================================\n");
@@ -590,4 +659,5 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 Individual* ExpManager::indiv_by_id(int32_t id) const {
   return world_->indiv_by_id(id);
 }
+
 } // namespace aevol

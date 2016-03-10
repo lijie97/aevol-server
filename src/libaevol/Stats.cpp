@@ -46,8 +46,7 @@
 #include "Individual.h"
 #include "GeneticUnit.h"
 #ifdef __REGUL
-  #include "ae_influence_R.h"
-  #include "ae_protein_R.h"
+  #include "raevol/Protein_R.h"
 #endif
 
 using std::string;

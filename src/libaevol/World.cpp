@@ -31,6 +31,7 @@
 //                              Includes
 // =================================================================
 #include "World.h"
+#include "HabitatFactory.h"
 
 #if __cplusplus == 201103L
 #include "make_unique.h"
@@ -38,6 +39,10 @@
 
 #include <list>
 #include <iostream>
+
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#endif
 
 using std::cout;
 using std::endl;
@@ -80,15 +85,18 @@ World::~World()
 //                            Public Methods
 // =================================================================
 void World::InitGrid(int16_t width, int16_t height,
-                     const Habitat& habitat,
-                     bool share_phenotypic_target)
-{
+                     Habitat& habitat,
+                     bool share_phenotypic_target) {
   assert(share_phenotypic_target);
 
-  if (share_phenotypic_target)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>
-        (habitat.phenotypic_target_handler());
-
+  if (share_phenotypic_target) {
+    #ifndef __REGUL
+    phenotypic_target_handler_ = new PhenotypicTargetHandler(habitat.phenotypic_target_handler());
+    #else
+    phenotypic_target_handler_ = new PhenotypicTargetHandler_R((dynamic_cast<Habitat_R&>(habitat)).phenotypic_target_handler());
+    #endif
+  }
+  
   width_  = width;
   height_ = height;
 
@@ -100,14 +108,9 @@ void World::InitGrid(int16_t width, int16_t height,
       if (share_phenotypic_target)
         grid_[x][y] =
             new GridCell(x, y,
-#if __cplusplus == 201103L
-                             make_unique<Habitat>
-                                 (habitat, share_phenotypic_target),
-#else
-                             std::make_unique<Habitat>
-                                 (habitat, share_phenotypic_target),
-#endif
-                             NULL);
+                HabitatFactory::create_unique_habitat(habitat,share_phenotypic_target),
+                             NULL,std::make_shared<JumpingMT>(mut_prng_->random(1000000)),
+                             std::make_shared<JumpingMT>(stoch_prng_->random(1000000)));
     }
 }
 
@@ -125,6 +128,8 @@ void World::MallocGrid()
 
 void World::PlaceIndiv(Individual * indiv, int16_t x, int16_t y) {
   grid_[x][y]->set_individual(indiv);
+  indiv->set_mut_prng(grid_[x][y]->mut_prng());
+  indiv->set_stoch_prng(grid_[x][y]->stoch_prng());
 }
 
 void World::FillGridWithClones(Individual & dolly)
@@ -132,15 +137,25 @@ void World::FillGridWithClones(Individual & dolly)
   int32_t id_new_indiv = 0;
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
+      #ifndef __REGUL
       PlaceIndiv(Individual::CreateClone(&dolly, id_new_indiv++), x, y);
+      #else
+      PlaceIndiv(Individual_R::CreateClone(dynamic_cast<Individual_R*>(&dolly), id_new_indiv++), x, y);
+      #endif
 }
 
 void World::evaluate_individuals()
 {
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
-      indiv_at(x, y)->Evaluate();
-      indiv_at(x, y)->compute_statistical_data();
+      #ifndef __REGUL
+      Individual* indiv       = indiv_at(x, y);
+      #else
+      Individual_R* indiv       = dynamic_cast <Individual_R*> (indiv_at(x, y));
+      #endif
+
+      indiv->Evaluate();
+      indiv->compute_statistical_data();
     }
 }
 
@@ -224,6 +239,8 @@ void World::WellMixIndivs()
     Individual * tmp = grid_1d_[i]->individual();
     grid_1d_[i]->set_individual(grid_1d_[j]->individual());
     grid_1d_[j]->set_individual(tmp);
+    tmp->set_mut_prng(grid_1d_[j]->mut_prng());
+    tmp->set_stoch_prng(grid_1d_[j]->stoch_prng());
   }
 }
 
@@ -245,6 +262,12 @@ void World::PartiallyMixIndivs()
     Individual * tmp_swap = grid_[old_x][old_y]->individual();
     grid_[old_x][old_y]->set_individual(grid_[new_x][new_y]->individual());
     grid_[new_x][new_y]->set_individual(tmp_swap);
+
+    grid_[old_x][old_y]->individual()->set_mut_prng(grid_[old_x][old_y]->mut_prng());
+    grid_[old_x][old_y]->individual()->set_stoch_prng(grid_[old_x][old_y]->stoch_prng());
+
+    grid_[new_x][new_y]->individual()->set_mut_prng(grid_[new_x][new_y]->mut_prng());
+    grid_[new_x][new_y]->individual()->set_stoch_prng(grid_[new_x][new_y]->stoch_prng());
   }
 }
 
@@ -300,8 +323,10 @@ void World::save(gzFile backup_file) const
   gzwrite(backup_file,
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
-  if (phenotypic_target_shared_)
+  if (phenotypic_target_shared_) {
     phenotypic_target_handler_->save(backup_file);
+  }
+    
 
   gzwrite(backup_file, &width_,   sizeof(width_));
   gzwrite(backup_file, &height_,  sizeof(height_));
@@ -342,10 +367,17 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
   phenotypic_target_shared_ = tmp_phenotypic_target_shared;
-  if (phenotypic_target_shared_)
+  if (phenotypic_target_shared_) {
     phenotypic_target_handler_ =
-        std::make_shared<PhenotypicTargetHandler>(backup_file);
-  phenotypic_target_handler_->BuildPhenotypicTarget();
+    #ifndef __REGUL
+        new PhenotypicTargetHandler(backup_file);
+    #else 
+        new PhenotypicTargetHandler_R(backup_file);
+    #endif
+  }
+  
+  // A priori useless car déjà fait dans le constructeur de reprise sur backup
+  //phenotypic_target_handler_->BuildPhenotypicTarget();
 
   gzread(backup_file, &width_,  sizeof(width_));
   gzread(backup_file, &height_, sizeof(height_));

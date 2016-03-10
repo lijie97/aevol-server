@@ -86,6 +86,8 @@ constexpr int8_t CODON_W1    = 0b011;
 constexpr int8_t CODON_H0    = 0b110;
 constexpr int8_t CODON_H1    = 0b111;
 
+constexpr int32_t DO_TRANSLATION_LOOP = SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
+
 #ifdef __REGUL
 constexpr int8_t MAX_CODON   = 1 << CODON_SIZE;
 constexpr int8_t QUADON_SIZE = 4;

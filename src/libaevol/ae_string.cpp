@@ -164,7 +164,7 @@ void ae_string::remove(int32_t pos_1, int32_t pos_2) {
   // Compute size of new genome
   int32_t new_length    = length_ - (pos_2 - pos_1);
   int32_t new_nb_blocks = nb_blocks(new_length);
-  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE];
+  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE * sizeof(char)];
 
   // Copy the remaining of the genome in tmp (preceeding and following parts)
   memcpy(new_genome, data_, pos_1 * sizeof(char));
@@ -193,7 +193,7 @@ void ae_string::insert(int32_t pos, const char* seq, int32_t seq_length) {
   // Compute size of new genome
   int32_t new_length    = length_ + seq_length;
   int32_t new_nb_blocks = nb_blocks(new_length);
-  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE];
+  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE * sizeof(char)];
 
   // Build new genome from previous genome and sequence to insert
   memcpy(new_genome, data_, pos * sizeof(char));

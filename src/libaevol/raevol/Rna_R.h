@@ -37,9 +37,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_rna.h"
-#include "ae_protein.h"
-#include "raevol/ae_influence_R.h"
+#include "Rna.h"
+#include "Protein_R.h"
 
 namespace aevol {
 
@@ -47,38 +46,48 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 
-class ae_rna_R : public ae_rna
+class Protein_R;
+class Rna_R : public Rna
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_rna_R(GeneticUnit* gen_unit, const ae_rna_R &model);
-    ae_rna_R();
-    ae_rna_R(GeneticUnit* gen_unit);
-    ae_rna_R(GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff);
+    Rna_R( GeneticUnit* gen_unit, const Rna_R &model );
+	  Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_rna_R();
+    virtual ~Rna_R( void );
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline  ae_list*  influence_list();
-
+    inline std::vector<Protein_R*> get_protein_list( void );
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void    set_influences(ae_list* protein_list);
-    double  synthesis_rate();
-    void    remove_influence(ae_influence_R* influence);
+    void    set_influences( std::list<Protein*>& protein_list );
+    double  get_synthesis_rate( void );
+    double  get_affinity_with_protein( int32_t index, Protein *protein );
+    int32_t get_enhancer_position( void );
+    int32_t get_operator_position( void );
+
+    long get_id() { return _id; };
+
+    int nb_influences() { return _nb_influences; }
     // =================================================================
     //                           Public Attributes
     // =================================================================
+    std::vector<Protein_R*> _protein_list;
+    std::vector<double> _enhancing_coef_list;
+    std::vector<double> _operating_coef_list;
+    //std::vector<double> _protein_concentration_list;
+    static long id;
 
+    int _nb_influences = 0;
   protected :
 
     // =================================================================
@@ -89,45 +98,32 @@ class ae_rna_R : public ae_rna
       printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
       };*/
-    ae_rna_R(const ae_rna_R &model)
-    {
-      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-    };
 
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    //inline  ae_rna_R* copy();
-            int32_t   enhancer_position();
-            int32_t   operator_position();
-            void      add_influence(ae_protein *protein, double enhancing_coef, double operating_coef);
-            double    affinity_with_protein(int32_t index, ae_protein *protein);
+    //inline  ae_rna_R* copy( void );
+    double    affinity_with_protein( int32_t index, Protein *protein );
 
     // =================================================================
     //                          Protected Attributes
-    // =================================================================
-    ae_list*  influence_list_;
+    // ================================================================
+
+    long _id;
+
 
 };
+
+
+
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_list* ae_rna_R::influence_list()
-{
-  return influence_list_;
-}
-
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-/*
-ae_rna_R* ae_rna_R::copy()
-{
-  return new ae_rna_R(this);
-}
-*/
+
 
 } // namespace aevol
 

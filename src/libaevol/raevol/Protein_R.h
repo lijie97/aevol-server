@@ -24,117 +24,181 @@
 //
 // ****************************************************************************
 
-
-#ifndef AEVOL_TEMPLATE_H_
-#define AEVOL_TEMPLATE_H_
-
+#ifndef AE_PROTEIN_R_H
+#define AE_PROTEIN_R_H
 
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
-
-
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "Codon.h"
+#include "Protein.h"
+#include "Rna_R.h"
 
 namespace aevol {
 
-// =================================================================
-//                          Class declarations
-// =================================================================
+//##############################################################################
+//                                                                             #
+//                           Class ae_protein_R                                #
+//                                                                             #
+//##############################################################################
+class GeneticUnit;
 
-
-
-
-
-
-class ae_template
+class Protein_R : public Protein
 {
   public :
+
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_template();
+  Protein_R() = delete;
+  Protein_R(const Protein_R &model) = delete;
+	Protein_R( GeneticUnit* gen_unit, const Protein_R &model );
+	Protein_R( GeneticUnit* gen_unit,
+    		const std::list<Codon*> codon_list,
+    		Strand strand,
+    		int32_t shine_dal_pos,
+    		Rna* rna,
+        double w_max ); // TODO Rna_R?
+	Protein_R( const std::list<Codon*> codon_list, double concentration, double w_max);
+	Protein_R( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_template();
+    virtual ~Protein_R( void );
 
     // =================================================================
-    //                        Accessors: getters
+    //                              Accessors
     // =================================================================
-
-    // =================================================================
-    //                        Accessors: setters
-    // =================================================================
-
-    // =================================================================
-    //                              Operators
-    // =================================================================
+    inline void     set_inherited( bool is_inherited );
+    inline void     set_signal( bool is_signal);
+    inline bool     is_inherited( void );
+    inline bool     is_signal( void );
 
     // =================================================================
     //                            Public Methods
     // =================================================================
+    //inline ae_protein_R* copy( void );
+    inline void    multiply_concentration( double factor );
+    inline void    set_concentration ( double concentration);
+    inline void    update_concentration( void );
+    inline void    reset_concentration( void );
+    inline void    set_initial_concentration( void );
+           void    compute_delta_concentration( void );
+           int8_t  get_codon( int32_t index );
+//           void    add_influence( ae_influence_R* influence );
+	         void    save( gzFile backup_file );
+//	         void    remove_influence( ae_influence_R* influence );
+    inline int8_t  get_cod_tab(int32_t index) const;
+
+    void  add_RNA( Rna * rna );
+
+    long get_id() { return _id; };
 
     // =================================================================
     //                           Public Attributes
     // =================================================================
+	bool is_TF_;
 
+    static long id;
 
-
-
-
+    int8_t*   _cod_tab;
+    //bool _concentration_has_change = true;
   protected :
 
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*ae_template()
-    {
-      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-    };
-    ae_template(const ae_template &model)
-    {
-      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-    };*/
-
 
     // =================================================================
     //                           Protected Methods
     // =================================================================
+    void remove_influences( void );
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    std::vector<Rna_R*>  _rna_R_list;
+    double    _delta_concentration;
+    bool      _inherited;
+    bool      _signal;
+    double    _initial_concentration; // concentration at cell birth
+    long      _id;
+
 };
 
+// =====================================================================
+//                          Accessors definitions
+// =====================================================================
+//std::vector<ae_influence_R*> ae_protein_R::get_influence_list( void )
+//{
+//  return _influence_list;
+//}
 
 // =====================================================================
-//                           Getters' definitions
+//                       Inline functions' definition
 // =====================================================================
+inline void Protein_R::update_concentration( void )
+{
+ // _concentration_has_change = _delta_concentration != 0 ? true : false;
 
-// =====================================================================
-//                           Setters' definitions
-// =====================================================================
+  concentration_ += _delta_concentration;
+}
 
-// =====================================================================
-//                          Operators' definitions
-// =====================================================================
+inline void Protein_R::set_inherited( bool is_inherited )
+{
+  _inherited = is_inherited;
+}
+
+inline void Protein_R::set_signal( bool is_signal )
+{
+  _signal = is_signal;
+}
+
+inline void Protein_R::reset_concentration( void )
+{
+  concentration_ = _initial_concentration;
+}
+
+inline void Protein_R::set_initial_concentration( void )
+{
+  _initial_concentration = concentration_;
+}
+
+inline bool Protein_R::is_inherited( void )
+{
+  return _inherited;
+}
+
+inline bool Protein_R::is_signal( void )
+{
+  return _signal;
+}
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
 
+inline void Protein_R::multiply_concentration( double factor )
+{
+  concentration_ *= factor;
+}
+
+inline void Protein_R::set_concentration( double concentration )
+{
+  concentration_ = concentration;
+}
+
+inline int8_t Protein_R::get_cod_tab(int32_t index) const
+{
+  return _cod_tab[index];
+}
+
 } // namespace aevol
 
-#endif // AEVOL_TEMPLATE_H_
+
+#endif // AE_PROTEIN_R_H

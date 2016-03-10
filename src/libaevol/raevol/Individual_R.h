@@ -25,56 +25,103 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_INFLUENCE_R_H_
-#define  AEVOL_INFLUENCE_R_H_
+#ifndef AEVOL_INDIVIDUAL_R_H_
+#define  AEVOL_INDIVIDUAL_R_H_
 
 
 // =================================================================
 //                              Libraries
 // =================================================================
 #include <inttypes.h>
-
+#include <vector>
+#include <set>
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "ae_protein.h"
+#include "Individual.h"
+#include "Rna_R.h"
+#include "Protein_R.h"
+#include "Habitat_R.h"
 
 namespace aevol {
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_influence_R
+class Individual_R : public virtual Individual
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_influence_R(ae_rna* rna, ae_protein *protein, double enhancing_coef, double operating_coef);
+	Individual_R() = delete;
+  Individual_R(const Individual_R& other);
+  Individual_R(ExpManager * exp_m,
+              std::shared_ptr<JumpingMT> mut_prng,
+              std::shared_ptr<JumpingMT> stoch_prng,
+              std::shared_ptr<MutationParams> param_mut,
+              double w_max,
+              int32_t min_genome_length,
+              int32_t max_genome_length,
+              bool allow_plasmids,
+              int32_t id,
+              const char* strain_name,
+              int32_t age);
+	Individual_R(  Individual_R* parent, int32_t id,
+                 std::shared_ptr<JumpingMT> mut_prng,
+                 std::shared_ptr<JumpingMT> stoch_prng);
+  Individual_R(ExpManager* exp_m, gzFile backup_file);
 
+  static Individual_R* CreateClone(const Individual_R* dolly, int32_t id);
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_influence_R();
+    virtual ~Individual_R( void ) noexcept;
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_rna* rna();
-    inline double  enhancing_coef();
-    inline double  operating_coef();
+    inline std::vector<Rna_R *> get_rna_list_coding( void ) const;
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline double           enhancer_activity();
-    inline double           operator_activity();
-    //inline ae_influence_R*  copy();
+    /**
+      * Main evaluation method
+      */
+     virtual void Evaluate();
+     /**
+      * Evaluate within the provided context
+      */
+     virtual void EvaluateInContext(const Habitat_R& habitat);
+     virtual void EvaluateInContext(const Habitat& habitat);
+
+     virtual void init_indiv(const Habitat_R& habitat);
+     virtual void one_step( void );
+     virtual void eval_step(const Habitat_R& habitat, int8_t age);
+     virtual void final_step(const Habitat_R& habitat, int8_t age);
+     //virtual void reevaluate();
+     //virtual void clear_everything_except_dna_and_promoters();
+     //void do_transcription_translation_folding();
+    // void do_transcription();
+     //void do_translation();
+     //void do_folding();
+     //void compute_phenotype();
+     //void compute_distance_to_target(const PhenotypicTarget& target);
+    //void update_phenotype();
+
+    void    set_influences( void );
+    void    update_concentrations( void );
+    void    multiply_concentrations( double factor );
+    int8_t  get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos );
+    virtual void    save( gzFile backup_file );
+    void    clear_everything_except_dna_and_promoters();
+
+    inline std::vector<Protein_R*> get_inherited_protein_list( void) const;
+    inline void set_networked( bool networked );
+    std::vector<Rna_R *> _rna_list_coding;   // Please note that these RNAs are
+    // actually managed via genetic units.
 
     // =================================================================
     //                           Public Attributes
@@ -85,7 +132,7 @@ class ae_influence_R
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_influence_R(const ae_influence_R &model)
+    /*    ae_individual_R(const ae_individual &model)
     {
       printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -94,52 +141,41 @@ class ae_influence_R
     // =================================================================
     //                           Protected Methods
     // =================================================================
+    virtual void make_protein_list( void );
+    virtual void make_rna_list( void );
+    void update_phenotype( void );
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_protein* protein_;
-    ae_rna*     rna_;
-    double      enhancing_coef_;
-    double      operating_coef_;
+    std::vector<Protein_R*> _inherited_protein_list;
+
+    std::list<Protein*> _initial_protein_list;
+
+    int _indiv_age;
+    bool _networked;
+    double _dist_sum;
+
 };
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_rna* ae_influence_R::rna()
+inline std::vector<Protein_R*> Individual_R::get_inherited_protein_list( void ) const
 {
-  return rna_;
+  return _inherited_protein_list;
 }
 
-double ae_influence_R::enhancing_coef()
+inline std::vector<Rna_R *> Individual_R::get_rna_list_coding( void ) const
 {
-  return enhancing_coef_;
+  return _rna_list_coding;
 }
 
-double ae_influence_R::operating_coef()
+inline void Individual_R::set_networked( bool networked )
 {
-  return operating_coef_;
+  _networked = networked;
 }
 
-// =====================================================================
-//                       Inline functions' definition
-// =====================================================================
-double ae_influence_R::enhancer_activity()
-{
-  return protein_->concentration() * enhancing_coef_;
-}
-
-double ae_influence_R::operator_activity()
-{
-  return protein_->concentration() * operating_coef_;
-}
-
-/*
-ae_influence_R* ae_influence_R::copy()
-{
-  return new ae_influence_R(rna_, protein_, enhancing_coef_, operating_coef_);
-}
-*/
 } // namespace aevol
-#endif // AEVOL_INFLUENCE_R_H_
+
+#endif // AEVOL_INDIVIDUAL_R_H_

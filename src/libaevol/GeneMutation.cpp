@@ -173,7 +173,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
 //                             Destructors
 // =================================================================
 
-GeneMutation::~GeneMutation()
+GeneMutation::~GeneMutation() noexcept
 {
   /* Mutation::Mutationwill be called automatically by the compiler for the other attributes */
   switch (mut_type_)

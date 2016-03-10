@@ -53,7 +53,7 @@ class Deletion : public Rearrangement {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Deletion() = default; //< Destructor
+  virtual ~Deletion() noexcept = default; //< Destructor
 
   // ==========================================================================
   //                                Operators

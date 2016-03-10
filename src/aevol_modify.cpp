@@ -612,6 +612,12 @@ int main(int argc, char* argv[])
 
       // Change mutation prng
       world->set_mut_prng(std::make_shared<JumpingMT>(mut_seed));
+      for (int16_t x = 0 ; x < world->width() ; x++)
+        for (int16_t y = 0 ; y < world->height() ; y++)
+        {
+          world->grid(x,y)->set_mut_prng(std::make_shared<JumpingMT>(world->mut_prng()->random(1000000)));
+          world->grid(x,y)->individual()->set_mut_prng(world->grid(x,y)->mut_prng());
+        }
       printf("\tChange of the seed to %d in mutations \n",atoi(line->words[1]));
     }
     else if (strcmp(line->words[0], "STOCH_SEED") == 0)
@@ -620,6 +626,12 @@ int main(int argc, char* argv[])
 
       // Change stochasticity prng
       world->set_stoch_prng(std::make_shared<JumpingMT>(stoch_seed));
+      for (int16_t x = 0 ; x < world->width() ; x++)
+        for (int16_t y = 0 ; y < world->height() ; y++)
+        {
+          world->grid(x,y)->set_stoch_prng(std::make_shared<JumpingMT>(world->stoch_prng()->random(1000000)));
+          world->grid(x,y)->individual()->set_stoch_prng(world->grid(x,y)->stoch_prng());
+        }
       printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi(line->words[1]));
     }
     else if (strcmp(line->words[0], "CLONE_BEST") == 0)

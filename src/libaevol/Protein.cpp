@@ -39,6 +39,7 @@
 // =================================================================
 #include "Protein.h"
 
+#include "ExpManager.h"
 #include "Codon.h"
 #include "Individual.h"
 #include "GeneticUnit.h"
@@ -110,7 +111,7 @@ Protein::Protein(GeneticUnit* gen_unit,
     concentration_  = rna->basal_level();
   #else
     // In Raevol, there is two case, depending on the heredity
-    if (ae_common::with_heredity)
+    if (gen_unit_->exp_m()->exp_s()->get_with_heredity() )
     {
       // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
       concentration_ = 0;
@@ -334,6 +335,204 @@ Protein::Protein(Protein* parent)
 }
 */
 
+//Constructor for the signal proteins
+//modif raevol_yo_3 : now we really copy the codon list
+Protein::Protein(const std::list<Codon*> codon_list, double concentration, double w_max)
+// WARNING this constructor should not being used for other purpose
+// In particular codon list should be destroyer by the caller of this constructor
+// since we will copy the list to be sure to own it
+{
+  gen_unit_             = NULL;
+  strand_               = LEADING;
+  shine_dal_pos_        = 0;
+  length_               = codon_list.size();
+  first_translated_pos_ = 0;
+  last_translated_pos_  = 0;
+  concentration_        = concentration;
+
+  // Copy the list of amino-acids
+  for(Codon* c : codon_list) {
+    AA_list_.push_back(new Codon(*c));
+  }
+
+
+
+  // ============================================================================
+  // Folding process (compute phenotypic contribution parameters from codon list)
+  // ============================================================================
+  //  1) Compute values for M, W and H
+  //  2) Normalize M, W and H values according to number of codons of each kind
+  //  3) Normalize M, W and H values according to the allowed ranges (defined in macros.h)
+
+
+  //  --------------------------------
+   //  1) Compute values for M, W and H
+   //  --------------------------------
+   long double M = 0.0;
+   long double W = 0.0;
+   long double H = 0.0;
+
+   int32_t nb_m = 0;
+   int32_t nb_w = 0;
+   int32_t nb_h = 0;
+
+   bool bin_m = false; // Initializing to false will yield a conservation of the high weight bit
+   bool bin_w = false; // when applying the XOR operator for the Gray to standard conversion
+   bool bin_h = false;
+
+   for (const auto& codon: codon_list) {
+     switch ( codon->value() )
+     {
+       case CODON_M0 :
+       {
+         // M codon found
+         nb_m++;
+
+         // Convert Gray code to "standard" binary code
+         bin_m ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+         // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+         //~ M <<= 1;
+         M *= 2;
+
+         // Add this nucleotide's contribution to M
+         if ( bin_m ) M += 1;
+
+         break;
+       }
+       case CODON_M1 :
+       {
+         // M codon found
+         nb_m++;
+
+         // Convert Gray code to "standard" binary code
+         bin_m ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+         // A lower-than-the-previous-lowest bit was found, make a left bitwise shift
+         //~ M <<= 1;
+         M *= 2;
+
+         // Add this nucleotide's contribution to M
+         if ( bin_m ) M += 1;
+
+         break;
+       }
+       case CODON_W0 :
+       {
+         // W codon found
+         nb_w++;
+
+         // Convert Gray code to "standard" binary code
+         bin_w ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+         // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+         //~ W <<= 1;
+         W *= 2;
+
+         // Add this nucleotide's contribution to W
+         if ( bin_w ) W += 1;
+
+         break;
+       }
+       case CODON_W1 :
+       {
+         // W codon found
+         nb_w++;
+
+         // Convert Gray code to "standard" binary code
+         bin_w ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+         // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+         //~ W <<= 1;
+         W *= 2;
+
+         // Add this nucleotide's contribution to W
+         if ( bin_w ) W += 1;
+
+         break;
+       }
+       case CODON_H0 :
+       case CODON_START : // Start codon codes for the same amino-acid as H0 codon
+       {
+         // H codon found
+         nb_h++;
+
+         // Convert Gray code to "standard" binary code
+         bin_h ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+         // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+         //~ H <<= 1;
+         H *= 2;
+
+         // Add this nucleotide's contribution to H
+         if ( bin_h ) H += 1;
+
+         break;
+       }
+       case CODON_H1 :
+       {
+         // H codon found
+         nb_h++;
+
+         // Convert Gray code to "standard" binary code
+         bin_h ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+         // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+         //~ H <<= 1;
+         H *= 2;
+
+         // Add this nucleotide's contribution to H
+         if ( bin_h ) H += 1;
+
+         break;
+       }
+     }
+   }
+
+
+
+   //  ----------------------------------------------------------------------------------
+   //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
+   //  ----------------------------------------------------------------------------------
+   if ( nb_m != 0 )  mean_ = M / (pow(2, nb_m) - 1);
+   else              mean_ = 0.5;
+   if ( nb_w != 0 )  width_ = W / (pow(2, nb_w) - 1);
+   else              width_ = 0.0;
+   if ( nb_h != 0 )  height_ = H / (pow(2, nb_h) - 1);
+   else              height_ = 0.5;
+
+   assert( mean_ >= 0.0 && mean_ <= 1.0 );
+   assert( width_ >= 0.0 && width_ <= 1.0 );
+   assert( height_ >= 0.0 && height_ <= 1.0 );
+
+
+
+   //  ------------------------------------------------------------------------------------
+   //  3) Normalize M, W and H values according to the allowed ranges (defined in macros.h)
+   //  ------------------------------------------------------------------------------------
+   // x_min <= M <= x_max
+   // w_min <= W <= w_max
+   // h_min <= H <= h_max
+   mean_   = (X_MAX - X_MIN) * mean_ + X_MIN;
+   width_  = (w_max - W_MIN) * width_ + W_MIN;
+   height_ = (H_MAX - H_MIN) * height_ + H_MIN;
+
+   if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || width_ == 0.0 || height_ == 0.0 )
+   {
+     is_functional_ = false;
+   }
+   else
+   {
+     is_functional_ = true;
+   }
+
+   assert( mean_ >= X_MIN && mean_ <= X_MAX );
+   //NOT WORKING if indiv is nullptr
+  // assert( width_ >= W_MIN && width_ <= indiv()->w_max() );
+   assert( height_ >= H_MIN && height_ <= H_MAX );
+}
+
+
 Protein::Protein(gzFile backup_file)
 {
   gen_unit_ = NULL;
@@ -386,7 +585,21 @@ int32_t Protein::last_STOP_base_pos() const
 void Protein::add_RNA(Rna * rna)
 {
   rna_list_.push_back(rna);
+
+#ifndef __REGUL
   concentration_ += rna->basal_level();
+#else
+	if ( gen_unit_->exp_m()->exp_s()->get_with_heredity() )
+	{
+	  // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
+	 concentration_ = 0;
+	}
+	else
+	{
+	  // Without heredity, we use the same concentration as in Aevol (No inherited proteins)
+	  concentration_ += rna->basal_level();
+	}
+#endif
 }
 
 char* Protein::AA_sequence(char separator /*= ' '*/) const
@@ -480,5 +693,11 @@ void Protein::save(gzFile backup_file)
 Individual *Protein::indiv() const
 {
   return gen_unit_->indiv();
+}
+
+
+GeneticUnit* Protein::get_gen_unit( void ) const
+{
+  return gen_unit_;
 }
 } // namespace aevol

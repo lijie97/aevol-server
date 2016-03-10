@@ -36,6 +36,8 @@
 #include <list>
 #include <algorithm>
 
+
+#include "FuzzyFactory.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Codon.h"
@@ -43,12 +45,13 @@
 #include "ae_enums.h"
 
 #ifdef __REGUL
-#include "ae_individual_R.h"
+  #include "raevol/Individual_R.h"
 #else
 
 #include "Individual.h"
 
 #endif
+
 
 #include "Fuzzy.h"
 #include "PointMutation.h"
@@ -101,19 +104,32 @@ const Promoters2Strands& GeneticUnit::rna_list() const {
   return rna_list_;
 }
 
+#ifndef __REGUL
 std::list<Protein>& GeneticUnit::protein_list(Strand strand) {
   return protein_list_[strand];
 }
+#else
+std::list<Protein_R>& GeneticUnit::protein_list(Strand strand) {
+  return protein_list_[strand];
+}
+#endif
 
-Fuzzy* GeneticUnit::activ_contribution() const {
+void GeneticUnit::clear_protein_list(Strand strand) {
+  protein_list_[strand].clear();
+}
+
+AbstractFuzzy* GeneticUnit::activ_contribution() const
+{
   return activ_contribution_;
 }
 
-Fuzzy* GeneticUnit::inhib_contribution() const {
+AbstractFuzzy* GeneticUnit::inhib_contribution() const
+{
   return inhib_contribution_;
 }
 
-Fuzzy* GeneticUnit::phenotypic_contribution() const {
+AbstractFuzzy* GeneticUnit::phenotypic_contribution() const
+{
   assert(phenotypic_contribution_ != NULL);
   return phenotypic_contribution_;
 }
@@ -543,8 +559,8 @@ GeneticUnit::GeneticUnit(Individual* indiv,
   dna_ = new Dna(this, length, prng);
 
   // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = new Fuzzy();
-  inhib_contribution_ = new Fuzzy();
+  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotypic_contribution_ = NULL;
   // NB : phenotypic_contribution_ is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -610,8 +626,8 @@ GeneticUnit::GeneticUnit(Individual* indiv,
   }
 
   // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = new Fuzzy();
-  inhib_contribution_ = new Fuzzy();
+  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotypic_contribution_ = NULL;
   // NB : phenotypic_contribution_ is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -655,17 +671,18 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model) {
   dna_ = new Dna(this, *(model.dna_));
 
   // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = new Fuzzy();
-  inhib_contribution_ = new Fuzzy();
+  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotypic_contribution_ = NULL;
   // NB : phenotypic_contribution_ is only an indicative value, not used for the whole phenotype computation
   dist_to_target_per_segment_ = NULL;
-  dist_to_target_by_feature_ = new double[NB_FEATURES];
-  fitness_by_feature_ = new double[NB_FEATURES];
+  dist_to_target_by_feature_  = new double [NB_FEATURES];
+  fitness_by_feature_         = new double [NB_FEATURES];
 
-  for (int8_t i = 0; i < NB_FEATURES; i++) {
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+  {
     dist_to_target_by_feature_[i] = 0.0;
-    fitness_by_feature_[i] = 0.0;
+    fitness_by_feature_[i]        = 0.0;
   }
 
   // Compute everything
@@ -706,14 +723,14 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent) {
 #ifndef __REGUL
       rna_list_[strand].emplace_back(this, rna);
 #else
-      rna_list_[strand].emplace_back(this, (dynamic_cast<ae_rna_R>(rna)));
+      rna_list_[strand].emplace_back(this, rna);
 #endif
     }
   }
 
   // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = new Fuzzy();
-  inhib_contribution_ = new Fuzzy();
+  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotypic_contribution_ = NULL;
   // NB : phenotypic_contribution_ is only an indicative value, not used for the whole phenotype computation
 
@@ -748,8 +765,8 @@ GeneticUnit::GeneticUnit(Individual* indiv, gzFile backup_file) {
   gzread(backup_file, &max_gu_length_, sizeof(max_gu_length_));
 
   // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = new Fuzzy();
-  inhib_contribution_ = new Fuzzy();
+  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotypic_contribution_ = NULL;
   // NB : phenotypic_contribution_ is only an indicative value, not used for the whole phenotype computation
 
@@ -791,8 +808,8 @@ GeneticUnit::GeneticUnit(Individual* indiv, char* organism_file_name) {
   dna_ = new Dna(this, organism_file_name);
 
   // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = new Fuzzy();
-  inhib_contribution_ = new Fuzzy();
+  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotypic_contribution_ = NULL;
   // NB : phenotypic_contribution_ is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -865,10 +882,15 @@ void GeneticUnit::locate_promoters() {
                                       dist);
     }
 #else
-    if (is_promoter(LEADING, i, dist))
-      rna_list_[LEADING].emplace_back(this, LEADING, i, dist);
-    if (is_promoter(LAGGING, dna_->length() - i - 1, dist))
-      rna_list_[LAGGING].emplace_back(this, LAGGING, dna_->length() - i - 1, dist);
+    if (is_promoter(LEADING, i, dist)) {
+      Rna_R rna(this, LEADING, i, dist);
+      rna_list_[LEADING].push_back(rna);
+    }
+    if (is_promoter(LAGGING, dna_->length() - i - 1, dist)) {
+      Rna_R rna(this, LAGGING, dna_->length() - i - 1,
+                dist);
+      rna_list_[LAGGING].push_back(rna);
+    }
 #endif
   }
 }
@@ -965,8 +987,7 @@ void GeneticUnit::do_translation() {
       // Minimum number of bases needed is SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE
       // (3 codons for START + STOP + at least one amino-acid)
       for (int32_t i = 0;
-           transcript_length - i >=
-           SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
+           transcript_length - i >= DO_TRANSLATION_LOOP;
            ++i) {
         if (is_shine_dalgarno(strand, Utils::mod(transcript_start
                                                  + (strand == LEADING ? i : -i),
@@ -1081,6 +1102,7 @@ void GeneticUnit::compute_phenotypic_contribution() {
   phenotypic_contributions_computed_ = true;
   if (!translated_) do_translation();
 
+  //printf("Prot list: %ld %ld\n",protein_list_[LEADING].size(),protein_list_[LEADING].size());
   for (const auto& strand: protein_list_) // two strands: LEADING & LAGGING
     for (const auto& prot: strand)
       if (prot.is_functional()) {
@@ -1088,27 +1110,31 @@ void GeneticUnit::compute_phenotypic_contribution() {
             ->add_triangle(prot.mean(),
                            prot.width(),
                            prot.height() * prot.concentration());
+    //    printf("Add triangle : %f %f %f\n",prot.mean(),
+    //           prot.width(),
+    //           prot.height() * prot.concentration());
       }
   // if (prot->height() > 0)
   //   activ_contribution_->add_triangle(prot->mean(),
   //                                     prot->width(),
   //                                     prot->height() * prot->concentration());
   // else
-  //   inhib_contribution_->add_triangle(prot->mean(),
-  //                                     prot->width(),
-  //                                     prot->height() * prot->concentration());
+  //   inhib_contribution_->add_triangle(prot->get_mean(),
+  //                                     prot->get_width(),
+  //                                     prot->get_height() * prot->get_concentration() );
 
   // It is not necessary to add a lower bound to activ_contribution_ as there can be no negative y
   // The same goes for the upper bound for inhib_contribution_
-  activ_contribution_->clip(Fuzzy::max, Y_MAX);
-  inhib_contribution_->clip(Fuzzy::min, -Y_MAX);
+  activ_contribution_->clip(Fuzzy::max,   Y_MAX );
+  inhib_contribution_->clip(Fuzzy::min, - Y_MAX );
   activ_contribution_->simplify();
   inhib_contribution_->simplify();
 
-  if (exp_m_->output_m()->compute_phen_contrib_by_GU()) {
-    phenotypic_contribution_ = new Phenotype();
-    phenotypic_contribution_->add(*activ_contribution_);
-    phenotypic_contribution_->add(*inhib_contribution_);
+  if ( exp_m_->output_m()->compute_phen_contrib_by_GU() )
+  {
+    phenotypic_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+    phenotypic_contribution_->add( *activ_contribution_ );
+    phenotypic_contribution_->add( *inhib_contribution_ );
     phenotypic_contribution_->simplify();
   }
 }
@@ -1125,8 +1151,8 @@ void GeneticUnit::compute_distance_to_target(const PhenotypicTarget& target) {
   compute_phenotypic_contribution();
 
   // Compute the difference between the (whole) phenotype and the environment
-  Fuzzy* delta = new Fuzzy(*phenotypic_contribution_);
-  delta->sub(target);
+  AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy(*phenotypic_contribution_);
+  delta->sub( *(target.fuzzy()) );
 
   PhenotypicSegment** segments = target.segments();
 
@@ -1138,7 +1164,7 @@ void GeneticUnit::compute_distance_to_target(const PhenotypicTarget& target) {
     dist_to_target_per_segment_ = new double[target.nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
   }
   for (int8_t i = 0; i < target.nb_segments(); i++) {
-    dist_to_target_per_segment_[i] = delta->geometric_area(
+    dist_to_target_per_segment_[i] = delta->get_geometric_area(
       segments[i]->start, segments[i]->stop);
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_per_segment_[i];
   }
@@ -1230,6 +1256,17 @@ void GeneticUnit::reset_expression() {
   // useful if the DNA sequence has changed (cf post-treatment programs
   // which replay mutations)
 
+    if ( activ_contribution_ != NULL )
+    {
+      delete activ_contribution_;
+      activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+    }
+
+    if ( inhib_contribution_ != NULL )
+    {
+      delete inhib_contribution_;
+      inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+    }
   transcribed_ = false;
   translated_ = false;
   phenotypic_contributions_computed_ = false;
@@ -1238,19 +1275,6 @@ void GeneticUnit::reset_expression() {
   fitness_computed_ = false;
 
 
-  // I do not erase the RNA lists, because they were updated
-  // during the mutations (cf Dna::undergo_this_mutation)
-  // TODO : Reinitialize transcribed_ proteins ?
-
-  if (activ_contribution_ != NULL) {
-    delete activ_contribution_;
-    activ_contribution_ = new Fuzzy();
-  }
-
-  if (inhib_contribution_ != NULL) {
-    delete inhib_contribution_;
-    inhib_contribution_ = new Fuzzy();
-  }
 
   if (phenotypic_contribution_ != NULL) {
     delete phenotypic_contribution_; // Not re-created now, will be conditionally allocated in compute_phenotypic_contribution
@@ -1305,17 +1329,19 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   int32_t len = dna_->length();
 
   dist = 0;
+  bool ret = true;
 
   if (strand == LEADING) {
     //~ printf("LEADING\n");
     for (int16_t i = 0; i < PROM_SIZE; i++) {
-      //~ printf("  i : %" PRId32 " dist : %"PRId8"\n", i, dist);
-      if (genome[(pos + i) % len] != PROM_SEQ[i]) {
+      //~ printf( "LEADING\n" );
+      if (genome[Utils::mod((pos + i), len)] != PROM_SEQ[i]) {
         dist++;
         if (dist > PROM_MAX_DIFF) {
-          //~ printf("=============================================== END is_promoter\n");
-          return false;
+          //~ printf( "=============================================== END is_promoter\n" );
+          ret = false;
         }
+
       }
     }
   }
@@ -1327,18 +1353,21 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
       if (genome[Utils::mod((pos - i), len)] ==
           PROM_SEQ[i]) // == and not != because we are on the complementary strand...
       {
-        dist++;
-        if (dist > PROM_MAX_DIFF) {
-          //~ printf("=============================================== END is_promoter\n");
-          return false;
+          dist++;
+          if ( dist > PROM_MAX_DIFF )
+          {
+            //~ printf( "=============================================== END is_promoter\n" );
+            ret = false;
+          }
         }
       }
     }
-  }
 
 
-  //~ printf("=============================================== END is_promoter\n");
-  return true;
+
+    //~ printf( "=============================================== END is_promoter\n" );
+    return ret;
+
 }
 
 bool GeneticUnit::is_terminator(Strand strand, int32_t pos) const {
@@ -1387,7 +1416,6 @@ bool GeneticUnit::is_shine_dalgarno(Strand strand, int32_t pos) const {
       }
     }
   }
-
   return true;
 }
 
@@ -1831,7 +1859,12 @@ void GeneticUnit::duplicate_promoters_included_in(int32_t pos_1,
   for (auto& strand: {LEADING, LAGGING}) {
     for (auto& rna: retrieved_promoters[strand]) {
       // Make a copy of current RNA inside container
+#ifndef __REGUL
       duplicated_promoters[strand].emplace_back(this, rna);
+#else
+        Rna_R rna_r(this, rna);
+        duplicated_promoters[strand].push_back(rna_r);
+        #endif
 
       // Set RNA's position as it's position on the duplicated segment
       duplicated_promoters[strand].back().shift_position(-pos_1,
@@ -2661,38 +2694,53 @@ void GeneticUnit::move_all_lagging_promoters_after(int32_t pos,
 
 /// Copy (into new_promoter_list) the promoters from the LEADING
 /// strand whose starting positions lie in [pos_1 ; pos_2[
-void GeneticUnit::copy_leading_promoters_starting_between(int32_t pos_1,
-                                                          int32_t pos_2,
-                                                          Promoters1Strand& new_promoter_list) {
-  // 1) Go to first RNA to copy
-  auto& strand = rna_list_[LEADING];
-  const auto& first = find_if(strand.begin(),
-                              strand.end(),
-                              [pos_1](Rna& r) {
-                                return r.promoter_pos() >= pos_1;
-                              });
+  void GeneticUnit::copy_leading_promoters_starting_between(int32_t pos_1,
+                                                            int32_t pos_2,
+                                                            Promoters1Strand& new_promoter_list ) {
+    // 1) Go to first RNA to copy
+    auto& strand = rna_list_[LEADING];
+    const auto& first = find_if(strand.begin(),
+                                strand.end(),
+                                [pos_1](Rna & r) { return r.promoter_pos() >= pos_1; });
 
-  // 2) Copy RNAs
-  if (pos_1 < pos_2) {
-    // Copy from pos_1 to pos_2
-    for (auto rna = first;
-         rna != strand.end() and rna->promoter_pos() < pos_2; ++rna)
-      new_promoter_list.emplace_back(this, *rna);
-  }
-  else {
-    // Copy from pos_1 to the end of the list
-    for (auto rna = first; rna != strand.end(); ++rna)
-      new_promoter_list.emplace_back(this, *rna);
-
-    // Copy from the beginning of the list to pos_2
-    for (auto& rna: strand) {
-      if (rna.promoter_pos() >= pos_2) {
-        break;
+    // 2) Copy RNAs
+    if ( pos_1 < pos_2 ) {
+      // Copy from pos_1 to pos_2
+      for (auto rna = first; rna != strand.end() and rna->promoter_pos() < pos_2; ++rna) {
+        #ifndef __REGUL
+        new_promoter_list.emplace_back(this, *rna);
+        #else
+        Rna_R rna_r(this, *rna);
+        new_promoter_list.push_back(rna_r);
+        #endif
       }
-      new_promoter_list.emplace_back(this, rna);
     }
-  }
+    else {
+      // Copy from pos_1 to the end of the list
+      for (auto rna = first; rna != strand.end(); ++rna) {
+        #ifndef __REGUL
+        new_promoter_list.emplace_back(this, *rna);
+        #else
+        Rna_R rna_r(this, *rna);
+        new_promoter_list.push_back(rna_r);
+        #endif
+      }
+
+      // Copy from the beginning of the list to pos_2
+      for (auto& rna: strand) {
+        if (rna.promoter_pos() >= pos_2)
+          break;
+        #ifndef __REGUL
+        new_promoter_list.emplace_back(this, rna);
+        #else
+        Rna_R rna_r(this, rna);
+        new_promoter_list.push_back(rna_r);
+        #endif
+      }
+
+    }
 }
+
 
 /// Copy (into new_promoter_list) the promoters from the LAGGING
 /// strand whose starting positions lie in [pos_1 ; pos_2[

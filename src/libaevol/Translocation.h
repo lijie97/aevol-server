@@ -59,7 +59,7 @@ class Translocation : public Rearrangement {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Translocation() = default; //< Destructor
+  virtual ~Translocation() noexcept = default; //< Destructor
 
   // ==========================================================================
   //                                Operators

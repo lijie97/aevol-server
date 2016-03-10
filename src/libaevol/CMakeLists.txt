@@ -116,6 +116,12 @@ add_library(aevol
   World.cpp
   World.h
   ObservableEvent.h
+  FuzzyFactory.h
+  FuzzyFactory.cpp
+  AbstractFuzzy.h
+  AbstractFuzzy.cpp
+  HybridFuzzy.h
+  HybridFuzzy.cpp
   PointMutation.cpp
   PointMutation.h
   SmallInsertion.cpp
@@ -136,7 +142,7 @@ add_library(aevol
   InsertionHT.cpp
   InsertionHT.h
   ReplacementHT.cpp
-  ReplacementHT.h make_unique.h)
+  ReplacementHT.h make_unique.h ae_logger.h)
 
 
 # ============================================================================

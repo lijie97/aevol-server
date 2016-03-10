@@ -35,6 +35,8 @@
 #endif
 
 #include "PhenotypicTargetHandler.h"
+#include "ExpSetup.h"
+#include "HybridFuzzy.h"
 #include "Utils.h"
 
 #include <iostream>
@@ -135,23 +137,56 @@ PhenotypicTargetHandler::~PhenotypicTargetHandler() {
 // ============================================================================
 void PhenotypicTargetHandler::BuildPhenotypicTarget() {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
-  phenotypic_target_->points_.clear();
+  phenotypic_target_->fuzzy()->reset();
 
   // Generate sample points from gaussians
-  if (not current_gaussians_.empty())
-    for (int16_t i = 0 ; i <= sampling_ ; i++) {
-      Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)sampling_, 0.0);
-      for (const Gaussian & g: current_gaussians_)
+  if (not current_gaussians_.empty()) {
+    for (int16_t i = 0; i <= sampling_; i++) {
+      Point new_point = Point(
+          X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
+      for (const Gaussian& g: current_gaussians_)
         new_point.y += g.compute_y(new_point.x);
-      phenotypic_target_->points_.push_back(new_point);
+      phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
     }
 
+    if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 1) {
+      HybridFuzzy* fuz = (HybridFuzzy*) phenotypic_target_->fuzzy();
+
+      for (int i = 1; i < fuz->get_pheno_size(); i++) {
+        if (fuz->points()[i] == 0.0) {
+          int minL = i - 1;
+          int maxL = i + 1;
+          int dist = 1;
+
+          while (fuz->points()[maxL] == 0.0) {
+            maxL++;
+            dist++;
+          }
+          double inc = 0.0;
+          if (fuz->points()[maxL] > fuz->points()[minL]) {
+            inc = (fuz->points()[maxL] - fuz->points()[minL]) / dist;
+          } else {
+            inc = (fuz->points()[minL] - fuz->points()[maxL]) / dist;
+            minL = maxL;
+          }
+
+          for (int j = i; j < maxL; j++) {
+            fuz->points()[j] = fuz->points()[minL] + inc;
+            inc += inc;
+          }
+
+        }
+      }
+    }
+  }
+
+
   // Add lower and upper bounds
-  phenotypic_target_->clip(Fuzzy::min, Y_MIN);
-  phenotypic_target_->clip(Fuzzy::max, Y_MAX);
+  phenotypic_target_->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
+  phenotypic_target_->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
 
   // Simplify (get rid of useless points)
-  phenotypic_target_->simplify();
+  phenotypic_target_->fuzzy()->simplify();
 
   // Compute areas (total and by feature)
   phenotypic_target_->ComputeArea();
@@ -229,6 +264,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
 }
 
 void PhenotypicTargetHandler::save(gzFile backup_file) const {
+  //printf("Appel a la sauvegarde de PhenotypicTargetHandler\n");
   // --------------------------------------------------------------------------
   //  Write phenotypic target segmentation
   phenotypic_target_->SaveSegmentation(backup_file);
@@ -285,6 +321,7 @@ void PhenotypicTargetHandler::save(gzFile backup_file) const {
 }
 
 void PhenotypicTargetHandler::load(gzFile backup_file) {
+  //printf("Appel au chargement de PhenotypicTargetHandler\n");
   // --------------------------------------------------------------------------
   //  Retrieve phenotypic target segmentation
 #if __cplusplus == 201103L
@@ -328,7 +365,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
     int8_t tmp_cur_noise_saved;
     gzread(backup_file, &tmp_cur_noise_saved,  sizeof(tmp_cur_noise_saved));
     if (tmp_cur_noise_saved)
-      cur_noise_ = new Fuzzy(backup_file);
+      cur_noise_ = FuzzyFactory::fuzzyFactory->create_fuzzy(backup_file);
 
     noise_prng_ = std::make_shared<JumpingMT>(backup_file);
     gzread(backup_file, &noise_alpha_, sizeof(noise_alpha_));

@@ -41,13 +41,13 @@
 
 #ifdef __NO_X
   #ifdef __REGUL
-    #include "ae_individual_R.h"
+    #include "raevol/Individual_R.h"
   #else
     #include "Individual.h"
   #endif
 #elif defined __X11
   #ifdef __REGUL
-    #include "ae_individual_R_X11.h"
+    #include "raevol/Individual_R_X11.h"
   #else
     #include "Individual_X11.h"
   #endif
@@ -290,9 +290,9 @@ Individual::Individual(const Individual& other) {
 
   // Copy phenotype
   if (phenotype_computed_) {
-    phenotype_activ_ = new Fuzzy(*(other.phenotype_activ_));
-    phenotype_inhib_ = new Fuzzy(*(other.phenotype_inhib_));
-    phenotype_ = new Phenotype(*(other.phenotype_));
+    phenotype_activ_  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other.phenotype_activ_)));
+    phenotype_inhib_  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other.phenotype_inhib_)));
+    phenotype_        = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other.phenotype_)));
   }
   else {
     phenotype_activ_ = NULL;
@@ -433,13 +433,13 @@ Individual* Individual::CreateIndividual(ExpManager* exp_m,
     #ifndef __REGUL
       indiv = new Individual(exp_m, backup_file);
     #else
-      indiv = new ae_individual_R(exp_m, backup_file);
+      indiv = new Individual_R(exp_m, backup_file);
     #endif
   #elif defined __X11
     #ifndef __REGUL
       indiv = new Individual_X11(exp_m, backup_file);
     #else
-      indiv = new ae_individual_R_X11(exp_m, backup_file);
+      indiv = new Individual_R_X11(exp_m, backup_file);
     #endif
   #endif
 
@@ -663,12 +663,12 @@ int32_t Individual::genetic_unit_seq_length(int16_t num_unit) const {
 }
 
 /// TODO
-Fuzzy* Individual::phenotype_activ() const {
+AbstractFuzzy* Individual::phenotype_activ() const {
   return phenotype_activ_;
 }
 
 /// TODO
-Fuzzy* Individual::phenotype_inhib() const {
+AbstractFuzzy* Individual::phenotype_inhib() const {
   return phenotype_inhib_;
 }
 
@@ -1251,21 +1251,21 @@ void Individual::compute_phenotype() {
   //   * phenotype_activ_ for the proteins realising a set of functions
   //   * phenotype_inhib_ for the proteins inhibiting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
-  phenotype_activ_ = new Fuzzy();
-  phenotype_inhib_ = new Fuzzy();
+  phenotype_activ_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  phenotype_inhib_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
 
   for (const auto& gen_unit: genetic_unit_list_) {
     phenotype_activ_->add(*gen_unit.activ_contribution());
     phenotype_inhib_->add(*gen_unit.inhib_contribution());
   }
 
-  phenotype_activ_->clip(Fuzzy::max, Y_MAX);
-  phenotype_inhib_->clip(Fuzzy::min, -Y_MAX);
+  phenotype_activ_->clip(AbstractFuzzy::max,   Y_MAX);
+  phenotype_inhib_->clip(AbstractFuzzy::min, - Y_MAX);
 
-  phenotype_ = new Phenotype();
+  phenotype_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotype_->add(*phenotype_activ_);
   phenotype_->add(*phenotype_inhib_);
-  phenotype_->clip(Fuzzy::min, Y_MIN);
+  phenotype_->clip(AbstractFuzzy::min, Y_MIN);
   phenotype_->simplify();
 }
 
@@ -1282,12 +1282,14 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
     compute_phenotype();
 
   // Compute the difference between the (whole) phenotype and the target
-  Fuzzy* delta = new Fuzzy(*phenotype_);
-  delta->sub(target);
+  AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy(*phenotype_);
+  delta->sub(*(target.fuzzy()));
 
-  PhenotypicSegment** segments = target.segments();
-  dist_to_target_by_segment_ = new double[target.nb_segments()];
-  for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
+  PhenotypicSegment ** segments = target.segments();
+  delete [] dist_to_target_by_segment_;
+  dist_to_target_by_segment_ = new double [target.nb_segments()];
+
+  for (size_t i = 0 ; i < static_cast<size_t>(target.nb_segments()) ; i++) {
     dist_to_target_by_segment_[i] = 0;
   }
 
@@ -1296,7 +1298,7 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   //      already been through them!)
 
   for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
-    dist_to_target_by_segment_[i] = delta->geometric_area(
+    dist_to_target_by_segment_[i] = delta->get_geometric_area(
       segments[i]->start, segments[i]->stop);
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_by_segment_[i];
   }
@@ -1376,6 +1378,8 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
 
 
 void Individual::clear_everything_except_dna_and_promoters() {
+  protein_list_.clear();
+
   evaluated_ = false;
   transcribed_ = false;
   translated_ = false;
@@ -1603,6 +1607,7 @@ void Individual::compute_non_coding() {
 }
 
 void Individual::save(gzFile backup_file) const {
+  //printf("Appel à la sauvegarde de Individual\n");
   // Write the name and "age" of the strain
   int8_t strain_string_len = strlen(strain_name_);
   gzwrite(backup_file, &strain_string_len, sizeof(strain_string_len));

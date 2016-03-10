@@ -56,7 +56,7 @@ class SmallInsertion : public LocalMutation {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~SmallInsertion(); //< Destructor
+  virtual ~SmallInsertion() noexcept; //< Destructor
 
   // ==========================================================================
   //                                Operators

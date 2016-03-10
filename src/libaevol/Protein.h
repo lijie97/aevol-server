@@ -68,6 +68,7 @@ class Protein
     // =================================================================
     //                             Constructors
     // =================================================================
+
     Protein() = delete;
     Protein(const Protein &model) = delete;
     Protein(GeneticUnit* gen_unit, const Protein &model);
@@ -77,6 +78,7 @@ class Protein
                int32_t shine_dal_pos,
                Rna * rna,
                double w_max);
+    Protein( const std::list<Codon*> codon_list, double concentration, double w_max);
     //Protein(Protein* parent);
     Protein(gzFile backup_file);
     // =================================================================
@@ -87,6 +89,9 @@ class Protein
     // =================================================================
     //                              Accessors
     // =================================================================
+    GeneticUnit*       get_gen_unit( void )              const;
+    inline std::list<Codon*>     AA_list() const;
+
     inline Strand strand()                const;
     inline const std::list<Rna *> rna_list()          const;
     inline int32_t            shine_dal_pos()         const;
@@ -113,7 +118,7 @@ class Protein
     //                           Public Attributes
     // =================================================================
 
-
+    double            concentration_;
 
 
 
@@ -132,7 +137,7 @@ class Protein
     int32_t           first_translated_pos_;  // Index of the first base following the START codon
     int32_t           last_translated_pos_;   // Index of the last base before the STOP codon
     int32_t           length_;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
-    double            concentration_;
+
     bool              is_functional_;
 
     std::list<Codon *> AA_list_;
@@ -201,6 +206,10 @@ bool Protein::is_functional() const
   return is_functional_;
 }
 
+
+std::list<Codon*>     Protein::AA_list() const {
+  return AA_list_;
+}
 
 // =====================================================================
 //                       Inline functions' definition

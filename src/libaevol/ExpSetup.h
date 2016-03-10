@@ -32,6 +32,7 @@
 // =================================================================
 #include <cinttypes>
 #include <cstdlib>
+#include <set>
 
 #include "Selection.h"
 #include "Stats.h"
@@ -45,35 +46,18 @@ namespace aevol {
 // ===========================================================================
 //                          Class declarations
 // ===========================================================================
-class ae_param_loader;
+class ParamLoader;
 
 class ExpSetup {
   friend class ExpManager;
 
- public:
+  public:
   // =======================================================================
   //                             Constructors
   // =======================================================================
   ExpSetup() = delete;
   ExpSetup(const ExpSetup&) = delete;
-  ExpSetup(ExpManager* exp_m) :
-    sel_{ new Selection(exp_m) },
-    with_HT_{false},
-    repl_HT_with_close_points_{false},
-    HT_ins_rate_{0.0},
-    HT_repl_rate_{0.0},
-    repl_HT_detach_rate_{0.0},
-    with_plasmids_{false},
-    prob_plasmid_HT_{0.0},
-    tune_donor_ability_{0.0},
-    tune_recipient_ability_{0.0},
-    donor_cost_{0.0},
-    recipient_cost_{0.0},
-    swap_GUs_{false},
-    with_secretion_{false},
-    secretion_contrib_to_fitness_{0.0},
-    secretion_cost_{0.0}
-  {}
+  ExpSetup(ExpManager* exp_m);
 
   // =======================================================================
   //                             Destructors
@@ -83,6 +67,8 @@ class ExpSetup {
   // =======================================================================
   //                         Accessors: getters
   // =======================================================================
+  inline int get_fuzzy_flavor( void ) const;
+
   // ----------------------------------------------------- Selection context
   Selection * sel() const { return sel_; }
 
@@ -102,9 +88,28 @@ class ExpSetup {
   double secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
   double secretion_cost() const { return secretion_cost_; }
 
+#ifdef __REGUL
+    inline bool   get_with_heredity( void ) const;
+    inline double get_degradation_rate( void ) const;
+    inline int    get_nb_degradation_step( void ) const;
+    inline double get_protein_presence_limit( void ) const;
+
+    inline double get_hill_shape( void ) const;
+    inline double get_hill_shape_n( void ) const;
+    inline double get_hill_shape_theta( void ) const;
+
+    inline int get_nb_indiv_age( void ) const;
+    std::set<int>* get_list_eval_step( void ) const {
+      return _list_eval_step;
+    }
+#endif
+
+    bool first_regul() const { return first_regul_; }
+
   // =======================================================================
   //                         Accessors: setters
   // =======================================================================
+  inline void set_fuzzy_flavor( int fuzzy_flavor );
   // --------------------------------------------------------------- Transfer
   void set_with_HT(bool with_HT) { with_HT_ = with_HT; }
   void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { repl_HT_with_close_points_ = repl_HT_with_close_points; }
@@ -126,6 +131,22 @@ class ExpSetup {
   void set_secretion_contrib_to_fitness(double secretion_contrib) { secretion_contrib_to_fitness_ = secretion_contrib; }
   void set_secretion_cost(double secretion_cost) { secretion_cost_ = secretion_cost; }
 
+#ifdef __REGUL
+    inline void set_with_heredity( bool with_heredity );
+    inline void set_degradation_rate( double degradation_rate );
+    inline void set_nb_degradation_step( int nb_degradation_step );
+    inline void set_protein_presence_limit( double protein_presence_limit );
+
+    inline void set_hill_shape( double hill_shape );
+    inline void set_hill_shape_n( double hill_shape_n );
+    inline void set_hill_shape_theta( double hill_shape_theta );
+
+    inline void set_nb_indiv_age( int nb_indiv_age );
+
+    inline void set_list_eval_step(std::set<int> list_eval_step);
+#endif
+    void set_first_regul(bool first_regul) { first_regul_ = first_regul; }
+
   // =======================================================================
   //                            Public Methods
   // =======================================================================
@@ -134,10 +155,27 @@ class ExpSetup {
   void load(gzFile setup_file, gzFile backup_file, bool verbose);
   /// Make the individuals reproduce
   void step_to_next_generation() { sel_->step_to_next_generation(); }
+#ifdef __REGUL
+    // Regulation
+    void     init_binding_matrix( bool random_binding_matrix, double binding_zeros_percentage,
+    		       std::shared_ptr<JumpingMT> prng);
+
+    void     read_binding_matrix_from_backup(gzFile binding_matrix_file);
+    void     write_binding_matrix_to_backup(gzFile binding_matrix_file) const;
+
+    void     write_binding_matrix_to_file(FILE* binding_matrix_file) const;
+    void     print_binding_matrix( void );
+
+    double get_binding_matrix( int row, int column ) const;
+#endif
 
   // =======================================================================
   //                           Public Attributes
   // =======================================================================
+
+#ifdef __REGUL
+double  _binding_matrix[MAX_QUADON][MAX_CODON];
+#endif
 
  protected :
   // =======================================================================
@@ -150,6 +188,7 @@ class ExpSetup {
   // =======================================================================
   ExpManager* exp_m_;
 
+  int fuzzy_flavor_;
   // ----------------------------------------------------- Selection context
   Selection* sel_;
 
@@ -173,6 +212,25 @@ class ExpSetup {
   bool   with_secretion_;
   double secretion_contrib_to_fitness_;
   double secretion_cost_;
+#ifdef __REGUL
+    // Binding matrix
+
+
+    bool    _with_heredity;
+    double  _protein_presence_limit;
+
+    double  _degradation_rate;
+    int     _nb_degradation_step;
+
+    double _hill_shape_n;
+    double _hill_shape;
+    double _hill_shape_theta;
+
+    int    _nb_indiv_age;
+
+    std::set<int>* _list_eval_step;
+#endif
+  bool first_regul_;
 };
 
 
@@ -180,13 +238,121 @@ class ExpSetup {
 //                           Getters' definitions
 // =====================================================================
 
+inline int ExpSetup::get_fuzzy_flavor( void ) const
+{
+  return fuzzy_flavor_;
+}
+
+#ifdef __REGUL
+inline bool ExpSetup::get_with_heredity( void ) const
+{
+  return _with_heredity;
+}
+
+inline double ExpSetup::get_degradation_rate( void ) const
+{
+  return _degradation_rate;
+}
+
+
+inline int ExpSetup::get_nb_degradation_step( void ) const
+{
+  return _nb_degradation_step;
+}
+
+inline double ExpSetup::get_protein_presence_limit( void ) const
+{
+  return _protein_presence_limit;
+}
+
+inline double ExpSetup::get_hill_shape( void ) const
+{
+  return _hill_shape;
+}
+
+inline double ExpSetup::get_hill_shape_n( void ) const
+{
+  return _hill_shape_n;
+}
+
+inline double ExpSetup::get_hill_shape_theta( void ) const
+{
+  return _hill_shape_theta;
+}
+
+inline int ExpSetup::get_nb_indiv_age( void ) const
+{
+  return _nb_indiv_age;
+}
+#endif
+
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
+// --------------------------------------------------------------- Transfer
+inline void ExpSetup::set_fuzzy_flavor( int fuzzy_flavor )
+{
+  fuzzy_flavor_ = fuzzy_flavor;
+}
+
+#ifdef __REGUL
+inline void ExpSetup::set_with_heredity( bool with_heredity )
+{
+  _with_heredity = with_heredity;
+}
+
+inline void ExpSetup::set_degradation_rate( double degradation_rate )
+{
+  _degradation_rate = degradation_rate;
+}
+
+inline void ExpSetup::set_nb_degradation_step( int degradation_step )
+{
+  _nb_degradation_step = degradation_step;
+}
+
+inline void ExpSetup::set_protein_presence_limit( double protein_presence_limit )
+{
+  _protein_presence_limit = protein_presence_limit;
+}
+
+inline void ExpSetup::set_hill_shape( double hill_shape )
+{
+  _hill_shape = hill_shape;
+}
+
+inline void ExpSetup::set_hill_shape_theta( double hill_shape_theta )
+{
+  _hill_shape_theta = hill_shape_theta;
+}
+
+inline void ExpSetup::set_hill_shape_n( double hill_shape_n )
+{
+  _hill_shape_n = hill_shape_n;
+}
+
+
+inline void ExpSetup::set_nb_indiv_age( int nb_indiv_age )
+{
+  _nb_indiv_age = nb_indiv_age;
+}
+
+inline void ExpSetup::set_list_eval_step( std::set<int> list_eval_step )
+{
+  _list_eval_step = new std::set<int>(list_eval_step);
+}
+#endif
 
 // =====================================================================
 //                       functions' definition
 // =====================================================================
+
+#ifdef __REGUL
+inline double ExpSetup::get_binding_matrix( int row, int column ) const
+{
+  return _binding_matrix[row][column];
+}
+#endif
 
 } // namespace aevol
 

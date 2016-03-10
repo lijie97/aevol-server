@@ -50,7 +50,7 @@ InsertionHT::InsertionHT(VisAVis& donor_donor_align, VisAVis& exo_recv_align,
 // ============================================================================
 //                                 Destructor
 // ============================================================================
-InsertionHT::~InsertionHT() {
+InsertionHT::~InsertionHT() noexcept {
   delete seq_;
 }
 

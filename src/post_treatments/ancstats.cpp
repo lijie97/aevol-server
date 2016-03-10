@@ -71,7 +71,7 @@ void print_help(char* prog_path);
 
 FILE* open_environment_stat_file(const char * prefix);
 void write_environment_stats(int64_t t,
-                             const PhenotypicTargetHandler & pth,
+                             const PhenotypicTargetHandler* pth,
                              FILE* env_file);
 
 FILE* open_terminators_stat_file(const char * prefix);
@@ -80,7 +80,7 @@ void write_terminators_stats(int64_t t,  Individual* indiv, FILE* terminator_fil
 FILE* open_zones_stat_file(const char * prefix);
 void write_zones_stats(int64_t t,
                        Individual* indiv,
-                       PhenotypicTargetHandler& phenotypicTargetHandler,
+                       const PhenotypicTargetHandler* phenotypicTargetHandler,
                        FILE* zone_file);
 
 FILE* open_operons_stat_file(const char * prefix);
@@ -297,11 +297,11 @@ int main(int argc, char** argv)
 
 
   // Optional outputs
-  write_environment_stats(t0, *phenotypicTargetHandler, env_output_file);
+  write_environment_stats(t0, phenotypicTargetHandler, env_output_file);
   write_terminators_stats(t0, indiv, term_output_file);
   if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
   {
-    write_zones_stats(t0, indiv, *phenotypicTargetHandler, zones_output_file);
+    write_zones_stats(t0, indiv, phenotypicTargetHandler, zones_output_file);
   }
   write_operons_stats(t0, indiv, operons_output_file);
 
@@ -447,11 +447,11 @@ int main(int argc, char** argv)
     mystats->write_statistics_of_this_indiv(indiv);
 
     // Optional outputs
-    write_environment_stats(time(), *phenotypicTargetHandler, env_output_file);
+    write_environment_stats(time(), phenotypicTargetHandler, env_output_file);
     write_terminators_stats(time(), indiv, term_output_file);
     if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
     {
-      write_zones_stats(time(), indiv, *phenotypicTargetHandler, zones_output_file);
+      write_zones_stats(time(), indiv, phenotypicTargetHandler, zones_output_file);
     }
     write_operons_stats(time(), indiv, operons_output_file);
 
@@ -508,13 +508,13 @@ FILE* open_environment_stat_file(const char * prefix)
 
 
 void write_environment_stats(int64_t t,
-                             const PhenotypicTargetHandler& pth,
+                             const PhenotypicTargetHandler* pth,
                              FILE* env_output_file)
 {
   // Num gener
   fprintf(env_output_file, "%" PRId64, t);
 
-  for (const Gaussian& g: pth.gaussians())
+  for (const Gaussian& g: pth->gaussians())
     fprintf(env_output_file,
             "     %.16f %.16f %.16f",
             g.mean(), g.width(), g.height());
@@ -573,15 +573,15 @@ FILE* open_zones_stat_file(const char * prefix)
 
 void write_zones_stats(int64_t t,
                        Individual* indiv,
-                       PhenotypicTargetHandler& phenotypicTargetHandler,
+                       const PhenotypicTargetHandler* phenotypicTargetHandler,
                        FILE* zones_output_file)
 {
-  assert(phenotypicTargetHandler.phenotypic_target().nb_segments() > 1);
+  assert(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1);
 
-  int16_t nb_segments = phenotypicTargetHandler.phenotypic_target().nb_segments();
+  int16_t nb_segments = phenotypicTargetHandler->phenotypic_target().nb_segments();
   int16_t num_segment = 0;
   PhenotypicSegment** segments =
-      phenotypicTargetHandler.phenotypic_target().segments();
+      phenotypicTargetHandler->phenotypic_target().segments();
 
   // Tables : index 0 for the 0 segment
   //                1 for the neutral segment
@@ -601,8 +601,8 @@ void write_zones_stats(int64_t t,
   }
 
 
-  Fuzzy* activ = NULL;
-  Fuzzy* inhib = NULL;
+  AbstractFuzzy* activ = NULL;
+  AbstractFuzzy* inhib = NULL;
   Phenotype* phen  = NULL;
 
 
@@ -650,9 +650,9 @@ void write_zones_stats(int64_t t,
 
   for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
-    geom_area_activ[num_segment]  = activ->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
-    geom_area_inhib[num_segment]  = inhib->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
-    geom_area_phen[num_segment]   = phen->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_activ[num_segment]  = activ->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_inhib[num_segment]  = inhib->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_phen[num_segment]   = phen->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
   }
 
 

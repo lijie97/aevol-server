@@ -37,7 +37,20 @@
 #include <cstdlib>
 #include <cassert>
 
-#include "Individual.h"
+#ifdef __NO_X
+  #ifndef __REGUL
+    #include <Individual.h>
+  #else
+    #include <raevol/Individual_R.h>
+  #endif
+#elif defined __X11
+  #ifndef __REGUL
+    #include <Individual_X11.h>
+  #else
+    #include <raevol/Individual_R_X11.h>
+  #endif
+#endif
+
 #include "Habitat.h"
 
 

@@ -38,6 +38,8 @@
 #include <cassert>
 
 #include <list>
+#include <vector>
+#include <set>
 #include <memory>
 
 #include <zlib.h>
@@ -50,6 +52,9 @@
 #include "Gaussian.h"
 #include "Point.h"
 #include "Habitat.h"
+#ifdef __REGUL
+#include "raevol/Protein_R.h"
+#endif
 
 namespace aevol {
 // =================================================================
@@ -93,6 +98,8 @@ class ParamLoader {
   // =========================================================================
   //                                  Setters
   // =========================================================================
+
+  ParameterLine * get_line( int32_t* );
 
  protected :
   // =========================================================================
@@ -270,13 +277,44 @@ class ParamLoader {
   // Logs
   int8_t logs_;
 
+  // Fuzzy set flavor
+  int _fuzzy_flavor;
+
   // Other
   bool more_stats_;  // TODO : explain
 
   #ifdef __REGUL
-    // ------------------------------------------------------- Binding matrix
-    double binding_zeros_percentage_;
+    // Regulation factors
+    double  _hill_shape_n;
+    double  _hill_shape_theta;
+    double  _hill_shape;
+
+    // Degradation equation
+    double  _degradation_rate;
+    int     _nb_degradation_step;
+
+    // Individual life
+    int     _nb_indiv_age;
+
+    // List of evaluation step
+    std::set<int>  _list_eval_step;
+
+    // Binding matrix
+    double _binding_zeros_percentage;
+    bool   _random_binding_matrix;
+
+    // Heredity
+    bool    _with_heredity;
+    double  _protein_presence_limit;
+
+    //Specific variatio method
+    double _env_switch_probability;
+    std::vector<std::list<Gaussian>> _env_gaussians_list;
+    std::vector<std::list<int8_t>> _env_signals_list;
+    std::vector<Protein_R*> _signals_models;
   #endif
+
+  bool first_regul_;
 };
 
 } // namespace aevol

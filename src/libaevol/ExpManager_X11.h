@@ -102,45 +102,72 @@ enum key_map {
   KEY_9 = 49
 };
 
-class ExpManager_X11 : public ExpManager {
+
+class ExpManager_X11 : public ExpManager
+{
   friend class ExpSetup;
+  
+  public :
+    
+    // =================================================================
+    //                             Constructors
+    // =================================================================
+    ExpManager_X11(void);
+  
+    // =================================================================
+    //                             Destructors
+    // =================================================================
+    virtual ~ExpManager_X11(void) noexcept;
+  
+    // =================================================================
+    //                              Accessors
+    // =================================================================
+    inline bool display_on();
+    inline Display* get_display();
+    inline int8_t screen();
+    inline Atom* atoms();
+    bool show_window(int8_t win) { return static_cast<bool>((show_window_ >> win) & 1); }
+    bool new_show_window(int8_t win) { return static_cast<bool>((new_show_window_ >> win) & 1); }
+    inline X11Window * window(int8_t win);
+  
+    // =================================================================
+    //                            Public Methods
+    // =================================================================
+    KeyCode* key_codes() { return key_codes_;  };
+    virtual void display(void);
+    void toggle_display_on_off(void);
+    void handle_events(void);
+    void display(X11Window * win, const AbstractFuzzy& fuzzy, color_map color,
+        bool fill = false, bool bold = false);
+    void display_3D(X11Window * win,
+                                  const AbstractFuzzy& fuzz, color_map color,
+                    int x0 , int y0, bool fill /*= false*/ );
+    void display_grid(X11Window * win, double** cell_grid);
 
- public:
-  // =================================================================
-  //                             Constructors
-  // =================================================================
-  ExpManager_X11();
-
-  // =================================================================
-  //                             Destructors
-  // =================================================================
-  virtual ~ExpManager_X11();
-
-  // =================================================================
-  //                              Accessors
-  // =================================================================
-  bool show_window(int8_t win) { return static_cast<bool>((show_window_ >> win) & 1); }
-  bool new_show_window(int8_t win) { return static_cast<bool>((new_show_window_ >> win) & 1); }
-
-  // =================================================================
-  //                            Public Methods
-  // =================================================================
-  virtual void display();
-  void toggle_display_on_off();
-  void handle_events();
-  void display(X11Window* win, const Fuzzy& fuzzy, color_map color, bool fill = false, bool bold = false);
-  void display_grid(X11Window* win, double** cell_grid);
-
-  // =================================================================
-  //                           Public Attributes
-  // =================================================================
-
- protected:
-  // =================================================================
-  //                         Forbidden Constructors
-  // =================================================================
-  ExpManager_X11(const ExpManager_X11& model) = delete;
-
+    // =================================================================
+    //                           Public Attributes
+    // =================================================================
+  
+  
+  
+  
+  
+    protected :
+  
+    // =================================================================
+    //                         Forbidden Constructors
+    // =================================================================
+    //~ ExpManager_X11(void)
+    //~ {
+      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      //~ exit( EXIT_FAILURE );
+    //~ };
+    ExpManager_X11( const ExpManager_X11 &model )
+    {
+      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
+  
   // =================================================================
   //                           Protected Methods
   // =================================================================

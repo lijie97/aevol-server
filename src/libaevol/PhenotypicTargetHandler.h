@@ -44,7 +44,7 @@
 #include "Gaussian.h"
 #include "ae_enums.h"
 #include "JumpingMT.h"
-#include "Fuzzy.h"
+#include "AbstractFuzzy.h"
 
 using std::list;
 
@@ -54,7 +54,6 @@ namespace aevol {
 // ============================================================================
 //                          Class declarations
 // ============================================================================
-
 
 
 
@@ -90,20 +89,20 @@ class PhenotypicTargetHandler
   //                              Public Methods
   // ==========================================================================
   void BuildPhenotypicTarget();
-  void ApplyVariation();
+  virtual void ApplyVariation();
 
-  void save(gzFile backup_file) const;
-  void load(gzFile backup_file);
+  virtual void save(gzFile backup_file) const;
+  virtual void load(gzFile backup_file);
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
   const PhenotypicTarget& phenotypic_target() const {
     return *phenotypic_target_;
-  };
-  double geometric_area() const {
-    return phenotypic_target_->geometric_area();
-  };
+  }
+  double get_geometric_area() const {
+    return phenotypic_target_->fuzzy()->get_geometric_area();
+  }
   double area_by_feature(int8_t feature) const {
     return phenotypic_target_->area_by_feature(feature);
   }
@@ -112,6 +111,10 @@ class PhenotypicTargetHandler
   }
   const PhenotypicTargetVariationMethod& var_method() const {
     return var_method_;
+  }
+
+  virtual double mean_environmental_area() const {
+    return phenotypic_target_->area_by_feature(METABOLISM);
   }
 
   // ==========================================================================
@@ -123,7 +126,7 @@ class PhenotypicTargetHandler
   void set_sampling(int16_t val){
     sampling_ = val;
   }
-  void set_segmentation(int8_t nb_segments,
+  virtual void set_segmentation(int8_t nb_segments,
                         double* boundaries,
                         PhenotypicFeature * features,
                         bool separate_segments = false) {
@@ -131,7 +134,7 @@ class PhenotypicTargetHandler
                                          boundaries,
                                          features,
                                          separate_segments);
-  };
+  }
   void set_var_method(PhenotypicTargetVariationMethod var_method) {
     var_method_ = var_method;
   }
@@ -202,7 +205,7 @@ class PhenotypicTargetHandler
 
   // -------------------------------------------------------------------- Noise
   /// Current noise (pure noise that is added to the phenotypic target)
-  Fuzzy* cur_noise_ = NULL;
+  AbstractFuzzy* cur_noise_ = NULL;
   /// PRNG used for noise
   std::shared_ptr<JumpingMT> noise_prng_;
   PhenotypicTargetNoiseMethod noise_method_;

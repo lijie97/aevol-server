@@ -39,12 +39,12 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "Fuzzy.h"
+#include "AbstractFuzzy.h"
 
 namespace aevol {
 
 // A phenotype is nothing more than a fuzzy set
-using Phenotype = Fuzzy;
+using Phenotype = AbstractFuzzy;
 
 } // namespace aevol
 

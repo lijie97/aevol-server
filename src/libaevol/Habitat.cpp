@@ -30,6 +30,10 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
 #include "Habitat.h"
 
 #include <iostream>
@@ -57,7 +61,7 @@ namespace aevol {
 // ============================================================================
 Habitat::Habitat() {
   compound_amount_ = 0.0;
-  phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>();
+  phenotypic_target_handler_ = new PhenotypicTargetHandler();
 }
 
 Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
@@ -67,9 +71,8 @@ Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
 }
 
 Habitat::Habitat(gzFile backup_file,
-                 std::shared_ptr<PhenotypicTargetHandler>
-                    phenotypic_target_handler_) {
-  load(backup_file, phenotypic_target_handler_);
+                 PhenotypicTargetHandler* phenotypic_target_handler) {
+  load(backup_file, phenotypic_target_handler);
 }
 
 // ============================================================================
@@ -80,22 +83,24 @@ Habitat::Habitat(gzFile backup_file,
 //                                   Methods
 // ============================================================================
 void Habitat::ApplyVariation() {
+  //printf("Appel au apply_variation de habitat\n");
   phenotypic_target_handler_->ApplyVariation();
 }
 
 void Habitat::save(gzFile backup_file,
                    bool skip_phenotypic_target /*=false*/) const {
+  //printf("Appel a la sauvegarde de Habitat\n");
   gzwrite(backup_file, &compound_amount_, sizeof(compound_amount_));
   if (not skip_phenotypic_target)
     phenotypic_target_handler_->save(backup_file);
 }
 
 void Habitat::load(gzFile backup_file,
-                   std::shared_ptr<PhenotypicTargetHandler>
-                      phenotypic_target_handler) {
+                   PhenotypicTargetHandler* phenotypic_target_handler) {
+  //printf("Appel au chargement de Habitat\n");
   gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
   if (phenotypic_target_handler == nullptr)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(backup_file);
+    phenotypic_target_handler_ = new PhenotypicTargetHandler(backup_file);
   else
     phenotypic_target_handler_ = phenotypic_target_handler;
 }

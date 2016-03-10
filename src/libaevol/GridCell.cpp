@@ -39,8 +39,15 @@
 #include <iostream>
 
 #include "Individual.h"
-#include "Individual_X11.h"
 
+#ifdef __X11
+#include "Individual_X11.h"
+#endif
+
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#include "raevol/Habitat_R.h"
+#endif
 
 using std::cout;
 using std::endl;
@@ -64,11 +71,15 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 GridCell::GridCell(int16_t x, int16_t y,
-                           std::unique_ptr<Habitat>&& habitat,
-                           Individual * indiv)
+                   std::unique_ptr<Habitat>&& habitat,
+                   Individual* indiv, std::shared_ptr<JumpingMT> mut_prng,
+                   std::shared_ptr<JumpingMT> stoch_prng)
 {
   x_ = x;
   y_ = y;
+
+  mut_prng_ = mut_prng;
+  stoch_prng_ = stoch_prng;
 
   individual_ = indiv;
   habitat_ = std::move(habitat);
@@ -76,10 +87,9 @@ GridCell::GridCell(int16_t x, int16_t y,
 
 GridCell::GridCell(gzFile backup_file,
                    ExpManager* exp_m,
-                   std::shared_ptr<PhenotypicTargetHandler>
-                      phenotypic_target_handler_)
+                   PhenotypicTargetHandler* phenotypic_target_handler)
 {
-  load(backup_file, exp_m, phenotypic_target_handler_);
+  load(backup_file, exp_m, phenotypic_target_handler);
 }
 
 // =================================================================
@@ -103,30 +113,49 @@ void GridCell::save(gzFile backup_file,
   gzwrite(backup_file, &x_, sizeof(x_));
   gzwrite(backup_file, &y_, sizeof(y_));
 
-  habitat_->save(backup_file, skip_phenotypic_target);
+  mut_prng_->save(backup_file);
+  stoch_prng_->save(backup_file);
 
+  #ifndef __REGUL
+  habitat_->save(backup_file, skip_phenotypic_target);
   individual_->save(backup_file);
+  #else
+  (dynamic_cast<Habitat_R*> (habitat_.get()))->save(backup_file, skip_phenotypic_target);
+  (dynamic_cast<Individual_R*> (individual_))->save(backup_file);
+  #endif
 }
 
 void GridCell::load(gzFile backup_file,
                         ExpManager * exp_m,
-                        std::shared_ptr<PhenotypicTargetHandler>
-                            phenotypic_target_handler)
+                        PhenotypicTargetHandler* phenotypic_target_handler)
 {
   gzread(backup_file, &x_, sizeof(x_));
   gzread(backup_file, &y_, sizeof(y_));
 
-#if __cplusplus == 201103L
-  habitat_ = make_unique<Habitat>(backup_file, phenotypic_target_handler);
-#else
-  habitat_ = std::make_unique<Habitat>(backup_file, phenotypic_target_handler);
-#endif
+  // Retrieve PRNGs
+  mut_prng_ = std::make_shared<JumpingMT>(backup_file);
+  stoch_prng_ = std::make_shared<JumpingMT>(backup_file);
 
+  habitat_ = HabitatFactory::create_unique_habitat(backup_file, phenotypic_target_handler);
+
+  // Create individual se charge de retourner un individual_R pour RAevol
   individual_ = Individual::CreateIndividual(exp_m, backup_file);
+
+  individual_->set_mut_prng(mut_prng_);
+  individual_->set_stoch_prng(stoch_prng_);
 
   individual_->set_grid_cell(this);
 }
 
+/// TODO
+std::shared_ptr<JumpingMT> GridCell::mut_prng() const {
+  return mut_prng_;
+}
+
+/// TODO
+std::shared_ptr<JumpingMT> GridCell::stoch_prng() const {
+  return stoch_prng_;
+}
 // =================================================================
 //                           Protected Methods
 // =================================================================

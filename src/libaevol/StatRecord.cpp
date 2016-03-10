@@ -46,6 +46,11 @@
 #include "ReplicationReport.h"
 #include "DnaReplicationReport.h"
 
+#ifdef __REGUL
+#include "raevol/Rna_R.h"
+#include "raevol/Protein_R.h"
+#include "raevol/Individual_R.h"
+#endif
 
 using std::list;
 
@@ -152,9 +157,64 @@ StatRecord::StatRecord(ExpManager* exp_m,
                  // individual. It is present for column alignment.
 
   #ifdef __REGUL
-    // TODO
-  #endif
+  int32_t nb_activators = 0;
+  int32_t nb_operators = 0;
+  double mean_activator_activity = 0.0;
+  double mean_operator_activity = 0.0;
 
+  Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
+
+  for (auto& rna: indiv_r->get_rna_list_coding()) {
+    for (unsigned int i = 0; i < ((Rna_R*)rna)->nb_influences(); i++) {
+      //compute the activity
+      if (((Rna_R*)rna)->_enhancing_coef_list[i] > 0)
+      {
+        nb_activators++;
+	      mean_activator_activity += ((Rna_R*)rna)->_enhancing_coef_list[i];
+      }
+
+      if (((Rna_R*)rna)->_operating_coef_list[i] > 0)
+      {
+	      nb_operators++;
+	      mean_operator_activity += ((Rna_R*)rna)->_operating_coef_list[i];
+      }
+    }
+  }
+
+
+  nb_enhancing_influences_       = nb_activators;
+  nb_operating_influences_       = nb_operators;
+  nb_influences_                 = nb_operating_influences_ + nb_enhancing_influences_;
+  av_value_influences_           = ( mean_activator_activity + mean_operator_activity ) / double ( nb_activators + nb_operators);
+  av_value_enhancing_influences_ = ( mean_activator_activity ) / double ( nb_activators );
+  av_value_operating_influences_ = ( mean_operator_activity ) / double ( nb_operators);
+
+  //ajout raevol_yo_2
+  int32_t nb_TF = 0;
+  int32_t nb_pure_TF = 0;
+
+  for (auto& prot: indiv_r->protein_list()) {
+    if(prot->is_functional())
+    {
+      if(!((Protein_R*)prot)->is_TF_)
+      {
+				nb_TF+=1;
+      }
+    }
+    else
+    {
+      if(((Protein_R*)prot)->is_TF_)
+      {
+				nb_TF+=1;
+				nb_pure_TF+=1;
+      }
+    }
+  }
+
+	nb_TF_ = nb_TF;
+	nb_pure_TF_ = nb_pure_TF;
+  #endif  
+    
   // TODO : These conditions are not well managed!!!
   if (indiv->nb_genetic_units() == 1)
   { // One single Genetic Unit

@@ -64,7 +64,19 @@ class Individual_X11 : public virtual Individual
     //                             Constructors
     // =================================================================
     Individual_X11(ExpManager * exp_manager, gzFile backup_file);
-    Individual_X11(const Individual_X11 &model, bool replication_report_copy);
+    //Individual_X11(const Individual_X11 &model, bool replication_report_copy);
+    Individual_X11(const Individual_X11& other);
+    Individual_X11(ExpManager * exp_m,
+      std::shared_ptr<JumpingMT> mut_prng,
+      std::shared_ptr<JumpingMT> stoch_prng,
+      std::shared_ptr<MutationParams> param_mut,
+      double w_max,
+      int32_t min_genome_length,
+      int32_t max_genome_length,
+      bool allow_plasmids,
+      int32_t id,
+      const char* strain_name,
+      int32_t age);
     Individual_X11(Individual_X11 * const parent, int32_t id,
                       std::shared_ptr<JumpingMT> mut_prng,
                       std::shared_ptr<JumpingMT> stoch_prng);
@@ -73,6 +85,7 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                             Destructors
     // =================================================================
+
     virtual ~Individual_X11();
 
     // =================================================================

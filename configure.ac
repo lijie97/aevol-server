@@ -22,12 +22,12 @@ AC_CONFIG_MACRO_DIR([m4])
 # We want to use automake
 AM_INIT_AUTOMAKE
 
+# Define C++ compilator
+AC_PROG_CXX([gcc,icc])
+
 # Detect C++11 or C++14
-if test -z "$HAVE_CXX14" ; then
-   AX_CXX_COMPILE_STDCXX_11([noext])
-else
-   AX_CXX_COMPILE_STDCXX_14([noext])
-fi
+AX_CXX_COMPILE_STDCXX_14([noext],[optional])
+AX_CXX_COMPILE_STDCXX_11([noext])
 
 #if test -z "$HAVE_CXX14";
 #fi
@@ -39,7 +39,7 @@ AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 #AC_CONFIG_HEADERS([config.h:config.h.in])
 
 # Checks for programs
-AC_PROG_CXX([clang-omp++ clang++ g++])
+AC_PROG_CXX([clang-omp++ clang++ g++ icc])
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_OPENMP
@@ -295,6 +295,98 @@ if test "x$enable_profiling" = "xyes" ; then
    AEVOLCXXFLAGS+=" -pg"
    AEVOLLDFLAGS+=" -pg"
 fi
+
+#  ************************* --with-raevol option *******************************
+#
+#  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use raevol])
+AC_ARG_WITH(raevol, [--with-raevol to enable regulation], raevol=$withval, raevol=no)
+AC_MSG_RESULT($raevol)
+AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
+if test "x$raevol" = "xyes" ; then
+   AC_DEFINE(__REGUL)
+   AM_INIT_AUTOMAKE([subdir-objects])
+fi
+
+#  ************************* --with-blas option *******************************
+#
+#  With this option, BLAS matrix/vector manipulation is enabled, __BLAS__ flag is defined and -lopenblas added
+#
+
+
+AC_MSG_CHECKING([whether to use BLAS library])
+AC_ARG_WITH(blas, [--with-blas to the use of BLAS library], blas=$withval, blas=no)
+AC_MSG_RESULT($blas)
+AM_CONDITIONAL(WITH_BLAS, test x"$blas" != xno)
+if test "x$blas" = "xyes" ; then
+   AC_DEFINE(__BLAS__)
+   LIBS+=" -lopenblas"
+fi
+
+#  ************************* --with-mkl option *******************************
+#
+#  With this option, MKL library is enabled, __BLAS__ flag is defined and -lmkl.. added
+#
+
+
+AC_MSG_CHECKING([whether to use MKL library])
+AC_ARG_WITH(mkl, [--with-mkl to the use of MKL library], mkl=$withval, mkl=no)
+AC_MSG_RESULT($mkl)
+AM_CONDITIONAL(WITH_MKL, test x"$mkl" != xno)
+if test "x$mkl" = "xyes" ; then
+   AC_DEFINE(__BLAS__)
+   LIBS+=" -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential"
+fi
+
+#  ************************* --with-atlas option *******************************
+#
+#  With this option, ATLAS library is enabled, __BLAS__ flag is defined and -latlas added
+#
+
+
+AC_MSG_CHECKING([whether to use ATLAS library])
+AC_ARG_WITH(atlas, [--with-atlas to the use of ATLAS library], atlas=$withval, atlas=no)
+AC_MSG_RESULT($atlas)
+AM_CONDITIONAL(WITH_ATLAS, test x"$atlas" != xno)
+if test "x$atlas" = "xyes" ; then
+   AC_DEFINE(__BLAS__)
+   LIBS+=" -lcblas -latlas"
+fi
+
+
+
+#  ************************* --with-tbb option *******************************
+#
+#  With this option, Intel TBB local parallelization is enabled, __TBB flag is defined and -ltbb added
+#
+
+
+AC_MSG_CHECKING([whether to use TBB library])
+AC_ARG_WITH(tbb, [--with-tbb to the use of TBB library], tbb=$withval, tbb=no)
+AC_MSG_RESULT($tbb)
+AM_CONDITIONAL(WITH_TBB, test x"$tbb" != xno)
+if test "x$tbb" = "xyes" ; then
+   AC_DEFINE(__TBB)
+   LIBS+=" -ltbb"
+fi
+
+#  ************************* --with-tracing option *******************************
+#
+#  With this option, tracing is enabled and the __TRACING__ flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use tracing])
+AC_ARG_WITH(tracing, [--with-tracing to enable tracing], tracing=$withval, tracing=no)
+AC_MSG_RESULT($tracing)
+AM_CONDITIONAL(WITH_TRACING, test x"$tracing" != xno)
+if test "x$tracing" = "xyes" ; then
+   AC_DEFINE(__TRACING__)
+fi
+
 
 #  ************************* back to GENERAL stuff *******************************
 

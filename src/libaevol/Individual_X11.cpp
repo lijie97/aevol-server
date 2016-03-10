@@ -65,12 +65,11 @@ Individual_X11::Individual_X11(ExpManager * exp_manager, gzFile backup_file) :
   init_occupied_sectors();
 }
 
-//Individual_X11::Individual_X11(const Individual_X11 &model,
-//                                     bool replication_report_copy) :
-//    Individual(model, replication_report_copy)
-//{
-//  init_occupied_sectors();
-//}
+Individual_X11::Individual_X11(const Individual_X11 &model) :
+    Individual(model)
+{
+  init_occupied_sectors();
+}
 
 Individual_X11::Individual_X11(Individual_X11 * const parent,
                                      int32_t id,
@@ -80,6 +79,16 @@ Individual_X11::Individual_X11(Individual_X11 * const parent,
 {
   init_occupied_sectors();
 }
+
+Individual_X11::Individual_X11(ExpManager * exp_m, std::shared_ptr<JumpingMT> mut_prng,
+    std::shared_ptr<JumpingMT> stoch_prng, std::shared_ptr<MutationParams> param_mut,
+    double w_max, int32_t min_genome_length, int32_t max_genome_length, bool allow_plasmids,
+    int32_t id, const char* strain_name, int32_t age) :
+    Individual(exp_m,mut_prng,stoch_prng,param_mut,w_max,min_genome_length,
+      max_genome_length,allow_plasmids,id,strain_name,age) {
+init_occupied_sectors();
+}
+
 
 /*Individual_X11::Individual_X11(char* genome, int32_t genome_size) : Individual(genome, genome_size)
 {

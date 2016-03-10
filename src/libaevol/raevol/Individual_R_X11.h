@@ -37,32 +37,42 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual_R.h"
-#include "ae_individual_X11.h"
+#include "Individual_R.h"
+#include "Individual_X11.h"
 
 namespace aevol {
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
+class Individual_R_X11 : public Individual_R, Individual_X11
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_R_X11(const ae_individual_R_X11 &model, bool replication_report_copy);
-    ae_individual_R_X11();
-    ae_individual_R_X11(ae_individual_R_X11* parent, int32_t id,
-                          ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
-    ae_individual_R_X11(gzFile backup_file);
+	Individual_R_X11( const Individual_R_X11 &model  );
+  Individual_R_X11(ExpManager * exp_m,
+                   std::shared_ptr<JumpingMT> mut_prng,
+                   std::shared_ptr<JumpingMT> stoch_prng,
+                   std::shared_ptr<MutationParams> param_mut,
+                   double w_max,
+                   int32_t min_genome_length,
+                   int32_t max_genome_length,
+                   bool allow_plasmids,
+                   int32_t id,
+                   const char* strain_name,
+                   int32_t age);
+	Individual_R_X11(  Individual_R_X11* parent, int32_t id,
+                     std::shared_ptr<JumpingMT> mut_prng,
+                     std::shared_ptr<JumpingMT> stoch_prng);
+	Individual_R_X11( ExpManager* exp_m, gzFile backup_file );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_individual_R_X11();
-
+    virtual ~Individual_R_X11( void ) noexcept;
     // =================================================================
     //                              Accessors
     // =================================================================
@@ -70,7 +80,9 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
     // =================================================================
     //                            Public Methods
     // =================================================================
-
+    virtual void display_regulation( X11Window* win );
+    virtual void display_concentrations( X11Window* win );
+    virtual void display_phenotype( X11Window* win, const Habitat_R& habitat );
     // =================================================================
     //                           Public Attributes
     // =================================================================

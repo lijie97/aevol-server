@@ -68,7 +68,6 @@ int main(int argc, char* argv[])
   char* chromosome_file_name = NULL;
   char* plasmid_file_name = NULL;
 
-
   // 2) Define allowed options
   const char * options_list = "hVf:o:c:p:";
   static struct option long_options_list[] = {
@@ -222,6 +221,7 @@ int main(int argc, char* argv[])
   // 8) Save the experiment
   if (output_dir == NULL)
   {
+    //printf("Debut de la sauvegarde\n");
     exp_manager->Save();
   }
   else

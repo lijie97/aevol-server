@@ -57,7 +57,7 @@ class InsertionHT : public HorizontalTransfer {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~InsertionHT(); //< Destructor
+  virtual ~InsertionHT() noexcept; //< Destructor
 
   // ==========================================================================
   //                                Operators

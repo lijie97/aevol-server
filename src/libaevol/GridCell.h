@@ -45,7 +45,12 @@
 //                            Project Files
 // =================================================================
 #include "Individual.h"
+#include "HabitatFactory.h"
+#ifndef __REGUL
 #include "Habitat.h"
+#else
+#include "raevol/Habitat_R.h"
+#endif
 
 namespace aevol {
 
@@ -70,10 +75,11 @@ class GridCell
   GridCell(const GridCell &) = delete;
   GridCell(int16_t x, int16_t y,
                std::unique_ptr<Habitat>&& habitat,
-               Individual * indiv);
+               Individual * indiv, std::shared_ptr<JumpingMT> mut_prng,
+              std::shared_ptr<JumpingMT> stoch_prng);
   GridCell(gzFile backup_file,
                ExpManager * exp_m,
-               std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
+               PhenotypicTargetHandler* phenotypic_target_handler);
 
   // =================================================================
   //                             Destructors
@@ -100,12 +106,16 @@ class GridCell
     return habitat_->phenotypic_target();
   }
 
+
+  std::shared_ptr<JumpingMT> mut_prng() const;
+  std::shared_ptr<JumpingMT> stoch_prng() const;
   // =================================================================
   //                        Accessors: setters
   // =================================================================
   inline void set_compound_amount(double compound_amount);
   inline void set_individual(Individual * indiv);
-
+  inline void set_mut_prng(std::shared_ptr<JumpingMT> prng);
+  inline void set_stoch_prng(std::shared_ptr<JumpingMT> prng);
   // =================================================================
   //                            Public Methods
   // =================================================================
@@ -114,7 +124,7 @@ class GridCell
             bool skip_phenotypic_target = false) const;
   void load(gzFile backup_file,
             ExpManager * exp_m,
-            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
+            PhenotypicTargetHandler* phenotypic_target_handler);
 
  protected :
   // =================================================================
@@ -132,6 +142,9 @@ class GridCell
   Individual* individual_ = NULL;
 
   std::unique_ptr<Habitat> habitat_ = nullptr;
+
+  std::shared_ptr<JumpingMT> mut_prng_ = nullptr;
+  std::shared_ptr<JumpingMT> stoch_prng_ = nullptr;
 };
 
 
@@ -180,7 +193,13 @@ inline void GridCell::set_individual(Individual * indiv)
   }
 }
 
+inline void GridCell::set_mut_prng(std::shared_ptr<JumpingMT> prng) {
+  mut_prng_ = prng;
+}
 
+inline void GridCell::set_stoch_prng(std::shared_ptr<JumpingMT> prng) {
+  stoch_prng_ = prng;
+}
 
 // =====================================================================
 //                       Inline functions' definition

@@ -58,7 +58,7 @@ class ReplacementHT : public HorizontalTransfer {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~ReplacementHT(); //< Destructor
+  virtual ~ReplacementHT() noexcept; //< Destructor
 
   // ==========================================================================
   //                                Operators

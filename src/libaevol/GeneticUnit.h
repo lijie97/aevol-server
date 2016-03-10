@@ -35,19 +35,28 @@
 #include "Dna.h"
 #include "Rna.h"
 #include "Protein.h"
-#include "Fuzzy.h"
+#include "AbstractFuzzy.h"
+#include "FuzzyFactory.h"
 #include "JumpingMT.h"
 #include "Utils.h"
 #include "PhenotypicTarget.h"
 
+#ifdef __REGUL
+#include "raevol/Protein_R.h"
+#endif
 
 using std::vector;
 using std::list;
 
 namespace aevol {
 
+#ifndef __REGUL
 // TODO vld: check types
 using Promoters1Strand = std::list<Rna>;
+#else
+using Promoters1Strand = std::list<Rna_R>;
+#endif
+
 using Promoters2Strands = std::vector<Promoters1Strand>;
 
 class ExpManager;
@@ -88,23 +97,28 @@ class GeneticUnit {
   // =================================================================
   //                              Accessors
   // =================================================================
+
   ExpManager* exp_m() const;
 
   Individual* indiv() const;
 
   Dna* dna() const;
 
-  Fuzzy* activ_contribution() const;
+  AbstractFuzzy* activ_contribution() const;
 
-  Fuzzy* inhib_contribution() const;
+  AbstractFuzzy* inhib_contribution() const;
 
-  Fuzzy* phenotypic_contribution() const;
+  AbstractFuzzy* phenotypic_contribution() const;
 
   const Promoters2Strands& rna_list() const;
 
   // TODO return as reference
+#ifndef __REGUL
   std::list<Protein>& protein_list(Strand strand);
-
+#else
+  std::list<Protein_R>& protein_list(Strand strand);
+  #endif
+  void clear_protein_list(Strand strand);
   void clear_transcribed_proteins();
 
 
@@ -112,7 +126,6 @@ class GeneticUnit {
   const char* sequence() const;
 
   int32_t seq_length() const;
-
 
   // Statistical data
   int32_t nb_coding_RNAs() const;
@@ -178,7 +191,6 @@ class GeneticUnit {
   int32_t min_gu_length() const;
 
   int32_t max_gu_length() const;
-
 
   void set_min_gu_length(int32_t min_gu_length);
 
@@ -381,21 +393,26 @@ class GeneticUnit {
   // =================================================================
   //                          Protected Attributes
   // =================================================================
+
   ExpManager* exp_m_;
 
   Individual* indiv_;
   Dna* dna_;
-  Fuzzy* activ_contribution_;
-  Fuzzy* inhib_contribution_;
+  AbstractFuzzy* activ_contribution_;
+  AbstractFuzzy* inhib_contribution_;
   // NB : phenotypic_contribution_ is only an indicative value,
   // not used for the whole phenotype computation
-  Fuzzy* phenotypic_contribution_;
+  AbstractFuzzy* phenotypic_contribution_;
 
   // rna_list_ always has 2 elements: make it an std::array
   Promoters2Strands rna_list_ = {{},
                                  {}};
   // protein_list_ always has 2 elements: make it an std::array
+#ifndef __REGUL
   std::array<std::list<Protein>, 2> protein_list_; // = {{},{}};
+#else
+  std::array<std::list<Protein_R>, 2> protein_list_; // = {{},{}};
+  #endif
 
   // DM: For plasmid work, we sometimes *need* all the data
   // (e.g. fitness, secretion) calculated for each GU

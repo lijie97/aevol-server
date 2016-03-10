@@ -198,7 +198,8 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
 /// Semantically speaking, we deal with fuzzy sets over the same
 /// range. So adding two fuzzy sets sums up to adding the probability
 /// functions.
-void Fuzzy::add(const Fuzzy& fs) {
+void Fuzzy::add(const AbstractFuzzy& f) {
+  const Fuzzy fs = (Fuzzy&)(f);
   // assert(invariant());
 
   // Add interpolated points_ to current fuzzy set so that
@@ -217,7 +218,8 @@ void Fuzzy::add(const Fuzzy& fs) {
 /// Substract to the current fuzzy set.
 ///
 /// TODO: Dumb version (?), to be completed.
-void Fuzzy::sub(const Fuzzy& fs) {
+void Fuzzy::sub(const AbstractFuzzy& f) {
+  const Fuzzy fs = (Fuzzy&)(f);
   // assert(invariant());
 
   for (const Point& q: fs.points_)
@@ -238,13 +240,13 @@ double trapezoid_area(const Point& p1, const Point& p2) {
               (p2.x - p1.x));
 }
 
-double Fuzzy::geometric_area() const {
-  return geometric_area(points_.begin(), points_.end());
+double Fuzzy::get_geometric_area() const {
+  return get_geometric_area(points_.begin(), points_.end());
 }
 
 /// Get integral of the absolute of probability function.
 ///
-double Fuzzy::geometric_area(list<Point>::const_iterator begin,
+double Fuzzy::get_geometric_area(list<Point>::const_iterator begin,
                              list<Point>::const_iterator end) const {
   // Precondition would be along the lines of:
   // assert(points_.begin() <= begin < end < points_.end());
@@ -254,7 +256,7 @@ double Fuzzy::geometric_area(list<Point>::const_iterator begin,
   return area;
 }
 
-double Fuzzy::geometric_area(double x_start, double x_stop) const {
+double Fuzzy::get_geometric_area(double x_start, double x_stop) const {
   // assert(invariant());
   // Precondition: X_MIN ≤ x_start < x_stop ≤ X_MAX
   assert(X_MIN <= x_start and x_start < x_stop and x_stop <= X_MAX);
@@ -271,7 +273,7 @@ double Fuzzy::geometric_area(double x_start, double x_stop) const {
   // area after prev(end)
   double last_part = trapezoid_area(*prev(end), Point(x_stop, y(x_stop)));
 
-  return first_part + geometric_area(begin, end) + last_part;
+  return first_part + get_geometric_area(begin, end) + last_part;
 }
 
 // double Fuzzy::geometric_area(double start_segment, double end_segment) const {
@@ -286,7 +288,7 @@ double Fuzzy::geometric_area(double x_start, double x_stop) const {
 double area_test() {
   Fuzzy f;
   f.add_triangle(0.5, 1.0, 0.5);
-  double a = f.geometric_area(0.0, 1.0);
+  double a = f.get_geometric_area(0.0, 1.0);
   return a;
 }
 
@@ -327,7 +329,8 @@ void Fuzzy::clip(clipping_direction direction, double bound) {
 }
 
 
-bool Fuzzy::is_identical_to(const Fuzzy& fs, double tolerance) const {
+bool Fuzzy::is_identical_to(const AbstractFuzzy& f, double tolerance ) const {
+  const Fuzzy fs = (Fuzzy&)(f);
   // Since list::size() has constant complexity since C++ 11, checking
   // size is an inexpensive first step.
   if (points_.size() != fs.points_.size())
@@ -408,11 +411,30 @@ bool Fuzzy::is_increasing() const {
 ///
 // TODO <david.parsons@inria.fr> Not sure if it's useful.
 void Fuzzy::reset() {
-  // assert(invariant());
-
   for (Point& p: points_)
     p.y = 0;
 
   // assert(invariant());
+}
+
+void Fuzzy::clear() {
+  points_.clear();
+}
+
+void Fuzzy::add_point(double x, double y)
+{
+  list<Point>::iterator p = find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
+  if (prev(p)->x == x) {
+    prev(p)->y += y;
+  } else {
+    points_.insert(p,Point(x,y));
+  }
+}
+
+void Fuzzy::print() const
+{
+  for (const Point& p : points_)
+    printf("[%f : %f] ",p.x,p.y);
+  printf("\n");
 }
 } // namespace aevol

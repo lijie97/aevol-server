@@ -116,7 +116,7 @@ class Individual : public Observable {
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~Individual();
+  virtual ~Individual() noexcept(true);
 
   // =================================================================
   //                        Accessors: Getters
@@ -169,11 +169,10 @@ class Individual : public Observable {
   int32_t rank() const;
 
 
-  Fuzzy* phenotype_activ() const;
-
-  Fuzzy* phenotype_inhib() const;
-
   Phenotype* phenotype() const;
+
+  AbstractFuzzy* phenotype_activ() const;
+  AbstractFuzzy* phenotype_inhib() const;
 
   const PhenotypicTarget& phenotypic_target() const;
 
@@ -535,8 +534,8 @@ class Individual : public Observable {
   int32_t rank_; // [1 ; POP_SIZE]
 
   // Total activation (resp. inhibition) of metabolic functions
-  Fuzzy* phenotype_activ_;
-  Fuzzy* phenotype_inhib_;
+  AbstractFuzzy* phenotype_activ_;
+  AbstractFuzzy* phenotype_inhib_;
 
   // The phenotype, roughly corresponding to the sum of activ and inhib
   Phenotype* phenotype_;

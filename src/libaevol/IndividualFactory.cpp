@@ -32,6 +32,7 @@
 // ============================================================================
 #include "IndividualFactory.h"
 
+#include <limits>
 
 namespace aevol {
 
@@ -78,7 +79,21 @@ Individual* IndividualFactory::create_random_individual(
     std::shared_ptr<JumpingMT> local_prng,
     bool better_than_flat) {
   // Create a genome-less individual with the provided parameters
-  Individual* indiv = new Individual(exp_m,
+
+  #ifndef __REGUL
+  Individual *indiv = new Individual(exp_m,
+                         mut_prng,
+                         stoch_prng,
+                         param_mut,
+                         w_max,
+                         min_genome_length,
+                         max_genome_length,
+                         allow_plasmids,
+                         id,
+                         strain_name,
+                         0);
+  #else
+  Individual_R* indiv = new Individual_R(exp_m,
                                      mut_prng,
                                      stoch_prng,
                                      param_mut,
@@ -89,6 +104,7 @@ Individual* IndividualFactory::create_random_individual(
                                      id,
                                      strain_name,
                                      0);
+  #endif
 
   // Give it a randomly generated genome
   indiv->add_GU(indiv, chromosome_initial_length, local_prng);
@@ -98,21 +114,34 @@ Individual* IndividualFactory::create_random_individual(
   // satisfied
   double env_metabolic_area;
   if (better_than_flat) {
-    env_metabolic_area = habitat.phenotypic_target().
-        area_by_feature(METABOLISM);
+#ifdef __REGUL
+    env_metabolic_area = dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->phenotypic_target_handler().mean_environmental_area();
+#else
+    env_metabolic_area = habitat.phenotypic_target_handler().mean_environmental_area();
+#endif
 
     indiv->EvaluateInContext(habitat);
+    //TESTING
+    //exit(EXIT_FAILURE);
 
-    while (indiv->dist_to_target_by_feature(METABOLISM) >=
-        env_metabolic_area) {
+    double r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+
+    // indiv->dist_to_target_by_feature(METABOLISM) >= env_metabolic_area
+    while (r_compare >= 0.0) {
+#ifdef __REGUL
+      indiv->set_networked(false);
+#endif
+
       // Replace the former chromosome by a new random one and re-evaluate the
       // individual
       indiv->remove_GU(0);
       indiv->add_GU(indiv, chromosome_initial_length, local_prng);
       indiv->EvaluateInContext(habitat);
+      //debug :
+     // printf("Dist to target du nouveau clone : %f\n", indiv->dist_to_target_by_feature(METABOLISM));
+      r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
     }
   }
-
   if (allow_plasmids) // We create a plasmid
   {
     if (plasmid_initial_gene) {

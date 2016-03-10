@@ -44,6 +44,8 @@
 // =================================================================
 #include "ParamLoader.h"
 
+#include "FuzzyFactory.h"
+
 #if __cplusplus == 201103L
 #include "make_unique.h"
 #endif
@@ -53,6 +55,14 @@
 #include "OutputManager.h"
 #include "Individual.h"
 #include "IndividualFactory.h"
+#include "ExpManager.h"
+
+
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#endif
+
+
 
 #include "JumpingMT.h"
 #include "Gaussian.h"
@@ -250,10 +260,27 @@ ParamLoader::ParamLoader(const char* file_name)
   // Other
   more_stats_ = false;
 
+  _fuzzy_flavor = 0;
+
 #ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
-    binding_zeros_percentage_ = 75;
-  #endif
+    _binding_zeros_percentage = 75;
+
+    _protein_presence_limit = 1e-2;
+    _degradation_rate  = 1;
+    _nb_degradation_step  = 10;
+    _nb_indiv_age         = 20;
+    _with_heredity          = false;
+
+    _hill_shape_n      = 4;
+    _hill_shape_theta  = 0.5;
+    _hill_shape        = std::pow( _hill_shape_theta, _hill_shape_n );
+
+    _list_eval_step.insert(_nb_indiv_age);
+    _env_switch_probability = 0.1;
+#endif
+
+  first_regul_ = true;
 
   // Read parameter file
   param_file_name_ = strdup(file_name);
@@ -864,8 +891,25 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) ||
       (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
   {
-    std_env_gaussians.push_back(
+    #ifdef __REGUL
+      // le premier chiffre est l'indice d'environment en convention humaine ( le premier a 1)
+      // On vérifie que cet indice n'est pas trop élevé ni négatif pour éviter les crash
+      if ( atoi(line->words[1]) - 1 < _env_gaussians_list.size() && atoi(line->words[1]) > 0)
+      {
+        (_env_gaussians_list.at( atoi(line->words[1]) - 1)).push_back
+        ( Gaussian(  atof( line->words[2] ), atof( line->words[3] ), atof( line->words[4] ) ) );
+      }
+      else
+      {
+        printf( " ERROR in param file \"%s\" on line %" PRId32 " : There is only %ld environment.\n",
+         param_file_name_, cur_line, _env_gaussians_list.size() );
+        exit( EXIT_FAILURE );
+      }
+      
+    #else
+          std_env_gaussians.push_back(
         Gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
+    #endif
   }
   else if (strcmp(line->words[0], "ENV_SAMPLING") == 0)
   {
@@ -937,6 +981,21 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       env_var_method_ = LOCAL_GAUSSIANS_VAR;
       env_var_seed_ = atoi(line->words[2]);
     }
+      #ifdef __REGUL
+    else if (strcmp(line->words[1], "switch_in_a_list") == 0)
+    {
+      if (line->nb_words != 3) {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+               param_file_name_, cur_line);
+        printf("usage: %s %s probability to switch between different environments\n",
+               line->words[0], line->words[1]);
+        exit(EXIT_FAILURE);
+      }
+      env_var_method_ = SWITCH_IN_A_LIST;
+      _env_switch_probability = atof(line->words[2]);
+    }
+    #endif
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32
@@ -1131,62 +1190,67 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       }
     }
   }
+  else if (strcmp(line->words[0], "FUZZY_FLAVOR") == 0)
+  {
+    _fuzzy_flavor = atoi(line->words[1]);
+  }
 
 #ifdef __REGUL
     else if (strcmp(line->words[0], "HILL_SHAPE_N") == 0)
     {
-      hill_shape_n_ = atof(line->words[1]);
+      _hill_shape_n = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "HILL_SHAPE_THETA") == 0)
     {
-      hill_shape_theta_ = atof(line->words[1]);
+      _hill_shape_theta = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "DEGRADATION_RATE") == 0)
     {
-      degradation_rate_ = atof(line->words[1]);
+      _degradation_rate = atof(line->words[1]);
     }
-    else if (strcmp(line->words[0], "DEGRADATION_STEP") == 0)
+    else if (strcmp(line->words[0], "NB_DEGRADATION_STEP") == 0)
     {
-      degradation_step_ = atof(line->words[1]);
-      // Check that 1/degradation_step is an integer
-      if(1/degradation_step_ != ((int) 1/degradation_step_))
-      {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : DEGRADATION STEP\n",
-               param_file_name_, cur_line);
-        printf("This step has to divide 1.\n");
-        exit(EXIT_FAILURE);
-      }
+      _nb_degradation_step = atoi(line->words[1]);
     }
-    else if (strcmp(line->words[0], "INDIVIDUAL_EVALUATION_DATES") == 0)
+    else if (strcmp(line->words[0], "NB_INDIV_AGE") == 0)
     {
-      individual_evaluation_nbr_ = line->nb_words - 1;
-      if(individual_evaluation_nbr_ == 0)
-      {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : no evaluation dates provided\n",
-               param_file_name_, cur_line);
-        exit(EXIT_FAILURE);
-      }
-      ae_array_short* individual_evaluation_dates  = new ae_array_short(individual_evaluation_nbr_);
-      for(int16_t i = 0 ; i < individual_evaluation_nbr_ ; i++)
-      {
-        individual_evaluation_dates->set_value(i, atoi(line->words[1 + i]));
-      }
-      individual_evaluation_dates->sort();
-      individual_evaluation_dates_ = individual_evaluation_dates;
+      _nb_indiv_age = atoi(line->words[1]);
+    }
+    else if (strcmp(line->words[0], "RANDOM_BINDING_MATRIX") == 0)
+    {
+        if (strncmp(line->words[1], "true", 4) == 0)
+        {
+        	_random_binding_matrix = true;
+        }
+        else if (strncmp(line->words[1], "false", 5) == 0)
+        {
+        	_random_binding_matrix = false;
+        }
+        else
+        {
+          printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown more random_binding_matrix option (use true/false).\n",
+                 param_file_name_, cur_line);
+          exit(EXIT_FAILURE);
+        }
     }
     else if (strcmp(line->words[0], "BINDING_ZEROS_PERCENTAGE") == 0)
     {
-      binding_zeros_percentage_ = atof(line->words[1]);
+      _binding_zeros_percentage = atof(line->words[1]);
+    }
+    else if (strcmp(line->words[0], "INDIVIDUAL_EVALUATION_AGES") == 0)
+    {
+      _list_eval_step.clear();
+      for (int i = 1; i < line->nb_words; i++) _list_eval_step.insert(atoi(line->words[i]));
     }
     else if (strcmp(line->words[0], "WITH_HEREDITY") == 0)
     {
       if (strncmp(line->words[1], "true", 4) == 0)
       {
-        with_heredity_ = true;
+        _with_heredity = true;
       }
       else if (strncmp(line->words[1], "false", 5) == 0)
       {
-        with_heredity_ = false;
+        _with_heredity = false;
       }
       else
       {
@@ -1197,7 +1261,108 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else if (strcmp(line->words[0], "PROTEIN_PRESENCE_LIMIT") == 0)
     {
-      protein_presence_limit_ = atof(line->words[1]);
+      _protein_presence_limit = atof(line->words[1]);
+    }
+    else if (strcmp(line->words[0], "NB_ENVIRONMENTS") == 0)
+    {
+      int16_t nb_env = atoi( line->words[1] );
+      
+      if( nb_env < 1 )
+      {
+        printf( "ERROR in param file \"%s\" on line %" PRId32 " : you must have at least one environment\n", param_file_name_, cur_line );
+        printf("you put %" PRId16 "\n", nb_env);
+        exit( EXIT_FAILURE );
+      }
+
+      // Utile uniquement en cas de reprise sur backup
+      // Je ne sais pas comment ça va se passer avec cette version ...
+      if( _env_gaussians_list.size() > 0 )
+      {
+        _env_gaussians_list.clear();
+      }
+
+      
+      if( _env_signals_list.size() > 0 )
+      {
+        _env_signals_list.clear();
+      }
+      
+
+      for( int16_t i = 0; i < nb_env; i++)
+      {
+        _env_gaussians_list.push_back(std::list<Gaussian>());
+        _env_signals_list.push_back(std::list<int8_t>());
+      }
+    }
+    else if (strcmp(line->words[0], "CREATE_SIGNAL") == 0)
+    {
+      int signal_lenght = line->nb_words - 1;     
+
+      std::list<Codon*> codon_list;
+      Codon* codon = NULL;
+      for (int8_t i = 0; i < signal_lenght; i++)
+      {
+        if(strcmp(line->words[i+1], "h0")==0)
+        {
+          codon = new Codon(CODON_H0);
+        }
+        else if(strcmp(line->words[i+1], "h1")==0)
+        {
+          codon = new Codon(CODON_H1);
+        }
+        else if(strcmp(line->words[i+1], "w0")==0)
+        {
+          codon = new Codon(CODON_W0);
+        }
+        else if(strcmp(line->words[i+1], "w1")==0)
+        {
+          codon = new Codon(CODON_W1);
+        }
+        else if(strcmp(line->words[i+1], "m0")==0)
+        {
+          codon = new Codon(CODON_M0);
+        }
+        else if(strcmp(line->words[i+1], "m1")==0)
+        {
+          codon = new Codon(CODON_M1);
+        }
+        else
+        {
+          printf("Error this codon doesn't exist\n");
+          exit( EXIT_FAILURE );
+        }
+        codon_list.push_back(codon);
+      }
+      _signals_models.push_back(new Protein_R(codon_list, 0.5, w_max_));
+
+      for (auto cod : codon_list) delete cod;
+
+      codon_list.clear();
+    }
+    else if (strcmp(line->words[0], "ENV_ADD_SIGNAL") == 0)
+    {
+      // le premier chiffre est l'indice d'environment en convention humaine ( le premier a 1)
+      // On vérifie que cet indice n'est pas trop élevé ni négatif pour éviter les crash
+      if ( atoi(line->words[1]) - 1 < _env_signals_list.size() && atoi(line->words[1]) > 0)
+      {
+        (_env_signals_list.at( atoi(line->words[1]) - 1)).push_back(atoi(line->words[2]) - 1);
+      }
+      else
+      {
+        printf( " ERROR in param file \"%s\" on line %" PRId32 " : There are only %ld environment.\n",
+         param_file_name_, cur_line, _env_gaussians_list.size() );
+        exit( EXIT_FAILURE );
+      }
+    } else if (strcmp(line->words[0], "REGUL_FIRST") == 0)
+    {
+        if (strncmp(line->words[1], "true", 4) == 0)
+        {
+        	first_regul_ = true;
+        }
+        else if (strncmp(line->words[1], "false", 5) == 0)
+        {
+        	first_regul_ = false;
+        }
     }
   #endif
 
@@ -1276,6 +1441,8 @@ void ParamLoader::CheckConsistency() {
   }
 }
 
+FuzzyFactory* FuzzyFactory::fuzzyFactory = NULL;
+
 void ParamLoader::load(ExpManager * exp_m, bool verbose,
                        char* chromosome, int32_t lchromosome,
                        char* plasmid, int32_t lplasmid) {
@@ -1305,6 +1472,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   Selection* sel = exp_m->sel();
   OutputManager* output_m = exp_m->output_m();
   output_m->InitStats();
+
 
   // 1) ------------------------------------- Initialize the experimental setup
 #if __cplusplus == 201103L
@@ -1339,19 +1507,55 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_secretion_contrib_to_fitness(secretion_contrib_to_fitness_);
   exp_s->set_secretion_cost(secretion_cost_);
 
+  exp_s->set_fuzzy_flavor(_fuzzy_flavor);
+
+#ifdef __REGUL
+  exp_s->set_with_heredity(_with_heredity);
+  exp_s->set_degradation_rate(_degradation_rate);
+  exp_s->set_nb_degradation_step(_nb_degradation_step);
+  exp_s->set_nb_indiv_age(_nb_indiv_age);
+  exp_s->set_list_eval_step(_list_eval_step);
+  exp_s->set_protein_presence_limit(_protein_presence_limit);
+  exp_s->set_hill_shape(pow( _hill_shape_theta, _hill_shape_n ));
+  exp_s->set_hill_shape_n( _hill_shape_n );
+
+  exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,prng_);
+#endif
+  exp_s->set_first_regul(first_regul_);
+
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
 
   // 2) --------------------------------------------- Create and init a Habitat
+  #ifndef __REGUL
   Habitat habitat;
+  #else
+  Habitat_R habitat;
+  #endif
+
   // Shorthand for phenotypic target handler
+  #ifndef __REGUL
   PhenotypicTargetHandler& phenotypic_target_handler =
       habitat.phenotypic_target_handler_nonconst();
+  #else
+  PhenotypicTargetHandler_R& phenotypic_target_handler =
+      habitat.phenotypic_target_handler_nonconst();
+  #endif
+
   // Move the gaussian list from the parameters to the phen target handler
+  #ifndef __REGUL  
   phenotypic_target_handler.set_gaussians(std_env_gaussians);
+  #else
+  phenotypic_target_handler.set_gaussians(_env_gaussians_list);
+  phenotypic_target_handler.set_signals_models(_signals_models);
+  phenotypic_target_handler.set_signals(_env_signals_list);
+  #endif
 
   // Copy the sampling
   phenotypic_target_handler.set_sampling(env_sampling_);
 
   // Set phenotypic target segmentation
+
   if((env_axis_features_ != NULL) && (env_axis_segment_boundaries_ != NULL)) {
     // if param.in contained a line starting with ENV_AXIS_FEATURES,
     // we use the values indicated on this line
@@ -1370,6 +1574,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     phenotypic_target_handler.set_var_method(env_var_method_);
     phenotypic_target_handler.set_var_prng(std::make_shared<JumpingMT>(env_var_seed_));
     phenotypic_target_handler.set_var_sigma_tau(env_var_sigma_, env_var_tau_);
+#ifdef __REGUL
+    phenotypic_target_handler.set_switch_probability(_env_switch_probability);
+#endif
   }
 
   // Set phenotypic target noise
@@ -1384,11 +1591,20 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   }
 
   // Build the phenotypic target
+  #ifndef __REGUL
   phenotypic_target_handler.BuildPhenotypicTarget();
+  #else
+  phenotypic_target_handler.InitPhenotypicTargetsAndModels( _nb_indiv_age );
+  #endif
 
-  if (verbose)
+  if (verbose) {
+    #ifndef __REGUL 
     printf("Entire geometric area of the phenotypic target : %f\n",
-           phenotypic_target_handler.geometric_area());
+           phenotypic_target_handler.get_geometric_area());
+    #else
+    phenotypic_target_handler.print_geometric_areas();
+    #endif
+  }
 
 
   // 3) --------------------------------------------- Create the new population
@@ -1422,6 +1638,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   if (chromosome != NULL)
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
+    #ifndef __REGUL
     Individual * indiv = new Individual(exp_m,
                                              mut_prng,
                                              stoch_prng,
@@ -1433,6 +1650,20 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
                                              id_new_indiv++,
                                              strain_name_,
                                              0);
+    #else
+    Individual_R * indiv = new Individual_R(exp_m,
+                                         mut_prng,
+                                         stoch_prng,
+                                         param_mut,
+                                         w_max_,
+                                         min_genome_length_,
+                                         max_genome_length_,
+                                         allow_plasmids_,
+                                         id_new_indiv++,
+                                         strain_name_,
+                                         0);
+
+    #endif
 
     indiv->add_GU(chromosome, lchromosome);
     indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
@@ -1465,7 +1696,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     // Make the clones and add them to the list of individuals
     for (int32_t i = 1 ; i < init_pop_size_ ; i++)
     {
+      #ifndef __REGUL
       Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
+      #else
+      Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
+      #endif
       clone->EvaluateInContext(habitat);
       indivs.push_back(clone);
     }
@@ -1517,7 +1752,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       for (int32_t i = 1 ; i < init_pop_size_ ; i++)
       {
         // Add new clone to the list
+        #ifndef __REGUL
         Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
+        #else
+        Individual_R * clone = Individual_R::CreateClone(dynamic_cast<Individual_R*>(indiv), id_new_indiv++);
+        #endif
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
       }
@@ -1594,7 +1833,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       for (int32_t i = 1 ; i < init_pop_size_ ; i++)
       {
         // Add clone to the list
+        #ifndef __REGUL
         Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
+        #else
+        Individual_R * clone = Individual_R::CreateClone(dynamic_cast<Individual_R*>(indiv), id_new_indiv++);
+        #endif
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
       }
@@ -1637,7 +1880,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   // -------------------------------------------------------- Spatial structure
   exp_m->InitializeWorld(grid_width_, grid_height_,
-                         world_prng,
+                         world_prng,mut_prng,stoch_prng,
                          habitat,
                          true);
   World* world = exp_m->world();
@@ -1645,9 +1888,6 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   world->set_secretion_diffusion_prop(secretion_diffusion_prop_);
   world->set_is_well_mixed(well_mixed);
   world->set_partial_mix_nb_permutations(partial_mix_nb_permutations);
-
-  world->set_mut_prng(mut_prng);
-  world->set_stoch_prng(stoch_prng);
 
   // Set each individual's position on the grid
   int16_t x, y;

@@ -55,7 +55,7 @@ class Duplication : public Rearrangement {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Duplication() = default; //< Destructor
+  virtual ~Duplication() noexcept = default; //< Destructor
 
   // ==========================================================================
   //                                Operators

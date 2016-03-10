@@ -56,7 +56,7 @@ class PointMutation : public LocalMutation {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~PointMutation() = default; //< Destructor
+  virtual ~PointMutation() noexcept = default; //< Destructor
 
   // ==========================================================================
   //                                Operators
