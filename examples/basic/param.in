@@ -1,5 +1,5 @@
 ###################################
-#         AEVOL PARAMATERS        #
+#         AEVOL PARAMETERS        #
 ###################################
 
 ##### 1. Initial setup ############
@@ -9,7 +9,7 @@ INIT_POP_SIZE           1024
 WORLD_SIZE              32 32
 INIT_METHOD             ONE_GOOD_GENE CLONE
 CHROMOSOME_INITIAL_LENGTH   5000
-FUZZY_FLAVOR   0
+FUZZY_FLAVOR            0
 
 ##### 2. Selection ################
 SELECTION_SCHEME        fitness_proportionate   1000
