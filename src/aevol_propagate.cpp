@@ -24,13 +24,11 @@
 //
 // ****************************************************************************
 
-
 const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
-
-// =================================================================
-//                              Libraries
-// =================================================================
+// ============================================================================
+//                                   Includes
+// ============================================================================
 #include <err.h>
 #include <errno.h>
 #include <getopt.h>
@@ -39,14 +37,8 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #include <string.h>
 #include <sys/stat.h>
 
-
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #if __cplusplus == 201103L
-#include "make_unique.h"
+  #include "make_unique.h"
 #endif
 
 #ifdef __X11
@@ -54,6 +46,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #else
   #include "ExpManager.h"
 #endif
+
 #include "ParamLoader.h"
 
 using namespace aevol;
@@ -64,113 +57,95 @@ using namespace aevol;
 void print_help(char* prog_path);
 
 
-
-
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   // 1) Initialize command-line option variables with default values
-  int64_t num_gener      = -1;
-  int32_t generalseed    = -1;
-  int32_t selseed        = -1;
-  int32_t mutseed        = -1;
-  int32_t stochseed      = -1;
-  int32_t envvarseed     = -1;
-  int32_t envnoiseseed   = -1;
+  int64_t num_gener = -1;
+  int32_t generalseed = -1;
+  int32_t selseed = -1;
+  int32_t mutseed = -1;
+  int32_t stochseed = -1;
+  int32_t envvarseed = -1;
+  int32_t envnoiseseed = -1;
 
-  char* input_dir   = NULL;
-  char* output_dir  = NULL;
-  bool  verbose     = false;
+  char* input_dir = NULL;
+  char* output_dir = NULL;
+  bool verbose = false;
 
   // 2) Define allowed options
 //  const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
-  const char * options_list = "g:ho:vVS:s:m:t:e:n:";
+  const char* options_list = "g:ho:vVS:s:m:t:e:n:";
   static struct option long_options_list[] = {
-    { "gener",    required_argument,  NULL, 'g' },
-    { "help",     no_argument,        NULL, 'h' },
+      {"gener",          required_argument, NULL, 'g'},
+      {"help",           no_argument,       NULL, 'h'},
 //    { "in",       required_argument,  NULL, 'i' },
-    { "out",      required_argument,  NULL, 'o' },
-    { "verbose",  no_argument,        NULL, 'v' },
-    { "version",  no_argument,        NULL, 'V' },
-    { "general-seed",     required_argument,  NULL, 'S' },
-    { "sel-seed",     required_argument,  NULL, 's' },
-    { "mut-seed",     required_argument,  NULL, 'm' },
-    { "stoch-seed",     required_argument,  NULL, 't' },
-    { "env-var-seed",    required_argument,  NULL, 'e' },
-    { "env-noise-seed",    required_argument,  NULL, 'n' },
-    { 0, 0, 0, 0 }
+      {"out",            required_argument, NULL, 'o'},
+      {"verbose",        no_argument,       NULL, 'v'},
+      {"version",        no_argument,       NULL, 'V'},
+      {"general-seed",   required_argument, NULL, 'S'},
+      {"sel-seed",       required_argument, NULL, 's'},
+      {"mut-seed",       required_argument, NULL, 'm'},
+      {"stoch-seed",     required_argument, NULL, 't'},
+      {"env-var-seed",   required_argument, NULL, 'e'},
+      {"env-noise-seed", required_argument, NULL, 'n'},
+      {0, 0, 0, 0}
   };
 
   // 3) Get actual values of the command-line options
   int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
-  {
-    switch (option)
-    {
-    case 'h' :
-      {
+  while ((option = getopt_long(argc, argv, options_list, long_options_list,
+                               NULL)) != -1) {
+    switch (option) {
+      case 'h' : {
         print_help(argv[0]);
         exit(EXIT_SUCCESS);
       }
-    case 'V' :
-      {
+      case 'V' : {
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
-    case 'g' :
-      {
+      case 'g' : {
         num_gener = atoi(optarg);
         break;
       }
-    case 'S' :
-      {
+      case 'S' : {
         generalseed = atoi(optarg);
         break;
       }
-   case 's' :
-      {
+      case 's' : {
         selseed = atoi(optarg);
         break;
       }
-    case 'm' :
-      {
+      case 'm' : {
         mutseed = atoi(optarg);
         break;
       }
-    case 't' :
-      {
+      case 't' : {
         stochseed = atoi(optarg);
         break;
       }
-    case 'e' :
-      {
+      case 'e' : {
         envvarseed = atoi(optarg);
         break;
       }
-    case 'n' :
-      {
+      case 'n' : {
         envnoiseseed = atoi(optarg);
         break;
       }
-    case 'i' :
-      {
-        input_dir = new char[strlen(optarg)+1];
+      case 'i' : {
+        input_dir = new char[strlen(optarg) + 1];
         strcpy(input_dir, optarg);
         break;
       }
-    case 'o' :
-      {
-        output_dir = new char[strlen(optarg)+1];
+      case 'o' : {
+        output_dir = new char[strlen(optarg) + 1];
         strcpy(output_dir, optarg);
         break;
       }
-    case 'v' :
-      {
+      case 'v' : {
         verbose = true;
         break;
       }
-    default :
-      {
+      default : {
         // An error message is printed in getopt_long, we just need to exit
         exit(EXIT_FAILURE);
       }
@@ -179,21 +154,19 @@ int main(int argc, char* argv[])
 
   if ((generalseed != -1) &&
       ((selseed != -1) || (mutseed != -1) || (stochseed != -1) ||
-        (envvarseed != -1) || (envnoiseseed != -1)))
-    {
-      fprintf(stderr, "Error: if you specify a general seed with -S or --seed, you should not specify additional seeds.\n");
-      exit(EXIT_FAILURE);
-    }
+       (envvarseed != -1) || (envnoiseseed != -1))) {
+    fprintf(stderr,
+            "Error: if you specify a general seed with -S or --seed, you should not specify additional seeds.\n");
+    exit(EXIT_FAILURE);
+  }
 
 
   // 4) Set undefined command line parameters to default values
-  if (input_dir == NULL)
-  {
+  if (input_dir == NULL) {
     input_dir = new char[255];
     sprintf(input_dir, "%s", ".");
   }
-  if (output_dir == NULL)
-  {
+  if (output_dir == NULL) {
     output_dir = new char[255];
     sprintf(output_dir, "%s", "output");
   }
@@ -219,8 +192,7 @@ int main(int argc, char* argv[])
 
   // 5) Check whether the output directory is missing
   struct stat stat_buf;
-  if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT))
-  {
+  if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT)) {
     // printf("Directory \"%s\" does not exist. Create it ? [Y/n]\n", output_dir);
     // char answer = getchar();
     // while (answer != 'y' and answer != 'n' and answer != '\n')
@@ -235,8 +207,7 @@ int main(int argc, char* argv[])
 
     // if (answer == 'n') exit(EXIT_SUCCESS);
 
-    if (mkdir(output_dir, 0755))
-    {
+    if (mkdir(output_dir, 0755)) {
       err(EXIT_FAILURE, output_dir, errno);
     }
   }
@@ -247,15 +218,14 @@ int main(int argc, char* argv[])
   //                    Load the model experiment
   // =================================================================
   #ifndef __NO_X
-    ExpManager* exp_manager = new ExpManager_X11();
+  ExpManager* exp_manager = new ExpManager_X11();
   #else
-    ExpManager* exp_manager = new ExpManager();
+  ExpManager* exp_manager = new ExpManager();
   #endif
 
   exp_manager->load(input_dir, num_gener, verbose, true);
 
-  if (generalseed != -1)
-  {
+  if (generalseed != -1) {
 #if __cplusplus == 201103L
     auto prng = make_unique<JumpingMT>(generalseed);
 
@@ -277,84 +247,86 @@ int main(int argc, char* argv[])
     exp_manager->world()->set_stoch_prng(
         std::make_shared<JumpingMT>(prng->random(1000000)));
 
-    for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
-      for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++)
-      {
-        exp_manager->world()->grid(x,y)->set_mut_prng(std::make_shared<JumpingMT>(
-            exp_manager->world()->mut_prng()->random(1000000)));
-        exp_manager->world()->grid(x,y)->individual()->set_mut_prng(
-            exp_manager->world()->grid(x,y)->mut_prng());
+    for (int16_t x = 0; x < exp_manager->world()->width(); x++) {
+      for (int16_t y = 0; y < exp_manager->world()->height(); y++) {
+        exp_manager->world()->grid(x, y)->set_mut_prng(
+            std::make_shared<JumpingMT>(
+                exp_manager->world()->mut_prng()->random(1000000)));
+        exp_manager->world()->grid(x, y)->individual()->set_mut_prng(
+            exp_manager->world()->grid(x, y)->mut_prng());
 
-        exp_manager->world()->grid(x,y)->set_stoch_prng(std::make_shared<JumpingMT>(
-            exp_manager->world()->stoch_prng()->random(1000000)));
-        exp_manager->world()->grid(x,y)->individual()->set_stoch_prng(
-            exp_manager->world()->grid(x,y)->stoch_prng());
+        exp_manager->world()->grid(x, y)->set_stoch_prng(
+            std::make_shared<JumpingMT>(
+                exp_manager->world()->stoch_prng()->random(1000000)));
+        exp_manager->world()->grid(x, y)->individual()->set_stoch_prng(
+            exp_manager->world()->grid(x, y)->stoch_prng());
       }
+    }
 
     exp_manager->world()->set_phen_target_prngs(
         std::make_shared<JumpingMT>(prng->random(1000000)),
         std::make_shared<JumpingMT>(prng->random(1000000)));
   }
-  else
-  {
-    if (selseed != -1)
-    {
-#if __cplusplus == 201103L
-      exp_manager->world()->set_prng(
-          make_unique<JumpingMT>(selseed));
-      exp_manager->sel()->set_prng(
-          make_unique<JumpingMT>(selseed));
-#else
-      exp_manager->world()->set_prng(
-          std::make_unique<JumpingMT>(selseed));
-      exp_manager->sel()->set_prng(
-          std::make_unique<JumpingMT>(selseed));
-#endif
+  else {
+    if (selseed != -1) {
+      #if __cplusplus == 201103L
+        exp_manager->world()->set_prng(
+            make_unique<JumpingMT>(selseed));
+        exp_manager->sel()->set_prng(
+            make_unique<JumpingMT>(selseed));
+      #else
+        exp_manager->world()->set_prng(
+            std::make_unique<JumpingMT>(selseed));
+        exp_manager->sel()->set_prng(
+            std::make_unique<JumpingMT>(selseed));
+      #endif
     }
 
-    if (mutseed != -1)
-    {
+    if (mutseed != -1) {
       exp_manager->world()->set_mut_prng(
           std::make_shared<JumpingMT>(mutseed));
 
-      for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
-        for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++)
-        {
-          exp_manager->world()->grid(x,y)->set_mut_prng(
-              std::make_shared<JumpingMT>(exp_manager->world()->mut_prng()->random(1000000)));
-          exp_manager->world()->grid(x,y)->individual()->set_mut_prng(
-              exp_manager->world()->grid(x,y)->mut_prng());
+      for (int16_t x = 0; x < exp_manager->world()->width(); x++) {
+        for (int16_t y = 0; y < exp_manager->world()->height(); y++) {
+          exp_manager->world()->grid(x, y)->set_mut_prng(
+              std::make_shared<JumpingMT>(
+                  exp_manager->world()->mut_prng()->random(1000000)));
+          exp_manager->world()->grid(x, y)->individual()->set_mut_prng(
+              exp_manager->world()->grid(x, y)->mut_prng());
         }
+      }
     }
 
-    if (stochseed != -1)
-    {
+    if (stochseed != -1) {
       exp_manager->world()->set_stoch_prng(
           std::make_shared<JumpingMT>(stochseed));
 
-      for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
-        for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++)
-        {
-          exp_manager->world()->grid(x,y)->set_stoch_prng(
-              std::make_shared<JumpingMT>(exp_manager->world()->stoch_prng()->random(1000000)));
-          exp_manager->world()->grid(x,y)->individual()->set_stoch_prng(
-              exp_manager->world()->grid(x,y)->stoch_prng());
+      for (int16_t x = 0; x < exp_manager->world()->width(); x++) {
+        for (int16_t y = 0; y < exp_manager->world()->height(); y++) {
+          exp_manager->world()->grid(x, y)->set_stoch_prng(
+              std::make_shared<JumpingMT>(
+                  exp_manager->world()->stoch_prng()->random(1000000)));
+          exp_manager->world()->grid(x, y)->individual()->set_stoch_prng(
+              exp_manager->world()->grid(x, y)->stoch_prng());
         }
+      }
     }
 
-    if (envvarseed != -1)
-    {
+    if (envvarseed != -1) {
       // TODO <david.parsons@inria.fr> adapt to new organization
-      printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
+      printf(
+          "%s:%d: error: feature has to be adapted to the new organization.\n",
+          __FILE__, __LINE__);
       exit(EXIT_FAILURE);
 //      exp_manager->env()->set_var_prng(
 //          std::make_shared<JumpingMT>(envvarseed));
     }
 
-    if (envnoiseseed != -1)
-    {
+    if (envnoiseseed != -1) {
       // TODO <david.parsons@inria.fr> adapt to new organization
-      printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
+      printf(
+          "%s:%d: error: feature has to be adapted to the new organization.\n",
+          __FILE__, __LINE__);
       exit(EXIT_FAILURE);
 //      exp_manager->env()->set_noise_prng(
 //          std::make_shared<JumpingMT>(envnoiseseed));
@@ -366,21 +338,19 @@ int main(int argc, char* argv[])
 }
 
 
-
-
-
-
-
 /*!
   \brief
 
 */
-void print_help(char* prog_path)
-{
+void print_help(char* prog_path) {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
-  else prog_name = prog_path;
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
 
   printf("******************************************************************************\n");
   printf("*                                                                            *\n");

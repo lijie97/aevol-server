@@ -24,9 +24,9 @@
 //
 // ****************************************************************************
 
-// =================================================================
-//                              Libraries
-// =================================================================
+// ============================================================================
+//                                   Includes
+// ============================================================================
 #include <errno.h>
 #include <inttypes.h>
 #include <getopt.h>
@@ -36,12 +36,9 @@
 #include <sys/stat.h>
 
 #ifdef _OPENMP
-#include <omp.h>
+  #include <omp.h>
 #endif
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #ifdef __X11
   #include "ExpManager_X11.h"
 #else
@@ -53,7 +50,7 @@
 using namespace aevol;
 
 #ifndef __NO_X
-void catch_usr1(int sig_num);
+  void catch_usr1(int sig_num);
 #endif
 
 void print_help(char* prog_path);
@@ -61,10 +58,7 @@ void print_help(char* prog_path);
 static ExpManager* exp_manager = NULL;
 
 
-
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   // Set handlers for signals to be caught
   #ifndef __NO_X
     signal(SIGUSR1, catch_usr1);
@@ -108,27 +102,27 @@ int main(int argc, char* argv[])
   // -------------------------------------------------------------------------
   // 2) Define allowed options
   // -------------------------------------------------------------------------
-  const char * options_list = "he:n:r:vVwxp:";
+  const char* options_list = "he:n:r:vVwxp:";
   static struct option long_options_list[] = {
     // Print help
-    { "help",     no_argument,        NULL, 'h' },
+    {"help",     no_argument,       NULL, 'h'},
     // time up to which to simulate (use either -e or -n)
-    { "end",  required_argument,  NULL, 'e' },
+    {"end",      required_argument, NULL, 'e'},
     // Number of generations to be run (use either -e or -n)
-    { "nsteps",  required_argument,  NULL, 'n' },
+    {"nsteps",   required_argument, NULL, 'n'},
     // Resume from generation X (default: 0)
-    { "resume",   required_argument,  NULL, 'r' },
+    {"resume",   required_argument, NULL, 'r'},
     // Be verbose
-    { "verbose",  no_argument,        NULL, 'v' },
+    {"verbose",  no_argument,       NULL, 'v'},
     // Print version
-    { "version",  no_argument,        NULL, 'V' },
+    {"version",  no_argument,       NULL, 'V'},
     // Pause after loading
-    { "wait",     no_argument,        NULL, 'w' },
+    {"wait",     no_argument,       NULL, 'w'},
     // Don't display X outputs on start
-    { "noX",      no_argument,        NULL, 'x' },
+    {"noX",      no_argument,       NULL, 'x'},
     // Run in parallel on x threads (0 or negative value yields system default)
-    { "parallel", required_argument,  NULL, 'p' },
-    { 0, 0, 0, 0 }
+    {"parallel", required_argument, NULL, 'p'},
+    {0, 0, 0, 0}
   };
 
 
@@ -149,15 +143,17 @@ int main(int argc, char* argv[])
         exit(EXIT_SUCCESS);
       }
       case 'e' : {
-        if (nb_steps != -1)
+        if (nb_steps != -1) {
           Utils::ExitWithUsrMsg("use either option -n or -e, not both");
+        }
 
         t_end = atol(optarg);
         break;
       }
       case 'n' : {
-        if (t_end != -1)
+        if (t_end != -1) {
           Utils::ExitWithUsrMsg("use either option -n or -e, not both");
+        }
 
         nb_steps = atol(optarg);
         break;
@@ -187,9 +183,10 @@ int main(int argc, char* argv[])
       }
       case 'p' : {
         #ifdef _OPENMP
-        run_in_parallel = true;
-        if (atoi(optarg) > 0)
-          omp_set_num_threads(atoi(optarg));
+          run_in_parallel = true;
+          if (atoi(optarg) > 0) {
+            omp_set_num_threads(atoi(optarg));
+          }
         #endif
         break;
       }
@@ -201,22 +198,26 @@ int main(int argc, char* argv[])
   }
 
   // If t0 wasn't provided, use default
-  if (t0 < 0)
+  if (t0 < 0) {
     t0 = OutputManager::last_gener();
+  }
 
   // If t_end_ wasn't provided, set it according to nb_steps or use default (run
   // for 1000 timesteps)
   if (t_end < 0) {
-    if (nb_steps >= 0)
+    if (nb_steps >= 0) {
       t_end = t0 + nb_steps;
-    else
+    }
+    else {
       t_end = t0 + 1000;
+    }
   }
 
   // It the user didn't ask for a parallel run, set number of threads to 1
   #ifdef _OPENMP
-  if (not run_in_parallel)
-    omp_set_num_threads(1);
+    if (not run_in_parallel) {
+      omp_set_num_threads(1);
+    }
   #endif
 
   // =================================================================
@@ -233,13 +234,13 @@ int main(int argc, char* argv[])
 
 
 
-  // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
+  // Make a numbered copy of each static input file
+  // (dynamic files are saved elsewhere)
   // TODO (?)
 
   #ifndef __NO_X
-    if (show_display_on_startup)
-    {
-      ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
+    if (show_display_on_startup) {
+      ((ExpManager_X11*) exp_manager)->toggle_display_on_off();
     }
   #endif
 
@@ -256,34 +257,30 @@ int main(int argc, char* argv[])
 
 
 #ifndef __NO_X
-void catch_usr1(int sig_num)
-{
-  signal(SIGUSR1, catch_usr1);
+  void catch_usr1(int sig_num) {
+    signal(SIGUSR1, catch_usr1);
 
-  printf("display on/off\n");
-  if (exp_manager != NULL)
-  {
-    ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
+    printf("display on/off\n");
+    if (exp_manager != NULL) {
+      ((ExpManager_X11*) exp_manager)->toggle_display_on_off();
+    }
   }
-}
 #endif
-
-
-
-
-
 
 
 /*!
   \brief
 
 */
-void print_help(char* prog_path)
-{
+void print_help(char* prog_path) {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
-  else prog_name = prog_path;
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
 
 	printf("******************************************************************************\n");
 	printf("*                                                                            *\n");

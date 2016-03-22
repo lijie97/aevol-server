@@ -24,15 +24,11 @@
 //
 // ****************************************************************************
 
-/** \class
- *  \brief
- */
-
 const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
-// =================================================================
-//                              Includes
-// =================================================================
+// ============================================================================
+//                                   Includes
+// ============================================================================
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -57,11 +53,7 @@ using namespace aevol;
 void print_help(char* prog_path);
 
 
-
-
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   // 1) Initialize command-line option variables with default values
   char* param_file_name = NULL;
   char* output_dir = NULL;
@@ -69,60 +61,52 @@ int main(int argc, char* argv[])
   char* plasmid_file_name = NULL;
 
   // 2) Define allowed options
-  const char * options_list = "hVf:o:c:p:";
+  const char* options_list = "hVf:o:c:p:";
   static struct option long_options_list[] = {
-    { "help",     no_argument,        NULL, 'h' },
-    { "version",  no_argument,        NULL, 'V' },
-    { "file",     required_argument,  NULL, 'f' },
-    { "out",      required_argument,  NULL, 'o' },
-    { "chromosome",   required_argument,  NULL, 'c' },
-    { "plasmid",   required_argument,  NULL, 'p' },
-    { 0, 0, 0, 0 }
+    {"help",       no_argument,       NULL, 'h'},
+    {"version",    no_argument,       NULL, 'V'},
+    {"file",       required_argument, NULL, 'f'},
+    {"out",        required_argument, NULL, 'o'},
+    {"chromosome", required_argument, NULL, 'c'},
+    {"plasmid",    required_argument, NULL, 'p'},
+    {0, 0, 0, 0}
   };
 
 
   // 3) Get actual values of the command-line options
   int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
-  {
-    switch (option)
-    {
-      case 'h' :
-      {
+  while ((option = getopt_long(argc, argv, options_list, long_options_list,
+                               NULL)) != -1) {
+    switch (option) {
+      case 'h' : {
         print_help(argv[0]);
         exit(EXIT_SUCCESS);
       }
-      case 'V' :
-      {
+      case 'V' : {
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
-      case 'f' :
-      {
-        param_file_name = new char[strlen(optarg)+1];
+      case 'f' : {
+        param_file_name = new char[strlen(optarg) + 1];
         strcpy(param_file_name, optarg);
         break;
       }
-      case 'o' :
-      {
-        output_dir = new char[strlen(optarg)+1];
+      case 'o' : {
+        output_dir = new char[strlen(optarg) + 1];
         strcpy(output_dir, optarg);
         break;
       }
-      case 'c':
-      {
-        chromosome_file_name = new char [strlen(optarg)+1];
+      case 'c': {
+        chromosome_file_name = new char[strlen(optarg) + 1];
         strcpy(chromosome_file_name, optarg);
         break;
       }
-      case 'p':
-      {
-        plasmid_file_name = new char [strlen(optarg)+1];
+      case 'p': {
+        plasmid_file_name = new char[strlen(optarg) + 1];
         strcpy(plasmid_file_name, optarg);
         break;
       }
-      default :
-      {
+      default : {
         // An error message is printed in getopt_long, we just need to exit
         exit(EXIT_FAILURE);
       }
@@ -131,84 +115,80 @@ int main(int argc, char* argv[])
 
 
   // 4) Set undefined command line parameters to default values
-  if (param_file_name == NULL)
-  {
-    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME)+1];
+  if (param_file_name == NULL) {
+    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
     sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
   }
 
 
   // 5) Create a param loader for the parameter file
-  ParamLoader * my_param_loader = new ParamLoader(param_file_name);
+  ParamLoader* my_param_loader = new ParamLoader(param_file_name);
   delete param_file_name;
 
 
   // 6) Initialize the experiment manager
-  ExpManager * exp_manager = new ExpManager();
+  ExpManager* exp_manager = new ExpManager();
 
 
   // 7) Initialize the simulation from the parameter file
   int32_t lchromosome = -1;
   char* chromosome;
 
-  if (chromosome_file_name != NULL)
-  {
+  if (chromosome_file_name != NULL) {
     const int max_input_chrom_size = 1000000;
     char raw_chromosome[max_input_chrom_size];
-    FILE* chromosome_file = fopen(chromosome_file_name,"r");
-    if (chromosome_file==NULL)
-    {
-      printf("ERROR: failed to open source chromosome file %s\n",chromosome_file_name);
+    FILE* chromosome_file = fopen(chromosome_file_name, "r");
+    if (chromosome_file == NULL) {
+      printf("ERROR: failed to open source chromosome file %s\n",
+             chromosome_file_name);
       exit(EXIT_FAILURE);
     }
-    if (fgets(raw_chromosome, max_input_chrom_size, chromosome_file) == NULL)
-    {
-      printf("ERROR: failed to read from chromosome file %s\n",chromosome_file_name);
+    if (fgets(raw_chromosome, max_input_chrom_size, chromosome_file) == NULL) {
+      printf("ERROR: failed to read from chromosome file %s\n",
+             chromosome_file_name);
       exit(EXIT_FAILURE);
     }
-    lchromosome = strlen(raw_chromosome)-1;
+    lchromosome = strlen(raw_chromosome) - 1;
     chromosome = new char[lchromosome]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in Dna   strncpy(chromosome, raw_chromosome, lchromosome);
-    printf("Loading chromosome from text file %s (%" PRId32 " base pairs) \n",chromosome_file_name,lchromosome);
+    printf("Loading chromosome from text file %s (%" PRId32 " base pairs) \n",
+        chromosome_file_name, lchromosome);
     fclose(chromosome_file);
   }
 
   int32_t lplasmid = -1;
   char* plasmid;
 
-  if (plasmid_file_name != NULL)
-  {
+  if (plasmid_file_name != NULL) {
     const int max_input_plasmid_size = 1000000;
     char raw_plasmid[max_input_plasmid_size];
-    FILE* plasmid_file = fopen(plasmid_file_name,"r");
-    if (plasmid_file==NULL)
-    {
-      printf("ERROR: failed to open source chromosome file %s\n",plasmid_file_name);
+    FILE* plasmid_file = fopen(plasmid_file_name, "r");
+    if (plasmid_file == NULL) {
+      printf("ERROR: failed to open source chromosome file %s\n",
+             plasmid_file_name);
       exit(EXIT_FAILURE);
     }
-    if (fgets(raw_plasmid, max_input_plasmid_size, plasmid_file) == NULL)
-    {
-      printf("ERROR: failed to read from chromosome file %s\n",chromosome_file_name);
+    if (fgets(raw_plasmid, max_input_plasmid_size, plasmid_file) == NULL) {
+      printf("ERROR: failed to read from chromosome file %s\n",
+             chromosome_file_name);
       exit(EXIT_FAILURE);
     }
-    lplasmid = strlen(raw_plasmid)-1;
+    lplasmid = strlen(raw_plasmid) - 1;
     plasmid = new char[lplasmid]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in Dna   strncpy(plasmid, raw_plasmid, lplasmid);
-    printf("Loading plasmid from text file %s (%" PRId32 " base pairs) \n",plasmid_file_name,lplasmid);
+    printf("Loading plasmid from text file %s (%" PRId32 " base pairs) \n",
+        plasmid_file_name, lplasmid);
     fclose(plasmid_file);
   }
 
-  if (lchromosome > -1)
-  {
-    if (lplasmid > -1)
-    {
-      my_param_loader->load(exp_manager, true, chromosome, lchromosome, plasmid, lplasmid);
+  if (lchromosome > -1) {
+    if (lplasmid > -1) {
+      my_param_loader->load(exp_manager, true, chromosome, lchromosome, plasmid,
+                            lplasmid);
     }
-    else
-    {
+    else {
       my_param_loader->load(exp_manager, true, chromosome, lchromosome);
     }
   }
-  else
-  {
+  else {
     my_param_loader->load(exp_manager, true);
   }
   delete my_param_loader;
@@ -219,13 +199,10 @@ int main(int argc, char* argv[])
   //~ getchar();
 
   // 8) Save the experiment
-  if (output_dir == NULL)
-  {
-    //printf("Debut de la sauvegarde\n");
+  if (output_dir == NULL) {
     exp_manager->Save();
   }
-  else
-  {
+  else {
     // Save everything in the provided directory
     exp_manager->save_copy(output_dir);
 
@@ -236,21 +213,19 @@ int main(int argc, char* argv[])
 }
 
 
-
-
-
-
-
 /*!
   \brief
 
 */
-void print_help(char* prog_path)
-{
+void print_help(char* prog_path) {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
-  else prog_name = prog_path;
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
 
   printf("******************************************************************************\n");
   printf("*                                                                            *\n");
