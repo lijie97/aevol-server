@@ -47,90 +47,31 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 using namespace aevol;
 
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Helper functions
 void print_help(char* prog_path);
+void interpret_cmd_line_options(int argc, char* argv[]);
+
+// Command-line option variables
+static char* param_file_name = NULL;
+static char* output_dir = NULL;
+static char* chromosome_file_name = NULL;
+static char* plasmid_file_name = NULL;
+
 
 
 int main(int argc, char* argv[]) {
-  // 1) Initialize command-line option variables with default values
-  char* param_file_name = NULL;
-  char* output_dir = NULL;
-  char* chromosome_file_name = NULL;
-  char* plasmid_file_name = NULL;
+  interpret_cmd_line_options(argc, argv);
 
-  // 2) Define allowed options
-  const char* options_list = "hVf:o:c:p:";
-  static struct option long_options_list[] = {
-    {"help",       no_argument,       NULL, 'h'},
-    {"version",    no_argument,       NULL, 'V'},
-    {"file",       required_argument, NULL, 'f'},
-    {"out",        required_argument, NULL, 'o'},
-    {"chromosome", required_argument, NULL, 'c'},
-    {"plasmid",    required_argument, NULL, 'p'},
-    {0, 0, 0, 0}
-  };
-
-
-  // 3) Get actual values of the command-line options
-  int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list,
-                               NULL)) != -1) {
-    switch (option) {
-      case 'h' : {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' : {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'f' : {
-        param_file_name = new char[strlen(optarg) + 1];
-        strcpy(param_file_name, optarg);
-        break;
-      }
-      case 'o' : {
-        output_dir = new char[strlen(optarg) + 1];
-        strcpy(output_dir, optarg);
-        break;
-      }
-      case 'c': {
-        chromosome_file_name = new char[strlen(optarg) + 1];
-        strcpy(chromosome_file_name, optarg);
-        break;
-      }
-      case 'p': {
-        plasmid_file_name = new char[strlen(optarg) + 1];
-        strcpy(plasmid_file_name, optarg);
-        break;
-      }
-      default : {
-        // An error message is printed in getopt_long, we just need to exit
-        exit(EXIT_FAILURE);
-      }
-    }
-  }
-
-
-  // 4) Set undefined command line parameters to default values
-  if (param_file_name == NULL) {
-    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
-    sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
-  }
-
-
-  // 5) Create a param loader for the parameter file
+  // Create a param loader for the parameter file
   ParamLoader* my_param_loader = new ParamLoader(param_file_name);
   delete param_file_name;
 
 
-  // 6) Initialize the experiment manager
+  // Initialize the experiment manager
   ExpManager* exp_manager = new ExpManager();
 
 
-  // 7) Initialize the simulation from the parameter file
+  // Initialize the simulation from the parameter file
   int32_t lchromosome = -1;
   char* chromosome;
 
@@ -250,4 +191,64 @@ void print_help(char* prog_path) {
   printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./\")\n\n");
   printf("  -c, --chromosome CFILE\n\tload chromosome from given text file instead of generating it\n");
   printf("  -p, --plasmid PFILE\n\tload plasmid from given text file instead of generating it\n");
+}
+
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // Define allowed options
+  const char* options_list = "hVf:o:c:p:";
+  static struct option long_options_list[] = {
+      {"help",       no_argument,       NULL, 'h'},
+      {"version",    no_argument,       NULL, 'V'},
+      {"file",       required_argument, NULL, 'f'},
+      {"out",        required_argument, NULL, 'o'},
+      {"chromosome", required_argument, NULL, 'c'},
+      {"plasmid",    required_argument, NULL, 'p'},
+      {0, 0, 0, 0}
+  };
+
+  // Get actual values of the CLI options
+  int option;
+  while ((option = getopt_long(argc, argv, options_list, long_options_list,
+                               NULL)) != -1) {
+    switch (option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      }
+      case 'V' : {
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      }
+      case 'f' : {
+        param_file_name = new char[strlen(optarg) + 1];
+        strcpy(param_file_name, optarg);
+        break;
+      }
+      case 'o' : {
+        output_dir = new char[strlen(optarg) + 1];
+        strcpy(output_dir, optarg);
+        break;
+      }
+      case 'c': {
+        chromosome_file_name = new char[strlen(optarg) + 1];
+        strcpy(chromosome_file_name, optarg);
+        break;
+      }
+      case 'p': {
+        plasmid_file_name = new char[strlen(optarg) + 1];
+        strcpy(plasmid_file_name, optarg);
+        break;
+      }
+      default : {
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
+
+  // Set undefined command line parameters to default values
+  if (param_file_name == NULL) {
+    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
+    sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
+  }
 }

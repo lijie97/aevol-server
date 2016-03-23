@@ -53,8 +53,22 @@ using namespace aevol;
   void catch_usr1(int sig_num);
 #endif
 
+// Helper functions
 void print_help(char* prog_path);
+void interpret_cmd_line_options(int argc, char* argv[]);
 
+// Command-line option variables
+// static bool pause_on_startup = false;
+static bool verbose = false;
+static int64_t t0 = -1;
+static int64_t t_end = -1;
+static int64_t nb_steps = -1;
+#ifndef __NO_X
+  static bool show_display_on_startup = true;
+#endif
+static bool run_in_parallel = false;
+
+// Other file-scope variables
 static ExpManager* exp_manager = NULL;
 
 
@@ -64,161 +78,12 @@ int main(int argc, char* argv[]) {
     signal(SIGUSR1, catch_usr1);
   #endif
 
-
   // Print warning for debug mode
   #ifdef DEBUG
     printf("aevol is being run in DEBUG mode\n");
   #endif
 
-
-
-  // =========================================================================
-  //                           Get command-line options
-  // =========================================================================
-  // 1) Initialize command-line option variables with default values
-  // 2) Define allowed options
-  // 3) Get actual values of the command-line options
-  // 4) Check the consistency of the command-line options
-  // 5) Set file names according to options
-  // =========================================================================
-
-  // -------------------------------------------------------------------------
-  // 1) Initialize command-line option variables with default values
-  // -------------------------------------------------------------------------
-  // bool pause_on_startup = false;
-  bool verbose = false;
-
-  int64_t t0 = -1;
-  int64_t t_end = -1;
-  int64_t nb_steps = -1;
-
-  #ifndef __NO_X
-    bool show_display_on_startup = true;
-  #endif
-
-  bool run_in_parallel = false;
-
-
-  // -------------------------------------------------------------------------
-  // 2) Define allowed options
-  // -------------------------------------------------------------------------
-  const char* options_list = "he:n:r:vVwxp:";
-  static struct option long_options_list[] = {
-    // Print help
-    {"help",     no_argument,       NULL, 'h'},
-    // time up to which to simulate (use either -e or -n)
-    {"end",      required_argument, NULL, 'e'},
-    // Number of generations to be run (use either -e or -n)
-    {"nsteps",   required_argument, NULL, 'n'},
-    // Resume from generation X (default: 0)
-    {"resume",   required_argument, NULL, 'r'},
-    // Be verbose
-    {"verbose",  no_argument,       NULL, 'v'},
-    // Print version
-    {"version",  no_argument,       NULL, 'V'},
-    // Pause after loading
-    {"wait",     no_argument,       NULL, 'w'},
-    // Don't display X outputs on start
-    {"noX",      no_argument,       NULL, 'x'},
-    // Run in parallel on x threads (0 or negative value yields system default)
-    {"parallel", required_argument, NULL, 'p'},
-    {0, 0, 0, 0}
-  };
-
-
-  // -------------------------------------------------------------------------
-  // 3) Get actual values of the command-line options
-  // -------------------------------------------------------------------------
-  int option;
-  while ((option =
-              getopt_long(argc, argv, options_list, long_options_list, NULL))
-         != -1) {
-    switch (option) {
-      case 'h' : {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' : {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'e' : {
-        if (nb_steps != -1) {
-          Utils::ExitWithUsrMsg("use either option -n or -e, not both");
-        }
-
-        t_end = atol(optarg);
-        break;
-      }
-      case 'n' : {
-        if (t_end != -1) {
-          Utils::ExitWithUsrMsg("use either option -n or -e, not both");
-        }
-
-        nb_steps = atol(optarg);
-        break;
-      }
-      case 'r' : {
-        t0 = atol(optarg);
-        break;
-      }
-      case 'v' : {
-        verbose = true;
-        break;
-      }
-      case 'w' : {
-        // pause_on_startup = true;
-        break;
-      }
-      case 'x' : {
-        #ifdef __NO_X
-          printf("%s: error: Program was compiled with __NO_X option, "
-                 "no visualisation available.\n", argv[0]);
-          exit(EXIT_FAILURE);
-        #else
-          show_display_on_startup = false;
-        #endif
-
-        break;
-      }
-      case 'p' : {
-        #ifdef _OPENMP
-          run_in_parallel = true;
-          if (atoi(optarg) > 0) {
-            omp_set_num_threads(atoi(optarg));
-          }
-        #endif
-        break;
-      }
-      default : {
-        // An error message is printed in getopt_long, we just need to exit
-        exit(EXIT_FAILURE);
-      }
-    }
-  }
-
-  // If t0 wasn't provided, use default
-  if (t0 < 0) {
-    t0 = OutputManager::last_gener();
-  }
-
-  // If t_end_ wasn't provided, set it according to nb_steps or use default (run
-  // for 1000 timesteps)
-  if (t_end < 0) {
-    if (nb_steps >= 0) {
-      t_end = t0 + nb_steps;
-    }
-    else {
-      t_end = t0 + 1000;
-    }
-  }
-
-  // It the user didn't ask for a parallel run, set number of threads to 1
-  #ifdef _OPENMP
-    if (not run_in_parallel) {
-      omp_set_num_threads(1);
-    }
-  #endif
+  interpret_cmd_line_options(argc, argv);
 
   // =================================================================
   //                          Load the simulation
@@ -308,4 +173,113 @@ void print_help(char* prog_path) {
 	printf("  -v, --verbose\n\tbe verbose\n\n");
   printf("  -w, --wait\n\tpause after loading\n\n");
   printf("  -x, --noX\n\tdon't display X outputs upon start\n\tsend SIGUSR1 to switch X output on/off\n");
+}
+
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // Define allowed options
+  const char* options_list = "he:n:r:vVwxp:";
+  static struct option long_options_list[] = {
+      {"help",     no_argument,       NULL, 'h'},
+      {"end",      required_argument, NULL, 'e'},
+      {"nsteps",   required_argument, NULL, 'n'},
+      {"resume",   required_argument, NULL, 'r'},
+      {"verbose",  no_argument,       NULL, 'v'},
+      {"version",  no_argument,       NULL, 'V'},
+      {"wait",     no_argument,       NULL, 'w'},
+      {"noX",      no_argument,       NULL, 'x'},
+      {"parallel", required_argument, NULL, 'p'},
+      {0, 0, 0, 0}
+  };
+
+  // Get actual values of the CLI options
+  int option;
+  while ((option =
+              getopt_long(argc, argv, options_list, long_options_list, NULL))
+         != -1) {
+    switch (option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      }
+      case 'V' : {
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      }
+      case 'e' : {
+        if (nb_steps != -1) {
+          Utils::ExitWithUsrMsg("use either option -n or -e, not both");
+        }
+
+        t_end = atol(optarg);
+        break;
+      }
+      case 'n' : {
+        if (t_end != -1) {
+          Utils::ExitWithUsrMsg("use either option -n or -e, not both");
+        }
+
+        nb_steps = atol(optarg);
+        break;
+      }
+      case 'r' : {
+        t0 = atol(optarg);
+        break;
+      }
+      case 'v' : {
+        verbose = true;
+        break;
+      }
+      case 'w' : {
+        // pause_on_startup = true;
+        break;
+      }
+      case 'x' : {
+        #ifdef __NO_X
+        printf("%s: error: Program was compiled with __NO_X option, "
+                 "no visualisation available.\n", argv[0]);
+          exit(EXIT_FAILURE);
+        #else
+        show_display_on_startup = false;
+        #endif
+
+        break;
+      }
+      case 'p' : {
+        #ifdef _OPENMP
+        run_in_parallel = true;
+          if (atoi(optarg) > 0) {
+            omp_set_num_threads(atoi(optarg));
+          }
+        #endif
+        break;
+      }
+      default : {
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
+
+  // If t0 wasn't provided, use default
+  if (t0 < 0) {
+    t0 = OutputManager::last_gener();
+  }
+
+  // If t_end_ wasn't provided, set it according to nb_steps or use default (run
+  // for 1000 timesteps)
+  if (t_end < 0) {
+    if (nb_steps >= 0) {
+      t_end = t0 + nb_steps;
+    }
+    else {
+      t_end = t0 + 1000;
+    }
+  }
+
+  // It the user didn't ask for a parallel run, set number of threads to 1
+  #ifdef _OPENMP
+  if (not run_in_parallel) {
+      omp_set_num_threads(1);
+    }
+  #endif
 }

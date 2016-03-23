@@ -53,9 +53,6 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 using namespace aevol;
 
-// =================================================================
-//                         Function declarations
-// =================================================================
 enum population_change_type {
   SUBPOPULATIONS_BASED_ON_NON_CODING_BASES = 3,
   REMOVE_NON_CODING_BASES_BEST_IND = 4,
@@ -64,98 +61,26 @@ enum population_change_type {
   DOUBLE_NON_CODING_BASES_POPULATION = 7
 };
 
+// Helper functions
 void print_help(char* prog_path);
-
+void interpret_cmd_line_options(int argc, char* argv[]);
 ParameterLine* get_line(FILE* param_file);
-
 void format_line(ParameterLine* formatted_line, char* line,
                  bool* line_is_interpretable);
 // void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m);
 // void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
 // void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
 
+// Command-line option variables
+char* param_file_name = NULL;
+bool verbose = false;
+int64_t num_gener = -1;
 
 
 int main(int argc, char* argv[]) {
-  // 1) Initialize command-line option variables with default values
-  char* param_file_name = NULL;
-  bool verbose = false;
-  int64_t num_gener = -1;
+  interpret_cmd_line_options(argc, argv);
 
-  // 2) Define allowed options
-  const char* options_list = "hf:g:V";
-  static struct option long_options_list[] = {
-      {"help",    no_argument,       NULL, 'h'},
-      {"file",    required_argument, NULL, 'f'}, // Provide file with parameters to change
-      {"gener",   required_argument, NULL, 'g'},
-      {"version", no_argument,       NULL, 'V'},
-      {0, 0, 0, 0}
-  };
-
-  // 3) Get actual values of the command-line options
-  int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list,
-                               NULL)) != -1) {
-    switch (option) {
-      case 'h' : {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' : {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'f' : {
-        if (strcmp(optarg, "") == 0) {
-          printf("%s: error: Option -f or --file : missing argument.\n",
-                 argv[0]);
-          exit(EXIT_FAILURE);
-        }
-
-        param_file_name = optarg;
-        break;
-      }
-      case 'g' : {
-        num_gener = atoi(optarg);
-        break;
-      }
-      default : {
-        // An error message is printed in getopt_long, we just need to exit
-        exit(EXIT_FAILURE);
-      }
-    }
-  }
-
-  // 4) Set undefined command line parameters to default values
-  if (param_file_name == NULL) {
-    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
-    sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
-  }
-  if (num_gener == -1) {
-    // Set num_gener to the content of the LAST_GENER file if it exists.
-    // If it doesn't, print help and exit
-    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
-    if (lg_file != NULL) {
-      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
-        Utils::ExitWithUsrMsg(
-            std::string("failed to read last generation from file ") +
-            LAST_GENER_FNAME);
-        exit(EXIT_FAILURE);
-      }
-      fclose(lg_file);
-    }
-    else {
-      Utils::ExitWithUsrMsg("you must provide a generation number");
-    }
-  }
-
-  // 5) Check the consistency of the command-line options
-  if (num_gener == -1) {
-    printf("%s: error: You must provide a generation number.\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
-  // 6) Initialize the experiment manager
+  // Initialize the experiment manager
   #ifndef __NO_X
     ExpManager* exp_manager = new ExpManager_X11();
   #else
@@ -163,7 +88,7 @@ int main(int argc, char* argv[]) {
   #endif
   exp_manager->load(num_gener, false, verbose);
 
-  // 7) Define syntaxic sugars for the population, the environment, the selection...
+  // Define shorthands
   //Environment* env = exp_manager->env();
   Selection* sel = exp_manager->sel();
   World* world = exp_manager->world();
@@ -191,7 +116,7 @@ int main(int argc, char* argv[]) {
 
 
 
-  // 8) Interpret and apply changes
+  // Interpret and apply changes
   printf("Interpret and apply changes\n");
   FILE* param_file = fopen(param_file_name, "r");
   if (param_file == NULL) {
@@ -974,7 +899,9 @@ void print_help(char* prog_path) {
   if ((prog_name = strrchr(prog_path, '/'))) {
     prog_name++;
   }
-  else { prog_name = prog_path; }
+  else {
+    prog_name = prog_path;
+  }
 
   printf("******************************************************************************\n");
   printf("*                                                                            *\n");
@@ -997,4 +924,79 @@ void print_help(char* prog_path) {
   printf("  -V, --version\n\tprint version number, then exit\n\n");
   printf("  -g, --gener GENER\n\tspecify generation number\n\n");
   printf("  -f, --file param_file\n\tspecify parameter file (default: param.in)\n");
+}
+
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // Define allowed options
+  const char* options_list = "hf:g:V";
+  static struct option long_options_list[] = {
+      {"help",    no_argument,       NULL, 'h'},
+      {"file",    required_argument, NULL, 'f'}, // Provide file with parameters to change
+      {"gener",   required_argument, NULL, 'g'},
+      {"version", no_argument,       NULL, 'V'},
+      {0, 0, 0, 0}
+  };
+
+  // Get actual values of the CLI options
+  int option;
+  while ((option = getopt_long(argc, argv, options_list, long_options_list,
+                               NULL)) != -1) {
+    switch (option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      }
+      case 'V' : {
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      }
+      case 'f' : {
+        if (strcmp(optarg, "") == 0) {
+          printf("%s: error: Option -f or --file : missing argument.\n",
+                 argv[0]);
+          exit(EXIT_FAILURE);
+        }
+
+        param_file_name = optarg;
+        break;
+      }
+      case 'g' : {
+        num_gener = atoi(optarg);
+        break;
+      }
+      default : {
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
+
+  // Set undefined CLI options to default values
+  if (param_file_name == NULL) {
+    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
+    sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
+  }
+  if (num_gener == -1) {
+    // Set num_gener to the content of the LAST_GENER file if it exists.
+    // If it doesn't, print help and exit
+    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
+        Utils::ExitWithUsrMsg(
+            std::string("failed to read last generation from file ") +
+            LAST_GENER_FNAME);
+        exit(EXIT_FAILURE);
+      }
+      fclose(lg_file);
+    }
+    else {
+      Utils::ExitWithUsrMsg("you must provide a generation number");
+    }
+  }
+
+  // Check the consistency of CLI options
+  if (num_gener == -1) {
+    printf("%s: error: You must provide a generation number.\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
 }
