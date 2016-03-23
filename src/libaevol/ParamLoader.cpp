@@ -93,6 +93,9 @@ static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
 #ifndef LOGIN_NAME_MAX
 #define LOGIN_NAME_MAX 256
 #endif
+
+const char kTabChar = 0x09;
+
 // =================================================================
 //                             Constructors
 // =================================================================
@@ -1935,18 +1938,17 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   \param line original line in char*
   \param line_is_interpretable boolean with about the possible intrepretation of the line
 */
-void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* line_is_interpretable)
-{
+void ParamLoader::format_line(ParameterLine * formated_line, char* line,
+                              bool* line_is_interpretable) {
   int16_t i = 0;
   int16_t j;
 
   // Parse line
-  while (line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
-  {
+  while (line[i] != '\n' && line[i] != '\0' && line[i] != '\r') {
     j = 0;
 
     // Flush white spaces and tabs
-    while (line[i] == ' ' || line[i] == 0x09) i++; // 0x09 is the ASCII code for TAB
+    while (line[i] == ' ' || line[i] == kTabChar) i++;
 
     // Check comments
     if (line[i] == '#') break;
@@ -1955,14 +1957,13 @@ void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* l
     *line_is_interpretable = true;
 
     // Parse word
-    while (line[i] != ' '  && line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
-    {
+    while (line[i] != ' ' && line[i] != kTabChar && line[i] != '\n' &&
+        line[i] != '\0' && line[i] != '\r') {
       formated_line->words[formated_line->nb_words][j++] = line[i++];
     }
 
     // Add '\0' at end of word if it's not empty (line ending with space or tab)
-    if (j != 0)
-    {
+    if (j != 0) {
       formated_line->words[formated_line->nb_words++][j] = '\0';
     }
   }
