@@ -606,11 +606,11 @@ void Stats::set_file_names(const char* prefix,
   }
 
   const char* chrom_or_gu_name[NB_CHROM_OR_GU] =
-      {"", "chromosome_", "plasmids_"};
+      {"", "_chromosome", "_plasmids"};
   const char* best_or_glob_name[NB_BEST_OR_GLOB] =
-      {"best_", "glob_", "sdev_", "skew_"};
+      {"_best", "_glob", "_sdev", "_skew"};
   const char* stat_type_name[NB_STATS_TYPES] =
-      {"fitness_", "mutation_", "genes_", "bp_", "rear_"};
+      {"_fitness" ,"_mutation", "_genes", "_bp", "_rear"};
 
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++) {
     // If plasmids are not allowed, don't issue "chromosome" and
