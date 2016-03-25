@@ -1,4 +1,10 @@
 # Ignore test binaries
-individualTest
-sampleTest
+IndividualTest
 TranscriptionTranslationTest
+sampleTest
+
+# ignore test log and result files
+**/*.log
+**/*.trs
+
+
