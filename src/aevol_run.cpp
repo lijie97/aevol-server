@@ -162,32 +162,38 @@ void print_help(char* prog_path) {
   printf("\n");
 	printf("Usage : %s -h or --help\n", prog_name);
 	printf("   or : %s -V or --version\n", prog_name);
-	printf("   or : %s [-r TIME] [-e TIME|-n NB_TIMESTEPS] [-tvwx]\n", prog_name);
+	printf("   or : %s [-b TIMESTEP] [-e TIMESTEP|-n NB_TIMESTEPS] [-p NB_THREADS] [-vwx]\n",
+         prog_name);
 	printf("\nOptions\n");
 	printf("  -h, --help\n\tprint this help, then exit\n\n");
 	printf("  -V, --version\n\tprint version number, then exit\n\n");
-  printf("  -r, --resume TIME\n\tspecify time t0 to resume simulation at (default value read in last_gener.txt)\n\n");
-  printf("  -e, --end TIME\n\tspecify time of the end of the simulation\n\n");
-  printf("  -n, --nsteps NB_TIMESTEPS\n\tspecify number of timesteps to be simulated (default 1000)\n\n");
-  printf("  -t, --text\n\tuse text files instead of binary files when possible\n\n");
-	printf("  -v, --verbose\n\tbe verbose\n\n");
+  printf("  -b, --begin TIMESTEP\n");
+  printf("\tspecify time t0 to resume simulation at (default value read in last_gener.txt)\n\n");
+  printf("  -e, --end TIMESTEP\n");
+  printf("\tspecify time of the end of the simulation\n\n");
+  printf("  -n, --nb-timesteps NB_TIMESTEPS\n");
+  printf("\tspecify number of timesteps to be simulated (default 1000)\n\n");
+  printf("  -p, --parallel NB_THREADS\n");
+  printf("\trun on NB_THREADS threads (-1 for system default)\n");
+  printf("  -v, --verbose\n\tbe verbose\n\n");
   printf("  -w, --wait\n\tpause after loading\n\n");
-  printf("  -x, --noX\n\tdon't display X outputs upon start\n\tsend SIGUSR1 to switch X output on/off\n");
+  printf("  -x, --noX\n\tdon't display X outputs upon start\n");
+  printf("\tsend SIGUSR1 to switch X output on/off\n");
 }
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char* options_list = "he:n:r:vVwxp:";
+  const char* options_list = "hVb:e:n:vwxp:";
   static struct option long_options_list[] = {
-      {"help",     no_argument,       nullptr, 'h'},
-      {"end",      required_argument, nullptr, 'e'},
-      {"nsteps",   required_argument, nullptr, 'n'},
-      {"resume",   required_argument, nullptr, 'r'},
-      {"verbose",  no_argument,       nullptr, 'v'},
-      {"version",  no_argument,       nullptr, 'V'},
-      {"wait",     no_argument,       nullptr, 'w'},
-      {"noX",      no_argument,       nullptr, 'x'},
-      {"parallel", required_argument, nullptr, 'p'},
+      {"help",          no_argument,       nullptr, 'h'},
+      {"version",       no_argument,       nullptr, 'V'},
+      {"begin",         required_argument, nullptr, 'b'},
+      {"end",           required_argument, nullptr, 'e'},
+      {"nb-timesteps",  required_argument, nullptr, 'n'},
+      {"verbose",       no_argument,       nullptr, 'v'},
+      {"wait",          no_argument,       nullptr, 'w'},
+      {"noX",           no_argument,       nullptr, 'x'},
+      {"parallel",      required_argument, nullptr, 'p'},
       {0, 0, 0, 0}
   };
 
@@ -205,6 +211,10 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
+      case 'b' : {
+        t0 = atol(optarg);
+        break;
+      }
       case 'e' : {
         if (nb_steps != -1) {
           Utils::ExitWithUsrMsg("use either option -n or -e, not both");
@@ -219,10 +229,6 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         }
 
         nb_steps = atol(optarg);
-        break;
-      }
-      case 'r' : {
-        t0 = atol(optarg);
         break;
       }
       case 'v' : {
