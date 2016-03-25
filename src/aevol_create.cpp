@@ -186,30 +186,36 @@ void print_help(char* prog_path) {
   printf("*                                                                            *\n");
   printf("******************************************************************************\n");
   printf("\n");
-  printf("%s: create an experiment with setup as specified in param_file.\n", prog_name);
+  printf("%s: create an experiment with setup as specified in param_file.\n",
+         prog_name);
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-f PARAM_FILE] [-o OUTDIR] [-c CFILE] [-p PFILE]\n", prog_name);
+  printf("   or : %s [-f PARAM_FILE] [-o OUTDIR] [-C CHROM_FILE] [-P PLASMID_FILE]\n",
+         prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n\n");
   printf("  -V, --version\n\tprint version number, then exit\n\n");
-  printf("  -f, --file PARAM_FILE\n\tspecify parameter file (default: param.in)\n");
-  printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./\")\n\n");
-  printf("  -c, --chromosome CFILE\n\tload chromosome from given text file instead of generating it\n");
-  printf("  -p, --plasmid PFILE\n\tload plasmid from given text file instead of generating it\n");
+  printf("  -f, --file PARAM_FILE\n");
+  printf("\tspecify parameter file (default: param.in)\n");
+  printf("  -o, --outdir OUTDIR\n");
+  printf("\tspecify output directory (default \"./\")\n\n");
+  printf("  -C, --chromosome CHROM_FILE\n");
+  printf("\tload chromosome from given text file instead of generating it\n");
+  printf("  -P, --plasmid PLASMID_FILE\n");
+  printf("\tload plasmid from given text file instead of generating it\n");
 }
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char* options_list = "hVf:o:c:p:";
+  const char* options_list = "hVf:o:C:P:";
   static struct option long_options_list[] = {
       {"help",       no_argument,       nullptr, 'h'},
       {"version",    no_argument,       nullptr, 'V'},
       {"file",       required_argument, nullptr, 'f'},
-      {"out",        required_argument, nullptr, 'o'},
-      {"chromosome", required_argument, nullptr, 'c'},
-      {"plasmid",    required_argument, nullptr, 'p'},
+      {"outdir",     required_argument, nullptr, 'o'},
+      {"chromosome", required_argument, nullptr, 'C'},
+      {"plasmid",    required_argument, nullptr, 'P'},
       {0, 0, 0, 0}
   };
 
@@ -236,12 +242,12 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         strcpy(output_dir, optarg);
         break;
       }
-      case 'c': {
+      case 'C': {
         chromosome_file_name = new char[strlen(optarg) + 1];
         strcpy(chromosome_file_name, optarg);
         break;
       }
-      case 'p': {
+      case 'P': {
         plasmid_file_name = new char[strlen(optarg) + 1];
         strcpy(plasmid_file_name, optarg);
         break;
