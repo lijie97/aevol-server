@@ -91,7 +91,10 @@ int main(int argc, char* argv[]) {
       exit(EXIT_FAILURE);
     }
     lchromosome = strlen(raw_chromosome) - 1;
-    chromosome = new char[lchromosome]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in Dna   strncpy(chromosome, raw_chromosome, lchromosome);
+    chromosome = new char[lchromosome]; // Warning: will become the DNA of the
+                                        // first individual created -> do not
+                                        // delete, will be freed in Dna
+    // strncpy(chromosome, raw_chromosome, lchromosome);
     printf("Loading chromosome from text file %s (%" PRId32 " base pairs) \n",
         chromosome_file_name, lchromosome);
     fclose(chromosome_file);
@@ -115,7 +118,10 @@ int main(int argc, char* argv[]) {
       exit(EXIT_FAILURE);
     }
     lplasmid = strlen(raw_plasmid) - 1;
-    plasmid = new char[lplasmid]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in Dna   strncpy(plasmid, raw_plasmid, lplasmid);
+    plasmid = new char[lplasmid]; // Warning: will become the DNA of the first
+                                  // individual created -> no not delete,
+                                  // will be freed in Dna
+    // strncpy(plasmid, raw_plasmid, lplasmid);
     printf("Loading plasmid from text file %s (%" PRId32 " base pairs) \n",
         plasmid_file_name, lplasmid);
     fclose(plasmid_file);
