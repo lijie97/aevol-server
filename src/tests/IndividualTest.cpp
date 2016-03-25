@@ -59,8 +59,7 @@ using std::list;
 //                         Class IndividualTest                              #
 //                                                                           #
 //############################################################################
-class IndividualTest : public testing::Test
-{
+class IndividualTest : public testing::Test {
  protected:
   virtual void SetUp(void);
   virtual void TearDown(void);
@@ -129,7 +128,7 @@ void IndividualTest::SetUp(void)
 
   // Build indiv2
   // Reverse the whole genome
-  genome = indiv1->get_genetic_unit(0).get_dna()->get_subsequence(0,0,LAGGING);
+  genome = indiv1->genetic_unit(0).dna()->subsequence(0,0,LAGGING);
   indiv2 = new Individual(nullptr, nullptr, nullptr, std::make_shared<MutationParams>(params_mut), 1.0, 10, 1000, false, 1, "anon-strain-2", 0);
   indiv2->add_GU(genome, strlen(genome));
   genome = NULL;
@@ -156,7 +155,7 @@ void IndividualTest::SetUp(void)
 
 
   // Build indiv4
-  genome = indiv3->get_genetic_unit(0).get_dna()->get_subsequence(0,0,LAGGING);
+  genome = indiv3->genetic_unit(0).dna()->subsequence(0,0,LAGGING);
   indiv4 = new Individual(nullptr, nullptr, nullptr, std::make_shared<MutationParams>(params_mut), 1.0, 10, 1000, false, 1, "anon-strain-4", 0);
   indiv4->add_GU(genome, strlen(genome));
   genome = NULL;
@@ -169,28 +168,28 @@ void IndividualTest::SetUp(void)
   // ***************************************************************************
   // The following commented code allows to print stuff about rnas and proteins
 
-  // printf("%"PRId32" rnas and %"PRId32" prots\n", indiv4->get_rna_list()->size(), indiv4->get_protein_list()->size());
-  // list_node<Rna*>* rna_node = indiv4->get_rna_list()->get_first();
+  // printf("%"PRId32" rnas and %"PRId32" prots\n", indiv4->rna_list()->size(), indiv4->protein_list()->size());
+  // list_node<Rna*>* rna_node = indiv4->rna_list()->first();
   // while (rna_node != NULL)
   // {
   //   printf("%s rna at pos %"PRId32" (%f, %"PRId32")\n",
-  //           rna_node->get_obj()->get_strand() == LEADING ? "LEADING":"LAGGING",
-  //           rna_node->get_obj()->get_promoter_pos(),
-  //           rna_node->get_obj()->get_basal_level(),
-  //           rna_node->get_obj()->get_transcript_length());
+  //           rna_node->obj()->strand() == LEADING ? "LEADING":"LAGGING",
+  //           rna_node->obj()->promoter_pos(),
+  //           rna_node->obj()->basal_level(),
+  //           rna_node->obj()->transcript_length());
 
-  //   rna_node = rna_node->get_next();
+  //   rna_node = rna_node->next();
   // }
 
-  // list_node<Protein*>* protein_node = indiv4->get_protein_list()->get_first();
+  // list_node<Protein*>* protein_node = indiv4->protein_list()->first();
   // while (protein_node != NULL)
   // {
   //   printf("%s protein at pos %"PRId32" (length: %"PRId32", concentr: %f, nb_rnas: %"PRId32")\n",
-  //           protein_node->get_obj()->get_strand() == LEADING ? "LEADING":"LAGGING",
-  //           protein_node->get_obj()->get_shine_dal_pos(),
-  //           protein_node->get_obj()->get_length(),
-  //           protein_node->get_obj()->get_concentration(),
-  //           protein_node->get_obj()->get_rna_list()->size());
+  //           protein_node->obj()->strand() == LEADING ? "LEADING":"LAGGING",
+  //           protein_node->obj()->shine_dal_pos(),
+  //           protein_node->obj()->length(),
+  //           protein_node->obj()->concentration(),
+  //           protein_node->obj()->rna_list()->size());
 
   ExpSetup* exp_s = new ExpSetup(nullptr);
   for (int i = 0; i <= 1; i++) {
@@ -258,7 +257,7 @@ void IndividualTest::SetUp(void)
 
     // Build indiv2
     // Reverse the whole genome
-    genome = indiv1->get_genetic_unit(0).get_dna()->get_subsequence(0, 0,
+    genome = indiv1->genetic_unit(0).dna()->subsequence(0, 0,
                                                                     LAGGING);
     indiv2 = new Individual(nullptr, nullptr, nullptr,
                             std::make_shared<MutationParams>(params_mut), 1.0,
@@ -291,7 +290,7 @@ void IndividualTest::SetUp(void)
 
 
     // Build indiv4
-    genome = indiv3->get_genetic_unit(0).get_dna()->get_subsequence(0, 0,
+    genome = indiv3->genetic_unit(0).dna()->subsequence(0, 0,
                                                                     LAGGING);
     indiv4 = new Individual(nullptr, nullptr, nullptr,
                             std::make_shared<MutationParams>(params_mut), 1.0,
@@ -307,30 +306,30 @@ void IndividualTest::SetUp(void)
     // ***************************************************************************
     // The following commented code allows to print stuff about rnas and proteins
 
-    // printf("%"PRId32" rnas and %"PRId32" prots\n", indiv4->get_rna_list()->size(), indiv4->get_protein_list()->size());
-    // list_node<Rna*>* rna_node = indiv4->get_rna_list()->get_first();
+    // printf("%"PRId32" rnas and %"PRId32" prots\n", indiv4->rna_list()->size(), indiv4->protein_list()->size());
+    // list_node<Rna*>* rna_node = indiv4->rna_list()->first();
     // while (rna_node != NULL)
     // {
     //   printf("%s rna at pos %"PRId32" (%f, %"PRId32")\n",
-    //           rna_node->get_obj()->get_strand() == LEADING ? "LEADING":"LAGGING",
-    //           rna_node->get_obj()->get_promoter_pos(),
-    //           rna_node->get_obj()->get_basal_level(),
-    //           rna_node->get_obj()->get_transcript_length());
+    //           rna_node->obj()->strand() == LEADING ? "LEADING":"LAGGING",
+    //           rna_node->obj()->promoter_pos(),
+    //           rna_node->obj()->basal_level(),
+    //           rna_node->obj()->transcript_length());
 
-    //   rna_node = rna_node->get_next();
+    //   rna_node = rna_node->next();
     // }
 
-    // list_node<Protein*>* protein_node = indiv4->get_protein_list()->get_first();
+    // list_node<Protein*>* protein_node = indiv4->protein_list()->first();
     // while (protein_node != NULL)
     // {
     //   printf("%s protein at pos %"PRId32" (length: %"PRId32", concentr: %f, nb_rnas: %"PRId32")\n",
-    //           protein_node->get_obj()->get_strand() == LEADING ? "LEADING":"LAGGING",
-    //           protein_node->get_obj()->get_shine_dal_pos(),
-    //           protein_node->get_obj()->get_length(),
-    //           protein_node->get_obj()->get_concentration(),
-    //           protein_node->get_obj()->get_rna_list()->size());
+    //           protein_node->obj()->strand() == LEADING ? "LEADING":"LAGGING",
+    //           protein_node->obj()->shine_dal_pos(),
+    //           protein_node->obj()->length(),
+    //           protein_node->obj()->concentration(),
+    //           protein_node->obj()->rna_list()->size());
 
-    //   protein_node = protein_node->get_next();
+    //   protein_node = protein_node->next();
     // }
   }
 }
@@ -351,115 +350,115 @@ TEST_F(IndividualTest, TestIndiv1)
   // "right" means those values we have computed by hand
 
   // Check genome size
-  EXPECT_EQ(109, indiv1->get_amount_of_dna());
-  EXPECT_EQ(109, indiv1->get_genetic_unit_seq_length(0));
+  EXPECT_EQ(109, indiv1->amount_of_dna());
+  EXPECT_EQ(109, indiv1->genetic_unit_seq_length(0));
 
   // Check RNA list
-  list<const Rna*> rna_list = indiv1->get_rna_list();
+  list<const Rna*> rna_list = indiv1->rna_list();
   EXPECT_EQ(2, rna_list.size());
   const Rna* rna = rna_list.front();
-  EXPECT_EQ(LEADING, rna->get_strand());
-  EXPECT_EQ(4, rna->get_promoter_pos());
-  EXPECT_FLOAT_EQ(0.6, rna->get_basal_level());
-  EXPECT_EQ(50, rna->get_transcript_length());
+  EXPECT_EQ(LEADING, rna->strand());
+  EXPECT_EQ(4, rna->promoter_pos());
+  EXPECT_FLOAT_EQ(0.6, rna->basal_level());
+  EXPECT_EQ(50, rna->transcript_length());
   rna = rna_list.back();
-  EXPECT_EQ(LEADING, rna->get_strand());
-  EXPECT_EQ(81, rna->get_promoter_pos());
-  EXPECT_FLOAT_EQ(0.8, rna->get_basal_level());
-  EXPECT_EQ(82, rna->get_transcript_length());
+  EXPECT_EQ(LEADING, rna->strand());
+  EXPECT_EQ(81, rna->promoter_pos());
+  EXPECT_FLOAT_EQ(0.8, rna->basal_level());
+  EXPECT_EQ(82, rna->transcript_length());
 
   // Check protein list
-  list<Protein*> prot_list = indiv1->get_protein_list();
+  list<Protein*> prot_list = indiv1->protein_list();
   EXPECT_EQ(1, prot_list.size());
   Protein* prot = prot_list.front();
-  EXPECT_EQ(LEADING, prot->get_strand());
-  EXPECT_EQ(31, prot->get_shine_dal_pos());
-  EXPECT_EQ(4, prot->get_length());
-  EXPECT_FLOAT_EQ(1.4, prot->get_concentration());
-  EXPECT_EQ(2, prot->get_rna_list().size());
+  EXPECT_EQ(LEADING, prot->strand());
+  EXPECT_EQ(31, prot->shine_dal_pos());
+  EXPECT_EQ(4, prot->length());
+  EXPECT_FLOAT_EQ(1.4, prot->concentration());
+  EXPECT_EQ(2, prot->rna_list().size());
 }
 
 TEST_F(IndividualTest, TestIndiv2)
 {
   // Check genome size
-  EXPECT_EQ(109, indiv2->get_amount_of_dna());
-  EXPECT_EQ(109, indiv2->get_genetic_unit_seq_length(0));
+  EXPECT_EQ(109, indiv2->amount_of_dna());
+  EXPECT_EQ(109, indiv2->genetic_unit_seq_length(0));
 
   // Check RNA list
-  list<const Rna*> rna_list = indiv2->get_rna_list();
+  list<const Rna*> rna_list = indiv2->rna_list();
   EXPECT_EQ(2, rna_list.size());
   const Rna* rna = rna_list.front();
-  EXPECT_EQ(LAGGING, rna->get_strand());
-  EXPECT_EQ(104, rna->get_promoter_pos());
-  EXPECT_FLOAT_EQ(0.6, rna->get_basal_level());
-  EXPECT_EQ(50, rna->get_transcript_length());
+  EXPECT_EQ(LAGGING, rna->strand());
+  EXPECT_EQ(104, rna->promoter_pos());
+  EXPECT_FLOAT_EQ(0.6, rna->basal_level());
+  EXPECT_EQ(50, rna->transcript_length());
   rna = rna_list.back();
-  EXPECT_EQ(LAGGING, rna->get_strand());
-  EXPECT_EQ(27, rna->get_promoter_pos());
-  EXPECT_FLOAT_EQ(0.8, rna->get_basal_level());
-  EXPECT_EQ(82, rna->get_transcript_length());
+  EXPECT_EQ(LAGGING, rna->strand());
+  EXPECT_EQ(27, rna->promoter_pos());
+  EXPECT_FLOAT_EQ(0.8, rna->basal_level());
+  EXPECT_EQ(82, rna->transcript_length());
 
   // Check protein list
-  list<Protein*> prot_list = indiv2->get_protein_list();
+  list<Protein*> prot_list = indiv2->protein_list();
   EXPECT_EQ(1, prot_list.size());
   Protein* prot = prot_list.front();
-  EXPECT_EQ(LAGGING, prot->get_strand());
-  EXPECT_EQ(77, prot->get_shine_dal_pos());
-  EXPECT_EQ(4, prot->get_length());
-  EXPECT_FLOAT_EQ(1.4, prot->get_concentration());
-  EXPECT_EQ(2, prot->get_rna_list().size());
+  EXPECT_EQ(LAGGING, prot->strand());
+  EXPECT_EQ(77, prot->shine_dal_pos());
+  EXPECT_EQ(4, prot->length());
+  EXPECT_FLOAT_EQ(1.4, prot->concentration());
+  EXPECT_EQ(2, prot->rna_list().size());
 }
 
 TEST_F(IndividualTest, TestIndiv3)
 {
   // Check genome size
-  EXPECT_EQ(81, indiv3->get_amount_of_dna());
-  EXPECT_EQ(81, indiv3->get_genetic_unit_seq_length(0));
+  EXPECT_EQ(81, indiv3->amount_of_dna());
+  EXPECT_EQ(81, indiv3->genetic_unit_seq_length(0));
 
   // Check RNA list
-  list<const Rna*> rna_list = indiv3->get_rna_list();
+  list<const Rna*> rna_list = indiv3->rna_list();
   EXPECT_EQ(1, rna_list.size());
   const Rna* rna = rna_list.front();
-  EXPECT_EQ(LEADING, rna->get_strand());
-  EXPECT_EQ(54, rna->get_promoter_pos());
-  EXPECT_FLOAT_EQ(0.8, rna->get_basal_level());
-  EXPECT_EQ(42, rna->get_transcript_length());
+  EXPECT_EQ(LEADING, rna->strand());
+  EXPECT_EQ(54, rna->promoter_pos());
+  EXPECT_FLOAT_EQ(0.8, rna->basal_level());
+  EXPECT_EQ(42, rna->transcript_length());
 
   // Check protein list
-  list<Protein*> prot_list = indiv3->get_protein_list();
+  list<Protein*> prot_list = indiv3->protein_list();
   EXPECT_EQ(1, prot_list.size());
   Protein* prot = prot_list.front();
-  EXPECT_EQ(LEADING, prot->get_strand());
-  EXPECT_EQ(4, prot->get_shine_dal_pos());
-  EXPECT_EQ(4, prot->get_length());
-  EXPECT_FLOAT_EQ(0.8, prot->get_concentration());
-  EXPECT_EQ(1, prot->get_rna_list().size());
+  EXPECT_EQ(LEADING, prot->strand());
+  EXPECT_EQ(4, prot->shine_dal_pos());
+  EXPECT_EQ(4, prot->length());
+  EXPECT_FLOAT_EQ(0.8, prot->concentration());
+  EXPECT_EQ(1, prot->rna_list().size());
 }
 
 TEST_F(IndividualTest, TestIndiv4)
 {
   // Check genome size
-  EXPECT_EQ(81, indiv4->get_amount_of_dna());
-  EXPECT_EQ(81, indiv4->get_genetic_unit_seq_length(0));
+  EXPECT_EQ(81, indiv4->amount_of_dna());
+  EXPECT_EQ(81, indiv4->genetic_unit_seq_length(0));
 
   // Check RNA list
-  list<const Rna*> rna_list = indiv4->get_rna_list();
+  list<const Rna*> rna_list = indiv4->rna_list();
   EXPECT_EQ(1, rna_list.size());
   const Rna* rna = rna_list.front();
-  EXPECT_EQ(LAGGING, rna->get_strand());
-  EXPECT_EQ(26, rna->get_promoter_pos());
-  EXPECT_FLOAT_EQ(0.8, rna->get_basal_level());
-  EXPECT_EQ(42, rna->get_transcript_length());
+  EXPECT_EQ(LAGGING, rna->strand());
+  EXPECT_EQ(26, rna->promoter_pos());
+  EXPECT_FLOAT_EQ(0.8, rna->basal_level());
+  EXPECT_EQ(42, rna->transcript_length());
 
   // Check protein list
-  list<Protein*> prot_list = indiv4->get_protein_list();
+  list<Protein*> prot_list = indiv4->protein_list();
   EXPECT_EQ(1, prot_list.size());
   Protein* prot = prot_list.front();
-  EXPECT_EQ(LAGGING, prot->get_strand());
-  EXPECT_EQ(76, prot->get_shine_dal_pos());
-  EXPECT_EQ(4, prot->get_length());
-  EXPECT_FLOAT_EQ(0.8, prot->get_concentration());
-  EXPECT_EQ(1, prot->get_rna_list().size());
+  EXPECT_EQ(LAGGING, prot->strand());
+  EXPECT_EQ(76, prot->shine_dal_pos());
+  EXPECT_EQ(4, prot->length());
+  EXPECT_FLOAT_EQ(0.8, prot->concentration());
+  EXPECT_EQ(1, prot->rna_list().size());
 }
 
 // ===========================================================================

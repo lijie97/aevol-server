@@ -114,29 +114,29 @@ list<protein_line> analyse_gu(const GeneticUnit& gen_unit, int32_t gen_unit_numb
 {
   list<protein_line> proteins;
 
-  Promoters2Strands llrnas = gen_unit.get_rna_list();
+  Promoters2Strands llrnas = gen_unit.rna_list();
   for(auto lrnas : llrnas) {
     for (auto rna : lrnas) {
-      for (auto prot : rna.get_transcribed_proteins()) {
-        double mean = prot->get_mean();
+      for (auto prot : rna.transcribed_proteins()) {
+        double mean = prot->mean();
         int nfeat = -1;
         protein_line prot_line;
 
-        prot_line.id = gen_unit.get_indiv()->get_id();
+        prot_line.id = gen_unit.indiv()->id();
         prot_line.c_or_p = gen_unit_number != 0 ? "PLASMID" : "CHROM";
-        prot_line.strand = prot->get_strand() == LEADING ? "LEADING" : "LAGGING";
-        prot_line.pos = prot->get_first_translated_pos();
-        prot_line.len = prot->get_length();
-        prot_line.lpos = prot->get_last_translated_pos();
-        prot_line.sequence = prot->get_AA_sequence('_');
+        prot_line.strand = prot->strand() == LEADING ? "LEADING" : "LAGGING";
+        prot_line.pos = prot->first_translated_pos();
+        prot_line.len = prot->length();
+        prot_line.lpos = prot->last_translated_pos();
+        prot_line.sequence = prot->AA_sequence('_');
         prot_line.m = mean;
-        prot_line.w = prot->get_width();
-        prot_line.h = prot->get_height();
-        prot_line.c = prot->get_concentration();
+        prot_line.w = prot->width();
+        prot_line.h = prot->height();
+        prot_line.c = prot->concentration();
         prot_line.f = nfeat;
-        prot_line.prom_pos = rna.get_promoter_pos();
-        prot_line.rna_len = rna.get_transcript_length();
-        prot_line.basal_level = rna.get_basal_level();
+        prot_line.prom_pos = rna.promoter_pos();
+        prot_line.rna_len = rna.transcript_length();
+        prot_line.basal_level = rna.basal_level();
 
         proteins.push_back(prot_line);
       }
@@ -170,8 +170,8 @@ void expect_equal(const list<protein_line> expected_proteins,
   }
 }
 
-void TranscriptionTranslationTest::check_genome(const string& dir, int generation) {
-
+void TranscriptionTranslationTest::check_genome(const string& dir,
+                                                int generation) {
   ExpSetup* exp_s = new ExpSetup(nullptr);
   for (int i = 0; i <= 1; i++) {
     exp_s->set_fuzzy_flavor(i);
@@ -209,7 +209,7 @@ void TranscriptionTranslationTest::check_genome(const string& dir, int generatio
     indiv->do_transcription();
     indiv->do_translation();
 
-    auto actual_proteins = analyse_gu(indiv->get_genetic_unit(0), 0);
+    auto actual_proteins = analyse_gu(indiv->genetic_unit(0), 0);
 
 
     // Read the expected results
@@ -231,7 +231,6 @@ void TranscriptionTranslationTest::check_genome(const string& dir, int generatio
     // (very dirty) Get rid of last line (added twice)
     expected_proteins.pop_back();
 
-
     // cout << "*************** EXPECTED ********************" << endl;
     // for (auto prot_line : expected_proteins) {
     //   cout << prot_line << endl;
@@ -243,20 +242,6 @@ void TranscriptionTranslationTest::check_genome(const string& dir, int generatio
 
     expect_equal(expected_proteins, actual_proteins);
   }
-  // (very dirty) Get rid of last line (added twice)
-  expected_proteins.pop_back();
-
-
-  // cout << "*************** EXPECTED ********************" << endl;
-  // for (auto prot_line : expected_proteins) {
-  //   cout << prot_line << endl;
-  // }
-  // cout << "**************** ACTUAL *********************" << endl;
-  // for (auto prot_line : actual_proteins) {
-  //   cout << prot_line << endl;
-  // }
-
-  expect_equal(expected_proteins, actual_proteins);
 }
 
 TEST_F(TranscriptionTranslationTest, TestIndivVirus6) {
