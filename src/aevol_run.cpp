@@ -69,7 +69,7 @@ static int64_t nb_steps = -1;
 static bool run_in_parallel = false;
 
 // Other file-scope variables
-static ExpManager* exp_manager = NULL;
+static ExpManager* exp_manager = nullptr;
 
 
 int main(int argc, char* argv[]) {
@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
     signal(SIGUSR1, catch_usr1);
 
     printf("display on/off\n");
-    if (exp_manager != NULL) {
+    if (exp_manager != nullptr) {
       ((ExpManager_X11*) exp_manager)->toggle_display_on_off();
     }
   }
@@ -179,22 +179,22 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
   const char* options_list = "he:n:r:vVwxp:";
   static struct option long_options_list[] = {
-      {"help",     no_argument,       NULL, 'h'},
-      {"end",      required_argument, NULL, 'e'},
-      {"nsteps",   required_argument, NULL, 'n'},
-      {"resume",   required_argument, NULL, 'r'},
-      {"verbose",  no_argument,       NULL, 'v'},
-      {"version",  no_argument,       NULL, 'V'},
-      {"wait",     no_argument,       NULL, 'w'},
-      {"noX",      no_argument,       NULL, 'x'},
-      {"parallel", required_argument, NULL, 'p'},
+      {"help",     no_argument,       nullptr, 'h'},
+      {"end",      required_argument, nullptr, 'e'},
+      {"nsteps",   required_argument, nullptr, 'n'},
+      {"resume",   required_argument, nullptr, 'r'},
+      {"verbose",  no_argument,       nullptr, 'v'},
+      {"version",  no_argument,       nullptr, 'V'},
+      {"wait",     no_argument,       nullptr, 'w'},
+      {"noX",      no_argument,       nullptr, 'x'},
+      {"parallel", required_argument, nullptr, 'p'},
       {0, 0, 0, 0}
   };
 
   // Get actual values of the CLI options
   int option;
   while ((option =
-              getopt_long(argc, argv, options_list, long_options_list, NULL))
+              getopt_long(argc, argv, options_list, long_options_list, nullptr))
          != -1) {
     switch (option) {
       case 'h' : {

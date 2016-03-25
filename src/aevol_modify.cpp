@@ -72,7 +72,7 @@ void format_line(ParameterLine* formatted_line, char* line,
 // void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
 
 // Command-line option variables
-char* param_file_name = NULL;
+char* param_file_name = nullptr;
 bool verbose = false;
 int64_t num_gener = -1;
 
@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
   // Interpret and apply changes
   printf("Interpret and apply changes\n");
   FILE* param_file = fopen(param_file_name, "r");
-  if (param_file == NULL) {
+  if (param_file == nullptr) {
     printf("%s:%d: error: could not open parameter file %s\n", __FILE__,
            __LINE__, param_file_name);
     exit(EXIT_FAILURE);
@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
 
   ParameterLine* line;
   int32_t cur_line = 0;
-  while ((line = get_line(param_file)) != NULL) {
+  while ((line = get_line(param_file)) != nullptr) {
     cur_line++;
     if (strcmp(line->words[0], "ENV_AXIS_FEATURES") == 0) {
       // TODO <dpa> adapt to new organization
@@ -661,7 +661,7 @@ ParameterLine* get_line(FILE* param_file) {
   while (!feof(param_file) && !found_interpretable_line) {
     if (!fgets(line, 255, param_file)) {
       delete formatted_line;
-      return NULL;
+      return nullptr;
     }
     format_line(formatted_line, line, &found_interpretable_line);
   }
@@ -671,7 +671,7 @@ ParameterLine* get_line(FILE* param_file) {
   }
   else {
     delete formatted_line;
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -930,17 +930,17 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
   const char* options_list = "hf:g:V";
   static struct option long_options_list[] = {
-      {"help",    no_argument,       NULL, 'h'},
-      {"file",    required_argument, NULL, 'f'}, // Provide file with parameters to change
-      {"gener",   required_argument, NULL, 'g'},
-      {"version", no_argument,       NULL, 'V'},
+      {"help",    no_argument,       nullptr, 'h'},
+      {"file",    required_argument, nullptr, 'f'}, // Provide file with parameters to change
+      {"gener",   required_argument, nullptr, 'g'},
+      {"version", no_argument,       nullptr, 'V'},
       {0, 0, 0, 0}
   };
 
   // Get actual values of the CLI options
   int option;
   while ((option = getopt_long(argc, argv, options_list, long_options_list,
-                               NULL)) != -1) {
+                               nullptr)) != -1) {
     switch (option) {
       case 'h' : {
         print_help(argv[0]);
@@ -972,7 +972,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   }
 
   // Set undefined CLI options to default values
-  if (param_file_name == NULL) {
+  if (param_file_name == nullptr) {
     param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
     sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
   }
@@ -980,7 +980,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     // Set num_gener to the content of the LAST_GENER file if it exists.
     // If it doesn't, print help and exit
     FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
-    if (lg_file != NULL) {
+    if (lg_file != nullptr) {
       if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
         Utils::ExitWithUsrMsg(
             std::string("failed to read last generation from file ") +

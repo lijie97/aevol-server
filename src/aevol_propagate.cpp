@@ -63,8 +63,8 @@ static int32_t mutseed = -1;
 static int32_t stochseed = -1;
 static int32_t envvarseed = -1;
 static int32_t envnoiseseed = -1;
-static char* input_dir = NULL;
-static char* output_dir = NULL;
+static char* input_dir = nullptr;
+static char* output_dir = nullptr;
 static bool verbose = false;
 
 
@@ -259,25 +259,25 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   //const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
   const char* options_list = "g:ho:vVS:s:m:t:e:n:";
   static struct option long_options_list[] = {
-      {"gener",          required_argument, NULL, 'g'},
-      {"help",           no_argument,       NULL, 'h'},
-      //{ "in",       required_argument,  NULL, 'i' },
-      {"out",            required_argument, NULL, 'o'},
-      {"verbose",        no_argument,       NULL, 'v'},
-      {"version",        no_argument,       NULL, 'V'},
-      {"general-seed",   required_argument, NULL, 'S'},
-      {"sel-seed",       required_argument, NULL, 's'},
-      {"mut-seed",       required_argument, NULL, 'm'},
-      {"stoch-seed",     required_argument, NULL, 't'},
-      {"env-var-seed",   required_argument, NULL, 'e'},
-      {"env-noise-seed", required_argument, NULL, 'n'},
+      {"gener",          required_argument, nullptr, 'g'},
+      {"help",           no_argument,       nullptr, 'h'},
+      //{ "in",       required_argument,  nullptr, 'i' },
+      {"out",            required_argument, nullptr, 'o'},
+      {"verbose",        no_argument,       nullptr, 'v'},
+      {"version",        no_argument,       nullptr, 'V'},
+      {"general-seed",   required_argument, nullptr, 'S'},
+      {"sel-seed",       required_argument, nullptr, 's'},
+      {"mut-seed",       required_argument, nullptr, 'm'},
+      {"stoch-seed",     required_argument, nullptr, 't'},
+      {"env-var-seed",   required_argument, nullptr, 'e'},
+      {"env-noise-seed", required_argument, nullptr, 'n'},
       {0, 0, 0, 0}
   };
 
   // Get actual values of the CLI options
   int option;
   while ((option = getopt_long(argc, argv, options_list, long_options_list,
-                               NULL)) != -1) {
+                               nullptr)) != -1) {
     switch (option) {
       case 'h' : {
         print_help(argv[0]);
@@ -348,11 +348,11 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
 
 
   // Set undefined CLI options to default values
-  if (input_dir == NULL) {
+  if (input_dir == nullptr) {
     input_dir = new char[255];
     sprintf(input_dir, "%s", ".");
   }
-  if (output_dir == NULL) {
+  if (output_dir == nullptr) {
     output_dir = new char[255];
     sprintf(output_dir, "%s", "output");
   }
@@ -362,7 +362,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     char lg_filename[300];
     sprintf(lg_filename, "%s/%s", input_dir, LAST_GENER_FNAME);
     FILE* lg_file = fopen(lg_filename, "r");
-    if (lg_file != NULL) {
+    if (lg_file != nullptr) {
       if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
         printf("ERROR: failed to read last generation from file %s\n",
                lg_filename);

@@ -52,10 +52,10 @@ void print_help(char* prog_path);
 void interpret_cmd_line_options(int argc, char* argv[]);
 
 // Command-line option variables
-static char* param_file_name = NULL;
-static char* output_dir = NULL;
-static char* chromosome_file_name = NULL;
-static char* plasmid_file_name = NULL;
+static char* param_file_name = nullptr;
+static char* output_dir = nullptr;
+static char* chromosome_file_name = nullptr;
+static char* plasmid_file_name = nullptr;
 
 
 
@@ -75,16 +75,17 @@ int main(int argc, char* argv[]) {
   int32_t lchromosome = -1;
   char* chromosome;
 
-  if (chromosome_file_name != NULL) {
+  if (chromosome_file_name != nullptr) {
     const int max_input_chrom_size = 1000000;
     char raw_chromosome[max_input_chrom_size];
     FILE* chromosome_file = fopen(chromosome_file_name, "r");
-    if (chromosome_file == NULL) {
+    if (chromosome_file == nullptr) {
       printf("ERROR: failed to open source chromosome file %s\n",
              chromosome_file_name);
       exit(EXIT_FAILURE);
     }
-    if (fgets(raw_chromosome, max_input_chrom_size, chromosome_file) == NULL) {
+    if (fgets(raw_chromosome, max_input_chrom_size, chromosome_file) == nullptr)
+    {
       printf("ERROR: failed to read from chromosome file %s\n",
              chromosome_file_name);
       exit(EXIT_FAILURE);
@@ -99,16 +100,16 @@ int main(int argc, char* argv[]) {
   int32_t lplasmid = -1;
   char* plasmid;
 
-  if (plasmid_file_name != NULL) {
+  if (plasmid_file_name != nullptr) {
     const int max_input_plasmid_size = 1000000;
     char raw_plasmid[max_input_plasmid_size];
     FILE* plasmid_file = fopen(plasmid_file_name, "r");
-    if (plasmid_file == NULL) {
+    if (plasmid_file == nullptr) {
       printf("ERROR: failed to open source chromosome file %s\n",
              plasmid_file_name);
       exit(EXIT_FAILURE);
     }
-    if (fgets(raw_plasmid, max_input_plasmid_size, plasmid_file) == NULL) {
+    if (fgets(raw_plasmid, max_input_plasmid_size, plasmid_file) == nullptr) {
       printf("ERROR: failed to read from chromosome file %s\n",
              chromosome_file_name);
       exit(EXIT_FAILURE);
@@ -140,7 +141,7 @@ int main(int argc, char* argv[]) {
   //~ getchar();
 
   // 8) Save the experiment
-  if (output_dir == NULL) {
+  if (output_dir == nullptr) {
     exp_manager->Save();
   }
   else {
@@ -197,19 +198,19 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
   const char* options_list = "hVf:o:c:p:";
   static struct option long_options_list[] = {
-      {"help",       no_argument,       NULL, 'h'},
-      {"version",    no_argument,       NULL, 'V'},
-      {"file",       required_argument, NULL, 'f'},
-      {"out",        required_argument, NULL, 'o'},
-      {"chromosome", required_argument, NULL, 'c'},
-      {"plasmid",    required_argument, NULL, 'p'},
+      {"help",       no_argument,       nullptr, 'h'},
+      {"version",    no_argument,       nullptr, 'V'},
+      {"file",       required_argument, nullptr, 'f'},
+      {"out",        required_argument, nullptr, 'o'},
+      {"chromosome", required_argument, nullptr, 'c'},
+      {"plasmid",    required_argument, nullptr, 'p'},
       {0, 0, 0, 0}
   };
 
   // Get actual values of the CLI options
   int option;
   while ((option = getopt_long(argc, argv, options_list, long_options_list,
-                               NULL)) != -1) {
+                               nullptr)) != -1) {
     switch (option) {
       case 'h' : {
         print_help(argv[0]);
@@ -247,7 +248,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   }
 
   // Set undefined command line parameters to default values
-  if (param_file_name == NULL) {
+  if (param_file_name == nullptr) {
     param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
     sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
   }
