@@ -324,11 +324,8 @@ void ExpManager::load(gzFile& exp_s_file,
 
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
+    // TODO(dpa) Document this !!!
     sel()->addObserver(tree(), NEW_INDIV);
-    for (auto indiv : world_->indivs())
-      indiv->addObserver(
-        tree()->report_by_index(AeTime::time(), indiv->id()),
-          END_REPLICATION);
     sel()->addObserver(tree(), END_GENERATION);
   }
 
