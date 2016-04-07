@@ -21,7 +21,7 @@ class cuda_struct {
 
     void init_struct(int max_protein, int max_rna, int max_influence,
                      int nb_signals, int life_time, int nb_eval,
-                     float selection_pressure);
+                     double selection_pressure);
 
     void transfert_to_gpu(ExpManager* exp_m);
 
@@ -31,36 +31,38 @@ class cuda_struct {
 
     void print_dist(ExpManager* exp_m);
 
- private:
-    float* phenotype_inhib;
-    float* phenotype_activ;
-    float* phenotype;
+    void delete_struct();
 
-    float* environment;
+ private:
+    double* phenotype_inhib;
+    double* phenotype_activ;
+    double* phenotype;
+
+    double* environment;
 
     int* eval_step;
 
-    float* protein_concentration;
+    double* protein_concentration;
 
-    float* signals_concentration;
+    double* signals_concentration;
 
-    float* enhance_coef;
-    float* operate_coef;
-    float* rna_synthesis;
-    float* basal_level;
+    double* enhance_coef;
+    double* operate_coef;
+    double* rna_synthesis;
+    double* basal_level;
 
     int* protein_influence; // index in protein concentration
 
-    float* protein_influenced;
+    double* protein_influenced;
 
     int* protein_triangle_ix0;
     int* protein_triangle_ix1;
     int* protein_triangle_ix2;
 
-    float* protein_triangle_height;
+    double* protein_triangle_height;
 
-    float* delta;
-    float *dist_sum;
+    double* delta;
+    double *dist_sum;
 
     // Max
     int max_protein_;
@@ -70,7 +72,7 @@ class cuda_struct {
     int life_time_;
     int nb_eval_;
 
-    float selection_pressure_;
+    double selection_pressure_;
 };
 }
 #endif //AEVOL_CUDA_CUDA_STRUCT_H

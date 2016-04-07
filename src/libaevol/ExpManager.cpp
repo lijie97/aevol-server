@@ -534,7 +534,7 @@ void ExpManager::run_evolution()
     cstruct->init_struct(max_protein,max_rna,max_influence,
                          nb_signals,life_time,nb_eval_,selection_pressure);
     cstruct->transfert_to_gpu(best_indiv()->exp_m());
-    //cstruct->compute_a_generation(best_indiv()->exp_m());
+    cstruct->compute_a_generation(best_indiv()->exp_m());
     cstruct->print_dist(best_indiv()->exp_m());
 
     if (AeTime::time() >= t_end_ or quit_signal_received())

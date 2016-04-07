@@ -8,7 +8,7 @@ namespace aevol {
 
 void cuda_struct::init_struct(int max_protein, int max_rna, int max_influence,
                               int nb_signals, int life_time, int nb_eval,
-                              float selection_pressure) {
+                              double selection_pressure) {
   max_protein_ = max_protein;
   max_rna_ = max_rna;
   max_influence_ = max_influence;
@@ -17,35 +17,67 @@ void cuda_struct::init_struct(int max_protein, int max_rna, int max_influence,
   nb_eval_ = nb_eval;
   selection_pressure_ = selection_pressure;
 
-  phenotype_inhib = new float[300 * 1024];
-  phenotype_activ = new float[300 * 1024];
-  phenotype = new float[300 * 1024];
-  dist_sum = new float[1024];
+  phenotype_inhib = new double[300 * 1024];
+  phenotype_activ = new double[300 * 1024];
+  phenotype = new double[300 * 1024];
+  dist_sum = new double[1024];
 
-  environment = new float[300 * life_time];
-  delta = new float[300 * 1024];
+  environment = new double[300 * life_time];
+  delta = new double[300 * 1024];
 
   eval_step = new int[life_time];
 
-  protein_concentration = new float[max_protein * 1024];
+  protein_concentration = new double[max_protein * 1024];
 
-  signals_concentration = new float[nb_signals * life_time];
+  signals_concentration = new double[nb_signals * life_time];
 
-  enhance_coef = new float[max_influence * max_rna * 1024];
-  operate_coef = new float[max_influence * max_rna * 1024];
-  rna_synthesis = new float[max_rna * 1024];
-  basal_level = new float[max_rna * 1024];
+  enhance_coef = new double[max_influence * max_rna * 1024];
+  operate_coef = new double[max_influence * max_rna * 1024];
+  rna_synthesis = new double[max_rna * 1024];
+  basal_level = new double[max_rna * 1024];
 
   protein_influence = new int[max_influence * max_rna * 1024];
 
-  protein_influenced = new float[max_protein * max_rna * 1024];
+  protein_influenced = new double[max_protein * max_rna * 1024];
 
   protein_triangle_ix0 = new int[max_protein * 1024];
   protein_triangle_ix1 = new int[max_protein * 1024];
   protein_triangle_ix2 = new int[max_protein * 1024];
 
-  protein_triangle_height = new float[max_protein * 1024];
+  protein_triangle_height = new double[max_protein * 1024];
 }
+
+void cuda_struct::delete_struct() {
+  delete[] phenotype_inhib;
+  delete[] phenotype_activ;
+  delete[] phenotype;
+  delete[] dist_sum;
+
+  delete[] environment;
+  delete[] delta;
+
+  delete[] eval_step;
+
+  delete[] protein_concentration;
+
+  delete[] signals_concentration;
+
+  delete[] enhance_coef;
+  delete[] operate_coef;
+  delete[] rna_synthesis;
+  delete[] basal_level;
+
+  delete[] protein_influence;
+
+  delete[] protein_influenced;
+
+  delete[] protein_triangle_ix0;
+  delete[] protein_triangle_ix1;
+  delete[] protein_triangle_ix2;
+
+  delete[] protein_triangle_height;
+}
+
 
 void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
   std::set<int>* eval = exp_m->exp_s()->get_list_eval_step();
@@ -96,7 +128,7 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
         protein_triangle_height[i * max_protein_ + je] = 0;
 
 
-        for (int k = 0; k < max_protein_ * max_rna_; k++)
+        for (int k = 0; k < max_rna_; k++)
           protein_influenced[i * max_protein_ * max_rna_ + je * max_protein_ + k] = 0;
       }
 
@@ -186,9 +218,9 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
 void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 
   int degradation_step = exp_m->exp_s()->get_nb_degradation_step();
-  float degradation_rate = exp_m->exp_s()->get_degradation_rate();
-  float hill_shape_n = exp_m->exp_s()->get_hill_shape_n();
-  float hill_shape = exp_m->exp_s()->get_hill_shape();
+  double degradation_rate = exp_m->exp_s()->get_degradation_rate();
+  double hill_shape_n = exp_m->exp_s()->get_hill_shape_n();
+  double hill_shape = exp_m->exp_s()->get_hill_shape();
 
   for (int ki = 0; ki < 32; ki++)
     for (int kj = 0; kj < 32; kj++) {
@@ -198,7 +230,7 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
         for (int j = 0; j < degradation_step; j++) {
           // Compute synthesis rate of RNA
           for (int m = 0; m < max_rna_; m++) {
-            float enhancer_activity = 0, operator_activity = 0;
+            double enhancer_activity = 0, operator_activity = 0;
             for (int n = 0; n < max_influence_; n++) {
               int prot_id = protein_influence
               [ki * 32 + kj * max_rna_ * max_influence_ + m * max_influence_ +
@@ -229,9 +261,9 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
               }
             }
 
-            float enhancer_activity_pow_n = pow(enhancer_activity,
+            double enhancer_activity_pow_n = pow(enhancer_activity,
                                                 hill_shape_n);
-            float operator_activity_pow_n = pow(operator_activity,
+            double operator_activity_pow_n = pow(operator_activity,
                                                 hill_shape_n);
 
             rna_synthesis[indiv_id * max_rna_ + m] = basal_level[indiv_id * max_rna_ + m]
@@ -250,7 +282,7 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 
           // Compute concentration
           for (int l = 0; l < max_protein_; l++) {
-            float _delta_concentration;
+            double _delta_concentration;
             for (int m = 0; m < max_rna_; m++) {
               if (protein_influenced[indiv_id * max_protein_ * max_rna_ +
                                      l * max_protein_
@@ -261,7 +293,7 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 
             _delta_concentration -= degradation_rate * protein_concentration[indiv_id * max_protein_ +
                                                                              l];
-            _delta_concentration *= 1 / ((float) degradation_step);
+            _delta_concentration *= 1 / ((double) degradation_step);
 
             protein_concentration[indiv_id * max_protein_ +
                                   l] += _delta_concentration;
@@ -278,10 +310,10 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
           }
 
           for (int l = 0; l < max_protein_; l++) {
-            float height = (protein_triangle_height[indiv_id * max_protein_ +
+            double height = (protein_triangle_height[indiv_id * max_protein_ +
                                                     l] *
                             protein_concentration[indiv_id * max_protein_ + l]);
-            float incY =
+            double incY =
                 protein_triangle_height[indiv_id * max_protein_ + l] *
                 protein_concentration[indiv_id * max_protein_ + l] /
                 (protein_triangle_ix1[indiv_id * max_protein_ + l] -
@@ -359,7 +391,7 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 
           /** compute distance to target **/
 
-          float area = 0;
+          double area = 0;
 
           for (int j = 0; j < 299; j++) {
             dist_sum[indiv_id] += ((delta[indiv_id * 300 + j]
@@ -378,9 +410,9 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
   const Habitat_R& habitat = dynamic_cast<const Habitat_R&>(exp_m->world()->grid(0,0)->habitat());
 
   int degradation_step = exp_m->exp_s()->get_nb_degradation_step();
-  float degradation_rate = exp_m->exp_s()->get_degradation_rate();
-  float hill_shape_n = exp_m->exp_s()->get_hill_shape_n();
-  float hill_shape = exp_m->exp_s()->get_hill_shape();
+  double degradation_rate = exp_m->exp_s()->get_degradation_rate();
+  double hill_shape_n = exp_m->exp_s()->get_hill_shape_n();
+  double hill_shape = exp_m->exp_s()->get_hill_shape();
 
   Individual_R* indiv = dynamic_cast<Individual_R*>(exp_m->best_indiv());
   int indiv_id = indiv->grid_cell_->x() * 32 +indiv->grid_cell_->y();
@@ -529,7 +561,7 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
     for (int j = 0; j < degradation_step; j++) {
       // Compute synthesis rate of RNA
       for (int m = 0; m < max_rna_; m++) {
-        float enhancer_activity = 0, operator_activity = 0;
+        double enhancer_activity = 0, operator_activity = 0;
         for (int n = 0; n < max_influence_; n++) {
           int prot_id = protein_influence
           [indiv_id * max_rna_ * max_influence_ + m * max_influence_ +
@@ -560,9 +592,9 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
           }
         }
 
-        float enhancer_activity_pow_n = pow(enhancer_activity,
+        double enhancer_activity_pow_n = pow(enhancer_activity,
                                             hill_shape_n);
-        float operator_activity_pow_n = pow(operator_activity,
+        double operator_activity_pow_n = pow(operator_activity,
                                             hill_shape_n);
 
         rna_synthesis[indiv_id * max_rna_ + m] =
@@ -582,7 +614,7 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
 
       // Compute concentration
       for (int l = 0; l < max_protein_; l++) {
-        float _delta_concentration = 0;
+        double _delta_concentration = 0;
         for (int m = 0; m < max_rna_; m++) {
           /*printf("Checking protANR %d (%d %d)\n",indiv_id * max_protein_ * max_rna_ +
                                     l * max_protein_
@@ -606,7 +638,7 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
         /*printf("%d - B - Protein %d is Concentration %f (delta: %f)\n",i,l,
                protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
 
-        _delta_concentration *= 1 / ((float) degradation_step);
+        _delta_concentration *= 1 / ((double) degradation_step);
 
         /*printf("%d - C - Protein %d is Concentration %f (delta: %f)\n",i,l,
                protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
@@ -647,10 +679,10 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
         }
 
         for (int l = 0; l < max_protein_; l++) {
-          float height = (protein_triangle_height[indiv_id * max_protein_ +
+          double height = (protein_triangle_height[indiv_id * max_protein_ +
                                                   l] *
                           protein_concentration[indiv_id * max_protein_ + l]);
-          float incY =
+          double incY =
               protein_triangle_height[indiv_id * max_protein_ + l] *
               protein_concentration[indiv_id * max_protein_ + l] /
               (protein_triangle_ix1[indiv_id * max_protein_ + l] -
@@ -765,7 +797,7 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
           printf("PH[%d] = %f %f\n",j,phenotype_activ[indiv_id * 300 +j],((HybridFuzzy*)indiv->phenotype_activ_)->points()[j]);
         }*/
 
-        float area = 0;
+        double area = 0;
 
         for (int j = 0; j < 299; j++) {
           dist_sum[indiv_id] += ((fabs(delta[indiv_id * 300 + j])
@@ -789,16 +821,22 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
       }
   }
 
-  printf("Mean dist_to_target =  %lf %f\n",dist_temp/(double)nb_eval_,dist_sum[indiv_id]/(float)nb_eval_);
+  indiv->dist_to_target_by_feature_[METABOLISM] = dist_temp / (double) (nb_eval_);
+
+  printf("Mean dist_to_target =  %e %e\n",dist_temp/(double)nb_eval_,dist_sum[indiv_id]/(double)nb_eval_);
+  //printf("fitness CUDA!!! %e %e\n",selection_pressure_, dist_sum[indiv_id]/(double)nb_eval_);
 
     dist_sum[indiv_id] = exp(
-        -selection_pressure_ * (dist_sum[indiv_id] / nb_eval_));
+        -selection_pressure_ * (dist_sum[indiv_id] / (double)nb_eval_));
+  indiv->fitness_computed_ = false;
+
   indiv->compute_fitness(habitat.phenotypic_target( life_time_ ));
+
+  printf("Fitness =  %e %e\n",indiv->fitness(),dist_sum[indiv_id]);
 
   indiv->protein_list_.clear();
   indiv->protein_list_ = indiv->_initial_protein_list;
 
-  printf("Fitness =  %e %e\n",indiv->fitness(),dist_sum[indiv_id]);
 }
 
 }
