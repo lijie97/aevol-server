@@ -499,8 +499,8 @@ class Individual : public Observable {
 
 
 
-
-
+    GridCell* grid_cell_ = NULL;
+    std::list<Protein*> protein_list_;
  protected :
   // =================================================================
   //                           Protected Methods
@@ -566,7 +566,7 @@ class Individual : public Observable {
   double fitness_;
 
   // When using structured population, this is the cell the individual is in
-  GridCell* grid_cell_ = NULL;
+
   // int16_t x, y;
 
   // The chromosome and plasmids (if allowed)
@@ -574,7 +574,7 @@ class Individual : public Observable {
 
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
-  std::list<Protein*> protein_list_;
+
   std::list<const Rna*> rna_list_;
 
   // Generic probes

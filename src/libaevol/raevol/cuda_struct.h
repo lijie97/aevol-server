@@ -12,6 +12,8 @@
 
 namespace aevol {
 class cuda_struct {
+    friend class Individual_R;
+    friend class Individual;
  public:
     cuda_struct() {};
 

@@ -65,6 +65,7 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model ) : Protein:
   _inherited = model._inherited;
   is_TF_ = model.is_TF_;
   _id = id++;
+  _local_id = model._local_id;
 
   if (!AA_list_.empty()) {
     _cod_tab = new int8_t[AA_list_.size()];
@@ -211,7 +212,6 @@ void Protein_R::add_RNA( Rna * rna )
 {
   Protein::add_RNA(rna);
   _initial_concentration += rna->basal_level();
-  //printf("Add RNA %ld to protein %ld (influence by %ld)\n",((Rna_R*)rna)->get_id(),_id,((Rna_R*)rna)->_operating_coef_list.size());
   _rna_R_list.push_back((Rna_R*)rna);
 }
 

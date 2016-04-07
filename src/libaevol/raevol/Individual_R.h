@@ -50,6 +50,8 @@ namespace aevol {
 // =================================================================
 class Individual_R : public virtual Individual
 {
+    friend class cuda_struct;
+
   public :
 
     // =================================================================

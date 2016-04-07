@@ -87,7 +87,7 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
       }
 
       for (int je = 0; je < max_protein_; je++) {
-        protein_concentration[i * max_protein_ + je] + 0;
+        protein_concentration[i * max_protein_ + je] = 0;
 
         protein_triangle_ix0[i * max_protein_ + je] = 0;
         protein_triangle_ix1[i * max_protein_ + je] = 0;
@@ -97,12 +97,13 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
 
 
         for (int k = 0; k < max_protein_ * max_rna_; k++)
-          protein_influenced[i * max_protein_ * max_rna_ + je + k] = 0;
+          protein_influenced[i * max_protein_ * max_rna_ + je * max_protein_ + k] = 0;
       }
 
-      for (auto prot_a : indiv->_initial_protein_list) {
+      for (auto prot_a : indiv->protein_list()) {
         Protein_R* prot = dynamic_cast<Protein_R*>(prot_a);
 
+        prot->reset_concentration();
         protein_concentration[i * max_protein_ +
                               prot->get_local_id()] = prot->concentration();
 
@@ -126,6 +127,7 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
                                 prot->get_local_id()] = prot->height();
 
 
+
         for (auto rna : prot->_rna_R_list)
           protein_influenced[i * max_protein_ * max_rna_ +
                              prot->get_local_id() * max_protein_
@@ -133,13 +135,17 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
       }
 
       for (int je = 0; je < max_rna_; je++) {
+        rna_synthesis[i * max_rna_ +
+                      je] = 0;
+        basal_level[i * max_rna_ +
+                      je] = 0;
         for (int ke = 0; ke < max_influence_; ke++) {
           enhance_coef[i * max_rna_ * max_influence_ +
-                       je * max_influence_ + ke] = 0;
+                       je * max_rna_ + ke] = 0;
           operate_coef[i * max_rna_ * max_influence_ +
-                       je * max_influence_ + ke] = 0;
+                       je * max_rna_ + ke] = 0;
           protein_influence[i * max_rna_ * max_influence_ +
-                            je * max_influence_ + ke] = 0;
+                            je * max_rna_ + ke] = 0;
         }
       }
 
@@ -154,19 +160,19 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
 
         for (int k = 0; k < rna->_nb_influences; k++) {
           enhance_coef[i * max_rna_ * max_influence_ +
-                       rna->get_local_id() * max_influence_ +
+                       rna->get_local_id() * max_rna_ +
                        k] = rna->_enhancing_coef_list[k];
           operate_coef[i * max_rna_ * max_influence_ +
-                       rna->get_local_id() * max_influence_ +
+                       rna->get_local_id() * max_rna_ +
                        k] = rna->_operating_coef_list[k];
           if (rna->_protein_list[k]->is_signal())
             protein_influence[i * max_rna_ * max_influence_ +
-                              rna->get_local_id() * max_influence_ +
+                              rna->get_local_id() * max_rna_ +
                               k] =
                 rna->_protein_list[k]->get_local_id() + max_protein_;
           else
             protein_influence[i * max_rna_ * max_influence_ +
-                              rna->get_local_id() * max_influence_ +
+                              rna->get_local_id() * max_rna_ +
                               k] = rna->_protein_list[k]->get_local_id();
         }
       }
@@ -348,7 +354,7 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
                 Y_MIN : phenotype[indiv_id * 300 + j];
             delta[indiv_id * 300 + j] =
                 phenotype[indiv_id * 300 + j] -
-                environment[i * life_time_ + j];
+                environment[(i-1) * 300 + j];
           }
 
           /** compute distance to target **/
@@ -357,7 +363,7 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 
           for (int j = 0; j < 299; j++) {
             dist_sum[indiv_id] += ((delta[indiv_id * 300 + j]
-                                    - delta[indiv_id * 300 + j + 1]) / 600.0);
+                                    + delta[indiv_id * 300 + j + 1]) / 600.0);
           }
         }
       }
@@ -368,7 +374,431 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 }
 
 void cuda_struct::print_dist(ExpManager* exp_m) {
+  std::set<int>* eval = exp_m->exp_s()->get_list_eval_step();
+  const Habitat_R& habitat = dynamic_cast<const Habitat_R&>(exp_m->world()->grid(0,0)->habitat());
 
+  int degradation_step = exp_m->exp_s()->get_nb_degradation_step();
+  float degradation_rate = exp_m->exp_s()->get_degradation_rate();
+  float hill_shape_n = exp_m->exp_s()->get_hill_shape_n();
+  float hill_shape = exp_m->exp_s()->get_hill_shape();
+
+  Individual_R* indiv = dynamic_cast<Individual_R*>(exp_m->best_indiv());
+  int indiv_id = indiv->grid_cell_->x() * 32 +indiv->grid_cell_->y();
+
+  indiv->_initial_protein_list = indiv->protein_list_;
+
+  //printf("MAX %d %d (%d %d)\n",max_protein_,max_rna_, indiv->grid_cell_->x() ,indiv->grid_cell_->y());
+
+  double dist_temp = 0;
+
+  //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
+  for(Protein_R* prot : habitat.signals()) {
+    indiv->protein_list_.push_back(prot);
+  }
+  for (const auto& prot : indiv->protein_list_) {
+    ((Protein_R*)prot)->reset_concentration();
+  }
+
+  indiv->set_influences();
+
+  for (int j = 0; j < 300; j++) {
+    phenotype[indiv_id * 300 + j] = 0;
+    phenotype_activ[indiv_id * 300 + j] = 0;
+    phenotype_inhib[indiv_id * 300 + j] = 0;
+    delta[indiv_id * 300 + j] = 0;
+  }
+
+  for (int je = 0; je < max_protein_; je++) {
+    protein_concentration[indiv_id * max_protein_ + je] = 0;
+
+    protein_triangle_ix0[indiv_id * max_protein_ + je] = 0;
+    protein_triangle_ix1[indiv_id * max_protein_ + je] = 0;
+    protein_triangle_ix2[indiv_id * max_protein_ + je] = 0;
+
+    protein_triangle_height[indiv_id * max_protein_ + je] = 0;
+
+
+    for (int k = 0; k < max_rna_; k++)
+      protein_influenced[indiv_id * max_protein_ * max_rna_ + je * max_protein_ + k] = 0;
+  }
+
+  for (auto prot_a : indiv->protein_list_) {
+    Protein_R* prot = dynamic_cast<Protein_R*>(prot_a);
+
+    prot->reset_concentration();
+    protein_concentration[indiv_id * max_protein_ +
+                          prot->get_local_id()] = prot->concentration();
+
+    double x0 = prot->mean() - prot->width();
+    double x1 = prot->mean();
+    double x2 = prot->mean() + prot->width();
+
+    int ix0 = (int) (x0 * 300);
+    int ix1 = (int) (x1 * 300);
+    int ix2 = (int) (x2 * 300);
+
+    if (ix0 < 0) ix0 = 0; else if (ix0 > (300 - 1)) ix0 = 300 - 1;
+    if (ix1 < 0) ix1 = 0; else if (ix1 > (300 - 1)) ix1 = 300 - 1;
+    if (ix2 < 0) ix2 = 0; else if (ix2 > (300 - 1)) ix2 = 300 - 1;
+
+    protein_triangle_ix0[indiv_id * max_protein_ + prot->get_local_id()] = ix0;
+    protein_triangle_ix1[indiv_id * max_protein_ + prot->get_local_id()] = ix1;
+    protein_triangle_ix2[indiv_id * max_protein_ + prot->get_local_id()] = ix2;
+
+    protein_triangle_height[indiv_id * max_protein_ +
+                            prot->get_local_id()] = prot->height();
+
+    /*printf("Protein[%d] = %f (%f) -- %d %d %d %f (%d %d %d %f)\n",prot->get_local_id(),
+           prot->concentration(),protein_concentration[indiv_id * max_protein_ +
+                                                       prot->get_local_id()],
+           ix0,ix1,ix2,prot->height(),
+           protein_triangle_ix0[indiv_id * max_protein_ + prot->get_local_id()],
+           protein_triangle_ix1[indiv_id * max_protein_ + prot->get_local_id()],
+           protein_triangle_ix2[indiv_id * max_protein_ + prot->get_local_id()],
+           protein_triangle_height[indiv_id * max_protein_ + prot->get_local_id()]);
+    */
+
+    for (auto rna : prot->_rna_R_list) {
+      /*printf("Protein %d is produced by %d (%d)\n",prot->get_local_id(),rna->get_local_id(),
+             indiv_id * max_protein_ * max_rna_ +
+             prot->get_local_id() * max_protein_
+             + rna->get_local_id());*/
+      protein_influenced[indiv_id * max_protein_ * max_rna_ +
+                         prot->get_local_id() * max_protein_
+                         + rna->get_local_id()] = 1;
+    }
+  }
+
+  for (int je = 0; je < max_rna_; je++) {
+    for (int ke = 0; ke < max_influence_; ke++) {
+      enhance_coef[indiv_id * max_rna_ * max_influence_ +
+                   je * max_influence_ + ke] = 0;
+      operate_coef[indiv_id * max_rna_ * max_influence_ +
+                   je * max_influence_ + ke] = 0;
+      protein_influence[indiv_id * max_rna_ * max_influence_ +
+                        je * max_influence_ + ke] = 0;
+    }
+  }
+
+
+  for (auto rna : indiv->_rna_list_coding) {
+
+    rna_synthesis[indiv_id * max_rna_ +
+                  rna->get_local_id()] = rna->get_synthesis_rate();
+
+    basal_level[indiv_id * max_rna_ +
+                rna->get_local_id()] = rna->basal_level();
+
+    /*printf("RNA[%d] = %f %f (%f %f)\n", rna->get_local_id(),
+           rna->get_synthesis_rate(),
+           rna->basal_level(),
+           rna_synthesis[indiv_id * max_rna_ +
+                                            rna->get_local_id()],
+           basal_level[indiv_id * max_rna_ +
+                        rna->get_local_id()]);*/
+
+    for (int k = 0; k < rna->_nb_influences; k++) {
+      enhance_coef[indiv_id * max_rna_ * max_influence_ +
+                   rna->get_local_id() * max_rna_ +
+                   k] = rna->_enhancing_coef_list[k];
+      operate_coef[indiv_id * max_rna_ * max_influence_ +
+                   rna->get_local_id() * max_rna_ +
+                   k] = rna->_operating_coef_list[k];
+      if (rna->_protein_list[k]->is_signal())
+        protein_influence[indiv_id * max_rna_ * max_influence_ +
+                          rna->get_local_id() * max_rna_ +
+                          k] =
+            rna->_protein_list[k]->get_local_id() + max_protein_;
+      else
+        protein_influence[indiv_id * max_rna_ * max_influence_ +
+                          rna->get_local_id() * max_rna_ +
+                          k] = rna->_protein_list[k]->get_local_id();
+    }
+  }
+
+
+
+  for (int8_t i = 1; i <= life_time_; i++) {
+    for (int j = 0; j < 300; j++) {
+      environment[(i - 1) * 300 +
+                  j] = ((HybridFuzzy*) habitat.phenotypic_target(
+          i).fuzzy())->points()[j];
+
+    }
+
+    for (int j = 0; j < degradation_step; j++) {
+      // Compute synthesis rate of RNA
+      for (int m = 0; m < max_rna_; m++) {
+        float enhancer_activity = 0, operator_activity = 0;
+        for (int n = 0; n < max_influence_; n++) {
+          int prot_id = protein_influence
+          [indiv_id * max_rna_ * max_influence_ + m * max_influence_ +
+           n];
+
+          if (prot_id > max_protein_) {
+            enhancer_activity +=
+                enhance_coef[indiv_id * max_rna_ * max_influence_ +
+                             m * max_influence_ + n] *
+                signals_concentration[i * life_time_ + prot_id -
+                                      max_protein_];
+
+            operator_activity +=
+                operate_coef[indiv_id * max_rna_ * max_influence_ +
+                             m * max_influence_ + n] *
+                signals_concentration[i * life_time_ + prot_id -
+                                      max_protein_];
+          } else {
+            enhancer_activity +=
+                enhance_coef[indiv_id * max_rna_ * max_influence_ +
+                             m * max_influence_ + n] *
+                protein_concentration[indiv_id * max_protein_ + prot_id];
+
+            operator_activity +=
+                operate_coef[indiv_id * max_rna_ * max_influence_ +
+                             m * max_influence_ + n] *
+                protein_concentration[indiv_id * max_protein_ + prot_id];
+          }
+        }
+
+        float enhancer_activity_pow_n = pow(enhancer_activity,
+                                            hill_shape_n);
+        float operator_activity_pow_n = pow(operator_activity,
+                                            hill_shape_n);
+
+        rna_synthesis[indiv_id * max_rna_ + m] =
+            basal_level[indiv_id * max_rna_ + m]
+            * (hill_shape
+               /
+               (operator_activity_pow_n +
+                hill_shape))
+            * (1 + ((1 /
+                     basal_level[indiv_id * max_rna_ + m]) -
+                    1)
+                   *
+                   (enhancer_activity_pow_n /
+                    (enhancer_activity_pow_n +
+                     hill_shape)));
+      }
+
+      // Compute concentration
+      for (int l = 0; l < max_protein_; l++) {
+        float _delta_concentration = 0;
+        for (int m = 0; m < max_rna_; m++) {
+          /*printf("Checking protANR %d (%d %d)\n",indiv_id * max_protein_ * max_rna_ +
+                                    l * max_protein_
+                                    + m,l,m);*/
+          if (protein_influenced[indiv_id * max_protein_ * max_rna_ +
+                                 l * max_protein_
+                                 + m] == 1) {
+            /* printf("%d -- Protein %d is PRODUCED BY %d\n",i,l,m);*/
+             _delta_concentration += rna_synthesis[indiv_id * max_rna_ +
+                                                   m];
+          }
+        }
+
+        /*printf("%d - A - Protein %d is Concentration %f (delta: %f)\n",i,l,
+               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
+
+        _delta_concentration -= degradation_rate *
+                                protein_concentration[indiv_id * max_protein_ +
+                                                      l];
+
+        /*printf("%d - B - Protein %d is Concentration %f (delta: %f)\n",i,l,
+               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
+
+        _delta_concentration *= 1 / ((float) degradation_step);
+
+        /*printf("%d - C - Protein %d is Concentration %f (delta: %f)\n",i,l,
+               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
+
+        protein_concentration[indiv_id * max_protein_ +
+                              l] += _delta_concentration;
+
+        /*printf("%d - D - Protein %d is Concentration %f (delta: %f) %d\n",i,l,
+               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration,indiv_id * max_protein_ + l);*/
+      }
+
+      indiv->update_concentrations();
+    }
+
+    for (auto rna : indiv->_rna_list_coding) {
+      /*printf("%d -- RNA[%d] = %f %f (%f %f)\n",i, rna->get_local_id(),
+             rna->get_synthesis_rate(),
+             rna->basal_level(),
+             rna_synthesis[indiv_id * max_rna_ +
+                           rna->get_local_id()],
+             basal_level[indiv_id * max_rna_ +
+                         rna->get_local_id()]);*/
+
+
+    }
+
+    for (auto prot : indiv->protein_list_)
+      /*printf("%d -- Protein[%d] = %f (%f) %f\n",i,((Protein_R*)prot)->get_local_id(),
+             prot->concentration(),prot->height(), prot->concentration()*prot->height());*/
+
+      indiv->update_phenotype();
+// If we have to evaluate the individual at this age
+      if (eval_step[i]) {
+        for (int j = 0; j < 300; j++) {
+          phenotype[indiv_id * 300 + j] = 0;
+          phenotype_activ[indiv_id * 300 + j] = 0;
+          phenotype_inhib[indiv_id * 300 + j] = 0;
+        }
+
+        for (int l = 0; l < max_protein_; l++) {
+          float height = (protein_triangle_height[indiv_id * max_protein_ +
+                                                  l] *
+                          protein_concentration[indiv_id * max_protein_ + l]);
+          float incY =
+              protein_triangle_height[indiv_id * max_protein_ + l] *
+              protein_concentration[indiv_id * max_protein_ + l] /
+              (protein_triangle_ix1[indiv_id * max_protein_ + l] -
+               protein_triangle_ix0[indiv_id * max_protein_ + l]);
+
+          /*printf("Protein %d %f %f (%d %d %d %f %f) %d\n",l,
+                 height,
+                 incY,
+                 protein_triangle_ix0[indiv_id * max_protein_ + l],
+                 protein_triangle_ix1[indiv_id * max_protein_ + l],
+                 protein_triangle_ix2[indiv_id * max_protein_ + l],
+                 protein_concentration[indiv_id * max_protein_ + l],
+                 protein_triangle_height[indiv_id * max_protein_ + l],
+                 indiv_id * max_protein_ + l
+                  );*/
+
+          if (protein_triangle_height[indiv_id * max_protein_ + l] > 0) {
+            for (int j = 0; j < 300; j++) {
+              if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
+                  and
+                  j < protein_triangle_ix1[indiv_id * max_protein_ + l])
+                phenotype_activ[indiv_id * 300 + j] +=
+                    incY * (j -
+                            protein_triangle_ix0[indiv_id * max_protein_ +
+                                                 l]);
+              else if (
+                  j > protein_triangle_ix1[indiv_id * max_protein_ + l]
+                  and
+                  j < protein_triangle_ix2[indiv_id * max_protein_ + l])
+                phenotype_activ[indiv_id * 300 + j] += height
+                                                       -
+                                                       incY * (j -
+                                                               protein_triangle_ix1[
+                                                                   indiv_id *
+                                                                   max_protein_ +
+                                                                   l]);
+              else if (j ==
+                       protein_triangle_ix1[indiv_id * max_protein_ + l])
+                phenotype_activ[indiv_id * 300 + j] +=
+                    height;
+            }
+          } else {
+            for (int j = 0; j < 300; j++) {
+              if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
+                  and
+                  j < protein_triangle_ix1[indiv_id * max_protein_ + l])
+                phenotype_inhib[indiv_id * 300 + j] += incY * (j -
+                                                               protein_triangle_ix0[
+                                                                   indiv_id *
+                                                                   max_protein_ +
+                                                                   l]);
+              else if (
+                  j > protein_triangle_ix1[indiv_id * max_protein_ + l]
+                  and
+                  j < protein_triangle_ix2[indiv_id * max_protein_ + l])
+                phenotype_inhib[indiv_id * 300 + j] +=
+                    height -
+                    incY * (j -
+                            protein_triangle_ix1[indiv_id * max_protein_ +
+                                                 l]);
+              else if (j ==
+                       protein_triangle_ix1[indiv_id * max_protein_ + l])
+                phenotype_inhib[indiv_id * 300 + j] +=
+                    height;
+            }
+          }
+        }
+
+        for (int j = 0; j < 300; j++) {
+
+        }
+
+
+        for (int j = 0; j < 300; j++) {
+          phenotype_activ[indiv_id * 300 + j] =
+              phenotype_activ[indiv_id * 300 + j] > Y_MAX ? Y_MAX :
+              phenotype_activ[indiv_id * 300 + j];
+          phenotype_inhib[indiv_id * 300 + j] =
+              phenotype_inhib[indiv_id * 300 + j] < -Y_MAX ? -Y_MAX :
+              phenotype_inhib[indiv_id * 300 + j];
+          phenotype[indiv_id * 300 + j] =
+              phenotype_activ[indiv_id * 300 + j] +
+              phenotype_inhib[indiv_id * 300 + j];
+          phenotype[indiv_id * 300 + j] =
+              phenotype[indiv_id * 300 + j] < Y_MIN ?
+              Y_MIN : phenotype[indiv_id * 300 + j];
+          delta[indiv_id * 300 + j] =
+              phenotype[indiv_id * 300 + j] -
+              environment[(i-1) * 300 + j];
+
+          HybridFuzzy* phen = new HybridFuzzy(*((HybridFuzzy*)indiv->phenotype_));
+          //AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy();
+          phen->sub(*(((HybridFuzzy*) habitat.phenotypic_target(i).fuzzy())));
+          //HybridFuzzy* del = (HybridFuzzy*)delta;
+
+          /*printf("PH[%d] = PA %f (PI %f P %f) D %f (E %f) PA %f P %f E %f D %f\n",j,phenotype_activ[indiv_id * 300 +j],
+                 phenotype_inhib[indiv_id * 300 +j],
+                 phenotype[indiv_id * 300 +j],
+                 delta[indiv_id * 300 + j],
+                 environment[(i-1) * 300 + j],
+                 ((HybridFuzzy*)indiv->phenotype_activ_)->points()[j],
+                 ((HybridFuzzy*)indiv->phenotype_)->points()[j],
+                 ((HybridFuzzy*)habitat.phenotypic_target(i).fuzzy())->points()[j],
+                 phen->points()[j]);*/
+          /*printf("ENV[%d] = %f -- %f\n",j,environment[(i - 1) * 300 +
+                                                      j],((HybridFuzzy*) habitat.phenotypic_target(
+              i).fuzzy())->points()[j]);*/
+        }
+
+
+        /*for (int j = 0; j < 300; j++) {
+          printf("PH[%d] = %f %f\n",j,phenotype_activ[indiv_id * 300 +j],((HybridFuzzy*)indiv->phenotype_activ_)->points()[j]);
+        }*/
+
+        float area = 0;
+
+        for (int j = 0; j < 299; j++) {
+          dist_sum[indiv_id] += ((fabs(delta[indiv_id * 300 + j])
+                                  + fabs(delta[indiv_id * 300 + j + 1])) / 600.0);
+          area += ((fabs(delta[indiv_id * 300 + j])
+                    + fabs(delta[indiv_id * 300 + j + 1])) / 600.0);
+        }
+
+        for (int a = 0; a < NB_FEATURES; a++) {
+          indiv->dist_to_target_by_feature_[a] = 0;
+        }
+
+        indiv->distance_to_target_computed_ = false;
+        indiv->phenotype_computed_ = true;
+
+        indiv->compute_distance_to_target(habitat.phenotypic_target(i));
+
+        dist_temp += indiv->dist_to_target_by_feature_[METABOLISM];
+
+        //printf("Dist sum at %d : %f %f %f\n",i,dist_sum[indiv_id],indiv->dist_to_target_by_feature_[METABOLISM],area);
+      }
+  }
+
+  printf("Mean dist_to_target =  %lf %f\n",dist_temp/(double)nb_eval_,dist_sum[indiv_id]/(float)nb_eval_);
+
+    dist_sum[indiv_id] = exp(
+        -selection_pressure_ * (dist_sum[indiv_id] / nb_eval_));
+  indiv->compute_fitness(habitat.phenotypic_target( life_time_ ));
+
+  indiv->protein_list_.clear();
+  indiv->protein_list_ = indiv->_initial_protein_list;
+
+  printf("Fitness =  %e %e\n",indiv->fitness(),dist_sum[indiv_id]);
 }
 
 }

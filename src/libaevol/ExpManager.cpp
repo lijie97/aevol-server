@@ -471,25 +471,7 @@ void ExpManager::run_evolution()
   int nb_eval_=exp_s()->get_nb_degradation_step();
   float selection_pressure=sel()->selection_pressure();
 
-  for (auto indiv : indivs()) {
-    Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
 
-    if (indiv_r->protein_list().size() > max_protein)
-      max_protein = indiv_r->protein_list().size();
-
-    if (indiv_r->_rna_list_coding.size() > max_rna)
-      max_protein = indiv_r->protein_list().size();
-
-    for (auto rna : indiv_r->_rna_list_coding)
-      if (rna->_nb_influences > max_influence)
-        max_influence = rna->_nb_influences;
-  }
-
-  cuda_struct* cstruct = new cuda_struct();
-  cstruct->init_struct(max_protein,max_rna,max_influence,
-            nb_signals,life_time,nb_eval_,selection_pressure);
-  cstruct->transfert_to_gpu(best_indiv()->exp_m());
-  cstruct->compute_a_generation(best_indiv()->exp_m());
   /*
 
    * int max_protein, int max_rna, int max_influence,
@@ -533,6 +515,27 @@ void ExpManager::run_evolution()
     printf("  Proteins %ld (%d) - RNA %ld - Link A %d - I %d\n",test->protein_list().size(),nb_protein,
            test->_rna_list_coding.size(),
            nb_activators,nb_operators);
+
+    for (auto indiv : indivs()) {
+      Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
+
+      if (indiv_r->protein_list().size() > max_protein)
+        max_protein = indiv_r->protein_list().size();
+
+      if (indiv_r->_rna_list_coding.size() > max_rna)
+        max_rna = indiv_r->_rna_list_coding.size();
+
+      for (auto rna : indiv_r->_rna_list_coding)
+        if (rna->_nb_influences > max_influence)
+          max_influence = rna->_nb_influences;
+    }
+
+    cuda_struct* cstruct = new cuda_struct();
+    cstruct->init_struct(max_protein,max_rna,max_influence,
+                         nb_signals,life_time,nb_eval_,selection_pressure);
+    cstruct->transfert_to_gpu(best_indiv()->exp_m());
+    //cstruct->compute_a_generation(best_indiv()->exp_m());
+    cstruct->print_dist(best_indiv()->exp_m());
 
     if (AeTime::time() >= t_end_ or quit_signal_received())
       break;
