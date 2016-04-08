@@ -657,4 +657,18 @@ Individual* ExpManager::indiv_by_id(int32_t id) const {
   return world_->indiv_by_id(id);
 }
 
+/**
+ * Returns a list of all the individuals with their replication report
+ */
+std::list<std::pair<Individual*, ReplicationReport*>>
+    ExpManager::indivs_annotated() const {
+  std::list<std::pair<Individual*, ReplicationReport*>> annotated_list;
+  for (const auto& indiv : indivs()) {
+    annotated_list.emplace_back(indiv, tree() ?
+        tree()->report_by_index(AeTime::time(), indiv->id()) : nullptr);
+  }
+  return annotated_list;
+}
+
+
 } // namespace aevol
