@@ -64,7 +64,7 @@ using std::endl;
 namespace aevol {
 //##############################################################################
 //                                                                             #
-//                             Class ExpManager                            #
+//                               Class ExpManager                              #
 //                                                                             #
 //##############################################################################
 
@@ -75,8 +75,7 @@ namespace aevol {
 // ===========================================================================
 //                                 Constructors
 // ===========================================================================
-ExpManager::ExpManager()
-{
+ExpManager::ExpManager() {
   // ------------------------------------------------------ Experimental setup
   exp_s_ = new ExpSetup(this);
 
@@ -324,11 +323,8 @@ void ExpManager::load(gzFile& exp_s_file,
 
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
+    // TODO(dpa) Document this !!!
     sel()->addObserver(tree(), NEW_INDIV);
-    for (auto indiv : world_->indivs())
-      indiv->addObserver(
-        tree()->report_by_index(AeTime::time(), indiv->id()),
-          END_REPLICATION);
     sel()->addObserver(tree(), END_GENERATION);
   }
 
@@ -659,5 +655,19 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 Individual* ExpManager::indiv_by_id(int32_t id) const {
   return world_->indiv_by_id(id);
 }
+
+/**
+ * Returns a list of all the individuals with their replication report
+ */
+std::list<std::pair<Individual*, ReplicationReport*>>
+    ExpManager::indivs_annotated() const {
+  std::list<std::pair<Individual*, ReplicationReport*>> annotated_list;
+  for (const auto& indiv : indivs()) {
+    annotated_list.emplace_back(indiv, tree() ?
+        tree()->report_by_index(AeTime::time(), indiv->id()) : nullptr);
+  }
+  return annotated_list;
+}
+
 
 } // namespace aevol

@@ -179,13 +179,21 @@ void Tree::write_to_tree_file(gzFile tree_file) {
     }
 }
 
+/**
+ * This method is called whenever an observed object calls notifyObservers
+ *
+ * \param o the observable that has called notifyObservers
+ * \param e type of event triggered
+ * \param arg array containing a pointer to the new indiv and its parent
+ */
 void Tree::update(Observable& o, ObservableEvent e, void* arg) {
   switch (e) {
     case NEW_INDIV : {
       // Initialize the replication report corresponding to the new individual
       auto indivs = reinterpret_cast<Individual**>(arg);
-      report_by_index(AeTime::time(), indivs[0]->id())->
-          init(indivs[0], indivs[1]);
+      Individual* new_indiv = indivs[0];
+      Individual* parent = indivs[1];
+      report_by_index(AeTime::time(), new_indiv->id())->init(new_indiv, parent);
       break;
     }
     case END_GENERATION :
