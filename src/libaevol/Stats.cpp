@@ -476,6 +476,12 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
 void Stats::write_current_generation_statistics()
 {
   StatRecord** stat_records;
+  Individual* best_indiv = exp_m_->best_indiv();
+  ReplicationReport* best_replic_report = exp_m_->tree() ?
+      exp_m_->tree()->report_by_index(AeTime::time(), best_indiv->id()) :
+      nullptr;
+  std::list<std::pair<Individual*, ReplicationReport*>> annotated_indivs =
+      exp_m_->indivs_annotated();
 
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
@@ -484,18 +490,21 @@ void Stats::write_current_generation_statistics()
 
     stat_records = new StatRecord* [NB_BEST_OR_GLOB];
 
-    stat_records[BEST] = new StatRecord(exp_m_,
-                                        exp_m_->best_indiv(),
+    // WARNING: stat_record initialization order matters: SKEW computation
+    // relies on SDEV being computed
+    stat_records[BEST] = new StatRecord(exp_m_->exp_s(),
+                                        best_indiv,
+                                        best_replic_report,
                                         (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[GLOB] = new StatRecord(exp_m_,
-                                        exp_m_->indivs(),
+    stat_records[GLOB] = new StatRecord(exp_m_->exp_s(),
+                                        annotated_indivs,
                                         (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SDEV] = new StatRecord(exp_m_,
-                                        exp_m_->indivs(),
+    stat_records[SDEV] = new StatRecord(exp_m_->exp_s(),
+                                        annotated_indivs,
                                         stat_records[GLOB],
                                         (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SKEW] = new StatRecord(exp_m_,
-                                        exp_m_->indivs(),
+    stat_records[SKEW] = new StatRecord(exp_m_->exp_s(),
+                                        annotated_indivs,
                                         stat_records[GLOB],
                                         stat_records[SDEV],
                                         (chrom_or_gen_unit) chrom_or_GU);
@@ -506,7 +515,9 @@ void Stats::write_current_generation_statistics()
       {
         if (stat_files_names_[chrom_or_GU][best_or_glob][stat_type] != NULL)
         {
-          stat_records[best_or_glob]->write_to_file(stat_files_[chrom_or_GU][best_or_glob][stat_type], (stats_type) stat_type);
+          stat_records[best_or_glob]->
+              write_to_file(stat_files_[chrom_or_GU][best_or_glob][stat_type],
+                            (stats_type) stat_type);
         }
       }
 
@@ -517,13 +528,15 @@ void Stats::write_current_generation_statistics()
   }
 }
 
-void Stats::write_statistics_of_this_indiv(Individual * indiv)
+void Stats::write_statistics_of_this_indiv(Individual * indiv,
+                                           ReplicationReport* replic_report)
 {
   StatRecord * stat_record;
 
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
-    stat_record = new StatRecord(exp_m_, indiv, (chrom_or_gen_unit) chrom_or_GU, true);
+    stat_record = new StatRecord(exp_m_->exp_s(), indiv, replic_report,
+                                 (chrom_or_gen_unit) chrom_or_GU, true);
 
     for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
     {

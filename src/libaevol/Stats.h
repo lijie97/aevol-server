@@ -50,6 +50,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "Individual.h"
+#include "ReplicationReport.h"
 
 
 namespace aevol {
@@ -105,7 +106,8 @@ class Stats
     //                            Public Methods
     // =================================================================
     void write_current_generation_statistics();
-    void write_statistics_of_this_indiv(Individual * indiv);
+    void write_statistics_of_this_indiv(Individual* indiv,
+                                        ReplicationReport* replic_report);
 
     void flush();
 

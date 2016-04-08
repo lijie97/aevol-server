@@ -39,7 +39,7 @@
 // =================================================================
 #include "StatRecord.h"
 
-#include "ExpManager.h"
+#include "AeTime.h"
 #include "ExpSetup.h"
 #include "Individual.h"
 #include "GeneticUnit.h"
@@ -72,16 +72,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-StatRecord::StatRecord(ExpManager * exp_m)
-{
-  exp_m_ = exp_m;
-  initialize_data();
-}
-
-StatRecord::StatRecord(const StatRecord &model)
-{
-  exp_m_ = model.exp_m_;
-
+StatRecord::StatRecord(const StatRecord &model) {
   pop_size_  = model.pop_size_;
 
   metabolic_error_         = model.metabolic_error_;
@@ -141,13 +132,11 @@ StatRecord::StatRecord(const StatRecord &model)
   #endif
 }
 
-StatRecord::StatRecord(ExpManager* exp_m,
+StatRecord::StatRecord(ExpSetup* exp_s,
                        Individual* indiv,
+                       ReplicationReport* replic_report,
                        chrom_or_gen_unit chrom_or_gu,
-                       bool compute_non_coding)
-{
-  exp_m_ = exp_m;
-  initialize_data();
+                       bool compute_non_coding) {
   record_type_ = INDIV;
 
   // ---------------
@@ -216,16 +205,10 @@ StatRecord::StatRecord(ExpManager* exp_m,
   #endif  
     
   // TODO : These conditions are not well managed!!!
-  if (indiv->nb_genetic_units() == 1)
-  { // One single Genetic Unit
+  if (indiv->nb_genetic_units() == 1) {
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport* replic_report = nullptr;
-    if (exp_m_->tree() != nullptr)
-      replic_report = exp_m_->tree()->report_by_index(AeTime::time(),
-                                                              indiv->id());
-
     if (compute_non_coding)
       indiv->compute_non_coding();
 
@@ -242,8 +225,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     fitness_ = indiv->fitness();
 
     // Secretion stats
-    if (exp_m_->with_secretion())
-    {
+    if (exp_s->with_secretion()) {
        secretion_error_   = indiv->dist_to_target_by_feature(SECRETION);
        secretion_fitness_ = indiv->fitness_by_feature(SECRETION);
        compound_amount_   = indiv->grid_cell()->compound_amount();
@@ -325,11 +307,6 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport* replic_report = nullptr;
-    if (exp_m_->tree() != nullptr)
-      replic_report = exp_m_->tree()->report_by_index(AeTime::time(),
-                                                              indiv->id());
-
     // Metabolic error stats
     metabolic_error_ = (double) indiv->dist_to_target_by_feature(METABOLISM);
     metabolic_fitness_ = (double) indiv->fitness_by_feature(METABOLISM);
@@ -339,8 +316,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     fitness_ = indiv->fitness();
 
     // Secretion stats
-    if (exp_m_->with_secretion())
-    {
+    if (exp_s->with_secretion()) {
        secretion_error_ = (double) indiv->dist_to_target_by_feature(SECRETION);
        secretion_fitness_ = (double) indiv->fitness_by_feature(SECRETION);
        compound_amount_   = (double) indiv->grid_cell()->compound_amount();
@@ -425,11 +401,6 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport* replic_report = nullptr;
-    if (exp_m_->tree() != nullptr)
-      replic_report = exp_m_->tree()->report_by_index(AeTime::time(),
-                                                              indiv->id());
-
     // Metabolic error stats
     metabolic_error_ = (double) gen_unit.dist_to_target_by_feature(METABOLISM);
     metabolic_fitness_ = (double) gen_unit.fitness_by_feature(METABOLISM);
@@ -439,8 +410,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     fitness_ = indiv->fitness();
 
     // Secretion stats
-    if (exp_m_->with_secretion())
-    {
+    if (exp_s->with_secretion()) {
        secretion_error_ = (double) gen_unit.dist_to_target_by_feature(SECRETION);
        secretion_fitness_ = (double) gen_unit.fitness_by_feature(SECRETION);
        compound_amount_   = (double) indiv->grid_cell()->compound_amount();
@@ -512,28 +482,26 @@ StatRecord::StatRecord(ExpManager* exp_m,
 }
 
 // Calculate average statistics for all the recorded values
-StatRecord::StatRecord(ExpManager * exp_m,
-                               const list<Individual *> indivs,
-                               chrom_or_gen_unit chrom_or_gu)
-{
-  exp_m_ = exp_m;
-  initialize_data();
-
+StatRecord::StatRecord(ExpSetup* exp_s,
+                       std::list<std::pair<Individual*,
+                           ReplicationReport*>> annotated_indivs,
+                       chrom_or_gen_unit chrom_or_gu) {
   record_type_ = POP;
 
   // ---------------
   // Simulation data
   // ---------------
-  pop_size_ = (double) indivs.size();
+  pop_size_ = static_cast<int32_t>(annotated_indivs.size());
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: indivs)
-  {
-    StatRecord * indiv_stat_record = new StatRecord(exp_m_, indiv, chrom_or_gu, false);
-    this->add(indiv_stat_record, indiv->id());
-    delete indiv_stat_record;
+  for (const auto& annotated_indiv : annotated_indivs) {
+    StatRecord indiv_stat_record(exp_s,
+                                 annotated_indiv.first,
+                                 annotated_indiv.second,
+                                 chrom_or_gu, false);
+    this->add(&indiv_stat_record, annotated_indiv.first->id());
   }
 
 
@@ -544,28 +512,27 @@ StatRecord::StatRecord(ExpManager * exp_m,
 }
 
 // Calculate standard deviation for all the recorded values
-StatRecord::StatRecord(ExpManager * exp_m,
-                               const list<Individual *> indivs,
-                               const StatRecord * means,
-                               chrom_or_gen_unit chrom_or_gu)
-{
-  exp_m_ = exp_m;
-  initialize_data();
-
+StatRecord::StatRecord(ExpSetup* exp_s,
+                       std::list<std::pair<Individual*,
+                           ReplicationReport*>> annotated_indivs,
+                       const StatRecord * means,
+                       chrom_or_gen_unit chrom_or_gu) {
   record_type_ = STDEVS;
 
   // ---------------
   // Simulation data
   // ---------------
-  pop_size_ = indivs.size();
+  pop_size_ = static_cast<int32_t>(annotated_indivs.size());
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv : indivs) {
-    StatRecord * indiv_stat_record = new StatRecord(exp_m_, indiv, chrom_or_gu, false);
-    this->substract_power(means, indiv_stat_record, 2);
-    delete indiv_stat_record;
+  for (const auto& annotated_indiv : annotated_indivs) {
+    StatRecord indiv_stat_record(exp_s,
+                                 annotated_indiv.first,
+                                 annotated_indiv.second,
+                                 chrom_or_gu, false);
+    this->substract_power(means, &indiv_stat_record, 2);
   }
 
   // ---------------------------------------------------------------------------------
@@ -575,30 +542,28 @@ StatRecord::StatRecord(ExpManager * exp_m,
 }
 
  // Calculate skewness for all the recorded values
-StatRecord::StatRecord(ExpManager * exp_m,
-                               const list<Individual *> indivs,
-                               const StatRecord * means,
-                               const StatRecord * stdevs,
-                               chrom_or_gen_unit chrom_or_gu)
-{
-  exp_m_ = exp_m;
-  initialize_data();
-
+StatRecord::StatRecord(ExpSetup* exp_s,
+                       std::list<std::pair<Individual*,
+                           ReplicationReport*>> annotated_indivs,
+                       const StatRecord* means,
+                       const StatRecord* stdevs,
+                       chrom_or_gen_unit chrom_or_gu) {
   record_type_ = SKEWNESS;
 
   // ---------------
   // Simulation data
   // ---------------
-  pop_size_ = (double) indivs.size();
+  pop_size_ = static_cast<int32_t>(annotated_indivs.size());
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv : indivs)
-  {
-    StatRecord * indiv_stat_record = new StatRecord(exp_m_, indiv, chrom_or_gu, false);
-    this->substract_power(means, indiv_stat_record, 3);
-    delete indiv_stat_record;
+  for (const auto& annotated_indiv : annotated_indivs) {
+    StatRecord indiv_stat_record(exp_s,
+                                 annotated_indiv.first,
+                                 annotated_indiv.second,
+                                 chrom_or_gu, false);
+    this->substract_power(means, &indiv_stat_record, 3);
   }
 
   this->divide(-pop_size_);
@@ -616,67 +581,6 @@ StatRecord::~StatRecord()
 // =================================================================
 //                            Public Methods
 // =================================================================
-void StatRecord::initialize_data()
-{
-  pop_size_  = 0.0;
-
-  metabolic_error_         = 0.0;
-  metabolic_fitness_       = 0.0;
-  parent_metabolic_error_  = 0.0;
-
-  secretion_error_         = 0.0;
-  parent_secretion_error_  = 0.0;
-
-  secretion_fitness_ = 0.0;
-  compound_amount_   = 0.0;
-
-  fitness_ = 0.0;
-
-  amount_of_dna_               = 0.0;
-  nb_coding_rnas_              = 0.0;
-  nb_non_coding_rnas_          = 0.0;
-  av_size_coding_rnas_         = 0.0;
-  av_size_non_coding_rnas_     = 0.0;
-  nb_functional_genes_         = 0.0;
-  nb_non_functional_genes_     = 0.0;
-  av_size_functional_gene_     = 0.0;
-  av_size_non_functional_gene_ = 0.0;
-
-  nb_mut_    = 0.0;
-  nb_rear_   = 0.0;
-  nb_switch_ = 0.0;
-  nb_indels_ = 0.0;
-  nb_dupl_   = 0.0;
-  nb_del_    = 0.0;
-  nb_trans_  = 0.0;
-  nb_inv_    = 0.0;
-
-  dupl_rate_  = 0.0;
-  del_rate_   = 0.0;
-  trans_rate_ = 0.0;
-  inv_rate_   = 0.0;
-  mean_align_score_ = 0.0;
-
-  nb_bases_in_0_CDS_                = 0.0;
-  nb_bases_in_0_functional_CDS_     = 0.0;
-  nb_bases_in_0_non_functional_CDS_ = 0.0;
-  nb_bases_in_0_RNA_                = 0.0;
-  nb_bases_in_0_coding_RNA_         = 0.0;
-  nb_bases_in_0_non_coding_RNA_     = 0.0;
-
-  nb_bases_non_essential_                     = 0.0;
-  nb_bases_non_essential_including_nf_genes_  = 0.0;
-
-  #ifdef __REGUL
-    nb_influences_                 = 0.0;
-    nb_enhancing_influences_       = 0.0;
-    nb_operating_influences_       = 0.0;
-    av_value_influences_           = 0.0;
-    av_value_enhancing_influences_ = 0.0;
-    av_value_operating_influences_ = 0.0;
-  #endif
-}
-
 void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) const
 {
   if (stat_type_to_print == FITNESS_STATS)
@@ -843,8 +747,7 @@ void StatRecord::divide(double divisor)
 }
 
 
-void StatRecord::divide_record(StatRecord const * to_divide, double power)
-{
+void StatRecord::divide_record(const StatRecord* to_divide, double power) {
   // NB : pop_size is a "global" value and must not be divided.
 
   if (to_divide->fitness_ != 0) { fitness_    /= pow(to_divide->fitness_, power); }

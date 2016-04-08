@@ -195,7 +195,7 @@ class ExpManager : public Observer {
   World* world_;
 
   /// Output manager
-  OutputManager*output_m_;
+  OutputManager* output_m_;
 
   /// Time step up to which we want to simulate
   int64_t t_end_;
@@ -204,7 +204,7 @@ class ExpManager : public Observer {
   /// Will cause the simulation to be ended after the current time step is completed.
   bool quit_signal_received_;
 
-    bool regul_or_not_;
+  bool regul_or_not_;
 };
 
 // ===========================================================================
