@@ -66,85 +66,84 @@ class ExpManager;
 
 
 
-class Stats
-{
-  public :
+class Stats {
+ public :
 
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    Stats() = delete;
-    Stats(const Stats &) = delete;
-    Stats(ExpManager * exp_m,
-          bool best_indiv_only = false,
-          const char* prefix = "stat",
-          bool with_plasmids = false,
-          bool compute_phen_contrib_by_GU = false);
-    Stats(ExpManager * exp_m,
-          int64_t time,
-          bool best_indiv_only = false,
-          const char * prefix = "stat",
-          bool addition_old_stats = true,
-          bool delete_old_stats = true);
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  Stats() = delete;
+  Stats(const Stats&) = delete;
+  Stats(ExpManager* exp_m,
+        bool best_indiv_only = false,
+        const char* prefix = "stat",
+        bool with_plasmids = false,
+        bool compute_phen_contrib_by_GU = false);
+  Stats(ExpManager* exp_m,
+        int64_t time,
+        bool best_indiv_only = false,
+        const char * prefix = "stat",
+        bool addition_old_stats = true,
+        bool delete_old_stats = true);
 
 
-    // =================================================================
-    //                             Destructors
-    // =================================================================
-    virtual ~Stats();
+  // =================================================================
+  //                             Destructors
+  // =================================================================
+  virtual ~Stats();
 
-    // =================================================================
-    //                        Accessors: getters
-    // =================================================================
+  // =================================================================
+  //                        Accessors: getters
+  // =================================================================
 
-    // =================================================================
-    //                        Accessors: setters
-    // =================================================================
-    inline void set_exp_m(ExpManager * exp_m);
+  // =================================================================
+  //                        Accessors: setters
+  // =================================================================
+  inline void set_exp_m(ExpManager * exp_m);
 
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    void write_current_generation_statistics();
-    void write_statistics_of_this_indiv(Individual* indiv,
-                                        ReplicationReport* replic_report);
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  void write_current_generation_statistics();
+  void write_statistics_of_this_indiv(Individual* indiv,
+                                      ReplicationReport* replic_report);
 
-    void flush();
+  void flush();
 
-    void write_headers(bool ancstats_stats = false);
+  void write_headers(bool ancstats_stats = false);
 
-    void CreateTmpFiles(int64_t time);
-    void MoveTmpFiles(const std::string& destdir);
-    void PromoteTmpFiles();
+  void CreateTmpFiles(int64_t time);
+  void MoveTmpFiles(const std::string& destdir);
+  void PromoteTmpFiles();
 
  protected :
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
-    void init_data();
-    void set_file_names(const char* prefix,
-                        bool one_lambda_indiv_only,
-                        bool with_plasmids = false,
-                        bool compute_phen_contrib_by_GU = false);
-    void open_files();
+  // =================================================================
+  //                           Protected Methods
+  // =================================================================
+  void init_data();
+  void set_file_names(const char* prefix,
+                      bool one_lambda_indiv_only,
+                      bool with_plasmids = false,
+                      bool compute_phen_contrib_by_GU = false);
+  void open_files();
 
-    inline void write_header(FILE* file_name, const char* header);
-    inline void write_header(FILE* file_name, const char* header, int8_t key);
+  inline void write_header(FILE* file_name, const char* header);
+  inline void write_header(FILE* file_name, const char* header, int8_t key);
 
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
-    ExpManager * exp_m_;
+  // =================================================================
+  //                          Protected Attributes
+  // =================================================================
+  ExpManager * exp_m_;
 
-    // 3D tables of stat files (FILE*) and their names (char*)
-    // Dimensions are given by:
-    //    * genetic unit (ALL_GU, CHROM or PLASMIDS)
-    //    * BEST or GLOB
-    //    * stat type (FITNESS_STATS, MUTATION_STATS, GENES_STATS, BP_STATS or REAR_STATS)
-    // Files that are not wanted MUST have their name set to NULL.
-    // The files themselves are also NULL because we don't fopen() them.
-    FILE**** stat_files_;
-    char**** stat_files_names_;
+  // 3D tables of stat files (FILE*) and their names (char*)
+  // Dimensions are given by:
+  //    * genetic unit (ALL_GU, CHROM or PLASMIDS)
+  //    * BEST or GLOB
+  //    * stat type (FITNESS_STATS, MUTATION_STATS, GENES_STATS, BP_STATS or REAR_STATS)
+  // Files that are not wanted MUST have their name set to NULL.
+  // The files themselves are also NULL because we don't fopen() them.
+  FILE**** stat_files_;
+  char**** stat_files_names_;
 };
 
 

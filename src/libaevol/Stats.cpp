@@ -82,12 +82,12 @@ Stats::Stats(ExpManager * exp_m,
   write_headers();
 }
 
-/*!
-  Create a stat manager to append existing stats
+/**
+ * Create a stat manager to append to existing stats
  */
 Stats::Stats(ExpManager * exp_m,
              int64_t time,
-             bool best_indiv_only,
+             bool best_indiv_only/* = false */,
              const char * prefix /* = "stat" */,
              bool addition_old_stats /* = true */,
              bool delete_old_stats /* = true */) {
