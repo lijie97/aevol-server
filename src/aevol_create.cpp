@@ -53,7 +53,6 @@ void interpret_cmd_line_options(int argc, char* argv[]);
 
 // Command-line option variables
 static char* param_file_name = nullptr;
-static char* output_dir = nullptr;
 static char* chromosome_file_name = nullptr;
 static char* plasmid_file_name = nullptr;
 
@@ -147,15 +146,7 @@ int main(int argc, char* argv[]) {
   //~ getchar();
 
   // 8) Save the experiment
-  if (output_dir == nullptr) {
-    exp_manager->Save();
-  }
-  else {
-    // Save everything in the provided directory
-    exp_manager->save_copy(output_dir);
-
-    delete output_dir;
-  }
+  exp_manager->Save();
 
   delete exp_manager;
 }
@@ -191,15 +182,13 @@ void print_help(char* prog_path) {
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-f PARAM_FILE] [-o OUTDIR] [-C CHROM_FILE] [-P PLASMID_FILE]\n",
+  printf("   or : %s [-f PARAM_FILE] [-C CHROM_FILE] [-P PLASMID_FILE]\n",
          prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n\n");
   printf("  -V, --version\n\tprint version number, then exit\n\n");
   printf("  -f, --file PARAM_FILE\n");
   printf("\tspecify parameter file (default: param.in)\n");
-  printf("  -o, --outdir OUTDIR\n");
-  printf("\tspecify output directory (default \"./\")\n\n");
   printf("  -C, --chromosome CHROM_FILE\n");
   printf("\tload chromosome from given text file instead of generating it\n");
   printf("  -P, --plasmid PLASMID_FILE\n");
@@ -208,12 +197,11 @@ void print_help(char* prog_path) {
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char* options_list = "hVf:o:C:P:";
+  const char* options_list = "hVf:C:P:";
   static struct option long_options_list[] = {
       {"help",       no_argument,       nullptr, 'h'},
       {"version",    no_argument,       nullptr, 'V'},
       {"file",       required_argument, nullptr, 'f'},
-      {"outdir",     required_argument, nullptr, 'o'},
       {"chromosome", required_argument, nullptr, 'C'},
       {"plasmid",    required_argument, nullptr, 'P'},
       {0, 0, 0, 0}
@@ -235,11 +223,6 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       case 'f' : {
         param_file_name = new char[strlen(optarg) + 1];
         strcpy(param_file_name, optarg);
-        break;
-      }
-      case 'o' : {
-        output_dir = new char[strlen(optarg) + 1];
-        strcpy(output_dir, optarg);
         break;
       }
       case 'C': {
