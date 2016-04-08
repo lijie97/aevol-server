@@ -733,9 +733,6 @@ void Stats::CreateTmpFiles(int64_t time) {
           }
 
           // Copy stats until time (included)
-          if (fgets(line, 500, old_file) == NULL) {
-            // TODO check for error
-          }
           while ((int64_t)atol(line) <= time && !feof(old_file)) {
             fputs(line, new_file);
             if (fgets(line, 500, old_file)) {
