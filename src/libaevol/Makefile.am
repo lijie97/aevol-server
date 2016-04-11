@@ -52,7 +52,7 @@ Duplication.h \
 Deletion.h \
 Translocation.h \
 Inversion.h \
-HT.h \
+HorizontalTransfer.h \
 InsertionHT.h \
 ReplacementHT.h \
 Observable.h \
