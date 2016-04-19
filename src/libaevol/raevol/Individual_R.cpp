@@ -209,6 +209,10 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
   EvaluateInContext(dynamic_cast<const Habitat_R&> (habitat));
 }
 
+void Individual_R::init_indiv() {
+  init_indiv(dynamic_cast<const Habitat_R&> (grid_cell_->habitat()));
+}
+
 void Individual_R::init_indiv(const Habitat_R& habitat)
 {
   // ---------------------------------------------------------------------------

@@ -47,6 +47,11 @@
 #include "make_unique.h"
 #endif
 
+#include<chrono>
+
+#include <iostream>
+using namespace std;
+using namespace std::chrono;
 #include "ExpManager.h"
 #include "VisAVis.h"
 
@@ -195,6 +200,15 @@ void Selection::step_to_next_generation() {
   for (int16_t x = 0 ; x < grid_width ; x++)
     for (int16_t y = 0 ; y < grid_height ; y++)
       do_replication(reproducers[x][y], x * grid_height + y, x, y);
+
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  #pragma omp parallel for collapse(2) schedule(dynamic)
+  for (int16_t x = 0 ; x < grid_width ; x++)
+    for (int16_t y = 0 ; y < grid_height ; y++)
+      run_life(dynamic_cast<Individual_R*>(pop_grid[x][y]->individual()));
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+  cout<<"TIMER,"<<AeTime::time()<<",OLD,"<<duration<<endl;
 
   for (int16_t x = 0 ; x < grid_width ; x++)
     for (int16_t y = 0 ; y < grid_height ; y++)
@@ -556,6 +570,13 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
     }
   }
 
+  new_indiv->init_indiv();
+
+  return new_indiv;
+}
+
+void Selection::run_life(Individual_R* new_indiv) {
+
   // Evaluate new individual
   new_indiv->Evaluate();
 
@@ -564,8 +585,6 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
 
   // Tell observers the replication is finished
   new_indiv->notifyObservers(END_REPLICATION, nullptr);
-
-  return new_indiv;
 }
 
 Individual *Selection::do_local_competition (int16_t x, int16_t y) {

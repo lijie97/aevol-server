@@ -47,12 +47,15 @@
 #ifdef __REGUL
 #include "raevol/Individual_R.h"
 #endif
+#include<chrono>
+
+#include <iostream>
+using namespace std;
+using namespace std::chrono;
 
 #ifdef __TRACING__
 #include "ae_logger.h"
-#include<chrono>
 
-using namespace std::chrono;
 
 unordered_map<int,unordered_multiset<string>> ae_logger::logMap;
 string ae_logger::logFile = "logger_csv.log";
@@ -534,8 +537,24 @@ void ExpManager::run_evolution()
     cstruct->init_struct(max_protein,max_rna,max_influence,
                          nb_signals,life_time,nb_eval_,selection_pressure);
     cstruct->transfert_to_gpu(best_indiv()->exp_m());
+
+    high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
+
     cstruct->compute_a_generation(best_indiv()->exp_m());
-    cstruct->print_dist(best_indiv()->exp_m());
+    //cstruct->print_dist(best_indiv()->exp_m());
+    high_resolution_clock::time_point t_t2 = high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
+    cout<<"TIMER,"<<AeTime::time()<<",NEW,"<<duration<<endl;
+
+    t_t1 = high_resolution_clock::now();
+
+    cstruct->compute_a_generation_v2(best_indiv()->exp_m());
+    //cstruct->print_dist(best_indiv()->exp_m());
+    t_t2 = high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
+    cout<<"TIMER,"<<AeTime::time()<<",NEW2,"<<duration<<endl;
+
+    delete cstruct;
 
     if (AeTime::time() >= t_end_ or quit_signal_received())
       break;

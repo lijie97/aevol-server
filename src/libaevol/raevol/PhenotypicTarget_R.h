@@ -95,11 +95,6 @@ class PhenotypicTarget_R : public PhenotypicTarget
   // ==========================================================================
   void set_signals(const std::list<Protein_R*>& signals_list) {
       signals_ = signals_list;
-
-      int i = 0;
-
-      for (auto prot : signals_)
-        prot->set_local_id(i++);
   }
 
  protected :

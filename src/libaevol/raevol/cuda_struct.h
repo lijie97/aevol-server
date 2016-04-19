@@ -26,6 +26,7 @@ class cuda_struct {
     void transfert_to_gpu(ExpManager* exp_m);
 
     void compute_a_generation(ExpManager* exp_m);
+    void compute_a_generation_v2(ExpManager* exp_m);
 
     void get_data_to_cpu();
 
@@ -34,35 +35,35 @@ class cuda_struct {
     void delete_struct();
 
  private:
-    double* phenotype_inhib;
-    double* phenotype_activ;
-    double* phenotype;
+    float* phenotype_inhib;
+    float* phenotype_activ;
+    float* phenotype;
 
-    double* environment;
+    float* environment;
 
     int* eval_step;
 
-    double* protein_concentration;
+    float* protein_concentration;
 
-    double* signals_concentration;
+    float* signals_concentration;
 
-    double* enhance_coef;
-    double* operate_coef;
-    double* rna_synthesis;
-    double* basal_level;
+    float* enhance_coef;
+    float* operate_coef;
+    float* rna_synthesis;
+    float* basal_level;
 
     int* protein_influence; // index in protein concentration
 
-    double* protein_influenced;
+    float* protein_influenced;
 
     int* protein_triangle_ix0;
     int* protein_triangle_ix1;
     int* protein_triangle_ix2;
 
-    double* protein_triangle_height;
+    float* protein_triangle_height;
 
-    double* delta;
-    double *dist_sum;
+    float* delta;
+    float *dist_sum;
 
     // Max
     int max_protein_;

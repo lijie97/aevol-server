@@ -23,7 +23,7 @@ FUZZY_FLAVOR   1
 #                                    Selection
 ####################################################################################
 # SELECTION_SCHEME linear_ranking | exponential_ranking | fitness | fittest
-SELECTION_SCHEME        fitness_proportionate 5000
+SELECTION_SCHEME        fitness_proportionate 500
 
 
 ####################################################################################

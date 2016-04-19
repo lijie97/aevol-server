@@ -142,10 +142,15 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   void set_signals_models(const std::vector<Protein_R*>& signals_list) {
     signals_models_ = signals_list;
     std::list<Protein_R*> temp_list;
+    int local_id = 0;
     for(Protein_R* prot : signals_list) {
       temp_list.push_back(prot);
+      prot->set_local_id(local_id++);
     }
     signals_models_list_ = temp_list;
+    for(Protein_R* prot : signals_models_list_) {
+      printf("Signals prot id %d\n",prot->get_local_id());
+    }
   }
 
   void set_switch_probability(double p) {

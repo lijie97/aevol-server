@@ -89,6 +89,7 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
   _delta_concentration   = 0;
   _inherited             = false;
   _signal                = false;
+  _local_id = _local_id;
   is_TF_			       = false;
   _id = id++;
 
@@ -110,6 +111,8 @@ Protein_R::Protein_R( const std::list<Codon*> codon_list, double concentration, 
   _delta_concentration  = 0;
   _inherited            = false;
   _signal               = true;
+  _local_id = _local_id;
+
   is_TF_			 = false;
   _id = id++;
 
@@ -129,6 +132,9 @@ Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
   gzread( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
   gzread( backup_file, &_inherited,   			sizeof(_inherited) );
   gzread( backup_file, &_signal,   			sizeof(_signal) );
+
+  gzread( backup_file, &_local_id,   			sizeof(_local_id) );
+
   is_TF_			 = false;
   _id = id++;
 
@@ -196,6 +202,8 @@ void Protein_R::save( gzFile backup_file )
   gzwrite( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
   gzwrite( backup_file, &_inherited,   			sizeof(_inherited) );
   gzwrite( backup_file, &_signal,   			sizeof(_signal) );
+
+  gzwrite( backup_file, &_local_id,   			sizeof(_local_id) );
 }
 // =================================================================
 //                           Protected Methods
