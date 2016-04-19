@@ -544,16 +544,24 @@ void ExpManager::run_evolution()
     //cstruct->print_dist(best_indiv()->exp_m());
     high_resolution_clock::time_point t_t2 = high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW,"<<duration<<endl;
-
+    cout<<"TIMER,"<<AeTime::time()<<",NEW,1,"<<duration<<endl;
+/*
     t_t1 = high_resolution_clock::now();
 
     cstruct->compute_a_generation_v2(best_indiv()->exp_m());
     //cstruct->print_dist(best_indiv()->exp_m());
     t_t2 = high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW2,"<<duration<<endl;
+    cout<<"TIMER,"<<AeTime::time()<<",NEW,2,"<<duration<<endl;
 
+    t_t1 = high_resolution_clock::now();
+
+    cstruct->compute_a_generation_v3(best_indiv()->exp_m());
+    //cstruct->print_dist(best_indiv()->exp_m());
+    t_t2 = high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
+    cout<<"TIMER,"<<AeTime::time()<<",NEW,3,"<<duration<<endl;
+*/
     delete cstruct;
 
     if (AeTime::time() >= t_end_ or quit_signal_received())

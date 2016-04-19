@@ -27,7 +27,7 @@ class cuda_struct {
 
     void compute_a_generation(ExpManager* exp_m);
     void compute_a_generation_v2(ExpManager* exp_m);
-
+    void compute_a_generation_v3(ExpManager* exp_m);
     void get_data_to_cpu();
 
     void print_dist(ExpManager* exp_m);
@@ -56,9 +56,9 @@ class cuda_struct {
 
     float* protein_influenced;
 
-    int* protein_triangle_ix0;
-    int* protein_triangle_ix1;
-    int* protein_triangle_ix2;
+    float* protein_triangle_ix0;
+    float* protein_triangle_ix1;
+    float* protein_triangle_ix2;
 
     float* protein_triangle_height;
 

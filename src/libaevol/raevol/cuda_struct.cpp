@@ -41,9 +41,9 @@ void cuda_struct::init_struct(int max_protein, int max_rna, int max_influence,
 
   protein_influenced = new float[max_protein * max_rna * 1024];
 
-  protein_triangle_ix0 = new int[max_protein * 1024];
-  protein_triangle_ix1 = new int[max_protein * 1024];
-  protein_triangle_ix2 = new int[max_protein * 1024];
+  protein_triangle_ix0 = new float[max_protein * 1024];
+  protein_triangle_ix1 = new float[max_protein * 1024];
+  protein_triangle_ix2 = new float[max_protein * 1024];
 
   protein_triangle_height = new float[max_protein * 1024];
 }
@@ -334,52 +334,53 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
                  protein_triangle_ix0[indiv_id * max_protein_ + l]);
 
             if (protein_triangle_height[indiv_id * max_protein_ + l] > 0) {
-              #pragma omp simd
               for (int j = 0; j < 300; j++) {
-                if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
+                float fj = (float) j;
+                if (fj > protein_triangle_ix0[indiv_id * max_protein_ + l]
                     and
-                    j < protein_triangle_ix1[indiv_id * max_protein_ + l])
+                    fj < protein_triangle_ix1[indiv_id * max_protein_ + l])
                   phenotype_activ[indiv_id * 300 + j] +=
-                      incY * (j -
+                      incY * (fj -
                               protein_triangle_ix0[indiv_id * max_protein_ +
                                                    l]);
                 else if (
-                    j > protein_triangle_ix1[indiv_id * max_protein_ + l]
+                    fj > protein_triangle_ix1[indiv_id * max_protein_ + l]
                     and
-                    j < protein_triangle_ix2[indiv_id * max_protein_ + l])
+                    fj < protein_triangle_ix2[indiv_id * max_protein_ + l])
                   phenotype_activ[indiv_id * 300 + j] += height
                                                          -
-                                                         incY * (j -
+                                                         incY * (fj -
                                                                  protein_triangle_ix1[
                                                                      indiv_id *
                                                                      max_protein_ +
                                                                      l]);
-                else if (j ==
+                else if (fj ==
                          protein_triangle_ix1[indiv_id * max_protein_ + l])
                   phenotype_activ[indiv_id * 300 + j] +=
                       height;
               }
             } else {
-              #pragma omp simd
               for (int j = 0; j < 300; j++) {
-                if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
+                float fj = (float) j;
+
+                if (fj > protein_triangle_ix0[indiv_id * max_protein_ + l]
                     and
-                    j < protein_triangle_ix1[indiv_id * max_protein_ + l])
-                  phenotype_inhib[indiv_id * 300 + j] += incY * (j -
+                   fj < protein_triangle_ix1[indiv_id * max_protein_ + l])
+                  phenotype_inhib[indiv_id * 300 + j] += incY * (fj -
                                                                  protein_triangle_ix0[
                                                                      indiv_id *
                                                                      max_protein_ +
                                                                      l]);
                 else if (
-                    j > protein_triangle_ix1[indiv_id * max_protein_ + l]
+                    fj > protein_triangle_ix1[indiv_id * max_protein_ + l]
                     and
-                    j < protein_triangle_ix2[indiv_id * max_protein_ + l])
+                    fj < protein_triangle_ix2[indiv_id * max_protein_ + l])
                   phenotype_inhib[indiv_id * 300 + j] +=
                       height -
-                      incY * (j -
+                      incY * (fj -
                               protein_triangle_ix1[indiv_id * max_protein_ +
                                                    l]);
-                else if (j ==
+                else if (fj ==
                          protein_triangle_ix1[indiv_id * max_protein_ + l])
                   phenotype_inhib[indiv_id * 300 + j] +=
                       height;
@@ -1078,4 +1079,265 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
 
 }
 
+
+void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
+
+  int degradation_step = exp_m->exp_s()->get_nb_degradation_step();
+  float degradation_rate = exp_m->exp_s()->get_degradation_rate();
+  float hill_shape_n = exp_m->exp_s()->get_hill_shape_n();
+  float hill_shape = exp_m->exp_s()->get_hill_shape();
+
+#pragma omp parallel num_threads(4)
+  {
+#pragma omp single nowait
+    {
+      for (int ki = 0; ki < 32; ki++)
+        for (int kj = 0; kj < 32; kj++) {
+          int indiv_id = ki * 32 + kj;
+
+          for (int8_t i = 0; i < life_time_; i++) {
+            for (int j = 0; j < degradation_step; j++) {
+              // Compute synthesis rate of RNA
+              for (int m = 0; m < max_rna_; m++) {
+
+#pragma omp task \
+                  depend(in: protein_influence[indiv_id * max_rna_ * max_influence_ + m * max_influence_:max_influence_]) \
+                  depend(in: enhance_coef[indiv_id * max_rna_ * max_influence_ + m * max_influence_:max_influence_]) \
+                  depend(in: enhance_coef[indiv_id * max_rna_ * max_influence_ + m * max_influence_:max_influence_]) \
+                  depend(in: signals_concentration[i*nb_signals_:nb_signals_]) \
+                  depend(in: protein_concentration[indiv_id * max_protein_:max_protein_]) \
+                  depend(out: rna_synthesis[indiv_id * max_rna_ + m])
+                {
+                  float enhancer_activity = 0, operator_activity = 0;
+                  for (int n = 0; n < max_influence_; n++) {
+                    int prot_id = protein_influence
+                    [ki * 32 + kj * max_rna_ * max_influence_ +
+                     m * max_influence_ +
+                     n];
+
+                    if (prot_id > max_protein_) {
+                      enhancer_activity +=
+                          enhance_coef[indiv_id * max_rna_ * max_influence_ +
+                                       m * max_influence_ + n] *
+                          signals_concentration[i * nb_signals_ + prot_id -
+                                                max_protein_];
+
+                      operator_activity +=
+                          operate_coef[indiv_id * max_rna_ * max_influence_ +
+                                       m * max_influence_ + n] *
+                          signals_concentration[i * nb_signals_ + prot_id -
+                                                max_protein_];
+                    } else {
+                      enhancer_activity +=
+                          enhance_coef[indiv_id * max_rna_ * max_influence_ +
+                                       m * max_influence_ + n] *
+                          protein_concentration[indiv_id * max_protein_ +
+                                                prot_id];
+
+                      operator_activity +=
+                          operate_coef[indiv_id * max_rna_ * max_influence_ +
+                                       m * max_influence_ + n] *
+                          protein_concentration[indiv_id * max_protein_ +
+                                                prot_id];
+                    }
+                  }
+
+                  float enhancer_activity_pow_n = pow(enhancer_activity,
+                                                      hill_shape_n);
+                  float operator_activity_pow_n = pow(operator_activity,
+                                                      hill_shape_n);
+
+                  rna_synthesis[indiv_id * max_rna_ + m] =
+                      basal_level[indiv_id * max_rna_ + m]
+                      * (hill_shape
+                         /
+                         (operator_activity_pow_n +
+                          hill_shape))
+                      * (1 + ((1 /
+                               basal_level[indiv_id * max_rna_ + m]) -
+                              1)
+                             *
+                             (enhancer_activity_pow_n /
+                              (enhancer_activity_pow_n +
+                               hill_shape)));
+                }
+              }
+
+              // Compute concentration
+              for (int l = 0; l < max_protein_; l++) {
+#pragma omp task \
+                  depend(in: protein_influenced[indiv_id * max_protein_ * max_rna_ +l * max_protein_:max_rna_]) \
+                  depend(in: rna_synthesis[indiv_id * max_rna_:max_rna_]) \
+                  depend(inout: protein_concentration[indiv_id * max_protein_ +l])
+                {
+
+                  float _delta_concentration;
+
+                  for (int m = 0; m < max_rna_; m++) {
+                    if (protein_influenced[indiv_id * max_protein_ * max_rna_ +
+                                           l * max_protein_
+                                           + m])
+                      _delta_concentration += rna_synthesis[
+                          indiv_id * max_rna_ +
+                          m];
+                  }
+
+                  _delta_concentration -=
+                      degradation_rate * protein_concentration[
+                          indiv_id * max_protein_ +
+                          l];
+                  _delta_concentration *= 1 / ((float) degradation_step);
+
+                  protein_concentration[indiv_id * max_protein_ +
+                                        l] += _delta_concentration;
+                }
+              }
+            }
+
+            // If we have to evaluate the individual at this age
+            if (eval_step[i]) {
+              /** update phenotype **/
+#pragma omp taskwait
+
+#pragma omp task depend(out: phenotype[indiv_id * 300:300]) \
+                           depend(out: phenotype_activ[indiv_id * 300:300]) \
+                           depend(out: phenotype_inhib[indiv_id * 300:300])
+              {
+#pragma omp simd
+                for (int j = 0; j < 300; j++) {
+                  phenotype[indiv_id * 300 + j] = 0;
+                  phenotype_activ[indiv_id * 300 + j] = 0;
+                  phenotype_inhib[indiv_id * 300 + j] = 0;
+                }
+              }
+
+              for (int l = 0; l < max_protein_; l++) {
+#pragma omp task depend(in: protein_triangle_height[indiv_id * max_protein_:max_protein_]) \
+                           depend(in: protein_concentration[indiv_id * max_protein_:max_protein_]) \
+                           depend(in: protein_triangle_ix0[indiv_id * max_protein_:max_protein_]) \
+                           depend(in: protein_triangle_ix1[indiv_id * max_protein_:max_protein_]) \
+                           depend(in: protein_triangle_ix2[indiv_id * max_protein_:max_protein_]) \
+                           depend(inout: phenotype_activ[indiv_id * 300:300]) \
+                           depend(inout: phenotype_inhib[indiv_id * 300:300])
+                {
+                  float height = (
+                      protein_triangle_height[indiv_id * max_protein_ +
+                                              l] *
+                      protein_concentration[indiv_id * max_protein_ +
+                                            l]);
+                  float incY =
+                      protein_triangle_height[indiv_id * max_protein_ + l] *
+                      protein_concentration[indiv_id * max_protein_ + l] /
+                      (protein_triangle_ix1[indiv_id * max_protein_ + l] -
+                       protein_triangle_ix0[indiv_id * max_protein_ + l]);
+
+                  if (protein_triangle_height[indiv_id * max_protein_ + l] >
+                      0) {
+                    for (int j = 0; j < 300; j++) {
+                      if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
+                          and
+                          j < protein_triangle_ix1[indiv_id * max_protein_ + l])
+                        phenotype_activ[indiv_id * 300 + j] +=
+                            incY * (j -
+                                    protein_triangle_ix0[
+                                        indiv_id * max_protein_ +
+                                        l]);
+                      else if (
+                          j > protein_triangle_ix1[indiv_id * max_protein_ + l]
+                          and
+                          j < protein_triangle_ix2[indiv_id * max_protein_ + l])
+                        phenotype_activ[indiv_id * 300 + j] += height
+                                                               -
+                                                               incY * (j -
+                                                                       protein_triangle_ix1[
+                                                                           indiv_id *
+                                                                           max_protein_ +
+                                                                           l]);
+                      else if (j ==
+                               protein_triangle_ix1[indiv_id * max_protein_ +
+                                                    l])
+                        phenotype_activ[indiv_id * 300 + j] +=
+                            height;
+                    }
+                  } else {
+
+                    for (int j = 0; j < 300; j++) {
+                      if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
+                          and
+                          j < protein_triangle_ix1[indiv_id * max_protein_ + l])
+                        phenotype_inhib[indiv_id * 300 + j] += incY * (j -
+                                                                       protein_triangle_ix0[
+                                                                           indiv_id *
+                                                                           max_protein_ +
+                                                                           l]);
+                      else if (
+                          j > protein_triangle_ix1[indiv_id * max_protein_ + l]
+                          and
+                          j < protein_triangle_ix2[indiv_id * max_protein_ + l])
+                        phenotype_inhib[indiv_id * 300 + j] +=
+                            height -
+                            incY * (j -
+                                    protein_triangle_ix1[
+                                        indiv_id * max_protein_ +
+                                        l]);
+                      else if (j ==
+                               protein_triangle_ix1[indiv_id * max_protein_ +
+                                                    l])
+                        phenotype_inhib[indiv_id * 300 + j] +=
+                            height;
+                    }
+                  }
+                }
+              }
+
+
+#pragma omp task depend(inout: phenotype[indiv_id * 300:300]) \
+                           depend(inout: phenotype_activ[indiv_id * 300:300]) \
+                           depend(inout: phenotype_inhib[indiv_id * 300:300]) \
+                           depend(out: delta[indiv_id * 300:300]) \
+                           depend(in: environment[indiv_id * 300:300])
+              {
+#pragma omp simd
+                for (int j = 0; j < 300; j++) {
+                  phenotype_activ[indiv_id * 300 + j] =
+                      phenotype_activ[indiv_id * 300 + j] > Y_MAX ? Y_MAX :
+                      phenotype_activ[indiv_id * 300 + j];
+                  phenotype_inhib[indiv_id * 300 + j] =
+                      phenotype_inhib[indiv_id * 300 + j] < -Y_MAX ? -Y_MAX :
+                      phenotype_inhib[indiv_id * 300 + j];
+                  phenotype[indiv_id * 300 + j] =
+                      phenotype_activ[indiv_id * 300 + j] +
+                      phenotype_inhib[indiv_id * 300 + j];
+                  phenotype[indiv_id * 300 + j] =
+                      phenotype[indiv_id * 300 + j] > Y_MIN ?
+                      Y_MIN : phenotype[indiv_id * 300 + j];
+                  delta[indiv_id * 300 + j] =
+                      phenotype[indiv_id * 300 + j] -
+                      environment[i * 300 + j];
+                }
+              }
+              /** compute distance to target **/
+
+
+#pragma omp task depend(in: delta[indiv_id * 300:300]) \
+                           depend(out: dist_sum[indiv_id])
+              {
+                for (int j = 0; j < 299; j++) {
+                  dist_sum[indiv_id] += ((delta[indiv_id * 300 + j]
+                                          + delta[indiv_id * 300 + j + 1]) /
+                                         600.0);
+                }
+              }
+            }
+          }
+
+#pragma omp task depend(inout: dist_sum[indiv_id])
+          {
+            dist_sum[indiv_id] = exp(
+                selection_pressure_ * (dist_sum[indiv_id] / nb_eval_));
+          }
+        }
+    }
+  }
+}
 }
