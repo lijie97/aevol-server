@@ -207,9 +207,21 @@ int main(int argc, char** argv)
   // =========================
 
   // Open the experiment manager
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t0, true, false);
-  Environment* env = new Environment(*(exp_manager->env())); // independent copy
+
+  // The current version doesn't allow for phenotypic variation nor for
+  // different phenotypic targets among the grid
+  if (not exp_manager->world()->phenotypic_target_shared())
+    Utils::ExitWithUsrMsg("sorry, fixmut has not yet been implemented "
+                              "for per grid-cell phenotypic target");
+  auto phenotypicTargetHandler =
+      exp_manager->world()->phenotypic_target_handler();
+  if (not (phenotypicTargetHandler->var_method() == NO_VAR))
+    Utils::ExitWithUsrMsg("sorry,fixmut has not yet been implemented "
+                              "for variable phenotypic targets");
+  
+  // GB Environment* env = new Environment(*(exp_manager->env())); // independent copy
 
   int64_t backup_step = exp_manager->backup_step();
 
@@ -263,9 +275,11 @@ int main(int argc, char** argv)
   //  Prepare the initial ancestor
   // ==============================
 
-  ae_individual * indiv = new ae_individual(exp_manager, lineage_file);
-  indiv->evaluate(habitat);
+  GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
+  auto* indiv = grid_cell->individual();
+  indiv->Evaluate();
   indiv->compute_statistical_data();
+  indiv->compute_non_coding();
 
   if (verbose)
   {
@@ -281,29 +295,31 @@ int main(int argc, char** argv)
   //   time a backup is available)
   // ===============================================================================
 
-  ae_individual* stored_indiv = NULL;
-  std::list<GeneticUnit>::const_iterator stored_unit;
+  Individual* stored_indiv = NULL;
+  //  GB std::list<GeneticUnit>::const_iterator stored_unit;
+
+  ReplicationReport* rep = nullptr;
 
   int32_t index, genetic_unit_number, unitlen_before;
   int32_t nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
   char mut_descr_string[80];
 
-  ae_exp_manager* exp_manager_backup = NULL;
-  Environment* backup_env = NULL;
+  ExpManager* exp_manager_backup = NULL;
+  Habitat* backup_habitat = NULL;
 
   bool check_now = false;
 
-  aevol::Time::plusplus();
+  aevol::AeTime::plusplus();
   while (time() <= t_end)
   {
-    ae_replication_report* rep = new ae_replication_report(lineage_file, indiv);
+    rep = new ReplicationReport(lineage_file, indiv);
     index = rep->id(); // who are we building...
-    indiv->set_replication_report(rep);
+    //GB indiv->set_replication_report(rep);
 
     // Check now?
-    check_now = ((check == FULL_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
+    check_now = ((check == FULL_CHECK && Utils::mod(time(), backup_step) == 0) ||
+                 (check == ENV_CHECK && Utils::mod(time(), backup_step) == 0) ||
                  (check == LIGHT_CHECK && time() == t_end));
 
 
@@ -311,104 +327,102 @@ int main(int argc, char** argv)
       printf("Rebuilding ancestor at generation %" PRId64 " (index %" PRId32 ")...",
           time(), index);
 
-    env->build();
+    /* GB env->build();
     env->apply_variation();
-    indiv->reevaluate(env);
+    indiv->reevaluate(env); */
 
+    indiv->Reevaluate();
+
+    // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
+    // done for all the grid cells, disable checking until coded
+    
     // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
-    if (ae_utils::mod(time(), backup_step) == 0)
-      {
-        char env_file_name[255];
-        sprintf(env_file_name, "./" ENV_FNAME_FORMAT, time());
-        gzFile env_file = gzopen(env_file_name, "r");
-        backup_env = new Environment();
-        backup_env->load(env_file);
-
-        if (! env->is_identical_to(*backup_env, tolerance))
-          {
-            printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", time());
-            printf("         as the one saved at generation %" PRId64 "... \n", time());
-            printf("         with tolerance of %lg\n", tolerance);
-            printf("Replacing the replayed environment by the one stored in the backup.\n");
-            delete env;
-            env = new Environment(*backup_env);
-          }
-        delete backup_env;
-      }
+    
+    
+    // if (Utils::mod(time(), backup_step) == 0)
+    //  {
+    //    char env_file_name[255];
+    //    sprintf(env_file_name, "./" ENV_FNAME_FORMAT, time());
+    //    gzFile env_file = gzopen(env_file_name, "r");
+    //    backup_habitat = new Habitat();
+    //    backup_habitat->load(env_file);
+    //
+    //    if (! env->is_identical_to(*backup_habitat, tolerance))
+    //      {
+    //        printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", time());
+    //        printf("         as the one saved at generation %" PRId64 "... \n", time());
+    //        printf("         with tolerance of %lg\n", tolerance);
+    //        printf("Replacing the replayed environment by the one stored in the backup.\n");
+    //        delete env;
+    //        env = new Habitat(*backup_habitat);
+    //      }
+    //    delete backup_habitat;
+    //  }
 
 
     // Warning: this portion of code won't work if the number of units changes
     // during the evolution, or if some translocations occurred between different genetic units
 
-    genetic_unit_number = 0;
-    std::list<DnaReplicReport*>::const_iterator dnareport = rep->dna_replic_reports().begin();
-    std::list<GeneticUnit>::iterator unit = indiv->genetic_unit_list_nonconst().begin();
+    // GB genetic_unit_number = 0;
+    // std::list<DnaReplicationReport*>::const_iterator dnareport = rep->dna_replic_report().begin();
+    // GB std::list<GeneticUnit>::iterator unit = indiv->genetic_unit_list_nonconst().begin(); */
 
-    if (check_now && ae_utils::mod(time(), backup_step) == 0)
+    GeneticUnit& gen_unit = indiv->genetic_unit_nonconst(0);
+    GeneticUnit* stored_gen_unit = nullptr;
+    Individual* stored_indiv = nullptr;
+    
+    if (check_now && Utils::mod(time(), backup_step) == 0)
     {
 
-      exp_manager_backup = new ae_exp_manager();
+      exp_manager_backup = new ExpManager();
       exp_manager_backup->load(time(), true, false);
-      // TODO: disabled tmp
-      // stored_indiv = new ae_individual(* (ae_individual *)exp_manager_backup->indiv_by_id(index), false);
-      stored_unit = stored_indiv->genetic_unit_list().begin();
+      stored_indiv = new Individual(
+          *(Individual*) exp_manager_backup->indiv_by_id(index));
+      stored_gen_unit = &(stored_indiv->genetic_unit_nonconst(0));
     }
 
-    while (dnareport != rep->dna_replic_reports().end())
-    {
-      assert(unit != indiv->genetic_unit_list().end());
+    // For each genetic unit, replay the replication (undergo all mutations)
+    // TODO <david.parsons@inria.fr> disabled for multiple GUs
+    const auto& dnarep = rep->dna_replic_report();
 
-      unit->dna()->set_replic_report(*dnareport);
-
-      // ***************************************
-      //             Transfer events
-      // ***************************************
-
-      for (const auto& mutation: (*dnareport)->HT()) {
-        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
-        unitlen_before = unit->dna()->length();
-        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
-
-
-        unit->dna()->undergo_this_mutation(&mutation);
-        indiv->reevaluate(env);
-
-
-        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
-        impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
-
-
-        mutation.generic_description_string(mut_descr_string);
-        fprintf(output,
-            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32
-            " %" PRId32 " %" PRId32 " \n",
-            time(), genetic_unit_number, mut_descr_string, unitlen_before,
-            impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
-      }
+    // TODO <guillaume.beslon@inria.fr> compute statistics for HT
+    // for (const auto& mut: dnarep.HT()) {
+    //     metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+    //     unitlen_before = gen_unit.dna()->length();
+    // 	gen_unit.compute_nb_of_affected_genes(*mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+    // 	gen_unit.dna()->undergo_this_mutation(*mut);
+    //     indiv->Reevaluate(env);
+    // 	metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
+    //     impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
+    // 	mutation.generic_description_string(mut_descr_string);
+    //     fprintf(output,
+    //         "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32
+    //         " %" PRId32 " %" PRId32 " \n",
+    //         time(), genetic_unit_number, mut_descr_string, unitlen_before,
+    //         impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+    //   }
 
 
       // ***************************************
       //           Rearrangement events
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->rearrangements()) {
+      for (const auto& mutation: dnarep.rearrangements()) {
         metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
-        unitlen_before = unit->dna()->length();
-        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
+        unitlen_before = gen_unit.dna()->length();
+        //GB gen_unit.compute_nb_of_affected_genes(*mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
 
-        unit->dna()->undergo_this_mutation(&mutation);
+        gen_unit.dna()->undergo_this_mutation(*mutation);
 
-        indiv->reevaluate(env);
+        indiv->Reevaluate();
         metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mutation.generic_description_string(mut_descr_string);
+        mutation->generic_description_string(mut_descr_string);
         fprintf(output,
-            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
-            " %" PRId32 " %" PRId32 " \n",
-            time(), genetic_unit_number, mut_descr_string, unitlen_before,
-            impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,
-            nb_genes_in_replaced_segment);
+            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+            time(), 0, mut_descr_string, unitlen_before,
+            impact_on_metabolic_error);
       }
 
 
@@ -416,100 +430,85 @@ int main(int argc, char** argv)
       // Local events (point mutations & small indels)
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->mutations()) {
+      for (const auto& mutation: dnarep.mutations()) {
         metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
-        unitlen_before = unit->dna()->length();
-        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        unitlen_before = gen_unit.dna()->length();
+        // GB gen_unit.compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
-        unit->dna()->undergo_this_mutation(&mutation);
+        gen_unit.dna()->undergo_this_mutation(*mutation);
 
-        indiv->reevaluate(env);
+        indiv->Reevaluate();
         metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mutation.generic_description_string(mut_descr_string);
+        mutation->generic_description_string(mut_descr_string);
         fprintf(output,
-            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
-            " %" PRId32 " %" PRId32 " \n",
-            time(), genetic_unit_number, mut_descr_string, unitlen_before,
-            impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,
-            nb_genes_in_replaced_segment);
+            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+            time(), 0, mut_descr_string, unitlen_before,
+            impact_on_metabolic_error);
       }
 
-      if (check_now && ae_utils::mod(time(), backup_step) == 0)
+       if (check_now)
+    {
+      if (verbose)
       {
+        printf("Checking the sequence of the unit...");
+        fflush(NULL);
+      }
+
+      char * str1 = new char[gen_unit.dna()->length() + 1];
+      memcpy(str1, gen_unit.dna()->data(), \
+             gen_unit.dna()->length()*sizeof(char));
+      str1[gen_unit.dna()->length()] = '\0';
+
+      char * str2 = new char[(stored_gen_unit->dna())->length() + 1];
+      memcpy(str2, (stored_gen_unit->dna())->data(),
+             (stored_gen_unit->dna())->length()*sizeof(char));
+      str2[(stored_gen_unit->dna())->length()] = '\0';
+
+      if (strncmp(str1, str2, stored_gen_unit->dna()->length()) == 0) {
         if (verbose)
-        {
-          printf("Checking the sequence of the unit...");
-          fflush(NULL);
-        }
-
-        assert(stored_unit != stored_indiv->genetic_unit_list().end());
-
-        char * str1 = new char[unit->dna()->length() + 1];
-        memcpy(str1, unit->dna()->data(), \
-               unit->dna()->length()*sizeof(char));
-        str1[unit->dna()->length()] = '\0';
-
-        char * str2 = new char[(stored_unit->dna())->length() + 1];
-        memcpy(str2, (stored_unit->dna())->data(), (stored_unit->dna())->length()*sizeof(char));
-        str2[(stored_unit->dna())->length()] = '\0';
-
-        if(strncmp(str1,str2, (stored_unit->dna())->length())==0)
-        {
-          if (verbose) printf(" OK\n");
-        }
-        else
-        {
-          if (verbose) printf(" ERROR !\n");
-          fprintf(stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf(stderr, "the one saved at generation %" PRId64 "... ", time());
-          fprintf(stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1);
-          fprintf(stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2);
-          delete [] str1;
-          delete [] str2;
-          gzclose(lineage_file);
-          delete indiv;
-          delete stored_indiv;
-          delete exp_manager_backup;
-          delete exp_manager;
-          exit(EXIT_FAILURE);
-        }
+          printf(" OK\n");
+      }
+      else {
+        if (verbose) printf(" ERROR !\n");
+        fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
+        fprintf(stderr, "the one saved at generation %" PRId64 "... ", time());
+        fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
+        fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2);
 
         delete [] str1;
         delete [] str2;
-
-        ++stored_unit;
+        gzclose(lineage_file);
+        delete indiv;
+        delete stored_indiv;
+        delete exp_manager_backup;
+        delete exp_manager;
+        exit(EXIT_FAILURE);
       }
 
-
-      ++dnareport;
-      ++unit;
-      genetic_unit_number++;
-    }
-
-    assert(unit == indiv->genetic_unit_list().end());
+      delete [] str1;
+      delete [] str2;
+      }
 
 
     if (verbose) printf(" OK\n");
 
     delete rep;
 
-    if (check_now && ae_utils::mod(time(), backup_step) == 0)
-    {
-      assert(stored_unit == stored_indiv->genetic_unit_list().end());
-      delete stored_indiv;
-      delete exp_manager_backup;
-    }
-
-    aevol::Time::plusplus();
+    if (check_now)
+      {
+	delete stored_indiv;
+	delete exp_manager_backup;
+      }
+    
+    aevol::AeTime::plusplus();
   }
-
+  
   gzclose(lineage_file);
   fclose(output);
   delete exp_manager;
   delete indiv;
-  delete env;
 
   exit(EXIT_SUCCESS);
 
