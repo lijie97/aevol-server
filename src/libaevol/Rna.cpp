@@ -133,6 +133,10 @@ int32_t Rna::last_transcribed_pos() const
   }
 }
 
+void Rna::copy_parent(const Rna* parent, bool env_will_changed) {
+
+}
+
 // =================================================================
 //                           Protected Methods
 // =================================================================

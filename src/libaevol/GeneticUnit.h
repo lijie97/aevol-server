@@ -198,6 +198,9 @@ class GeneticUnit {
 
   void set_exp_m(ExpManager* exp_m);
 
+  int local_id() { return local_id_;}
+
+  void set_local_id(int local_id) { local_id_ = local_id;}
 
   // =================================================================
   //                            Public Methods
@@ -348,6 +351,8 @@ class GeneticUnit {
                                     int& nb_genes_at_breakpoints,
                                     int& nb_genes_in_segment,
                                     int& nb_genes_in_replaced_segment);
+
+  void copy_parent(const GeneticUnit* parent, bool env_has_changed);
 
   // =================================================================
   //                           Public Attributes
@@ -557,6 +562,10 @@ class GeneticUnit {
   bool non_coding_computed_;
   bool distance_to_target_computed_;
   bool fitness_computed_;
+
+
+  int local_id_;
+  int cpt_local_id=0;
 };
 
 } // namespace aevol

@@ -72,6 +72,16 @@ namespace aevol {
 World::~World()
 {
   for (int16_t x = 0 ; x < width_ ; x++)
+    for (int16_t y = 0 ; y < height_ ; y++) {
+      for (int16_t x2 = x ; x2 < width_ ; x2++)
+        for (int16_t y2 = 0 ; y2 < height_ ; y2++) {
+          if (grid_[x][y]->individual_ != nullptr && grid_[x2][y2]->individual_ != nullptr)
+          if (grid_[x][y]->individual_->id() == grid_[x2][y2]->individual_->id())
+            grid_[x2][y2]->individual_ = nullptr;
+    }
+  }
+
+  for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
       delete grid_[x][y];
 
@@ -126,10 +136,12 @@ void World::MallocGrid()
     grid_[x] = &(grid_1d_[x * height_]);
 }
 
-void World::PlaceIndiv(Individual * indiv, int16_t x, int16_t y) {
+void World::PlaceIndiv(Individual * indiv, int16_t x, int16_t y, bool set_prng) {
   grid_[x][y]->set_individual(indiv);
-  indiv->set_mut_prng(grid_[x][y]->mut_prng());
-  indiv->set_stoch_prng(grid_[x][y]->stoch_prng());
+  if (set_prng) {
+    indiv->set_mut_prng(grid_[x][y]->mut_prng());
+    indiv->set_stoch_prng(grid_[x][y]->stoch_prng());
+  }
 }
 
 void World::FillGridWithClones(Individual & dolly)
@@ -138,9 +150,9 @@ void World::FillGridWithClones(Individual & dolly)
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
       #ifndef __REGUL
-      PlaceIndiv(Individual::CreateClone(&dolly, id_new_indiv++), x, y);
+      PlaceIndiv(Individual::CreateClone(&dolly, id_new_indiv++), x, y, true);
       #else
-      PlaceIndiv(Individual_R::CreateClone(dynamic_cast<Individual_R*>(&dolly), id_new_indiv++), x, y);
+      PlaceIndiv(Individual_R::CreateClone(dynamic_cast<Individual_R*>(&dolly), id_new_indiv++), x, y, true);
       #endif
 }
 

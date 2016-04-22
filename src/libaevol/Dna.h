@@ -171,6 +171,9 @@ class Dna : public ae_string {
   static void set_GU(std::vector<std::list<Rna_R>> rna_list, const GeneticUnit* GU);
   #endif
 
+  bool hasMutate() { return hasMutated; };
+  void set_hasMutate(bool mutate) { hasMutated = mutate; }
+
  protected :
   // =================================================================
   //                           Protected Methods
@@ -187,6 +190,7 @@ class Dna : public ae_string {
   ExpManager* exp_m_;
   Individual* indiv_;
   GeneticUnit* gen_unit_; // Genetic unit which the dna sequence belongs to
+  bool hasMutated = false;
 };
 
 // =====================================================================

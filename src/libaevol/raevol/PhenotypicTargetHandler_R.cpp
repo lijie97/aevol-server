@@ -96,6 +96,7 @@ PhenotypicTargetHandler_R::~PhenotypicTargetHandler_R() {
 //                                   Methods
 // ============================================================================
 void PhenotypicTargetHandler_R::ApplyVariation() {
+  hasChanged_ = false;
   switch (var_method_) {
     case NO_VAR :
       return;
@@ -116,6 +117,15 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
       //printf("last_age = %d\n", last_age);
       if ( nb_env_in_list <= 1 ) {
         break;
+      }
+
+      int* list_of_old_target_id = new int[phenotypic_targets_.size()];
+      int nb_old_env = phenotypic_targets_.size();
+      int i = 0;
+
+      for (PhenotypicTarget_R* target : phenotypic_targets_) {
+        list_of_old_target_id[i] = target->get_id();
+        i++;
       }
 
       //reset the vector of phenotypic targets keeping only the last environment
@@ -151,6 +161,20 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
         }
         addEnv(id_new_env);
       }
+
+      if (nb_old_env == phenotypic_targets_.size()) {
+        i=0;
+        for (PhenotypicTarget_R* target : phenotypic_targets_) {
+          if (list_of_old_target_id[i] != target->get_id()) {
+            hasChanged_ = true;
+            break;
+          }
+          i++;
+        }
+      } else {
+        hasChanged_ = true;
+      }
+
 
       break; }
     default :

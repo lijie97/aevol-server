@@ -67,6 +67,7 @@ class ExpManager;
 
 class GridCell
 {
+    friend class World;
  public :
   // =================================================================
   //                             Constructors

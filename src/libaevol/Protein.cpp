@@ -582,6 +582,11 @@ int32_t Protein::last_STOP_base_pos() const
   }
 }
 
+/*
+void Protein::copy_parent(Rna* rna) {
+  rna_list_.push_back(rna);
+}*/
+
 void Protein::add_RNA(Rna * rna)
 {
   rna_list_.push_back(rna);

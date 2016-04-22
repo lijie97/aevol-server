@@ -216,8 +216,11 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file) {
   int16_t nb_gen_units;
   gzread(backup_file, &nb_gen_units, sizeof(nb_gen_units));
 
-  for (int16_t i = 0; i < nb_gen_units; i++)
+  int lid = 0;
+  for (int16_t i = 0; i < nb_gen_units; i++) {
     genetic_unit_list_.emplace_back(this, backup_file);
+    genetic_unit_list_.back().set_local_id(lid++);
+  }
 
   // --------------------------------------------------------------------------
   // No more data to retrieve, the following are only structural
@@ -387,8 +390,10 @@ Individual::Individual(const Individual* parent, int32_t id,
   // Create new genetic units with their DNA copied from here
   // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
   // need to look for promoters on the whole genome
-  for (auto& gu: parent->genetic_unit_list_)
+  for (auto& gu: parent->genetic_unit_list_) {
     genetic_unit_list_.emplace_back(this, &gu);
+    //genetic_unit_list_.back().set_local_id(gu.local_id());
+  }
 
   phenotype_activ_ = NULL;
   phenotype_inhib_ = NULL;
@@ -621,6 +626,7 @@ double Individual::dist_to_target_by_feature(
 
 /// TODO
 double Individual::fitness() const {
+  if (!fitness_computed_) printf("Error !!!\n");
   assert(fitness_computed_);
 
   return fitness_;
@@ -1459,6 +1465,7 @@ void Individual::ReevaluateInContext(const Habitat& habitat) {
 void Individual::add_GU(char*& sequence, int32_t length) {
   clear_everything_except_dna_and_promoters();
   genetic_unit_list_.emplace_back(this, sequence, length);
+  //genetic_unit_list_.back().set_local_id(cpt_local_id++);
 }
 
 /// Overloaded version to prevent the use of GeneticUnit disabled
@@ -1468,6 +1475,7 @@ void Individual::add_GU(Individual* indiv,
                         std::shared_ptr<JumpingMT> prng) {
   clear_everything_except_dna_and_promoters();
   genetic_unit_list_.emplace_back(indiv, chromosome_length, prng);
+  //genetic_unit_list_.back().set_local_id(cpt_local_id++);
 }
 
 void Individual::remove_GU(int16_t num_unit) {
@@ -1894,6 +1902,43 @@ void Individual::double_non_coding_bases() {
   assert(nb_bases_in_0_coding_RNA() == 2 * initial_non_coding_base_nb);
 #endif
 }
+/*
+void Individual::copy_parent(const Individual* parent, bool env_will_change) {
+  // copy fitness related data
+  for (int8_t i = 0; i < NB_FEATURES; i++) {
+    dist_to_target_by_feature_[i] = parent->dist_to_target_by_feature_[i];
+    fitness_by_feature_[i] = parent->fitness_by_feature_[i];
+  }
+
+  // Copy genetic unit
+  for (auto& gen_unit: parent->genetic_unit_list_) {
+    for (auto& gunit: genetic_unit_list_) {
+      if (gen_unit.local_id() == gunit.local_id()) {
+        gunit->copy_parent(gen_unit,env_will_change);
+      }
+    }
+  }
+
+  make_protein_list();
+  make_rna_list();
+
+
+  transcribed_ = true;
+  translated_  = true;
+  folded_  = true;
+
+  if (!env_will_change) {
+    phenotype_computed_ = true;
+    distance_to_target_computed_ = true;
+    fitness_computed_ = true;
+    evaluated_ = true;
+  } else {
+    phenotype_computed_ = false;
+    distance_to_target_computed_ = false;
+    fitness_computed_ = false;
+    evaluated_ = false;
+  }
+}*/
 
 // =================================================================
 //                           Protected Methods

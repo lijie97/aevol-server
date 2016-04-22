@@ -724,6 +724,7 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent) {
       rna_list_[strand].emplace_back(this, rna);
 #else
       rna_list_[strand].emplace_back(this, rna);
+      //rna_list_[strand].back().set_local_id(rna.get_local_id());
 #endif
     }
   }
@@ -3478,6 +3479,105 @@ void GeneticUnit::init_statistical_data(
   beginning_neutral_regions_ = NULL;
   end_neutral_regions_ = NULL;
 }
+/*
+void GeneticUnit::copy_parent(const GeneticUnit* parent, bool env_will_changed) {
+  // Copy protein list
+  for (auto strand: {LEADING, LAGGING}) {
+    for (const auto& protein : parent->protein_list_[strand]) {
+      protein_list_[strand].emplace_back(&this,protein);
+      protein_list_[strand].back().set_local_id(protein.get_local_id());
+
+      for (auto rna : protein.rna_list()) {
+        for (auto& local_rna: rna_list_[strand]) {
+          if (rna->get_local_id() == local_rna->get_local_id()) {
+            protein_list_[strand].back().add_RNA(local_rna);
+            local_rna.add_transcribed_protein(&protein_list_[strand].back());
+            break;
+          }
+        }
+      }
+    }
+
+    for (auto& local_rna: rna_list_[strand]) {
+      for (auto& rna: parent->rna_list_[strand]) {
+        if (local_rna.get_local_id() == rna.local_id()) {
+          local_rna._nb_influences = rna._nb_influences;
+          local_rna._protein_list = rna._protein_list;
+          local_rna._enhancing_coef_list = rna._enhancing_coef_list;
+          local_rna._operating_coef_list = rna._operating_coef_list;
+          break;
+        }
+      }
+    }
+  }
+
+  nb_coding_RNAs_ = parent->nb_coding_RNAs_;
+  nb_non_coding_RNAs_ = parent->nb_non_coding_RNAs_;
+  overall_size_coding_RNAs_ = parent->overall_size_coding_RNAs_;
+  overall_size_non_coding_RNAs_ = parent->overall_size_non_coding_RNAs_;
+  nb_genes_activ_ = parent->nb_genes_activ_;
+  nb_genes_inhib_ = parent->nb_genes_inhib_;
+  nb_fun_genes_ = parent->nb_fun_genes_;
+  nb_non_fun_genes_ = parent->nb_non_fun_genes_;
+  overall_size_fun_genes_ = parent->overall_size_fun_genes_;
+  overall_size_non_fun_genes_ = parent->overall_size_non_fun_genes_;
+
+  nb_bases_in_0_CDS_ = parent->nb_bases_in_0_CDS_;
+  nb_bases_in_0_functional_CDS_ = parent->nb_bases_in_0_functional_CDS_;
+  nb_bases_in_0_non_functional_CDS_ = parent->nb_bases_in_0_non_functional_CDS_;
+  nb_bases_in_0_RNA_ = parent->nb_bases_in_0_RNA_;
+  nb_bases_in_0_coding_RNA_ = parent->nb_bases_in_0_coding_RNA_;
+  nb_bases_in_0_non_coding_RNA_ = parent->nb_bases_in_0_non_coding_RNA_;
+  nb_bases_non_essential_ = parent->nb_bases_non_essential_;
+  nb_bases_non_essential_including_nf_genes_ = parent->nb_bases_non_essential_including_nf_genes_;
+
+  nb_neutral_regions_ = parent->nb_neutral_regions_;
+
+  modularity_ = parent->modularity_;
+
+  if (nb_neutral_regions_ >
+      0) // as unlikely as it seems, there may be no neutral region
+  {
+    beginning_neutral_regions_ = new int32_t[nb_neutral_regions_];
+    end_neutral_regions_ = new int32_t[nb_neutral_regions_];
+    // transfer from tmp to attributes
+    for (int32_t i = 0; i < nb_neutral_regions_; i++) {
+      beginning_neutral_regions_[i] = parent->beginning_neutral_regions_[i];
+      end_neutral_regions_[i] = parent->end_neutral_regions_[i];
+    }
+  }
+  else // nb_neutral_regions_ == 0
+  {
+    beginning_neutral_regions_ = NULL;
+    end_neutral_regions_ = NULL;
+  }
+
+  if (!env_will_changed) {
+    for (int8_t i = 0; i < NB_FEATURES; i++) {
+      dist_to_target_by_feature_[i] = parent->dist_to_target_by_feature_[i];
+      fitness_by_feature_[i] = parent->fitness_by_feature_[i];
+    }
+
+    activ_contribution_ = FuzzyFactory::create_fuzzy(parent->activ_contribution_);
+    inhib_contribution_ = FuzzyFactory::create_fuzzy(parent->inhib_contribution_);
+    phenotypic_contribution_ = FuzzyFactory::create_fuzzy(parent->phenotypic_contribution_);
+
+    // Copy boolean
+    transcribed_ = true;
+    translated_ = true;
+    phenotypic_contributions_computed_ = true;
+    non_coding_computed_ = true;
+    distance_to_target_computed_ = true;
+    fitness_computed_ = true;
+  } else {
+    transcribed_ = true;
+    translated_ = true;
+    phenotypic_contributions_computed_ = false;
+    non_coding_computed_ = true;
+    distance_to_target_computed_ = false;
+    fitness_computed_ = false;
+  }
+}*/
 
 void GeneticUnit::clear_transcribed_proteins() {
   for (auto strand: {LEADING, LAGGING}) {

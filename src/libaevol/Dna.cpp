@@ -227,7 +227,8 @@ void Dna::do_small_mutations() {
       binomial_random(length_, indiv_->small_deletion_rate());
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
 
-
+  if (nb_mut > 0)
+    hasMutated = true;
 
   // ====================================================
   //  2. Perform those small mutations in a random order
@@ -297,6 +298,10 @@ void Dna::do_rearrangements() {
   int32_t nb_inv = indiv_->mut_prng_->
       binomial_random(length_, indiv_->inversion_rate());
   int32_t nb_rear = nb_dupl + nb_del + nb_trans + nb_inv;
+
+
+  if (nb_rear > 0)
+    hasMutated = true;
 
   // ===================================================
   //  2. Perform those rearrangements in a random order

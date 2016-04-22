@@ -107,6 +107,9 @@ Selection::~Selection() {
   delete [] prob_reprod_;
 }
 
+
+int mutator = 0;
+
 // =================================================================
 //                            Public Methods
 // =================================================================
@@ -190,7 +193,18 @@ void Selection::step_to_next_generation() {
 
 
   // Create the new generation
-  std::list<Individual*> old_generation = exp_m_->indivs();;
+  std::list<Individual*> old_generation = exp_m_->indivs();
+  mutator=0;
+  for (auto indiv : old_generation) {
+    indiv->number_of_clones_ = 0;
+    (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
+  }
+
+
+  int cpt=0;
+  for (auto indiv : old_generation) {
+    cpt+=indiv->number_of_clones_;
+  }
 
   #ifndef __TBB
   std::list<Individual*> new_generation;
@@ -201,18 +215,58 @@ void Selection::step_to_next_generation() {
     for (int16_t y = 0 ; y < grid_height ; y++)
       do_replication(reproducers[x][y], x * grid_height + y, x, y);
 
+  std::vector<Individual*> to_evaluate;
+  for (int16_t x = 0 ; x < grid_width ; x++) {
+    for (int16_t y = 0; y < grid_height; y++) {
+      bool already = false;
+      for (auto indiv : to_evaluate) {
+        if (pop_grid[x][y]->individual()->id() == indiv->id())
+          already = true;
+      }
+      if (!already) {
+        to_evaluate.push_back(pop_grid[x][y]->individual());
+        /*printf("Number of clones %d %d\n",pop_grid[x][y]->individual()->id(),
+               pop_grid[x][y]->individual()->number_of_clones_);*/
+      }
+    }
+  }
+
+  cpt=0;
+  int clones = 0;
+  int to_do_something = 0;
+  int mutated = 0;
+  for (auto indiv : to_evaluate) {
+    if ((&indiv->genetic_unit_list().front())->dna()->hasMutate()) {
+      cpt++;
+      mutated++;
+    }
+    else {
+      cpt += indiv->number_of_clones_;
+      clones += indiv->number_of_clones_;
+    }
+    if ((dynamic_cast<PhenotypicTargetHandler_R*>(&indiv->grid_cell()->habitat().
+        phenotypic_target_handler_nonconst())->hasChanged()) || !indiv->evaluated_)
+      to_do_something++;
+  }
+
+  printf("\n to evaluate %d %d %d %d %d (%d)\n",to_evaluate.size(),cpt,to_do_something,clones,mutated,mutator);
+
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
-  #pragma omp parallel for collapse(2) schedule(dynamic)
-  for (int16_t x = 0 ; x < grid_width ; x++)
-    for (int16_t y = 0 ; y < grid_height ; y++)
-      run_life(dynamic_cast<Individual_R*>(pop_grid[x][y]->individual()));
+
+  #pragma omp parallel for schedule(dynamic)
+  for (int i = 0; i < to_evaluate.size(); i++) {
+    if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
+        phenotypic_target_handler_nonconst())->hasChanged()) || !to_evaluate[i]->evaluated_)
+      run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
+  }
+
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
   cout<<"TIMER,"<<AeTime::time()<<",OLD,"<<duration<<endl;
 
   for (int16_t x = 0 ; x < grid_width ; x++)
     for (int16_t y = 0 ; y < grid_height ; y++)
-      new_generation.emplace_back(pop_grid[x][y]->individual());
+      new_generation.push_back(pop_grid[x][y]->individual());
   #else
   std::vector<Individual*> new_generation;
   tbb::task_group tgroup;
@@ -230,13 +284,54 @@ void Selection::step_to_next_generation() {
 
   // delete the temporary grid and the parental generation
   for (int16_t x = 0 ; x < grid_width ; x++) {
-    delete [] reproducers[x];
+    for (int16_t y = 0 ; y < grid_height ; y++) {
+        reproducers[x][y] = nullptr;
+    }
+    delete[] reproducers[x];
   }
   delete [] reproducers;
-  for (auto indiv : old_generation) {
-    delete indiv;
+
+  for (auto iterator = old_generation.begin(), end = old_generation.end();
+       iterator != end; ++iterator) {
+    auto iterator2 = iterator;
+    iterator2++;
+    for (end = old_generation.end();
+         iterator2 != end; ++iterator2) {
+      if ((*iterator2) != nullptr && (*iterator) != nullptr)
+        if ((*iterator)->id() == (*iterator2)->id())
+          (*iterator2) = nullptr;
+    }
   }
 
+  int number_of_clones = 0;
+
+  for (auto indiv : old_generation) {
+    if (indiv != nullptr)
+      if (indiv->number_of_clones_ == 0)
+        delete indiv;
+      else
+        number_of_clones += indiv->number_of_clones_;
+  }
+
+  //printf("Number of clones %d\n",number_of_clones);
+  for (auto indiv : new_generation) {
+    if (!indiv->fitness_computed_) {
+      //printf("Error indiv %d\n", indiv->id());
+      bool foundIndiv = false;
+      for (auto indiv2 : to_evaluate) {
+        if (indiv->id() == indiv2->id()) {
+          foundIndiv = true;
+          break;
+        }
+      }
+      /*if (foundIndiv)
+        printf("Indiv must have been evaluated\n");
+      else
+        printf("Indiv HAS NOT been evaluated\n");*/
+    }
+    //printf("Fitness of %d : %e (%d)\n",indiv->id(),indiv->fitness(),indiv->fitness_computed_);
+  }
+  //printf("Starting sort\n");
   // Compute the rank of each individual
   #ifndef __TBB
   new_generation.sort([](Individual* lhs, Individual* rhs) {
@@ -518,6 +613,7 @@ void Selection::compute_local_prob_reprod() {
   }
 }
 
+
 Individual* Selection::do_replication(Individual* parent, int32_t index,
                                       int16_t x, int16_t y) {
   //Individual* new_indiv = NULL;
@@ -526,15 +622,23 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-      Individual* new_indiv = new Individual(parent, index, parent->mut_prng(), parent->stoch_prng() );
+      Individual* new_indiv = new Individual(parent, index,
+        exp_m_->world()->grid(x,y)->mut_prng(),
+        exp_m_->world()->grid(x,y)->stoch_prng() );
     #else
-      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->mut_prng(), parent->stoch_prng() );
+      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index,
+        exp_m_->world()->grid(x,y)->mut_prng(),
+        exp_m_->world()->grid(x,y)->stoch_prng() );
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->mut_prng(), parent->stoch_prng() );
+      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index,
+        exp_m_->world()->grid(x,y)->mut_prng(),
+        exp_m_->world()->grid(x,y)->stoch_prng() );
     #else
-      Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->mut_prng(), parent->stoch_prng() );
+      Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index,
+        exp_m_->world()->grid(x,y)->mut_prng(),
+        exp_m_->world()->grid(x,y)->stoch_prng() );
     #endif
   #endif
 
@@ -545,13 +649,49 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
   }
 
   // Set the new individual's location on the grid
-  exp_m_->world()->PlaceIndiv(new_indiv, x, y);
+  exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
+
+  bool mutate = true;
 
   // Perform transfer, rearrangements and mutations
   if (not new_indiv->allow_plasmids()) {
     const GeneticUnit* chromosome = &new_indiv->genetic_unit_list().front();
 
+    if (chromosome->dna()->hasMutate())
+      printf("Mutation before ????\n");
+
     chromosome->dna()->perform_mutations(parent->id());
+
+    if (! chromosome->dna()->hasMutate()) {
+      #pragma omp critical
+      {
+
+        parent->number_of_clones_++;
+      }
+      //printf("Indiv %d has not mutate so pointing to parent %d\n",new_indiv->id(),parent->id());
+      delete new_indiv;
+      mutate = false;
+#ifdef __NO_X
+      #ifndef __REGUL
+      new_indiv = parent;
+    #else
+      new_indiv = dynamic_cast<Individual_R*>(parent);
+    #endif
+#elif defined __X11
+      #ifndef __REGUL
+      new_indiv = dynamic_cast<Individual_X11 *>(parent);
+    #else
+      new_indiv = dynamic_cast<Individual_R_X11*>(parent);
+    #endif
+#endif
+      exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
+    } else {
+      #pragma omp critical
+      {
+        mutator++;
+          new_indiv->set_id(unique_id++);
+      }
+    }
   }
   else { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
@@ -570,15 +710,25 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
     }
   }
 
-  new_indiv->init_indiv();
+  if (mutate) {
+    new_indiv->init_indiv();
+    //printf("Indiv %d  has mutated and parent is %d\n",new_indiv->id(),parent->id());
+  }
 
   return new_indiv;
 }
 
 void Selection::run_life(Individual_R* new_indiv) {
 
+  if (dynamic_cast<PhenotypicTargetHandler_R*>(&new_indiv->grid_cell()->habitat().
+      phenotypic_target_handler_nonconst())->hasChanged()) {
+    new_indiv->evaluated_ = false;
+  }
+
+  //printf("Evaluate :: indiv %d (%d)\n",new_indiv->id(),new_indiv->number_of_clones_);
   // Evaluate new individual
   new_indiv->Evaluate();
+
 
   // Compute statistics
   new_indiv->compute_statistical_data();

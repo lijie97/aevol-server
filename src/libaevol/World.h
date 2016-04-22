@@ -60,6 +60,7 @@ class ExpManager;
 
 class World
 {
+    friend class GridCell;
  public :
   // =================================================================
   //                             Constructors
@@ -128,7 +129,7 @@ class World
   void InitGrid(int16_t width, int16_t height,
                 Habitat& habitat,
                 bool share_phenotypic_target);
-  void PlaceIndiv(Individual * indiv, int16_t x, int16_t y);
+  void PlaceIndiv(Individual * indiv, int16_t x, int16_t y, bool set_prng);
   void FillGridWithClones(Individual & dolly);
   void evaluate_individuals();
   void update_secretion_grid();

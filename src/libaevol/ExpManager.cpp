@@ -532,7 +532,7 @@ void ExpManager::run_evolution()
         if (rna->_nb_influences > max_influence)
           max_influence = rna->_nb_influences;
     }
-
+/*
     cuda_struct* cstruct = new cuda_struct();
     cstruct->init_struct(max_protein,max_rna,max_influence,
                          nb_signals,life_time,nb_eval_,selection_pressure);
@@ -545,7 +545,7 @@ void ExpManager::run_evolution()
     high_resolution_clock::time_point t_t2 = high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
     cout<<"TIMER,"<<AeTime::time()<<",NEW,1,"<<duration<<endl;
-/*
+
     t_t1 = high_resolution_clock::now();
 
     cstruct->compute_a_generation_v2(best_indiv()->exp_m());
@@ -561,8 +561,10 @@ void ExpManager::run_evolution()
     t_t2 = high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
     cout<<"TIMER,"<<AeTime::time()<<",NEW,3,"<<duration<<endl;
+
+        delete cstruct;
 */
-    delete cstruct;
+
 
     if (AeTime::time() >= t_end_ or quit_signal_received())
       break;

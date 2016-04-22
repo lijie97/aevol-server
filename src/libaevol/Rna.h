@@ -107,6 +107,8 @@ class Rna
     inline void add_transcribed_protein(Protein * prot);
     inline void shift_position(int32_t delta_pos, int32_t genome_length);
 
+    void copy_parent(const Rna* parent, bool env_will_changed);
+
     // =================================================================
     //                           Public Attributes
     // =================================================================

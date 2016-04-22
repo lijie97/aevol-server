@@ -1887,7 +1887,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       y = exp_m->world()->prng()->random(y_max);
     } while (world->indiv_at(x, y) != NULL);
 
-    world->PlaceIndiv(indiv, x, y);
+    world->PlaceIndiv(indiv, x, y, true);
   }
 
   world->set_best(0, 0);

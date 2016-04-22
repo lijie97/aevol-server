@@ -71,7 +71,7 @@ class GridCell;
 /// Genetic units are an individual's own.
 class Individual : public Observable {
   friend class Dna;
-
+    friend class Selection;
  public :
 
   // =================================================================
@@ -492,6 +492,7 @@ class Individual : public Observable {
 
   void double_non_coding_bases();
 
+  void copy_parent(const Individual* parent, bool env_will_change);
 
   // =================================================================
   //                           Public Attributes
@@ -501,6 +502,8 @@ class Individual : public Observable {
 
     GridCell* grid_cell_ = NULL;
     std::list<Protein*> protein_list_;
+    int number_of_clones_ = 0;
+
  protected :
   // =================================================================
   //                           Protected Methods
@@ -628,6 +631,8 @@ class Individual : public Observable {
   double modularity_; // Ratio between the pairwise distance between genes whose corresponding
   // phenotypic triangles overlap and the average intergenic distance
   // (ignoring non-functional genes)void compute_phenotype();
+
+
 };
 
 } // namespace aevol
