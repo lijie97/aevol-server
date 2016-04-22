@@ -195,22 +195,25 @@ char* Dna::subsequence(int32_t from, int32_t to, Strand strand) const {
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Dna::perform_mutations(int32_t parent_id) {
+int32_t Dna::perform_mutations(int32_t parent_id) {
+  int32_t nb_events = 0;
   if (indiv_->with_HT()) {
-    do_transfer(parent_id);
+    nb_events+=do_transfer(parent_id);
   }
 
   if (indiv_->with_alignments()) {
-    do_rearrangements_with_align();
+    nb_events += do_rearrangements_with_align();
   }
   else {
-    do_rearrangements();
+    nb_events += do_rearrangements();
   }
 
-  do_small_mutations();
+  nb_events += do_small_mutations();
+
+  return nb_events;
 }
 
-void Dna::do_small_mutations() {
+int32_t Dna::do_small_mutations() {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -278,9 +281,11 @@ void Dna::do_small_mutations() {
       delete mut;
     }
   }
+
+  return nb_mut;
 }
 
-void Dna::do_rearrangements() {
+int32_t Dna::do_rearrangements() {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -347,9 +352,10 @@ void Dna::do_rearrangements() {
       delete mut;
     }
   }
+  return nb_rear;
 }
 
-void Dna::do_rearrangements_with_align() {
+int32_t Dna::do_rearrangements_with_align() {
   // Whether we look for a direct or indirect alignment
   bool direct_sense;
   // Determines the type of rearrangement that will be done if an alignment
@@ -366,6 +372,7 @@ void Dna::do_rearrangements_with_align() {
   int32_t nb_pairs;
   // Keep trace of the original length of the genome
   int32_t genome_size = length_;
+  int32_t nb_rearr = 0;
 
   Mutation* mut = nullptr;
   VisAVis* alignment = NULL;
@@ -491,7 +498,7 @@ void Dna::do_rearrangements_with_align() {
                                 alignment->i_2(),
                                 alignment->i_2(),
                                 segment_length, needed_score);
-
+	  nb_rearr++;
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
@@ -533,7 +540,8 @@ void Dna::do_rearrangements_with_align() {
           mut = new Deletion(alignment->i_1(),
                              alignment->i_2(),
                              segment_length, needed_score);
-
+	  nb_rearr++;
+	  
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
@@ -631,7 +639,8 @@ void Dna::do_rearrangements_with_align() {
                                   segment_length,
                                   (alignment_2->sense() == INDIRECT),
                                   needed_score, needed_score_2);
-
+	  nb_rearr++;
+	  
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
@@ -693,7 +702,7 @@ void Dna::do_rearrangements_with_align() {
       mut = new Inversion(alignment->i_1(),
                           alignment->i_2(),
                           segment_length, needed_score);
-
+      nb_rearr++;
       // Write a line in rearrangement logfile
       if (exp_m_->output_m()->is_logged(LOG_REAR)) {
         fprintf(exp_m_->output_m()->log(LOG_REAR),
@@ -729,15 +738,18 @@ void Dna::do_rearrangements_with_align() {
       delete mut;
     }
   }
+  return nb_rearr;
 }
 
-void Dna::do_transfer(int32_t parent_id) {
+int32_t Dna::do_transfer(int32_t parent_id) {
   Mutation* mut = nullptr;
-
+  int32_t nb_transfer = 0;
+  
   if (indiv_->mut_prng()->random() < indiv_->HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
     if (mut != nullptr) {
       indiv_->notifyObservers(MUTATION, mut);
+      nb_transfer++;
       delete mut;
     }
   }
@@ -746,9 +758,11 @@ void Dna::do_transfer(int32_t parent_id) {
     mut = do_repl_HT(parent_id);
     if (mut != nullptr) {
       indiv_->notifyObservers(MUTATION, mut);
+      nb_transfer++;
       delete mut;
     }
   }
+  return nb_transfer;
 }
 
 PointMutation* Dna::do_switch() {
