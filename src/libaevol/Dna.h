@@ -97,18 +97,18 @@ class Dna : public ae_string {
   //                            Public Methods
   // =================================================================
   // Perform all the mutations (local mutations, rearrangements and transfer)
-  void perform_mutations(int32_t parent_id);
+  int32_t perform_mutations(int32_t parent_id);
 
   // Perform all the local mutations (point mutations and indels)
-  void do_small_mutations();
+  int32_t do_small_mutations();
 
   // Perform all the chromosomal rearrangements (duplications, deletions,
   // translocations and inversions)
-  void do_rearrangements();
-  void do_rearrangements_with_align();
+  int32_t do_rearrangements();
+  int32_t do_rearrangements_with_align();
 
   // Perform all transfer (with insertion and with replacement)
-  void do_transfer(int32_t parent_id);
+  int32_t do_transfer(int32_t parent_id);
 
   // Perform a single local mutation at a random position
   PointMutation* do_switch();
