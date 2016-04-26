@@ -200,11 +200,11 @@ void Selection::step_to_next_generation() {
     (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
   }
 
-
+/*
   int cpt=0;
   for (auto indiv : old_generation) {
     cpt+=indiv->number_of_clones_;
-  }
+  }*/
 
   #ifndef __TBB
   std::list<Individual*> new_generation;
@@ -230,7 +230,7 @@ void Selection::step_to_next_generation() {
       }
     }
   }
-
+/*
   cpt=0;
   int clones = 0;
   int to_do_something = 0;
@@ -250,7 +250,7 @@ void Selection::step_to_next_generation() {
   }
 
   printf("\n to evaluate %d %d %d %d %d (%d)\n",to_evaluate.size(),cpt,to_do_something,clones,mutated,mutator);
-
+*/
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
   #pragma omp parallel for schedule(dynamic)
@@ -309,12 +309,12 @@ void Selection::step_to_next_generation() {
     if (indiv != nullptr)
       if (indiv->number_of_clones_ == 0)
         delete indiv;
-      else
-        number_of_clones += indiv->number_of_clones_;
+//      else
+//        number_of_clones += indiv->number_of_clones_;
   }
 
   //printf("Number of clones %d\n",number_of_clones);
-  for (auto indiv : new_generation) {
+  /*for (auto indiv : new_generation) {
     if (!indiv->fitness_computed_) {
       //printf("Error indiv %d\n", indiv->id());
       bool foundIndiv = false;
@@ -324,13 +324,13 @@ void Selection::step_to_next_generation() {
           break;
         }
       }
-      /*if (foundIndiv)
+      if (foundIndiv)
         printf("Indiv must have been evaluated\n");
       else
-        printf("Indiv HAS NOT been evaluated\n");*/
+        printf("Indiv HAS NOT been evaluated\n");
     }
     //printf("Fitness of %d : %e (%d)\n",indiv->id(),indiv->fitness(),indiv->fitness_computed_);
-  }
+  }*/
   //printf("Starting sort\n");
   // Compute the rank of each individual
   #ifndef __TBB
