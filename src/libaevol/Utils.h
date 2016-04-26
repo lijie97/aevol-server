@@ -68,22 +68,26 @@ class Utils {
 
 inline int32_t Utils::mod(int32_t a, int32_t b)
 {
+
   assert(b > 0);
 
   while (a < 0)  a += b;
   while (a >= b) a -= b;
 
   return a;
+  //return m >= 0 ? m % n : ( n - abs ( m%n ) ) % n;
 }
 
 inline int64_t Utils::mod(int64_t a, int64_t b)
 {
+
   assert(b > 0);
 
   while (a < 0)  a += b;
   while (a >= b) a -= b;
 
   return a;
+  //return m >= 0 ? m % n : ( n - abs ( m%n ) ) % n;
 }
 
 inline int32_t Utils::min(int32_t a, int32_t b)

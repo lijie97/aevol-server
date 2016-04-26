@@ -35,7 +35,7 @@
 #include <cassert>
 #include <list>
 #include <algorithm>
-
+#include <cblas.h>
 
 #include "FuzzyFactory.h"
 #include "ExpManager.h"
@@ -872,6 +872,7 @@ void GeneticUnit::locate_promoters() {
   if (dna_->length() < PROM_SIZE) {
     return;
   }
+#pragma omp simd
   for (int32_t i = 0; i < dna_->length(); i++) {
 #ifndef __REGUL
     if (is_promoter(LEADING, i,
@@ -1329,13 +1330,57 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   const char* genome = dna_->data();
   int32_t len = dna_->length();
 
+  int8_t dist_a[22] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int32_t pos_a[22];
+
+  if (strand == LEADING) {
+    //~ printf("LEADING\n");
+    for (int32_t i  = 0; i < PROM_SIZE; i++)
+      pos_a[i] = (pos + i) % len;
+
+    for (int32_t i = 0; i < PROM_SIZE; i++) {
+      dist_a[i] = genome[pos_a[i]] != PROM_SEQ[i] ? 1 : 0;
+    }
+  }
+  else // (strand == LAGGING)
+  {
+    //~ printf("LAGGING\n");
+    for (int32_t i  = 0; i < PROM_SIZE; i++)
+      pos_a[i] = (pos - i) >= 0 ? (pos - i) % len : ( len - std::abs ( (pos - i)%len ) ) % len;
+
+    for (int32_t i = 0; i < PROM_SIZE; i++) {
+      dist_a[i] = genome[pos_a[i]] == PROM_SEQ[i] ? 1 : 0;
+    }
+  }
+
+  dist = dist_a[0] + dist_a[1]+ dist_a[2]+ dist_a[3]+ dist_a[4]+ dist_a[5]+ dist_a[6]
+         + dist_a[7] + dist_a[8]+ dist_a[9]+ dist_a[10]+ dist_a[11]+ dist_a[12]+ dist_a[13]
+         + dist_a[14]+ dist_a[15]+ dist_a[16]+ dist_a[17]+ dist_a[18]+ dist_a[19]+ dist_a[20]
+         + dist_a[21];
+
+  if ( dist > PROM_MAX_DIFF )
+    return false;
+  else
+    return true;
+}
+
+/*
+bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
+  //~ printf("=============================================== is_promoter\n");
+  //~ printf("pos : %" PRId32 "\n", pos);
+
+  const char* genome = dna_->data();
+  int32_t len = dna_->length();
+
   dist = 0;
   bool ret = true;
 
   if (strand == LEADING) {
     //~ printf("LEADING\n");
+#pragma omp simd
     for (int16_t i = 0; i < PROM_SIZE; i++) {
       //~ printf( "LEADING\n" );
+
       if (genome[Utils::mod((pos + i), len)] != PROM_SEQ[i]) {
         dist++;
         if (dist > PROM_MAX_DIFF) {
@@ -1349,51 +1394,49 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   else // (strand == LAGGING)
   {
     //~ printf("LAGGING\n");
+#pragma omp simd
     for (int16_t i = 0; i < PROM_SIZE; i++) {
       //~ printf("  i : %"PRId32" dist : %"PRId8"\n", i, dist);
       if (genome[Utils::mod((pos - i), len)] ==
           PROM_SEQ[i]) // == and not != because we are on the complementary strand...
       {
-          dist++;
-          if ( dist > PROM_MAX_DIFF )
-          {
-            //~ printf( "=============================================== END is_promoter\n" );
-            ret = false;
-          }
+        dist++;
+        if ( dist > PROM_MAX_DIFF )
+        {
+          //~ printf( "=============================================== END is_promoter\n" );
+          ret = false;
         }
       }
     }
+  }
 
 
+  //~ printf( "=============================================== END is_promoter\n" );
+  return ret;
 
-    //~ printf( "=============================================== END is_promoter\n" );
-    return ret;
+}*/
 
-}
 
 bool GeneticUnit::is_terminator(Strand strand, int32_t pos) const {
   const char* genome = dna_->data();
   int32_t len = dna_->length();
+  bool terminator[4];
 
   if (strand == LEADING) {
     for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
-      if (genome[Utils::mod(pos + i, len)] ==
-          genome[Utils::mod(pos + (TERM_SIZE - 1) - i, len)]) {
-            return false;
-      }
+      terminator[i] = genome[(pos + i) %  len] ==
+          genome[(pos + (TERM_SIZE - 1) - i) % len] ? false : true;
     }
   }
   else // (strand == LAGGING)
   {
     for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
-      if (genome[Utils::mod(pos - i, len)] ==
-          genome[Utils::mod(pos - (TERM_SIZE - 1) + i, len)]) {
-            return false;
-      }
+      terminator[i] = (genome[(pos - i) % len] ==
+          genome[(pos - (TERM_SIZE - 1) + i) % len]) ? false : true;
     }
   }
 
-  return true;
+  return terminator[0] && terminator[1] && terminator[2] && terminator[3];
 }
 
 bool GeneticUnit::is_shine_dalgarno(Strand strand, int32_t pos) const {

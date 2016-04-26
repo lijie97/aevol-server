@@ -234,6 +234,7 @@ class GeneticUnit {
   void print_proteins() const;
 
   bool is_promoter(Strand strand, int32_t pos, int8_t& dist) const;
+  //bool is_promoterX(Strand strand, int32_t pos, int8_t& dist) const;
 
   bool is_terminator(Strand strand, int32_t pos) const;
 
