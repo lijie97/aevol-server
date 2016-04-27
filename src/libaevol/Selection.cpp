@@ -481,7 +481,7 @@ void Selection::load(gzFile& exp_setup_file,
 #else
   prng_ = std::make_unique<JumpingMT>(backup_file);
 #endif
-  unique_id = exp_m->grid_height()*exp_m->grid_width()+1;
+  unique_id = exp_m_->grid_height()*exp_m_->grid_width()+1;
 }
 
 
