@@ -321,6 +321,8 @@ void ExpManager::load(gzFile& exp_s_file,
   world_->load(world_file, this);
   printf(" OK\n");
 
+  sel()->set_unique_id(  grid_height()*grid_width()+1 );
+
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);

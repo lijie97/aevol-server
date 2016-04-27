@@ -125,7 +125,7 @@ class Selection : public Observable
     // =================================================================
 
 
-
+    void set_unique_id(unsigned long long uid) { unique_id = uid; }
 
 
   protected :
