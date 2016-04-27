@@ -99,7 +99,7 @@ Selection::Selection(ExpManager* exp_m) {
   // --------------------------- Probability of reproduction of each organism
   prob_reprod_ = NULL;
 
-  unique_id = exp_m->grid_height()*exp_m->grid_width()+1;
+
 }
 
 // =================================================================
@@ -481,6 +481,7 @@ void Selection::load(gzFile& exp_setup_file,
 #else
   prng_ = std::make_unique<JumpingMT>(backup_file);
 #endif
+  unique_id = exp_m->grid_height()*exp_m->grid_width()+1;
 }
 
 
