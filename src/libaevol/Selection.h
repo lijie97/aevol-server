@@ -152,7 +152,7 @@ class Selection : public Observable
     double* prob_reprod_;
 
 
-    unsigned long long unique_id = 2048;
+    unsigned long long unique_id = 16000;
 };
 
 

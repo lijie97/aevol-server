@@ -98,6 +98,8 @@ Selection::Selection(ExpManager* exp_m) {
 
   // --------------------------- Probability of reproduction of each organism
   prob_reprod_ = NULL;
+
+  unique_id = exp_m->grid_height()*exp_m->grid_width()+1;
 }
 
 // =================================================================
@@ -206,14 +208,18 @@ void Selection::step_to_next_generation() {
     cpt+=indiv->number_of_clones_;
   }*/
 
+
+  int16_t x,y;
   #ifndef __TBB
   std::list<Individual*> new_generation;
   #ifdef _OPENMP
-  #pragma omp parallel for collapse(2) schedule(dynamic)
+  #pragma omp parallel for schedule(dynamic) private(x,y)
   #endif
-  for (int16_t x = 0 ; x < grid_width ; x++)
-    for (int16_t y = 0 ; y < grid_height ; y++)
-      do_replication(reproducers[x][y], x * grid_height + y, x, y);
+  for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
+    x = index / grid_width;
+    y = index % grid_width;
+    do_replication(reproducers[x][y], index, x, y);
+  }
 
   std::vector<Individual*> to_evaluate;
   for (int16_t x = 0 ; x < grid_width ; x++) {
@@ -230,8 +236,8 @@ void Selection::step_to_next_generation() {
       }
     }
   }
-/*
-  cpt=0;
+
+  int cpt=0;
   int clones = 0;
   int to_do_something = 0;
   int mutated = 0;
@@ -250,7 +256,7 @@ void Selection::step_to_next_generation() {
   }
 
   printf("\n to evaluate %d %d %d %d %d (%d)\n",to_evaluate.size(),cpt,to_do_something,clones,mutated,mutator);
-*/
+
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
   #pragma omp parallel for schedule(dynamic)
@@ -616,6 +622,7 @@ void Selection::compute_local_prob_reprod() {
 
 Individual* Selection::do_replication(Individual* parent, int32_t index,
                                       int16_t x, int16_t y) {
+
   //Individual* new_indiv = NULL;
   // ===========================================================================
   //  1) Copy parent

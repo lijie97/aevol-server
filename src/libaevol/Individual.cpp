@@ -626,7 +626,7 @@ double Individual::dist_to_target_by_feature(
 
 /// TODO
 double Individual::fitness() const {
-  if (!fitness_computed_) printf("Error !!!\n");
+  if (!fitness_computed_) printf("Error !!! %d\n",id_);
   assert(fitness_computed_);
 
   return fitness_;
