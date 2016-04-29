@@ -164,7 +164,7 @@ class Individual : public Observable {
 
   int32_t genetic_unit_seq_length(int16_t num_unit) const;
 
-  int32_t id() const;
+    unsigned long long id() const;
 
   int32_t rank() const;
 
@@ -533,7 +533,7 @@ class Individual : public Observable {
   //           The reason for this change is that we now need an identifier for the individuals
   //           as soon as they are created (the rank is only known when all the individuals have been evaluated).
   //           The rank will now be handled in a specific new attribute. (1 for the worst indiv, POP_SIZE for the best)
-  int32_t id_;   // [0 ; POP_SIZE[
+  unsigned long long id_;   // [0 ; POP_SIZE[
   int32_t rank_; // [1 ; POP_SIZE]
 
   // Total activation (resp. inhibition) of metabolic functions

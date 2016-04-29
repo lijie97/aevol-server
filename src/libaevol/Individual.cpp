@@ -523,7 +523,7 @@ int32_t Individual::age() const {
 }
 
 /// TODO
-int32_t Individual::id() const {
+unsigned long long Individual::id() const {
   return id_;
 }
 
@@ -1723,7 +1723,8 @@ void Individual::compute_experimental_f_nu(int32_t nb_children,
   int32_t nb_bases_in_0_coding_RNA = 0;
 
   for (int i = 0; i < nb_children; i++) {
-    child = exp_m_->exp_s()->sel()->do_replication(this, id_);
+    int8_t tm;
+    child = exp_m_->exp_s()->sel()->do_replication(this, id_,tm);
     fitness_child = child->fitness();
     metabolic_error_child = child->dist_to_target_by_feature(METABOLISM);
 

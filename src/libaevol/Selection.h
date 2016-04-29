@@ -111,6 +111,7 @@ class Selection : public Observable
 
     Individual* do_replication(Individual* parent,
                                int32_t index,
+                               int8_t &type_mutate,
                                int16_t x = -1,
                                int16_t y = -1);
 

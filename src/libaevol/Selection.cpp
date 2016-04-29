@@ -50,6 +50,7 @@
 #include<chrono>
 
 #include <iostream>
+#include <unordered_map>
 using namespace std;
 using namespace std::chrono;
 #include "ExpManager.h"
@@ -169,12 +170,16 @@ void Selection::step_to_next_generation() {
     reproducers[i] = new Individual* [grid_height];
   }
 
-
+  int16_t x,y;
+  int8_t what;
   // Do local competitions
-  for (int16_t x = 0 ; x < grid_width ; x++) {
-    for (int16_t y = 0 ; y < grid_height ; y++) {
-      reproducers[x][y] = do_local_competition(x, y);
-    }
+#ifdef _OPENMP
+#pragma omp parallel for schedule(dynamic) private(x,y)
+#endif
+  for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
+    x = index / grid_width;
+    y = index % grid_width;
+    reproducers[x][y] = do_local_competition(x, y);
   }
 
 
@@ -196,9 +201,13 @@ void Selection::step_to_next_generation() {
 
   // Create the new generation
   std::list<Individual*> old_generation = exp_m_->indivs();
+
+  std::unordered_map<unsigned long long, Individual*> unique_individual;
+
   mutator=0;
   for (auto indiv : old_generation) {
     indiv->number_of_clones_ = 0;
+    unique_individual[indiv->id()] = indiv;
     (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
   }
 
@@ -209,19 +218,26 @@ void Selection::step_to_next_generation() {
   }*/
 
 
-  int16_t x,y;
+
+  std::vector<Individual*> to_evaluate;
   #ifndef __TBB
   std::list<Individual*> new_generation;
   #ifdef _OPENMP
-  #pragma omp parallel for schedule(dynamic) private(x,y)
+  #pragma omp parallel for schedule(dynamic) private(x,y,what)
   #endif
   for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
     x = index / grid_width;
     y = index % grid_width;
-    do_replication(reproducers[x][y], index, x, y);
+    do_replication(reproducers[x][y], index, what, x, y);
+    if (what == 1 || what == 2) {
+  #pragma omp critical
+      {
+        to_evaluate.push_back(pop_grid[x][y]->individual());
+      }
+    }
   }
+/*
 
-  std::vector<Individual*> to_evaluate;
   for (int16_t x = 0 ; x < grid_width ; x++) {
     for (int16_t y = 0; y < grid_height; y++) {
       bool already = false;
@@ -231,8 +247,8 @@ void Selection::step_to_next_generation() {
       }
       if (!already) {
         to_evaluate.push_back(pop_grid[x][y]->individual());
-        /*printf("Number of clones %d %d\n",pop_grid[x][y]->individual()->id(),
-               pop_grid[x][y]->individual()->number_of_clones_);*/
+        //printf("Number of clones %d %d\n",pop_grid[x][y]->individual()->id(),
+         //      pop_grid[x][y]->individual()->number_of_clones_);
       }
     }
   }
@@ -256,7 +272,7 @@ void Selection::step_to_next_generation() {
   }
 
   printf("\n to evaluate %d %d %d %d %d (%d)\n",to_evaluate.size(),cpt,to_do_something,clones,mutated,mutator);
-
+*/
   high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
   #pragma omp parallel for schedule(dynamic)
@@ -297,6 +313,7 @@ void Selection::step_to_next_generation() {
   }
   delete [] reproducers;
 
+  /*
   for (auto iterator = old_generation.begin(), end = old_generation.end();
        iterator != end; ++iterator) {
     auto iterator2 = iterator;
@@ -307,17 +324,39 @@ void Selection::step_to_next_generation() {
         if ((*iterator)->id() == (*iterator2)->id())
           (*iterator2) = nullptr;
     }
-  }
+  }*/
 
   int number_of_clones = 0;
-
-  for (auto indiv : old_generation) {
+  for(auto iterator = unique_individual.begin(); iterator != unique_individual.end(); iterator++) {
+    if (iterator->second->number_of_clones_ == 0)
+      delete iterator->second;
+  }
+  /*
+  std::list<Individual*>::iterator i = old_generation.begin();
+  while (i != old_generation.end())
+  {
+    bool isActive = (*i)->number_of_clones_ > 0 ? true : false;
+    if (!isActive)
+    {
+      Individual* ti = (*i);
+      old_generation.erase(i++);  // alternatively, i = items.erase(i);
+      delete ti;
+    }
+    else
+    {
+      ++i;
+    }
+  }*/
+/*
+  for (auto indiv :old_generation ) {
     if (indiv != nullptr)
-      if (indiv->number_of_clones_ == 0)
+      if (indiv->number_of_clones_ == 0) {
         delete indiv;
+        indiv = nullptr;
+      }
 //      else
 //        number_of_clones += indiv->number_of_clones_;
-  }
+  }*/
 
   //printf("Number of clones %d\n",number_of_clones);
   /*for (auto indiv : new_generation) {
@@ -620,8 +659,10 @@ void Selection::compute_local_prob_reprod() {
 }
 
 
+
 Individual* Selection::do_replication(Individual* parent, int32_t index,
-                                      int16_t x, int16_t y) {
+                                      int8_t &type_mutate,
+                                      int16_t x, int16_t y ) {
 
   //Individual* new_indiv = NULL;
   // ===========================================================================
@@ -672,7 +713,10 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
     if (! chromosome->dna()->hasMutate()) {
       #pragma omp critical
       {
-
+        if (parent->number_of_clones_ == 0)
+          type_mutate = 2;
+        else
+          type_mutate = 0;
         parent->number_of_clones_++;
       }
       //printf("Indiv %d has not mutate so pointing to parent %d\n",new_indiv->id(),parent->id());
@@ -719,6 +763,7 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
 
   if (mutate) {
     new_indiv->init_indiv();
+    type_mutate = 1;
     //printf("Indiv %d  has mutated and parent is %d\n",new_indiv->id(),parent->id());
   }
 
