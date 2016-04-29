@@ -177,8 +177,9 @@ void Selection::step_to_next_generation() {
 #pragma omp parallel for schedule(dynamic) private(x,y)
 #endif
   for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
-    x = index / grid_width;
-    y = index % grid_width;
+    x = index / grid_height;
+    y = index % grid_height;
+    //printf("%d %d (%d %d)\n",x,y,grid_width,grid_height);
     reproducers[x][y] = do_local_competition(x, y);
   }
 
@@ -226,8 +227,8 @@ void Selection::step_to_next_generation() {
   #pragma omp parallel for schedule(dynamic) private(x,y,what)
   #endif
   for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
-    x = index / grid_width;
-    y = index % grid_width;
+    x = index / grid_height;
+    y = index % grid_height;
     do_replication(reproducers[x][y], index, what, x, y);
     if (what == 1 || what == 2) {
   #pragma omp critical
