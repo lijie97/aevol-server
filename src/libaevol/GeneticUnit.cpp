@@ -1434,8 +1434,10 @@ bool GeneticUnit::is_terminator(Strand strand, int32_t pos) const {
   else // (strand == LAGGING)
   {
     for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
-      terminator[i] = (genome[(pos - i) % len] ==
-          genome[(pos - (TERM_SIZE - 1) + i) % len]) ? false : true;
+
+      terminator[i] = (genome[(pos - i) >= 0 ? (pos - i) % len : ( len - abs ( (pos - i)%len ) ) % len] ==
+          genome[(pos - (TERM_SIZE - 1) + i) >= 0 ? (pos - (TERM_SIZE - 1) + i) % len
+                                                  : ( len - abs ( (pos - (TERM_SIZE - 1) + i)%len ) ) % len]) ? false : true;
     }
   }
 
