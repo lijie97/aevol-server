@@ -24,33 +24,25 @@
 //
 // ****************************************************************************
 
+// ============================================================================
+//                                   Includes
+// ============================================================================
+#include <cstdlib>
+#include <cstdio>
 
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
 #include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
 
 #ifdef __NO_X
-#error This program requires graphics libraries
+  #error This program requires graphics libraries
 #else
-#include <X11/Xlib.h>
+  #include <X11/Xlib.h>
 #endif
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "aevol.h"
 
 using namespace aevol;
 
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Helper functions
 void print_help(char* prog_path);
 
 

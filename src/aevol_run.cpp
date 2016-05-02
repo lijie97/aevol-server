@@ -27,13 +27,14 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
-#include <errno.h>
-#include <inttypes.h>
-#include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
+#include <cerrno>
+#include <cinttypes>
+#include <cstdlib>
+#include <cstdio>
+#include <csignal>
+
 #include <sys/stat.h>
+#include <getopt.h>
 
 #ifdef _OPENMP
   #include <omp.h>
