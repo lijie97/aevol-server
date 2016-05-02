@@ -44,120 +44,115 @@ using namespace aevol;
 
 // Helper functions
 void print_help(char* prog_path);
+void interpret_cmd_line_options(int argc, char* argv[]);
+
+// Command-line option variables
+static int64_t timestep = -1;
 
 
+int main(int argc, char* argv[]) {
+  interpret_cmd_line_options(argc, argv);
 
-
-
-int main(int argc, char* argv[])
-{
-
-
-
-  // =================================================================
-  //                      Get command-line options
-  // =================================================================
-  //
-  // 1) Initialize command-line option variables with default values
-  int64_t time = -1;
-
-  // 2) Define allowed options
-  const char * options_list = "hVg:";
-  static struct option long_options_list[] = {
-    {"version",   no_argument,       NULL, 'V' },
-    { "gener", 1, NULL, 'g' },
-    { 0, 0, 0, 0 }
-  };
-
-  // 3) Get actual values of the command-line options
-  int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
-  {
-  switch (option)
-    {
-      case 'h' :
-      {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' :
-      {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'g' :
-      {
-	      if (strcmp(optarg, "") == 0)
-    		{
-    		  printf("%s: error: Option -g or --gener : missing argument.\n", argv[0]);
-    		  exit(EXIT_FAILURE);
-    		}
-
-	      time = atol(optarg);
-        break;
-      }
-    }
+  // If timestep wasn't provided, use default
+  if (timestep < 0) {
+    timestep = OutputManager::last_gener();
   }
 
-  // Set undefined command line parameters to default values
-  if (time == -1) {
-    // Set t_end to the content of the LAST_GENER file if it exists.
-    // If it doesn't, print help and exit
-    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
-    if (lg_file != NULL) {
-      if (fscanf(lg_file, "%" PRId64, &time) == EOF) {
-        printf("ERROR: failed to read last generation from file %s\n",
-               LAST_GENER_FNAME);
-        exit(EXIT_FAILURE);
-      }
-      fclose(lg_file);
-    }
-    else {
-      printf("%s: error: You must provide a generation number.\n", argv[0]);
-      exit(EXIT_FAILURE);
-    }
-  }
-
-
-
-  printf("Displaying generation %" PRId64 "...\n", time);
+  printf("Displaying timestep %" PRId64 "...\n", timestep);
 
   // =================================================================
   //                       Read the backup file
   // =================================================================
   // Load simulation from backup
   ExpManager_X11* exp_manager = new ExpManager_X11();
-  exp_manager->load(time, false, false);
-
-
+  exp_manager->load(timestep, false, false);
 
   // =================================================================
   //                       Draw the windows
   // =================================================================
-
-
+  // Display is off by default, switch it on
   exp_manager->toggle_display_on_off();
+
+  // Display is usually triggered in ExpManager::run_evolution(), here we want
+  // to call it manually
   exp_manager->display();
-  while (exp_manager->quit_signal_received() == false)
-  {
+
+  // Handle user events until he quits
+  while (not exp_manager->quit_signal_received()) {
     exp_manager->handle_events();
   }
 
-
-
   delete exp_manager;
-
   return EXIT_SUCCESS;
 }
 
 
-void print_help(char* prog_name)
-{
-  printf("\n************* aevol - Artificial Evolution ************* \n\n");
-  printf("This program is Free Software. No Warranty.\n");
-  printf("Copyright (C) 2009  LIRIS.\n");
-  printf("Usage : %s -h\n", prog_name);
-  printf("   or : %s -f file.ae\n", prog_name);
-  printf("\t-h : Display this screen\n");
-  printf("\t-g or --gener n    : Display the population at generation n\n");
+void print_help(char* prog_path) {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
+
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
+  printf("\n");
+  printf("%s: view the simulation at the provided timestep\n",
+         prog_name);
+  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s [-t TIMESTEP]\n",
+         prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n\n");
+  printf("  -V, --version\n\tprint version number, then exit\n\n");
+  printf("  -t, --timestep TIMESTEP\n");
+  printf("\tspecify timestep to display (default value read in last_gener.txt)\n");
+}
+
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // Define allowed options
+  const char* options_list = "hVt:";
+  static struct option long_options_list[] = {
+      {"help",       no_argument,       nullptr, 'h'},
+      {"version",    no_argument,       nullptr, 'V'},
+      {"timestep",   required_argument, nullptr, 't'},
+      {0, 0, 0, 0}
+  };
+
+  // Get actual values of the CLI options
+  int option;
+  while ((option = getopt_long(argc, argv, options_list, long_options_list,
+                               nullptr)) != -1) {
+    switch (option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      }
+      case 'V' : {
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      }
+      case 't' : {
+        timestep = atol(optarg);
+        break;
+      }
+      default : {
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
 }
