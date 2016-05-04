@@ -35,6 +35,7 @@
 #include <list>
 
 #include <getopt.h>
+#include <libgen.h>
 
 #include "aevol.h"
 
