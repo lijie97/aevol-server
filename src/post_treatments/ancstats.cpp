@@ -122,13 +122,13 @@ int main(int argc, char** argv)
   const char * short_options = "hVvncf:lt:";
   static struct option long_options[] =
   {
-    {"help",        no_argument,       NULL, 'h'},
-    {"version",     no_argument,       NULL, 'V'},
-    {"verbose",     no_argument,       NULL, 'v'},
-    {"nocheck",     no_argument,       NULL, 'n'},
+    // {"file",        required_argument, NULL, 'f'},
     {"fullcheck",   no_argument,       NULL, 'c'},
-    {"file",        required_argument, NULL, 'f'},
+    {"help",        no_argument,       NULL, 'h'},
+    {"nocheck",     no_argument,       NULL, 'n'},
     {"tolerance",   required_argument, NULL, 't'},
+    {"verbose",     no_argument,       NULL, 'v'},
+    {"version",     no_argument,       NULL, 'V'},
     {0, 0, 0, 0}
   };
 
