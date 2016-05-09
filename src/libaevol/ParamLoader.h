@@ -87,8 +87,8 @@ class ParamLoader {
   //                             Public Methods
   // =========================================================================
   void load(ExpManager * exp_m, bool verbose = false,
-            char* chromosome = NULL, int32_t lchromosome = 0,
-            char* plasmid = NULL, int32_t lplasmid = 0);
+            char* chromosome = nullptr, int32_t lchromosome = 0,
+            char* plasmid = nullptr, int32_t lplasmid = 0);
   void print_to_file(FILE* file);
 
   // =========================================================================
