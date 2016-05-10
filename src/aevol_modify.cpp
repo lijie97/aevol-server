@@ -74,7 +74,7 @@ void format_line(ParameterLine* formatted_line, char* line,
 // Command-line option variables
 char* param_file_name = nullptr;
 bool verbose = false;
-int64_t num_gener = -1;
+int64_t timestep = -1;
 
 
 int main(int argc, char* argv[]) {
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
   #else
     ExpManager* exp_manager = new ExpManager();
   #endif
-  exp_manager->load(num_gener, false, verbose);
+  exp_manager->load(timestep, false, verbose);
 
   // Define shorthands
   //Environment* env = exp_manager->env();
@@ -103,9 +103,9 @@ int main(int argc, char* argv[]) {
   if (take_care_of_the_tree) {
     // If a tree is available, assign the replication reports to the individuals
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", timestep);
     #else
-      sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", num_gener);
+      sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", timestep);
     #endif
 
     tree = new Tree(exp_manager, tree_file_name);
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  std::list <Gaussian> new_gaussians;
+  std::list<Gaussian> new_gaussians;
   bool phen_target_change = false;
   bool start_to_record_tree = false;
   bool set_tree_step = false;
@@ -625,9 +625,9 @@ int main(int argc, char* argv[]) {
     printf("Save the modified replication reports into tree...\t");
 
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", timestep);
     #else
-      sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", num_gener);
+      sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", timestep);
     #endif
     gzFile tree_file = gzopen(tree_file_name, "w");
     tree->write_to_tree_file(tree_file);
@@ -918,22 +918,26 @@ void print_help(char* prog_path) {
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s -g GENER [-f param_file]\n", prog_name);
+  printf("   or : %s [-t TIMESTEP] [-f param_file]\n", prog_name);
   printf("\nOptions\n");
-  printf("  -h, --help\n\tprint this help, then exit\n\n");
-  printf("  -V, --version\n\tprint version number, then exit\n\n");
-  printf("  -g, --gener GENER\n\tspecify generation number\n\n");
-  printf("  -f, --file param_file\n\tspecify parameter file (default: param.in)\n");
+  printf("  -h, --help\n"
+             "\tprint this help, then exit\n");
+  printf("  -V, --version\n"
+             "\tprint version number, then exit\n");
+  printf("  -t, --timestep TIMESTEP\n"
+             "\tspecify timestep\n");
+  printf("  -f, --file param_file\n"
+             "\tspecify parameter file (default: param.in)\n");
 }
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char* options_list = "hf:g:V";
+  const char* options_list = "hf:t:V";
   static struct option long_options_list[] = {
-      {"help",    no_argument,       nullptr, 'h'},
-      {"file",    required_argument, nullptr, 'f'}, // Provide file with parameters to change
-      {"gener",   required_argument, nullptr, 'g'},
-      {"version", no_argument,       nullptr, 'V'},
+      {"help",      no_argument,       nullptr, 'h'},
+      {"version",   no_argument,       nullptr, 'V'},
+      {"file",      required_argument, nullptr, 'f'},
+      {"timestep",  required_argument, nullptr, 't'},
       {0, 0, 0, 0}
   };
 
@@ -960,8 +964,8 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         param_file_name = optarg;
         break;
       }
-      case 'g' : {
-        num_gener = atoi(optarg);
+      case 't' : {
+        timestep = atoi(optarg);
         break;
       }
       default : {
@@ -971,32 +975,14 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     }
   }
 
-  // Set undefined CLI options to default values
+  // If param file name wasn't provided, use default
   if (param_file_name == nullptr) {
     param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
     sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
   }
-  if (num_gener == -1) {
-    // Set num_gener to the content of the LAST_GENER file if it exists.
-    // If it doesn't, print help and exit
-    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
-    if (lg_file != nullptr) {
-      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
-        Utils::ExitWithUsrMsg(
-            std::string("failed to read last generation from file ") +
-            LAST_GENER_FNAME);
-        exit(EXIT_FAILURE);
-      }
-      fclose(lg_file);
-    }
-    else {
-      Utils::ExitWithUsrMsg("you must provide a generation number");
-    }
-  }
 
-  // Check the consistency of CLI options
-  if (num_gener == -1) {
-    printf("%s: error: You must provide a generation number.\n", argv[0]);
-    exit(EXIT_FAILURE);
+  // If timestep wasn't provided, use default
+  if (timestep == -1) {
+    timestep = OutputManager::last_gener();
   }
 }
