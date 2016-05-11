@@ -328,14 +328,16 @@ void print_help(char* prog_name) {
 For each mutant we record the phenotypic effect on metabolism.\n\n\
 Usage: %s [-h] -i input_file_name -o output_file_name [-b start_at_generation] [-e end_at_generation] [-p period] [-n num_mutants] [-r] [-h bin_size] [-v verbose] [-s mutation_seed]\n\
 \t-h: display this screen\n\
-\t-i input_file_name: lineage file to be analyzed\n\
+\t-f input_file_name: lineage file to be analyzed\n\
 \t-o output_file_name: name of the output file (to be written in ./stats/ancstats). In case of histogram output (-h) one file will be produced for each histogram and output_file_name will be postfixed with the generation number\n\
 \t-b start_at_generation: first generation of the lineage to be analyzed (default: 0)\n\
 \t-e end_at_generation: last generation of the lineage to be analyzed (default: last generation stored in the input file)\n\
 \t-p period: temporal resolution of the analyze (default: 1)\n\
 \t-n nb_mutants : generate and analyse nb_mutants per individual (default: 1000)\n\
-\t-r: raw output; store the difference of metabolic error for each mutant generated (warning: the output file may quickly grow)\n\
-\t-h bin_size: store the histogram with a bin_size resolution. One output file is generated for each histogram (postfixed with the generation number)\n\
-\t-s mutation_seed: specify the seed to be used for the mutation random generator\n\n\
-Example:\n\t%s -i lineage_file -o toto.out -b 4000 -e 5000 -p 10 -n 100000 -s 19769\n",prog_name,prog_name,prog_name);
+Example:\n\t%s -i lineage_file -o toto.out -b 4000 -e 5000 -p 10 -n 100000 -s 19769\n", prog_name, prog_name, prog_name);
+
+// \t-r: raw output; store the difference of metabolic error for each mutant generated (warning: the output file may quickly grow)\n
+// \t-h bin_size: store the histogram with a bin_size resolution. One output file is generated for each histogram (postfixed with the generation number)\n
+// \t-s mutation_seed: specify the seed to be used for the mutation random generator\n\n
+
 }
