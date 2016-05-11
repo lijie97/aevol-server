@@ -77,7 +77,8 @@ Stats::Stats(ExpManager * exp_m,
 {
   exp_m_ = exp_m;
   init_data();
-  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// exp_m_->with_plasmids(), exp_m_->output_m()->compute_phen_contrib_by_GU());
+  set_file_names(prefix, best_indiv_only, with_plasmids,
+                 compute_phen_contrib_by_GU);
   open_files();
   write_headers();
 }
@@ -589,8 +590,8 @@ void Stats::init_data() {
       stat_files_names_[chrom_or_GU][best_or_glob] = new char*[NB_STATS_TYPES];
 
       for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++) {
-        stat_files_[chrom_or_GU][best_or_glob][stat_type]       = NULL;
-        stat_files_names_[chrom_or_GU][best_or_glob][stat_type] = NULL;
+        stat_files_[chrom_or_GU][best_or_glob][stat_type]       = nullptr;
+        stat_files_names_[chrom_or_GU][best_or_glob][stat_type] = nullptr;
       }
     }
   }
@@ -608,9 +609,9 @@ void Stats::init_data() {
 //     "not to be written into"
 //
 void Stats::set_file_names(const char* prefix,
-                              bool one_lambda_indiv_only,
-                              bool with_plasmids /*= false*/,
-                              bool compute_phen_contrib_by_GU /*= false*/) {
+                           bool one_lambda_indiv_only,
+                           bool with_plasmids /*= false*/,
+                           bool compute_phen_contrib_by_GU /*= false*/) {
   // 1) Create stats directory
   int status;
   status = mkdir(STATS_DIR, 0755);

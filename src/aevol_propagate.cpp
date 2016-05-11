@@ -29,13 +29,15 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 // ============================================================================
 //                                   Includes
 // ============================================================================
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <err.h>
 #include <errno.h>
 #include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/stat.h>
+
+#include <limits>
 
 #if __cplusplus == 201103L
   #include "make_unique.h"
@@ -56,20 +58,23 @@ void print_help(char* prog_path);
 void interpret_cmd_line_options(int argc, char* argv[]);
 
 // Command-line option variables
-static int64_t num_gener = -1;
-static int32_t generalseed = -1;
-static int32_t selseed = -1;
-static int32_t mutseed = -1;
-static int32_t stochseed = -1;
-static int32_t envvarseed = -1;
-static int32_t envnoiseseed = -1;
+static int64_t timestep = -1;
 static char* input_dir = nullptr;
 static char* output_dir = nullptr;
+static bool keep_prng_states = false;
 static bool verbose = false;
 
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
+
+  // If output directory doesn't exist, create it
+  struct stat stat_buf;
+  if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT)) {
+    if (mkdir(output_dir, 0755)) {
+      err(EXIT_FAILURE, output_dir, errno);
+    }
+  }
 
   // =================================================================
   //                    Load the model experiment
@@ -80,116 +85,52 @@ int main(int argc, char* argv[]) {
   ExpManager* exp_manager = new ExpManager();
   #endif
 
-  exp_manager->load(input_dir, num_gener, verbose, true);
+  exp_manager->load(input_dir, timestep, verbose, true);
 
-  if (generalseed != -1) {
-#if __cplusplus == 201103L
-    auto prng = make_unique<JumpingMT>(generalseed);
+  if (not keep_prng_states) {
+    auto max = std::numeric_limits<int32_t>::max();
 
-    exp_manager->sel()->set_prng(
-        make_unique<JumpingMT>(prng->random(1000000)));
-    exp_manager->world()->set_prng(
-        make_unique<JumpingMT>(prng->random(1000000)));
-#else
-    auto prng = std::make_unique<JumpingMT>(generalseed);
+    #if __cplusplus == 201103L
+      auto prng = make_unique<JumpingMT>(time(nullptr));
 
-    exp_manager->sel()->set_prng(
-        std::make_unique<JumpingMT>(prng->random(1000000)));
-    exp_manager->world()->set_prng(
-        std::make_unique<JumpingMT>(prng->random(1000000)));
+      exp_manager->sel()->set_prng(
+          make_unique<JumpingMT>(prng->random(max)));
+      exp_manager->world()->set_prng(
+          make_unique<JumpingMT>(prng->random(max)));
+    #else
+      auto prng = std::make_unique<JumpingMT>(time(nullptr));
 
-#endif
+      exp_manager->sel()->set_prng(
+          std::make_unique<JumpingMT>(prng->random(max)));
+      exp_manager->world()->set_prng(
+          std::make_unique<JumpingMT>(prng->random(max)));
+    #endif
+
     exp_manager->world()->set_mut_prng(
-        std::make_shared<JumpingMT>(prng->random(1000000)));
+        std::make_shared<JumpingMT>(prng->random(max)));
     exp_manager->world()->set_stoch_prng(
-        std::make_shared<JumpingMT>(prng->random(1000000)));
+        std::make_shared<JumpingMT>(prng->random(max)));
 
     for (int16_t x = 0; x < exp_manager->world()->width(); x++) {
       for (int16_t y = 0; y < exp_manager->world()->height(); y++) {
         exp_manager->world()->grid(x, y)->set_mut_prng(
             std::make_shared<JumpingMT>(
-                exp_manager->world()->mut_prng()->random(1000000)));
+                exp_manager->world()->mut_prng()->random(max)));
         exp_manager->world()->grid(x, y)->individual()->set_mut_prng(
             exp_manager->world()->grid(x, y)->mut_prng());
 
         exp_manager->world()->grid(x, y)->set_stoch_prng(
             std::make_shared<JumpingMT>(
-                exp_manager->world()->stoch_prng()->random(1000000)));
+                exp_manager->world()->stoch_prng()->random(max)));
         exp_manager->world()->grid(x, y)->individual()->set_stoch_prng(
             exp_manager->world()->grid(x, y)->stoch_prng());
       }
     }
 
     exp_manager->world()->set_phen_target_prngs(
-        std::make_shared<JumpingMT>(prng->random(1000000)),
-        std::make_shared<JumpingMT>(prng->random(1000000)));
+        std::make_shared<JumpingMT>(prng->random(max)),
+        std::make_shared<JumpingMT>(prng->random(max)));
   }
-  else {
-    if (selseed != -1) {
-      #if __cplusplus == 201103L
-        exp_manager->world()->set_prng(
-            make_unique<JumpingMT>(selseed));
-        exp_manager->sel()->set_prng(
-            make_unique<JumpingMT>(selseed));
-      #else
-        exp_manager->world()->set_prng(
-            std::make_unique<JumpingMT>(selseed));
-        exp_manager->sel()->set_prng(
-            std::make_unique<JumpingMT>(selseed));
-      #endif
-    }
-
-    if (mutseed != -1) {
-      exp_manager->world()->set_mut_prng(
-          std::make_shared<JumpingMT>(mutseed));
-
-      for (int16_t x = 0; x < exp_manager->world()->width(); x++) {
-        for (int16_t y = 0; y < exp_manager->world()->height(); y++) {
-          exp_manager->world()->grid(x, y)->set_mut_prng(
-              std::make_shared<JumpingMT>(
-                  exp_manager->world()->mut_prng()->random(1000000)));
-          exp_manager->world()->grid(x, y)->individual()->set_mut_prng(
-              exp_manager->world()->grid(x, y)->mut_prng());
-        }
-      }
-    }
-
-    if (stochseed != -1) {
-      exp_manager->world()->set_stoch_prng(
-          std::make_shared<JumpingMT>(stochseed));
-
-      for (int16_t x = 0; x < exp_manager->world()->width(); x++) {
-        for (int16_t y = 0; y < exp_manager->world()->height(); y++) {
-          exp_manager->world()->grid(x, y)->set_stoch_prng(
-              std::make_shared<JumpingMT>(
-                  exp_manager->world()->stoch_prng()->random(1000000)));
-          exp_manager->world()->grid(x, y)->individual()->set_stoch_prng(
-              exp_manager->world()->grid(x, y)->stoch_prng());
-        }
-      }
-    }
-
-    if (envvarseed != -1) {
-      // TODO <david.parsons@inria.fr> adapt to new organization
-      printf(
-          "%s:%d: error: feature has to be adapted to the new organization.\n",
-          __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-//      exp_manager->env()->set_var_prng(
-//          std::make_shared<JumpingMT>(envvarseed));
-    }
-
-    if (envnoiseseed != -1) {
-      // TODO <david.parsons@inria.fr> adapt to new organization
-      printf(
-          "%s:%d: error: feature has to be adapted to the new organization.\n",
-          __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-//      exp_manager->env()->set_noise_prng(
-//          std::make_shared<JumpingMT>(envnoiseseed));
-    }
-  }
-
 
   exp_manager->save_copy(output_dir, 0);
 }
@@ -226,51 +167,31 @@ void print_help(char* prog_path) {
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-v] [-g GENER] [-i INDIR] [-o OUTDIR] [-S GENERALSEED]\n", prog_name);
-  printf("   or : %s [-v] [-g GENER] [-i INDIR] [-o OUTDIR] [-s SELSEED] [-m MUTSEED] [-t STOCHSEED] [-e ENVVARSEED] [-n ENVNOISESEED] ]\n", prog_name);
+  printf("   or : %s [-t TIMESTEP] [-K] [-o OUTDIR] [-v]\n",
+         prog_name);
   printf("\nOptions\n");
-  printf("  -h, --help\n\tprint this help, then exit\n\n");
-  printf("  -V, --version\n\tprint version number, then exit\n\n");
-  printf("  -v, --verbose\n\tbe verbose\n\n");
-  printf("  -g, --gener GENER\n\tspecify generation number\n");
-  printf("\t(default: that contained in file last_gener.txt, if any)\n\n");
-//  printf("  -i, --in INDIR\n\tspecify input directory (default \".\")\n\n");
-  printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./output\")\n\n");
-  printf("  -S, --general-seed GENERALSEED\n\tspecify an integer to be used as a seed for random numbers.\n");
-  printf("\tIf you use %s repeatedly to initialize several simulations, you should specify a different\n", prog_name);
-  printf("\tseed for each simulation, otherwise all simulations will yield exactly the same results.\n");
-  printf("\tIf you specify this general seed, random drawings will be different for all random processes\n");
-  printf("\tenabled in your simulations (mutations, stochastic gene expression, selection, migration, \n"),
-  printf("\tenvironmental variation, environmental noise). To change the random drawings for a specific\n");
-  printf("\trandom process only, do not use -S but the options below.\n");
-  printf("  -s, --sel-seed SELSEED\n\tspecify an integer as a seed for random numbers needed for selection\n");
-  printf("\tand migration (if spatial structure is enabled).\n");
-  printf("  -m, --mut-seed MUTSEED\n\tspecify an integer as a seed for random numbers needed for mutations\n");
-  printf("  -t, --stoch-seed STOCHSEED\n\tspecify an integer as a seed for random numbers needed for \n");
-  printf("\tstochastic gene expression.\n");
-  printf("  -e, --env-var-seed ENVVARSEED\n\tspecify an integer as a seed for random numbers needed for \n");
-  printf("\tenvironmental variation.\n");
-  printf("  -n, --env-noise-seed ENVNOISESEED\n\tspecify an integer as a seed for random numbers needed for \n");
-  printf("\tenvironmental noise.\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -t, --timestep TIMESTEP\n\tspecify timestep\n");
+  printf("  -K, --keep-prng-st\n\tdo not alter prng states\n");
+//  printf("  -i, --in INDIR\n"
+//             "\tspecify input directory (default \".\")\n");
+  printf("  -o, --out OUTDIR\n"
+             "\tspecify output directory (default \"./output\")\n");
+  printf("  -v, --verbose\n\tbe verbose\n");
 }
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  //const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
-  const char* options_list = "g:ho:vVS:s:m:t:e:n:";
+  const char* options_list = "hVt:o:v";
   static struct option long_options_list[] = {
-      {"gener",          required_argument, nullptr, 'g'},
       {"help",           no_argument,       nullptr, 'h'},
-      //{ "in",       required_argument,  nullptr, 'i' },
+      {"version",        no_argument,       nullptr, 'V'},
+      {"timestep",       required_argument, nullptr, 't'},
+      {"keep-prng-st",   no_argument,       nullptr, 'K'},
+//      {"in",             required_argument, nullptr, 'i'},
       {"out",            required_argument, nullptr, 'o'},
       {"verbose",        no_argument,       nullptr, 'v'},
-      {"version",        no_argument,       nullptr, 'V'},
-      {"general-seed",   required_argument, nullptr, 'S'},
-      {"sel-seed",       required_argument, nullptr, 's'},
-      {"mut-seed",       required_argument, nullptr, 'm'},
-      {"stoch-seed",     required_argument, nullptr, 't'},
-      {"env-var-seed",   required_argument, nullptr, 'e'},
-      {"env-noise-seed", required_argument, nullptr, 'n'},
       {0, 0, 0, 0}
   };
 
@@ -287,39 +208,19 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
-      case 'g' : {
-        num_gener = atoi(optarg);
-        break;
-      }
-      case 'S' : {
-        generalseed = atoi(optarg);
-        break;
-      }
-      case 's' : {
-        selseed = atoi(optarg);
-        break;
-      }
-      case 'm' : {
-        mutseed = atoi(optarg);
-        break;
-      }
       case 't' : {
-        stochseed = atoi(optarg);
+        timestep = atoi(optarg);
         break;
       }
-      case 'e' : {
-        envvarseed = atoi(optarg);
+      case 'K' : {
+        keep_prng_states = true;
         break;
       }
-      case 'n' : {
-        envnoiseseed = atoi(optarg);
-        break;
-      }
-      case 'i' : {
-        input_dir = new char[strlen(optarg) + 1];
-        strcpy(input_dir, optarg);
-        break;
-      }
+//      case 'i' : {
+//        input_dir = new char[strlen(optarg) + 1];
+//        strcpy(input_dir, optarg);
+//        break;
+//      }
       case 'o' : {
         output_dir = new char[strlen(optarg) + 1];
         strcpy(output_dir, optarg);
@@ -336,50 +237,19 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     }
   }
 
-  // Check consistency of CLI options
-  if ((generalseed != -1) &&
-      ((selseed != -1) || (mutseed != -1) || (stochseed != -1) ||
-       (envvarseed != -1) || (envnoiseseed != -1))) {
-    fprintf(stderr,
-            "Error: if you specify a general seed with -S or --seed,\n"
-            "you should not specify additional seeds.\n");
-    exit(EXIT_FAILURE);
-  }
-
-
-  // Set undefined CLI options to default values
+  // If input directory wasn't provided, use default
   if (input_dir == nullptr) {
     input_dir = new char[255];
     sprintf(input_dir, "%s", ".");
   }
+  // If output directory wasn't provided, use default
   if (output_dir == nullptr) {
     output_dir = new char[255];
     sprintf(output_dir, "%s", "output");
   }
-  if (num_gener == -1) {
-    // Set num_gener to the content of the LAST_GENER file if it exists.
-    // If it doesn't, print help and exit
-    char lg_filename[300];
-    sprintf(lg_filename, "%s/%s", input_dir, LAST_GENER_FNAME);
-    FILE* lg_file = fopen(lg_filename, "r");
-    if (lg_file != nullptr) {
-      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
-        printf("ERROR: failed to read last generation from file %s\n",
-               lg_filename);
-        exit(EXIT_FAILURE);
-      }
-      fclose(lg_file);
-    }
-    else {
-      Utils::ExitWithUsrMsg("You must provide a generation number");
-    }
-  }
 
-  // If output directory doesn't exist, create it
-  struct stat stat_buf;
-  if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT)) {
-    if (mkdir(output_dir, 0755)) {
-      err(EXIT_FAILURE, output_dir, errno);
-    }
+  // If timestep wasn't provided, use default
+  if (timestep == -1) {
+    timestep = OutputManager::last_gener();
   }
 }

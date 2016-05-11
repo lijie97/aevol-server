@@ -292,12 +292,11 @@ void ExpManager::step_to_next_generation() {
  */
 // TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(gzFile& exp_s_file,
-                          gzFile& exp_backup_file,
-                          gzFile& world_file,
-                          gzFile& out_p_file,
-                          bool verbose,
-                          bool to_be_run /*  = true */)
-{
+                      gzFile& exp_backup_file,
+                      gzFile& world_file,
+                      gzFile& out_p_file,
+                      bool verbose,
+                      bool to_be_run /*  = true */) {
   // ---------------------------------------- Retrieve experimental setup data
   printf("  Loading experimental setup...");
   fflush(stdout);
@@ -338,8 +337,7 @@ void ExpManager::load(gzFile& exp_s_file,
  */
 // TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(const char* dir,
-    int64_t t0, bool verbose, bool to_be_run /*  = true */)
-{
+    int64_t t0, bool verbose, bool to_be_run /*  = true */) {
   AeTime::set_time(t0);
 
   // -------------------------------------------------------------------------
