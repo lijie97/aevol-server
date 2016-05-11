@@ -61,8 +61,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-OutputManager::OutputManager(ExpManager * exp_m)
-{
+OutputManager::OutputManager(ExpManager * exp_m) {
   exp_m_  = exp_m;
   stats_  = nullptr;
   tree_   = nullptr;
@@ -71,14 +70,13 @@ OutputManager::OutputManager(ExpManager * exp_m)
   record_tree_ = false;
   make_dumps_ = false;
   dump_step_ = 0;
-  logs_  = new Logging();
+  logs_ = new Logging();
 }
 
 // =================================================================
 //                             Destructors
 // =================================================================
-OutputManager::~OutputManager()
-{
+OutputManager::~OutputManager() {
   delete stats_;
   delete tree_;
   delete dump_;
@@ -92,8 +90,7 @@ void OutputManager::InitStats() {
   stats_ = new Stats(exp_m_);
 }
 
-void OutputManager::WriteSetupFile(gzFile setup_file) const
-{
+void OutputManager::WriteSetupFile(gzFile setup_file) const {
   // Write the backup steps
   gzwrite(setup_file, &backup_step_,      sizeof(backup_step_));
   gzwrite(setup_file, &big_backup_step_,  sizeof(big_backup_step_));
@@ -125,15 +122,13 @@ void OutputManager::CopyStats(const std::string& outdir, int64_t time) const {
   stats_->MoveTmpFiles(outdir);
 }
 
-void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
-{
+void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run) {
   // Write the backup steps
   gzread(setup_file, &backup_step_,      sizeof(backup_step_));
   gzread(setup_file, &big_backup_step_,  sizeof(big_backup_step_));
 
   // Stats
-  if (to_be_run)
-  {
+  if (to_be_run) {
     delete stats_;
     stats_ = new Stats(exp_m_, AeTime::time());
   }
@@ -143,8 +138,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   int8_t record_tree;
   gzread(setup_file, &record_tree, sizeof(record_tree));
   record_tree_ = record_tree;
-  if (record_tree_)
-  {
+  if (record_tree_) {
     int32_t tmp_tree_step;
     gzread(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
 
@@ -156,22 +150,19 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   gzread(setup_file, &make_dumps, sizeof(make_dumps));
   make_dumps_ = make_dumps;
   gzread(setup_file, &dump_step_,  sizeof(dump_step_));
-  if(make_dumps_ == true)
-  {
+  if(make_dumps_) {
     dump_ = new Dump(exp_m_);
   }
 
   // Logs
   int8_t logs;
   gzread(setup_file, &logs, sizeof(logs));
-  if (to_be_run)
-  {
+  if (to_be_run) {
     logs_->load(logs, AeTime::time());
   }
 }
 
-void OutputManager::write_current_generation_outputs() const
-{
+void OutputManager::write_current_generation_outputs() const {
   // Write stats
   stats_->write_current_generation_statistics();
 

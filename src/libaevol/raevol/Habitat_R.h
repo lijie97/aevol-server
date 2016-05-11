@@ -91,6 +91,7 @@ class Habitat_R : public virtual Habitat
   // ==========================================================================
   virtual const PhenotypicTarget& phenotypic_target() const {
     Utils::ExitWithDevMsg("You should not call a phenotypic target without age id in RAevol", __FILE__, __LINE__);
+    return *(new PhenotypicTarget()); // suppress warning
   }
 
   const PhenotypicTarget_R& phenotypic_target(  int8_t age ) const {

@@ -80,9 +80,9 @@ class World
   std::shared_ptr<JumpingMT> mut_prng() const;
   std::shared_ptr<JumpingMT> stoch_prng() const;
 
-  std::list<Individual *> indivs() const;
+  std::list<Individual*> indivs() const;
   inline int32_t          nb_indivs() const;
-  inline Individual *   best_indiv() const;
+  inline Individual* best_indiv() const;
   int16_t          width()  const {return width_;};
   int16_t          height() const {return height_;};
   inline int32_t          partial_mix_nb_permutations() const;

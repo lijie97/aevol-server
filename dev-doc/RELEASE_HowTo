@@ -5,10 +5,14 @@ RELEASE HowTo
   -> in all the manpages (update date too)
   -> in the user guide (if needed)
 
-2) Write an entry in the NEWS file
+2) Write an entry in the NEWS file for users
+   and in ChangeLog for developers.
 
-3) [TEMPORAIRE tant que les tests sont quasi inexistants]
-  -> Virer les tests
+3) [TEMPRORARY as long as tests are scarce]
+  -> Remove tests directories
+  -> Remove references to tests in configure.ac, src/Makefile.am
+
+3') Clean up examples: remove all computed data files
 
 4) Run the following commands (from aevol root dir)
   -> autoreconf
@@ -16,7 +20,6 @@ RELEASE HowTo
   -> make dist
 
   This will generate a file called aevol-X.Y.tar.gz in aevol root dir
-
 
 5) Add a version in the "files" section of the forge
   -> In the "files" section click on the link to "create a new version"

@@ -368,6 +368,7 @@ int main(int argc, char** argv)
   // NB : The list of individuals is sorted according to the index
   const Individual* const initial_ancestor = exp_manager->indiv_by_id(indices[0]);
 
+  // Write file "header"
   gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));

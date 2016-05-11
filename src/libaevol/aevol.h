@@ -37,7 +37,6 @@
 #include "DnaReplicationReport.h"
 #include "Dump.h"
 #include "ExpManager.h"
-#include "ExpManager_X11.h"
 #include "ExpSetup.h"
 #include "ParameterLine.h"
 #include "Fuzzy.h"
@@ -47,7 +46,6 @@
 #include "Habitat.h"
 #include "IndividualFactory.h"
 #include "Individual.h"
-#include "Individual_X11.h"
 #include "Metrics.h"
 #include "JumpingMT.h"
 #include "JumpPoly.h"
@@ -80,6 +78,11 @@
 #include "Tree.h"
 #include "VisAVis.h"
 #include "World.h"
-#include "X11Window.h"
+
+#ifdef __X11
+  #include "ExpManager_X11.h"
+  #include "Individual_X11.h"
+  #include "X11Window.h"
+#endif
 
 #endif // AEVOL_AEVOL_H_

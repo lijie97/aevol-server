@@ -41,7 +41,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <list>
-
+#include <iostream>
 
 
 
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
   static struct option long_options[] =
   {
     {"help",        no_argument,       NULL, 'h'},
-    {"version",     no_argument,       NULL, 'V' },
+    {"version",     no_argument,       NULL, 'V'},
     {"verbose",     no_argument,       NULL, 'v'},
     {"nocheck",     no_argument,       NULL, 'n'},
     {"fullcheck",   no_argument,       NULL, 'c'},
@@ -287,13 +287,12 @@ int main(int argc, char** argv)
   //  Prepare the initial ancestor and write its stats
   // ==================================================
   GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
-  // Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
   auto* indiv = grid_cell->individual();
   indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
 
-  mystats->write_statistics_of_this_indiv(indiv);
+  mystats->write_statistics_of_this_indiv(indiv, nullptr);
 
 
   // Optional outputs
@@ -444,7 +443,7 @@ int main(int argc, char** argv)
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
-    mystats->write_statistics_of_this_indiv(indiv);
+    mystats->write_statistics_of_this_indiv(indiv, rep);
 
     // Optional outputs
     write_environment_stats(time(), phenotypicTargetHandler, env_output_file);
