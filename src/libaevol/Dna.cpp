@@ -195,18 +195,17 @@ char* Dna::subsequence(int32_t from, int32_t to, Strand strand) const {
 // =================================================================
 //                            Public Methods
 // =================================================================
+/// Perform mutations and record how many of them occurred
 int32_t Dna::perform_mutations(int32_t parent_id) {
   int32_t nb_events = 0;
-  if (indiv_->with_HT()) {
-    nb_events+=do_transfer(parent_id);
-  }
 
-  if (indiv_->with_alignments()) {
+  if (indiv_->with_HT())
+    nb_events += do_transfer(parent_id);
+
+  if (indiv_->with_alignments())
     nb_events += do_rearrangements_with_align();
-  }
-  else {
+  else
     nb_events += do_rearrangements();
-  }
 
   nb_events += do_small_mutations();
 
@@ -219,7 +218,7 @@ int32_t Dna::do_small_mutations() {
   // ==============================================================
   //
   // Given the rate p (by nucl.) of insertion - for instance -, the number of
-  // insertions we perform on the genome follows a binomial law B(n, p), with
+  // insertions we perform on the genome follows a binomial law B(n,p), with
   // n = genome length.
 
   int32_t nb_swi = indiv_->mut_prng_->
@@ -229,8 +228,6 @@ int32_t Dna::do_small_mutations() {
   int32_t nb_del = indiv_->mut_prng_->
       binomial_random(length_, indiv_->small_deletion_rate());
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
-
-
 
   // ====================================================
   //  2. Perform those small mutations in a random order
@@ -261,17 +258,14 @@ int32_t Dna::do_small_mutations() {
 
     if (random_value < nb_swi) {
       mut = do_switch();
-
       nb_swi--;  // updating the urn (no replacement!)...
     }
     else if (random_value < nb_swi + nb_ins) {
       mut = do_small_insertion();
-
       nb_ins--;
     }
     else { // (random_value >= nb_swi + nb_ins) => del
       mut = do_small_deletion();
-
       nb_del--;
     }
 
@@ -541,7 +535,7 @@ int32_t Dna::do_rearrangements_with_align() {
                              alignment->i_2(),
                              segment_length, needed_score);
 	  nb_rearr++;
-	  
+
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
@@ -640,7 +634,7 @@ int32_t Dna::do_rearrangements_with_align() {
                                   (alignment_2->sense() == INDIRECT),
                                   needed_score, needed_score_2);
 	  nb_rearr++;
-	  
+
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
@@ -744,7 +738,7 @@ int32_t Dna::do_rearrangements_with_align() {
 int32_t Dna::do_transfer(int32_t parent_id) {
   Mutation* mut = nullptr;
   int32_t nb_transfer = 0;
-  
+
   if (indiv_->mut_prng()->random() < indiv_->HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
     if (mut != nullptr) {
