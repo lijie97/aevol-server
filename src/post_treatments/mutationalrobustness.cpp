@@ -33,16 +33,13 @@
 */
 
 #include <list>
-
 #include <getopt.h>
-
 #include "aevol.h"
 
 using namespace aevol;
 
 
-enum check_type
-{
+enum check_type {
   FULL_CHECK  = 0,
   LIGHT_CHECK = 1,
   ENV_CHECK   = 2,
@@ -58,18 +55,16 @@ void analyze_indiv(Individual* initial_indiv,
 
 int main(int argc, char* argv[]) {
   // Load parameters from command line
- int32_t nb_indiv = 1000; // Default number of mutants per individual
- int32_t begin = 0;       // Default starting generation
- int32_t end = -1;        // Default ending generation (-1 for last generation stored in lineage file)
- int32_t period = 1;       // Period of analyze 
+  int32_t nb_indiv = 1000;  // Default number of mutants per individual
+  int32_t begin = 0;        // Default starting generation
+  int32_t end = -1;         // Default ending generation (-1 for last generation stored in lineage file)
+  int32_t period = 1;       // Period of analyze
+  char*   output_file_name    = NULL;
+  char*   lineage_file_name   = NULL;
+  bool    verbose             = false;
 
-
-  char*       output_file_name    = NULL;  
-  char*       lineage_file_name   = NULL;
-  bool        verbose             = false;
- 
-  const char * short_options = "hVvn:b:e:p:f:o:l";
-   static struct option long_options[] =
+  const char* short_options = "hVvn:b:e:p:f:o:l";
+  static struct option long_options[] =
   {
     {"help",        no_argument,       NULL, 'h'},
     {"version",     no_argument,       NULL, 'V'},
@@ -84,65 +79,46 @@ int main(int argc, char* argv[]) {
   };
 
   int option;
-  while ((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
-  {
+  while ((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1) {
     switch (option) {
-    case 'h' :
-      {
+      case 'h' :
         print_help(argv[0]);
         exit(EXIT_SUCCESS);
-      }
-    case 'V' :
-      {
+      case 'V' :
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
-      }
-    case 'v' :
-      {
-	verbose = true;
+      case 'v' :
+        verbose = true;
 	break;
-      }
-    case 'n' :
-      {
-	nb_indiv = atol(optarg);
+      case 'n' :
+        nb_indiv = atol(optarg);
 	break;
-      }
-    case 'b' :
-      {
-	begin = atol(optarg);
+      case 'b' :
+        begin = atol(optarg);
 	break;
-      }
-    case 'e' :
-      {
-	end = atol(optarg);
+      case 'e' :
+        end = atol(optarg);
 	break;
-      }
-    case 'p' :
-      {
-	period = atol(optarg);
+      case 'p' :
+        period = atol(optarg);
 	break;
-      }
-    case 'o' : {
-      output_file_name = new char[strlen(optarg) + 1];
-      sprintf(output_file_name, "%s", optarg);
-      break;
-    }
-    case 'f' :
-      {
+      case 'o' :
+        output_file_name = new char[strlen(optarg) + 1];
+        sprintf(output_file_name, "%s", optarg);
+        break;
+      case 'f' :
         lineage_file_name = new char[strlen(optarg) + 1];
         sprintf(lineage_file_name, "%s", optarg);
         break;
-      }
     }
   }
 
- // =======================
+  // =======================
   //  Open the lineage file
   // =======================
   gzFile lineage_file = gzopen(lineage_file_name, "r");
-  if (lineage_file == Z_NULL)
-  {
-    fprintf(stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name);
+  if (lineage_file == Z_NULL) {
+    fprintf(stderr, "ERROR : Could not read lineage file %s\n", lineage_file_name);
     exit(EXIT_FAILURE);
   }
 
@@ -151,14 +127,12 @@ int main(int argc, char* argv[]) {
   int32_t final_indiv_index = 0;
   int32_t final_indiv_rank  = 0;
 
-
   gzread(lineage_file, &t0, sizeof(t0));
   gzread(lineage_file, &t_end, sizeof(t_end));
   gzread(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzread(lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank));
 
-  if (verbose)
-  {
+  if (verbose) {
     printf("\n\n");
     printf("===============================================================================\n");
     printf(" Robustness of the ancestors of indiv. %" PRId32
@@ -166,8 +140,6 @@ int main(int argc, char* argv[]) {
            final_indiv_index, final_indiv_rank, t0, t_end);
     printf("================================================================================\n");
   }
-
-
 
   // =============================
   //  Open the experience manager
@@ -179,32 +151,28 @@ int main(int argc, char* argv[]) {
   // different phenotypic targets among the grid
   if (not exp_manager->world()->phenotypic_target_shared())
     Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
-                              "for per grid-cell phenotypic target");
+                          "for per grid-cell phenotypic target\n");
   auto phenotypicTargetHandler =
       exp_manager->world()->phenotypic_target_handler();
-  if (not (phenotypicTargetHandler->var_method() == NO_VAR))
+  if (phenotypicTargetHandler->var_method() != NO_VAR)
     Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
-                              "for variable phenotypic targets");
+                          "for variable phenotypic targets\n");
 
   int64_t backup_step = exp_manager->backup_step();
-
 
   // =========================
   //  Open the output file(s)
   // =========================
-  // Create missing directories
 
-  
-  /* int status;
-    status = mkdir("stats/ancstats/", 0755);
-  if ((status == -1) && (errno != EEXIST))
-  {
-    err(EXIT_FAILURE, "stats/ancstats/");
-    }*/
-  
-   FILE * output_summary = fopen(output_file_name, "w");
+  // // Create missing directories
+  // int status;
+  // status = mkdir("stats/ancstats/", 0755);
+  // if ((status == -1) && (errno != EEXIST))
+  //   err(EXIT_FAILURE, "stats/ancstats/");
 
-    std::shared_ptr<JumpingMT> prng = std::make_shared<JumpingMT>(9695);
+  FILE * output_summary = fopen(output_file_name, "w");
+
+  std::shared_ptr<JumpingMT> prng = std::make_shared<JumpingMT>(9695);
     
   // ==============================
   //  Prepare the initial ancestor 
@@ -215,18 +183,13 @@ int main(int argc, char* argv[]) {
   //  indiv->compute_statistical_data();
   //  indiv->compute_non_coding();
 
-
- 
   // ==============================
   //  Compute robustness of the initial ancestor 
   // ==============================
 
   if (begin == 0)
-    {
-      analyze_indiv(indiv,output_summary,nb_indiv,prng,verbose);
-    }
-  
-  
+    analyze_indiv(indiv,output_summary,nb_indiv,prng,verbose);
+
   // ==========================================================================
   //  Replay the mutations to get the successive ancestors and analyze them
   // ==========================================================================
@@ -244,8 +207,9 @@ int main(int argc, char* argv[]) {
     index = rep->id(); // who we are building...
     indiv->Reevaluate();
 
-    if (verbose)        printf("Ancestor at generation %" PRId64
-			       " has index %" PRId32 "\n", time(), index);
+    if (verbose)
+      printf("Ancestor at generation %" PRId64
+             " has index %" PRId32 "\n", time(), index);
     
     
     // 2) Replay replication (create current individual's child)
