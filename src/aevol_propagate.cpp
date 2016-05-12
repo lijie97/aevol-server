@@ -39,6 +39,9 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 #include <limits>
 
+// TODO(dpa) will be merged into C++17, remove dependency when possible
+#include <boost/filesystem.hpp>
+
 #if __cplusplus == 201103L
   #include "make_unique.h"
 #endif
@@ -71,7 +74,7 @@ int main(int argc, char* argv[]) {
   // If output directory doesn't exist, create it
   struct stat stat_buf;
   if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT)) {
-    if (mkdir(output_dir, 0755)) {
+    if (not boost::filesystem::create_directories(output_dir)) {
       err(EXIT_FAILURE, output_dir, errno);
     }
   }
