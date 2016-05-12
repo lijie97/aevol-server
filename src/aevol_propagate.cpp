@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
   ExpManager* exp_manager = new ExpManager();
   #endif
 
-  exp_manager->load(input_dir, timestep, verbose, true);
+  exp_manager->load(input_dir, timestep, verbose, false);
 
   if (not keep_prng_states) {
     auto max = std::numeric_limits<int32_t>::max();
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
         std::make_shared<JumpingMT>(prng->random(max)));
   }
 
-  exp_manager->save_copy(output_dir, 0);
+  exp_manager->Propagate(output_dir);
 }
 
 

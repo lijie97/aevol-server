@@ -149,7 +149,7 @@ class ExpManager : public Observer {
   void Save() const;
   void WriteSetupFiles() const;
   void WriteDynamicFiles() const;
-  void save_copy(char* dir, int64_t time = 0) const;
+  void Propagate(char* outdir) const;
   void load(int64_t first_gener, bool verbose = false, bool to_be_run = true) {
     load(".", first_gener, verbose, to_be_run);
   }

@@ -74,6 +74,7 @@ class Stats {
   // =================================================================
   Stats() = delete;
   Stats(const Stats&) = delete;
+  Stats(std::string prefix, bool best_indiv_only = false);
   Stats(ExpManager* exp_m,
         bool best_indiv_only = false,
         const char* prefix = "stat",
@@ -113,7 +114,7 @@ class Stats {
   void write_headers(bool ancstats_stats = false);
 
   void CreateTmpFiles(int64_t time);
-  void MoveTmpFiles(const std::string& destdir);
+  void Propagate(const std::string& destdir, int64_t propagated_timestep);
   void PromoteTmpFiles();
 
  protected :
@@ -122,7 +123,7 @@ class Stats {
   // =================================================================
   void init_data();
   void set_file_names(const char* prefix,
-                      bool one_lambda_indiv_only,
+                      bool best_indiv_only,
                       bool with_plasmids = false,
                       bool compute_phen_contrib_by_GU = false);
   void open_files();
