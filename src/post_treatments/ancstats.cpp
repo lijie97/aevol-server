@@ -24,12 +24,19 @@
 //
 // ****************************************************************************
 
+/// The input file (lineage.ae or lineage.rae) must contain the following information:
+/// - common data                                                (ae_common::write_to_backup)
+/// - begin gener                                                (int64_t)
+/// - end gener                                                  (int64_t)
+/// - final individual index                                     (int32_t)
+/// - initial genome size                                        (int32_t)
+/// - initial ancestor (nb genetic units + sequences)            (Individual::write_to_backup)
+/// - replication report of ancestor at time t0+1  (ae_replic_report::write_to_backup)
+/// - replication report of ancestor at time t0+2  (ae_replic_report::write_to_backup)
+/// - replication report of ancestor at time t0+3  (ae_replic_report::write_to_backup)
+/// - ...
+/// - replication report of ancestor at time t_end_ (ae_replic_report::write_to_backup)
 
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
 #include <inttypes.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -43,30 +50,27 @@
 #include <list>
 #include <iostream>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "aevol.h"
-
 
 using namespace aevol;
 
-
-enum check_type
-{
+enum check_type {
   FULL_CHECK  = 0,
   LIGHT_CHECK = 1,
   ENV_CHECK   = 2,
   NO_CHECK    = 3
 };
 
-
+// Command line option variables
+char* lineage_file_name = nullptr;
+bool verbose = false;
+check_type check = LIGHT_CHECK;
+double tolerance = 0;
 
 // =================================================================
 //                         Function declarations
 // =================================================================
+void interpret_cmd_line_options(int argc, char* argv[]);
 void print_help(char* prog_path);
 
 FILE* open_environment_stat_file(const char * prefix);
@@ -92,103 +96,7 @@ double* dist_to_target_segment;
 
 int main(int argc, char** argv)
 {
-  // The input file (lineage.ae or lineage.rae) must contain the following information:
-  //
-  // - common data                                                (ae_common::write_to_backup)
-  // - begin gener                                                (int64_t)
-  // - end gener                                                  (int64_t)
-  // - final individual index                                     (int32_t)
-  // - initial genome size                                        (int32_t)
-  // - initial ancestor (nb genetic units + sequences)            (Individual::write_to_backup)
-  // - replication report of ancestor at time t0+1  (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at time t0+2  (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at time t0+3  (ae_replic_report::write_to_backup)
-  // - ...
-  // - replication report of ancestor at time t_end_ (ae_replic_report::write_to_backup)
-
-
-
-
-  // =====================
-  //  Parse command line
-  // =====================
-
-  // Default values
-  char*       lineage_file_name   = NULL;
-  bool        verbose             = false;
-  check_type  check               = LIGHT_CHECK;
-  double      tolerance           = 0;
-
-  const char * short_options = "hVvncf:lt:";
-  static struct option long_options[] =
-  {
-    // {"file",        required_argument, NULL, 'f'},
-    {"fullcheck",   no_argument,       NULL, 'c'},
-    {"help",        no_argument,       NULL, 'h'},
-    {"nocheck",     no_argument,       NULL, 'n'},
-    {"tolerance",   required_argument, NULL, 't'},
-    {"verbose",     no_argument,       NULL, 'v'},
-    {"version",     no_argument,       NULL, 'V'},
-    {0, 0, 0, 0}
-  };
-
-  int option;
-  while ((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
-  {
-    switch(option)
-    {
-      case 'h' :
-      {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' :
-      {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'v' : verbose = true;                    break;
-      case 'n' : check = NO_CHECK;                  break;
-      case 'c' : check = FULL_CHECK;                break;
-      case 'f' :
-      {
-        if (strcmp(optarg, "") == 0)
-        {
-          fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-        lineage_file_name = new char[strlen(optarg) + 1];
-        sprintf(lineage_file_name, "%s", optarg);
-        break;
-      }
-      case 't' :
-      {
-        if (strcmp(optarg, "") == 0)
-        {
-          fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-        check = ENV_CHECK;
-        tolerance = atof(optarg);
-        break;
-      }
-      default :
-      {
-        fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
-        print_help(argv[0]);
-        exit(EXIT_FAILURE);
-      }
-    }
-  }
-
-
-
-  if (lineage_file_name == NULL)
-  {
-    fprintf(stderr, "ERROR : Option -f or --file missing. \n");
-    exit(EXIT_FAILURE);
-  }
-
+  interpret_cmd_line_options(argc, argv);
 
   printf("\n");
   printf("WARNING : Parameter change during simulation is not managed in general.\n");
@@ -726,8 +634,69 @@ void write_operons_stats(int64_t t, Individual* indiv, FILE*  operons_output_fil
             nb_genes_per_rna[19]);
 }
 
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // =====================
+  //  Parse command line
+  // =====================
+  const char * short_options = "hVvncf:lt:";
+  static struct option long_options[] =
+  {
+    // {"file",        required_argument, NULL, 'f'},
+    {"fullcheck",   no_argument,       NULL, 'c'},
+    {"help",        no_argument,       NULL, 'h'},
+    {"nocheck",     no_argument,       NULL, 'n'},
+    {"tolerance",   required_argument, NULL, 't'},
+    {"verbose",     no_argument,       NULL, 'v'},
+    {"version",     no_argument,       NULL, 'V'},
+    {0, 0, 0, 0}
+  };
 
+  int option;
+  while ((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1) {
+    switch(option) {
+      case 'h':
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'V':
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      case 'v':
+        verbose = true;
+        break;
+      case 'n':
+        check = NO_CHECK;
+        break;
+      case 'c':
+        check = FULL_CHECK;
+        break;
+      case 'f':
+        if (strcmp(optarg, "") == 0) {
+          fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
+          exit(EXIT_FAILURE);
+        }
+        lineage_file_name = new char[strlen(optarg) + 1];
+        sprintf(lineage_file_name, "%s", optarg);
+        break;
+      case 't':
+        if (strcmp(optarg, "") == 0) {
+          fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
+          exit(EXIT_FAILURE);
+        }
+        check = ENV_CHECK;
+        tolerance = atof(optarg);
+        break;
+      default :
+        fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
+        print_help(argv[0]);
+        exit(EXIT_FAILURE);
+    }
+  }
 
+  if (lineage_file_name == nullptr) {
+    fprintf(stderr, "ERROR : Option -f or --file missing. \n");
+    exit(EXIT_FAILURE);
+  }
+}
 
 /*!
   \brief
