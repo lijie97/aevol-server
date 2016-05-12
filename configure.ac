@@ -45,6 +45,11 @@ AM_PROG_CC_C_O
 # Print warning if openmp not found
 AC_CHECK_HEADER([omp.h], , [AC_MSG_WARN([openmp not found - continuing without openmp support])])
 
+# Check for boost
+AX_BOOST_BASE([1.55],, [AC_MSG_ERROR([boost not found, please check that you have boost installed on your system and retry])])
+AX_BOOST_SYSTEM
+AX_BOOST_FILESYSTEM
+
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
 AC_SUBST(AEVOLCXXFLAGS, "$OPENMP_CXXFLAGS") # C++ Compile flags
