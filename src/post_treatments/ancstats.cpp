@@ -62,15 +62,17 @@ enum check_type {
 };
 
 // Command line option variables
-char* lineage_file_name = nullptr;
-bool verbose = false;
-check_type check = LIGHT_CHECK;
-double tolerance = 0;
+struct Options {
+  char*      lineage_file_name = nullptr;
+  bool       verbose           = false;
+  check_type check             = LIGHT_CHECK;
+  double     tolerance         = 0;
+};
 
 // =================================================================
 //                         Function declarations
 // =================================================================
-void interpret_cmd_line_options(int argc, char* argv[]);
+void interpret_cmd_line_options(int argc, char* argv[], Options& options);
 void print_help(char* prog_path);
 
 FILE* open_environment_stat_file(const char * prefix);
@@ -96,7 +98,8 @@ double* dist_to_target_segment;
 
 int main(int argc, char** argv)
 {
-  interpret_cmd_line_options(argc, argv);
+  Options options;
+  interpret_cmd_line_options(argc, argv, options);
 
   printf("\n");
   printf("WARNING : Parameter change during simulation is not managed in general.\n");
@@ -106,10 +109,10 @@ int main(int argc, char** argv)
   // =======================
   //  Open the lineage file
   // =======================
-  gzFile lineage_file = gzopen(lineage_file_name, "r");
+  gzFile lineage_file = gzopen(options.lineage_file_name, "r");
   if (lineage_file == Z_NULL)
   {
-    fprintf(stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name);
+    fprintf(stderr, "ERROR : Could not read the lineage file %s\n", options.lineage_file_name);
     exit(EXIT_FAILURE);
   }
 
@@ -124,7 +127,7 @@ int main(int argc, char** argv)
   gzread(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzread(lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank));
 
-  if (verbose)
+  if (options.verbose)
   {
     printf("\n\n");
     printf("===============================================================================\n");
@@ -213,7 +216,7 @@ int main(int argc, char** argv)
   write_operons_stats(t0, indiv, operons_output_file);
 
 
-  if (verbose)
+  if (options.verbose)
   {
     printf("Initial fitness     = %f\n", indiv->fitness());
     printf("Initial genome size = %" PRId32 "\n", indiv->total_genome_size());
@@ -229,7 +232,7 @@ int main(int argc, char** argv)
   int32_t index;
 
   ExpManager* exp_manager_backup = nullptr;
-  Habitat *backup_habitat = nullptr;
+  // Habitat *backup_habitat = nullptr;
 
   bool check_now = false;
 
@@ -240,11 +243,11 @@ int main(int argc, char** argv)
     index = rep->id(); // who we are building...
 
     // Check now?
-    check_now = ((check == FULL_CHECK && Utils::mod(time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && Utils::mod(time(), backup_step) == 0) ||
-                 (check == LIGHT_CHECK && time() == t_end));
+    check_now = ((options.check == FULL_CHECK && Utils::mod(time(), backup_step) == 0) ||
+                 (options.check == ENV_CHECK && Utils::mod(time(), backup_step) == 0) ||
+                 (options.check == LIGHT_CHECK && time() == t_end));
 
-    if (verbose)
+    if (options.verbose)
         printf("Rebuilding ancestor at generation %" PRId64
             " (index %" PRId32 ")...", time(), index);
 
@@ -253,27 +256,26 @@ int main(int argc, char** argv)
     // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
     // done for all the grid cells, disable checking until coded
 
-//    // Check, and possibly update, the environment according to the backup files
-//    // (update necessary if the env. was modified by aevol_modify at some point)
-//    if (Utils::mod(time(), backup_step) == 0)
-//    {
-//      char world_file_name[255];
-//      sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, time());
-//      gzFile world_file = gzopen(world_file_name, "r");
-//      backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
-//
-//      if (! env->is_identical_to(*backup_env, tolerance))
-//      {
-//        printf("Warning: At time()=%" PRId64 ", the replayed environment is not the same\n", time());
-//        printf("         as the one saved at time()=%" PRId64 "... \n", time());
-//        printf("         with tolerance of %lg\n", tolerance);
-//        printf("Replacing the replayed environment by the one stored in the backup.\n");
-//        delete env;
-//        h = new Habitat(*backup_habitat);
-//      }
-//      delete backup_habitat;
-//    }
-
+    // // Check, and possibly update, the environment according to the backup files
+    // // (update necessary if the env. was modified by aevol_modify at some point)
+    // if (Utils::mod(time(), backup_step) == 0)
+    // {
+    //   char world_file_name[255];
+    //   sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, time());
+    //   gzFile world_file = gzopen(world_file_name, "r");
+    //   backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
+    //
+    //   if (! env->is_identical_to(*backup_env, tolerance))
+    //   {
+    //     printf("Warning: At time()=%" PRId64 ", the replayed environment is not the same\n", time());
+    //     printf("         as the one saved at time()=%" PRId64 "... \n", time());
+    //     printf("         with tolerance of %lg\n", tolerance);
+    //     printf("Replacing the replayed environment by the one stored in the backup.\n");
+    //     delete env;
+    //     h = new Habitat(*backup_habitat);
+    //   }
+    //   delete backup_habitat;
+    // }
 
     // Warning: this portion of code won'time() work if the number of units changes
     // during the evolution
@@ -305,7 +307,7 @@ int main(int argc, char** argv)
 
     if (check_now)
     {
-      if (verbose)
+      if (options.verbose)
       {
         printf("Checking the sequence of the unit...");
         fflush(NULL);
@@ -322,11 +324,11 @@ int main(int argc, char** argv)
       str2[(stored_gen_unit->dna())->length()] = '\0';
 
       if (strncmp(str1, str2, stored_gen_unit->dna()->length()) == 0) {
-        if (verbose)
+        if (options.verbose)
           printf(" OK\n");
       }
       else {
-        if (verbose) printf(" ERROR !\n");
+        if (options.verbose) printf(" ERROR !\n");
         fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
         fprintf(stderr, "the one saved at generation %" PRId64 "... ", time());
         fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
@@ -362,7 +364,7 @@ int main(int argc, char** argv)
     }
     write_operons_stats(time(), indiv, operons_output_file);
 
-    if (verbose) printf(" OK\n");
+    if (options.verbose) printf(" OK\n");
 
     delete rep;
 
@@ -634,10 +636,12 @@ void write_operons_stats(int64_t t, Individual* indiv, FILE*  operons_output_fil
             nb_genes_per_rna[19]);
 }
 
-void interpret_cmd_line_options(int argc, char* argv[]) {
-  // =====================
-  //  Parse command line
-  // =====================
+/// Parse command line options
+///
+/// Read command line options provided at program call forwarded from
+/// the `main` function through `argv`, parse them, and store them
+/// into `options`.
+void interpret_cmd_line_options(int argc, char* argv[], Options& options) {
   const char * short_options = "hVvncf:lt:";
   static struct option long_options[] =
   {
@@ -661,29 +665,29 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       case 'v':
-        verbose = true;
+        options.verbose = true;
         break;
       case 'n':
-        check = NO_CHECK;
+        options.check = NO_CHECK;
         break;
       case 'c':
-        check = FULL_CHECK;
+        options.check = FULL_CHECK;
         break;
       case 'f':
         if (strcmp(optarg, "") == 0) {
           fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
           exit(EXIT_FAILURE);
         }
-        lineage_file_name = new char[strlen(optarg) + 1];
-        sprintf(lineage_file_name, "%s", optarg);
+        options.lineage_file_name = new char[strlen(optarg) + 1];
+        sprintf(options.lineage_file_name, "%s", optarg);
         break;
       case 't':
         if (strcmp(optarg, "") == 0) {
           fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
           exit(EXIT_FAILURE);
         }
-        check = ENV_CHECK;
-        tolerance = atof(optarg);
+        options.check = ENV_CHECK;
+        options.tolerance = atof(optarg);
         break;
       default :
         fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
@@ -692,7 +696,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     }
   }
 
-  if (lineage_file_name == nullptr) {
+  if (options.lineage_file_name == nullptr) {
     fprintf(stderr, "ERROR : Option -f or --file missing. \n");
     exit(EXIT_FAILURE);
   }
