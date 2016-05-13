@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 
 
 /*!
-  \brief
+  \brief print help and exist
 
 */
 void print_help(char* prog_path) {

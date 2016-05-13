@@ -272,8 +272,8 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     t0 = OutputManager::last_gener();
   }
 
-  // If t_end_ wasn't provided, set it according to nb_steps or use default (run
-  // for 1000 timesteps)
+  // If t_end_ wasn't provided, set it according to nb_steps or use default
+  // (run for 1000 timesteps)
   if (t_end < 0) {
     if (nb_steps >= 0) {
       t_end = t0 + nb_steps;
