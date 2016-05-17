@@ -54,17 +54,17 @@
 
 using namespace aevol;
 
-enum check_type {
-  FULL_CHECK  = 0,
-  LIGHT_CHECK = 1,
-  ENV_CHECK   = 2,
-  NO_CHECK    = 3
+enum class Checking {
+  FULL  = 0,
+  LIGHT = 1,
+  ENV   = 2,
+  NONE  = 3
 };
 
 // Command line option variables
 char* lineage_file_name = nullptr;
 bool verbose = false;
-check_type check = LIGHT_CHECK;
+Checking check = Checking::LIGHT;
 double tolerance = 0;
 
 // =================================================================
@@ -240,9 +240,9 @@ int main(int argc, char** argv)
     index = rep->id(); // who we are building...
 
     // Check now?
-    check_now = ((check == FULL_CHECK && Utils::mod(time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && Utils::mod(time(), backup_step) == 0) ||
-                 (check == LIGHT_CHECK && time() == t_end));
+    check_now = ((check == Checking::FULL && Utils::mod(time(), backup_step) == 0) ||
+                 (check == Checking::ENV && Utils::mod(time(), backup_step) == 0) ||
+                 (check == Checking::LIGHT && time() == t_end));
 
     if (verbose)
         printf("Rebuilding ancestor at generation %" PRId64
@@ -664,10 +664,10 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         verbose = true;
         break;
       case 'n':
-        check = NO_CHECK;
+        check = Checking::NONE;
         break;
       case 'c':
-        check = FULL_CHECK;
+        check = Checking::FULL;
         break;
       case 'f':
         if (strcmp(optarg, "") == 0) {
@@ -682,7 +682,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
           fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
           exit(EXIT_FAILURE);
         }
-        check = ENV_CHECK;
+        check = Checking::ENV;
         tolerance = atof(optarg);
         break;
       default :
