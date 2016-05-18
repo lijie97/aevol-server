@@ -94,10 +94,10 @@ int main(int argc, char** argv)
 {
   interpret_cmd_line_options(argc, argv);
 
-  printf("\n");
-  printf("WARNING : Parameter change during simulation is not managed in general.\n");
-  printf("          Only changes in environmental target done with aevol_modify are handled.\n");
-  printf("\n");
+  printf("\n"
+         "WARNING : Parameter change during simulation is not managed in general.\n"
+         "          Only changes in environmental target done with aevol_modify are handled.\n"
+         "\n");
 
   // =======================
   //  Open the lineage file
