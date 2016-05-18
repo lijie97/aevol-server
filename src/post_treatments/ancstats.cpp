@@ -638,7 +638,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   static struct option long_options[] =
   {
     // {"file",        required_argument, NULL, 'f'},
-    {"fullcheck",   no_argument,       NULL, 'c'},
+    {"fullcheck",   no_argument,       NULL, 'F'},
     {"help",        no_argument,       NULL, 'h'},
     {"nocheck",     no_argument,       NULL, 'n'},
     {"tolerance",   required_argument, NULL, 't'},
@@ -662,7 +662,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       case 'n':
         check = Checking::NONE;
         break;
-      case 'c':
+      case 'F':
         check = Checking::FULL;
         break;
       case 'f':
@@ -733,7 +733,7 @@ void print_help(char* prog_path)
   printf("\t                       from the lineage file, we get the same sequences\n");
   printf("\t                       as those stored in the backup files.\n");
   printf("\n");
-  printf("\t-c or --fullcheck  : Will perform the genome and environment checks every\n");
+  printf("\t-F or --fullcheck  : Will perform the genome and environment checks every\n");
   printf("\t                       <BACKUP_STEP> generations. Default behaviour is\n");
   printf("\t                       lighter as it only perform sthese checks at the\n");
   printf("\t                       ending generation.\n");
