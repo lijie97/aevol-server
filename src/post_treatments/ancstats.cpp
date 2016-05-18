@@ -90,10 +90,6 @@ void write_zones_stats(int64_t t,
 FILE* open_operons_stat_file(const char * prefix);
 void write_operons_stats(int64_t t, Individual* indiv, FILE* operon_file);
 
-
-double* dist_to_target_segment;
-
-
 int main(int argc, char** argv)
 {
   interpret_cmd_line_options(argc, argv);
