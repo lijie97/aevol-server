@@ -72,21 +72,17 @@ double tolerance = 0;
 // =================================================================
 void interpret_cmd_line_options(int argc, char* argv[]);
 void print_help(char* prog_path);
-
 FILE* open_environment_stat_file(const char * prefix);
 void write_environment_stats(int64_t t,
                              const PhenotypicTargetHandler* pth,
                              FILE* env_file);
-
 FILE* open_terminators_stat_file(const char * prefix);
 void write_terminators_stats(int64_t t,  Individual* indiv, FILE* terminator_file);
-
 FILE* open_zones_stat_file(const char * prefix);
 void write_zones_stats(int64_t t,
                        Individual* indiv,
                        const PhenotypicTargetHandler* phenotypicTargetHandler,
                        FILE* zone_file);
-
 FILE* open_operons_stat_file(const char * prefix);
 void write_operons_stats(int64_t t, Individual* indiv, FILE* operon_file);
 
@@ -103,8 +99,7 @@ int main(int argc, char** argv)
   //  Open the lineage file
   // =======================
   gzFile lineage_file = gzopen(lineage_file_name, "r");
-  if (lineage_file == Z_NULL)
-  {
+  if (lineage_file == Z_NULL) {
     fprintf(stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name);
     exit(EXIT_FAILURE);
   }
@@ -114,16 +109,13 @@ int main(int argc, char** argv)
   int32_t final_indiv_index = 0;
   int32_t final_indiv_rank  = 0;
 
-
   gzread(lineage_file, &t0, sizeof(t0));
   gzread(lineage_file, &t_end, sizeof(t_end));
   gzread(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzread(lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank));
 
-  if (verbose)
-  {
-    printf("\n\n");
-    printf("===============================================================================\n");
+  if (verbose) {
+    printf("\n\n""===============================================================================\n");
     printf(" Statistics of the ancestors of indiv. %" PRId32
            " (rank %" PRId32 ") from time %" PRId64 " to %" PRId64 "\n",
            final_indiv_index, final_indiv_rank, t0, t_end);
