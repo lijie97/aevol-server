@@ -264,41 +264,6 @@ void print_help(char* prog_path) {
   printf("\tonly treat genetic unit #NUM_GU (by default: treat all genetic units)\n");
   printf("  -a\n");
   printf("\ttreat all the individuals (by default: treat only the best)\n");
-
-  printf("\n\
-This program extracts some data about the individuals and write\n\
-them into text files easy to parse with e.g. matlab.\n\
-\n\
-Two kinds of data can be extracted :\n\
-\n\
- * data about the phenotype (option -T) : write information about\n\
-   the proteins in a text file. A space delimits two proteins, a\n\
-   new line delimits two individuals. For each protein, the output\n\
-   is \"m_h_w_c_r_s_f_l_z_g\" where :\n\
-       * m, h, w and c are the mean, height, width and concentration of the protein\n\
-       * r is an identifier of the rna it belongs (useful to\n\
-           know if several proteins are on the same rna)\n\
-       * s indicates the strand (LEADING/LAGGING)\n\
-       * f and l are the first and last translated base\n\
-       * z indicates the feature (at the center of the protein)\n\
-       * g indicates the genetic unit to which the protein belongs (0=chromosome, 1=plasmid)\n\
-\n\
- * sequences of the individuals (option -S) : write the sequences\n\
-   in a text file. A new line delimits two individuals. In case\n\
-   there are several GUs, they are separated with whitespaces.\n\
-\n\
-Examples :\n\
-\n\
-For timestep 20000, write infos about the phenotypes of all the\n\
-individuals in phe_020000 and the sequences of all the\n\
-individuals in seq_020000 :\n\
-\n\
-   extract -a -t 20000 -T phe_020000 -S seq_020000\n\
-\n\
-For timestep 20000, write the best individual's sequence in\n\
-seq_020000_best :\n\
-\n\
-   extract -t 20000 -S seq_020000_best\n");
 }
 
 
