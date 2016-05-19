@@ -422,10 +422,9 @@ int main(int argc, char** argv) {
   exit(EXIT_SUCCESS);
 }
 
-/*!
-  \brief print help and exist
-
-*/
+/**
+ * \brief print help and exist
+ */
 void print_help(char* prog_path) {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
@@ -486,6 +485,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       {0, 0, 0, 0}
   };
 
+  // Get actual values of the command-line options
   int option;
   while((option = getopt_long(argc, argv, short_options,
                               long_options, nullptr)) != -1) {
