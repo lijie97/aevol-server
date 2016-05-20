@@ -155,11 +155,11 @@ int main(int argc, char* argv[])
   char best_indiv_file_name[50];
 
 #ifdef __REGUL
-  sprintf(backup_file_name, "backup/gen_%06"PRId64".rae", num_gener_);
-  sprintf(best_indiv_file_name, "backup/best_%06"PRId64".rae", num_gener_);
+  sprintf(backup_file_name, "backup/gen_" TIMESTEP_FORMAT ".rae", num_gener_);
+  sprintf(best_indiv_file_name, "backup/best_" TIMESTEP_FORMAT ".rae", num_gener_);
 #else
-  sprintf(backup_file_name, "backup/gen_%06"PRId64".ae", num_gener_);
-  sprintf(best_indiv_file_name, "backup/best_%06"PRId64".ae", num_gener_);
+  sprintf(backup_file_name, "backup/gen_" TIMESTEP_FORMAT ".ae", num_gener_);
+  sprintf(best_indiv_file_name, "backup/best_" TIMESTEP_FORMAT ".ae", num_gener_);
 #endif
 
   remove(backup_file_name);

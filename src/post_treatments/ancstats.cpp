@@ -169,7 +169,8 @@ int main(int argc, char** argv)
 
   char prefix[50];
   snprintf(prefix, 50,
-      "ancstats/ancstats-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32,
+      "ancstats/ancstats-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32
+          "-r%" PRId32,
       t0, t_end, final_indiv_index, final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;

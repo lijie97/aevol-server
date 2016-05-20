@@ -110,7 +110,7 @@ for arg in args: # If several folders are given as arguments treat all of them s
                 mx=-1
                 my=-1
                 first=False
-                temp=open(arg+'/stats/dump/'+inputname+'_%06d.out'%ngen)
+                temp=open(arg+'/stats/dump/'+inputname+'_%09d.out'%ngen)
                 for line in temp:
                     if len(line)<=3 or line.startswith('#'):
                         continue
@@ -124,9 +124,9 @@ for arg in args: # If several folders are given as arguments treat all of them s
                 print "Detected x size: %d, detected y size: %d"%(mx+1,my+1)
             if (start and ngen<start) or (end and ngen>end): # do not treat generations that are not in given interval if any
                 continue
-            namepng='_%s%06d.png'%(inputname,ngen)
+            namepng='_%s%09d.png'%(inputname,ngen)
             if not os.path.exists(namepng) or overwrite:
-                treat_generation(arg+'/stats/dump/'+inputname+'_%06d.out'%ngen,namepng,mx+1,my+1,minvalue,maxvalue,colors)
+                treat_generation(arg+'/stats/dump/'+inputname+'_%09d.out'%ngen,namepng,mx+1,my+1,minvalue,maxvalue,colors)
             elif not warned:
                 print ''
                 print "Warning: already existing png files found, we will use them instead of re-generating. If you want to re-generate them (to use different options), you first need to delete existing png files or to use option --overwrite"
@@ -136,7 +136,7 @@ for arg in args: # If several folders are given as arguments treat all of them s
         start=smallestgen
     if not end:
         end=biggestgen
-    os.system("ffmpeg -start_number " + str(start) + " -i _" + inputname + "%06d.png -vframes " + str(end-start) + " -r 6  -vcodec png -s "+str((mx+1)*patchsize)+"x"+str((my+1)*patchsize)+" -sws_flags neighbor -sws_dither none " + arg + '/' + inputname + ".mov")
+    os.system("ffmpeg -start_number " + str(start) + " -i _" + inputname + "%09d.png -vframes " + str(end-start) + " -r 6  -vcodec png -s "+str((mx+1)*patchsize)+"x"+str((my+1)*patchsize)+" -sws_flags neighbor -sws_dither none " + arg + '/' + inputname + ".mov")
     if not keepinter:
         os.system('rm _' + inputname + '*.png')
 

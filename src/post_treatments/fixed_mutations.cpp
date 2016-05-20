@@ -232,7 +232,8 @@ int main(int argc, char** argv)
 
   char output_file_name[60];
   snprintf(output_file_name, 60,
-      "stats/fixedmut-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".out",
+      "stats/fixedmut-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32
+          "-r%" PRId32 ".out",
       t0, t_end, final_index, final_indiv_rank);
 
   FILE * output = fopen(output_file_name, "w");

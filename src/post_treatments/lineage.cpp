@@ -133,9 +133,9 @@ int main(int argc, char** argv) {
   //
 
   #ifdef __REGUL
-    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end);
+    sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", t_end);
   #else
-    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t_end);
+    sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t_end);
   #endif
 
   tree = new Tree(exp_manager, tree_file_name);
@@ -188,11 +188,11 @@ int main(int argc, char** argv) {
 
   #ifdef __REGUL
     snprintf(output_file_name, 100,
-        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".rae",
+        "lineage-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 ".rae",
         t0, t_end, final_indiv_index, final_indiv_rank);
   #else
     snprintf(output_file_name, 100,
-        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".ae",
+        "lineage-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 ".ae",
         t0, t_end, final_indiv_index, final_indiv_rank);
   #endif
 
@@ -237,9 +237,9 @@ int main(int argc, char** argv) {
       delete tree;
 
       #ifdef __REGUL
-        sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t);
+        sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", t);
       #else
-        sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t);
+        sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t);
       #endif
 
       tree = new Tree(exp_manager, tree_file_name);

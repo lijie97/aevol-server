@@ -101,7 +101,7 @@ void Dump::write_current_generation_dump()
 void Dump::write_fitness_total()
 {
   sprintf(filename_buffer,
-      "stats/dump/fitness_total_%06" PRId64 ".out",
+      "stats/dump/fitness_total_" TIMESTEP_FORMAT ".out",
       AeTime::time());
   current_file = fopen(filename_buffer, "w+");
   double** map = exp_m_->world()->total_fitness_grid();
@@ -129,7 +129,7 @@ void Dump::write_fitness_total()
 void Dump::write_secreted_amount()
 {
   sprintf(filename_buffer,
-      "stats/dump/secreted_amount_%06" PRId64 ".out",
+      "stats/dump/secreted_amount_" TIMESTEP_FORMAT ".out",
       AeTime::time()) ;
   current_file = fopen(filename_buffer, "w+");
 
@@ -155,7 +155,7 @@ void Dump::write_secreted_amount()
 void Dump::write_fitness_metabolic()
 {
   sprintf(filename_buffer,
-      "stats/dump/fitness_metabolic_%06" PRId64 ".out",
+      "stats/dump/fitness_metabolic_" TIMESTEP_FORMAT ".out",
       AeTime::time());
   current_file = fopen(filename_buffer, "w+");
 
@@ -181,7 +181,7 @@ void Dump::write_fitness_metabolic()
 void Dump::write_secretion_present()
 {
   sprintf(filename_buffer,
-      "stats/dump/secretion_present_%06" PRId64 ".out",
+      "stats/dump/secretion_present_" TIMESTEP_FORMAT ".out",
       AeTime::time());
   current_file = fopen(filename_buffer, "w+");
 
@@ -208,7 +208,7 @@ void Dump::write_secretion_present()
 void Dump::write_individual_probes()
 {
   sprintf(filename_buffer,
-      "stats/dump/individual_probes_%06" PRId64 ".out",
+      "stats/dump/individual_probes_" TIMESTEP_FORMAT ".out",
       AeTime::time());
   current_file = fopen(filename_buffer, "w");
 
