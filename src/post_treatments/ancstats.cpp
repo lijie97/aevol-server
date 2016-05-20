@@ -633,7 +633,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     {"fullcheck",   no_argument,       NULL, 'F'},
     {"help",        no_argument,       NULL, 'h'},
     {"nocheck",     no_argument,       NULL, 'n'},
-    {"tolerance",   required_argument, NULL, 't'},
+    {"tolerance",   required_argument, NULL, 'T'},
     {"verbose",     no_argument,       NULL, 'v'},
     {"version",     no_argument,       NULL, 'V'},
     {0, 0, 0, 0}
@@ -665,9 +665,9 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         lineage_file_name = new char[strlen(optarg) + 1];
         sprintf(lineage_file_name, "%s", optarg);
         break;
-      case 't':
+      case 'T':
         if (strcmp(optarg, "") == 0) {
-          fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
+          fprintf(stderr, "ERROR : Option -T or --tolerance : missing argument.\n");
           exit(EXIT_FAILURE);
         }
         check = Checking::ENV;
@@ -732,7 +732,7 @@ void print_help(char* prog_path)
   printf("\n");
   printf("\t-f lineage_file or --file lineage_file : \n");
   printf("\t                       Compute the statistics for the individuals within lineage_file.\n");
-  printf("\t-t tolerance or --tolerance tolerance : \n");
-  printf("\t                       Tolerance used to compare the replayed environment to environment in backup\n");
+  printf("\t-T tolerance or --tolerance tolerance : \n");
+  printf("\t                       Tolerance is used to compare the replayed environment to environment in backup\n");
   printf("\n");
 }
