@@ -61,7 +61,9 @@ enum class Checking {
   NONE  = 3
 };
 
-// Command line option variables
+// =================================================================
+//                     Command line option variables
+// =================================================================
 char* lineage_file_name = nullptr;
 bool verbose = false;
 Checking check = Checking::LIGHT;
