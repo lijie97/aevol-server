@@ -74,22 +74,22 @@ double tolerance = 0;
 // =================================================================
 void interpret_cmd_line_options(int argc, char* argv[]);
 void print_help(char* prog_path);
-FILE* open_environment_stat_file(const char * prefix);
+FILE* open_environment_stat_file(const char* prefix, const char* postfix);
 void write_environment_stats(int64_t t,
                              const PhenotypicTargetHandler* pth,
                              FILE* env_file);
-FILE* open_terminators_stat_file(const char * prefix);
-void write_terminators_stats(int64_t t,  Individual* indiv, FILE* terminator_file);
-FILE* open_zones_stat_file(const char * prefix);
+FILE* open_terminators_stat_file(const char* prefix, const char* postfix);
+void write_terminators_stats(int64_t t, Individual* indiv,
+                             FILE* terminator_file);
+FILE* open_zones_stat_file(const char* prefix, const char* postfix);
 void write_zones_stats(int64_t t,
                        Individual* indiv,
                        const PhenotypicTargetHandler* phenotypicTargetHandler,
                        FILE* zone_file);
-FILE* open_operons_stat_file(const char * prefix);
+FILE* open_operons_stat_file(const char* prefix, const char* postfix);
 void write_operons_stats(int64_t t, Individual* indiv, FILE* operon_file);
 
-int main(int argc, char** argv)
-{
+int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
 
   printf("\n"
@@ -152,33 +152,33 @@ int main(int argc, char** argv)
   // Create missing directories
   int status;
   status = mkdir("stats/ancstats/", 0755);
-  if ((status == -1) && (errno != EEXIST))
-  {
+  if ((status == -1) && (errno != EEXIST)) {
     err(EXIT_FAILURE, "stats/ancstats/");
   }
 
-  char prefix[50];
-  snprintf(prefix, 50,
-      "ancstats/ancstats-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32,
+  auto prefix = "ancstats/ancstats";
+  char postfix[255];
+  snprintf(postfix, 255,
+      "-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32,
       t0, t_end, final_indiv_index, final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
-  Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix, addition_old_stats, delete_old_stats);
+  Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix, postfix,
+                             addition_old_stats, delete_old_stats);
   //mystats->write_headers();
 
   // Optional outputs
-  FILE* env_output_file = open_environment_stat_file(prefix);
-  FILE* term_output_file = open_terminators_stat_file(prefix);
+  FILE* env_output_file = open_environment_stat_file(prefix, postfix);
+  FILE* term_output_file = open_terminators_stat_file(prefix, postfix);
   FILE* zones_output_file = NULL;
 
   // Next line patchy (specific for the constraints mentioned earlier, i.e.
   // works only for shared and unvarying phenotypic target)
-  if (phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
-  {
-    zones_output_file = open_zones_stat_file(prefix);
+  if (phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
+    zones_output_file = open_zones_stat_file(prefix, postfix);
   }
-  FILE* operons_output_file = open_operons_stat_file(prefix);
+  FILE* operons_output_file = open_operons_stat_file(prefix, postfix);
 
 
   // ==================================================
@@ -293,10 +293,8 @@ int main(int argc, char** argv)
     for (const auto& mut: dnarep.mutations())
       gen_unit.dna()->undergo_this_mutation(*mut);
 
-    if (check_now)
-    {
-      if (verbose)
-      {
+    if (check_now) {
+      if (verbose) {
         printf("Checking the sequence of the unit...");
         fflush(NULL);
       }
@@ -346,9 +344,9 @@ int main(int argc, char** argv)
     // Optional outputs
     write_environment_stats(time(), phenotypicTargetHandler, env_output_file);
     write_terminators_stats(time(), indiv, term_output_file);
-    if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
-    {
-      write_zones_stats(time(), indiv, phenotypicTargetHandler, zones_output_file);
+    if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
+      write_zones_stats(time(), indiv, phenotypicTargetHandler,
+                        zones_output_file);
     }
     write_operons_stats(time(), indiv, operons_output_file);
 
@@ -356,8 +354,7 @@ int main(int argc, char** argv)
 
     delete rep;
 
-    if (check_now)
-    {
+    if (check_now) {
       delete stored_indiv;
       delete exp_manager_backup;
     }
@@ -370,8 +367,7 @@ int main(int argc, char** argv)
   // Optional outputs
   fclose(env_output_file);
   fclose(term_output_file);
-  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
-  {
+  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
     fclose(zones_output_file);
   }
   fclose(operons_output_file);
@@ -380,34 +376,32 @@ int main(int argc, char** argv)
   delete mystats;
   delete indiv;
 
-  exit(EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
 
 
 
 
-FILE* open_environment_stat_file(const char * prefix)
-{
+FILE* open_environment_stat_file(const char* prefix, const char* postfix) {
   // Open file
   char* env_output_file_name = new char[80];
-  sprintf(env_output_file_name, "stats/%s_envir.out",prefix);
+  sprintf(env_output_file_name, "stats/%s_envir%s.out", prefix, postfix);
   FILE* env_output_file = fopen(env_output_file_name, "w");
   delete env_output_file_name;
 
   // Write headers
   // TODO vld: was limited to "if environment->gaussians_provided"
   // are gaussians always available now?
-  fprintf(env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n");
+  fprintf(env_output_file,
+          "# Each line contains: Generation, and then, for each gaussian: M W H.\n");
   fprintf(env_output_file, "#\n");
 
   return env_output_file;
 }
 
 
-void write_environment_stats(int64_t t,
-                             const PhenotypicTargetHandler* pth,
-                             FILE* env_output_file)
-{
+void write_environment_stats(int64_t t, const PhenotypicTargetHandler* pth,
+                             FILE* env_output_file) {
   // Num gener
   fprintf(env_output_file, "%" PRId64, t);
 
@@ -421,10 +415,9 @@ void write_environment_stats(int64_t t,
 
 
 
-FILE* open_terminators_stat_file(const char * prefix)
-{
+FILE* open_terminators_stat_file(const char* prefix, const char* postfix) {
   char* term_output_file_name = new char[80];
-  sprintf(term_output_file_name, "stats/%s_nb_term.out",prefix);
+  sprintf(term_output_file_name, "stats/%s_nb_term%s.out", prefix, postfix);
   FILE* term_output_file = fopen(term_output_file_name, "w");
   delete [] term_output_file_name;
 
@@ -438,8 +431,8 @@ FILE* open_terminators_stat_file(const char * prefix)
   return term_output_file;
 }
 
-void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_file)
-{
+void write_terminators_stats(int64_t t,  Individual* indiv,
+                             FILE* term_output_file) {
   fprintf(term_output_file, "%" PRId64 " %" PRId32 " %" PRId32 "\n",
             t,
             indiv->total_genome_size(),
@@ -448,11 +441,10 @@ void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_fi
 
 
 
-FILE* open_zones_stat_file(const char * prefix)
-{
+FILE* open_zones_stat_file(const char* prefix, const char* postfix) {
   // Open file
   char* zones_output_file_name = new char[80];
-  sprintf(zones_output_file_name, "stats/%s_zones.out",prefix);
+  sprintf(zones_output_file_name, "stats/%s_zones%s.out", prefix, postfix);
   FILE* zones_output_file = fopen(zones_output_file_name, "w");
   delete [] zones_output_file_name;
 
@@ -571,10 +563,9 @@ void write_zones_stats(int64_t t,
 
 
 
-FILE* open_operons_stat_file(const char * prefix)
-{
+FILE* open_operons_stat_file(const char* prefix, const char* postfix) {
   char* operons_output_file_name = new char[80];
-  sprintf(operons_output_file_name, "stats/%s_operons.out",prefix);
+  sprintf(operons_output_file_name, "stats/%s_operons%s.out", prefix, postfix);
   FILE* operons_output_file = fopen(operons_output_file_name, "w");
   delete [] operons_output_file_name,
 
@@ -692,8 +683,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   \brief
 
 */
-void print_help(char* prog_path)
-{
+void print_help(char* prog_path) {
   printf("\n");
   printf("*********************** aevol - Artificial Evolution ******************* \n");
   printf("*                                                                      * \n");

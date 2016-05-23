@@ -29,21 +29,23 @@
 #ifndef AEVOL_MACROS_H_
 #define AEVOL_MACROS_H_
 
-constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized for binary genomes
-                              //            Changing the value of NB_BASE implies verifying the existing code
-                              //            and make changes where necessary
+constexpr int8_t NB_BASE = 2; // WARNING:
+// A lot of stuff has been optimized for binary genomes
+// Changing the value of NB_BASE implies verifying the existing code
+// and make changes where necessary
 
 // NB The following strings are not easily replaced with `constexpr
 // const char*` because they are meant to be concatenated by the
 // preprocessor.
 
 // Backup directories and file name formats
+#define TIMESTEP_FORMAT "%09" PRId64
 // Experimental Setup
 #define EXP_S_DIR                 "exp_setup"
-#define EXP_S_FNAME_BASE          "exp_setup_%06" PRId64
+#define EXP_S_FNAME_BASE          "exp_setup_" TIMESTEP_FORMAT
 #define EXP_S_FNAME_FORMAT        EXP_S_DIR "/" EXP_S_FNAME_BASE ".ae"
-#define EXP_S_CONST_FNAME_BASE        "exp_setup_const"
-#define EXP_S_CONST_FNAME_FORMAT      EXP_S_DIR "/" EXP_S_CONST_FNAME_BASE ".ae"
+#define EXP_S_CONST_FNAME_BASE    "exp_setup_const"
+#define EXP_S_CONST_FNAME_FORMAT  EXP_S_DIR "/" EXP_S_CONST_FNAME_BASE ".ae"
 // Output Profile
 #define OUT_P_DIR                 "output_profile"
 #define OUT_P_FNAME_BASE          "output_profile"
@@ -51,21 +53,21 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define OUT_P_CUR_FNAME           "output_profile.ae"
 // Spatial Structure
 #define WORLD_DIR             "world"
-#define WORLD_FNAME_BASE      "world_%06" PRId64
+#define WORLD_FNAME_BASE      "world_" TIMESTEP_FORMAT
 #define WORLD_FNAME_FORMAT    WORLD_DIR "/" WORLD_FNAME_BASE".ae"
 // Stats
 #define STATS_DIR   "stats"
 // Tree
 #define TREE_DIR    "tree"
 // Last gener file
-#define LAST_GENER_FNAME "last_gener.txt"
+constexpr auto LAST_GENER_FNAME = "last_gener.txt";
 // Best last organism file
 #define BEST_LAST_ORG_FNAME "best_last_org.txt"
 
 #define FIXED_POPULATION_SIZE // Some calculation can be spared if we know that the size of the population is fixed
 
 constexpr int8_t PROM_SIZE = 22;
-constexpr const char* PROM_SEQ = "0101011001110010010110";
+constexpr auto PROM_SEQ = "0101011001110010010110";
 
 constexpr int8_t PROM_MAX_DIFF  = 4;
 constexpr int8_t TERM_STEM_SIZE = 4;
@@ -86,7 +88,8 @@ constexpr int8_t CODON_W1    = 0b011;
 constexpr int8_t CODON_H0    = 0b110;
 constexpr int8_t CODON_H1    = 0b111;
 
-constexpr int32_t DO_TRANSLATION_LOOP = SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
+constexpr int32_t DO_TRANSLATION_LOOP =
+    SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
 
 #ifdef __REGUL
 constexpr int8_t MAX_CODON   = 1 << CODON_SIZE;

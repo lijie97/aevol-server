@@ -236,7 +236,7 @@ void OutputManager::write_tree() const
 
   char tree_file_name[50];
 
-  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::time());
+  sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", AeTime::time());
 
   
   gzFile tree_file = gzopen( tree_file_name, "w" );

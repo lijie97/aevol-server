@@ -103,9 +103,9 @@ int main(int argc, char* argv[]) {
   if (take_care_of_the_tree) {
     // If a tree is available, assign the replication reports to the individuals
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", timestep);
+      sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", timestep);
     #else
-      sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", timestep);
+      sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", timestep);
     #endif
 
     tree = new Tree(exp_manager, tree_file_name);
@@ -625,9 +625,9 @@ int main(int argc, char* argv[]) {
     printf("Save the modified replication reports into tree...\t");
 
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", timestep);
+      sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", timestep);
     #else
-      sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", timestep);
+      sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", timestep);
     #endif
     gzFile tree_file = gzopen(tree_file_name, "w");
     tree->write_to_tree_file(tree_file);

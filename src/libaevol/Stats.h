@@ -74,16 +74,19 @@ class Stats {
   // =================================================================
   Stats() = delete;
   Stats(const Stats&) = delete;
-  Stats(std::string prefix, bool best_indiv_only = false);
+  Stats(const std::string prefix, const std::string postfix = "",
+        bool best_indiv_only = false);
   Stats(ExpManager* exp_m,
         bool best_indiv_only = false,
-        const char* prefix = "stat",
+        const std::string prefix = "stat",
+        const std::string postfix = "",
         bool with_plasmids = false,
         bool compute_phen_contrib_by_GU = false);
   Stats(ExpManager* exp_m,
         int64_t time,
         bool best_indiv_only = false,
-        const char * prefix = "stat",
+        const std::string prefix = "stat",
+        const std::string postfix = "",
         bool addition_old_stats = true,
         bool delete_old_stats = true);
 
@@ -122,7 +125,8 @@ class Stats {
   //                           Protected Methods
   // =================================================================
   void init_data();
-  void set_file_names(const char* prefix,
+  void set_file_names(const std::string prefix,
+                      const std::string postfix,
                       bool best_indiv_only,
                       bool with_plasmids = false,
                       bool compute_phen_contrib_by_GU = false);

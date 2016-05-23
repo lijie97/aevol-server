@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
   // ----------------------
 
   char directory_name[64];
-  sprintf(directory_name, "analysis-generation%06" PRId64, num_gener);
+  sprintf(directory_name, "analysis-generation_" TIMESTEP_FORMAT, num_gener);
 
   // Check whether the directory already exists and is writable
   if (access(directory_name, F_OK) == 0)
@@ -213,12 +213,11 @@ int main(int argc, char* argv[])
 
 
   char filename[256];
-  snprintf(filename, 255, "%s/robustness-allindivs-g%06" PRId64 ".out", directory_name, num_gener);
+  snprintf(filename, 255, "%s/robustness-allindivs.out", directory_name);
   FILE * outputfile_wholepop = fopen(filename, "w");
 
   snprintf(filename, 255,
-           "%s/robustness-singleindiv-details-g%06" PRId64
-               "-i%" PRId32 "-r%" PRId32 ".out",
+           "%s/robustness-singleindiv-details-i%" PRId32 "-r%" PRId32 ".out",
            directory_name, num_gener, wanted_index, wanted_rank);
   FILE * outputfile_details = fopen(filename, "w");
 
@@ -360,11 +359,11 @@ void print_help(char* prog_path)
   printf("like the proportion of neutral, beneficial and deleterious offsprings. This is done by simulating\n");
   printf("NBCHILDREN replications for each individual, with its mutation, rearrangement and transfer rates.\n");
   printf("Depending on those rates and genome size, there can be several events per replication.\n");
-  printf("These statistics are written in analysis-generationGENER/robustness-allindivs-gGENER.out, with one \n");
+  printf("These statistics are written in analysis-generation_TIMESTEP/robustness-allindivs.out, with one \n");
   printf("line per individual in the specified generation. \n\n");
   printf("The program also outputs detailed statistics for one of the individuals (the best one by default). \n");
   printf("The detailed statistics for this individual are written in the file called \n");
-  printf("analysis-generationGENER/robustness-singleindiv-details-gGENER-iINDEX-rRANK.out, with one line per simulated\n");
+  printf("analysis-generation_TIMESTEP/robustness-singleindiv-details-iINDEX-rRANK.out, with one line per simulated\n");
   printf("child of this particular individual.\n");
   printf("\n");
   printf("\n");

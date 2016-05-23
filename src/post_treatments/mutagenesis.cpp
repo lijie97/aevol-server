@@ -156,7 +156,8 @@ int main(int argc, char* argv[]) {
   }
 
   char directory_name[64];
-  snprintf(directory_name, 63, "analysis-generation%06" PRId64, num_gener);
+  snprintf(directory_name, 63, "analysis-generation_" TIMESTEP_FORMAT,
+           num_gener);
 
   // Check whether the directory already exists and is writable
   if (access(directory_name, F_OK) == 0) {
@@ -178,7 +179,7 @@ int main(int argc, char* argv[]) {
 
   char output_file_name[256];
   snprintf(output_file_name, 255,
-           "%s/mutagenesis-g%06" PRId64 "-i%" PRId32 "-r%" PRId32 "-%s.out", \
+           "%s/mutagenesis-t" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 "-%s.out", \
             directory_name, num_gener, wanted_index, wanted_rank,
            mutation_type_name);
 

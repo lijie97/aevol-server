@@ -134,7 +134,8 @@ int main(int argc, char* argv[]) {
   //                      Create the EPS files
   // =================================================================
   char directory_name[64];
-  snprintf(directory_name, 63, "analysis-generation%06" PRId64, timestep);
+  snprintf(directory_name, 63, "analysis-generation_" TIMESTEP_FORMAT,
+           timestep);
 
   // Check whether the directory already exists and is writable
   if (access(directory_name, F_OK) == 0) {

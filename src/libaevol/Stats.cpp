@@ -70,9 +70,10 @@ namespace aevol {
  * This is a temporary patch for experiment propagation, it shall become
  * obsolete or need to be adapted when in/out dirs are managed properly
  */
-Stats::Stats(string prefix, bool best_indiv_only /*= false*/) {
+Stats::Stats(const string prefix, const string postfix /*= ""*/,
+             bool best_indiv_only /*= false*/) {
   init_data();
-  set_file_names(prefix.c_str(), best_indiv_only);
+  set_file_names(prefix, postfix, best_indiv_only);
 }
 
 /**
@@ -80,12 +81,13 @@ Stats::Stats(string prefix, bool best_indiv_only /*= false*/) {
  */
 Stats::Stats(ExpManager * exp_m,
              bool best_indiv_only /*= false*/,
-             const char* prefix /*= "stat"*/,
+             const string prefix /*= "stat"*/,
+             const string postfix /*= ""*/,
              bool with_plasmids /*= false*/,
              bool compute_phen_contrib_by_GU /*= false*/) {
   exp_m_ = exp_m;
   init_data();
-  set_file_names(prefix, best_indiv_only, with_plasmids,
+  set_file_names(prefix, postfix, best_indiv_only, with_plasmids,
                  compute_phen_contrib_by_GU);
   open_files();
   write_headers();
@@ -97,12 +99,13 @@ Stats::Stats(ExpManager * exp_m,
 Stats::Stats(ExpManager * exp_m,
              int64_t time,
              bool best_indiv_only/* = false */,
-             const char * prefix /* = "stat" */,
+             const string prefix /*= "stat"*/,
+             const string postfix /*= ""*/,
              bool addition_old_stats /* = true */,
              bool delete_old_stats /* = true */) {
   exp_m_ = exp_m;
   init_data();
-  set_file_names(prefix, best_indiv_only);
+  set_file_names(prefix, postfix, best_indiv_only);
 
   if (addition_old_stats) {
     CreateTmpFiles(time);
@@ -614,7 +617,8 @@ void Stats::init_data() {
 //     headers. Once this is done, the name will be deleted to mark the file as
 //     "not to be written into"
 //
-void Stats::set_file_names(const char* prefix,
+void Stats::set_file_names(const string prefix,
+                           const string postfix,
                            bool best_indiv_only,
                            bool with_plasmids /*= false*/,
                            bool compute_phen_contrib_by_GU /*= false*/) {
@@ -664,19 +668,21 @@ void Stats::set_file_names(const char* prefix,
         // Construct the correct name
         if (best_indiv_only) {
           sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
-                    STATS_DIR"/%s%s%s.out",
-                    prefix,
-                    stat_type_name[stat_type],
-                    chrom_or_gu_name[chrom_or_GU]);
+                  STATS_DIR"/%s%s%s%s.out",
+                  prefix.c_str(),
+                  stat_type_name[stat_type],
+                  chrom_or_gu_name[chrom_or_GU],
+                  postfix.c_str());
         }
         else
         {
           sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
-                    STATS_DIR"/%s%s%s%s.out",
-                    prefix,
-                    stat_type_name[stat_type],
-                    chrom_or_gu_name[chrom_or_GU],
-                    best_or_glob_name[best_or_glob]);
+                  STATS_DIR"/%s%s%s%s%s.out",
+                  prefix.c_str(),
+                  stat_type_name[stat_type],
+                  chrom_or_gu_name[chrom_or_GU],
+                  best_or_glob_name[best_or_glob],
+                  postfix.c_str());
         }
 
       }
