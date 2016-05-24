@@ -79,7 +79,7 @@ class Protein_R : public Protein
     inline bool     is_inherited( void );
     inline bool     is_signal( void );
 
-    int set_local_id(int local_id) { _local_id = local_id; }
+    void set_local_id(int local_id) { _local_id = local_id; }
 
     // =================================================================
     //                            Public Methods

@@ -66,7 +66,7 @@ class Rna_R : public Rna
     //                              Accessors
     // =================================================================
     inline std::vector<Protein_R*> get_protein_list( void );
-    int set_local_id(int local_id) { _local_id = local_id; }
+    void set_local_id(int local_id) { _local_id = local_id; }
 
     int get_local_id() { return _local_id; }
     // =================================================================

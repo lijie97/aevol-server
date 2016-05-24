@@ -110,7 +110,7 @@ class Selection : public Observable
     void run_life(Individual_R* new_indiv);
 
     Individual* do_replication(Individual* parent,
-                               int32_t index,
+                               unsigned long long index,
                                int8_t &type_mutate,
                                int16_t x = -1,
                                int16_t y = -1);

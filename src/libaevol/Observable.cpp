@@ -48,9 +48,9 @@
  * Notify all observers of event e providing optional argument
  */
 void Observable::notifyObservers(ObservableEvent e, void* arg) {
-  for (auto& o : observers_[e]) {
-    o->update(*this, e, arg);
-  }
+    for (auto& o : observers_[e]) {
+      o->update(*this, e, arg);
+    }
 }
 
 // ============================================================================

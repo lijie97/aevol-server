@@ -224,7 +224,9 @@ StatRecord::StatRecord(ExpManager* exp_m,
     ReplicationReport* replic_report = nullptr;
     if (exp_m_->tree() != nullptr)
       replic_report = exp_m_->tree()->report_by_index(AeTime::time(),
-                                                              indiv->id());
+                                                      indiv->grid_cell()->x() *
+                                                      indiv->exp_m()->grid_height()
+                                                      + indiv->grid_cell()->y());
 
     if (compute_non_coding)
       indiv->compute_non_coding();
@@ -328,7 +330,9 @@ StatRecord::StatRecord(ExpManager* exp_m,
     ReplicationReport* replic_report = nullptr;
     if (exp_m_->tree() != nullptr)
       replic_report = exp_m_->tree()->report_by_index(AeTime::time(),
-                                                              indiv->id());
+                                                      indiv->grid_cell()->x() *
+                                                      indiv->exp_m()->grid_height()
+                                                      + indiv->grid_cell()->y());
 
     // Metabolic error stats
     metabolic_error_ = (double) indiv->dist_to_target_by_feature(METABOLISM);
@@ -428,7 +432,9 @@ StatRecord::StatRecord(ExpManager* exp_m,
     ReplicationReport* replic_report = nullptr;
     if (exp_m_->tree() != nullptr)
       replic_report = exp_m_->tree()->report_by_index(AeTime::time(),
-                                                              indiv->id());
+                                                      indiv->grid_cell()->x() *
+                                                      indiv->exp_m()->grid_height()
+                                                      + indiv->grid_cell()->y());
 
     // Metabolic error stats
     metabolic_error_ = (double) gen_unit.dist_to_target_by_feature(METABOLISM);

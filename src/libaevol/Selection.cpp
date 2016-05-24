@@ -162,6 +162,8 @@ void Selection::step_to_next_generation() {
   World* world = exp_m_->world();
   int16_t grid_width  = world->width();
   int16_t grid_height = world->height();
+  int32_t pop_size = grid_width*grid_height;
+
   GridCell*** pop_grid = exp_m_->grid();
 
   // create a temporary grid to store the reproducers
@@ -229,7 +231,7 @@ void Selection::step_to_next_generation() {
   for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
     x = index / grid_height;
     y = index % grid_height;
-    do_replication(reproducers[x][y], index, what, x, y);
+    do_replication(reproducers[x][y], x*grid_height+y+pop_size*AeTime::time(), what, x, y);
     if (what == 1 || what == 2) {
   #pragma omp critical
       {
@@ -283,6 +285,15 @@ void Selection::step_to_next_generation() {
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
   }
 
+  for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
+    x = index / grid_height;
+    y = index % grid_height;
+
+    EndReplicationEvent* eindiv = new EndReplicationEvent(world->indiv_at(x,y),x,y);
+    // Tell observers the replication is finished
+    world->indiv_at(x,y)->notifyObservers(END_REPLICATION, eindiv);
+  }
+
   high_resolution_clock::time_point t2 = high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
   cout<<"TIMER,"<<AeTime::time()<<",OLD,"<<duration<<endl;
@@ -327,11 +338,7 @@ void Selection::step_to_next_generation() {
     }
   }*/
 
-  int number_of_clones = 0;
-  for(auto iterator = unique_individual.begin(); iterator != unique_individual.end(); iterator++) {
-    if (iterator->second->number_of_clones_ == 0)
-      delete iterator->second;
-  }
+
   /*
   std::list<Individual*>::iterator i = old_generation.begin();
   while (i != old_generation.end())
@@ -403,6 +410,13 @@ void Selection::step_to_next_generation() {
 
   // Notify observers of the end of the generation
   notifyObservers(END_GENERATION);
+
+  int number_of_clones = 0;
+  for(auto iterator = unique_individual.begin(); iterator != unique_individual.end(); iterator++) {
+    if (iterator->second->number_of_clones_ == 0) {
+      delete iterator->second;
+    }
+  }
 }
 
 void Selection::PerformPlasmidTransfers() {
@@ -661,7 +675,7 @@ void Selection::compute_local_prob_reprod() {
 
 
 
-Individual* Selection::do_replication(Individual* parent, int32_t index,
+Individual* Selection::do_replication(Individual* parent, unsigned long long index,
                                       int8_t &type_mutate,
                                       int16_t x, int16_t y ) {
 
@@ -691,11 +705,6 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
     #endif
   #endif
 
-  // Notify observers that a new individual was created from <parent>
-  {
-    Individual* msg[2] = {new_indiv, parent};
-    notifyObservers(NEW_INDIV, msg);
-  }
 
   // Set the new individual's location on the grid
   exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
@@ -706,16 +715,14 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
   if (not new_indiv->allow_plasmids()) {
     const GeneticUnit* chromosome = &new_indiv->genetic_unit_list().front();
 
-    if (chromosome->dna()->hasMutate())
-      printf("Mutation before ????\n");
-
     chromosome->dna()->perform_mutations(parent->id());
 
     if (! chromosome->dna()->hasMutate()) {
       #pragma omp critical
       {
-        if (parent->number_of_clones_ == 0)
+        if (parent->number_of_clones_ == 0) {
           type_mutate = 2;
+        }
         else
           type_mutate = 0;
         parent->number_of_clones_++;
@@ -736,14 +743,27 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
       new_indiv = dynamic_cast<Individual_R_X11*>(parent);
     #endif
 #endif
+      // Notify observers that a new individual was created from <parent>
+
+
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
-    } else {
+    }
+#pragma omp critical
+    {
+      {
+        NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
+        //Individual* msg[2] = {new_indiv, parent};
+        notifyObservers(NEW_INDIV, eindiv);
+      }
+    }
+
+    /* else {
       #pragma omp critical
       {
         mutator++;
-          new_indiv->set_id(unique_id++);
+          new_indiv->set_id(index);
       }
-    }
+    }*/
   }
   else { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
@@ -761,6 +781,7 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
       }
     }
   }
+
 
   if (mutate) {
     new_indiv->init_indiv();
@@ -786,8 +807,6 @@ void Selection::run_life(Individual_R* new_indiv) {
   // Compute statistics
   new_indiv->compute_statistical_data();
 
-  // Tell observers the replication is finished
-  new_indiv->notifyObservers(END_REPLICATION, nullptr);
 }
 
 Individual *Selection::do_local_competition (int16_t x, int16_t y) {
@@ -962,8 +981,11 @@ Individual* Selection::do_replication_tbb(Individual* parent, int32_t index, int
   // Compute statistics
   new_indiv->compute_statistical_data();
 
+#pragma omp critical
+  {
   // Tell observers the replication is finished
   new_indiv->notifyObservers(END_REPLICATION, nullptr);
+}
 
   return new_indiv;
 }

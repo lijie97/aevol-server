@@ -51,7 +51,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class Individual;
+class Tree;
 
 
 
@@ -82,10 +82,10 @@ class ReplicationReport : public Observer {
     //                              Accessors
     // =================================================================
     inline Individual * indiv() const;
-    int32_t id() { return id_; };
+    unsigned long long id() { return id_; };
     int32_t rank() { return rank_; };
     inline int32_t  genome_size() const;
-    inline int32_t  parent_id() const;
+    inline unsigned long long  parent_id() const;
     inline double   parent_metabolic_error() const;
     inline double   parent_secretion_error() const;
     inline int32_t  parent_genome_size() const;
@@ -105,7 +105,7 @@ class ReplicationReport : public Observer {
     }
 
     void            set_indiv(Individual * indiv);
-    inline void     set_parent_id(int32_t parent_id);
+    inline void     set_parent_id(unsigned long long parent_id);
     inline void     set_parent_metabolic_error(double parent_metabolic_error);
     inline void     set_parent_secretion_error(double parent_secretion_error);
     inline void     set_parent_genome_size(int32_t parent_genome_size);
@@ -117,9 +117,9 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void init(Individual* offspring, Individual* parent);
+    void init(Tree* tree, Individual* offspring, Individual* parent);
     void signal_end_of_replication(Individual* indiv);
-    void signal_end_of_generation();
+    void signal_end_of_generation(int i);
     void write_to_tree_file(gzFile tree_file) const;
 
 
@@ -138,8 +138,8 @@ class ReplicationReport : public Observer {
     //                          Protected Attributes
     // =================================================================
     Individual* indiv_ = nullptr;
-    int32_t id_ = -1;
-    int32_t parent_id_ = -1;
+    unsigned long long id_ = -1;
+    unsigned long long parent_id_ = -1;
 
     int32_t rank_ = -1;
 
@@ -183,7 +183,7 @@ inline int32_t ReplicationReport::genome_size() const
   return genome_size_;
 }
 
-int32_t ReplicationReport::parent_id() const
+unsigned long long ReplicationReport::parent_id() const
 {
   return parent_id_;
 }
@@ -230,7 +230,7 @@ inline void ReplicationReport::set_indiv(Individual * indiv)
   indiv_ = indiv;
 }
 
-void ReplicationReport::set_parent_id(int32_t parent_id)
+void ReplicationReport::set_parent_id(unsigned long long parent_id)
 {
   parent_id_ = parent_id;
 }

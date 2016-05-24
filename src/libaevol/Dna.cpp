@@ -195,7 +195,7 @@ char* Dna::subsequence(int32_t from, int32_t to, Strand strand) const {
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Dna::perform_mutations(int32_t parent_id) {
+void Dna::perform_mutations(int parent_id) {
   if (indiv_->with_HT()) {
     do_transfer(parent_id);
   }
@@ -227,8 +227,12 @@ void Dna::do_small_mutations() {
       binomial_random(length_, indiv_->small_deletion_rate());
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
 
-  if (nb_mut > 0)
-    hasMutated = true;
+  if (nb_mut > 0) {
+    if (!hasMutated) {
+      hasMutated = true;
+    }
+  }
+
 
   // ====================================================
   //  2. Perform those small mutations in a random order
@@ -300,8 +304,11 @@ void Dna::do_rearrangements() {
   int32_t nb_rear = nb_dupl + nb_del + nb_trans + nb_inv;
 
 
-  if (nb_rear > 0)
-    hasMutated = true;
+  if (nb_rear > 0) {
+    if (!hasMutated) {
+      hasMutated = true;
+    }
+  }
 
   // ===================================================
   //  2. Perform those rearrangements in a random order
@@ -481,7 +488,9 @@ void Dna::do_rearrangements_with_align() {
             fprintf(exp_m_->output_m()->log(LOG_BARRIER),
                     "%" PRId64 " %" PRId32 " DUPLICATION %" PRId32 " %" PRId32
                         " %" PRId32 " %" PRId32 "\n",
-                    AeTime::time(), indiv_->id(), segment_length, 0,
+                    AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), segment_length, 0,
                     gu_size_before, genome_size_before);
           }
         }
@@ -502,7 +511,7 @@ void Dna::do_rearrangements_with_align() {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
-                    AeTime::time(), indiv_->id(), int8_t(DUPL),
+                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DUPL),
                     segment_length, genome_size_before, needed_score);
           }
         }
@@ -526,7 +535,7 @@ void Dna::do_rearrangements_with_align() {
             fprintf(exp_m_->output_m()->log(LOG_BARRIER),
                     "%" PRId64 " %" PRId32 " DELETION %" PRId32 " %" PRId32
                         " %" PRId32 " %" PRId32 "\n",
-                    AeTime::time(), indiv_->id(), segment_length, 0,
+                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
                     gu_size_before, genome_size_before);
           }
         }
@@ -544,7 +553,7 @@ void Dna::do_rearrangements_with_align() {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
-                    AeTime::time(), indiv_->id(), int8_t(DEL),
+                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DEL),
                     segment_length, genome_size_before, needed_score);
           }
         }
@@ -642,7 +651,7 @@ void Dna::do_rearrangements_with_align() {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
-                    AeTime::time(), indiv_->id(), int8_t(TRANS),
+                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
                     segment_length, length_, needed_score_2);
           }
           delete alignment_2;
@@ -704,7 +713,7 @@ void Dna::do_rearrangements_with_align() {
         fprintf(exp_m_->output_m()->log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                     " %" PRId16 "\n",
-                AeTime::time(), indiv_->id(), int8_t(INV),
+                AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(INV),
                 segment_length, length_, needed_score);
       }
 
@@ -792,7 +801,7 @@ SmallInsertion* Dna::do_small_insertion() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " S_INS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), nb_insert, 0, length_,
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), nb_insert, 0, length_,
               indiv_->amount_of_dna());
     }
 
@@ -844,7 +853,7 @@ SmallDeletion* Dna::do_small_deletion() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " S_DEL %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), nb_del, 0, length_,
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), nb_del, 0, length_,
               indiv_->amount_of_dna());
     }
 
@@ -966,7 +975,7 @@ Duplication* Dna::do_duplication() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " DUPLICATION %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), segment_length, 0,
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
               gu_size_before, genome_size_before);
     }
   }
@@ -981,7 +990,7 @@ Duplication* Dna::do_duplication() {
     if (exp_m_->output_m()->is_logged(LOG_REAR)) {
       fprintf(exp_m_->output_m()->log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), int8_t(DUPL),
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DUPL),
               segment_length, genome_size_before);
     }
   }
@@ -1012,7 +1021,7 @@ Deletion* Dna::do_deletion() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " DELETION %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), segment_length, 0,
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
               gu_size_before, genome_size_before);
     }
   }
@@ -1027,7 +1036,7 @@ Deletion* Dna::do_deletion() {
     if (exp_m_->output_m()->is_logged(LOG_REAR)) {
       fprintf(exp_m_->output_m()->log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), int8_t(DEL), segment_length,
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DEL), segment_length,
               genome_size_before);
     }
   }
@@ -1139,7 +1148,7 @@ Translocation* Dna::do_translocation() {
           fprintf(exp_m_->output_m()->log(LOG_REAR),
                   "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                       "\n",
-                  AeTime::time(), indiv_->id(), int8_t(TRANS),
+                  AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
                   segment_length, length_);
         }
       }
@@ -1156,7 +1165,7 @@ Translocation* Dna::do_translocation() {
           fprintf(exp_m_->output_m()->log(LOG_REAR),
                   "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                       "\n",
-                  AeTime::time(), indiv_->id(), int8_t(TRANS),
+                  AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
                   segment_length, length_);
         }
       }
@@ -1194,7 +1203,7 @@ Translocation* Dna::do_translocation() {
       if (exp_m_->output_m()->is_logged(LOG_REAR)) {
         fprintf(exp_m_->output_m()->log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
-                AeTime::time(), indiv_->id(), int8_t(TRANS),
+                AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
                 segment_length, length_);
       }
     }
@@ -1226,7 +1235,7 @@ Inversion* Dna::do_inversion() {
     if (exp_m_->output_m()->is_logged(LOG_REAR)) {
       fprintf(exp_m_->output_m()->log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), int8_t(INV),
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(INV),
               segment_length, length_);
     }
   }
@@ -1549,7 +1558,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), segment_length, 0, length_,
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0, length_,
               indiv_->amount_of_dna());
     }
     return false;
@@ -1574,7 +1583,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
-              AeTime::time(), indiv_->id(), segment_length, 0,
+              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
               dest_gu_size_before, indiv_->amount_of_dna());
     }
     return false;
@@ -1778,7 +1787,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //                "%" PRId64 " %" PRId32 " INS_TRANSFER %" PRId32 " %" PRId32
 //                " %" PRId32 " %" PRId32 "\n",
 //                AeTime::time(),
-//                indiv_->id(),
+//                indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(),
 //                exogenote->dna()->length(),
 //                0,
 //                gu_length_before,
@@ -1800,7 +1809,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //                    " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32
 //                    " %" PRId16 "\n",
 //                    AeTime::time(),
-//                    indiv_->id(),
+//                    indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(),
 //                    donor->id(),
 //                    exogenote->dna()->length(),
 //                    0,
@@ -1957,7 +1966,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //              "%" PRId64 " %" PRId32 " REPL_TRANSFER %" PRId32 " %" PRId32
 //              " %" PRId32 " %" PRId32 "\n",
 //              AeTime::time(),
-//              indiv_->id(),
+//              indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(),
 //              exogenote_length,
 //              replaced_seq_length,
 //              gu_length_before,
@@ -2048,7 +2057,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //              " %" PRId16 " %" PRId32 " %" PRId32 " %" PRId16
 //              " %" PRId16 "\n",
 //              AeTime::time(),
-//              indiv_->id(),
+//              indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(),
 //              donor->id(),
 //              exogenote->dna()->length(),
 //              replaced_seq_length,

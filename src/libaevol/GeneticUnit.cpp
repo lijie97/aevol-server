@@ -1356,10 +1356,11 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
     }
   }
 
-  dist = (int8_t)cblas_sasum(PROM_SIZE,dist_a,1);/*dist_a[0] + dist_a[1]+ dist_a[2]+ dist_a[3]+ dist_a[4]+ dist_a[5]+ dist_a[6]
+  dist =dist_a[0] + dist_a[1]+ dist_a[2]+ dist_a[3]+ dist_a[4]+ dist_a[5]+ dist_a[6]
          + dist_a[7] + dist_a[8]+ dist_a[9]+ dist_a[10]+ dist_a[11]+ dist_a[12]+ dist_a[13]
          + dist_a[14]+ dist_a[15]+ dist_a[16]+ dist_a[17]+ dist_a[18]+ dist_a[19]+ dist_a[20]
-         + dist_a[21];*/
+         + dist_a[21];
+  // (int8_t)cblas_sasum(PROM_SIZE,dist_a,1);/*
 
   if ( dist > PROM_MAX_DIFF )
     return false;
@@ -2873,7 +2874,7 @@ void GeneticUnit::assert_promoters() {
   // Compare lists
   for (auto strand: {LEADING, LAGGING}) {
     if (backup[strand].size() != rna_list_[strand].size()) {
-      printf("Individual %" PRId32 "\n", indiv_->id());
+      printf("Individual %" PRId32 "\n", indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y());
       printf("***************** FOUND *******************");
       print_rnas(backup[strand], strand);
       printf("***************** EXPECTED *******************");
@@ -2890,7 +2891,7 @@ void GeneticUnit::assert_promoters() {
          ++node_old, ++node_new) {
       // TODO vld: to factor
       if (node_old->strand() != node_new->strand()) {
-        printf("Individual %" PRId32 "\n", indiv_->id());
+        printf("Individual %" PRId32 "\n", indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y());
         printf(
             "****************************** STRAND problem ******************************\n");
         printf("should be : \n");
@@ -2909,7 +2910,7 @@ void GeneticUnit::assert_promoters() {
       }
 
       if (node_old->promoter_pos() != node_new->promoter_pos()) {
-        printf("Individual %" PRId32 "\n", indiv_->id());
+        printf("Individual %" PRId32 "\n", indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y());
         printf(
             "***************************** POSITION problem *****************************\n");
         printf("should be : \n");
@@ -2928,7 +2929,7 @@ void GeneticUnit::assert_promoters() {
       }
 
       if (node_old->basal_level() != node_new->basal_level()) {
-        printf("Individual %" PRId32 "\n", indiv_->id());
+        printf("Individual %" PRId32 "\n", indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y());
         printf(
             "*************************** BASAL LEVEL problem ****************************\n");
         printf("should be : \n");
@@ -2965,7 +2966,7 @@ void GeneticUnit::assert_promoters_order() {
            it->promoter_pos() >= next(it)->promoter_pos()) or
           (strand == LAGGING and
            it->promoter_pos() <= next(it)->promoter_pos())) {
-        printf("Individual %" PRId32 "\n", indiv_->id());
+        printf("Individual %" PRId32 "\n", indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y());
         printf(
             "********************** ORDER problem (%s) ***********************\n",
             StrandName[strand]);

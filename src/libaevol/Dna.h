@@ -50,6 +50,7 @@
 #include "Inversion.h"
 #include "ae_string.h"
 #include "JumpingMT.h"
+#include "Observable.h"
 
 namespace aevol {
 
@@ -63,7 +64,7 @@ class VisAVis;
 class Rna;
 class Rna_R;
 
-class Dna : public ae_string {
+class Dna : public ae_string, public Observable {
  public :
   // =================================================================
   //                             Constructors

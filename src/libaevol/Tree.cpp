@@ -104,7 +104,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
                                                                nullptr);
 
       // Put it at its rightful position
-      replics_[t][replic_report->id()] = replic_report;
+      replics_[t][indiv_i] = replic_report;
     }
   }
   gzclose(tree_file);
@@ -159,7 +159,11 @@ ReplicationReport* Tree::report_by_rank(int64_t t, int32_t rank) const {
 void Tree::signal_end_of_generation() {
   auto cur_reports = reports(AeTime::time());
   for (int32_t i = 0; i < exp_m_->nb_indivs(); i++) {
-    cur_reports[i]->signal_end_of_generation();
+    if (cur_reports[i] == nullptr){
+      printf("error!!!\n");exit(-1);
+    }
+
+    cur_reports[i]->signal_end_of_generation(i);
   }
 }
 
@@ -183,16 +187,31 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
   switch (e) {
     case NEW_INDIV : {
       // Initialize the replication report corresponding to the new individual
-      auto indivs = reinterpret_cast<Individual**>(arg);
-      report_by_index(AeTime::time(), indivs[0]->id())->
-          init(indivs[0], indivs[1]);
+
+      auto ievent = reinterpret_cast<NewIndivEvent*>(arg);
+
+      report_by_index(AeTime::time(), ievent->x *
+                                      ievent->child->exp_m()->grid_height()
+                                      + ievent->y)->
+          init(this, ievent->child, ievent->parent);
       break;
     }
-    case END_GENERATION :
+    case END_GENERATION : {
       signal_end_of_generation();
       break;
-    default :
+    }
+    case END_REPLICATION : {
+      auto ievent = reinterpret_cast<EndReplicationEvent*>(arg);
+
+      report_by_index(AeTime::time(), ievent->x *
+                                      ievent->child->exp_m()->grid_height()
+                                      + ievent->y)->signal_end_of_replication(
+          ievent->child);
+      break;
+    }
+    default : {
       Utils::ExitWithDevMsg("Event not handled", __FILE__, __LINE__);
+    }
   }
 }
 

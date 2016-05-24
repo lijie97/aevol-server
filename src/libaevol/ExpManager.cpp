@@ -332,10 +332,13 @@ void ExpManager::load(gzFile& exp_s_file,
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
     sel()->addObserver(tree(), NEW_INDIV);
-    for (auto indiv : world_->indivs())
-      indiv->addObserver(
-        tree()->report_by_index(AeTime::time(), indiv->id()),
-          END_REPLICATION);
+    for (int16_t x = 0 ; x < grid_width() ; x++) {
+      for (int16_t y = 0; y < grid_height(); y++) {
+        world_->indiv_at(x,y)->addObserver(
+            tree(),
+            END_REPLICATION);
+      }
+    }
     sel()->addObserver(tree(), END_GENERATION);
   }
 

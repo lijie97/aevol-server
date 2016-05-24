@@ -30,11 +30,48 @@
 /**
  *
  */
+
+
 enum ObservableEvent {
   NEW_INDIV,
   MUTATION,
   END_REPLICATION,
   END_GENERATION
 };
+
+namespace  aevol {
+
+class Individual;
+
+class NewIndivEvent {
+ public:
+    NewIndivEvent(Individual* childx, Individual* parentx, int xx, int yx) {
+      child = childx;
+      parent = parentx;
+      x = xx;
+      y = yx;
+    }
+
+    Individual* child;
+    Individual* parent;
+
+    int x;
+    int y;
+};
+
+class EndReplicationEvent {
+ public:
+    EndReplicationEvent(Individual* childx, int xx, int yx) {
+      child = childx;
+      x = xx;
+      y = yx;
+    }
+
+    Individual* child;
+
+    int x;
+    int y;
+};
+}
 
 #endif //AEVOL_OBSERVABLEEVENT_H_

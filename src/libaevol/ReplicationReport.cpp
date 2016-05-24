@@ -40,8 +40,11 @@
 #include "DnaReplicationReport.h"
 #include "Mutation.h"
 #include "Individual.h"
+#include "GridCell.h"
+#include "ExpManager.h"
 #include "AeTime.h"
 #include "Observable.h"
+#include "Tree.h"
 
 namespace aevol {
 
@@ -172,8 +175,9 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
  * This should be called as soon as a replication is started (just after calling
  * the offspring constructor and before doing the mutations)
  */
-void ReplicationReport::init(Individual* offspring, Individual* parent)
+void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* parent)
 {
+
   indiv_ = offspring;
 
   id_ = indiv_->id();
@@ -194,7 +198,7 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
 
   // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
   indiv_->addObserver(this, MUTATION);
-  indiv_->addObserver(this, END_REPLICATION);
+  indiv_->addObserver(tree, END_REPLICATION);
 }
 
 /**
@@ -219,7 +223,7 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
  * Method called at the end of a generation.
  * Actions such as update the individuals' ranks can be done here.
  */
-void ReplicationReport::signal_end_of_generation() {
+void ReplicationReport::signal_end_of_generation(int i) {
   rank_ = indiv_->rank();
 }
 
@@ -257,9 +261,6 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 // =================================================================
 void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
   switch (e) {
-    case END_REPLICATION :
-      signal_end_of_replication(dynamic_cast<Individual*>(&o));
-      break;
     case MUTATION :
       dna_replic_report_.add_mut(reinterpret_cast<Mutation*>(arg));
       break;
