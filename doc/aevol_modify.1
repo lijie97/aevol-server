@@ -1,7 +1,7 @@
 ./"test with man -l <file>
-.TH AEVOL "1" "July 2014" "aevol 4.4" "User Manual"
+.TH AEVOL "1" "May 2016" "aevol 5.0" "User Manual"
 .SH NAME
-aevol \- an in silico experimental evolution platform
+Aevol \- an in silico experimental evolution platform
 .SH SYNOPSIS
 .B aevol_modify \-h
 or
@@ -11,14 +11,14 @@ or
 or
 .B \-\-version
 .br
-.B aevol_modify \-g\fI GENER \fR[\fB\-f\fI param_file\fR]
+.B aevol_modify \fR[\fB\-T\fI TIMESTEP\fR] \fR[\fB\-F\fI PARAM_FILE\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
 .TP
 .B aevol_modify
 modify an experiment as specified in
-.I param_file
+.I PARAM_FILE
 .SH OPTIONS
 .TP
 .B \-h, \-\-help
@@ -27,13 +27,13 @@ print help, then exit
 .B \-V, \-\-version
 print version number, then exit
 .HP
-.B \-g, \-\-gener
-.I GENER
+.B \-t, \-\-timestep
+.I TIMESTEP
 .br
-specify generation number
+specify timestep
 .HP
 .B \-f, \-\-file
-.I param_file
+.I PARAM_FILE
 .br
 specify parameter file (default: param.in)
 .SH "SEE ALSO"
