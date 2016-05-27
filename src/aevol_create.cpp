@@ -177,7 +177,7 @@ void print_help(char* prog_path) {
   printf("*                                                                            *\n");
   printf("******************************************************************************\n");
   printf("\n");
-  printf("%s: create an experiment with setup as specified in param_file.\n",
+  printf("%s: create an experiment with setup as specified in PARAM_FILE.\n",
          prog_name);
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
@@ -185,8 +185,8 @@ void print_help(char* prog_path) {
   printf("   or : %s [-f PARAM_FILE] [-C CHROM_FILE] [-P PLASMID_FILE]\n",
          prog_name);
   printf("\nOptions\n");
-  printf("  -h, --help\n\tprint this help, then exit\n\n");
-  printf("  -V, --version\n\tprint version number, then exit\n\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
   printf("  -f, --file PARAM_FILE\n");
   printf("\tspecify parameter file (default: param.in)\n");
   printf("  -C, --chromosome CHROM_FILE\n");
