@@ -99,12 +99,10 @@ AC_SUBST(PTHREAD_LIBS)
 
 #   ************************ --without-x option *********************
 #
-#   When this option is set, typing make will produce aevol and
-#   most post-treatment programs, but not aevol_X11.
+#   When this option is set, running make will produce aevol and
+#   most post-treatment programs without visualization capabilities
 #   This is useful if we want to run computations on a cluster where the
-#   X libraries are not present. If, on the contrary, we type ./configure
-#   without this option, then typing make will produce aevol_X11 and
-#   view_generation_X11 (and the other post-treatment programs).
+#   X libraries are not present.
 
 AC_MSG_CHECKING([whether to enable graphical outputs])
 AC_ARG_WITH(x, [  --without-x to disable graphical output], , with_x=yes)

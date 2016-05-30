@@ -1,7 +1,7 @@
 ./"test with man -l <file>
-.TH AEVOL "1" "July 2014" "aevol 4.4" "User Manual"
+.TH AEVOL "1" "May 2016" "aevol 5.0" "User Manual"
 .SH NAME
-aevol \- an in silico experimental evolution platform
+Aevol \- an in silico experimental evolution platform
 .SH SYNOPSIS
 .B aevol_misc_create_eps \-h
 |
@@ -11,13 +11,13 @@ aevol \- an in silico experimental evolution platform
 |
 .B \-\-version
 .br
-.B aevol_misc_create_eps \fR[\fB\-i\fI INDEX\fR | \fB\-r\fI RANK\fR] \fB\-g\fI GENER
+.B aevol_misc_create_eps \fR[\fB\-t\fI TIMESTEP\fR] \fR[\fB\-I\fI INDEX\fR | \fB\-R\fI RANK\fR] \fR[\fB\-v\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
 .TP
 .B aevol_misc_create_eps
-produces several eps files describing an individual of this population
+creates EPS files with the triangles, the positive and negative	profiles, the phenotype, the CDS and the mRNAs of the individual of interest.
 .SH OPTIONS
 .TP
 .B \-h, \-\-help
@@ -26,19 +26,23 @@ print help, then exit
 .B \-V, \-\-version
 print version number, then exit
 .HP
-.B \-i, \-\-index
+.B \-t, \-\-timestep
+.I TIMESTEP
+.br
+specify timestep of the individual of interest
+.br
+default: that contained in file last_gener.txt, if any
+.HP
+.B \-I, \-\-index
 .I  INDEX
 .br
-specify the index (ID in current generation) of the individual
+specify the index of the individual of interest
 .HP
-.B \-r, \-\-rank
+.B \-R, \-\-rank
 .I  RANK
 .br
-specify the rank of the individual
-.HP
-.B \-g, \-\-gener
-.I  GENER
+specify the rank of the individual of interest
 .br
-specify the generation of the individual
+default: best individual
 .SH "SEE ALSO"
 .B aevol_create, aevol_modify, aevol_propagate, aevol_run

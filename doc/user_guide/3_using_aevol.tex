@@ -152,11 +152,11 @@ Please note that these tools have only been tested on simple experimental setups
 
 \subsection{aevol\_misc\_view\_generation}
 \label{sect:view-gener}
-The \verb?view_generation? tool is probably the easiest and most straightforward tool provided with \aevol{}.
+The \verb?view? tool is probably the easiest and most straightforward tool provided with \aevol{}.
 It allows one to visualize a generation using the exact same graphical outputs used in \verb?aevol_run?.
 However, since it relies on graphics, it is only available when \aevol{} is compiled with X enabled (which is the default).
 
-Usage: \verb?aevol_misc_view_generation -g generation_number?
+Usage: \verb?aevol_misc_view -g generation_number?
 
 There must have been a backup of the population at this generation. For example, if the program is called with the option
 \verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory.

@@ -249,11 +249,11 @@ void print_help(char* prog_path) {
   printf("\n");
   printf("Usage : %s -h\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-t TIMESTEP] [-U NUM_GU] [-T TRIANGLE_FILE] [-S SEQ_FILE] [-a]\n",
+  printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-U NUM_GU] [-a]\n",
          prog_name);
   printf("\nOptions\n");
-  printf("  -h, --help\n\tprint this help, then exit\n\n");
-  printf("  -V, --version\n\tprint version number, then exit\n\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
   printf("  -t TIMESTEP\n");
   printf("\tspecify timestep of the individual(s) of interest\n");
   printf("  -S SEQ_FILE\n");
@@ -261,9 +261,9 @@ void print_help(char* prog_path) {
   printf("  -T TRIANGLE_FILE\n");
   printf("\textract phenotypic data into file TRIANGLE_FILE\n");
   printf("  -U NUM_GU\n");
-  printf("\tonly treat genetic unit #NUM_GU (by default: treat all genetic units)\n");
+  printf("\tonly treat genetic unit #NUM_GU (default: treat all genetic units)\n");
   printf("  -a\n");
-  printf("\ttreat all the individuals (by default: treat only the best)\n");
+  printf("\ttreat all the individuals (default: treat only the best)\n");
 }
 
 

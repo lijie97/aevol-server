@@ -914,11 +914,11 @@ void print_help(char* prog_path) {
   printf("*                                                                            *\n");
   printf("******************************************************************************\n");
   printf("\n");
-  printf("%s: modify an experiment as specified in param_file.\n", prog_name);
+  printf("%s: modify an experiment as specified in PARAM_FILE.\n", prog_name);
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-t TIMESTEP] [-f param_file]\n", prog_name);
+  printf("   or : %s [-t TIMESTEP] [-f PARAM_FILE]\n", prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n"
              "\tprint this help, then exit\n");
@@ -926,7 +926,7 @@ void print_help(char* prog_path) {
              "\tprint version number, then exit\n");
   printf("  -t, --timestep TIMESTEP\n"
              "\tspecify timestep\n");
-  printf("  -f, --file param_file\n"
+  printf("  -f, --file PARAM_FILE\n"
              "\tspecify parameter file (default: param.in)\n");
 }
 

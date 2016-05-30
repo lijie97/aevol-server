@@ -47,7 +47,7 @@ aevol_misc_fixed_mutations
 # aevol_misc_transform_plasmid
 
 if WITH_X
-  bin_PROGRAMS += aevol_misc_view_generation
+  bin_PROGRAMS += aevol_misc_view
 endif # X
 # noinst_PROGRAMS = aevol_misc_template
 
@@ -64,4 +64,4 @@ aevol_misc_mutational_robustness_SOURCES = mutationalrobustness.cpp
 # aevol_misc_robustness_SOURCES = robustness.cpp
 # aevol_misc_template_SOURCES = template.cpp
 # aevol_misc_transform_plasmid_SOURCES = transform_plasmid.cpp
-aevol_misc_view_generation_SOURCES = view_generation.cpp
+aevol_misc_view_SOURCES = view.cpp

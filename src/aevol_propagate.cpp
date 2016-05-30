@@ -165,8 +165,8 @@ void print_help(char* prog_path) {
   printf("******************************************************************************\n");
   printf("\n");
   printf("%s:\n", prog_name);
-  printf("\tCreate a fresh copy of the experiment as it was at the given generation.\n");
-  printf("\tThe generation number of the copy will be reset to 0.\n");
+  printf("\tCreate a fresh copy of the experiment as it was at the given timestep.\n");
+  printf("\tThe timestep number of the copy will be reset to 0.\n");
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
@@ -175,7 +175,8 @@ void print_help(char* prog_path) {
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
   printf("  -V, --version\n\tprint version number, then exit\n");
-  printf("  -t, --timestep TIMESTEP\n\tspecify timestep\n");
+  printf("  -t, --timestep TIMESTEP\n");
+  printf("\tspecify timestep to propagate\n");
   printf("  -K, --keep-prng-st\n\tdo not alter prng states\n");
 //  printf("  -i, --in INDIR\n"
 //             "\tspecify input directory (default \".\")\n");

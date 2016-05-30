@@ -447,12 +447,11 @@ void print_help(char* prog_path) {
   printf("******************************************************************************\n");
   printf("\n");
   printf("%s:\n", prog_name);
-  printf("\tCreate a fresh copy of the experiment as it was at the given generation.\n");
-  printf("\tThe generation number of the copy will be reset to 0.\n");
+  printf("\tReconstruct the lineage of a given individual from the tree files\n");
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-b TIMESTEP] [-e TIMESTEP] [-F] [-I INDEX | -R RANK] [-v]\n",
+  printf("   or : %s [-b TIMESTEP] [-e TIMESTEP] [-I INDEX | -R RANK] [-F] [-v]\n",
          prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
@@ -461,12 +460,12 @@ void print_help(char* prog_path) {
   printf("\tspecify time t0 up to which to reconstruct the lineage\n");
   printf("  -e, --end TIMESTEP\n");
   printf("\tspecify time t_end of the indiv whose lineage is to be reconstructed\n");
-  printf("  -F, --full-check\n");
-  printf("\tperform genome checks whenever possible\n");
   printf("  -I, --index INDEX\n");
   printf("\tspecify the index of the indiv whose lineage is to be reconstructed\n");
   printf("  -R, --rank RANK\n");
   printf("\tspecify the rank of the indiv whose lineage is to be reconstructed\n");
+  printf("  -F, --full-check\n");
+  printf("\tperform genome checks whenever possible\n");
   printf("  -v, --verbose\n\tbe verbose\n");
 }
 

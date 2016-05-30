@@ -1,7 +1,7 @@
 ./"test with man -l <file>
-.TH AEVOL "1" "July 2014" "aevol 4.4" "User Manual"
+.TH AEVOL "1" "May 2016" "aevol 5.0" "User Manual"
 .SH NAME
-aevol \- an in silico experimental evolution platform
+Aevol \- an in silico experimental evolution platform
 .SH SYNOPSIS
 .B aevol_misc_extract \-h
 |
@@ -11,7 +11,7 @@ aevol \- an in silico experimental evolution platform
 |
 .B \-\-version
 .br
-.B aevol_misc_extract \fR[\fB\-r\fI GENER\fR | \fB\-p\fI POP_FILE\fR] \fR[\fB\-t\fI PHEN_FILE\fR] \fR[\fB\-s\fI SEQ_FILE\fR] \fR[\fB\-g\fI NUM_GU\fR] \fR[\fB\-b\fR]
+.B aevol_misc_extract \fR[\fB\-t\fI TIMESTEP\fR] \fR[\fB\-S\fI SEQ_FILE\fR] \fR[\fB\-T\fI TRIANGLE_FILE\fR] \fR[\fB\-U\fI NUM_GU\fR] \fR[\fB\-a\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
@@ -26,33 +26,32 @@ print help, then exit
 .B \-V, \-\-version
 print version number, then exit
 .HP
-.B \-r
-.I  GENER
-.br
-read generation GENER from a full aevol backup
-.HP
-.B \-p
-.I  POP_FILE
-.br
-read the population saved in population file POP_FILE
-.HP
 .B \-t
-.I  PHEN_FILE
+.I TIMESTEP
 .br
-extract and save some infos about the phenotypes of the individuals to file PHEN_FILE
+specify timestep of the individual(s) of interest
 .HP
-.B \-s
+.B \-S
 .I  SEQ_FILE
 .br
-extract and save the sequences of the individuals to file SEQ_FILE
+extract sequences into file SEQ_FILE
 .HP
-.B \-g
-.I  num_gu
+.B \-T
+.I  TRIANGLE_FILE
 .br
-only treat this genetic unit (by default: treat all genetic units)
+extract phenotypic data into file TRIANGLE_FILE
 .HP
-.B \-b
+.B \-U
+.I  NUM_GU
 .br
-only treat the best individual
+only treat genetic unit #NUM_GU
+.br
+default: treat all genetic units
+.HP
+.B \-a
+.br
+treat all the individuals
+.br
+default: treat only the best
 .SH "SEE ALSO"
 .B ae_misc_lineage, aevol_create, aevol_modify, aevol_propagate, aevol_run

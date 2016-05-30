@@ -166,18 +166,18 @@ void print_help(char* prog_path) {
 	printf("   or : %s [-b TIMESTEP] [-e TIMESTEP|-n NB_TIMESTEPS] [-p NB_THREADS] [-vwx]\n",
          prog_name);
 	printf("\nOptions\n");
-	printf("  -h, --help\n\tprint this help, then exit\n\n");
-	printf("  -V, --version\n\tprint version number, then exit\n\n");
+	printf("  -h, --help\n\tprint this help, then exit\n");
+	printf("  -V, --version\n\tprint version number, then exit\n");
   printf("  -b, --begin TIMESTEP\n");
-  printf("\tspecify time t0 to resume simulation at (default value read in last_gener.txt)\n\n");
+  printf("\tspecify time t0 to resume simulation at (default read in last_gener.txt)\n");
   printf("  -e, --end TIMESTEP\n");
-  printf("\tspecify time of the end of the simulation\n\n");
+  printf("\tspecify time of the end of the simulation\n");
   printf("  -n, --nb-timesteps NB_TIMESTEPS\n");
-  printf("\tspecify number of timesteps to be simulated (default 1000)\n\n");
+  printf("\tspecify number of timesteps to be simulated (default 1000)\n");
   printf("  -p, --parallel NB_THREADS\n");
-  printf("\trun on NB_THREADS threads (-1 for system default)\n");
-  printf("  -v, --verbose\n\tbe verbose\n\n");
-  printf("  -w, --wait\n\tpause after loading\n\n");
+  printf("\trun on NB_THREADS threads (use -1 for system default)\n");
+  printf("  -v, --verbose\n\tbe verbose\n");
+  printf("  -w, --wait\n\tpause after loading\n");
   printf("  -x, --noX\n\tdon't display X outputs upon start\n");
   printf("\tsend SIGUSR1 to switch X output on/off\n");
 }

@@ -1,23 +1,23 @@
 ./"test with man -l <file>
-.TH AEVOL "1" "July 2014" "aevol 4.4" "User Manual"
+.TH AEVOL "1" "May 2016" "aevol 5.0" "User Manual"
 .SH NAME
-aevol \- an in silico experimental evolution platform
+Aevol \- an in silico experimental evolution platform
 .SH SYNOPSIS
-.B aevol_misc_view_generation \-h
+.B aevol_misc_view \-h
 |
 .B \-\-help
 .br
-.B aevol_misc_view_generation \-V
+.B aevol_misc_view \-V
 |
 .B \-\-version
 .br
-.B aevol_misc_view_generation \fB\-g\fI GENER
+.B aevol_misc_view \fB\-t\fI TIMESTEP
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
 .TP
-.B aevol_misc_view_generation
-allows one to visualize a generation using the exact same graphical outputs used in aevol_run.
+.B aevol_misc_view
+view the simulation at the provided timestep
 .SH OPTIONS
 .TP
 .B \-h, \-\-help
@@ -26,9 +26,11 @@ print help, then exit
 .B \-V, \-\-version
 print version number, then exit
 .HP
-.B \-g, \-\-gener
-.I  GENER
+.B \-t, \-\-timestep
+.I TIMESTEP
 .br
-specify generation to visualize (default 0)
+specify timestep to display
+.br
+default: that contained in file last_gener.txt, if any
 .SH "SEE ALSO"
 .B aevol_create, aevol_modify, aevol_propagate, aevol_run

@@ -1160,7 +1160,7 @@ void print_help(char* prog_path) {
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-t TIMESTEP] [-I INDEX | -R RANK] [-v]\n",
+  printf("   or : %s [-t TIMESTEP] [-I INDEX | -R RANK]\n",
          prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
