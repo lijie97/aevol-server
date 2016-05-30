@@ -24,27 +24,17 @@
 //
 // ****************************************************************************
 
-/// The input file (lineage.ae or lineage.rae) must contain the following information:
-/// - common data                                                (ae_common::write_to_backup)
-/// - begin gener                                                (int64_t)
-/// - end gener                                                  (int64_t)
-/// - final individual index                                     (int32_t)
-/// - initial genome size                                        (int32_t)
-/// - initial ancestor (nb genetic units + sequences)            (Individual::write_to_backup)
-/// - replication report of ancestor at time t0+1  (ae_replic_report::write_to_backup)
-/// - replication report of ancestor at time t0+2  (ae_replic_report::write_to_backup)
-/// - replication report of ancestor at time t0+3  (ae_replic_report::write_to_backup)
-/// - ...
-/// - replication report of ancestor at time t_end_ (ae_replic_report::write_to_backup)
+// The input file is produced by the lineage post-treatment, please refer to it
+// for e.g. the file format/content
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <zlib.h>
 #include <err.h>
-#include <errno.h>
+#include <cerrno>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <list>
@@ -54,20 +44,12 @@
 
 using namespace aevol;
 
-enum class Checking {
-  FULL  = 0,
-  LIGHT = 1,
-  ENV   = 2,
-  NONE  = 3
-};
-
 // =================================================================
 //                     Command line option variables
 // =================================================================
-char* lineage_file_name = nullptr;
-bool verbose = false;
-Checking check = Checking::LIGHT;
-double tolerance = 0;
+static char* lineage_file_name = nullptr;
+static bool verbose = false;
+static bool full_check = false;
 
 // =================================================================
 //                         Function declarations
@@ -219,7 +201,7 @@ int main(int argc, char* argv[]) {
   int32_t index;
 
   ExpManager* exp_manager_backup = nullptr;
-  Habitat *backup_habitat = nullptr;
+  //Habitat *backup_habitat = nullptr;
 
   bool check_now = false;
 
@@ -230,9 +212,8 @@ int main(int argc, char* argv[]) {
     index = rep->id(); // who we are building...
 
     // Check now?
-    check_now = ((check == Checking::FULL && Utils::mod(time(), backup_step) == 0) ||
-                 (check == Checking::ENV && Utils::mod(time(), backup_step) == 0) ||
-                 (check == Checking::LIGHT && time() == t_end));
+    check_now = time() == t_end ||
+        (full_check && Utils::mod(time(), backup_step) == 0);
 
     if (verbose)
         printf("Rebuilding ancestor at generation %" PRId64
@@ -240,20 +221,18 @@ int main(int argc, char* argv[]) {
 
     indiv->Reevaluate();
 
-    // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
+    // TODO <dpa> Check for phenotypic variation has to be
     // done for all the grid cells, disable checking until coded
 
 //    // Check, and possibly update, the environment according to the backup files
 //    // (update necessary if the env. was modified by aevol_modify at some point)
-//    if (Utils::mod(time(), backup_step) == 0)
-//    {
+//    if (Utils::mod(time(), backup_step) == 0) {
 //      char world_file_name[255];
 //      sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, time());
 //      gzFile world_file = gzopen(world_file_name, "r");
 //      backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
 //
-//      if (! env->is_identical_to(*backup_env, tolerance))
-//      {
+//      if (! env->is_identical_to(*backup_env, tolerance)) {
 //        printf("Warning: At time()=%" PRId64 ", the replayed environment is not the same\n", time());
 //        printf("         as the one saved at time()=%" PRId64 "... \n", time());
 //        printf("         with tolerance of %lg\n", tolerance);
@@ -619,16 +598,12 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   // =====================
   //  Parse command line
   // =====================
-  const char * short_options = "hVvncf:lt:";
-  static struct option long_options[] =
-  {
-    // {"file",        required_argument, NULL, 'f'},
-    {"fullcheck",   no_argument,       NULL, 'F'},
+  const char * short_options = "hVF:v";
+  static struct option long_options[] = {
     {"help",        no_argument,       NULL, 'h'},
-    {"nocheck",     no_argument,       NULL, 'n'},
-    {"tolerance",   required_argument, NULL, 'T'},
-    {"verbose",     no_argument,       NULL, 'v'},
     {"version",     no_argument,       NULL, 'V'},
+    {"full-check",  no_argument,       NULL, 'F'},
+    {"verbose",     no_argument,       NULL, 'v'},
     {0, 0, 0, 0}
   };
 
@@ -644,39 +619,22 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       case 'v':
         verbose = true;
         break;
-      case 'n':
-        check = Checking::NONE;
-        break;
       case 'F':
-        check = Checking::FULL;
+        full_check = true;
         break;
-      case 'f':
-        if (strcmp(optarg, "") == 0) {
-          fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-        lineage_file_name = new char[strlen(optarg) + 1];
-        sprintf(lineage_file_name, "%s", optarg);
-        break;
-      case 'T':
-        if (strcmp(optarg, "") == 0) {
-          fprintf(stderr, "ERROR : Option -T or --tolerance : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-        check = Checking::ENV;
-        tolerance = atof(optarg);
-        break;
-      default :
-        fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
-        print_help(argv[0]);
+      default:
+        // An error message is printed in getopt_long, we just need to exit
         exit(EXIT_FAILURE);
     }
   }
 
-  if (lineage_file_name == nullptr) {
-    fprintf(stderr, "ERROR : Option -f or --file missing. \n");
-    exit(EXIT_FAILURE);
+  // There should be only one remaining arg: the lineage file
+  if (optind != argc - 1) {
+    Utils::ExitWithUsrMsg("please specify a lineage file");
   }
+
+  lineage_file_name = new char[strlen(argv[optind]) + 1];
+  sprintf(lineage_file_name, "%s", argv[optind]);
 }
 
 /*!
@@ -684,47 +642,37 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
 
 */
 void print_help(char* prog_path) {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
+
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
   printf("\n");
-  printf("*********************** aevol - Artificial Evolution ******************* \n");
-  printf("*                                                                      * \n");
-  printf("*                      Ancstats post-treatment program                 * \n");
-  printf("*                                                                      * \n");
-  printf("************************************************************************ \n");
-  printf("\n\n");
-  printf("This program is Free Software. No Warranty.\n");
-  printf("Copyright (C) 2009  LIRIS.\n");
+  printf("%s: create an experiment with setup as specified in PARAM_FILE.\n",
+  prog_name);
   printf("\n");
-#ifdef __REGUL
-  printf("Usage : rancstats -h\n");
-  printf("or :    rancstats [-vn] -f lineage_file \n");
-#else
-  printf("Usage : ancstats -h\n");
-  printf("or :    ancstats [-vn] -f lineage_file \n");
-#endif
-  printf("\n");
-  printf("This program compute some statistics for the individuals within lineage_file.\n");
-  printf("\n");
-  printf("\n");
-  printf("\t-h or --help       : Display this help.\n");
-  printf("\n");
-  printf("\t-v or --verbose    : Be verbose, listing generations as they are \n");
-  printf("\t                       treated.\n");
-  printf("\n");
-  printf("\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
-  printf("\t                       program faster, but it is not recommended. \n");
-  printf("\t                       It is better to let the program check that \n");
-  printf("\t                       when we rebuild the genomes of the ancestors\n");
-  printf("\t                       from the lineage file, we get the same sequences\n");
-  printf("\t                       as those stored in the backup files.\n");
-  printf("\n");
-  printf("\t-F or --fullcheck  : Will perform the genome and environment checks every\n");
-  printf("\t                       <BACKUP_STEP> generations. Default behaviour is\n");
-  printf("\t                       lighter as it only perform sthese checks at the\n");
-  printf("\t                       ending generation.\n");
-  printf("\n");
-  printf("\t-f lineage_file or --file lineage_file : \n");
-  printf("\t                       Compute the statistics for the individuals within lineage_file.\n");
-  printf("\t-T tolerance or --tolerance tolerance : \n");
-  printf("\t                       Tolerance is used to compare the replayed environment to environment in backup\n");
-  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s LINEAGE_FILE [-Fv]\n",
+  prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -F, --full-check\n");
+  printf("\tperform genome checks whenever possible\n");
+  printf("  -v, --verbose\n\tbe verbose\n");
 }
