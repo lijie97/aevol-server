@@ -50,6 +50,7 @@ using namespace aevol;
 static char* lineage_file_name = nullptr;
 static bool verbose = false;
 static bool full_check = false;
+static bool trace_mutations = false;
 
 // =================================================================
 //                         Function declarations
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]) {
 
 
   // =============================
-  //  Open the experience manager
+  //  Open the experiment manager
   // =============================
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t0, true, false);
@@ -138,6 +139,7 @@ int main(int argc, char* argv[]) {
     err(EXIT_FAILURE, "stats/ancstats/");
   }
 
+  // Open main output files (uses the Stats utility class)
   auto prefix = "ancstats/ancstats";
   char postfix[255];
   snprintf(postfix, 255,
@@ -148,9 +150,8 @@ int main(int argc, char* argv[]) {
   bool delete_old_stats = true;
   Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix, postfix,
                              addition_old_stats, delete_old_stats);
-  //mystats->write_headers();
 
-  // Optional outputs
+  // Optional additional outputs
   FILE* env_output_file = open_environment_stat_file(prefix, postfix);
   FILE* term_output_file = open_terminators_stat_file(prefix, postfix);
   FILE* zones_output_file = NULL;
@@ -162,6 +163,47 @@ int main(int argc, char* argv[]) {
   }
   FILE* operons_output_file = open_operons_stat_file(prefix, postfix);
 
+  // Open optional output files
+  FILE* fixed_mutations_file = nullptr;
+  if (trace_mutations) {
+    char fixed_mutations_file_name[255];
+    snprintf(fixed_mutations_file_name, 60,
+             "stats/fixedmut-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%"
+                 PRId32 "-r%" PRId32 ".out",
+             t0, t_end, final_indiv_index, final_indiv_rank);
+    fixed_mutations_file = fopen(fixed_mutations_file_name, "w");
+    if (fixed_mutations_file == nullptr) {
+      Utils::ExitWithUsrMsg(std::string("Could not create the output file ") +
+                            fixed_mutations_file_name);
+    }
+
+    // Write the header
+    fprintf(fixed_mutations_file, "# #################################################################\n");
+    fprintf(fixed_mutations_file, "#  Mutations in the lineage of the best indiv at generation %" PRId64 "\n", t_end);
+    fprintf(fixed_mutations_file, "# #################################################################\n");
+    fprintf(fixed_mutations_file, "#  1.  Generation       (mut. occurred when producing the indiv. of this generation)\n");
+    fprintf(fixed_mutations_file, "#  2.  Genetic unit     (which underwent the mutation, 0 = chromosome) \n");
+    fprintf(fixed_mutations_file, "#  3.  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv, 7:insert, 8:ins_HT, 9:repl_HT) \n");
+    fprintf(fixed_mutations_file, "#  4.  pos_0            (position for the small events, begin_segment for the rearrangements, begin_segment of the inserted segment for ins_HT, begin_segment of replaced segment for repl_HT) \n");
+    fprintf(fixed_mutations_file, "#  5.  pos_1            (-1 for the small events, end_segment for the rearrangements, end_segment of the inserted segment for ins_HT, begin_segment of donor segment for repl_HT) \n");
+    fprintf(fixed_mutations_file, "#  6.  pos_2            (reinsertion point for duplic., cutting point in segment for transloc., insertion point in the receiver for ins_HT, end_segment of the replaced segment for repl_HT, -1 for other events)\n");
+    fprintf(fixed_mutations_file, "#  7.  pos_3            (reinsertion point for transloc., breakpoint in the donor for ins_HT, end_segment of the donor segment for repl_HT, -1 for other events)\n");
+    fprintf(fixed_mutations_file, "#  8.  invert           (transloc, was the segment inverted (0/1)?, sense of insertion for ins_HT (0=DIRECT, 1=INDIRECT), sense of the donor segment for repl_HT (0=DIRECT, 1=INDIRECT),-1 for other events)\n");
+    fprintf(fixed_mutations_file, "#  9.  align_score      (score that was needed for the rearrangement to occur, score of the first alignment for ins_HT and repl_HT)\n");
+    fprintf(fixed_mutations_file, "#  10. align_score2     (score for the reinsertion for transloc, score of the second alignment for ins_HT and repl_HT)\n");
+    fprintf(fixed_mutations_file, "#  11. seg_len          (segment length for rearrangement, donor segment length for ins_HT and repl_HT)\n");
+    fprintf(fixed_mutations_file, "#  12. repl_seg_len     (replaced segment length for repl_HT, -1 for the others)\n");
+    fprintf(fixed_mutations_file, "#  13. GU_length        (before the event)\n");
+    fprintf(fixed_mutations_file, "#  14. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n");
+    fprintf(fixed_mutations_file, "#  15. Number of coding RNAs possibly disrupted by the breakpoints \n");
+    fprintf(fixed_mutations_file, "#  16. Number of coding RNAs completely included in the segment (donor segment in the case of a transfer) \n");
+    fprintf(fixed_mutations_file, "#  17. Number of coding RNAs that were completely included in the replaced segment (meaningful only for repl_HT) \n");
+    fprintf(fixed_mutations_file, "####################################################################################################################\n");
+    fprintf(fixed_mutations_file, "#\n");
+    fprintf(fixed_mutations_file, "# Header for R\n");
+    fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n");
+
+  }
 
   // ==================================================
   //  Prepare the initial ancestor and write its stats
@@ -174,8 +216,7 @@ int main(int argc, char* argv[]) {
 
   mystats->write_statistics_of_this_indiv(indiv, nullptr);
 
-
-  // Optional outputs
+  // Additional outputs
   write_environment_stats(t0, phenotypicTargetHandler, env_output_file);
   write_terminators_stats(t0, indiv, term_output_file);
   if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
@@ -184,24 +225,21 @@ int main(int argc, char* argv[]) {
   }
   write_operons_stats(t0, indiv, operons_output_file);
 
-
-  if (verbose)
-  {
+  if (verbose) {
     printf("Initial fitness     = %f\n", indiv->fitness());
     printf("Initial genome size = %" PRId32 "\n", indiv->total_genome_size());
   }
-
-  //delete exp_manager;
 
   // ==========================================================================
   //  Replay the mutations to get the successive ancestors and analyze them
   // ==========================================================================
   ReplicationReport* rep = nullptr;
-
   int32_t index;
-
   ExpManager* exp_manager_backup = nullptr;
-  //Habitat *backup_habitat = nullptr;
+  int32_t unitlen_before;
+  double metabolic_error_before;
+  double impact_on_metabolic_error;
+  char mut_descr_string[255];
 
   bool check_now = false;
 
@@ -221,32 +259,6 @@ int main(int argc, char* argv[]) {
 
     indiv->Reevaluate();
 
-    // TODO <dpa> Check for phenotypic variation has to be
-    // done for all the grid cells, disable checking until coded
-
-//    // Check, and possibly update, the environment according to the backup files
-//    // (update necessary if the env. was modified by aevol_modify at some point)
-//    if (Utils::mod(time(), backup_step) == 0) {
-//      char world_file_name[255];
-//      sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, time());
-//      gzFile world_file = gzopen(world_file_name, "r");
-//      backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
-//
-//      if (! env->is_identical_to(*backup_env, tolerance)) {
-//        printf("Warning: At time()=%" PRId64 ", the replayed environment is not the same\n", time());
-//        printf("         as the one saved at time()=%" PRId64 "... \n", time());
-//        printf("         with tolerance of %lg\n", tolerance);
-//        printf("Replacing the replayed environment by the one stored in the backup.\n");
-//        delete env;
-//        h = new Habitat(*backup_habitat);
-//      }
-//      delete backup_habitat;
-//    }
-
-
-    // Warning: this portion of code won'time() work if the number of units changes
-    // during the evolution
-
     // 2) Replay replication (create current individual's child)
     GeneticUnit& gen_unit = indiv->genetic_unit_nonconst(0);
     GeneticUnit* stored_gen_unit = nullptr;
@@ -265,12 +277,63 @@ int main(int argc, char* argv[]) {
     // TODO <david.parsons@inria.fr> disabled for multiple GUs
     const auto& dnarep = rep->dna_replic_report();
 
+    // TODO(dpa) The following 3 for loops should be factorized.
+    // However, this is not as easy as it sounds :-D
+    // see std::list::splice
     for (const auto& mut: dnarep.HT())
       gen_unit.dna()->undergo_this_mutation(*mut);
-    for (const auto& mut: dnarep.rearrangements())
+
+    for (const auto& mut: dnarep.rearrangements()) {
+      if (trace_mutations) {
+        // Store initial values before the mutation
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+        unitlen_before = gen_unit.dna()->length();
+      }
+
+      // Apply mutation
       gen_unit.dna()->undergo_this_mutation(*mut);
-    for (const auto& mut: dnarep.mutations())
+
+      if (trace_mutations) {
+        indiv->Reevaluate();
+
+        // Compute the metabolic impact of the mutation
+        impact_on_metabolic_error =
+            indiv->dist_to_target_by_feature(METABOLISM) -
+            metabolic_error_before;
+
+        mut->generic_description_string(mut_descr_string);
+        fprintf(fixed_mutations_file,
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+                time(), 0, mut_descr_string, unitlen_before,
+                impact_on_metabolic_error);
+      }
+    }
+
+    for (const auto& mut: dnarep.mutations()) {
+      if (trace_mutations) {
+        // Store initial values before the mutation
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+        unitlen_before = gen_unit.dna()->length();
+      }
+
+      // Apply mutation
       gen_unit.dna()->undergo_this_mutation(*mut);
+
+      if (trace_mutations) {
+        indiv->Reevaluate();
+
+        // Compute the metabolic impact of the mutation
+        impact_on_metabolic_error =
+            indiv->dist_to_target_by_feature(METABOLISM) -
+            metabolic_error_before;
+
+        mut->generic_description_string(mut_descr_string);
+        fprintf(fixed_mutations_file,
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+                time(), 0, mut_descr_string, unitlen_before,
+                impact_on_metabolic_error);
+      }
+    }
 
     if (check_now) {
       if (verbose) {
@@ -302,6 +365,8 @@ int main(int argc, char* argv[]) {
         delete [] str1;
         delete [] str2;
         gzclose(lineage_file);
+        if (trace_mutations)
+          gzclose(lineage_file);
         delete indiv;
         delete stored_indiv;
         delete exp_manager_backup;
@@ -320,7 +385,7 @@ int main(int argc, char* argv[]) {
 
     mystats->write_statistics_of_this_indiv(indiv, rep);
 
-    // Optional outputs
+    // Additional outputs
     write_environment_stats(time(), phenotypicTargetHandler, env_output_file);
     write_terminators_stats(time(), indiv, term_output_file);
     if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
@@ -343,7 +408,7 @@ int main(int argc, char* argv[]) {
 
   gzclose(lineage_file);
 
-  // Optional outputs
+  // Additional outputs
   fclose(env_output_file);
   fclose(term_output_file);
   if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
@@ -598,12 +663,13 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   // =====================
   //  Parse command line
   // =====================
-  const char * short_options = "hVF:v";
+  const char * short_options = "hVF:vM";
   static struct option long_options[] = {
-    {"help",        no_argument,       NULL, 'h'},
-    {"version",     no_argument,       NULL, 'V'},
-    {"full-check",  no_argument,       NULL, 'F'},
-    {"verbose",     no_argument,       NULL, 'v'},
+    {"help",                no_argument, NULL, 'h'},
+    {"version",             no_argument, NULL, 'V'},
+    {"full-check",          no_argument, NULL, 'F'},
+    {"trace-mutations",     no_argument, NULL, 'M'},
+    {"verbose",             no_argument, NULL, 'v'},
     {0, 0, 0, 0}
   };
 
@@ -621,6 +687,9 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         break;
       case 'F':
         full_check = true;
+        break;
+      case 'M':
+        trace_mutations = true;
         break;
       default:
         // An error message is printed in getopt_long, we just need to exit
@@ -667,12 +736,14 @@ void print_help(char* prog_path) {
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s LINEAGE_FILE [-Fv]\n",
+  printf("   or : %s LINEAGE_FILE [-FMv]\n",
   prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
   printf("  -V, --version\n\tprint version number, then exit\n");
   printf("  -F, --full-check\n");
   printf("\tperform genome checks whenever possible\n");
+  printf("  -M, --trace-mutations\n");
+  printf("\toutputs the fixed mutations (in a separate file)\n");
   printf("  -v, --verbose\n\tbe verbose\n");
 }
