@@ -27,6 +27,9 @@
 // The input file is produced by the lineage post-treatment, please refer to it
 // for e.g. the file format/content
 
+// ============================================================================
+//                                   Includes
+// ============================================================================
 #include <cinttypes>
 #include <getopt.h>
 #include <cstdlib>
@@ -44,17 +47,7 @@
 
 using namespace aevol;
 
-// =================================================================
-//                     Command line option variables
-// =================================================================
-static char* lineage_file_name = nullptr;
-static bool verbose = false;
-static bool full_check = false;
-static bool trace_mutations = false;
-
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Helper functions
 void interpret_cmd_line_options(int argc, char* argv[]);
 void print_help(char* prog_path);
 FILE* open_environment_stat_file(const char* prefix, const char* postfix);
@@ -71,6 +64,12 @@ void write_zones_stats(int64_t t,
                        FILE* zone_file);
 FILE* open_operons_stat_file(const char* prefix, const char* postfix);
 void write_operons_stats(int64_t t, Individual* indiv, FILE* operon_file);
+
+// Command-line option variables
+static char* lineage_file_name = nullptr;
+static bool verbose = false;
+static bool full_check = false;
+static bool trace_mutations = false;
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
@@ -674,7 +673,8 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   };
 
   int option;
-  while ((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1) {
+  while((option = getopt_long(argc, argv, short_options,
+                              long_options, nullptr)) != -1) {
     switch(option) {
       case 'h':
         print_help(argv[0]);
@@ -706,10 +706,6 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   sprintf(lineage_file_name, "%s", argv[optind]);
 }
 
-/*!
-  \brief
-
-*/
 void print_help(char* prog_path) {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path

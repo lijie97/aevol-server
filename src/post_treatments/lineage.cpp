@@ -54,7 +54,7 @@ static int64_t t0 = 0;
 static int64_t t_end = -1;
 static int32_t final_indiv_index = -1;
 static int32_t final_indiv_rank  = -1;
-static char tree_file_name[50];
+static char tree_file_name[255]; // TODO(dpa) remove magic number
 
 int main(int argc, char** argv) {
   // The output file (lineage.ae) contains the following information:
@@ -323,7 +323,7 @@ int main(int argc, char** argv) {
 
     // Do we need to check the genome now?
     check_genome_now = t == t_end ||
-        full_check && Utils::mod(t, exp_manager->backup_step()) == 0;
+        (full_check && Utils::mod(t, exp_manager->backup_step()) == 0);
 
     // Write the replication report of the ancestor for current generation
     if (verbose) {
