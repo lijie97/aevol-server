@@ -474,11 +474,6 @@ class Individual : public Observable {
 
 #endif
 
-  void compute_experimental_f_nu(int32_t nb_children,
-                                 double* reproduction_statistics,
-                                 double* offsprings_statistics = NULL,
-                                 FILE* replication_file = NULL);
-
   double compute_theoritical_f_nu();
   // These functions compute the probability of neutral reproduction (F_nu).
   // The first method replicates the individual "nb_children" times and counts how often

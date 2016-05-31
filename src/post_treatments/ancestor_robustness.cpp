@@ -36,15 +36,11 @@
 #include <getopt.h>
 
 #include "aevol.h"
+#include "IndivAnalysis.h"
 
 using namespace aevol;
 
 void print_help(char* prog_name);
-void analyze_indiv(Individual* initial_indiv,
-                   FILE* output,
-                   int32_t ndiv,
-                   std::shared_ptr<JumpingMT> prng,
-                   bool verbose);
 
 int main(int argc, char* argv[]) {
   // Load parameters from command line
@@ -183,8 +179,8 @@ int main(int argc, char* argv[]) {
   //  Prepare the initial ancestor 
   // ==============================
   GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
-  auto* indiv = grid_cell->individual();
-  indiv->Evaluate();
+  IndivAnalysis indiv(*(grid_cell->individual()));
+  indiv.Evaluate();
   //  indiv->compute_statistical_data();
   //  indiv->compute_non_coding();
 
@@ -193,7 +189,8 @@ int main(int argc, char* argv[]) {
   // ==============================
 
   if (begin == 0) {
-    analyze_indiv(indiv, output_summary, nb_mutants, prng, verbose);
+    indiv.compute_experimental_f_nu(nb_mutants, prng, output_summary, nullptr,
+                                    verbose);
   }
 
   // ==========================================================================
@@ -205,9 +202,9 @@ int main(int argc, char* argv[]) {
 
   aevol::AeTime::plusplus();
   while ((time() <= t_end) && (((time() < end) || (end == -1)))) {
-    rep = new ReplicationReport(lineage_file, indiv);
+    rep = new ReplicationReport(lineage_file, &indiv);
     index = rep->id(); // who we are building...
-    indiv->Reevaluate();
+    indiv.Reevaluate();
 
     if (verbose) {
       printf("Ancestor at generation %" PRId64
@@ -216,7 +213,7 @@ int main(int argc, char* argv[]) {
 
 
     // 2) Replay replication (create current individual's child)
-    GeneticUnit& gen_unit = indiv->genetic_unit_nonconst(0);
+    GeneticUnit& gen_unit = indiv.genetic_unit_nonconst(0);
 
 
     // For each genetic unit, replay the replication (undergo all mutations)
@@ -231,13 +228,14 @@ int main(int argc, char* argv[]) {
       gen_unit.dna()->undergo_this_mutation(*mut);
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-    indiv->Reevaluate();
+    indiv.Reevaluate();
 
     // if we are between "begin" and "end" and at the correct period, compute robustness
 
     if ((time() >= begin) && ((time() < end) || (end == -1)) &&
         (((time() - begin) % period) == 0)) {
-      analyze_indiv(indiv, output_summary, nb_mutants, prng, verbose);
+      indiv.compute_experimental_f_nu(nb_mutants, prng, output_summary, nullptr,
+                                      verbose);
     }
     delete rep;
 
@@ -247,81 +245,7 @@ int main(int argc, char* argv[]) {
   gzclose(lineage_file);
   fclose(output_summary);
   delete exp_manager;
-  // delete mystats;
-  delete indiv;
   return EXIT_SUCCESS;
-}
-
-void analyze_indiv(Individual* indiv,
-                   FILE* output_summary,
-                   int32_t nb_indiv,
-                   std::shared_ptr<JumpingMT> prng,
-                   bool verbose) {
-  double nb_pos = 0;
-  double cumul_delta_err_pos = 0;
-  double nb_neg = 0;
-  double cumul_delta_err_neg = 0;
-  double max_pos = 0;
-  double max_neg = 0;
-  double nb_neutral = 0;
-  int32_t nb_events = 0;
-
-  double indiv_metabolic_error = indiv->dist_to_target_by_feature(METABOLISM);
-  const Habitat& habitat = indiv->habitat();
-
-  for (int32_t i = 0; i < nb_indiv; i++) {
-    Individual* mutant = new Individual(indiv, 0, prng, prng);
-    // Perform transfer, rearrangements and mutations
-    if (not mutant->allow_plasmids()) {
-      const GeneticUnit* chromosome = &mutant->genetic_unit_list().front();
-      nb_events = chromosome->dna()->perform_mutations(indiv->id());
-    }
-    else {
-      printf("WARNING: Mutational Robustness does not handle multiple "
-          "Genetic Units\n");
-    }
-    if (nb_events == 0) {
-      nb_neutral++;
-    }
-    else {
-      mutant->EvaluateInContext(habitat);
-      double new_metabolic_error = mutant->dist_to_target_by_feature(
-          METABOLISM);
-
-      if (new_metabolic_error == indiv_metabolic_error) {
-        nb_neutral++;
-      }
-      if (new_metabolic_error > indiv_metabolic_error) {
-        nb_neg++;
-        if ((new_metabolic_error - indiv_metabolic_error) > max_neg) {
-          max_neg =
-              new_metabolic_error -
-              indiv_metabolic_error;
-        }
-        cumul_delta_err_neg += new_metabolic_error - indiv_metabolic_error;
-      }
-      if (new_metabolic_error < indiv_metabolic_error) {
-        nb_pos++;
-        if ((new_metabolic_error - indiv_metabolic_error) < max_pos) {
-          max_pos =
-              new_metabolic_error -
-              indiv_metabolic_error;
-        }
-        cumul_delta_err_pos += new_metabolic_error - indiv_metabolic_error;
-      }
-    }
-
-    delete mutant;
-  }
-
-
-  if (verbose) printf("f+: %f   f0: %f    f-:%f\n", nb_pos, nb_neutral, nb_neg);
-
-  fprintf(output_summary,
-          "%" PRId64 " %.15f %.15f %.15f %.15f %.15f %.15f %.15f\n",
-          time(), nb_pos / nb_indiv, nb_neutral / nb_indiv, nb_neg / nb_indiv,
-          cumul_delta_err_pos / nb_pos, cumul_delta_err_neg / nb_neg,
-          max_pos, max_neg);
 }
 
 

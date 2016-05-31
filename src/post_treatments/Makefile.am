@@ -53,7 +53,7 @@ endif # X
 CLEANFILES = $(bin_PROGRAMS)
 
 aevol_misc_ancestor_stats_SOURCES = ancestor_stats.cpp
-aevol_misc_ancestor_robustness_SOURCES = ancestor_robustness.cpp
+aevol_misc_ancestor_robustness_SOURCES = ancestor_robustness.cpp IndivAnalysis.cpp
 aevol_misc_create_eps_SOURCES = create_eps.cpp
 aevol_misc_extract_SOURCES = extract.cpp
 # aevol_misc_gene_families_SOURCES = gene_families.cpp
