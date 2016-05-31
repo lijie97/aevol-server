@@ -9,7 +9,7 @@ endif
 
 # Man pages
 dist_man1_MANS = aevol_create.1 aevol_run.1 aevol_modify.1 aevol_propagate.1
-dist_man1_MANS += aevol_misc_lineage.1 aevol_misc_ancstats.1
+dist_man1_MANS += aevol_misc_lineage.1 aevol_misc_ancestor_stats.1
 dist_man1_MANS += aevol_misc_robustness.1 aevol_misc_compute_pop_stats.1
 dist_man1_MANS += aevol_misc_view.1 aevol_misc_create_eps.1
 dist_man1_MANS += aevol_misc_extract.1

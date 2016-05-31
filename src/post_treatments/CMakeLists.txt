@@ -24,17 +24,17 @@ target_link_libraries(create_eps PUBLIC aevol)
 add_executable(extract extract.cpp)
 target_link_libraries(extract PUBLIC aevol)
 
-add_executable(ancstats ancstats.cpp)
-target_link_libraries(ancstats PUBLIC aevol)
+add_executable(ancestor_stats ancestor_stats.cpp)
+target_link_libraries(ancestor_stats PUBLIC aevol)
+
+add_executable(ancestor_robustness ancestor_robustness.cpp)
+target_link_libraries(mutationalrobustness PUBLIC aevol)
 
 add_executable(lineage lineage.cpp)
 target_link_libraries(lineage PUBLIC aevol)
 
 add_executable(mutagenesis mutagenesis.cpp)
 target_link_libraries(mutagenesis PUBLIC aevol)
-
-add_executable(mutationalrobustness mutationalrobustness.cpp)
-target_link_libraries(mutationalrobustness PUBLIC aevol)
 
 
 # ============================================================================

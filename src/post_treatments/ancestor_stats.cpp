@@ -134,13 +134,13 @@ int main(int argc, char* argv[]) {
   // =========================
   // Create missing directories
   int status;
-  status = mkdir("stats/ancstats/", 0755);
+  status = mkdir("stats/ancestor_stats/", 0755);
   if ((status == -1) && (errno != EEXIST)) {
-    err(EXIT_FAILURE, "stats/ancstats/");
+    err(EXIT_FAILURE, "stats/ancestor_stats/");
   }
 
   // Open main output files (uses the Stats utility class)
-  auto prefix = "ancstats/ancstats";
+  auto prefix = "ancestor_stats/ancestor_stats";
   char postfix[255];
   snprintf(postfix, 255,
       "-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32,
