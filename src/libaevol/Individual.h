@@ -566,7 +566,7 @@ class Individual : public Observable {
   double fitness_;
 
   // When using structured population, this is the cell the individual is in
-  GridCell* grid_cell_ = NULL;
+  GridCell* grid_cell_ = nullptr;
   // int16_t x, y;
 
   // The chromosome and plasmids (if allowed)

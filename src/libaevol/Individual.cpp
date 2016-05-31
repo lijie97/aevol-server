@@ -268,6 +268,8 @@ Individual::Individual(const Individual& other) {
   id_ = other.id_;
   rank_ = other.rank_;
 
+  grid_cell_ = other.grid_cell_;
+
   evaluated_ = other.evaluated_;
   transcribed_ = other.transcribed_;
   translated_ = other.translated_;
