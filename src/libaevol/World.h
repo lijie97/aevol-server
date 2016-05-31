@@ -90,6 +90,7 @@ class World
   inline GridCell*    grid(int16_t x, int16_t y) const;
   inline Individual*   indiv_at(int16_t x, int16_t y) const;
   Individual* indiv_by_id(int32_t id) const;
+  Individual* indiv_by_rank(int32_t rank) const;
 
   inline double** secretion_present_grid() const;
   inline double** secreted_amount_grid() const;

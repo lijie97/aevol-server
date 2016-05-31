@@ -653,6 +653,10 @@ Individual* ExpManager::indiv_by_id(int32_t id) const {
   return world_->indiv_by_id(id);
 }
 
+Individual* ExpManager::indiv_by_rank(int32_t rank) const {
+  return world_->indiv_by_id(rank);
+}
+
 /**
  * Returns a list of all the individuals with their replication report
  */
