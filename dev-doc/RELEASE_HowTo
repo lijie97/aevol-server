@@ -9,7 +9,7 @@ RELEASE HowTo
    and in ChangeLog for developers.
 
 3) [TEMPRORARY as long as tests are scarce]
-  -> Remove tests directories
+  -> Remove tests directories (aevol/tests, aevol/src/tests, /misc/unitary_tests)
   -> Remove references to tests in configure.ac, src/Makefile.am
 
 3') Clean up examples: remove all computed data files
