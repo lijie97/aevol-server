@@ -24,14 +24,9 @@
 //
 // ****************************************************************************
 
-/*
- This post-treatment loads a population and create a large number of mutants of
- each individual in the same way they would be created during reproduction of
- the individual. For each mutant we report the phenotypic effect of the mutation
- on metabolism and on secretion. This allows to infer the mutational landscape
- of a population.
-*/
-
+// ============================================================================
+//                                   Includes
+// ============================================================================
 #include <list>
 #include <getopt.h>
 
@@ -40,72 +35,21 @@
 
 using namespace aevol;
 
-void print_help(char* prog_name);
+// Helper functions
+void interpret_cmd_line_options(int argc, char* argv[]);
+void print_help(char* prog_path);
+
+// Command-line option variables
+static char* lineage_file_name = nullptr;
+static int32_t nb_mutants = 1000; //< Number of mutants per individual
+static int32_t begin = 0; //< First generation to analyse
+static int32_t end = -1; //< Last generation to analyse
+static int32_t period = 1; //< Period of analysis
+static char* output_file_name = "robustness_summary.txt";
+static bool verbose = false;
 
 int main(int argc, char* argv[]) {
-  // Load parameters from command line
-  int32_t nb_mutants = 1000;  // Default number of mutants per individual
-  int32_t begin = 0;        // Default starting generation
-  int32_t end = -1;         // Default ending generation (-1 for last generation stored in lineage file)
-  int32_t period = 1;       // Period of analyze
-  char* output_file_name = "robustness_summary.txt";
-  char* lineage_file_name = nullptr;
-  bool verbose = false;
-
-  const char* short_options = "hVvn:b:e:p:o:l";
-  static struct option long_options[] =
-      {
-          {"help",    no_argument,       nullptr, 'h'},
-          {"version", no_argument,       nullptr, 'V'},
-          {"verbose", no_argument,       nullptr, 'v'},
-          {"number",  required_argument, nullptr, 'n'},
-          {"begin",   required_argument, nullptr, 'b'},
-          {"end",     required_argument, nullptr, 'e'},
-          {"period",  required_argument, nullptr, 'p'},
-          {"output",  required_argument, nullptr, 'o'},
-          {0, 0,                         0,       0}
-      };
-
-  int option;
-  while ((option = getopt_long(argc, argv, short_options, long_options,
-                               nullptr)) != -1) {
-    switch (option) {
-      case 'h' :
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      case 'V' :
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      case 'v' :
-        verbose = true;
-        break;
-      case 'n' :
-        nb_mutants = atol(optarg);
-        break;
-      case 'b' :
-        begin = atol(optarg);
-        break;
-      case 'e' :
-        end = atol(optarg);
-        break;
-      case 'p' :
-        period = atol(optarg);
-        break;
-      case 'o' :
-        output_file_name = new char[strlen(optarg) + 1];
-        sprintf(output_file_name, "%s", optarg);
-        break;
-    }
-  }
-
-  // There should be only one remaining arg: the lineage file
-  if (optind != argc - 1) {
-    Utils::ExitWithUsrMsg("please specify a lineage file");
-  }
-
-  lineage_file_name = new char[strlen(argv[optind]) + 1];
-  sprintf(lineage_file_name, "%s", argv[optind]);
-
+  interpret_cmd_line_options(argc, argv);
 
   // =======================
   //  Open the lineage file
@@ -130,9 +74,16 @@ int main(int argc, char* argv[]) {
     printf("\n\n");
     printf(
         "===============================================================================\n");
-    printf(" Robustness of the ancestors of indiv. %" PRId32
-               " (rank %" PRId32 ") from time %" PRId64 " to %" PRId64 "\n",
-           final_indiv_index, final_indiv_rank, t0, t_end);
+    printf(" Robustness of the ancestors of indiv. %"
+    PRId32
+    " (rank %"
+    PRId32
+    ") from time %"
+    PRId64
+    " to %"
+    PRId64
+    "\n",
+        final_indiv_index, final_indiv_rank, t0, t_end);
     printf(
         "================================================================================\n");
   }
@@ -156,8 +107,6 @@ int main(int argc, char* argv[]) {
                               "for variable phenotypic targets\n");
   }
 
-  int64_t backup_step = exp_manager->backup_step();
-
   // =========================
   //  Open the output file(s)
   // =========================
@@ -173,7 +122,7 @@ int main(int argc, char* argv[]) {
     Utils::ExitWithUsrMsg(std::string("Could not create ") + output_file_name);
   }
 
-  std::shared_ptr<JumpingMT> prng = std::make_shared<JumpingMT>(9695);
+  std::shared_ptr <JumpingMT> prng = std::make_shared<JumpingMT>(9695);
 
   // ==============================
   //  Prepare the initial ancestor 
@@ -207,8 +156,11 @@ int main(int argc, char* argv[]) {
     indiv.Reevaluate();
 
     if (verbose) {
-      printf("Ancestor at generation %" PRId64
-                 " has index %" PRId32 "\n", time(), index);
+      printf("Ancestor at generation %"
+      PRId64
+      " has index %"
+      PRId32
+      "\n", time(), index);
     }
 
 
@@ -248,25 +200,104 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  const char* short_options = "hVvn:b:e:p:o:";
+  static struct option long_options[] = {
+        {"help",        no_argument,       nullptr, 'h'},
+        {"version",     no_argument,       nullptr, 'V'},
+        {"verbose",     no_argument,       nullptr, 'v'},
+        {"nb-mutants",  required_argument, nullptr, 'n'},
+        {"begin",       required_argument, nullptr, 'b'},
+        {"end",         required_argument, nullptr, 'e'},
+        {"period",      required_argument, nullptr, 'P'},
+        {"output",      required_argument, nullptr, 'o'},
+        {0, 0, 0, 0}
+    };
 
-// Print help
-void print_help(char* prog_name) {
-  printf("\n\
-%s is a post-treatment that generates and analyses a large quantity of mutants for a lineage of ancestors.\
-For each mutant we record the phenotypic effect on metabolism.\n\n\
-Usage: %s [-h] -i input_file_name -o output_file_name [-b start_at_generation] [-e end_at_generation] [-p period] [-n num_mutants] [-r] [-h bin_size] [-v verbose] [-s mutation_seed]\n\
-\t-h: display this screen\n\
-\t-f input_file_name: lineage file to be analyzed\n\
-\t-o output_file_name: name of the output file (to be written in ./stats/ancestor_stats). In case of histogram output (-h) one file will be produced for each histogram and output_file_name will be postfixed with the generation number\n\
-\t-b start_at_generation: first generation of the lineage to be analyzed (default: 0)\n\
-\t-e end_at_generation: last generation of the lineage to be analyzed (default: last generation stored in the input file)\n\
-\t-p period: temporal resolution of the analyze (default: 1)\n\
-\t-n nb_mutants : generate and analyse nb_mutants per individual (default: 1000)\n\
-Example:\n\t%s -i lineage_file -o toto.out -b 4000 -e 5000 -p 10 -n 100000 -s 19769\n",
-         prog_name, prog_name, prog_name);
+  int option;
+  while ((option = getopt_long(argc, argv, short_options, long_options,
+                               nullptr)) != -1) {
+    switch (option) {
+      case 'h' :
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'V' :
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      case 'v' :
+        verbose = true;
+        break;
+      case 'b' :
+        begin = atol(optarg);
+        break;
+      case 'e' :
+        end = atol(optarg);
+        break;
+      case 'n' :
+        nb_mutants = atol(optarg);
+        break;
+      case 'P' :
+        period = atol(optarg);
+        break;
+      case 'o' :
+        output_file_name = new char[strlen(optarg) + 1];
+        sprintf(output_file_name, "%s", optarg);
+        break;
+      default:
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+    }
+  }
 
-// \t-r: raw output; store the difference of metabolic error for each mutant generated (warning: the output file may quickly grow)\n
-// \t-h bin_size: store the histogram with a bin_size resolution. One output file is generated for each histogram (postfixed with the generation number)\n
-// \t-s mutation_seed: specify the seed to be used for the mutation random generator\n\n
+  // There should be only one remaining arg: the lineage file
+  if (optind != argc - 1) {
+    Utils::ExitWithUsrMsg("please specify a lineage file");
+  }
 
+  lineage_file_name = new char[strlen(argv[optind]) + 1];
+  sprintf(lineage_file_name, "%s", argv[optind]);
+}
+
+void print_help(char* prog_path) {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
+
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
+  printf("\n");
+  printf("%s: generate and analyse mutants for the provided lineage.\n",
+         prog_name);
+  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s LINEAGE_FILE [-b TIMESTEP] [-e TIMESTEP] [-n NB_MUTANTS] [-P PERIOD] [-o output] [-v]\n",
+         prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -b, --begin TIMESTEP\n");
+  printf("\ttimestep at which to start the analysis\n");
+  printf("  -e, --end TIMESTEP\n");
+  printf("\ttimestep at which to stop the analysis\n");
+  printf("  -n, --nb-mutants NB_MUTANTS\n");
+  printf("\tnumber of mutants to be generated\n");
+  printf("  -P, --period\n");
+  printf("\tperiod with which to perform the analysis\n");
+  printf("  -o, --output\n");
+  printf("\toutput file name\n");
+  printf("  -v, --verbose\n\tbe verbose\n");
 }
