@@ -1,7 +1,7 @@
 ./"test with man -l <file>
-.TH AEVOL "1" "July 2014" "aevol 4.4" "User Manual"
+.TH AEVOL "1" "May 2016" "aevol 5.0" "User Manual"
 .SH NAME
-aevol \- an in silico experimental evolution platform
+Aevol \- an in silico experimental evolution platform
 .SH SYNOPSIS
 .B aevol_misc_lineage \-h
 |
@@ -11,13 +11,13 @@ aevol \- an in silico experimental evolution platform
 |
 .B \-\-version
 .br
-.B aevol_misc_lineage \fR[\fB\-i\fI INDEX\fR | \fB\-r\fI RANK\fR] \fR[\fB\-b\fI GENER1\fR] \fB\-e\fI GENER2
+.B aevol_misc_lineage \fR[\fB\-b\fI TIMESTEP\fR] \fR[\fB\-e\fI TIMESTEP\fR] \fR[\fB\-I\fI INDEX\fR | \fB\-R\fI RANK\fR] \fR[\fB\-F\fR] \fR[\fB\-v\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
 .TP
 .B aevol_misc_lineage
-allows for the reconstruction of the lineage of a given individual. Requires the tree to have been recorded during evolution.
+reconstruct the lineage of a given individual from the tree files
 .SH OPTIONS
 .TP
 .B \-h, \-\-help
@@ -26,24 +26,33 @@ print help, then exit
 .B \-V, \-\-version
 print version number, then exit
 .HP
-.B \-i, \-\-index
-.I  INDEX
-.br
-specify the index (ID in current generation) of the individual whose lineage is to be reconstructed
-.HP
-.B \-r, \-\-rank
-.I  RANK
-.br
-specify the rank of the individual whose lineage is to be reconstructed
-.HP
 .B \-b, \-\-begin
-.I  GENER
+.I  TIMESTEP
 .br
-specify the generation up to which the lineage is to be reconstructed
+specify time t0 up to which to reconstruct the lineage
 .HP
 .B \-e, \-\-end
-.I  GENER
+.I  TIMESTEP
 .br
-specify the generation of the individual whose lineage is to be reconstructed
+specify time t_end of the indiv whose lineage is to be reconstructed
+.HP
+.B \-I, \-\-index
+.I  INDEX
+.br
+specify the index of the indiv whose lineage is to be reconstructed
+.HP
+.B \-R, \-\-rank
+.I  RANK
+.br
+specify the rank of the indiv whose lineage is to be reconstructed
+default: best individual
+.HP
+.B \-F, \-\-full-check
+.br
+perform genome checks whenever possible
+.HP
+.B \-v, \-\-verbose
+.br
+be verbose
 .SH "SEE ALSO"
 .B aevol_create, aevol_modify, aevol_propagate, aevol_run

@@ -268,6 +268,8 @@ Individual::Individual(const Individual& other) {
   id_ = other.id_;
   rank_ = other.rank_;
 
+  grid_cell_ = other.grid_cell_;
+
   evaluated_ = other.evaluated_;
   transcribed_ = other.transcribed_;
   translated_ = other.translated_;
@@ -1656,81 +1658,6 @@ int32_t Individual::nb_terminators() {
   for (auto& gen_unit: genetic_unit_list_)
     nb_term += gen_unit.nb_terminators();
   return nb_term;
-}
-
-
-/// Compute reproduction theoretical proportion of neutral offsprings.
-///
-/// Compute the theoretical proportion of neutral offsprings given the
-/// Carole's formula, based on the mutations and rearrangement rates
-/// and not on multiple replications.
-///
-/// \return theoretical proportion of neutral offsprings
-double Individual::compute_theoritical_f_nu() {
-  // We first have to collect information about genome structure.
-  // Abbreviations are chosen according to Carole's formula.
-  // Please notice that compared to the formula we have the beginning
-  // and ends of neutral regions instead of 'functional regions'
-  GeneticUnit& chromosome = genetic_unit_list_.front();
-  int32_t L = chromosome.dna()->length();
-  int32_t N_G = chromosome.nb_neutral_regions(); // which is not exactly Carole's original definition
-  int32_t* b_i = chromosome.beginning_neutral_regions();
-  int32_t* e_i = chromosome.end_neutral_regions();
-  int32_t lambda = chromosome.nb_bases_in_neutral_regions();
-  int32_t l = L - lambda; // nb bases in 'functional regions'
-
-  int32_t* lambda_i = NULL;  // nb bases in ith neutral region
-  if (N_G > 0) // all the chromosome may be functional
-  {
-    lambda_i = new int32_t[N_G];
-
-    for (int32_t i = 0; i < N_G - 1; i++) {
-      lambda_i[i] = e_i[i] - b_i[i] + 1;
-    }
-    if (b_i[N_G - 1] > e_i[N_G -
-                           1]) // last neutral region is overlapping on the beginning of chromosome
-    {
-      lambda_i[N_G - 1] = (e_i[N_G - 1] + L) - b_i[N_G - 1] + 1;
-    }
-    else // no overlap
-    {
-      lambda_i[N_G - 1] = e_i[N_G - 1] - b_i[N_G - 1] + 1;
-    }
-  }
-
-  // we now compute the probabilities of neutral reproduction for
-  // each type of mutation and rearrangement and update Fv
-  double Fv = 1;
-
-  // mutation + insertion + deletion
-  double nu_local_mutation = 1 - ((double) l) / L;
-  Fv = pow(1 - point_mutation_rate() * (1 - nu_local_mutation), L);
-  Fv *= pow(1 - small_insertion_rate() * (1 - nu_local_mutation), L);
-  Fv *= pow(1 - small_deletion_rate() * (1 - nu_local_mutation), L);
-
-  // inversion ~ two local mutations
-  double nu_inversion = nu_local_mutation * nu_local_mutation;
-  Fv *= pow(1 - inversion_rate() * (1 - nu_inversion), L);
-
-  // translocation ~ inversion + insertion (mathematically)
-  Fv *= pow(
-      1 - translocation_rate() * (1 - nu_inversion * nu_local_mutation), L);
-
-  // long deletion
-  double nu_deletion = 0; // if N_G == 0, a deletion is always not neutral
-  for (int32_t i = 0; i < N_G; i++) {
-    nu_deletion += lambda_i[i] * (lambda_i[i] + 1);
-  }
-  nu_deletion /= ((double) 2 * L * L);
-  Fv *= pow(1 - deletion_rate() * (1 - nu_deletion), L);
-
-  // duplication ~ big deletion + insertion
-  Fv *= pow(1 - duplication_rate() * (1 - nu_deletion * nu_local_mutation),
-            L);
-
-  if (lambda_i != NULL) delete[] lambda_i;
-
-  return Fv;
 }
 
 /// Remove the bases that are not in coding RNA.

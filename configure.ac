@@ -22,9 +22,6 @@ AC_CONFIG_MACRO_DIR([m4])
 # We want to use automake
 AM_INIT_AUTOMAKE
 
-# Define C++ compilator
-AC_PROG_CXX([gcc,icc])
-
 # Detect C++11 or C++14
 AX_CXX_COMPILE_STDCXX_14([noext],[optional])
 AX_CXX_COMPILE_STDCXX_11([noext])
@@ -47,6 +44,11 @@ AM_PROG_CC_C_O
 
 # Print warning if openmp not found
 AC_CHECK_HEADER([omp.h], , [AC_MSG_WARN([openmp not found - continuing without openmp support])])
+
+# Check for boost
+AX_BOOST_BASE([1.55],, [AC_MSG_ERROR([boost not found, please check that you have boost installed on your system and retry])])
+AX_BOOST_SYSTEM
+AX_BOOST_FILESYSTEM
 
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
@@ -97,12 +99,10 @@ AC_SUBST(PTHREAD_LIBS)
 
 #   ************************ --without-x option *********************
 #
-#   When this option is set, typing make will produce aevol and
-#   most post-treatment programs, but not aevol_X11.
+#   When this option is set, running make will produce aevol and
+#   most post-treatment programs without visualization capabilities
 #   This is useful if we want to run computations on a cluster where the
-#   X libraries are not present. If, on the contrary, we type ./configure
-#   without this option, then typing make will produce aevol_X11 and
-#   view_generation_X11 (and the other post-treatment programs).
+#   X libraries are not present.
 
 AC_MSG_CHECKING([whether to enable graphical outputs])
 AC_ARG_WITH(x, [  --without-x to disable graphical output], , with_x=yes)

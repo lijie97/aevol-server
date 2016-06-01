@@ -40,6 +40,7 @@
 #include "ExpSetup.h"
 #include "ParameterLine.h"
 #include "Fuzzy.h"
+#include "HybridFuzzy.h"
 #include "Gaussian.h"
 #include "GeneticUnit.h"
 #include "GridCell.h"

@@ -117,9 +117,14 @@ void OutputManager::WriteSetupFile(gzFile setup_file) const {
   gzwrite(setup_file, &logs,  sizeof(logs));
 }
 
-void OutputManager::CopyStats(const std::string& outdir, int64_t time) const {
-  stats_->CreateTmpFiles(time);
-  stats_->MoveTmpFiles(outdir);
+/**
+ * This is a temporary patch for experiment propagation, it shall become
+ * obsolete or need to be adapted when in/out dirs are managed properly
+ */
+void OutputManager::PropagateStats(const std::string& outdir,
+                                   int64_t propagated_timestep) const {
+  Stats stats("stat");
+  stats.Propagate(outdir, propagated_timestep);
 }
 
 void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run) {
@@ -231,7 +236,7 @@ void OutputManager::write_tree() const
 
   char tree_file_name[50];
 
-  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::time());
+  sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", AeTime::time());
 
   
   gzFile tree_file = gzopen( tree_file_name, "w" );

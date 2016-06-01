@@ -115,15 +115,15 @@ done
 # A set of post-treatment tools is available to help analyse the outcome.
 # 
 
-# ---------- aevol_misc_view_generation ----------
+# ---------- aevol_misc_view ----------
 #
-# The simplest miscellaneous tool is view_generation. It allows one to
-# visualize a generation using the exact same graphical outputs used in
-# aevol_run.
+# The simplest miscellaneous tool is view. It allows one to
+# visualize a simulation at a given timestep using the exact
+# same graphical outputs used in aevol_run.
 # However, since it relies on graphics, it is only available when aevol is
 # compiled with x enabled (which is the default).
 #
-aevol_misc_view_generation -g 10000
+aevol_misc_view -g 10000
 
 
 # ---------- aevol_misc_create_eps ----------

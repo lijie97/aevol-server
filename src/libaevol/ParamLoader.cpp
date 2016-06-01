@@ -25,11 +25,9 @@
 // ****************************************************************************
 
 
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
+// ============================================================================
+//                                   Includes
+// ============================================================================
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
@@ -39,15 +37,12 @@
 
 #include <list>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "ParamLoader.h"
 
 #include "FuzzyFactory.h"
 
 #if __cplusplus == 201103L
-#include "make_unique.h"
+  #include "make_unique.h"
 #endif
 
 #include "ExpManager.h"
@@ -57,12 +52,9 @@
 #include "IndividualFactory.h"
 #include "ExpManager.h"
 
-
 #ifdef __REGUL
-#include "raevol/Individual_R.h"
+  #include "raevol/Individual_R.h"
 #endif
-
-
 
 #include "JumpingMT.h"
 #include "Gaussian.h"
@@ -74,14 +66,10 @@
 
 namespace aevol {
 
-// =================================================================
-//                          Class declarations
-// =================================================================
-
 
 //##############################################################################
 //                                                                             #
-//                             Class ParamLoader                              #
+//                             Class ParamLoader                               #
 //                                                                             #
 //##############################################################################
 
@@ -1446,7 +1434,7 @@ void ParamLoader::CheckConsistency() {
 
 FuzzyFactory* FuzzyFactory::fuzzyFactory = NULL;
 
-void ParamLoader::load(ExpManager * exp_m, bool verbose,
+void ParamLoader::load(ExpManager* exp_m, bool verbose,
                        char* chromosome, int32_t lchromosome,
                        char* plasmid, int32_t lplasmid) {
   // Check consistency of min, max and initial length of chromosome and plasmid
@@ -1635,26 +1623,12 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   param_mut->set_translocation_proportion(translocation_proportion_);
   param_mut->set_inversion_proportion(inversion_proportion_);
 
-  Individual * indiv = NULL;
+  Individual* indiv = nullptr;
   int32_t id_new_indiv = 0;
 
-  if (chromosome != NULL)
-  {
-    printf("Option -c is used: chromosome will be loaded from a text file\n");
+  if (chromosome != NULL) {
     #ifndef __REGUL
-    Individual * indiv = new Individual(exp_m,
-                                             mut_prng,
-                                             stoch_prng,
-                                             param_mut,
-                                             w_max_,
-                                             min_genome_length_,
-                                             max_genome_length_,
-                                             allow_plasmids_,
-                                             id_new_indiv++,
-                                             strain_name_,
-                                             0);
-    #else
-    Individual_R * indiv = new Individual_R(exp_m,
+      Individual* indiv = new Individual(exp_m,
                                          mut_prng,
                                          stoch_prng,
                                          param_mut,
@@ -1665,28 +1639,36 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
                                          id_new_indiv++,
                                          strain_name_,
                                          0);
-
+    #else
+      Individual_R* indiv = new Individual_R(exp_m,
+                                             mut_prng,
+                                             stoch_prng,
+                                             param_mut,
+                                             w_max_,
+                                             min_genome_length_,
+                                             max_genome_length_,
+                                             allow_plasmids_,
+                                             id_new_indiv++,
+                                             strain_name_,
+                                             0);
     #endif
 
     indiv->add_GU(chromosome, lchromosome);
     indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
     indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
 
-    if (plasmid != NULL)
-    {
-      printf("Option -p is used: plasmid will be loaded from a text file\n");
-      if (! allow_plasmids_)
-      {
-        printf("ERROR: option -p requires ALLOW_PLASMIDS set to true\n");
+    if (plasmid != NULL) {
+      if (! allow_plasmids_) {
+        printf("ERROR: plasmid sequence provided but plasmids not allowed\n");
         exit(EXIT_FAILURE);
       }
       indiv->add_GU(plasmid, lplasmid);
       indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
       indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
     }
-    else if (allow_plasmids_)
-    {
-      printf("ERROR: if you use option -c and ALLOW_PLASMIDS is set to true, you must also use option -p. \n For now loading a genetic unit from text file and generating the other is not supported.\n");
+    else if (allow_plasmids_) {
+      printf("ERROR: please provide both the chromosome and plasmid sequences"
+                 "or none of them\n");
       exit(EXIT_FAILURE);
     }
 
@@ -1708,15 +1690,13 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       indivs.push_back(clone);
     }
   }
-  else if (plasmid != NULL)
-  {
-    printf("ERROR: option -p can only be used in combination with option -c for now\n");
+  else if (plasmid != NULL) {
+    printf("ERROR: please provide both the chromosome and plasmid sequences"
+               "or none of them\n");
     exit(EXIT_FAILURE);
   }
-  else if (init_method_ & ONE_GOOD_GENE)
-  {
-    if (init_method_ & CLONE)
-    {
+  else if (init_method_ & ONE_GOOD_GENE) {
+    if (init_method_ & CLONE) {
       // Create an individual with a "good" gene (in fact, make an indiv whose
       // fitness is better than that corresponding to a flat phenotype)
       // and set its id

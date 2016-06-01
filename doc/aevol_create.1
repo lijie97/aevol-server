@@ -1,7 +1,7 @@
 ./"test with man -l <file>
-.TH AEVOL "1" "July 2014" "aevol 4.4" "User Manual"
+.TH AEVOL "1" "May 2016" "aevol 5.0" "User Manual"
 .SH NAME
-aevol \- an in silico experimental evolution platform
+Aevol \- an in silico experimental evolution platform
 .SH SYNOPSIS
 .B aevol_create \-h
 or
@@ -11,14 +11,14 @@ or
 or
 .B \-\-version
 .br
-.B aevol_create \fR[\fB\-v\fR] \fR[\fB\-f\fI PARAM_FILE\fR] \fR[\fB\-o\fI OUTDIR\fR] \fR[\fB\-c\fI CFILE\fR] \fR[\fB\-p\fI PFILE\fR]
+.B aevol_create \fR[\fB\-f\fI PARAM_FILE\fR] \fR[\fB\-C\fI CHROM_FILE\fR] \fR[\fB\-p\fI PLASMID_FILE\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
 .TP
 .B aevol_create
 create an experiment with setup as specified in
-.I param_file
+.I PARAM_FILE
 .SH OPTIONS
 .TP
 .B \-h, \-\-help
@@ -32,19 +32,15 @@ print version number, then exit
 .br
 specify parameter file (default: param.in)
 .HP
-.B \-o, \-\-out
-.I OUTDIR
-.br
-specify output directory (default "./")
 .HP
-.B \-c, \-\-chromosome
-.I CFILE
+.B \-C, \-\-chromosome
+.I CHROM_FILE
 .br
 load chromosome from given text file instead of generating it
 .HP
-.B \-p, \-\-plasmid
-.I PFILE
+.B \-P, \-\-plasmid
+.I PLASMID_FILE
 .br
-load plasmid from given text file instead of generating it (params must allow plasmids)
+load plasmid from given text file instead of generating it
 .SH "SEE ALSO"
 .B aevol_run, aevol_modify, aevol_propagate

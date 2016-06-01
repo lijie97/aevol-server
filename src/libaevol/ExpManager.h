@@ -86,7 +86,7 @@ class ExpManager : public Observer {
   GridCell*** grid() const { return world()->grid(); }
 
   // Global settings
-  double repl_HT_detach_rate() const { return exp_s()->repl_HT_detach_rate();}
+  double repl_HT_detach_rate() const { return exp_s()->repl_HT_detach_rate(); }
 
   // The ability to own a plasmid is a property of the individuals (allow_plasmids_) because it is used during mutations.
   // However, the experimental setup's member variable with_plasmids_ indicates whether plasmids are used
@@ -112,9 +112,10 @@ class ExpManager : public Observer {
   int32_t nb_indivs() const { return world()->nb_indivs(); }
   Individual* best_indiv() const { return world()->best_indiv(); }
   Individual* indiv_by_id(int32_t id) const;
+  Individual* indiv_by_rank(int32_t rank) const;
 
   // Accessors to output manager stuff
-  int64_t	backup_step() const { return output_m()->backup_step(); }
+  int64_t backup_step() const { return output_m()->backup_step(); }
   bool record_tree() const { return output_m()->record_tree(); }
   int32_t tree_step() const { return static_cast<int32_t>(output_m()->tree_step()); }
   Tree* tree() const { return output_m()->tree(); }
@@ -125,8 +126,12 @@ class ExpManager : public Observer {
   //                          Accessors: setters
   // =======================================================================
   void set_t_end(int64_t t_end) { t_end_ = t_end; }
-  void set_HT_ins_rate(double HT_ins_rate) { exp_s_->set_HT_ins_rate(HT_ins_rate); }
-  void set_HT_repl_rate(double HT_repl_rate) { exp_s_->set_HT_repl_rate(HT_repl_rate); }
+  void set_HT_ins_rate(double HT_ins_rate) {
+    exp_s_->set_HT_ins_rate(HT_ins_rate);
+  }
+  void set_HT_repl_rate(double HT_repl_rate) {
+    exp_s_->set_HT_repl_rate(HT_repl_rate);
+  }
 
   // =======================================================================
   //                                 Operators
@@ -145,18 +150,25 @@ class ExpManager : public Observer {
   void Save() const;
   void WriteSetupFiles() const;
   void WriteDynamicFiles() const;
-  void save_copy(char* dir, int64_t time = 0) const;
-  void load(int64_t first_gener, bool verbose = false, bool to_be_run = true) { load(".", first_gener, verbose, to_be_run); }
+  void Propagate(char* outdir) const;
+  void load(int64_t first_gener, bool verbose = false, bool to_be_run = true) {
+    load(".", first_gener, verbose, to_be_run);
+  }
   void load(const char* dir, int64_t t0,
             bool verbose = false, bool to_be_run = true);
   /// Load an experiment with default files from the current directory
-  void load(int64_t t0, char* exp_s_file, char* exp_backup_file, char* sp_struct_file, char* out_p_file,
+  void load(int64_t t0, char* exp_s_file, char* exp_backup_file,
+            char* sp_struct_file, char* out_p_file,
             bool verbose = false, bool to_be_run = true);
   void run_evolution();
-  virtual void display() {};
+  virtual void display() {
+  }
   void update_best();
-  void FillGridWithClones(Individual& dolly) { world_->FillGridWithClones(dolly); }
-  void update(Observable& o, ObservableEvent e, void* arg) override {}
+  void FillGridWithClones(Individual& dolly) {
+    world_->FillGridWithClones(dolly);
+  }
+  void update(Observable& o, ObservableEvent e, void* arg) override {
+  }
 
  protected:
   // =======================================================================

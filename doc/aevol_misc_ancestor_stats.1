@@ -1,23 +1,23 @@
 ./"test with man -l <file>
-.TH AEVOL "1" "July 2014" "aevol 4.4" "User Manual"
+.TH AEVOL "1" "May 2016" "aevol 5.0" "User Manual"
 .SH NAME
-aevol \- an in silico experimental evolution platform
+Aevol \- an in silico experimental evolution platform
 .SH SYNOPSIS
-.B aevol_misc_fixed_mutations \-h
+.B aevol_misc_ancestor_stats \-h
 |
 .B \-\-help
 .br
-.B aevol_misc_fixed_mutations \-V
+.B aevol_misc_ancestor_stats \-V
 |
 .B \-\-version
 .br
-.B aevol_misc_fixed_mutations \fB\-f\fI LINEAGE_FILE
+.B aevol_misc_ancestor_stats \fILINEAGE_FILE \fR[\fB\-FMv\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
 .TP
-.B aevol_misc_fixed_mutations
-issues the detailed list of mutations that occurred in the lineage of a given individual
+.B aevol_misc_ancestor_stats
+issues statistics for the line of descent described in LINEAGE_FILE.
 .SH OPTIONS
 .TP
 .B \-h, \-\-help
@@ -25,10 +25,14 @@ print help, then exit
 .TP
 .B \-V, \-\-version
 print version number, then exit
-.HP
-.B \-f, \-\-file
-.I  LINEAGE_FILE
-.br
-specify which lineage file to use. Lineage files are created by the ae_misc_lineage tool
+.TP
+.B \-F, \-\-full-check
+perform genome checks whenever possible
+.TP
+.B \-M, \-\-trace-mutations
+outputs the fixed mutations (in a separate file)
+.TP
+.B \-v, \-\-verbose
+be verbose
 .SH "SEE ALSO"
 .B ae_misc_lineage, aevol_create, aevol_modify, aevol_propagate, aevol_run

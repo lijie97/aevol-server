@@ -490,4 +490,13 @@ Individual* World::indiv_by_id(int32_t id) const {
   }
   return nullptr;
 }
+
+Individual* World::indiv_by_rank(int32_t rank) const {
+  int32_t nb_indivs = width_ * height_;
+  for (int32_t i = 0 ; i < nb_indivs ; i++) {
+    if (grid_1d_[i]->individual()->rank() == rank)
+      return grid_1d_[i]->individual();
+  }
+  return nullptr;
+}
 } // namespace aevol

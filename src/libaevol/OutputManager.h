@@ -117,7 +117,8 @@ class OutputManager {
   void InitStats();
   void WriteSetupFile(gzFile setup_file) const;
   void WriteLastGenerFile(const std::string& input_dir = ".") const;
-  void CopyStats(const std::string& outdir, int64_t time) const;
+  void PropagateStats(const std::string& outdir,
+                      int64_t propagated_timestep) const;
   void load(gzFile file, bool verbose, bool to_be_run);
   void write_current_generation_outputs() const;
   inline void flush();

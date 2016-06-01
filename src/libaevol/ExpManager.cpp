@@ -157,7 +157,6 @@ void ExpManager::Save() const
             char* world_file_name,
             bool verbose)
   \see WriteDynamicFiles()
-  \see save_copy(char* dir, int64_t t)
 */
 void ExpManager::WriteSetupFiles() const
 {
@@ -198,7 +197,6 @@ void ExpManager::WriteSetupFiles() const
             char* world_file_name,
             bool verbose)
   \see WriteSetupFiles()
-  \see save_copy(char* dir, int64_t t)
 */
 void ExpManager::WriteDynamicFiles() const
 {
@@ -241,18 +239,19 @@ void ExpManager::WriteDynamicFiles() const
   \see WriteSetupFiles()
   \see WriteDynamicFiles()
 */
-void ExpManager::save_copy(char* dir, int64_t time) const
-{
-  // Set time to time
-  AeTime::set_time(time);
+void ExpManager::Propagate(char* outdir) const {
+  // Reset timestep
+  int64_t propagated_timestep = AeTime::time();
+  int64_t timestep = 0;
+  AeTime::set_time(timestep);
 
   // Create missing directories
-  create_missing_directories(dir);
+  create_missing_directories(outdir);
 
   // Open setup files and backup files
   gzFile exp_s_file, out_p_file, sel_file, world_file;
-  open_setup_files(exp_s_file, out_p_file, time, "w", dir);
-  open_backup_files(sel_file, world_file, time, "w", dir);
+  open_setup_files(exp_s_file, out_p_file, timestep, "w", outdir);
+  open_backup_files(sel_file, world_file, timestep, "w", outdir);
 
   // Write setup data
   exp_s_->write_setup_file(exp_s_file);
@@ -267,10 +266,10 @@ void ExpManager::save_copy(char* dir, int64_t time) const
   close_backup_files(sel_file, world_file);
 
   // Copy stats
-  output_m_->CopyStats(dir, time);
+  output_m_->PropagateStats(outdir, propagated_timestep);
 
   // Write last gener file
-  output_m_->WriteLastGenerFile(dir);
+  output_m_->WriteLastGenerFile(outdir);
 }
 
 void ExpManager::step_to_next_generation() {
@@ -292,12 +291,11 @@ void ExpManager::step_to_next_generation() {
  */
 // TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(gzFile& exp_s_file,
-                          gzFile& exp_backup_file,
-                          gzFile& world_file,
-                          gzFile& out_p_file,
-                          bool verbose,
-                          bool to_be_run /*  = true */)
-{
+                      gzFile& exp_backup_file,
+                      gzFile& world_file,
+                      gzFile& out_p_file,
+                      bool verbose,
+                      bool to_be_run /*  = true */) {
   // ---------------------------------------- Retrieve experimental setup data
   printf("  Loading experimental setup...");
   fflush(stdout);
@@ -338,8 +336,7 @@ void ExpManager::load(gzFile& exp_s_file,
  */
 // TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(const char* dir,
-    int64_t t0, bool verbose, bool to_be_run /*  = true */)
-{
+    int64_t t0, bool verbose, bool to_be_run /*  = true */) {
   AeTime::set_time(t0);
 
   // -------------------------------------------------------------------------
@@ -654,6 +651,10 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 // ===========================================================================
 Individual* ExpManager::indiv_by_id(int32_t id) const {
   return world_->indiv_by_id(id);
+}
+
+Individual* ExpManager::indiv_by_rank(int32_t rank) const {
+  return world_->indiv_by_id(rank);
 }
 
 /**

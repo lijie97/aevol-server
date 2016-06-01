@@ -48,7 +48,9 @@ LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-sr
 bin_PROGRAMS = aevol_run aevol_create aevol_modify aevol_propagate
 CLEANFILES = aevol_run aevol_create aevol_modify aevol_propagate
 
-
+aevol_propagate_CPPFLAGS = $(AM_CPPFLAGS) $(BOOST_CPPFLAGS)
+aevol_propagate_LDFLAGS = $(AM_LDFLAGS) $(BOOST_LDFLAGS)
+aevol_propagate_LDADD = $(LDADD) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
 
 aevol_run_SOURCES = aevol_run.cpp
 aevol_create_SOURCES = aevol_create.cpp
