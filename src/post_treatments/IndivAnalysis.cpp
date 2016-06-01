@@ -136,44 +136,43 @@ void IndivAnalysis::compute_experimental_f_nu(
       printf("WARNING: Mutational Robustness does not handle multiple "
                  "Genetic Units\n");
     }
-    if (nb_events == 0) {
+
+    mutant.EvaluateInContext(habitat());
+    double new_metabolic_error = mutant.dist_to_target_by_feature(
+        METABOLISM);
+
+    if (new_metabolic_error == parent_metabolic_error) {
       nb_neutral++;
     }
-    else {
-      mutant.EvaluateInContext(habitat());
-      double new_metabolic_error = mutant.dist_to_target_by_feature(
-          METABOLISM);
-
-      if (new_metabolic_error == parent_metabolic_error) {
-        nb_neutral++;
+    if (new_metabolic_error > parent_metabolic_error) {
+      nb_neg++;
+      if ((new_metabolic_error - parent_metabolic_error) > max_neg) {
+        max_neg =
+            new_metabolic_error -
+            parent_metabolic_error;
       }
-      if (new_metabolic_error > parent_metabolic_error) {
-        nb_neg++;
-        if ((new_metabolic_error - parent_metabolic_error) > max_neg) {
-          max_neg =
-              new_metabolic_error -
-              parent_metabolic_error;
-        }
-        cumul_delta_err_neg += new_metabolic_error - parent_metabolic_error;
+      cumul_delta_err_neg += new_metabolic_error - parent_metabolic_error;
+    }
+    if (new_metabolic_error < parent_metabolic_error) {
+      nb_pos++;
+      if ((new_metabolic_error - parent_metabolic_error) < max_pos) {
+        max_pos =
+            new_metabolic_error -
+            parent_metabolic_error;
       }
-      if (new_metabolic_error < parent_metabolic_error) {
-        nb_pos++;
-        if ((new_metabolic_error - parent_metabolic_error) < max_pos) {
-          max_pos =
-              new_metabolic_error -
-              parent_metabolic_error;
-        }
-        cumul_delta_err_pos += new_metabolic_error - parent_metabolic_error;
-      }
+      cumul_delta_err_pos += new_metabolic_error - parent_metabolic_error;
     }
 
     if (output_detailed) {
+      mutant.compute_statistical_data();
       fprintf(output_detailed,
-          "%" PRId32 " %.15f %.15f %" PRId32 " %.15f %.15f\n",
+          "%" PRId32 " %.15f %.15f %.15f %.15f% " PRId32 " %" PRId16 "\n",
           id_, parent_metabolic_error,
           dist_to_target_by_feature(SECRETION),
-          mutant.id(), mutant.dist_to_target_by_feature(METABOLISM),
-          mutant.dist_to_target_by_feature(SECRETION));
+          mutant.dist_to_target_by_feature(METABOLISM),
+          mutant.dist_to_target_by_feature(SECRETION),
+          mutant.amount_of_dna(),
+          mutant.nb_functional_genes());
     }
   }
 
