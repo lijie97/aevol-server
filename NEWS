@@ -1,3 +1,11 @@
+New in 5.0: [TO BE CONTINUED]
+
+* Grid
+
+* Command-line options
+
+* Post-treatments refactoring
+
 New in 4.4:
 
 * aevol_create now gives a name to the created strain. It can be defined using
