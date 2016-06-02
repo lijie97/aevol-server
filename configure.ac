@@ -75,13 +75,6 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
-# Configure pthreads (used by gtest).
-ACX_PTHREAD()
-AM_CONDITIONAL([HAVE_PTHREADS],[test "x$acx_pthread_ok" = "xyes"])
-AC_SUBST(PTHREAD_CFLAGS)
-AC_SUBST(PTHREAD_LIBS)
-
-
 # ****************************************************************************
 #                                  OPTIONS
 #
@@ -242,7 +235,6 @@ AC_MSG_CHECKING([whether to use devel features])
 AC_ARG_ENABLE(devel, [  --enable-devel turn on development features], , enable_devel=no)
 AC_MSG_RESULT($enable_devel)
 AM_CONDITIONAL(ENABLE_DEVEL, test x"$enable_devel" != xno)
-AM_CONDITIONAL(WITH_GTEST, test x"$enable_devel" != xno)
 if test "x$enable_devel" = "xyes" ; then
   # Make clean at the end of the configuration process
   # (usefull when several configurations are done consecutively, typically during development)
@@ -253,10 +245,6 @@ if test "x$enable_devel" = "xyes" ; then
   if test -z "$HAVE_DOXYGEN";
      then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
   fi
-
-  # Add GTest
-  # Tell autoconf to run a separate configure script in gtest's dir
-  AC_CONFIG_SUBDIRS([src/tests/gtest-1.7.0])
 else
   # Output a warning message about multi-configuration and make clean
   AC_CONFIG_COMMANDS([user_warning], [AC_MSG_NOTICE([Consider using make clean if you are re-configuring.])])
@@ -394,7 +382,6 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/libaevol/Makefile
                  src/libaevol/SFMT-src-1.4/Makefile
-                 src/tests/Makefile
                  src/post_treatments/Makefile
                  doc/Makefile])
 AC_OUTPUT
