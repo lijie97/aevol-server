@@ -54,12 +54,14 @@ CLEANFILES = $(bin_PROGRAMS)
 
 aevol_misc_ancestor_stats_SOURCES = ancestor_stats.cpp
 aevol_misc_ancestor_robustness_SOURCES = ancestor_robustness.cpp IndivAnalysis.cpp
+aevol_misc_ancestor_robustness_SOURCES += IndivAnalysis.h # hack to get make dist to include IndivAnalysis.h
 aevol_misc_create_eps_SOURCES = create_eps.cpp
 aevol_misc_extract_SOURCES = extract.cpp
 # aevol_misc_gene_families_SOURCES = gene_families.cpp
 aevol_misc_lineage_SOURCES = lineage.cpp
 aevol_misc_mutagenesis_SOURCES = mutagenesis.cpp
 aevol_misc_robustness_SOURCES = robustness.cpp IndivAnalysis.cpp
+aevol_misc_robustness_SOURCES += IndivAnalysis.h # hack to get make dist to include IndivAnalysis.h
 # aevol_misc_template_SOURCES = template.cpp
 # aevol_misc_transform_plasmid_SOURCES = transform_plasmid.cpp
 aevol_misc_view_SOURCES = view.cpp
