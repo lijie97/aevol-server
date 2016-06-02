@@ -21,6 +21,8 @@ RELEASE HowTo
 
   This will generate a file called aevol-X.Y.tar.gz in aevol root dir
 
+  -> Check that the archive is sound (decompresses, compiles…)
+
 5) Add a version in the "files" section of the forge
   -> In the "files" section click on the link to "create a new version"
   -> Fill in the form with
