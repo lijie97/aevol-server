@@ -3,6 +3,8 @@ RELEASE HowTo
 1) Update version number
   -> in configure.ac
   -> in all the manpages (update date too)
+     tip -- USE WITH CAUTION:
+     sed -i 's/\.TH AEVOL "1" .*$/.TH AEVOL "1" "<MONTH YEAR>" "<VERSION>" "User Manual"/' *.1
   -> in the user guide (if needed)
 
 2) Write an entry in the NEWS file for users
