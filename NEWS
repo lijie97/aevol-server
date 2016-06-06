@@ -6,6 +6,9 @@ New in 5.0: [TO BE CONTINUED]
 
 * Post-treatments refactoring
 
+* New color map in X outputs for fitness visualization. The scale now
+  ranges from green (good) to red (bad).
+
 New in 4.4:
 
 * aevol_create now gives a name to the created strain. It can be defined using
