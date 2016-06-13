@@ -517,11 +517,11 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   int16_t life_time = exp_m()->exp_s()->get_nb_indiv_age();
 
   //set the concentrations of proteins to their initial value
-  double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
+  /*double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
   int16_t prot_index = 0;
   for (auto& prot : protein_list_) {
     concentrations[prot_index++] = ((Protein_R*)prot)->concentration();
-  }
+  }*/
 
   // compute steps
   double x_step = 0.8 * win->width() / (double)(life_time * exp_m()->exp_s()->get_nb_degradation_step());
@@ -542,6 +542,24 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   std::set<int>* eval = exp_m()->exp_s()->get_list_eval_step();
 
   std::list<Protein*> initial_protein_list = protein_list_;
+
+
+  for(Protein_R* prot :dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
+    protein_list_.push_back(prot);
+  }
+
+  //set the concentrations of proteins to their initial value
+  double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
+  //  int16_t prot_index = 0;
+  int i = 0;
+  for (const auto& prot : protein_list_) {
+    ((Protein_R*)prot)->reset_concentration();
+    concentrations[i] = ((Protein_R*)prot)->concentration();
+    i++;
+  }
+
+  set_influences();
+
 
   for (int i = 1; i <= exp_m()->exp_s()->get_nb_indiv_age(); i++) {
     //Set the concentration of signals for this age

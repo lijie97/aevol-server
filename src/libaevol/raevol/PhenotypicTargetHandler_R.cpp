@@ -76,10 +76,12 @@ PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(
   env_signals_list_         = rhs.env_signals_list_;
   signals_models_           = rhs.signals_models_;
   env_switch_probability_   = rhs.env_switch_probability_;
+  _nb_indiv_age             = rhs._nb_indiv_age;
 }
 
 PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(gzFile backup_file) {
   load(backup_file);
+  //printf("Number of env %ld\n",phenotypic_targets_.size());
 }
 
 // ============================================================================
@@ -117,24 +119,58 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
       //printf("last_age = %d\n", last_age);
       if ( nb_env_in_list <= 1 ) {
         break;
+      } else if (deterministic && nb_env_in_list == 2) {
+
+        if (!init_2_env) {
+          init_2_env = true;
+
+          phenotypic_targets_.clear();
+          phenotypic_targets_.resize(_nb_indiv_age);
+          //printf("Reserver %d\n",_nb_indiv_age);
+
+
+          int8_t half = (int) _nb_indiv_age / 2;
+
+          //printf("Half is %d %d \n",half, _nb_indiv_age);
+
+          for (int i = 0; i < half; i++) {
+            //printf("Add env %d\n",i);
+            addEnv(i,0);
+          }
+
+          for (int i = 0; i < half; i++) {
+            //printf("Add env %d\n",half+i);
+            addEnv(half+i,1);
+          }
+          phenotypic_targets_.resize(_nb_indiv_age);
+        }
+        //printf("env is ok now or not\n");
+        break;
       }
 
       int* list_of_old_target_id = new int[phenotypic_targets_.size()];
       int nb_old_env = phenotypic_targets_.size();
       int i = 0;
 
-      for (PhenotypicTarget_R* target : phenotypic_targets_) {
-        list_of_old_target_id[i] = target->get_id();
-        i++;
+//      printf("Nb env targers %d\n",nb_old_env);
+
+      for (int i = 0; i < phenotypic_targets_.size(); i++) {
+
+//        printf("Target at %d is %d\n",i,phenotypic_targets_[i]->get_id());
+        list_of_old_target_id[i] = phenotypic_targets_[i]->get_id();
+
       }
 
       //reset the vector of phenotypic targets keeping only the last environment
       ResetPhenotypicTargets();
 
+  //    printf("Start creating new env\n");
+
       // Shortcuts used :
       int8_t id_old_env = phenotypic_targets_.at(0)->get_id();
       int8_t id_new_env = 0;
 
+    //  printf("Computing first env\n");
       //Special case for the first env that may change also :
       if ( var_prng_->random() < env_switch_probability_) {         
         //we have to change to a new env that have an id different from the old one
@@ -148,10 +184,13 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
 
       // At each age we have to add the environment of this age
       for (int8_t i = 1; i < last_age ; i++) {
+
         id_new_env = id_old_env;
 
         // if we have to change of environment :
-        if ( var_prng_->random() < env_switch_probability_) {         
+        double env_chang = var_prng_->random();
+
+        if ( env_chang < env_switch_probability_) {
           //we have to change to a new env that have an id different from the old one
           while( id_new_env == id_old_env ) {
             id_new_env = var_prng_->random(nb_env_in_list);
@@ -159,8 +198,17 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
           //The environment has changed
           id_old_env = id_new_env;
         }
-        addEnv(id_new_env);
+        addEnv(i,id_new_env);
+      //  printf("Computing first env %d : %d\n",i,id_new_env);
       }
+
+      //printf("Nb indiv age %d -- %ld\n",_nb_indiv_age,phenotypic_targets_.size());
+
+      phenotypic_targets_.resize(_nb_indiv_age);
+
+      //printf("AX Nb indiv age %d -- %ld\n",_nb_indiv_age,phenotypic_targets_.size());
+
+      //printf("Computing env changed or not\n");
 
       if (nb_old_env == phenotypic_targets_.size()) {
         i=0;
@@ -175,6 +223,16 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
         hasChanged_ = true;
       }
 
+
+//      printf("BX Nb indiv age %d -- %ld\n",_nb_indiv_age,phenotypic_targets_.size());
+/*
+      i = 0;
+      for (PhenotypicTarget_R* target : phenotypic_targets_) {
+
+        printf("Env Model %d at %d\n", i, target->get_id());
+        i++;
+      }
+*/
 
       break; }
     default :
@@ -203,6 +261,9 @@ void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
   
   // Sauvegarde en plus
   gzwrite(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
+  //printf("save nb age %d \n",_nb_indiv_age);
+
+  gzwrite(backup_file, &_nb_indiv_age, sizeof(_nb_indiv_age));
 
   // Save gaussians :
   int8_t nb_gaussian_list = env_gaussians_list_.size();
@@ -248,6 +309,8 @@ void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
   // Thus we save the ids
   int8_t nb_env = phenotypic_targets_.size();
   gzwrite(backup_file, &nb_env, sizeof(nb_env));
+  //printf("Nb env %d\n",nb_env);
+
   int8_t id = 0;
   for (PhenotypicTarget_R* env: phenotypic_targets_) {
     id = env->get_id();
@@ -260,6 +323,8 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   PhenotypicTargetHandler::load(backup_file);
   // Chargement en plus
   gzread(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
+
+  gzread(backup_file, &_nb_indiv_age, sizeof(_nb_indiv_age));
 
   //Load gaussians :
   int8_t nb_gaussian_list = 0;
@@ -326,10 +391,16 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   gzread(backup_file, &nb_env, sizeof(nb_env));
   id = 0;
   PhenotypicTarget_R* env_to_add = NULL;
+
+  phenotypic_targets_.resize(nb_env);
+
   for (int8_t i = 0 ; i < nb_env ; i++) {
     gzread(backup_file, &id, sizeof(id));
-    addEnv(id);
+    //printf("Restore %d : %d\n",i,id);
+    addEnv(i,id);
   }
+
+  //printf("Number of env XX %ld\n",phenotypic_targets_.size());
 }
 
 // ============================================================================
@@ -340,9 +411,14 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargetsModels() {
   int8_t nb_models = env_gaussians_list_.size();
   //debug
   //printf("PhenotypicTargetHandler_R::InitPhenotypicTargets : we have %d env\n", nb_models);
+
+  phenotypic_target_models_.resize(nb_models);
+
   for (int8_t i = 0; i < nb_models ; i++) {
-    phenotypic_target_models_.push_back(new PhenotypicTarget_R( i ));
+    phenotypic_target_models_[i] = new PhenotypicTarget_R( i );
   }
+
+  phenotypic_target_models_.resize(nb_models);
 }
 
 void PhenotypicTargetHandler_R::BuildPhenotypicTargetsModels() {
@@ -358,6 +434,7 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetsModels() {
 void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int8_t id) {
   //printf("Appel a BuildPhenotypicTargetModel avec id = %d\n", id);
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
+
   PhenotypicTarget_R* phenotypic_target = phenotypic_target_models_.at(id);
   phenotypic_target->fuzzy()->reset();
 
@@ -434,30 +511,63 @@ void PhenotypicTargetHandler_R::ResetPhenotypicTargets() {
   phenotypic_targets_.clear();
   phenotypic_targets_.resize(1);
   phenotypic_targets_.at(0) = last_env;
-  phenotypic_targets_.reserve(size);
+  phenotypic_targets_.resize(size);
   //printf("Taille de l'habitat après reset : %d\n", phenotypic_targets_.size());
 }
 
 void PhenotypicTargetHandler_R::InitPhenotypicTargets(int8_t nb_indiv_age) {
   phenotypic_targets_.clear();
   //printf("Taille de l'habitat après le clear dans initialize... : %d\n", phenotypic_targets_.size());
-  phenotypic_targets_.reserve(nb_indiv_age);
+  //phenotypic_targets_.resize(nb_indiv_age);
   PhenotypicTarget_R* env_to_add;
+  phenotypic_targets_.resize(nb_indiv_age);
+
   for (int i = 0; i < nb_indiv_age; ++i) {
-    addEnv(0);
+    addEnv(i,0);
   }
+
+  _nb_indiv_age = nb_indiv_age;
+  phenotypic_targets_.resize(nb_indiv_age);
+  //printf("NB AGE AT INIT %d %d\n",_nb_indiv_age,nb_indiv_age);
   //printf("Taille de l'habitat avant applyvariation : %d\n", phenotypic_targets_.size());
   ApplyVariation();  
 }
 
-void PhenotypicTargetHandler_R::addEnv( int8_t env_id ) {
+void PhenotypicTargetHandler_R::addEnv( int time, int8_t env_id ) {
   assert(env_id >= 0 && env_id <= phenotypic_target_models_.size());
-  phenotypic_targets_.push_back( phenotypic_target_models_.at(env_id) );
+  //printf("Add env %d : %d\n",time,phenotypic_target_models_[env_id]->get_id());
+
+  phenotypic_targets_[time] = phenotypic_target_models_.at(env_id);
 }
 
 void PhenotypicTargetHandler_R::changeEnv( int8_t ind, int8_t env_id ) {
   assert(env_id >= 0 && env_id <= phenotypic_target_models_.size());
   phenotypic_targets_.at(ind) = phenotypic_target_models_.at(env_id);
+}
+
+void PhenotypicTargetHandler_R::set_single_env(int8_t id) {
+  phenotypic_targets_.clear();
+  phenotypic_targets_.reserve(_nb_indiv_age);
+
+
+  for (int i = 0; i < _nb_indiv_age; i++) {
+    addEnv(i,id);
+  }
+}
+
+void PhenotypicTargetHandler_R::set_two_env(int8_t id_1, int8_t id_2) {
+  phenotypic_targets_.clear();
+  phenotypic_targets_.reserve(_nb_indiv_age);
+
+  int8_t half = (int) _nb_indiv_age / 2;
+
+  for (int i = 0; i < half; i++) {
+    addEnv(i,id_1);
+  }
+
+  for (int i = 0; i < half; i++) {
+    addEnv(half+i,id_2);
+  }
 }
 // ============================================================================
 //                            Non inline accessors

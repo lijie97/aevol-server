@@ -107,6 +107,8 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   }
 
   const PhenotypicTarget_R& phenotypic_target(int8_t age) const {
+    //printf("AX --- %d %d\n",age,phenotypic_targets_.size());
+
     assert(age >= 0 && age <= (int8_t) phenotypic_targets_.size());
     return *(phenotypic_targets_.at(age-1));
   }
@@ -117,7 +119,12 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
 
   virtual double mean_environmental_area() const {
     double total_dist = 0.0;
+    //printf("Size %d\n",phenotypic_targets_.size());
+
     for(int8_t i = 0; i< (int8_t) phenotypic_targets_.size(); i++) {
+      //printf("area of %d\n",i);
+      //printf("id of %d\n",phenotypic_targets_.at(i)->get_id());
+
       total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
     }
 
@@ -170,6 +177,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   }
 
   bool hasChanged() { return hasChanged_; }
+  std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
 
  protected :
   // ==========================================================================
@@ -181,21 +189,31 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // This function keep only the last element of the vector
   void ResetPhenotypicTargets();
   void InitPhenotypicTargets(int8_t nb_indiv_age);
-  void addEnv( int8_t env_id );
+  void addEnv( int time, int8_t env_id );
   void changeEnv( int8_t ind, int8_t env_id );
+
+    // For post_treatment evaluate_regulation
+    void set_single_env(int8_t id);
+    void set_two_env(int8_t id_1, int8_t id_2);
 
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
+
   std::vector<PhenotypicTarget_R*> phenotypic_targets_;
   std::vector<std::list<Gaussian>> env_gaussians_list_;
   std::vector<std::list<int8_t>> env_signals_list_;
   std::vector<Protein_R*> signals_models_;
   std::list<Protein_R*> signals_models_list_;
   double env_switch_probability_;
+  int8_t _nb_indiv_age;
 
   bool hasChanged_;
+
+  bool init_2_env = false;
+
+  bool deterministic = false;
+
 };
 
 // ============================================================================

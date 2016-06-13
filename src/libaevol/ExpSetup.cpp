@@ -144,9 +144,15 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   sel()->write_setup_file(exp_setup_file);
 
 #ifdef __REGUL
-  gzwrite( exp_setup_file, _hill_shape, _hill_shape_n, _hill_shape_theta,
-          _degradation_rate, _nb_degradation_step, _nb_indiv_age, _with_heredity,
-          _protein_presence_limit);
+  //printf("Nb indiv age : %d\n",_nb_indiv_age);
+  gzwrite( exp_setup_file, _hill_shape);
+  gzwrite( exp_setup_file, _hill_shape_n);
+  gzwrite( exp_setup_file, _hill_shape_theta);
+  gzwrite( exp_setup_file, _degradation_rate);
+  gzwrite( exp_setup_file,  _nb_degradation_step);
+  gzwrite( exp_setup_file, _nb_indiv_age);
+  gzwrite( exp_setup_file, _with_heredity);
+  gzwrite( exp_setup_file, _protein_presence_limit);
 
   char* binding_matrix_file_name = new char[100];
 
@@ -223,9 +229,17 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   sel()->load(setup_file, backup_file, verbose);
 
 #ifdef __REGUL
-  gzread( setup_file, _hill_shape, _hill_shape_n, _hill_shape_theta,
-          _degradation_rate, _nb_degradation_step, _nb_indiv_age, _with_heredity,
-          _protein_presence_limit);
+  gzread( setup_file, _hill_shape);
+  gzread( setup_file, _hill_shape_n);
+  gzread( setup_file, _hill_shape_theta);
+  gzread( setup_file, _degradation_rate);
+  gzread( setup_file,  _nb_degradation_step);
+  gzread( setup_file, _nb_indiv_age);
+  gzread( setup_file, _with_heredity);
+  gzread( setup_file, _protein_presence_limit);
+
+
+  //printf("Nb indiv age : %d\n",_nb_indiv_age);
 
   char* binding_matrix_file_name = new char[100];
 //    _binding_matrix = new double[MAX_QUADON][MAX_CODON];

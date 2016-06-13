@@ -387,7 +387,8 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
         new PhenotypicTargetHandler_R(backup_file);
     #endif
   }
-  
+
+  //printf("Phenotypic targets %ld\n", dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_)->phenotypic_targets().size());
   // A priori useless car déjà fait dans le constructeur de reprise sur backup
   //phenotypic_target_handler_->BuildPhenotypicTarget();
 

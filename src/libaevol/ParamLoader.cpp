@@ -1581,6 +1581,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   #ifndef __REGUL
   phenotypic_target_handler.BuildPhenotypicTarget();
   #else
+  printf("Init phenotypic target with %d\n",_nb_indiv_age);
   phenotypic_target_handler.InitPhenotypicTargetsAndModels( _nb_indiv_age );
   #endif
 

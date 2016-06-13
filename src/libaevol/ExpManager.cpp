@@ -329,6 +329,7 @@ void ExpManager::load(gzFile& exp_s_file,
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
 
+
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
     sel()->addObserver(tree(), NEW_INDIV);

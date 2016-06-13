@@ -169,11 +169,15 @@ void Individual_R::Evaluate() {
 		EvaluateInContext(grid_cell_->habitat());
 }
 
-void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
+void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
 	if (evaluated_ == true) return; // Individual has already been evaluated, nothing to do.
 
   if (!_networked) {
     init_indiv(habitat);
+  }
+
+  for (const auto& prot : protein_list_) {
+    ((Protein_R*) prot)->reset_concentration();
   }
 
   std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
@@ -184,9 +188,10 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
     for(Protein_R* prot1 : habitat.signals()) {
       prot1->set_concentration(0.0);
     }
-    for(Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
-      prot2->set_concentration(0.9);
-    }
+    if (no_signal)
+      for(Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
+        prot2->set_concentration(0.9);
+      }
 
 
     for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
