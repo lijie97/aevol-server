@@ -22,6 +22,9 @@ AC_CONFIG_MACRO_DIR([m4])
 # We want to use automake
 AM_INIT_AUTOMAKE
 
+# Select compiler
+AC_PROG_CXX([clang-omp++ clang++ g++ icc])
+
 # Detect C++11 or C++14
 AX_CXX_COMPILE_STDCXX_14([noext],[optional])
 AX_CXX_COMPILE_STDCXX_11([noext])
@@ -36,7 +39,6 @@ AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 #AC_CONFIG_HEADERS([config.h:config.h.in])
 
 # Checks for programs
-AC_PROG_CXX([clang-omp++ clang++ g++ icc])
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_OPENMP
