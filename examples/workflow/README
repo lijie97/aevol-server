@@ -22,8 +22,9 @@
 # The following set of commands should work as is if you have installed aevol
 # with make install, which is recommended.
 #
-# If you haven't installed aevol, you will need to specify where to find the
-# executables, which should be in <aevol_dir>/src for the 4 main executables
+# If you haven't installed aevol, you will nedd to either add the binaries'
+# locations in your PATH or to specify where to find them at each step.
+# They should be in <aevol_dir>/src for the 4 main executables
 # and in <aevol_dir>/src/post_treatments for the rest, <aevol_dir> being the
 # main aevol directory you have downloaded.
 # E.g. if your <aevol_dir> is /home/login/aevol, then the command
@@ -36,77 +37,84 @@
 
 # ========== Wild-Type generation ==========
 #
-
-#mkdir wild_type 
+#mkdir wild_type
 cd wild_type
 aevol_create
-aevol_run -n 5000   
-
-
+aevol_run -n 5000 -p -1
+# "-p -1" means you ask aevol to be run on n threads, with n
+# being determined by your system's settings
 
 
 # ========== Experimental setup ==========
 #
-
-cd ..
 # Propagate the experiment, meaning prepare directories for different
-# runs starting from the wild type 
-mydirnamesA="line01 line02 line03 line04 line05"
-mydirnamesB="line06 line07 line08 line09 line10"
-for mydir in $mydirnamesA $mydirnamesB
+# runs starting from the wild type
+# By default, the random generator states are modified so that you
+# don't end up with the exact same simulation repeated several times
+# but rather different repetitions with the same set of parameters
+#
+outdirsA="line01 line02 line03 line04 line05"
+outdirsB="line06 line07 line08 line09 line10"
+for mydir in $outdirsA $outdirsB
 do
-   echo $mydir
-   aevol_propagate -g 5000 -i wild_type -o $mydir -S $RANDOM
-done  
+  aevol_propagate -o ../$mydir
+done
+
+# Go back to the workflow example directory
+cd ..
 
 # For each experiment, create a file with the parameters to change
-echo "# New environment 
-    ENV_GAUSSIAN  0.5   0.2   0.05
-    ENV_GAUSSIAN  0.5   0.4   0.05
-    ENV_GAUSSIAN  0.5   0.8   0.05
-    ENV_VARIATION none" > newparam-groupA.in
+echo "# New environment
+ENV_GAUSSIAN  0.5   0.2   0.05
+ENV_GAUSSIAN  0.5   0.4   0.05
+ENV_GAUSSIAN  0.5   0.8   0.05
+ENV_VARIATION none" > newparam-groupA.in
 
 echo "# New environment
-    ENV_GAUSSIAN  0.5   0.2   0.05
-    ENV_GAUSSIAN  0.5   0.4   0.05
-    ENV_GAUSSIAN  0.5   0.8   0.05
-    ENV_VARIATION none
-   # New rearrangement rates
-    DUPLICATION_RATE          1e-5
-    DELETION_RATE                1e-5
-    TRANSLOCATION_RATE    1e-5
-    INVERSION_RATE              1e-5" > newparam-groupB.in
+ENV_GAUSSIAN  0.5   0.2   0.05
+ENV_GAUSSIAN  0.5   0.4   0.05
+ENV_GAUSSIAN  0.5   0.8   0.05
+ENV_VARIATION none
+# New rearrangement rates
+DUPLICATION_RATE    1e-5
+DELETION_RATE       1e-5
+TRANSLOCATION_RATE  1e-5
+INVERSION_RATE      1e-5" > newparam-groupB.in
 
 
 # Apply these modifications
 #
-for mydir in $mydirnamesA 
+for mydir in $outdirsA
 do
    cd $mydir
-   echo $mydir
-   aevol_modify  --gener 0 --file ../newparam-groupA.in
+   aevol_modify -f ../newparam-groupA.in
    cd ..
-done 
+done
 
-for mydir in $mydirnamesB 
+for mydir in $outdirsB
 do
-   cd $mydir
-   echo $mydir
-   aevol_modify  --gener 0 --file ../newparam-groupB.in
-   cd ..
-done 
+  cd $mydir
+  aevol_modify -f ../newparam-groupB.in
+  cd ..
+done
 
 
 
 
 # ========== Run the simulations ==========
 #
-for mydir in $mydirnamesA $mydirnamesB
+for mydir in $outdirsA $outdirsB
 do
-   cd mydir
-   aevol_run -n 20000
-   cd ..
-done 
+  cd $mydir
+  aevol_run -e 20000
+  cd ..
+done
+
+# You can stop any simulation at any time and resume it from where you've
+# stopped it with the exact same command (from within the same directory)
+# e.g.
+# cd line01
+# aevol_run -e 20000
 
 
 
@@ -123,7 +131,9 @@ done
 # However, since it relies on graphics, it is only available when aevol is
 # compiled with x enabled (which is the default).
 #
-aevol_misc_view -g 10000
+cd line01
+aevol_misc_view
+cd ..
 
 
 # ---------- aevol_misc_create_eps ----------
@@ -132,7 +142,12 @@ aevol_misc_view -g 10000
 # create_eps tool. Files will be outputted in eps_files_xxxxxx (with 
 # xxxxxx the generation number)
 #
-aevol_misc_create_eps -g 10000
+for mydir in $outdirsA $outdirsB
+do
+  cd $mydir
+  aevol_misc_create_eps &
+  cd ..
+done
 
 
 # ---------- aevol_misc_robustness ----------
@@ -150,8 +165,12 @@ aevol_misc_create_eps -g 10000
 # stats/replication_numgener.out, with one line per simulated child of this 
 # particular individual.
 #
-aevol_misc_robustness -g 10000 
-
+for mydir in $outdirsA $outdirsB
+do
+   cd $mydir
+   aevol_misc_robustness &
+   cd ..
+done
 
 
 # ---------- aevol_misc_lineage ----------
@@ -162,35 +181,25 @@ aevol_misc_robustness -g 10000
 # history of a given individual of a given generation.
 # This file can then be used as the input for subsequent post-treatments.
 #
-aevol_misc_lineage -e 10000
+for mydir in $outdirsA $outdirsB
+do
+   cd $mydir
+   aevol_misc_lineage &
+   cd ..
+done
 
 
 # ---------- aevol_misc_ancstats ----------
 #
 # Statistics of a lineage can be obtained with this tool.
-# The generated stats are outputted in stats/ancstats/
+# The generated output is in stats/ancstats/
 #
-aevol_misc_ancstats -f lineage-b000000-e010000-i*-r1000.ae
-
-
-
-
-# ---------- aevol_misc_fixed_mutations ----------
+# The option -M adds the list of mutational events that occurred
+# on the lineage as an additional output (in stats/).
 #
-# This tool outputs the list of mutational events that occurred
-# on the lineage given as input.
-# The generated list is outputted in stats/
-#
-aevol_misc_fixed_mutations -f lineage-b000000-e010000-i*-r1000.ae
-
-
-# ---------- aevol_misc_gene_families ----------
-#
-# This tool outputs the history of each gene family in the lineage 
-# given as input. 
-# The generated gene trees are outputted in gene_trees/
-# This analysis can be longer than ancstats or fixed_mutations,
-# it can take from a few minutes to a few hours depending on
-# gene number evolution in the lineage.
-
-aevol_misc_gene_families -f lineage-b000000-e010000-i*-r1000.ae
+for mydir in $outdirsA $outdirsB
+do
+   cd $mydir
+   aevol_misc_ancestor_stats lineage-*.ae -M &
+   cd ..
+done
