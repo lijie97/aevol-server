@@ -364,7 +364,9 @@ void ExpManager::load(const char* dir,
 
   if (FuzzyFactory::fuzzyFactory == NULL)
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
-  printf("Factory flavor %d : %d\n",exp_s_->get_fuzzy_flavor(),FuzzyFactory::fuzzyFactory->get_fuzzy_flavor());
+  /*printf("Factory flavor %d : %d\n",
+         exp_s_->get_fuzzy_flavor(),
+         FuzzyFactory::fuzzyFactory->get_fuzzy_flavor());*/
 }
 
 
