@@ -722,7 +722,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
        if (cell_grid[x][y] < grid_min) {grid_min = cell_grid[x][y];}
      }
   }
-  double col_sec_interval = (grid_max - grid_min)/49;
+  double col_sec_interval = (grid_max - grid_min) / nb_colors;
 
   char scale_txt[40];
   sprintf(scale_txt,"%.2e", grid_max);
