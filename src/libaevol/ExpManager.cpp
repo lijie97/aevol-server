@@ -442,9 +442,9 @@ void ExpManager::run_evolution()
 
 #ifdef __TRACING__
   ae_logger::init("logger_csv.log");
-  printf("Launching TRACING...\n");
+  /*printf("Launching TRACING...\n");*/
 #else
-  printf("Launching NOT TRACING...\n");
+  /*printf("Launching NOT TRACING...\n");*/
 #endif
 
 #ifdef __TRACING__
