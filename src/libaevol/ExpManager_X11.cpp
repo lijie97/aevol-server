@@ -685,7 +685,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
 {
   // printf("display grid\n");
   char t[40];
-  int nb_colors = 50;
+  constexpr int nb_colors = 50;
 
   sprintf(t, "Generation = %" PRId64, AeTime::time());
   win->draw_string(15, 15, t);
@@ -737,13 +737,19 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
       char * col_string;
       // calculate the color
       int new_col;
-      if (col_sec_interval==0)
+      if (col_sec_interval == 0)
       {
         new_col = 0;
       }
       else
       {
-        new_col = (int) floor((cell_grid[x][y] - grid_min) / col_sec_interval);
+        // We have to take care of the limit case when
+        // (cell_grid[x][y] == grid_max) which would yield (new_col == nb_colors)
+        // which is out of bounds
+        new_col = std::min(
+            static_cast<int>(floor((cell_grid[x][y] - grid_min) /
+                                       col_sec_interval)),
+            nb_colors -1);
       }
       col_string = col_map_[new_col];
 
