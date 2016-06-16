@@ -55,7 +55,8 @@ aevol_run -n 5000 -p -1
 #
 outdirsA="line01 line02 line03 line04 line05"
 outdirsB="line06 line07 line08 line09 line10"
-for mydir in $outdirsA $outdirsB
+outdirsC="line11 line12 line13 line14 line15"
+for mydir in $outdirsA $outdirsB $outdirsC
 do
   aevol_propagate -o ../$mydir
 done
@@ -68,7 +69,12 @@ echo "# New environment
 ENV_GAUSSIAN  0.5   0.2   0.05
 ENV_GAUSSIAN  0.5   0.4   0.05
 ENV_GAUSSIAN  0.5   0.8   0.05
-ENV_VARIATION none" > newparam-groupA.in
+ENV_VARIATION none
+# New rearrangement rates
+DUPLICATION_RATE    1e-4
+DELETION_RATE       1e-4
+TRANSLOCATION_RATE  1e-4
+INVERSION_RATE      1e-4" > newparam-groupA.in
 
 echo "# New environment
 ENV_GAUSSIAN  0.5   0.2   0.05
@@ -76,10 +82,16 @@ ENV_GAUSSIAN  0.5   0.4   0.05
 ENV_GAUSSIAN  0.5   0.8   0.05
 ENV_VARIATION none
 # New rearrangement rates
-DUPLICATION_RATE    1e-5
-DELETION_RATE       1e-5
-TRANSLOCATION_RATE  1e-5
-INVERSION_RATE      1e-5" > newparam-groupB.in
+DUPLICATION_RATE    1e-6
+DELETION_RATE       1e-6
+TRANSLOCATION_RATE  1e-6
+INVERSION_RATE      1e-6" > newparam-groupB.in
+
+echo "# New environment
+ENV_GAUSSIAN  0.5   0.2   0.05
+ENV_GAUSSIAN  0.5   0.4   0.05
+ENV_GAUSSIAN  0.5   0.8   0.05
+ENV_VARIATION none" > newparam-groupC.in
 
 
 # Apply these modifications
@@ -98,15 +110,22 @@ do
   cd ..
 done
 
+for mydir in $outdirsC
+do
+  cd $mydir
+  aevol_modify -f ../newparam-groupC.in
+  cd ..
+done
+
 
 
 
 # ========== Run the simulations ==========
 #
-for mydir in $outdirsA $outdirsB
+for mydir in $outdirsA $outdirsB $outdirsC
 do
   cd $mydir
-  aevol_run -e 20000
+  aevol_run -e 20000 -p -1
   cd ..
 done
 
@@ -114,7 +133,7 @@ done
 # stopped it with the exact same command (from within the same directory)
 # e.g.
 # cd line01
-# aevol_run -e 20000
+# aevol_run -e 20000 -p -1
 
 
 
@@ -131,9 +150,9 @@ done
 # However, since it relies on graphics, it is only available when aevol is
 # compiled with x enabled (which is the default).
 #
-cd line01
-aevol_misc_view
-cd ..
+#cd line01
+#aevol_misc_view
+#cd ..
 
 
 # ---------- aevol_misc_create_eps ----------
@@ -142,7 +161,7 @@ cd ..
 # create_eps tool. Files will be outputted in eps_files_xxxxxx (with 
 # xxxxxx the generation number)
 #
-for mydir in $outdirsA $outdirsB
+for mydir in $outdirsA $outdirsB $outdirsC
 do
   cd $mydir
   aevol_misc_create_eps &
@@ -165,7 +184,7 @@ done
 # stats/replication_numgener.out, with one line per simulated child of this 
 # particular individual.
 #
-for mydir in $outdirsA $outdirsB
+for mydir in $outdirsA $outdirsB $outdirsC
 do
    cd $mydir
    aevol_misc_robustness &
@@ -181,10 +200,10 @@ done
 # history of a given individual of a given generation.
 # This file can then be used as the input for subsequent post-treatments.
 #
-for mydir in $outdirsA $outdirsB
+for mydir in $outdirsA $outdirsB $outdirsC
 do
    cd $mydir
-   aevol_misc_lineage &
+   aevol_misc_lineage
    cd ..
 done
 
@@ -197,7 +216,7 @@ done
 # The option -M adds the list of mutational events that occurred
 # on the lineage as an additional output (in stats/).
 #
-for mydir in $outdirsA $outdirsB
+for mydir in $outdirsA $outdirsB $outdirsC
 do
    cd $mydir
    aevol_misc_ancestor_stats lineage-*.ae -M &
