@@ -31,7 +31,7 @@ distributions. Please visit www.aevol.fr
 To take a quick tour, please take the following steps:
 
 1) install aevol
-  cd into the main dir
+  cd into aevol main dir
   ./configure
   make
   sudo make install
@@ -50,7 +50,7 @@ To take a quick tour, please take the following steps:
 The first command will create an experiment with the parameters contained
 in the "param.in" file
 The second command will launch the simulation for 1000 generations
-(use --nbgener XXX or -n XXX to run for XXX generations)
+(use --nb-timesteps XXX or -n XXX to run for XXX generations)
 
 For more information, please see the manpages (e.g. man aevol_create), run any
 executable with the -h option (e.g. aevol_create -h) and ultimately visit 
