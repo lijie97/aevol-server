@@ -107,7 +107,7 @@ ParamLoader::ParamLoader(const char* file_name)
   chromosome_initial_length_  = 5000;
   init_method_            = ONE_GOOD_GENE | CLONE;
   init_pop_size_          = 1024;
-  strain_name_ = new char[STRAIN_NAME_DEFAULT_SIZE+1];
+  strain_name_ = new char[STRAIN_NAME_DEFAULT_SIZE + 1];
 
 
   // ------------------------------------------------------------- Strain name
@@ -116,8 +116,8 @@ ParamLoader::ParamLoader(const char* file_name)
   if(getlogin_r(login_name, LOGIN_NAME_MAX) != 0)
     strcpy(login_name, "anon");
 
-  // Copy login into strain name with at most STRAIN_NAME_LOGIN_SIZE characters
-  strncpy(strain_name_, login_name, STRAIN_NAME_LOGIN_SIZE);
+  // Copy login into strain name with at most STRAIN_NAME_LOGIN_SIZE + 1 characters
+  strncpy(strain_name_, login_name, STRAIN_NAME_LOGIN_SIZE + 1);
   delete [] login_name;
 
   // Null-terminate the c-string if the max number of characters were copied

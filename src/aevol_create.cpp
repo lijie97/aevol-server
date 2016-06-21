@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 
   // Create a param loader for the parameter file
   ParamLoader* my_param_loader = new ParamLoader(param_file_name);
-  delete param_file_name;
+  delete[] param_file_name;
 
 
   // Initialize the experiment manager

@@ -95,7 +95,7 @@ void PhenotypicTarget::set_segmentation(int8_t nb_segments,
   // Delete the data to be replaced
   for (int8_t i = 0 ; i < nb_segments_ ; i++)
     delete segments_[i];
-  delete segments_;
+  delete[] segments_;
 
   // Now replace with the new data
   nb_segments_  = nb_segments;
