@@ -430,7 +430,7 @@ FILE* open_environment_stat_file(const char* prefix, const char* postfix) {
   char* env_output_file_name = new char[80];
   sprintf(env_output_file_name, "stats/%s_envir%s.out", prefix, postfix);
   FILE* env_output_file = fopen(env_output_file_name, "w");
-  delete env_output_file_name;
+  delete[] env_output_file_name;
 
   // Write headers
   // TODO vld: was limited to "if environment->gaussians_provided"
@@ -459,10 +459,8 @@ void write_environment_stats(int64_t t, const PhenotypicTargetHandler* pth,
 
 
 FILE* open_terminators_stat_file(const char* prefix, const char* postfix) {
-  char* term_output_file_name = new char[80];
-  sprintf(term_output_file_name, "stats/%s_nb_term%s.out", prefix, postfix);
-  FILE* term_output_file = fopen(term_output_file_name, "w");
-  delete [] term_output_file_name;
+  std::string term_output_file_name{std::string("stats/") + prefix + "_nb_term" + postfix + ".out"};
+  FILE* term_output_file = fopen(term_output_file_name.c_str(), "w");
 
   // Write headers
   fprintf(term_output_file, "# Each line contains : \n");
@@ -607,10 +605,8 @@ void write_zones_stats(int64_t t,
 
 
 FILE* open_operons_stat_file(const char* prefix, const char* postfix) {
-  char* operons_output_file_name = new char[80];
-  sprintf(operons_output_file_name, "stats/%s_operons%s.out", prefix, postfix);
-  FILE* operons_output_file = fopen(operons_output_file_name, "w");
-  delete [] operons_output_file_name,
+  std::string operons_output_file_name{std::string("stats/") + prefix + "_operons" + postfix + ".out"};
+  FILE* operons_output_file = fopen(operons_output_file_name.c_str(), "w");
 
   // Write headers
   fprintf(operons_output_file, "# Each line contains : Generation, and then, for 20 RNA, the number of genes inside the RNA\n");
