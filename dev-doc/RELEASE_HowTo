@@ -10,8 +10,12 @@ RELEASE HowTo
 2) Write an entry in the NEWS file for users
    and in ChangeLog for developers.
 
+2') Record status in version manager
+  -> git commit
+  -> git tag vXXX
+
 3) [TEMPRORARY as long as tests are scarce]
-  -> Remove tests directories (aevol/tests, aevol/src/tests, /misc/unitary_tests)
+  -> Remove tests directories (aevol/tests, aevol/src/tests, aevol/src/misc/unitary_tests)
   -> Remove references to tests in configure.ac, src/Makefile.am
 
 3') Clean up examples: remove all computed data files
@@ -19,12 +23,21 @@ RELEASE HowTo
 4) Run the following commands (from aevol root dir)
   -> autoreconf
   -> ./configure
+  -> check that aevol compiles and runs
   -> make dist
 
   This will generate a file called aevol-X.Y.tar.gz in aevol root dir
 
   -> Check that the archive is sound (decompresses, compiles…)
-  -> When the tarball is ready, add a tag to the corresponding git commit
+
+4') Record status in version manager
+  -> git checkout --detach (to record the tarball base on a tag-identified anonymous branch)
+  -> commit with message like "Remove tests (for tarball release)"
+  -> git tag vXXX-tarball
+  -> git push origin v5.0-tarball
+  -> git checkout master
+  -> git push --tags
+  -> git push
 
 5) Add a version in the "files" section of the forge
   -> In the "files" section click on the link to "create a new version"
