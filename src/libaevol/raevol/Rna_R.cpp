@@ -180,25 +180,37 @@ double Rna_R::get_synthesis_rate( void )
 // =================================================================
 int32_t Rna_R::get_enhancer_position( void )
 {
+  int32_t length = gen_unit_->dna()->length();
+
   if(strand_ == LEADING)
   {
-    return (pos_ - 20)  % ( gen_unit_->dna()->length() );
+    return (pos_ - 20)  % ( length ) < 0 ?
+           ((pos_ - 20)  % ( length )) + ( length ) :
+           (pos_ - 20)  % ( length );
   }
   else  // strand_ = LAGGING
   {
-    return (pos_ + 20)  % ( gen_unit_->dna()->length() );
+    return (pos_ + 20)  % ( length ) < 0 ?
+           ((pos_ + 20)  % ( length )) + ( length ) :
+           (pos_ + 20)  % ( length );
   }
 }
 
 int32_t Rna_R::get_operator_position( void )
 {
+  int32_t length = gen_unit_->dna()->length();
+
   if(strand_ == LEADING)
   {
-    return (pos_ + PROM_SIZE)  % ( gen_unit_->dna()->length() );
+    return (pos_ + PROM_SIZE)  % ( length ) < 0 ?
+           (pos_ + PROM_SIZE)  % ( length ) + (length) :
+           (pos_ + PROM_SIZE)  % ( length );
   }
   else  // strand_ = LAGGING
   {
-    return (pos_ - PROM_SIZE)  % ( gen_unit_->dna()->length() );
+    return (pos_ - PROM_SIZE)  % ( length ) < 0 ?
+           (pos_ - PROM_SIZE)  % ( length ) + (length) :
+           (pos_ - PROM_SIZE)  % ( length );
   }
 }
 
@@ -264,13 +276,20 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 
 #ifndef __BLAS__
       for ( int8_t j = 0 ; j < 5 ; j++ ) {
-        temp *=    gen_unit_->exp_m()->exp_s()->_binding_matrix[quadon_tab[0]][prot->_cod_tab[i+j]];
+        temp *=    gen_unit_->exp_m()->exp_s()->_binding_matrix[quadon_tab[j]][prot->_cod_tab[i+j]];
       }
 
+  /*    if (temp != tab_temp[i]) {
+        printf("Temp max is different %f %f\n",temp,tab_temp[i]);
+        exit(-1);
+      }*/
       max = (max < temp) ? temp : max;
 #endif
 	  }
-
+/*if (max != tab_temp[cblas_idamax(len-4,tab_temp,1)]) {
+  printf("Max is not equal %f %f\n",max,tab_temp[cblas_idamax(len-4,tab_temp,1)]);
+  exit(-1);
+}*/
 #ifdef __BLAS__
   return tab_temp[cblas_idamax(len-4,tab_temp,1)];
 #else

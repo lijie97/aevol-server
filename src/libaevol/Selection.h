@@ -152,6 +152,8 @@ class Selection : public Observable
     // --------------------------- Probability of reproduction of each organism
     double* prob_reprod_;
 
+    bool global = true;
+
 
     unsigned long long unique_id = 16000;
 };

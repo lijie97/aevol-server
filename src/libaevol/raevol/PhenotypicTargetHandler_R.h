@@ -179,6 +179,10 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   bool hasChanged() { return hasChanged_; }
   std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
 
+    // For post_treatment evaluate_regulation
+    void set_single_env(int8_t id);
+    void set_two_env(int8_t id_1, int8_t id_2);
+
  protected :
   // ==========================================================================
   //                            Protected Methods
@@ -192,9 +196,6 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   void addEnv( int time, int8_t env_id );
   void changeEnv( int8_t ind, int8_t env_id );
 
-    // For post_treatment evaluate_regulation
-    void set_single_env(int8_t id);
-    void set_two_env(int8_t id_1, int8_t id_2);
 
   // ==========================================================================
   //                               Attributes

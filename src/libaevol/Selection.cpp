@@ -172,25 +172,75 @@ void Selection::step_to_next_generation() {
     reproducers[i] = new Individual* [grid_height];
   }
 
-  int16_t x,y;
+  int16_t x, y;
   int8_t what;
-  // Do local competitions
+  high_resolution_clock::time_point t1,t2;
+
+  std::unordered_map<unsigned long long, Individual*> unique_individual;
+  
+#ifndef __TBB
+  std::list<Individual*> new_generation;
+#endif
+
+  if (global) {
+    delete[] prob_reprod_;
+
+    prob_reprod_ = new double[pop_size];
+
+    double* fitnesses = new double[pop_size];
+    double sum = 0;
+
+    size_t i = 0;
+    for (const auto& indiv: exp_m_->indivs()) {
+      fitnesses[i] = indiv->fitness();
+      sum += fitnesses[i];
+      ++i;
+    }
+
+    for (int32_t i = 0; i < pop_size; i++) {
+      prob_reprod_[i] = fitnesses[i] / sum;
+    }
+
+    delete[] fitnesses;
+
+    int32_t* nb_offsprings = new int32_t[pop_size];
+    prng_->multinomial_drawing(nb_offsprings, prob_reprod_, pop_size, pop_size);
+
+    int index = 0;
+    i = 0;
+
+    for (const auto& indiv: exp_m_->indivs()) {
+      for (int32_t j = 0; j < nb_offsprings[i]; j++) {
+        x = index / grid_height;
+        y = index % grid_height;
+
+        reproducers[x][y] = indiv;
+
+        index++;
+      }
+      i++;
+    }
+
+    //printf("index %d\n",index);
+  } else {
+    // Do local competitions
 #ifdef _OPENMP
 #pragma omp parallel for schedule(dynamic) private(x,y)
 #endif
-  for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
-    x = index / grid_height;
-    y = index % grid_height;
-    //printf("%d %d (%d %d)\n",x,y,grid_width,grid_height);
-    reproducers[x][y] = do_local_competition(x, y);
+    for (int32_t index = 0; index < grid_width * grid_height; index++) {
+      x = index / grid_height;
+      y = index % grid_height;
+      //printf("%d %d (%d %d)\n",x,y,grid_width,grid_height);
+      reproducers[x][y] = do_local_competition(x, y);
+    }
   }
-
+  //}
 
   // TODO : Why is that not *after* the creation of the new population ?
   // Add the compound secreted by the individuals
   if (exp_m_->with_secretion()) {
-    for (int16_t x = 0 ; x < grid_width ; x++) {
-      for (int16_t y = 0 ; y < grid_height ; y++) {
+    for (int16_t x = 0; x < grid_width; x++) {
+      for (int16_t y = 0; y < grid_height; y++) {
         pop_grid[x][y]->set_compound_amount(
             pop_grid[x][y]->compound_amount() +
             pop_grid[x][y]->individual()->fitness_by_feature(SECRETION));
@@ -205,9 +255,8 @@ void Selection::step_to_next_generation() {
   // Create the new generation
   std::list<Individual*> old_generation = exp_m_->indivs();
 
-  std::unordered_map<unsigned long long, Individual*> unique_individual;
 
-  mutator=0;
+  mutator = 0;
   for (auto indiv : old_generation) {
     indiv->number_of_clones_ = 0;
     unique_individual[indiv->id()] = indiv;
@@ -223,22 +272,29 @@ void Selection::step_to_next_generation() {
 
 
   std::vector<Individual*> to_evaluate;
-  #ifndef __TBB
-  std::list<Individual*> new_generation;
-  #ifdef _OPENMP
-  #pragma omp parallel for schedule(dynamic) private(x,y,what)
-  #endif
-  for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
+#ifndef __TBB
+
+#ifdef _OPENMP
+  #pragma omp parallel
+    {
+#endif
+
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic) private(x,y,what)
+#endif
+  for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
     y = index % grid_height;
-    do_replication(reproducers[x][y], x*grid_height+y+pop_size*AeTime::time(), what, x, y);
+    do_replication(reproducers[x][y],
+                   x * grid_height + y + pop_size * AeTime::time(), what, x, y);
     if (what == 1 || what == 2) {
-  #pragma omp critical
+#pragma omp critical(updateindiv)
       {
         to_evaluate.push_back(pop_grid[x][y]->individual());
       }
     }
   }
+#pragma omp barrier
 /*
 
   for (int16_t x = 0 ; x < grid_width ; x++) {
@@ -276,31 +332,37 @@ void Selection::step_to_next_generation() {
 
   printf("\n to evaluate %d %d %d %d %d (%d)\n",to_evaluate.size(),cpt,to_do_something,clones,mutated,mutator);
 */
-  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  t1 = high_resolution_clock::now();
 
-  #pragma omp parallel for schedule(dynamic)
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic)
+#endif
   for (int i = 0; i < to_evaluate.size(); i++) {
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
-        phenotypic_target_handler_nonconst())->hasChanged()) || !to_evaluate[i]->evaluated_)
+        phenotypic_target_handler_nonconst())->hasChanged()) ||
+        !to_evaluate[i]->evaluated_)
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
   }
-
-  for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
-    x = index / grid_height;
-    y = index % grid_height;
-
-    EndReplicationEvent* eindiv = new EndReplicationEvent(world->indiv_at(x,y),x,y);
-    // Tell observers the replication is finished
-    world->indiv_at(x,y)->notifyObservers(END_REPLICATION, eindiv);
+#ifdef _OPENMP
   }
+#endif
 
-  high_resolution_clock::time_point t2 = high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-  cout<<"TIMER,"<<AeTime::time()<<",OLD,"<<duration<<endl;
+    for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
+      x = index / grid_height;
+      y = index % grid_height;
 
-  for (int16_t x = 0 ; x < grid_width ; x++)
-    for (int16_t y = 0 ; y < grid_height ; y++)
-      new_generation.push_back(pop_grid[x][y]->individual());
+      EndReplicationEvent* eindiv = new EndReplicationEvent(world->indiv_at(x,y),x,y);
+      // Tell observers the replication is finished
+      world->indiv_at(x,y)->notifyObservers(END_REPLICATION, eindiv);
+    }
+
+    t2 = high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+    cout<<"TIMER,"<<AeTime::time()<<",OLD,"<<duration<<endl;
+
+    for (int16_t x = 0 ; x < grid_width ; x++)
+      for (int16_t y = 0 ; y < grid_height ; y++)
+        new_generation.push_back(pop_grid[x][y]->individual());
   #else
   std::vector<Individual*> new_generation;
   tbb::task_group tgroup;
@@ -718,15 +780,16 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     chromosome->dna()->perform_mutations(parent->id());
 
     if (! chromosome->dna()->hasMutate()) {
-      #pragma omp critical
-      {
-        if (parent->number_of_clones_ == 0) {
-          type_mutate = 2;
-        }
-        else
-          type_mutate = 0;
-        parent->number_of_clones_++;
-      }
+      bool firstClone;
+
+#pragma omp critical(firstclone)
+    {
+      firstClone = parent->number_of_clones_ == 0;
+
+      firstClone ? type_mutate = 2 : type_mutate = 0;
+
+      parent->number_of_clones_++;
+    }
       //printf("Indiv %d has not mutate so pointing to parent %d\n",new_indiv->id(),parent->id());
       delete new_indiv;
       mutate = false;
@@ -748,14 +811,14 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
     }
-#pragma omp critical
-    {
+//#pragma omp critical
+//    {
       {
         NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
         //Individual* msg[2] = {new_indiv, parent};
         notifyObservers(NEW_INDIV, eindiv);
       }
-    }
+//    }
 
     /* else {
       #pragma omp critical
@@ -817,9 +880,10 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   // When selection scheme is FITNESS_PROPORTIONATE, this function only uses
   // the fitness values
 
+  //printf("Competition 1\n");
   World* world = exp_m_->world();
 
-  int16_t neighborhood_size = 9;
+  int16_t neighborhood_size = 1024;
   int16_t grid_width  = world->width();
   int16_t grid_height = world->height();
   int16_t cur_x;
@@ -833,8 +897,8 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   int16_t   count             = 0;
   double    sum_local_fit     = 0.0;
 
-  for (int8_t i = -1 ; i < 2 ; i++) {
-    for (int8_t j = -1 ; j < 2 ; j++) {
+  for (int8_t i = -1 ; i < 31 ; i++) {
+    for (int8_t j = -1 ; j < 31 ; j++) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
       local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
@@ -844,7 +908,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
       count++;
     }
   }
-
+  //printf("Competition 2\n");
   // Do the competitions between the individuals, based on one of the 4 methods:
   // 1. Rank linear
   // 2. Rank exponential
@@ -860,7 +924,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
       // First we sort the local fitness values using bubble sort :
       // we sort by increasing order, so the first element will have the worst fitness.
       bool swaped = true;
-      int16_t loop_length = 8;
+      int16_t loop_length = 1023;
       double  tmp_holder;
       int16_t tmp_holder2;
       while (swaped == true) {
@@ -905,18 +969,19 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     }
   }
 
-
+  //printf("Competition 3a\n");
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
-  int8_t found_org = prng_->roulette_random(probs, 9);
+  int16_t found_org = prng_->roulette_random(probs, 1024);
+  //printf("Competition 3b\n");
 
-  int16_t x_offset = (found_org / 3) - 1;
-  int16_t y_offset = (found_org % 3) - 1;
+  int16_t x_offset = (found_org / 32) - 1;
+  int16_t y_offset = (found_org % 32) - 1;
 
   delete [] local_fit_array;
   delete [] sort_fit_array;
   delete [] initial_location;
   delete [] probs;
-
+  //printf("Competition 4\n");
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);
 }
@@ -981,11 +1046,11 @@ Individual* Selection::do_replication_tbb(Individual* parent, int32_t index, int
   // Compute statistics
   new_indiv->compute_statistical_data();
 
-#pragma omp critical
-  {
+//#pragma omp critical
+//  {
   // Tell observers the replication is finished
   new_indiv->notifyObservers(END_REPLICATION, nullptr);
-}
+//}
 
   return new_indiv;
 }

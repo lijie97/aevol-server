@@ -201,6 +201,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
     // If we have to evaluate the individual at this age
     if (eval->find(i) != eval->end())
     {
+      //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
       eval_step(habitat, i); 
     }
   }
@@ -290,19 +291,27 @@ void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
   }
 
   compute_distance_to_target( habitat.phenotypic_target( age ) );
-  //printf("Dist to target à l'age %d du nouveau clone : %f\n", age, _dist_to_target_by_feature[METABOLISM]);
+
   _dist_sum += dist_to_target_by_feature_[METABOLISM];
+
+  /*if (id_ % 1024 == 1)
+    printf("Dist to target à l'age %d du nouveau clone : %f -- %f\n",
+           age, dist_to_target_by_feature_[METABOLISM],_dist_sum);*/
 }
 
 
 void Individual_R::final_step( const Habitat_R& habitat, int8_t age ) {
-  //printf("Nombre final d'évaluations : %d\n", exp_m_->exp_s()->get_list_eval_step()->size());
   dist_to_target_by_feature_[METABOLISM] = _dist_sum / (double) (exp_m_->exp_s()->get_list_eval_step()->size());
+
 
 
   fitness_computed_=false;
   // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
   compute_fitness(habitat.phenotypic_target( age ));
+
+  /*if (id_ % 1024 == 1)
+    printf("Nombre final d'évaluations : %d -- %f -- %e -- %e\n", exp_m_->exp_s()->get_list_eval_step()->size(),
+           dist_to_target_by_feature_[METABOLISM], fitness_, fitness_by_feature_[METABOLISM]);*/
 
   phenotype_computed_ = true;
 }
@@ -339,47 +348,72 @@ void Individual_R::multiply_concentrations( double factor )
 	}
 }
 
+/*int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos )
+{
+  int8_t new_quadon = new_get_quadon(gen_unit,strand,pos);
+  int8_t old_quadon = old_get_quadon(gen_unit,strand,pos);
+
+  if (new_quadon != old_quadon) {
+    printf("New/Old quadon are different %d %d\n",new_quadon,old_quadon);
+    exit(-1);
+  }
+}*/
+
+/*int8_t Individual_R::old_get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos )
+{
+  const char* dna = gen_unit->dna()->data();
+  int32_t  len    = gen_unit->dna()->length();
+  int8_t quadon   = 0;
+
+  if ( strand == LEADING )
+  {
+    for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
+    {
+      if ( dna[Utils::mod((pos+i),len)] == '1' )
+      {
+        quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
+      }
+    }
+  }
+  else  // ( strand == LAGGING )
+  {
+    for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
+    {
+
+      if ( dna[Utils::mod((pos-i),len)] != '1' ) // == and not != because we are on the complementary strand...
+      {
+        quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
+      }
+    }
+  }
+
+
+
+
+  return quadon;
+}*/
+
 int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos )
 {
   const char* dna = gen_unit->dna()->data();
   int32_t  len    = gen_unit->dna()->length();
-  //int8_t quadon_1 = 0,quadon_2 = 0,quadon_3 = 0,quadon_4   = 0;
   int8_t quadon[4];
-
-//  printf("Length %d : %s\n\n",len,dna);
 
   if ( strand == LEADING )
   {
-    #pragma omp simd
+#pragma omp simd
     for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     {
-      quadon[i] = (dna[(pos+i) % len] == '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
+      quadon[i] = (dna[((pos+i) % len < 0 ? (pos+i) % len + len : (pos+i) % len)] == '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
     }
-    /*quadon_1 += (dna[(pos+0) % len] == '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
-    quadon_2 += (dna[(pos+1) % len] == '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
-    quadon_3 += (dna[(pos+2) % len] == '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
-    quadon_4 += (dna[(pos+3) % len] == '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;*/
-      //if ( dna[(pos+i) % len] == '1' )
-      //{
-      //  quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
-      //}
-    //}
   }
   else  // ( strand == LAGGING )
   {
-    #pragma omp simd
+#pragma omp simd
     for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     {
-      quadon[i] = (dna[(pos-i) % len] != '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
-      /*if ( dna[(pos-i) % len] != '1' ) // == and not != because we are on the complementary strand...
-      {
-        quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
-      }*/
+      quadon[i] = (dna[((pos-i) % len < 0 ? (pos-i) % len + len : (pos-i) % len)] != '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
     }
-    /*quadon_1 += (dna[(pos-0) % len] != '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
-    quadon_2 += (dna[(pos-1) % len] != '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
-    quadon_3 += (dna[(pos-2) % len] != '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
-    quadon_4 += (dna[(pos-3) % len] != '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;*/
   }
 
   return quadon[0]+quadon[1]+quadon[2]+quadon[3];

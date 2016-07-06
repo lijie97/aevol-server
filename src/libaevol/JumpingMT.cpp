@@ -236,15 +236,16 @@ double JumpingMT::gaussian_random()
   return x1 * r;
 }
 
-int8_t JumpingMT::roulette_random(double* probs, int8_t nb_elts)
+int32_t JumpingMT::roulette_random(double* probs, int32_t nb_elts)
 {
   double pick_one = 0.0;
-  while (pick_one == 0)
+
+  while (pick_one == 0.0)
   {
     pick_one = random();
   }
 
-  int8_t found_org = 0;
+  int32_t found_org = 0;
 
   pick_one -= probs[0];
   while (pick_one > 0)

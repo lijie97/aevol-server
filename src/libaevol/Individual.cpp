@@ -1323,6 +1323,9 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
   if (fitness_computed_) return; // Fitness has already been computed, nothing to do.
   fitness_computed_ = true;
 
+  /*if (id_ % 1024 == 1)
+    printf("computing fitness\n");*/
+
 #ifdef NORMALIZED_FITNESS
   for (int8_t i = 0 ; i < NB_FEATURES ; i++) {
     if (envir->area_by_feature(i)==0.) {
@@ -1363,6 +1366,12 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
     else {
       fitness_by_feature_[i] = exp(
           -exp_m_->selection_pressure() * dist_to_target_by_feature_[i]);
+
+      /*if (id_ % 1024 == 1)
+        printf("dist to target by feat %d : %e --  %f (%f)\n",i,
+               fitness_by_feature_[i],
+               dist_to_target_by_feature_[i],
+               exp_m_->selection_pressure());*/
     }
   }
 

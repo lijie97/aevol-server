@@ -494,6 +494,7 @@ class Individual : public Observable {
 
   void copy_parent(const Individual* parent, bool env_will_change);
 
+
   // =================================================================
   //                           Public Attributes
   // =================================================================
@@ -503,6 +504,7 @@ class Individual : public Observable {
     GridCell* grid_cell_ = NULL;
     std::list<Protein*> protein_list_;
     int number_of_clones_ = 0;
+    bool evaluated_;
 
  protected :
   // =================================================================
@@ -605,7 +607,6 @@ class Individual : public Observable {
   // "State" of the individual
   // --------------------------------------------------
   // We keep trace of what we have already computed to avoid double computation (mainly in post-treaments)
-  bool evaluated_;
   bool transcribed_;
   bool translated_;
   bool folded_;

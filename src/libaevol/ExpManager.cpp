@@ -585,6 +585,8 @@ void ExpManager::run_evolution()
 #endif
     // Take one step in the evolutionary loop
     step_to_next_generation();
+
+
 #ifdef __TRACING__
 	  	  t2 = high_resolution_clock::now();
 	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
