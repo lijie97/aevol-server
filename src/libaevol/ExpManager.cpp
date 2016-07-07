@@ -50,6 +50,7 @@
 #include<chrono>
 
 #include <iostream>
+#include <unordered_map>
 using namespace std;
 using namespace std::chrono;
 
@@ -447,159 +448,427 @@ void ExpManager::load(int64_t t0,
   gzclose(out_prof_file);
 }
 
+
+
+//int mutator = 0;
+
 /**
  * Run the simulation
  */
-void ExpManager::run_evolution()
-{
+void ExpManager::run_evolution() {
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
   WriteSetupFiles();
 #ifdef __TRACING__
-    ae_logger::init("logger_csv.log");
+  ae_logger::init("logger_csv.log");
 
-    printf("Launching TRACING...\n");
+  printf("Launching TRACING...\n");
 #else
   printf("Launching NOT TRACING...\n");
 #endif
 
-  #ifdef __TRACING__
-	  high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
-	  high_resolution_clock::time_point t_t2,t1,t2;
-  #endif
+#ifdef __TRACING__
+  high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
+  high_resolution_clock::time_point t_t2,t1,t2;
+#endif
+
+  int max_protein = 0;
+  int max_rna = 0;
+  int max_influence = 0;
+
+  const Habitat_R& hab = dynamic_cast<const Habitat_R&>(world()->grid(0,
+                                                                      0)->habitat());
+
+  int nb_signals = hab.signals().size();
+  int life_time = exp_s()->get_nb_indiv_age();
+  int nb_eval_ = exp_s()->get_nb_degradation_step();
+  float selection_pressure = sel()->selection_pressure();
+  World* world;
+  int16_t grid_width;
+  int16_t grid_height;
+  int32_t pop_size;
+
+  GridCell*** pop_grid;
+
+  // create a temporary grid to store the reproducers
+
+  int16_t x, y;
+  int8_t what;
+  high_resolution_clock::time_point t1, t2;
+
+  std::unordered_map<unsigned long long, Individual*> unique_individual;
+
+  std::list<Individual*> new_generation;
+  std::vector<Individual*> to_evaluate;
+  std::list<Individual*> old_generation;
+  Individual*** reproducers = NULL;
+
+    // For each generation
+    while (AeTime::time() < t_end_ or !quit_signal_received()) { // termination condition is into the loop
+#pragma omp parallel
+      {
+#pragma omp single
+      {
+      unique_individual.clear();
+
+      new_generation.clear();
+      to_evaluate.clear();
+      old_generation.clear();
+
+// Create proxies
+
+//#pragma omp single
+//      {
+
+        printf(
+            "============================== %" PRId64 " ==============================\n",
+            AeTime::time());
+        printf("  Best individual's distance to target (metabolic) : %f\n",
+               best_indiv()->dist_to_target_by_feature(METABOLISM));
 
 
-  int max_protein=0;
-  int max_rna=0;
-  int max_influence=0;
+        int16_t nb_activators = 0;
+        int16_t nb_operators = 0;
 
-  const Habitat_R& hab = dynamic_cast<const Habitat_R&>(world()->grid(0,0)->habitat());
+        Individual_R* test = dynamic_cast<Individual_R*>(best_indiv());
 
-  int nb_signals=hab.signals().size();
-  int life_time=exp_s()->get_nb_indiv_age();
-  int nb_eval_=exp_s()->get_nb_degradation_step();
-  float selection_pressure=sel()->selection_pressure();
+        //test->init_indiv(dynamic_cast<const Habitat_R&>(test->habitat()));
 
+        int nb_protein = 0;
+        for (const auto& rnax: test->_rna_list_coding) {
+          Rna_R* rna = (Rna_R*) rnax;
+          for (unsigned int i = 0; i < rna->nb_influences(); i++) {
+            nb_protein++;
+            if (rna->_enhancing_coef_list[i] > 0) {
+              nb_activators++;
+            }
 
-  /*
-
-   * int max_protein, int max_rna, int max_influence,
-   * int nb_signals, int life_time, int nb_eval_,
-   * float selection_pressure
-
-   */
-
-  // For each generation  
-  while (true) { // termination condition is into the loop
-
-    printf("============================== %" PRId64 " ==============================\n",
-           AeTime::time());
-    printf("  Best individual's distance to target (metabolic) : %f\n",
-           best_indiv()->dist_to_target_by_feature(METABOLISM));
-
-
-
-    int16_t nb_activators = 0;
-    int16_t nb_operators = 0;
-
-    Individual_R* test = dynamic_cast<Individual_R*>(best_indiv());
-
-    //test->init_indiv(dynamic_cast<const Habitat_R&>(test->habitat()));
-
-    int nb_protein = 0;
-    for (const auto& rnax: test->_rna_list_coding) {
-      Rna_R* rna = (Rna_R*) rnax;
-      for (unsigned int i = 0; i < rna->nb_influences(); i++) {
-        nb_protein++;
-        if (rna->_enhancing_coef_list[i] > 0) {
-          nb_activators++;
+            if (rna->_operating_coef_list[i] > 0) {
+              nb_operators++;
+            }
+          }
         }
 
-        if (rna->_operating_coef_list[i] > 0) {
-          nb_operators++;
+        printf("  Proteins %ld (%d) - RNA %ld - Link A %d - I %d\n",
+               test->protein_list().size(), nb_protein,
+               test->_rna_list_coding.size(),
+               nb_activators, nb_operators);
+
+        for (auto indiv : indivs()) {
+          Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
+
+          if (indiv_r->protein_list().size() > max_protein)
+            max_protein = indiv_r->protein_list().size();
+
+          if (indiv_r->_rna_list_coding.size() > max_rna)
+            max_rna = indiv_r->_rna_list_coding.size();
+
+          for (auto rna : indiv_r->_rna_list_coding)
+            if (rna->_nb_influences > max_influence)
+              max_influence = rna->_nb_influences;
+        }
+  //    }
+
+      //if ()
+      //  break;
+
+
+
+
+
+//#pragma omp single
+//      {
+#ifdef __X11
+        display();
+#endif
+
+
+#ifdef __TRACING__
+        t1 = high_resolution_clock::now();
+#endif
+        // Take one step in the evolutionary loop
+        /** Step to next generation **/
+
+        // TODO <david.parsons@inria.fr> Apply phenotypic target variation and noise
+        world_->ApplyHabitatVariation();
+
+        // Take a step in time
+        AeTime::plusplus();
+
+
+      // Create the corresponding new generation
+      /** Selection :: step_to_next_generation **/
+      // To create the new generation, we must create nb_indivs new individuals
+      // (offspring) and "kill" the existing ones.
+      // The number of offspring on a given individual will be given by a stochastic
+      // process biased on it's fitness value (the selection process).
+      // There are 3 possible selection schemes :
+      //    * Linear Ranking
+      //    * Exponential Ranking
+      //    * Fitness proportionate
+      //
+      // Whichever method is chosen, we will
+      // 1) Compute the probability of reproduction of each individual in the population
+      // 2) Simulate the stochastic process by a multinomial drawing (based upon the probabilities computed in 1)
+      // 3) Make the selected individuals reproduce, thus creating the new generation
+      // 4) Replace the current generation by the newly created one.
+      // 5) Sort the newly created population*
+
+      if (sel()->prng_ == NULL) {
+        printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+      }
+
+      // -------------------------------------------------------------------------------
+      // 1) Compute the probability of reproduction of each individual in the population
+      // -------------------------------------------------------------------------------
+#ifndef FIXED_POPULATION_SIZE
+#error this method is not ready for variable population size
+      sel()->compute_local_prob_reprod();
+#else
+      // The function compute_local_prob_reprod creates and fills the array prob_reprod_, which is telling us the probability of being picked for reproduction according to the rank of an individual in its neighboorhood.
+      // It is only usefull when selection is rank based. When selection scheme is FITNESS_PROPORTIONATE, we do not need to call it.
+      // It shoud only be called once in the simulation and not at each generation. So if prob_reprod_ already exists we do not need to call it.
+      if ((sel()->selection_scheme() != FITNESS_PROPORTIONATE) &&
+          (sel()->prob_reprod() == NULL)) {
+        sel()->compute_local_prob_reprod();
+      }
+#endif
+
+      if (sel()->prng_ == NULL) {
+        printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+      }
+  //    }
+
+
+//#pragma omp single
+      //{
+        // Create proxies
+        world = this->world();
+        grid_width = world->width();
+        grid_height = world->height();
+        pop_size = grid_width * grid_height;
+
+        pop_grid = grid();
+
+        // create a temporary grid to store the reproducers
+        reproducers = new Individual** [grid_width];
+
+
+        for (int16_t i = 0; i < grid_width; i++) {
+          reproducers[i] = new Individual* [grid_height];
         }
       }
-    }
-
-    printf("  Proteins %ld (%d) - RNA %ld - Link A %d - I %d\n",test->protein_list().size(),nb_protein,
-           test->_rna_list_coding.size(),
-           nb_activators,nb_operators);
-
-    for (auto indiv : indivs()) {
-      Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
-
-      if (indiv_r->protein_list().size() > max_protein)
-        max_protein = indiv_r->protein_list().size();
-
-      if (indiv_r->_rna_list_coding.size() > max_rna)
-        max_rna = indiv_r->_rna_list_coding.size();
-
-      for (auto rna : indiv_r->_rna_list_coding)
-        if (rna->_nb_influences > max_influence)
-          max_influence = rna->_nb_influences;
-    }
-/*
-    cuda_struct* cstruct = new cuda_struct();
-    cstruct->init_struct(max_protein,max_rna,max_influence,
-                         nb_signals,life_time,nb_eval_,selection_pressure);
-    cstruct->transfert_to_gpu(best_indiv()->exp_m());
-
-    high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
-
-    cstruct->compute_a_generation(best_indiv()->exp_m());
-    //cstruct->print_dist(best_indiv()->exp_m());
-    high_resolution_clock::time_point t_t2 = high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW,1,"<<duration<<endl;
-
-    t_t1 = high_resolution_clock::now();
-
-    cstruct->compute_a_generation_v2(best_indiv()->exp_m());
-    //cstruct->print_dist(best_indiv()->exp_m());
-    t_t2 = high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW,2,"<<duration<<endl;
-
-    t_t1 = high_resolution_clock::now();
-
-    cstruct->compute_a_generation_v3(best_indiv()->exp_m());
-    //cstruct->print_dist(best_indiv()->exp_m());
-    t_t2 = high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW,3,"<<duration<<endl;
-
-        delete cstruct;
-*/
 
 
-    if (AeTime::time() >= t_end_ or quit_signal_received())
-      break;
-
-#ifdef __X11
-    display();
-#endif
 
 
+      if (sel()->global) {
+#pragma omp single
+        {
+          delete[] sel()->prob_reprod_;
+
+          sel()->prob_reprod_ = new double[pop_size];
+
+          double* fitnesses = new double[pop_size];
+          double sum = 0;
+
+          size_t i = 0;
+          for (const auto& indiv: indivs()) {
+            fitnesses[i] = indiv->fitness();
+            sum += fitnesses[i];
+            ++i;
+          }
+
+          for (int32_t i = 0; i < pop_size; i++) {
+            sel()->prob_reprod_[i] = fitnesses[i] / sum;
+          }
+
+          delete[] fitnesses;
+
+          int32_t* nb_offsprings = new int32_t[pop_size];
+          sel()->prng_->multinomial_drawing(nb_offsprings, sel()->prob_reprod_,
+                                            pop_size,
+                                            pop_size);
+
+          int index = 0;
+          i = 0;
+
+          for (const auto& indiv: indivs()) {
+            for (int32_t j = 0; j < nb_offsprings[i]; j++) {
+              x = index / grid_height;
+              y = index % grid_height;
+
+              reproducers[x][y] = indiv;
+
+              index++;
+            }
+            i++;
+          }
+        }
+        //printf("index %d\n",index);
+      } else {
+        // Do local competitions
+#pragma omp for schedule(dynamic) private(x,y)
+        for (int32_t index = 0; index < grid_width * grid_height; index++) {
+          x = index / grid_height;
+          y = index % grid_height;
+          reproducers[x][y] = sel()->do_local_competition(x, y);
+        }
+
+#pragma omp barrier
+      }
+
+      //}
+
+#pragma omp single
+      {
+        // TODO : Why is that not *after* the creation of the new population ?
+        // Add the compound secreted by the individuals
+        if (with_secretion()) {
+          for (int16_t x = 0; x < grid_width; x++) {
+            for (int16_t y = 0; y < grid_height; y++) {
+              pop_grid[x][y]->set_compound_amount(
+                  pop_grid[x][y]->compound_amount() +
+                  pop_grid[x][y]->individual()->fitness_by_feature(SECRETION));
+            }
+          }
+
+          // Diffusion and degradation of compound in the habitat
+          world->update_secretion_grid();
+        }
+
+      }
+        // Create the new generation
+
+#pragma omp single
+      {
+        old_generation = indivs();
+        //mutator = 0;
+        for (auto indiv : old_generation) {
+          indiv->number_of_clones_ = 0;
+          unique_individual[indiv->id()] = indiv;
+          (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
+        }
+
+      }
+
+
+#pragma omp for schedule(dynamic) private(x,y,what)
+        for (int32_t index = 0; index < grid_width * grid_height; index++) {
+          x = index / grid_height;
+          y = index % grid_height;
+          sel()->do_replication(reproducers[x][y],
+                                x * grid_height + y + pop_size * AeTime::time(),
+                                what, x, y);
+          if (what == 1 || what == 2) {
+#pragma omp critical(updateindiv)
+            {
+              to_evaluate.push_back(pop_grid[x][y]->individual());
+            }
+          }
+        }
+#pragma omp barrier
+
+#pragma omp single
+        {
+          t1 = high_resolution_clock::now();
+        }
+
+#pragma omp for schedule(dynamic)
+        for (int i = 0; i < to_evaluate.size(); i++) {
+          if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
+              phenotypic_target_handler_nonconst())->hasChanged()) ||
+              !to_evaluate[i]->evaluated_)
+            sel()->run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
+        }
+#pragma omp barrier
+
+
+#pragma omp single
+        {
+          for (int32_t index = 0; index < grid_width * grid_height; index++) {
+            x = index / grid_height;
+            y = index % grid_height;
+
+            EndReplicationEvent* eindiv = new EndReplicationEvent(
+                world->indiv_at(x, y), x, y);
+            // Tell observers the replication is finished
+            world->indiv_at(x, y)->notifyObservers(END_REPLICATION, eindiv);
+          }
+
+        t2 = high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+            t2 - t1).count();
+        cout << "TIMER," << AeTime::time() << ",OLD," << duration << endl;
+
+        for (int16_t x = 0; x < grid_width; x++)
+          for (int16_t y = 0; y < grid_height; y++)
+            new_generation.push_back(pop_grid[x][y]->individual());
+
+        // delete the temporary grid and the parental generation
+        for (int16_t x = 0; x < grid_width; x++) {
+          for (int16_t y = 0; y < grid_height; y++) {
+            reproducers[x][y] = nullptr;
+          }
+          delete[] reproducers[x];
+        }
+        delete[] reproducers;
+        // Compute the rank of each individual
+        new_generation.sort([](Individual* lhs, Individual* rhs) {
+            return lhs->fitness() < rhs->fitness();
+        });
+
+        int rank = 1;
+        for (Individual* indiv : new_generation) {
+          indiv->set_rank(rank++);
+        }
+
+        // randomly migrate some organisms, if necessary
+        world->MixIndivs();
+
+        sel()->PerformPlasmidTransfers();
+
+        // Update the best individual
+        update_best();
+
+        // Notify observers of the end of the generation
+        sel()->notifyObservers(END_GENERATION);
+
+        int number_of_clones = 0;
+        for (auto iterator = unique_individual.begin();
+             iterator != unique_individual.end(); iterator++) {
+          if (iterator->second->number_of_clones_ == 0) {
+            delete iterator->second;
+          }
+        }
+
+        /** END of Selection :: step_to_next_generation **/
+
+        // Write statistical data and store phylogenetic data (tree)
+        output_m_->write_current_generation_outputs();
+
+        /** END of step to next generation **/
 #ifdef __TRACING__
-	  t1 = high_resolution_clock::now();
+        t2 = high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        ae_logger::addLog(SELECTION,duration);
+        ae_logger::flush(AeTime::get_time());
 #endif
-    // Take one step in the evolutionary loop
-    step_to_next_generation();
+        }
+      }
+      }
+  //  }
+//  }
+#ifdef __TRACING__
+  t_t2 = high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
+  ae_logger::addLog(TOTAL,duration);
+  ae_logger::flush(AeTime::get_time());
+#endif
 
 
-#ifdef __TRACING__
-	  	  t2 = high_resolution_clock::now();
-	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	  	  ae_logger::addLog(SELECTION,duration);
-	  	  ae_logger::flush(AeTime::get_time());
-#endif
-  }
-#ifdef __TRACING__
-	  	  t_t2 = high_resolution_clock::now();
-	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-	  	  ae_logger::addLog(TOTAL,duration);
-	  	  ae_logger::flush(AeTime::get_time());
-#endif
   output_m_->flush();
   printf("================================================================\n");
   printf("  The run is finished. \n");
@@ -607,6 +876,7 @@ void ExpManager::run_evolution()
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
   fputs(best_indiv()->genetic_unit_sequence(0), org_file);
   fclose(org_file);
+
 }
 
 void ExpManager::update_best()
