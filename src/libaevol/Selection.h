@@ -128,14 +128,19 @@ class Selection : public Observable
 
     void set_unique_id(unsigned long long uid) { unique_id = uid; }
 
+    std::unique_ptr<JumpingMT> prng_;
 
-  protected :
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
+    bool global = true;
     void compute_prob_reprod();
     void compute_local_prob_reprod();
     Individual* do_local_competition(int16_t x, int16_t y);
+    double* prob_reprod_;
+
+
+ protected :
+    // =================================================================
+    //                           Protected Methods
+    // =================================================================
 
     // =======================================================================
     //                             Protected Attributes
@@ -143,16 +148,14 @@ class Selection : public Observable
     ExpManager* exp_m_;
 
     // ----------------------------------------- Pseudo-random number generator
-    std::unique_ptr<JumpingMT> prng_;
+
 
     // -------------------------------------------------------------- Selection
     SelectionScheme selection_scheme_;
     double selection_pressure_;
 
     // --------------------------- Probability of reproduction of each organism
-    double* prob_reprod_;
 
-    bool global = true;
 
 
     unsigned long long unique_id = 16000;

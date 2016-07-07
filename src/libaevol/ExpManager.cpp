@@ -50,6 +50,7 @@
 #include<chrono>
 
 #include <iostream>
+#include <unordered_map>
 using namespace std;
 using namespace std::chrono;
 
@@ -447,49 +448,32 @@ void ExpManager::load(int64_t t0,
   gzclose(out_prof_file);
 }
 
+
+
+//int mutator = 0;
+
 /**
  * Run the simulation
  */
-void ExpManager::run_evolution()
-{
+void ExpManager::run_evolution() {
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
   WriteSetupFiles();
 #ifdef __TRACING__
-    ae_logger::init("logger_csv.log");
+  ae_logger::init("logger_csv.log");
 
     printf("Launching TRACING...\n");
 #else
   printf("Launching NOT TRACING...\n");
 #endif
 
-  #ifdef __TRACING__
-	  high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
+#ifdef __TRACING__
+  high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
 	  high_resolution_clock::time_point t_t2,t1,t2;
-  #endif
+#endif
 
 
-  int max_protein=0;
-  int max_rna=0;
-  int max_influence=0;
-
-  const Habitat_R& hab = dynamic_cast<const Habitat_R&>(world()->grid(0,0)->habitat());
-
-  int nb_signals=hab.signals().size();
-  int life_time=exp_s()->get_nb_indiv_age();
-  int nb_eval_=exp_s()->get_nb_degradation_step();
-  float selection_pressure=sel()->selection_pressure();
-
-
-  /*
-
-   * int max_protein, int max_rna, int max_influence,
-   * int nb_signals, int life_time, int nb_eval_,
-   * float selection_pressure
-
-   */
-
-  // For each generation  
+  // For each generation
   while (true) { // termination condition is into the loop
 
     printf("============================== %" PRId64 " ==============================\n",
@@ -525,53 +509,6 @@ void ExpManager::run_evolution()
            test->_rna_list_coding.size(),
            nb_activators,nb_operators);
 
-    for (auto indiv : indivs()) {
-      Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
-
-      if (indiv_r->protein_list().size() > max_protein)
-        max_protein = indiv_r->protein_list().size();
-
-      if (indiv_r->_rna_list_coding.size() > max_rna)
-        max_rna = indiv_r->_rna_list_coding.size();
-
-      for (auto rna : indiv_r->_rna_list_coding)
-        if (rna->_nb_influences > max_influence)
-          max_influence = rna->_nb_influences;
-    }
-/*
-    cuda_struct* cstruct = new cuda_struct();
-    cstruct->init_struct(max_protein,max_rna,max_influence,
-                         nb_signals,life_time,nb_eval_,selection_pressure);
-    cstruct->transfert_to_gpu(best_indiv()->exp_m());
-
-    high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
-
-    cstruct->compute_a_generation(best_indiv()->exp_m());
-    //cstruct->print_dist(best_indiv()->exp_m());
-    high_resolution_clock::time_point t_t2 = high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW,1,"<<duration<<endl;
-
-    t_t1 = high_resolution_clock::now();
-
-    cstruct->compute_a_generation_v2(best_indiv()->exp_m());
-    //cstruct->print_dist(best_indiv()->exp_m());
-    t_t2 = high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW,2,"<<duration<<endl;
-
-    t_t1 = high_resolution_clock::now();
-
-    cstruct->compute_a_generation_v3(best_indiv()->exp_m());
-    //cstruct->print_dist(best_indiv()->exp_m());
-    t_t2 = high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",NEW,3,"<<duration<<endl;
-
-        delete cstruct;
-*/
-
-
     if (AeTime::time() >= t_end_ or quit_signal_received())
       break;
 
@@ -581,21 +518,19 @@ void ExpManager::run_evolution()
 
 
 #ifdef __TRACING__
-	  t1 = high_resolution_clock::now();
+    t1 = high_resolution_clock::now();
 #endif
     // Take one step in the evolutionary loop
     step_to_next_generation();
-
-
 #ifdef __TRACING__
-	  	  t2 = high_resolution_clock::now();
+    t2 = high_resolution_clock::now();
 	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	  	  ae_logger::addLog(SELECTION,duration);
 	  	  ae_logger::flush(AeTime::get_time());
 #endif
   }
 #ifdef __TRACING__
-	  	  t_t2 = high_resolution_clock::now();
+  t_t2 = high_resolution_clock::now();
 	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
 	  	  ae_logger::addLog(TOTAL,duration);
 	  	  ae_logger::flush(AeTime::get_time());
@@ -607,6 +542,7 @@ void ExpManager::run_evolution()
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
   fputs(best_indiv()->genetic_unit_sequence(0), org_file);
   fclose(org_file);
+
 }
 
 void ExpManager::update_best()
