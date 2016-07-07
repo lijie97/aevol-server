@@ -542,7 +542,6 @@ void ExpManager::run_evolution() {
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
   fputs(best_indiv()->genetic_unit_sequence(0), org_file);
   fclose(org_file);
-
 }
 
 void ExpManager::update_best()
