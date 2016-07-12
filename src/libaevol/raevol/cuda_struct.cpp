@@ -1100,13 +1100,13 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
               // Compute synthesis rate of RNA
               for (int m = 0; m < max_rna_; m++) {
 
-#pragma omp task \
+/*#pragma omp task \
                   depend(in: protein_influence[indiv_id * max_rna_ * max_influence_ + m * max_influence_:max_influence_]) \
                   depend(in: enhance_coef[indiv_id * max_rna_ * max_influence_ + m * max_influence_:max_influence_]) \
                   depend(in: enhance_coef[indiv_id * max_rna_ * max_influence_ + m * max_influence_:max_influence_]) \
                   depend(in: signals_concentration[i*nb_signals_:nb_signals_]) \
                   depend(in: protein_concentration[indiv_id * max_protein_:max_protein_]) \
-                  depend(out: rna_synthesis[indiv_id * max_rna_ + m])
+                  depend(out: rna_synthesis[indiv_id * max_rna_ + m])*/
                 {
                   float enhancer_activity = 0, operator_activity = 0;
                   for (int n = 0; n < max_influence_; n++) {
@@ -1165,10 +1165,10 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
 
               // Compute concentration
               for (int l = 0; l < max_protein_; l++) {
-#pragma omp task \
+/*#pragma omp task \
                   depend(in: protein_influenced[indiv_id * max_protein_ * max_rna_ +l * max_protein_:max_rna_]) \
                   depend(in: rna_synthesis[indiv_id * max_rna_:max_rna_]) \
-                  depend(inout: protein_concentration[indiv_id * max_protein_ +l])
+                  depend(inout: protein_concentration[indiv_id * max_protein_ +l])*/
                 {
 
                   float _delta_concentration;
@@ -1199,9 +1199,9 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
               /** update phenotype **/
 #pragma omp taskwait
 
-#pragma omp task depend(out: phenotype[indiv_id * 300:300]) \
+/*#pragma omp task depend(out: phenotype[indiv_id * 300:300]) \
                            depend(out: phenotype_activ[indiv_id * 300:300]) \
-                           depend(out: phenotype_inhib[indiv_id * 300:300])
+                           depend(out: phenotype_inhib[indiv_id * 300:300])*/
               {
 #pragma omp simd
                 for (int j = 0; j < 300; j++) {
@@ -1212,13 +1212,13 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
               }
 
               for (int l = 0; l < max_protein_; l++) {
-#pragma omp task depend(in: protein_triangle_height[indiv_id * max_protein_:max_protein_]) \
+/*#pragma omp task depend(in: protein_triangle_height[indiv_id * max_protein_:max_protein_]) \
                            depend(in: protein_concentration[indiv_id * max_protein_:max_protein_]) \
                            depend(in: protein_triangle_ix0[indiv_id * max_protein_:max_protein_]) \
                            depend(in: protein_triangle_ix1[indiv_id * max_protein_:max_protein_]) \
                            depend(in: protein_triangle_ix2[indiv_id * max_protein_:max_protein_]) \
                            depend(inout: phenotype_activ[indiv_id * 300:300]) \
-                           depend(inout: phenotype_inhib[indiv_id * 300:300])
+                           depend(inout: phenotype_inhib[indiv_id * 300:300])*/
                 {
                   float height = (
                       protein_triangle_height[indiv_id * max_protein_ +
@@ -1291,11 +1291,11 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
               }
 
 
-#pragma omp task depend(inout: phenotype[indiv_id * 300:300]) \
+/*#pragma omp task depend(inout: phenotype[indiv_id * 300:300]) \
                            depend(inout: phenotype_activ[indiv_id * 300:300]) \
                            depend(inout: phenotype_inhib[indiv_id * 300:300]) \
                            depend(out: delta[indiv_id * 300:300]) \
-                           depend(in: environment[indiv_id * 300:300])
+                           depend(in: environment[indiv_id * 300:300])*/
               {
 #pragma omp simd
                 for (int j = 0; j < 300; j++) {
@@ -1319,8 +1319,8 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
               /** compute distance to target **/
 
 
-#pragma omp task depend(in: delta[indiv_id * 300:300]) \
-                           depend(out: dist_sum[indiv_id])
+/*#pragma omp task depend(in: delta[indiv_id * 300:300]) \
+                           depend(out: dist_sum[indiv_id])*/
               {
                 for (int j = 0; j < 299; j++) {
                   dist_sum[indiv_id] += ((delta[indiv_id * 300 + j]
@@ -1331,7 +1331,7 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
             }
           }
 
-#pragma omp task depend(inout: dist_sum[indiv_id])
+//#pragma omp task depend(inout: dist_sum[indiv_id])
           {
             dist_sum[indiv_id] = exp(
                 selection_pressure_ * (dist_sum[indiv_id] / nb_eval_));
