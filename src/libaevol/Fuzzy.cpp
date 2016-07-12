@@ -217,7 +217,7 @@ void Fuzzy::add(const AbstractFuzzy& f) {
 
 /// Substract to the current fuzzy set.
 ///
-/// TODO: Dumb version (?), to be completed.
+/// TODO <vld><dpa>: the fs.y(p.x) in the for loop yields a O(n2) complexity !
 void Fuzzy::sub(const AbstractFuzzy& f) {
   const Fuzzy fs = (Fuzzy&)(f);
   // assert(invariant());
