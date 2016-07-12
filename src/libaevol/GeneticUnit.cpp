@@ -38,7 +38,7 @@
 
 #ifdef __BLAS__
 #include <cblas.h>
-#endif 
+#endif
 
 #include "FuzzyFactory.h"
 #include "ExpManager.h"
