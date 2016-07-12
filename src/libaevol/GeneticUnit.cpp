@@ -35,7 +35,10 @@
 #include <cassert>
 #include <list>
 #include <algorithm>
+
+#ifdef __BLAS__
 #include <cblas.h>
+#endif 
 
 #include "FuzzyFactory.h"
 #include "ExpManager.h"
