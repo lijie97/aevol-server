@@ -74,7 +74,9 @@ ENV_VARIATION none
 DUPLICATION_RATE    1e-4
 DELETION_RATE       1e-4
 TRANSLOCATION_RATE  1e-4
-INVERSION_RATE      1e-4" > newparam-groupA.in
+INVERSION_RATE      1e-4
+RECORD_TREE true
+TREE_STEP 100" > newparam-groupA.in
 
 echo "# New environment
 ENV_GAUSSIAN  0.5   0.2   0.05
@@ -85,13 +87,17 @@ ENV_VARIATION none
 DUPLICATION_RATE    1e-6
 DELETION_RATE       1e-6
 TRANSLOCATION_RATE  1e-6
-INVERSION_RATE      1e-6" > newparam-groupB.in
+INVERSION_RATE      1e-6
+RECORD_TREE true
+TREE_STEP 100" > newparam-groupB.in
 
 echo "# New environment
 ENV_GAUSSIAN  0.5   0.2   0.05
 ENV_GAUSSIAN  0.5   0.4   0.05
 ENV_GAUSSIAN  0.5   0.8   0.05
-ENV_VARIATION none" > newparam-groupC.in
+ENV_VARIATION none
+RECORD_TREE true
+TREE_STEP 100" > newparam-groupC.in
 
 
 # Apply these modifications
