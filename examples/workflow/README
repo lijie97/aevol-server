@@ -40,7 +40,7 @@
 #mkdir wild_type
 cd wild_type
 aevol_create
-aevol_run -n 5000 -p -1
+aevol_run -n 10000 -p -1
 # "-p -1" means you ask aevol to be run on n threads, with n
 # being determined by your system's settings
 
