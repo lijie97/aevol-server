@@ -172,13 +172,15 @@ void Individual_R::Evaluate() {
 void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
 	if (evaluated_ == true) return; // Individual has already been evaluated, nothing to do.
 
+  for (const auto& prot : protein_list_) {
+    ((Protein_R*) prot)->reset_concentration();
+  }
+
   if (!_networked) {
     init_indiv(habitat);
   }
 
-  for (const auto& prot : protein_list_) {
-    ((Protein_R*) prot)->reset_concentration();
-  }
+
 
   std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
 

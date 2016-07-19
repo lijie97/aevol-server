@@ -108,6 +108,8 @@ Individual_R_X11::~Individual_R_X11( void ) noexcept
 
 void Individual_R_X11::display_concentrations( X11Window* win )
 {
+  init_indiv(dynamic_cast<const Habitat_R&>(this->habitat()));
+
   char* color = new char[8];
   char* color2 = NULL;
   strcpy( color, "#FFFFFF" );
@@ -228,6 +230,8 @@ void Individual_R_X11::display_concentrations( X11Window* win )
 
 void Individual_R_X11::display_regulation( X11Window* win )
 {
+  init_indiv(dynamic_cast<const Habitat_R&>(this->habitat()));
+
   int16_t nb_activators = 0;
   int16_t nb_operators = 0;
 
@@ -244,6 +248,27 @@ void Individual_R_X11::display_regulation( X11Window* win )
   // Retreive the genetic unit corresponding to the main chromosome
   GeneticUnit* gen_unit = &genetic_unit_list_.front();
   int32_t genome_length = gen_unit->dna()->length();
+
+  // save the initial list of proteins
+  //std::list<Protein*> init_prot_list = protein_list_;
+  _initial_protein_list = protein_list_;
+
+  //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
+  for(Protein_R* prot :dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
+    protein_list_.push_back(prot);
+  }
+
+  //set the concentrations of proteins to their initial value
+  double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
+  //  int16_t prot_index = 0;
+  int i = 0;
+  for (const auto& prot : protein_list_) {
+    ((Protein_R*)prot)->reset_concentration();
+    concentrations[i] = ((Protein_R*)prot)->concentration();
+    i++;
+  }
+
+  set_influences();
 
   // draw color scale
   char *color_bar = new char[8];
@@ -498,6 +523,9 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
 
   }
+
+  protein_list_.clear();
+  protein_list_ = _initial_protein_list;
   delete[] color;
 }
 
