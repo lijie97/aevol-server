@@ -79,7 +79,7 @@ class Protein
                Rna * rna,
                double w_max);
     Protein( const std::list<Codon*> codon_list, double concentration, double w_max);
-    //Protein(Protein* parent);
+    Protein(Protein* signal);
     Protein(gzFile backup_file);
     // =================================================================
     //                             Destructors

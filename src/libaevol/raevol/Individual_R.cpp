@@ -31,6 +31,7 @@
 //                              Libraries
 // =================================================================
 
+#include <unordered_map>
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -153,6 +154,17 @@ Individual_R::~Individual_R( void ) noexcept
     _rna_list_coding[i] = NULL;
   }
 
+  std::unordered_map<int,Protein_R * >::iterator iter = signal_list.begin();
+
+  while (iter != signal_list.end())
+  {
+    Protein_R* clone = iter->second;
+    delete clone;
+    iter++;
+  }
+
+  signal_list.clear();
+
   _rna_list_coding.clear();
 }
 
@@ -170,47 +182,61 @@ void Individual_R::Evaluate() {
 }
 
 void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
-	if (evaluated_ == true) return; // Individual has already been evaluated, nothing to do.
 
-  for (const auto& prot : protein_list_) {
-    ((Protein_R*) prot)->reset_concentration();
-  }
-
-  if (!_networked) {
-    init_indiv(habitat);
-  }
-
-
-
-  std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
-
-  // i is thus the age of the individual
-  for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
-    //Set the concentration of signals for this age
-    for(Protein_R* prot1 : habitat.signals()) {
-      prot1->set_concentration(0.0);
+    if (evaluated_ == true)
+      return; // Individual has already been evaluated, nothing to do.
+    for (const auto& prot : protein_list_) {
+      ((Protein_R*) prot)->reset_concentration();
     }
-    if (no_signal)
-      for(Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
-        prot2->set_concentration(0.9);
+
+    if (!_networked) {
+      init_indiv(habitat);
+    }
+    /*for (const auto& prot : protein_list_) {
+      printf("AT INIT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
+             ((Protein_R*)prot)->get_id(),prot->concentration());
+    }*/
+
+    std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
+    // i is thus the age of the individual
+    for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+      //Set the concentration of signals for this age
+      for (auto prot1 : signal_list) {
+        prot1.second->set_concentration(0.0);
+      }
+      if (no_signal)
+        for (Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
+          signal_list[prot2->get_id()]->set_concentration(0.9);
+        }
+
+
+      for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
+        one_step();
       }
 
 
-    for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
-      one_step();
+      /*for (const auto& prot : protein_list_) {
+        printf("AT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
+               ((Protein_R*)prot)->get_id(),prot->concentration());
+      }*/
+
+      // If we have to evaluate the individual at this age
+      if (eval->find(i) != eval->end()) {
+        //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
+        eval_step(habitat, i);
+      }
     }
 
-    // If we have to evaluate the individual at this age
-    if (eval->find(i) != eval->end())
-    {
-      //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
-      eval_step(habitat, i); 
-    }
-  }
 
-  final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
-  protein_list_.clear();
-  protein_list_ = _initial_protein_list;
+    final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
+
+//    protein_list_.clear();
+//    protein_list_ = _initial_protein_list;
+
+
+
+    //initialized = false;
+
 }
 
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
@@ -259,10 +285,11 @@ void Individual_R::init_indiv(const Habitat_R& habitat)
 
   //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
   for(Protein_R* prot : habitat.signals()) {
-    protein_list_.push_back(prot);
+    Protein_R* cloned = new Protein_R(prot);
+
+    signal_list.insert({cloned->get_id(),cloned});
+    protein_list_.push_back(cloned);
   }
-
-
 
   //----------------------------------------------------------------------------
   // 3) Create influence graph (including the signals)
@@ -271,6 +298,7 @@ void Individual_R::init_indiv(const Habitat_R& habitat)
   set_influences();
 
   _networked = true;
+  //initialized = true;
 }
 
 void Individual_R::one_step( void )
@@ -294,6 +322,9 @@ void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
 
   compute_distance_to_target( habitat.phenotypic_target( age ) );
 
+  /*printf("AT %d ID %d at %d dist is %lf on %d\n",AeTime::time(),id(),age,dist_to_target_by_feature_[METABOLISM],
+         habitat.phenotypic_target( age ).get_id());*/
+
   _dist_sum += dist_to_target_by_feature_[METABOLISM];
 
   /*if (id_ % 1024 == 1)
@@ -304,7 +335,7 @@ void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
 
 void Individual_R::final_step( const Habitat_R& habitat, int8_t age ) {
   dist_to_target_by_feature_[METABOLISM] = _dist_sum / (double) (exp_m_->exp_s()->get_list_eval_step()->size());
-
+  //printf("AT %d ID %d Meta error : %lf \n",AeTime::time(),id(),dist_to_target_by_feature_[METABOLISM]);
 
 
   fitness_computed_=false;
@@ -323,6 +354,11 @@ void Individual_R::set_influences()
 // As non-coding RNAs are completely inert, we don't care about their concentration
 // so we don't care if proteins activate or inhibit their transcription.
 {
+  /*for (const auto& prot : protein_list_) {
+   if (id() == 12608 && ((Protein_R*)prot)->is_signal())
+      printf("ID 12608 set_influence Signal is %ld\n",((Protein_R*)prot)->get_id());
+  }*/
+
 	  for(auto& rna : _rna_list_coding) {
 		  rna->set_influences( protein_list_ );
 	  }

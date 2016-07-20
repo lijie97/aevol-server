@@ -35,6 +35,7 @@
 #include <inttypes.h>
 #include <vector>
 #include <set>
+#include <unordered_map>
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -156,6 +157,7 @@ class Individual_R : public virtual Individual
     //                          Protected Attributes
     // =================================================================
     std::vector<Protein_R*> _inherited_protein_list;
+    std::unordered_map<int,Protein_R*> signal_list;
 
 
     int _indiv_age;

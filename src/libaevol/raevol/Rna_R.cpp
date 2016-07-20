@@ -113,6 +113,11 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list )
     enhance = affinity_with_protein( enhancer_position, prot );
     operate = affinity_with_protein( operator_position, prot );
 
+/*
+    if (((Protein_R*)prot)->is_signal()) {
+      p
+    }
+*/
     if (enhance != 0.0 || operate != 0.0) {
 
       _protein_list[i] = (Protein_R*) prot;
@@ -127,8 +132,12 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list )
     //else
     // _protein_list[i] = nullptr;
 	}
+  _nb_influences = i;
 
-  _nb_influences = i==0 ? 0 : i-1;
+  //TODO NOT USEFUL ??? _nb_influences = i==0 ? 0 : i-1;
+
+  /*if (gen_unit_->indiv()->id() == 12608)
+    printf("12608 RNA %d is influenced by %d proteins\n",_id,_nb_influences);*/
 
   /*if (protein_list.size() > 0)
     printf("Set Influences of RNA %ld with %ld %ld %ld\n",_id,_enhancing_coef_list.size(),_operating_coef_list.size(),
@@ -143,6 +152,11 @@ double Rna_R::get_synthesis_rate( void )
 
 //#ifndef __BLAS__
   for (int i = 0; i < _nb_influences; i++) {
+    /*if (gen_unit_->indiv()->id() == 12608)
+      printf("12608 RNA %d  due to Protein %d is %f %f %f\n",
+             _id,_protein_list[i]->get_id(),
+             _enhancing_coef_list[i],_operating_coef_list[i],_protein_list[i]->concentration_);*/
+
   	enhancer_activity  += _enhancing_coef_list[i] * _protein_list[i]->concentration_;
     operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
   }
@@ -166,6 +180,8 @@ double Rna_R::get_synthesis_rate( void )
   /*if (_id == 132073) printf("Synthesis of RNA %ld : E %f O %f EP %f OP %f SN %f S %f B %f\n",_id,enhancer_activity,operator_activity,enhancer_activity_pow_n,
                                                 operator_activity_pow_n,gen_unit_->exp_m()->exp_s()->get_hill_shape_n(),
          gen_unit_->exp_m()->exp_s()->get_hill_shape(),basal_level_);*/
+  /*if (gen_unit_->indiv()->id() == 12608)
+    printf("12608 RNA %d is %f %f %f\n",_id,enhancer_activity,operator_activity,basal_level_);*/
 
   return   basal_level_
            * (gen_unit_->exp_m()->exp_s()->get_hill_shape()

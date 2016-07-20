@@ -108,7 +108,7 @@ Individual_R_X11::~Individual_R_X11( void ) noexcept
 
 void Individual_R_X11::display_concentrations( X11Window* win )
 {
-  init_indiv(dynamic_cast<const Habitat_R&>(this->habitat()));
+  //this->init(dynamic_cast<const Habitat_R&>(this->habitat()));
 
   char* color = new char[8];
   char* color2 = NULL;
@@ -148,6 +148,22 @@ void Individual_R_X11::display_concentrations( X11Window* win )
 
   // save the initial list of proteins
   //std::list<Protein*> init_prot_list = protein_list_;
+  /*_initial_protein_list = protein_list_;
+
+  //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
+  for(Protein_R* prot :dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
+    protein_list_.push_back(prot);
+  }
+*/
+
+ /* for (const auto& prot : protein_list_) {
+    ((Protein_R*) prot)->reset_concentration();
+
+    if (((Protein_R*)prot)->is_signal())
+      printf("CONC Signal is %ld\n",((Protein_R*)prot)->get_id());
+  }*/
+
+  /*
   _initial_protein_list = protein_list_;
 
   //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
@@ -155,17 +171,20 @@ void Individual_R_X11::display_concentrations( X11Window* win )
     protein_list_.push_back(prot);
   }
 
+  set_influences();
+
+  _networked = true;
+*/
   //set the concentrations of proteins to their initial value
   double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
   //  int16_t prot_index = 0;
   int i = 0;
   for (const auto& prot : protein_list_) {
-    ((Protein_R*)prot)->reset_concentration();
     concentrations[i] = ((Protein_R*)prot)->concentration();
     i++;
   }
 
-  set_influences();
+  //set_influences();
 
   // compute steps
   double x_step = 0.8 * win->width() / (double)(exp_m()->exp_s()->get_nb_indiv_age());
@@ -174,12 +193,13 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   //printf("START IN HERE .......\n \n");
   for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
     //Set the concentration of signals for this age
-    for(Protein_R* prot1 : dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
-      prot1->set_concentration(0.0);
+    for (auto prot1 : signal_list) {
+      prot1.second->set_concentration(0.0);
     }
-    for(Protein_R* prot2 : dynamic_cast<const Habitat_R&>(this->habitat()).phenotypic_target(i).signals()) {
-      prot2->set_concentration(0.9);
-    }
+
+      for (Protein_R* prot2 : dynamic_cast<const Habitat_R&>(this->habitat()).phenotypic_target(i).signals()) {
+        signal_list[prot2->get_id()]->set_concentration(0.9);
+      }
 
     for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++)
       update_concentrations();
@@ -220,9 +240,6 @@ void Individual_R_X11::display_concentrations( X11Window* win )
     //printf("\n");
   }
 
-  protein_list_.clear();
-  protein_list_ = _initial_protein_list;
-  //init_prot_list.clear();
 
   delete[] concentrations;
   delete[] color;
@@ -230,7 +247,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
 
 void Individual_R_X11::display_regulation( X11Window* win )
 {
-  init_indiv(dynamic_cast<const Habitat_R&>(this->habitat()));
+  //this->init(dynamic_cast<const Habitat_R&>(this->habitat()));
 
   int16_t nb_activators = 0;
   int16_t nb_operators = 0;
@@ -251,12 +268,25 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
   // save the initial list of proteins
   //std::list<Protein*> init_prot_list = protein_list_;
-  _initial_protein_list = protein_list_;
+
+
+ /* for (const auto& prot : protein_list_) {
+    ((Protein_R*) prot)->reset_concentration();
+
+    if (((Protein_R*)prot)->is_signal())
+      printf("REG Signal is %ld\n",((Protein_R*)prot)->get_id());
+  }*/
+
+ /* _initial_protein_list = protein_list_;
 
   //_protein_list.insert(_protein_list.end(), habitat.signals().begin(), habitat.signals().end());
   for(Protein_R* prot :dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
     protein_list_.push_back(prot);
   }
+
+  set_influences();
+
+  _networked = true;*/
 
   //set the concentrations of proteins to their initial value
   double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
@@ -265,10 +295,12 @@ void Individual_R_X11::display_regulation( X11Window* win )
   for (const auto& prot : protein_list_) {
     ((Protein_R*)prot)->reset_concentration();
     concentrations[i] = ((Protein_R*)prot)->concentration();
-    i++;
+    i++;/*
+    if (((Protein_R*)prot)->is_signal())
+      printf("Signal is %ld\n",((Protein_R*)prot)->get_id());*/
   }
 
-  set_influences();
+//  set_influences();
 
   // draw color scale
   char *color_bar = new char[8];
@@ -404,6 +436,8 @@ void Individual_R_X11::display_regulation( X11Window* win )
   // end search for max
 
   // begin links drawing procedure
+
+  nb_signals = 0;
   for (const auto& rna: _rna_list_coding) {
 
     // Alpha : angles from OriC (in degrees)
@@ -427,7 +461,6 @@ void Individual_R_X11::display_regulation( X11Window* win )
     // ---------------
     //  Draw each regulation link
     // ---------------
-    nb_signals = 0;
     for (unsigned int i = 0; i < rna->_nb_influences; i++) {
       Protein_R* prot = rna->_protein_list[i];
 
@@ -454,7 +487,7 @@ void Individual_R_X11::display_regulation( X11Window* win )
       }
       else {
         nb_signals += 1;
-        pos_prot_x = (win->width() / 10.0) * nb_signals;
+        pos_prot_x = (win->width() / 10.0) * (((Protein_R*)prot)->get_id()+1);
         pos_prot_y = (win->height() * 0.9);
       }
 
@@ -481,6 +514,10 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
         }
 
+      /*if (rna->_protein_list[i]->is_signal())
+        printf("is influenced by signal %ld : %f %f %f %s\n",rna->_protein_list[i]->get_id(),
+               rna->_enhancing_coef_list[i],
+               rna->_operating_coef_list[i],merged_influence,color);*/
 
         if (merged_influence != 0.0) {
           //compute the lenght of the line
@@ -524,14 +561,13 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
   }
 
-  protein_list_.clear();
-  protein_list_ = _initial_protein_list;
+
   delete[] color;
 }
 
 void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habitat )
 {
-  init_indiv(habitat);
+  //this->init(dynamic_cast<const Habitat_R&>(this->habitat()));
 
   double dist_temp = 0;
   char* color = new char[8];
@@ -569,12 +605,20 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
 
   std::set<int>* eval = exp_m()->exp_s()->get_list_eval_step();
 
-  std::list<Protein*> initial_protein_list = protein_list_;
 
+  //for (const auto& prot : protein_list_) {
+  //  ((Protein_R*) prot)->reset_concentration();
+
+  //  if (((Protein_R*)prot)->is_signal())
+  //    printf("PHEN Signal is %ld\n",((Protein_R*)prot)->get_id());
+  //}
+
+/*
+  std::list<Protein*> initial_protein_list = protein_list_;
 
   for(Protein_R* prot :dynamic_cast<const Habitat_R&>(this->habitat()).signals()) {
     protein_list_.push_back(prot);
-  }
+  }*/
 
   //set the concentrations of proteins to their initial value
   double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
@@ -586,18 +630,25 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
     i++;
   }
 
-  set_influences();
+//  set_influences();
+
+  /*for (const auto& prot : protein_list_) {
+    printf("AT INIT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
+           ((Protein_R*)prot)->get_id(),prot->concentration());
+  }*/
 
 
+  //printf("Env list is : ");
   for (int i = 1; i <= exp_m()->exp_s()->get_nb_indiv_age(); i++) {
+   // printf("%d ",habitat.phenotypic_target( i ).get_id());
     //Set the concentration of signals for this age
-    for(Protein_R* prot1 : habitat.signals()) {
-      prot1->set_concentration(0.0);
-    }
-    for(Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
-      prot2->set_concentration(0.9);
+    for (auto prot1 : signal_list) {
+      prot1.second->set_concentration(0.0);
     }
 
+      for (Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
+        signal_list[prot2->get_id()]->set_concentration(0.9);
+      }
     for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++) {
       update_concentrations();
     }
@@ -610,6 +661,10 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
     dynamic_cast<ExpManager_X11*>(exp_m())->display_3D(win, *(habitat.phenotypic_target(i ).fuzzy()),
                                                            RED, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i), false);
 
+    /*for (const auto& prot : protein_list_) {
+      printf("AT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
+             ((Protein_R*)prot)->get_id(),prot->concentration());
+    }*/
 
     // if its an evaluation date
     if (eval->find(i) != eval->end()) {
@@ -627,15 +682,24 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
 
       //Draw the intermediate evaluation result
       sprintf( display_string, " t = %" PRId32 ", dist_to_target =  %lf",i,dist_to_target_by_feature_[METABOLISM]);
+      /*printf("AT %d ID %d at %d dist is %lf on %d\n",AeTime::time(),id(),i,dist_to_target_by_feature_[METABOLISM],
+             habitat.phenotypic_target( i ).get_id());*/
+
       win->draw_string( 15, 15*nb_eval, display_string );
     }
   }
+  //printf("\n");
 
   //Draw the evaluation result
   sprintf( display_string, "Mean dist_to_target =  %lf",dist_temp/(double)nb_eval);
+
+  printf("AT %d ID %d Mean dist %lf\n",AeTime::time(),id(),dist_temp/(double)nb_eval);
+  for(Protein_R* prot1 : habitat.signals()) {
+    prot1->set_concentration(0.0);
+  }
+
   win->draw_string( 15, 15*(nb_eval + 1), display_string );
-  protein_list_.clear();
-  protein_list_ = initial_protein_list;
+
   delete[] concentrations;
   delete[] color;
 }

@@ -295,6 +295,7 @@ void Selection::step_to_next_generation() {
     }
   }
 #pragma omp barrier
+
 /*
 
   for (int16_t x = 0 ; x < grid_width ; x++) {
@@ -340,9 +341,11 @@ void Selection::step_to_next_generation() {
   for (int i = 0; i < to_evaluate.size(); i++) {
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
         phenotypic_target_handler_nonconst())->hasChanged()) ||
-        !to_evaluate[i]->evaluated_)
+        !to_evaluate[i]->evaluated_) {
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
+    }
   }
+
 #ifdef _OPENMP
   }
 #endif
@@ -857,18 +860,18 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 void Selection::run_life(Individual_R* new_indiv) {
 
-  if (dynamic_cast<PhenotypicTargetHandler_R*>(&new_indiv->grid_cell()->habitat().
-      phenotypic_target_handler_nonconst())->hasChanged()) {
-    new_indiv->evaluated_ = false;
-  }
+    if (dynamic_cast<PhenotypicTargetHandler_R*>(&new_indiv->grid_cell()->habitat().
+        phenotypic_target_handler_nonconst())->hasChanged()) {
+      new_indiv->evaluated_ = false;
+    }
 
-  //printf("Evaluate :: indiv %d (%d)\n",new_indiv->id(),new_indiv->number_of_clones_);
-  // Evaluate new individual
-  new_indiv->Evaluate();
+    //printf("Evaluate :: indiv %d (%d)\n",new_indiv->id(),new_indiv->number_of_clones_);
+    // Evaluate new individual
+    new_indiv->Evaluate();
 
 
-  // Compute statistics
-  new_indiv->compute_statistical_data();
+    // Compute statistics
+    new_indiv->compute_statistical_data();
 
 }
 

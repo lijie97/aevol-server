@@ -249,9 +249,20 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargetsAndModels( int8_t nb_indiv_
 
 void PhenotypicTargetHandler_R::print_geometric_areas() {
   double area = 0.0;
+  printf("Signal list :  ");
+  for (Protein_R* prot : signals()) {
+    printf("%ld ",prot->get_id());
+  }
+  printf("\n");
+
   for (int8_t i = 0; i < phenotypic_target_models_.size() ; i++) {
     area = phenotypic_target_models_.at(i)->fuzzy()->get_geometric_area();
     printf("Entire geometric area of the phenotypic target %d: %f\n", i, area);
+    printf("Signal of env %d is ",i);
+    for (Protein_R* prot : phenotypic_target_models_.at(i)->signals()) {
+      printf("%ld ",prot->get_id());
+    }
+    printf("\n");
   }
 }
 

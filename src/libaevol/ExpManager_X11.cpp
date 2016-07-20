@@ -218,6 +218,7 @@ void ExpManager_X11::display()
     }
   }
 
+
   // ----------
   // 3) Display
   // ----------

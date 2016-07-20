@@ -64,7 +64,8 @@ class Protein_R : public Protein
     		Rna* rna,
         double w_max ); // TODO Rna_R?
 	Protein_R( const std::list<Codon*> codon_list, double concentration, double w_max);
-	Protein_R( gzFile backup_file );
+    Protein_R( Protein_R* signal );
+    Protein_R( gzFile backup_file );
 
     // =================================================================
     //                             Destructors

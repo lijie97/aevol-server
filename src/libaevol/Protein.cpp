@@ -532,6 +532,34 @@ Protein::Protein(const std::list<Codon*> codon_list, double concentration, doubl
    assert( height_ >= H_MIN && height_ <= H_MAX );
 }
 
+//Constructor for the cloning of signal proteins
+//modif raevol_yo_3 : now we really copy the codon list
+Protein::Protein(Protein* signal)
+// WARNING this constructor should not being used for other purpose
+// In particular codon list should be destroyer by the caller of this constructor
+// since we will copy the list to be sure to own it
+{
+  gen_unit_             = NULL;
+  strand_               = LEADING;
+  shine_dal_pos_        = 0;
+  length_               = signal->AA_list_.size();
+  first_translated_pos_ = 0;
+  last_translated_pos_  = 0;
+  concentration_        = signal->concentration();
+
+  // Copy the list of amino-acids
+  for(Codon* c : signal->AA_list_) {
+    AA_list_.push_back(new Codon(*c));
+  }
+
+
+  mean_   = signal->mean_;
+  width_  = signal->width_;
+  height_ = signal->height_;
+
+ is_functional_ = signal->is_functional_;
+
+}
 
 Protein::Protein(gzFile backup_file)
 {

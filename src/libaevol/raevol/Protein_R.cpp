@@ -126,6 +126,29 @@ Protein_R::Protein_R( const std::list<Codon*> codon_list, double concentration, 
   }
 }
 
+//used to clone the signal protein
+Protein_R::Protein_R( Protein_R* signal )  :
+    Protein::Protein( signal)
+{
+  _initial_concentration = 0;
+  _delta_concentration  = 0;
+  _inherited            = false;
+  _signal               = true;
+  _local_id = signal->_local_id;
+
+  is_TF_			 = false;
+  _id = signal->_id;
+
+  if (!AA_list_.empty()) {
+    _cod_tab = new int8_t[AA_list_.size()];
+    int i = 0;
+    for (auto cod : AA_list_) {
+      _cod_tab[i] = cod->value();
+      i++;
+    }
+  }
+}
+
 Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
 {
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
@@ -176,11 +199,18 @@ void Protein_R::compute_delta_concentration( void )
       //if (_id == 34483) printf("%ld (influenced by %ld) at %f  - ",rna->get_id(),rna->_operating_coef_list.size(),rna->get_synthesis_rate());
       assert( _inherited == false);
 
+      /*if (gen_unit_->indiv()->id() == 12885)
+        printf("12608 RNA %d synthesis of %d is %f %f\n",rna->get_id(),get_id(),
+               _delta_concentration,rna->get_synthesis_rate());*/
+
       _delta_concentration += rna->get_synthesis_rate();
       ///if (_id == 34483) printf("Prot %ld synthesis by %ld at rate %e\n",_id,rna->get_id(),rna->get_synthesis_rate());
     }
     //if (_id == 34483) printf("\n");
     //if (_id == 34483)  printf("Prot %ld BEFORE DEGRADATION concentration %f %f\n",_id,concentration_,_delta_concentration);
+    /*if (gen_unit_->indiv()->id() == 12608)
+      printf("12608 RNA synthesis of %d is %f %f %f\n",get_id(),
+             _delta_concentration,concentration_,_initial_concentration);*/
 
     _delta_concentration -= gen_unit_->exp_m()->exp_s()->get_degradation_rate() * concentration_;
     _delta_concentration *= 1/((double)gen_unit_->exp_m()->exp_s()->get_nb_degradation_step());
