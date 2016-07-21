@@ -211,6 +211,9 @@ ParamLoader::ParamLoader(const char* file_name)
   selection_scheme_   = RANK_EXPONENTIAL;
   selection_pressure_ = 0.998;
 
+  selection_scope_   = SCOPE_LOCAL;
+  selection_scope_x_ = 3;
+  selection_scope_y_ = 3;
   // -------------------------------------------------------------- Secretion
   with_secretion_               = false;
   secretion_contrib_to_fitness_ = 0;
@@ -728,6 +731,34 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32
                  ": unknown selection scheme \"%s\".\n",
+             param_file_name_, cur_line, line->words[1]);
+      exit(EXIT_FAILURE);
+    }
+  }
+  else if (strcmp(line->words[0], "SELECTION_SCOPE") == 0)
+  {
+    if (strncmp(line->words[1], "global", 6) == 0)
+    {
+      selection_scope_ = SCOPE_GLOBAL;
+    }
+    else if (strncmp(line->words[1], "local", 5) == 0)
+    {
+      if (line->nb_words != 4)
+      {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": selection scope parameter for local selection is missing (x,y).\n",
+               param_file_name_, cur_line);
+        exit(EXIT_FAILURE);
+      }
+
+      selection_scope_ = SCOPE_LOCAL;
+      selection_scope_x_ = atoi(line->words[2]);
+      selection_scope_y_ = atoi(line->words[2]);
+    }
+    else
+    {
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown selection scope \"%s\".\n",
              param_file_name_, cur_line, line->words[1]);
       exit(EXIT_FAILURE);
     }
@@ -1473,6 +1504,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   sel->set_selection_scheme(selection_scheme_);
   sel->set_selection_pressure(selection_pressure_);
 
+  sel->set_selection_scope(selection_scope_);
+  sel->set_selection_scope_x(selection_scope_x_);
+  sel->set_selection_scope_y(selection_scope_y_);
   // ----------------------------------------------------------------- Transfer
   exp_s->set_with_HT(with_HT_);
   exp_s->set_repl_HT_with_close_points(repl_HT_with_close_points_);
@@ -2079,6 +2113,24 @@ void ParamLoader::print_to_file(FILE* file)
   }
   fprintf(file, "selection_pressure :         %e\n",  selection_pressure_);
 
+  switch (selection_scope_)
+  {
+    case SCOPE_GLOBAL :
+    {
+      fprintf(file, "selection_scope :           GLOBAL\n");
+      break;
+    }
+    case SCOPE_LOCAL :
+    {
+      fprintf(file, "selection_scope :          LOCAL %d %d\n",selection_scope_x_,selection_scope_y_);
+      break;
+    }
+    default :
+    {
+      fprintf(file, "selection_scope :           UNKNOWN\n");
+      break;
+    }
+  }
 
   // -------------------------------------------------------------- Secretion
   fprintf(file, "\nSecretion -----------------------------------------------\n");

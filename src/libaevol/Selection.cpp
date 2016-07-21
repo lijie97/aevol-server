@@ -182,7 +182,7 @@ void Selection::step_to_next_generation() {
   std::list<Individual*> new_generation;
 #endif
 
-  if (global) {
+  if (selection_scope_ == SCOPE_GLOBAL) {
     delete[] prob_reprod_;
 
     prob_reprod_ = new double[pop_size];
@@ -220,8 +220,6 @@ void Selection::step_to_next_generation() {
       }
       i++;
     }
-
-    //printf("index %d\n",index);
   } else {
     // Do local competitions
 #ifdef _OPENMP
@@ -230,11 +228,9 @@ void Selection::step_to_next_generation() {
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
       y = index % grid_height;
-      //printf("%d %d (%d %d)\n",x,y,grid_width,grid_height);
       reproducers[x][y] = do_local_competition(x, y);
     }
   }
-  //}
 
   // TODO : Why is that not *after* the creation of the new population ?
   // Add the compound secreted by the individuals
@@ -263,14 +259,6 @@ void Selection::step_to_next_generation() {
     (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
   }
 
-/*
-  int cpt=0;
-  for (auto indiv : old_generation) {
-    cpt+=indiv->number_of_clones_;
-  }*/
-
-
-
   std::vector<Individual*> to_evaluate;
 #ifndef __TBB
 
@@ -288,51 +276,17 @@ void Selection::step_to_next_generation() {
     do_replication(reproducers[x][y],
                    x * grid_height + y + pop_size * AeTime::time(), what, x, y);
     if (what == 1 || what == 2) {
+#ifdef _OPENMP
 #pragma omp critical(updateindiv)
+#endif
       {
         to_evaluate.push_back(pop_grid[x][y]->individual());
       }
     }
   }
+#ifdef _OPENMP
 #pragma omp barrier
-
-/*
-
-  for (int16_t x = 0 ; x < grid_width ; x++) {
-    for (int16_t y = 0; y < grid_height; y++) {
-      bool already = false;
-      for (auto indiv : to_evaluate) {
-        if (pop_grid[x][y]->individual()->id() == indiv->id())
-          already = true;
-      }
-      if (!already) {
-        to_evaluate.push_back(pop_grid[x][y]->individual());
-        //printf("Number of clones %d %d\n",pop_grid[x][y]->individual()->id(),
-         //      pop_grid[x][y]->individual()->number_of_clones_);
-      }
-    }
-  }
-
-  int cpt=0;
-  int clones = 0;
-  int to_do_something = 0;
-  int mutated = 0;
-  for (auto indiv : to_evaluate) {
-    if ((&indiv->genetic_unit_list().front())->dna()->hasMutate()) {
-      cpt++;
-      mutated++;
-    }
-    else {
-      cpt += indiv->number_of_clones_;
-      clones += indiv->number_of_clones_;
-    }
-    if ((dynamic_cast<PhenotypicTargetHandler_R*>(&indiv->grid_cell()->habitat().
-        phenotypic_target_handler_nonconst())->hasChanged()) || !indiv->evaluated_)
-      to_do_something++;
-  }
-
-  printf("\n to evaluate %d %d %d %d %d (%d)\n",to_evaluate.size(),cpt,to_do_something,clones,mutated,mutator);
-*/
+#endif
   t1 = high_resolution_clock::now();
 
 #ifdef _OPENMP
@@ -390,66 +344,6 @@ void Selection::step_to_next_generation() {
   }
   delete [] reproducers;
 
-  /*
-  for (auto iterator = old_generation.begin(), end = old_generation.end();
-       iterator != end; ++iterator) {
-    auto iterator2 = iterator;
-    iterator2++;
-    for (end = old_generation.end();
-         iterator2 != end; ++iterator2) {
-      if ((*iterator2) != nullptr && (*iterator) != nullptr)
-        if ((*iterator)->id() == (*iterator2)->id())
-          (*iterator2) = nullptr;
-    }
-  }*/
-
-
-  /*
-  std::list<Individual*>::iterator i = old_generation.begin();
-  while (i != old_generation.end())
-  {
-    bool isActive = (*i)->number_of_clones_ > 0 ? true : false;
-    if (!isActive)
-    {
-      Individual* ti = (*i);
-      old_generation.erase(i++);  // alternatively, i = items.erase(i);
-      delete ti;
-    }
-    else
-    {
-      ++i;
-    }
-  }*/
-/*
-  for (auto indiv :old_generation ) {
-    if (indiv != nullptr)
-      if (indiv->number_of_clones_ == 0) {
-        delete indiv;
-        indiv = nullptr;
-      }
-//      else
-//        number_of_clones += indiv->number_of_clones_;
-  }*/
-
-  //printf("Number of clones %d\n",number_of_clones);
-  /*for (auto indiv : new_generation) {
-    if (!indiv->fitness_computed_) {
-      //printf("Error indiv %d\n", indiv->id());
-      bool foundIndiv = false;
-      for (auto indiv2 : to_evaluate) {
-        if (indiv->id() == indiv2->id()) {
-          foundIndiv = true;
-          break;
-        }
-      }
-      if (foundIndiv)
-        printf("Indiv must have been evaluated\n");
-      else
-        printf("Indiv HAS NOT been evaluated\n");
-    }
-    //printf("Fitness of %d : %e (%d)\n",indiv->id(),indiv->fitness(),indiv->fitness_computed_);
-  }*/
-  //printf("Starting sort\n");
   // Compute the rank of each individual
   #ifndef __TBB
   new_generation.sort([](Individual* lhs, Individual* rhs) {
@@ -571,6 +465,11 @@ void Selection::write_setup_file(gzFile exp_setup_file) const {
   int8_t tmp_sel_scheme = selection_scheme_;
   gzwrite(exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme));
   gzwrite(exp_setup_file, &selection_pressure_, sizeof(selection_pressure_));
+
+  int8_t tmp_sel_scope = selection_scope_;
+  gzwrite(exp_setup_file, &tmp_sel_scope,      sizeof(tmp_sel_scope));
+  gzwrite(exp_setup_file, &selection_scope_x_, sizeof(selection_scope_x_));
+  gzwrite(exp_setup_file, &selection_scope_y_, sizeof(selection_scope_y_));
 }
 
 /*!
@@ -594,6 +493,11 @@ void Selection::load(gzFile& exp_setup_file,
   selection_scheme_ = (SelectionScheme) tmp_sel_scheme;
   gzread(exp_setup_file, &selection_pressure_, sizeof(selection_pressure_));
 
+  int8_t tmp_sel_scope;
+  gzread(exp_setup_file, &tmp_sel_scope, sizeof(tmp_sel_scope));
+  selection_scope_ = (SelectionScope) tmp_sel_scope;
+  gzread(exp_setup_file, &selection_scope_x_, sizeof(selection_scope_x_));
+  gzread(exp_setup_file, &selection_scope_y_, sizeof(selection_scope_y_));
   // ----------------------------------------- Pseudo-random number generator
 #if __cplusplus == 201103L
   prng_ = make_unique<JumpingMT>(backup_file);
@@ -696,7 +600,7 @@ void Selection::compute_prob_reprod() { // non spatially structured only
 }
 
 void Selection::compute_local_prob_reprod() {
-  int16_t neighborhood_size = 9;
+  int16_t neighborhood_size = selection_scope_x_*selection_scope_y_;
 
   if (prob_reprod_ != NULL) {
     printf ("Warning, already defined %s:%d\n", __FILE__, __LINE__);
@@ -743,8 +647,6 @@ void Selection::compute_local_prob_reprod() {
 Individual* Selection::do_replication(Individual* parent, unsigned long long index,
                                       int8_t &type_mutate,
                                       int16_t x, int16_t y ) {
-
-  //Individual* new_indiv = NULL;
   // ===========================================================================
   //  1) Copy parent
   // ===========================================================================
@@ -793,7 +695,6 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
       parent->number_of_clones_++;
     }
-      //printf("Indiv %d has not mutate so pointing to parent %d\n",new_indiv->id(),parent->id());
       delete new_indiv;
       mutate = false;
 #ifdef __NO_X
@@ -810,26 +711,13 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     #endif
 #endif
       // Notify observers that a new individual was created from <parent>
-
-
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
     }
-//#pragma omp critical
-//    {
+
       {
         NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
-        //Individual* msg[2] = {new_indiv, parent};
         notifyObservers(NEW_INDIV, eindiv);
       }
-//    }
-
-    /* else {
-      #pragma omp critical
-      {
-        mutator++;
-          new_indiv->set_id(index);
-      }
-    }*/
   }
   else { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
@@ -852,7 +740,6 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   if (mutate) {
     new_indiv->init_indiv();
     type_mutate = 1;
-    //printf("Indiv %d  has mutated and parent is %d\n",new_indiv->id(),parent->id());
   }
 
   return new_indiv;
@@ -865,10 +752,8 @@ void Selection::run_life(Individual_R* new_indiv) {
       new_indiv->evaluated_ = false;
     }
 
-    //printf("Evaluate :: indiv %d (%d)\n",new_indiv->id(),new_indiv->number_of_clones_);
     // Evaluate new individual
     new_indiv->Evaluate();
-
 
     // Compute statistics
     new_indiv->compute_statistical_data();
@@ -883,10 +768,9 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   // When selection scheme is FITNESS_PROPORTIONATE, this function only uses
   // the fitness values
 
-  //printf("Competition 1\n");
   World* world = exp_m_->world();
 
-  int16_t neighborhood_size = 1024;
+  int16_t neighborhood_size = selection_scope_x_*selection_scope_y_;
   int16_t grid_width  = world->width();
   int16_t grid_height = world->height();
   int16_t cur_x;
@@ -900,8 +784,8 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   int16_t   count             = 0;
   double    sum_local_fit     = 0.0;
 
-  for (int8_t i = -1 ; i < 31 ; i++) {
-    for (int8_t j = -1 ; j < 31 ; j++) {
+  for (int8_t i = -1 ; i < selection_scope_x_-1 ; i++) {
+    for (int8_t j = -1 ; j < selection_scope_y_-1 ; j++) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
       local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
@@ -927,7 +811,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
       // First we sort the local fitness values using bubble sort :
       // we sort by increasing order, so the first element will have the worst fitness.
       bool swaped = true;
-      int16_t loop_length = 1023;
+      int16_t loop_length = neighborhood_size-1;
       double  tmp_holder;
       int16_t tmp_holder2;
       while (swaped == true) {
@@ -972,19 +856,17 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     }
   }
 
-  //printf("Competition 3a\n");
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
-  int16_t found_org = prng_->roulette_random(probs, 1024);
-  //printf("Competition 3b\n");
+  int16_t found_org = prng_->roulette_random(probs, neighborhood_size);
 
-  int16_t x_offset = (found_org / 32) - 1;
-  int16_t y_offset = (found_org % 32) - 1;
+  int16_t x_offset = (found_org / selection_scope_x_) - 1;
+  int16_t y_offset = (found_org % selection_scope_y_) - 1;
 
   delete [] local_fit_array;
   delete [] sort_fit_array;
   delete [] initial_location;
   delete [] probs;
-  //printf("Competition 4\n");
+
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);
 }

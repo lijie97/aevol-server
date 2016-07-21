@@ -83,6 +83,10 @@ class Selection : public Observable
     inline SelectionScheme selection_scheme() const;
     inline double               selection_pressure() const;
     inline double*              prob_reprod() const;
+
+    inline SelectionScope selection_scope() const;
+    inline int32_t               selection_scope_x() const;
+    inline int32_t               selection_scope_y() const;
     // inline std::unique_ptr<JumpingMT> prng() const;
 
     // =================================================================
@@ -94,6 +98,10 @@ class Selection : public Observable
     // -------------------------------------------------------------- Selection
     inline void set_selection_scheme(SelectionScheme sel_scheme);
     inline void set_selection_pressure(double sel_pressure);
+
+    inline void set_selection_scope(SelectionScope sel_scope);
+    inline void set_selection_scope_x(int32_t sel_scope_x);
+    inline void set_selection_scope_y(int32_t sel_scope_y);
 
     // =================================================================
     //                              Operators
@@ -129,8 +137,7 @@ class Selection : public Observable
     void set_unique_id(unsigned long long uid) { unique_id = uid; }
 
     std::unique_ptr<JumpingMT> prng_;
-
-    bool global = true;
+    
     void compute_prob_reprod();
     void compute_local_prob_reprod();
     Individual* do_local_competition(int16_t x, int16_t y);
@@ -154,6 +161,9 @@ class Selection : public Observable
     SelectionScheme selection_scheme_;
     double selection_pressure_;
 
+    SelectionScope selection_scope_;
+    int32_t selection_scope_x_;
+    int32_t selection_scope_y_;
     // --------------------------- Probability of reproduction of each organism
 
 
@@ -178,6 +188,21 @@ inline SelectionScheme Selection::selection_scheme() const
 inline double Selection::selection_pressure() const
 {
   return selection_pressure_;
+}
+
+inline SelectionScope Selection::selection_scope() const
+{
+  return selection_scope_;
+}
+
+inline int32_t Selection::selection_scope_x() const
+{
+  return selection_scope_x_;
+}
+
+inline int32_t Selection::selection_scope_y() const
+{
+  return selection_scope_y_;
 }
 
 inline double*Selection::prob_reprod() const
@@ -210,7 +235,20 @@ inline void Selection::set_selection_pressure(double sel_pressure)
   selection_pressure_ = sel_pressure;
 }
 
+inline void Selection::set_selection_scope(SelectionScope sel_scope)
+{
+  selection_scope_ = sel_scope;
+}
 
+inline void Selection::set_selection_scope_x(int32_t sel_scope_x)
+{
+  selection_scope_x_ = sel_scope_x;
+}
+
+inline void Selection::set_selection_scope_y(int32_t sel_scope_y)
+{
+  selection_scope_y_ = sel_scope_y;
+}
 // =====================================================================
 //                          Operators' definitions
 // =====================================================================

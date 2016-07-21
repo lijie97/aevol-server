@@ -80,6 +80,11 @@ enum SelectionScheme {
   FITTEST               = 3
 };
 
+enum SelectionScope {
+    SCOPE_GLOBAL           = 0,
+    SCOPE_LOCAL      = 1
+};
+
 enum LogType {
   LOG_TRANSFER  = 0x01,
   LOG_REAR      = 0x02,
