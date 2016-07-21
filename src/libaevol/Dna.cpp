@@ -1675,7 +1675,7 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
 
 //#pragma simd
 //#pragma distribute_point
-  for (int32_t i = 0, j = pos_2 - 1; i < seg_length; i = i + 4, j = j - 4) {
+/*  for (int32_t i = 0, j = pos_2 - 1; i < seg_length; i = i + 4, j = j - 4) {
     if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
     if (data_[j - 1] == '0') inverted_segment[i + 1] = '1';
@@ -1684,6 +1684,12 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
     else inverted_segment[i + 2] = '0';
     if (data_[j - 3] == '0') inverted_segment[i + 3] = '1';
     else inverted_segment[i + 3] = '0';
+  }
+  inverted_segment[seg_length] = '\0';
+*/
+  for (int32_t i = 0, j = pos_2 - 1; i < seg_length; i++, j--) {
+    if (data_[j] == '0') inverted_segment[i] = '1';
+    else inverted_segment[i] = '0';
   }
   inverted_segment[seg_length] = '\0';
 
