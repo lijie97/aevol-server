@@ -77,6 +77,36 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model ) : Protein:
   }
 }
 
+// Constructor for heritable protein
+Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model, ExpManager* exp_m ) :
+    Protein::Protein( gen_unit, model, exp_m ) {
+  concentration_ = model.concentration_;
+  _initial_concentration = model.concentration_;
+  _delta_concentration = model._delta_concentration;
+  _signal = model._signal;
+  _inherited = model._inherited;
+  is_TF_ = model.is_TF_;
+  _id = id++;
+  _local_id = model._local_id;
+
+
+  if (exp_m->exp_s()->get_with_heredity()) {
+    for (Codon* cod : model.AA_list_) {
+      AA_list_.push_back(new Codon(*cod));
+    }
+    exp_m_ = exp_m;
+  }
+
+  if (!AA_list_.empty()) {
+    _cod_tab = new int8_t[AA_list_.size()];
+    int i = 0;
+    for (auto cod : AA_list_) {
+      _cod_tab[i] = cod->value();
+      i++;
+    }
+  }
+}
+
 
 Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
 							Strand strand, int32_t shine_dal_pos,
@@ -187,7 +217,7 @@ Protein_R::~Protein_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Protein_R::compute_delta_concentration( void )
+void Protein_R::compute_delta_concentration( ExpManager* exp_m )
 {
   _delta_concentration = 0;
 
@@ -212,8 +242,8 @@ void Protein_R::compute_delta_concentration( void )
       printf("12608 RNA synthesis of %d is %f %f %f\n",get_id(),
              _delta_concentration,concentration_,_initial_concentration);*/
 
-    _delta_concentration -= gen_unit_->exp_m()->exp_s()->get_degradation_rate() * concentration_;
-    _delta_concentration *= 1/((double)gen_unit_->exp_m()->exp_s()->get_nb_degradation_step());
+    _delta_concentration -= exp_m->exp_s()->get_degradation_rate() * concentration_;
+    _delta_concentration *= 1/((double)exp_m->exp_s()->get_nb_degradation_step());
 
     //if (_id == 34483)  printf("Prot %ld AFTER degradation concentration %f %f\n",_id,concentration_,_delta_concentration);
   }

@@ -73,6 +73,8 @@ Individual_R::Individual_R(ExpManager* exp_m,
   _indiv_age = 0;
   _networked = false;
   _dist_sum = 0;
+
+  _inherited_protein_list.resize(0);
 }
 
 Individual_R::Individual_R(const Individual_R& other)
@@ -82,9 +84,20 @@ Individual_R::Individual_R(const Individual_R& other)
   _networked = false;
   _dist_sum = 0;
 
+
   if (exp_m_->exp_s()->get_with_heredity()) {
-    _inherited_protein_list = std::vector<Protein_R*>(
-        other._inherited_protein_list);
+    _inherited_protein_list.clear();
+
+    for (const auto& prot : other.protein_list_) {
+      if (prot->concentration() >
+          other.exp_m_->exp_s()->get_protein_presence_limit() && !((Protein_R*)prot)->is_signal()) {
+        Protein_R* inherited_prot = new Protein_R(prot->get_gen_unit(),
+                                                  (Protein_R&) *prot);
+        inherited_prot->set_inherited(true);
+        _inherited_protein_list.push_back(inherited_prot);
+      }
+    }
+    //printf("Size of inherited is %d\n",_inherited_protein_list.size());
   }
 }
 
@@ -99,15 +112,21 @@ Individual_R::Individual_R( Individual_R* parent, int32_t id,
     _dist_sum = 0;
 
   if (exp_m_->exp_s()->get_with_heredity()) {
+    //_inherited_protein_list.resize(parent->protein_list_.size());
+    //printf("%llu -- Parent protein size: %d\n",id, parent->protein_list_.size());
+
     for (const auto& prot : parent->protein_list_) {
       if (prot->concentration() >
-          parent->exp_m_->exp_s()->get_protein_presence_limit()) {
+          parent->exp_m_->exp_s()->get_protein_presence_limit() && ! ((Protein_R*)prot)->is_signal()) {
         Protein_R* inherited_prot = new Protein_R(prot->get_gen_unit(),
-                                                  (Protein_R&) *prot);
+                                                  (Protein_R&) *prot, this->exp_m_);
         inherited_prot->set_inherited(true);
         _inherited_protein_list.push_back(inherited_prot);
+        //printf("Add new herited protein\n");
       }
     }
+
+    //printf("%llu -- Inherited protein size is %d\n",id,_inherited_protein_list.size());
   }
 }
 
@@ -119,10 +138,9 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
   if( exp_m_->exp_s()->get_with_heredity() )
   {
     // Retreive inherited proteins
-    // _inherited_protein_list = new ae_list();
-    int16_t nb_inherited_proteins = 0;
+    int32_t nb_inherited_proteins = 0;
     gzread( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
-  
+
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
 	  _inherited_protein_list.push_back( new Protein_R( backup_file ) );
@@ -135,13 +153,6 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
 // =================================================================
 Individual_R::~Individual_R( void ) noexcept
 {
-//  assert( !exp_m_->exp_s()->get_with_heredity()  );
-
-  /*
-  for (const auto& prot : parent->_protein_list)
-	  Protein_R* dp = _inherited_protein_list[i];
-	  delete dp;
-  }*/
 
   if (exp_m_->exp_s()->get_with_heredity()) {
     for (unsigned int i = 0; i < _inherited_protein_list.size(); i++)
@@ -369,7 +380,7 @@ void Individual_R::update_concentrations( void )
 	// Compute all the changes that will be applied to the concentrations
 	// Concentrations must not be changed at this stage
   for (auto& prot : protein_list_) {
-    if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->compute_delta_concentration();
+    if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->compute_delta_concentration(exp_m_);
 	}
 
 	// Apply the changes in concentrations we have just computed
@@ -459,14 +470,13 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
 
 void Individual_R::save( gzFile backup_file )
 {
-  //printf("Appel à la sauvegarde de Individual_R\n");
   Individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).
-  if (this->exp_m_->exp_s()->get_with_heredity() && !_inherited_protein_list.empty() )
+  if (this->exp_m_->exp_s()->get_with_heredity() )
   {
     // Write inherited proteins
-    int16_t nb_inherited_proteins = _inherited_protein_list.size();
-    gzwrite( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
+    int32_t nb_inherited_proteins = _inherited_protein_list.size();
+    gzwrite( backup_file, &nb_inherited_proteins,  sizeof(int32_t) );
 
     for (auto& prot : _inherited_protein_list) {
     	prot->save( backup_file );
@@ -481,8 +491,9 @@ void Individual_R::make_protein_list( void )
 	  Individual::make_protein_list();
 
     if (this->exp_m_->exp_s()->get_with_heredity()) {
-      for (auto& prot : _inherited_protein_list)
+      for (auto& prot : _inherited_protein_list) {
         protein_list_.push_back(prot);
+      }
     }
 }
 

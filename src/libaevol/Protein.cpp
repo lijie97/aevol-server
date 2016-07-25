@@ -82,8 +82,26 @@ Protein::Protein(GeneticUnit* gen_unit, const Protein &model)
 
   // Copy the list of amino-acids
 
-  // TODO vld: check if deep copy needed
+  // TODO vld: check if deep copy needed (at least, in case of heritage yes)
   AA_list_ = model.AA_list_;
+
+  // Copy triangle parameters
+  mean_   = model.mean_;
+  width_  = model.width_;
+  height_ = model.height_;
+}
+
+Protein::Protein(GeneticUnit* gen_unit, const Protein &model, ExpManager* exp_m)
+{
+  gen_unit_  = gen_unit;
+
+  strand_                 = model.strand_;
+  shine_dal_pos_          = model.shine_dal_pos_;
+  first_translated_pos_   = model.first_translated_pos_;
+  last_translated_pos_    = model.last_translated_pos_;
+  length_                 = model.length_;
+  concentration_          = model.concentration_;
+  is_functional_          = model.is_functional_;
 
   // Copy triangle parameters
   mean_   = model.mean_;

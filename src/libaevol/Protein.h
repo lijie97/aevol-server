@@ -72,6 +72,7 @@ class Protein
     Protein() = delete;
     Protein(const Protein &model) = delete;
     Protein(GeneticUnit* gen_unit, const Protein &model);
+    Protein(GeneticUnit* gen_unit, const Protein &model, ExpManager* exp_m);
     Protein(GeneticUnit* gen_unit,
                const std::list<Codon*>& codon_list,
                Strand strand,

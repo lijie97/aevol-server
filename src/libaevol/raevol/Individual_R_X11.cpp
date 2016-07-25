@@ -126,7 +126,10 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   //Draw the number of proteins
   if ( exp_m_->exp_s()->get_with_heredity())
   {
-    nb_prot = protein_list_.size();
+
+    for (auto& prot : protein_list_) {
+      if (! ((Protein_R*)prot)->is_signal()) nb_prot++;
+    }
     sprintf( display_string, "Nb proteins: %" PRId32 " (inherited: %ld)",nb_prot,_inherited_protein_list.size());
   }
   else

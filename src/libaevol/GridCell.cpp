@@ -112,7 +112,6 @@ void GridCell::save(gzFile backup_file,
 {
   gzwrite(backup_file, &x_, sizeof(x_));
   gzwrite(backup_file, &y_, sizeof(y_));
-
   mut_prng_->save(backup_file);
   stoch_prng_->save(backup_file);
 

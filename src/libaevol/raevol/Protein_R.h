@@ -57,6 +57,7 @@ class Protein_R : public Protein
   Protein_R() = delete;
   Protein_R(const Protein_R &model) = delete;
 	Protein_R( GeneticUnit* gen_unit, const Protein_R &model );
+  Protein_R( GeneticUnit* gen_unit, const Protein_R &model, ExpManager* exp_m );
 	Protein_R( GeneticUnit* gen_unit,
     		const std::list<Codon*> codon_list,
     		Strand strand,
@@ -91,7 +92,7 @@ class Protein_R : public Protein
     inline void    update_concentration( void );
     inline void    reset_concentration( void );
     inline void    set_initial_concentration( void );
-           void    compute_delta_concentration( void );
+           void    compute_delta_concentration( ExpManager* exp_m );
            int8_t  get_codon( int32_t index );
 //           void    add_influence( ae_influence_R* influence );
 	         void    save( gzFile backup_file );
@@ -135,6 +136,7 @@ class Protein_R : public Protein
     double    _initial_concentration; // concentration at cell birth
     long      _id;
     int       _local_id;
+    ExpManager* exp_m_;
 
 };
 
