@@ -311,6 +311,7 @@ void Selection::step_to_next_generation() {
       EndReplicationEvent* eindiv = new EndReplicationEvent(world->indiv_at(x,y),x,y);
       // Tell observers the replication is finished
       world->indiv_at(x,y)->notifyObservers(END_REPLICATION, eindiv);
+      delete eindiv;
     }
 
     t2 = high_resolution_clock::now();
@@ -717,6 +718,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       {
         NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
         notifyObservers(NEW_INDIV, eindiv);
+        delete eindiv;
       }
   }
   else { // For each GU, apply mutations
