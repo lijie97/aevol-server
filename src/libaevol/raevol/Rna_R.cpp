@@ -100,11 +100,11 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list )
 	int32_t operator_position = get_operator_position();
 
 	_protein_list.clear();
-  _protein_list.resize(protein_list.size());
+  //_protein_list.resize(protein_list.size());
   _enhancing_coef_list.clear();
-	_enhancing_coef_list.resize(protein_list.size());
+	//_enhancing_coef_list.resize(protein_list.size());
   _operating_coef_list.clear();
-	_operating_coef_list.resize(protein_list.size());
+	//_operating_coef_list.resize(protein_list.size());
 
   int i = 0;
   double enhance=0,operate=0;

@@ -33,7 +33,7 @@
 //                              Libraries
 // =================================================================
 #include <inttypes.h>
-
+#include <unordered_map>
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -84,9 +84,9 @@ class Rna_R : public Rna
     // =================================================================
     //                           Public Attributes
     // =================================================================
-    std::vector<Protein_R*> _protein_list;
-    std::vector<double> _enhancing_coef_list;
-    std::vector<double> _operating_coef_list;
+    std::unordered_map<int,Protein_R*> _protein_list;
+    std::unordered_map<int,double> _enhancing_coef_list;
+    std::unordered_map<int,double> _operating_coef_list;
     //std::vector<double> _protein_concentration_list;
     static long id;
 
