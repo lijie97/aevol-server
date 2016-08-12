@@ -371,6 +371,22 @@ if test "x$tbb" = "xyes" ; then
    LIBS+=" -ltbb"
 fi
 
+
+#  ************************* --with-simd option *******************************
+#
+#  With this option, OpenMP 4.0 SIMD optimization are enabled (required a OpenMP 4.x compiler)
+#
+
+
+AC_MSG_CHECKING([whether to use OpenMP SIMD pragma])
+AC_ARG_WITH(simd, [--with-simd to the use of OpenMP SIMD pragma], simd=$withval, simd=no)
+AC_MSG_RESULT($simd)
+AM_CONDITIONAL(WITH_SIMD, test x"$simd" != xno)
+if test "x$simd" = "xyes" ; then
+   AC_DEFINE(__SIMD)
+fi
+
+
 #  ************************* --with-tracing option *******************************
 #
 #  With this option, tracing is enabled and the __TRACING__ flag is defined

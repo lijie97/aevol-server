@@ -450,7 +450,9 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
 
   if ( strand == LEADING )
   {
+#ifdef __SIMD
 #pragma omp simd
+#endif
     for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     {
       quadon[i] = (dna[((pos+i) % len < 0 ? (pos+i) % len + len : (pos+i) % len)] == '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
@@ -458,7 +460,9 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
   }
   else  // ( strand == LAGGING )
   {
+#ifdef __SIMD
 #pragma omp simd
+#endif
     for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     {
       quadon[i] = (dna[((pos-i) % len < 0 ? (pos-i) % len + len : (pos-i) % len)] != '1') ? 1 << (QUADON_SIZE - i - 1) : 0;

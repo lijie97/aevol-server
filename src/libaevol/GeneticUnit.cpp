@@ -875,7 +875,9 @@ void GeneticUnit::locate_promoters() {
   if (dna_->length() < PROM_SIZE) {
     return;
   }
+/*#ifdef __SIMD
 #pragma omp simd
+#endif*/
   for (int32_t i = 0; i < dna_->length(); i++) {
 #ifndef __REGUL
     if (is_promoter(LEADING, i,

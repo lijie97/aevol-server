@@ -276,7 +276,9 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	  //// Calculate the affinity
 
     double (*binding_matrix)[MAX_QUADON][MAX_CODON] = &(gen_unit_->exp_m()->exp_s()->_binding_matrix);
+#ifdef __SIMD
     #pragma omp simd
+#endif
 	  for ( int32_t i = 0 ; i < len - 4; i++ )
 	  {
 

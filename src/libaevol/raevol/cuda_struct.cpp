@@ -242,7 +242,9 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
           // Compute synthesis rate of RNA
           for (int m = 0; m < max_rna_; m++) {
             float enhancer_activity = 0, operator_activity = 0;
+#ifdef __SIMD
             #pragma omp simd
+#endif
             for (int n = 0; n < max_influence_; n++) {
               int prot_id = protein_influence
               [ki * 32 + kj * max_rna_ * max_influence_ + m * max_influence_ +
@@ -316,7 +318,9 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
         // If we have to evaluate the individual at this age
         if (eval_step[i]) {
           /** update phenotype **/
+#ifdef __SIMD
           #pragma omp simd
+#endif
           for (int j = 0; j < 300; j++) {
             phenotype[indiv_id * 300 + j] = 0;
             phenotype_activ[indiv_id * 300 + j] = 0;
@@ -388,7 +392,9 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
             }
           }
 
+#ifdef __SIMD
           #pragma omp simd
+#endif
           for (int j = 0; j < 300; j++) {
             phenotype_activ[indiv_id * 300 + j] =
                 phenotype_activ[indiv_id * 300 + j] > Y_MAX ? Y_MAX :
@@ -411,7 +417,9 @@ void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 
           float area = 0;
 
+#ifdef __SIMD
           #pragma omp simd
+#endif
           for (int j = 0; j < 299; j++) {
             dist_sum[indiv_id] += ((delta[indiv_id * 300 + j]
                                     + delta[indiv_id * 300 + j + 1]) / 600.0);
@@ -550,7 +558,9 @@ void cuda_struct::compute_a_generation_v2(ExpManager* exp_m) {
                protein_triangle_ix0[indiv_id * max_protein_ + l]);
 
           if (protein_triangle_height[indiv_id * max_protein_ + l] > 0) {
+#ifdef __SIMD
             #pragma omp simd
+#endif
             for (int j = 0; j < 300; j++) {
               if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
                   and
@@ -576,7 +586,9 @@ void cuda_struct::compute_a_generation_v2(ExpManager* exp_m) {
                     height;
             }
           } else {
+#ifdef __SIMD
             #pragma omp simd
+#endif
             for (int j = 0; j < 300; j++) {
               if (j > protein_triangle_ix0[indiv_id * max_protein_ + l]
                   and
@@ -606,7 +618,9 @@ void cuda_struct::compute_a_generation_v2(ExpManager* exp_m) {
 
       #pragma omp parallel for
       for (int indiv_id = 0; indiv_id < 1024; indiv_id++) {
+#ifdef __SIMD
         #pragma omp simd
+#endif
         for (int j = 0; j < 300; j++) {
           phenotype_activ[indiv_id * 300 + j] =
               phenotype_activ[indiv_id * 300 + j] > Y_MAX ? Y_MAX :
@@ -632,7 +646,9 @@ void cuda_struct::compute_a_generation_v2(ExpManager* exp_m) {
       for (int indiv_id = 0; indiv_id < 1024; indiv_id++) {
 
         float area = 0;
+#ifdef __SIMD
         #pragma omp simd
+#endif
         for (int j = 0; j < 299; j++) {
           dist_sum[indiv_id] += ((delta[indiv_id * 300 + j]
                                   + delta[indiv_id * 300 + j + 1]) / 600.0);
@@ -1203,7 +1219,9 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
                            depend(out: phenotype_activ[indiv_id * 300:300]) \
                            depend(out: phenotype_inhib[indiv_id * 300:300])*/
               {
+#ifdef __SIMD
 #pragma omp simd
+#endif
                 for (int j = 0; j < 300; j++) {
                   phenotype[indiv_id * 300 + j] = 0;
                   phenotype_activ[indiv_id * 300 + j] = 0;
@@ -1297,7 +1315,9 @@ void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
                            depend(out: delta[indiv_id * 300:300]) \
                            depend(in: environment[indiv_id * 300:300])*/
               {
+#ifdef __SIMD
 #pragma omp simd
+#endif
                 for (int j = 0; j < 300; j++) {
                   phenotype_activ[indiv_id * 300 + j] =
                       phenotype_activ[indiv_id * 300 + j] > Y_MAX ? Y_MAX :

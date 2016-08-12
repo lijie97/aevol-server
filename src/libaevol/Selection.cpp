@@ -372,6 +372,7 @@ void Selection::step_to_next_generation() {
   notifyObservers(END_GENERATION);
 
   int number_of_clones = 0;
+
   for(auto iterator = unique_individual.begin(); iterator != unique_individual.end(); iterator++) {
     if (iterator->second->number_of_clones_ == 0) {
       delete iterator->second;

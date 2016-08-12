@@ -3084,8 +3084,10 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // Build Cp and put it in the new genome
   char* inverted_segment = new char[len_C + 1];
 
+#ifdef __SIMD
 #pragma simd
 #pragma distribute_point
+#endif
   for (int32_t i = 0, j = pos_D - 1; i < len_C; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
@@ -3100,8 +3102,10 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // Build Dp and put it in the new genome
   inverted_segment = new char[len_D + 1];
 
+#ifdef __SIMD
 #pragma simd
 #pragma distribute_point
+#endif
   for (int32_t i = 0, j = pos_E - 1; i < len_D; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
