@@ -481,35 +481,45 @@ void Stats::write_current_generation_statistics()
   bool stat_file_depend[4][NB_CHROM_OR_GU][NB_STATS_TYPES];
 
   ExpManager* exp_m = exp_m_;
+
+#ifdef __OPENMP_TASK
 #pragma omp parallel
 #pragma omp single
   {
+#endif
     for (int8_t chrom_or_GU = 0; chrom_or_GU < NB_CHROM_OR_GU; chrom_or_GU++) {
       if ((not exp_m_->output_m()->compute_phen_contrib_by_GU()) &&
           chrom_or_GU > ALL_GU)
         continue;
 
       stat_records = new StatRecord* [NB_BEST_OR_GLOB];
-
+#ifdef __OPENMP_TASK
 #pragma omp task shared(exp_m) depend(out: stat_depend[BEST][chrom_or_GU])
+#endif
       stat_records[BEST] = new StatRecord(exp_m_,
                                           exp_m_->best_indiv(),
                                           (chrom_or_gen_unit) chrom_or_GU);
 
+#ifdef __OPENMP_TASK
 #pragma omp task shared(exp_m) depend(out: stat_depend[GLOB][chrom_or_GU])
+#endif
       stat_records[GLOB] = new StatRecord(exp_m_,
                                           exp_m_->indivs(),
                                           (chrom_or_gen_unit) chrom_or_GU);
 
+#ifdef __OPENMP_TASK
 #pragma omp task shared(exp_m) depend(inout: stat_depend[GLOB][chrom_or_GU]) depend(out: stat_depend[SDEV][chrom_or_GU])
+#endif
       stat_records[SDEV] = new StatRecord(exp_m_,
                                           exp_m_->indivs(),
                                           stat_records[GLOB],
                                           (chrom_or_gen_unit) chrom_or_GU);
 
+#ifdef __OPENMP_TASK
 #pragma omp task shared(exp_m) depend(inout: stat_depend[GLOB][chrom_or_GU])\
                  shared(exp_m) depend(inout: stat_depend[SDEV][chrom_or_GU])\
                  shared(exp_m) depend(out: stat_depend[SKEW][chrom_or_GU])
+#endif
       stat_records[SKEW] = new StatRecord(exp_m_,
                                           exp_m_->indivs(),
                                           stat_records[GLOB],
@@ -520,20 +530,26 @@ void Stats::write_current_generation_statistics()
            best_or_glob < NB_BEST_OR_GLOB; best_or_glob++) {
         for (int8_t stat_type = 0; stat_type < NB_STATS_TYPES; stat_type++) {
           if (stat_files_names_[chrom_or_GU][best_or_glob][stat_type] != NULL) {
+#ifdef __OPENMP_TASK
 #pragma omp task \
                  depend(inout: stat_depend[best_or_glob][chrom_or_GU])\
                  depend(inout: stat_file_depend[best_or_glob][chrom_or_GU][stat_type])
+#endif
             stat_records[best_or_glob]->write_to_file(
                 stat_files_[chrom_or_GU][best_or_glob][stat_type],
                 (stats_type) stat_type);
           }
         }
 
+#ifdef __OPENMP_TASK
 #pragma omp task \
                  depend(in: stat_depend[best_or_glob][chrom_or_GU])
+#endif
         delete stat_records[best_or_glob];
       }
+#ifdef __OPENMP_TASK
 #pragma omp taskwait
+#endif
       delete[] stat_records;
     }
   }

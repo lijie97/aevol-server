@@ -372,6 +372,20 @@ if test "x$tbb" = "xyes" ; then
 fi
 
 
+#  ************************* --with-openmp-task option *******************************
+#
+#  With this option, OpenMP 3.x task optimization are enabled (required a OpenMP 3.x compiler)
+#
+
+
+AC_MSG_CHECKING([whether to use OpenMP Task pragma])
+AC_ARG_WITH(openmptask, [--with-openmp-task to the use of OpenMP TASK pragma], openmptask=$withval, openmptask=no)
+AC_MSG_RESULT($openmptask)
+AM_CONDITIONAL(WITH_OPENMPTASK, test x"$openmptask" != xno)
+if test "x$openmptask" = "xyes" ; then
+   AC_DEFINE(__OPENMP_TASK)
+fi
+
 #  ************************* --with-simd option *******************************
 #
 #  With this option, OpenMP 4.0 SIMD optimization are enabled (required a OpenMP 4.x compiler)
@@ -384,6 +398,20 @@ AC_MSG_RESULT($simd)
 AM_CONDITIONAL(WITH_SIMD, test x"$simd" != xno)
 if test "x$simd" = "xyes" ; then
    AC_DEFINE(__SIMD)
+fi
+
+#  ************************* --grid5000 option *******************************
+#
+#  With this option, aevol can be compiled on aftermath_aevol environment
+#
+
+
+AC_MSG_CHECKING([compiling on grid'5000 image])
+AC_ARG_WITH(grid5000, [--grid5000 compiling on grid5000], grid5000=$withval, grid5000=no)
+AC_MSG_RESULT($grid5000)
+AM_CONDITIONAL(WITH_GRID5000, test x"$grid5000" != xno)
+if test "x$grid5000" = "xyes" ; then
+   LIBS+="-L /root/intel64_lin/ -fopenmp=libiomp5"
 fi
 
 
