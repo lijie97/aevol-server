@@ -411,7 +411,9 @@ AC_ARG_WITH(grid5000, [--with-grid5000 compiling on grid5000], grid5000=$withval
 AC_MSG_RESULT($grid5000)
 AM_CONDITIONAL(WITH_GRID5000, test x"$grid5000" != xno)
 if test "x$grid5000" = "xyes" ; then
-   LIBS+=" -L /root/intel64_lin/ -fopenmp=libiomp5"
+   LIBS+=" -L /root/intel64_lin/"
+   AEVOLCXXFLAGS+=" -fopenmp=libiomp5"
+   AEVOLLDFLAGS+=" -fopenmp=libiomp5"
 fi
 
 
