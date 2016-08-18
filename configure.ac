@@ -379,9 +379,9 @@ fi
 
 
 AC_MSG_CHECKING([whether to use OpenMP Task pragma])
-AC_ARG_WITH(openmptask, [--with-openmp-task to the use of OpenMP TASK pragma], openmptask=$withval, openmptask=no)
+AC_ARG_WITH(openmptask, [--without-openmp-task to disable the use of OpenMP TASK pragma], openmptask=$withval, openmptask=yes)
 AC_MSG_RESULT($openmptask)
-AM_CONDITIONAL(WITH_OPENMPTASK, test x"$openmptask" != xno)
+AM_CONDITIONAL(WITH_OPENMPTASK, test x"$openmptask" != xyes)
 if test "x$openmptask" = "xyes" ; then
    AC_DEFINE(__OPENMP_TASK)
 fi
