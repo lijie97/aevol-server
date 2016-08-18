@@ -552,7 +552,9 @@ void Stats::write_current_generation_statistics()
 #endif
       delete[] stat_records;
     }
+#ifdef __OPENMP_TASK
   }
+#endif
 }
 
 void Stats::write_statistics_of_this_indiv(Individual * indiv)

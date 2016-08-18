@@ -407,7 +407,7 @@ fi
 
 
 AC_MSG_CHECKING([compiling on grid'5000 image])
-AC_ARG_WITH(grid5000, [--grid5000 compiling on grid5000], grid5000=$withval, grid5000=no)
+AC_ARG_WITH(grid5000, [--with-grid5000 compiling on grid5000], grid5000=$withval, grid5000=no)
 AC_MSG_RESULT($grid5000)
 AM_CONDITIONAL(WITH_GRID5000, test x"$grid5000" != xno)
 if test "x$grid5000" = "xyes" ; then
