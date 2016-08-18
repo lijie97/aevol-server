@@ -29,10 +29,10 @@ TRANSLOCATION_RATE      5e-6
 INVERSION_RATE          5e-6
 
 ##### 7. Recording ################
-BACKUP_STEP             1000
+BACKUP_STEP             100
 RECORD_TREE             true
 MORE_STATS              true
-TREE_STEP               500
+TREE_STEP               100
 
 ####################################################################################
 #                                    Regulation

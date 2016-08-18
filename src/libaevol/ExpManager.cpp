@@ -291,7 +291,10 @@ void ExpManager::step_to_next_generation() {
   exp_s_->step_to_next_generation();
 
   // Write statistical data and store phylogenetic data (tree)
+#pragma omp single
+{
   output_m_->write_current_generation_outputs();
+}
 }
 
 /*!

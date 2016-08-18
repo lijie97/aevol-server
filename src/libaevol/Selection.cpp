@@ -177,7 +177,7 @@ void Selection::step_to_next_generation() {
   high_resolution_clock::time_point t1,t2;
 
   std::unordered_map<unsigned long long, Individual*> unique_individual;
-  
+
 #ifndef __TBB
   std::list<Individual*> new_generation;
 #endif
@@ -304,78 +304,96 @@ void Selection::step_to_next_generation() {
   }
 #endif
 
-    for (int32_t index = 0 ; index < grid_width * grid_height ; index++) {
+
+    for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
       y = index % grid_height;
 
-      EndReplicationEvent* eindiv = new EndReplicationEvent(world->indiv_at(x,y),x,y);
+      EndReplicationEvent* eindiv = new EndReplicationEvent(
+          world->indiv_at(x, y), x, y);
       // Tell observers the replication is finished
-      world->indiv_at(x,y)->notifyObservers(END_REPLICATION, eindiv);
+      world->indiv_at(x, y)->notifyObservers(END_REPLICATION, eindiv);
       delete eindiv;
     }
+   /* t2 = high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+        t2 - t1).count();
+    cout << "TIMER," << AeTime::time() << ",OLD," << duration << endl;
+*/
 
-    t2 = high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-    cout<<"TIMER,"<<AeTime::time()<<",OLD,"<<duration<<endl;
+    for (int16_t x = 0; x < grid_width; x++)
+      for (int16_t y = 0; y < grid_height; y++)
+        new_generation.push_back(pop_grid[x][y]->individual());
+#else
+    std::vector<Individual*> new_generation;
+    tbb::task_group tgroup;
 
     for (int16_t x = 0 ; x < grid_width ; x++)
       for (int16_t y = 0 ; y < grid_height ; y++)
-        new_generation.push_back(pop_grid[x][y]->individual());
-  #else
-  std::vector<Individual*> new_generation;
-  tbb::task_group tgroup;
+        tgroup.run([=] {do_replication(reproducers[x][y], x * grid_height + y, x, y);});
+    tgroup.wait();
 
-  for (int16_t x = 0 ; x < grid_width ; x++)
-    for (int16_t y = 0 ; y < grid_height ; y++)
-      tgroup.run([=] {do_replication(reproducers[x][y], x * grid_height + y, x, y);});
-  tgroup.wait();
+    for (int16_t x = 0 ; x < grid_width ; x++)
+      for (int16_t y = 0 ; y < grid_height ; y++)
+        new_generation.push_back(pop_grid[x][y]->get_individual());
 
-  for (int16_t x = 0 ; x < grid_width ; x++)
-    for (int16_t y = 0 ; y < grid_height ; y++)
-      new_generation.push_back(pop_grid[x][y]->get_individual());
+#endif
 
-  #endif
-
-  // delete the temporary grid and the parental generation
-  for (int16_t x = 0 ; x < grid_width ; x++) {
-    for (int16_t y = 0 ; y < grid_height ; y++) {
+    // delete the temporary grid and the parental generation
+    for (int16_t x = 0; x < grid_width; x++) {
+      for (int16_t y = 0; y < grid_height; y++) {
         reproducers[x][y] = nullptr;
+      }
+      delete[] reproducers[x];
     }
-    delete[] reproducers[x];
-  }
-  delete [] reproducers;
+    delete[] reproducers;
 
-  // Compute the rank of each individual
-  #ifndef __TBB
-  new_generation.sort([](Individual* lhs, Individual* rhs) {
-                       return lhs->fitness() < rhs->fitness();
-                     });
-  #else
-  tbb::parallel_sort(new_generation.begin(),new_generation.end(), [](Individual* lhs, Individual* rhs) {
-      return lhs->get_fitness() < rhs->get_fitness();
-  });
-  #endif
-  int rank = 1;
-  for (Individual* indiv : new_generation) {
-    indiv->set_rank(rank++);
-  }
+    // Compute the rank of each individual
+#ifndef __TBB
 
-  // randomly migrate some organisms, if necessary
-  world->MixIndivs();
 
-  PerformPlasmidTransfers();
+    new_generation.sort([](Individual* lhs, Individual* rhs) {
+        return lhs->fitness() < rhs->fitness();
+    });
+#else
+    tbb::parallel_sort(new_generation.begin(),new_generation.end(), [](Individual* lhs, Individual* rhs) {
+        return lhs->get_fitness() < rhs->get_fitness();
+    });
+#endif
 
-  // Update the best individual
-  exp_m_->update_best();
+    int rank = 1;
 
-  // Notify observers of the end of the generation
-  notifyObservers(END_GENERATION);
+    for (Individual* indiv : new_generation) {
+      indiv->set_rank(rank++);
+    }
 
-  int number_of_clones = 0;
+    // randomly migrate some organisms, if necessary
+    world->MixIndivs();
 
-  for(auto iterator = unique_individual.begin(); iterator != unique_individual.end(); iterator++) {
-    if (iterator->second->number_of_clones_ == 0) {
-      delete iterator->second;
+    PerformPlasmidTransfers();
+
+    // Update the best individual
+    exp_m_->update_best();
+
+    // Notify observers of the end of the generation
+    notifyObservers(END_GENERATION);
+    int number_of_clones = 0;
+
+  #pragma omp parallel
+  #pragma omp single
+  {
+    //size_t cnt = 0;
+    //int ithread = omp_get_thread_num();
+    //int nthreads = omp_get_num_threads();
+
+    for (auto element = unique_individual.begin();
+         element != unique_individual.end(); ++element) {
+    #pragma omp task
+      {
+        if (element->second->number_of_clones_ == 0) {
+          delete element->second;
+        }
+      }
     }
   }
 }
