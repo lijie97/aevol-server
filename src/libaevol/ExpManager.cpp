@@ -532,14 +532,14 @@ void ExpManager::run_evolution() {
     t2 = high_resolution_clock::now();
 	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	  	  ae_logger::addLog(SELECTION,duration);
-	  	  ae_logger::flush(AeTime::get_time());
+	  	  ae_logger::flush(AeTime::time());
 #endif
   }
 #ifdef __TRACING__
   t_t2 = high_resolution_clock::now();
 	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
 	  	  ae_logger::addLog(TOTAL,duration);
-	  	  ae_logger::flush(AeTime::get_time());
+	  	  ae_logger::flush(AeTime::time());
 #endif
   output_m_->flush();
   printf("================================================================\n");
