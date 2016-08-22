@@ -372,19 +372,19 @@ if test "x$tbb" = "xyes" ; then
 fi
 
 
-#  ************************* --with-openmp-task option *******************************
+#  ************************* --without-openmptask option *******************************
 #
 #  With this option, OpenMP 3.x task optimization are enabled (required a OpenMP 3.x compiler)
 #
 
-
-AC_MSG_CHECKING([whether to use OpenMP Task pragma])
-AC_ARG_WITH(openmptask, [--without-openmp-task to disable the use of OpenMP TASK pragma], openmptask=$withval, openmptask=yes)
-AC_MSG_RESULT($openmptask)
-AM_CONDITIONAL(WITH_OPENMPTASK, test x"$openmptask" != xyes)
-if test "x$openmptask" = "xyes" ; then
+AC_MSG_CHECKING([whether to enable OpenMP Task])
+AC_ARG_WITH(x, [  --without-openmptask to OpenMP Tasks], , with_openmptask=yes)
+AC_MSG_RESULT($with_openmptask)
+AM_CONDITIONAL(WITH_OPENMPTASK, test x"$with_openmptask" != xno)
+if test "x$with_openmptask" != xno ; then
    AC_DEFINE(__OPENMP_TASK)
 fi
+
 
 #  ************************* --with-simd option *******************************
 #
