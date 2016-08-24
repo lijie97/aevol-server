@@ -432,6 +432,21 @@ if test "x$tracing" = "xyes" ; then
 fi
 
 
+#  ************************* --with-kstar option *******************************
+#
+#  With this option, kstar support is enabled (so StarPU and XKaapi runtime) and the __KSTAR flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use kstar])
+AC_ARG_WITH(kstar, [--with-kstar to enable kstar support], kstar=$withval, kstar=no)
+AC_MSG_RESULT($kstar)
+AM_CONDITIONAL(WITH_KSTAR, test x"$kstar" != xno)
+if test "x$kstar" = "xyes" ; then
+   AC_DEFINE(__KSTAR)
+fi
+
+
 #  ************************* back to GENERAL stuff *******************************
 
 AC_CONFIG_FILES([Makefile

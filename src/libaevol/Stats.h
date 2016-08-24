@@ -115,6 +115,12 @@ class Stats
     void MoveTmpFiles(const std::string& destdir);
     void PromoteTmpFiles();
 
+#ifdef __KSTAR
+    ExpManager * exp_m_;
+    FILE**** stat_files_;
+    char**** stat_files_names_;
+#endif
+
  protected :
     // =================================================================
     //                           Protected Methods
@@ -132,7 +138,11 @@ class Stats
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+#ifndef __KSTAR
     ExpManager * exp_m_;
+    FILE**** stat_files_;
+    char**** stat_files_names_;
+#endif
 
     // 3D tables of stat files (FILE*) and their names (char*)
     // Dimensions are given by:
@@ -141,8 +151,7 @@ class Stats
     //    * stat type (FITNESS_STATS, MUTATION_STATS, GENES_STATS, BP_STATS or REAR_STATS)
     // Files that are not wanted MUST have their name set to NULL.
     // The files themselves are also NULL because we don't fopen() them.
-    FILE**** stat_files_;
-    char**** stat_files_names_;
+
 };
 
 

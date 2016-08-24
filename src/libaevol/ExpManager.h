@@ -154,6 +154,11 @@ class ExpManager : public Observer {
   void FillGridWithClones(Individual& dolly) { world_->FillGridWithClones(dolly); }
   void update(Observable& o, ObservableEvent e, void* arg) override {}
 
+#ifdef __KSTAR
+    /// Output manager
+    OutputManager*output_m_;
+#endif
+
  protected:
   // =======================================================================
   //                              Protected Methods
@@ -190,9 +195,10 @@ class ExpManager : public Observer {
   /// Spatial structure
   World* world_;
 
+#ifndef __KSTAR
   /// Output manager
   OutputManager*output_m_;
-
+#endif
   /// Time step up to which we want to simulate
   int64_t t_end_;
 
