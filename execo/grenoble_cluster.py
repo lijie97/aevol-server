@@ -2,22 +2,13 @@
 # encoding=utf8
 
 import os, time, datetime
-from tempfile import mkstemp
-import copy
-import hashlib
 import shutil
+from shutil import copyfile
 
-from threading import Thread
-from execo import Put, Remote, Get, sleep, default_connection_params, Host, format_date, format_duration, SshProcess
+from execo import Local
 from execo.log import style
 from execo import logger as ex_log
 from execo.time_utils import timedelta_to_seconds
-from execo_g5k import get_host_attributes, get_planning, compute_slots, \
-    find_first_slot, distribute_hosts, get_jobs_specs, g5k_configuration, \
-    wait_oargrid_job_start, oargridsub, oargriddel, get_oargrid_job_nodes, \
-    Deployment, deploy, get_oargrid_job_info, get_host_cluster, get_cluster_site, get_host_site, get_g5k_sites, get_oar_job_info, \
-    get_cluster_site, OarSubmission, \
-    oarsub, get_oar_job_nodes, wait_oar_job_start, oardel, get_host_attributes
 from execo_engine import Engine, logger, ParamSweeper, sweep, slugify
 import pickle
 
@@ -42,10 +33,13 @@ class raevol_matrix(Engine):
         """ """
         self.define_parameters()
 	
-	self.working_dir = '/service/beagle/rouzaudc/large_campaign_v1'
-	self.aevol_binary_directory = '/home/beagle/rouzaudc/heritage/'
+	self.working_dir = '/services/beagle/rouzaudc/large_campaign_v1'
+	self.aevol_binary_directory = '/home/beagle/rouzaudc/heritage_task/'
 	self.template_param_file = self.working_dir+'/param_tmpl.in'
 	self.binding_matrix_file = self.working_dir+'/binding_matrix.rae'
+	self.nb_last_generation = 300000
+	
+	self.cluster = self.options.selected_cluster
 	
         self.oarjob_dict = {}
         self.oarjob_dict_file = self.working_dir + '/dict_backup.p'
@@ -54,17 +48,25 @@ class raevol_matrix(Engine):
         if os.path.isfile(self.oarjob_dict_file):
             self.oarjob_dict = pickle.load(open(self.oarjob_dict_file,'rb'))
             
-        while len(self.sweeper.get_remaining()) > 0:
+        while len(self.sweeper.get_remaining()) > 0 or len(self.sweeper.get_inprogress()) > 0:
             comb = self.sweeper.get_next()
             if not comb:
                 combToRelaunch = 0
                 
                 # Check if some experiment reservation has finished
                 for kcomb in self.oarjob_dict:
-                    frontend = Process('oarstat -f -j '+self.oarjob_dict[kcomb]+'  | grep state | cut -d'=' -f2  | cut -d' ' -f2').start()
-                    frontend.wait()
+
+                    print "checking "+slugify(kcomb)+ " oar "+self.oarjob_dict[kcomb]
+                    
+                    frontend = Local('oarstat -f -j '+self.oarjob_dict[kcomb]+'  | grep state | cut -d\'=\' -f2  | cut -d\' \' -f2',process_args = { 'shell': True })
+                    frontend.run()
+                    
+                    a_message = ''
+                    for p in frontend.processes:
+                        a_message = p.stdout.strip('\n')
+                        
                     # To do it, check if some comb has a oar job id that is not Waiting or Running and relaunch workflow for this combination
-                    if frontend.stdout != 'Waiting' or frontend.stdout != 'Running':
+                    if a_message != 'Waiting' and a_message != 'Running':
                         combToRelaunch += 1
                         self.sweeper.cancel(kcomb)
                         self.oarjob_dict.pop(kcomb, None)
@@ -74,7 +76,20 @@ class raevol_matrix(Engine):
                 
                 # If no comb to relaunch , sleep for 10 min
                 if combToRelaunch == 0:
-                    sleep(600)
+                    logger.info("Parameter sweeper : remaining "+str(len(self.sweeper.get_remaining()))+" -- in progress "+str(len(self.sweeper.get_inprogress()))
+                                +" -- done "+str(len(self.sweeper.get_done())))
+                    logger.info("[-----------------------------] Combination in progress [-----------------------------]")
+                    
+                    for kcomb in self.oarjob_dict:
+                        bucketname = self.working_dir+'/'+slugify(kcomb)+'/'
+                        gen_file = open(bucketname+'/last_gener.txt', 'r')
+                        last_gen = gen_file.read().strip('\n')
+                        gen_file.close()
+                        logger.info("Combination "+slugify(kcomb)+" is at generation "+last_gen"/"+str(self.nb_last_generation))
+                    
+                    logger.info("[-------------------------------------------------------------------------------------]")
+                    
+                    time.sleep(600)
             else:
                 # Launch workflow for this combination
                 self.workflow(comb)
@@ -84,9 +99,12 @@ class raevol_matrix(Engine):
         """ """
         parameters = {
 	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842, 2784564, 68984554],
-	  'mutation' : ['3.33e-5','1e-5','3.33e-6','1e-6','3.33e-7'],
-	  'env' : ['const','lat_3','lat_13','lat_123','lat_all'],
-	  'selection' : [500,1000,1500,2000]
+	  'mutation' : ['3.33e-7'],
+	  'env' : ['lat_all'],
+	  'selection' : [2000]
+	  #'mutation' : ['3.33e-5','1e-5','3.33e-6','1e-6','3.33e-7'],
+	  #'env' : ['const','lat_3','lat_13','lat_123','lat_all'],
+	  #'selection' : [500,1000,1500,2000]
         }
         sweeps = sweep(parameters)
         self.sweeper = ParamSweeper(os.path.join(self.result_dir, "sweeps"), sweeps)
@@ -98,7 +116,7 @@ class raevol_matrix(Engine):
         if os.path.isfile(script_file):
             os.remove(script_file)
             
-        launch_cmd = 'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/services/beagle/mkl/lib/intel64_lin/ '+self.aevol_binary_directory+'/aevol_run -p 16 -e 300000 '
+        launch_cmd = 'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/services/beagle/mkl/lib/intel64_lin/ '+self.aevol_binary_directory+'/aevol_run -p 16 -e '+str(self.nb_last_generation)+' '
         
         if resume:
             launch_cmd += '-r '+str(resumeGeneration)+' '
@@ -109,6 +127,8 @@ class raevol_matrix(Engine):
         script_file_fd.write('#!/bin/bash'+os.linesep)
         script_file_fd.write(launch_cmd+os.linesep)
         script_file_fd.close()
+        
+        os.chmod(script_file,0777)
     
     def write_create_script(self, bucketname):
         script_file = bucketname+'/run_create.sh'
@@ -124,6 +144,8 @@ class raevol_matrix(Engine):
         script_file_fd.write('#!/bin/bash'+os.linesep)
         script_file_fd.write(launch_cmd+os.linesep)
         script_file_fd.close()     
+        
+        os.chmod(script_file,0777)
         
     def write_param_file(self, comb, bucketname):
         param_file = bucketname+'/param.in'
@@ -424,58 +446,89 @@ class raevol_matrix(Engine):
         
         # If directory is empty
         if os.path.isdir(bucketname) and os.path.exists(bucketname+'/last_gener.txt'):
+            gen_file = open(bucketname+'/last_gener.txt', 'r')
+            last_gen = gen_file.read().strip('\n')
+            gen_file.close()
             
-            gen_file = open(bucketname+'/last_gener.txt', 'r')                                                                                                                                            last_gen = gen_file.read()
-	    
-	    if int(last_gen) < 300000:
-                
+            if int(last_gen) < self.nb_last_generation:
                 # Generate run.sh file
                 self.write_run_script(bucketname,True,last_gen)
                 
                 # Launch aevol_run
-                frontend = Process('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run.sh | grep OAR_JOB_ID | cut -d\'=\' -f2').start()
-                frontend.wait()
+                frontend = Local('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run.sh  -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
+                frontend.run()
                 
+                a_message = ''
+                for p in frontend.processes:
+                    a_message = p.stdout.strip('\n')
+                        
                 # Fill dict with key: comb, value: oar job id
-                self.oarjob_dict[comb] = frontend.stdout
+                self.oarjob_dict[comb] = a_message
                 
-                logger.info("Resuming R-Aevol combination "+slugify(comb)+" from "+last_gen+' (OAR_JOB_ID: '+frontend.stdout+')')
+                logger.info("Resuming R-Aevol combination "+slugify(comb)+" from "+last_gen.strip('\n')+' (OAR_JOB_ID: '+a_message+')')
             else:
                 logger.info("R-Aevol combination "+slugify(comb)+" is DONE")
                 # Mark comb has done
                 self.sweeper.done(comb)
         else:
+            frontend = Local('mkdir -p '+bucketname,process_args = { 'shell': True })
+            frontend.run()
+            
             # Generate param file
             self.write_param_file(comb,bucketname)
             
             # Copy binding matrix
-            copyfile(self.binding_matrix_file, bucketname)
+            copyfile(self.binding_matrix_file, bucketname+'/binding_matrix.rae')
             
             # Launch aevol_create
             self.write_create_script(bucketname)
+                        
+            time.sleep(10)
             
-            frontend = Process('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run.sh | grep OAR_JOB_ID | cut -d\'=\' -f2').start()
-            frontend.wait()
+            frontend = Local('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run_create.sh  -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
+            frontend.run()
             
-            oarjobcreate_id = frontend.stdout
+            a_message = ''
+            for p in frontend.processes:
+                a_message = p.stdout.strip('\n')
             
-            frontend = Process('oarstat -f -j '+oarjobcreate_id+'  | grep state | cut -d'=' -f2  | cut -d' ' -f2').start()
-            frontend.wait()
+            oarjobcreate_id = a_message
             
-            while frontend.stdout == 'Waiting' or frontend.stdout == 'Running':
-                sleep(1)
+            frontend = Local('oarstat -f -j '+oarjobcreate_id+'  | grep state | cut -d\'=\' -f2  | cut -d\' \' -f2',process_args = { 'shell': True })
+            frontend.run()
+            
+            a_message = ''
+            for p in frontend.processes:
+                a_message = p.stdout.strip('\n')
+            
+            while a_message == 'Waiting' or a_message == 'Running':
+                time.sleep(30)
+                frontend = Local('oarstat -f -j '+oarjobcreate_id+'  | grep state | cut -d\'=\' -f2  | cut -d\' \' -f2',process_args = { 'shell': True })
+                frontend.run()
+                
+                a_message = ''
+                for p in frontend.processes:
+                    a_message = p.stdout.strip('\n')
+                
                 
             # Generate run.sh file
             self.write_run_script(bucketname)
                 
+            time.sleep(10)
+            
             # Launch aevol_run
-            frontend = Process('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run.sh | grep OAR_JOB_ID | cut -d\'=\' -f2').start()
-            frontend.wait()
+            frontend = Local('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run.sh -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
+            frontend.run()
+            
+            a_message = ''
+            for p in frontend.processes:
+                a_message = p.stdout.strip('\n')
+                
                 
             # Fill dict with key: comb, value: oar job id
-            self.oarjob_dict[comb] = frontend.stdout
+            self.oarjob_dict[comb] = a_message
                 
-            logger.info("Start R-Aevol combination "+slugify(comb)+' (OAR_JOB_ID: '+frontend.stdout+')')
+            logger.info("Start R-Aevol combination "+slugify(comb)+' (OAR_JOB_ID: '+a_message+')')
 
 
 if __name__ == "__main__":
