@@ -183,20 +183,31 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
       }
 
       // At each age we have to add the environment of this age
+
+      bool allow_to_change = true;
       for (int8_t i = 1; i < last_age ; i++) {
 
         id_new_env = id_old_env;
 
-        // if we have to change of environment :
-        double env_chang = var_prng_->random();
+        if (long_period) {
+          if (i==6 || i==11 || i==16)
+            allow_to_change = true;
+          else
+            allow_to_change = false;
+        }
 
-        if ( env_chang < env_switch_probability_) {
-          //we have to change to a new env that have an id different from the old one
-          while( id_new_env == id_old_env ) {
-            id_new_env = var_prng_->random(nb_env_in_list);
+        if (allow_to_change) {
+          // if we have to change of environment :
+          double env_chang = var_prng_->random();
+
+          if (env_chang < env_switch_probability_) {
+            //we have to change to a new env that have an id different from the old one
+            while (id_new_env == id_old_env) {
+              id_new_env = var_prng_->random(nb_env_in_list);
+            }
+            //The environment has changed
+            id_old_env = id_new_env;
           }
-          //The environment has changed
-          id_old_env = id_new_env;
         }
         addEnv(i,id_new_env);
       //  printf("Computing first env %d : %d\n",i,id_new_env);

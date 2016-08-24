@@ -215,6 +215,8 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
 
   bool deterministic = false;
 
+  bool long_period = true;
+
 };
 
 // ============================================================================
