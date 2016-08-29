@@ -1340,7 +1340,7 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   if (strand == LEADING) {
     //~ printf("LEADING\n");
     #pragma vector always
-    for (int8_t i  = 0; i < PROM_SIZE; i++)
+    for (int32_t i  = 0; i < PROM_SIZE; i++)
       pos_a[i] = (pos + i) % len;
 
     #pragma vector always
@@ -1352,7 +1352,8 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   {
     //~ printf("LAGGING\n");
     #pragma vector always
-    for (int8_t i  = 0; i < PROM_SIZE; i++)
+    #pragma distribute_point
+    for (int32_t i  = 0; i < PROM_SIZE; i++)
       pos_a[i] = (pos - i) >= 0 ? (pos - i) % len : ( len - abs ( (pos - i)%len ) ) % len;
 
     #pragma vector always
