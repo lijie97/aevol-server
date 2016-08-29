@@ -431,6 +431,21 @@ if test "x$tracing" = "xyes" ; then
    AC_DEFINE(__TRACING__)
 fi
 
+#  ************************* --with-detectclone option *******************************
+#
+#  With this option, tracing is enabled and the __TRACING__ flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use the detection of cloned individual])
+AC_ARG_WITH(detectclone, [--with-detecteclone to enable the detection of cloned individual], detectclone=$withval, detectclone=no)
+AC_MSG_RESULT($detectclone)
+AM_CONDITIONAL(WITH_DETECTCLONE, test x"$detectclone" != xno)
+if test "x$detectclone" = "xyes" ; then
+   AC_DEFINE(__DETECT_CLONE)
+fi
+
+
 
 #  ************************* --with-kstar option *******************************
 #

@@ -251,13 +251,14 @@ void Selection::step_to_next_generation() {
   // Create the new generation
   std::list<Individual*> old_generation = exp_m_->indivs();
 
-
+#ifdef __DETECT_CLONE
   mutator = 0;
   for (auto indiv : old_generation) {
     indiv->number_of_clones_ = 0;
     unique_individual[indiv->id()] = indiv;
     (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
   }
+#endif
 
   std::vector<Individual*> to_evaluate;
 #ifndef __TBB
@@ -275,14 +276,20 @@ void Selection::step_to_next_generation() {
     y = index % grid_height;
     do_replication(reproducers[x][y],
                    x * grid_height + y + pop_size * AeTime::time(), what, x, y);
+#ifdef __DETECT_CLONE
     if (what == 1 || what == 2) {
+#endif
+
 #ifdef _OPENMP
 #pragma omp critical(updateindiv)
 #endif
       {
         to_evaluate.push_back(pop_grid[x][y]->individual());
       }
+#ifdef __DETECT_CLONE
     }
+#endif
+
   }
 #ifdef _OPENMP
 #pragma omp barrier
@@ -348,6 +355,28 @@ void Selection::step_to_next_generation() {
     }
     delete[] reproducers;
 
+#ifndef __DETECT_CLONE
+#ifdef __OPENMP_TASK
+  #pragma omp parallel
+  #pragma omp single
+  {
+#endif
+  for (auto element = old_generation.begin();
+       element != old_generation.end(); ++element) {
+#ifdef __OPENMP_TASK
+    #pragma omp task
+      {
+#endif
+    delete *element;
+#ifdef __OPENMP_TASK
+    }
+#endif
+  }
+#ifdef __OPENMP_TASK
+  }
+#endif
+#endif
+
     // Compute the rank of each individual
 #ifndef __TBB
 
@@ -377,16 +406,14 @@ void Selection::step_to_next_generation() {
 
     // Notify observers of the end of the generation
     notifyObservers(END_GENERATION);
+
+#ifdef __DETECT_CLONE
     int number_of_clones = 0;
 #ifdef __OPENMP_TASK
   #pragma omp parallel
   #pragma omp single
   {
 #endif
-    //size_t cnt = 0;
-    //int ithread = omp_get_thread_num();
-    //int nthreads = omp_get_num_threads();
-
     for (auto element = unique_individual.begin();
          element != unique_individual.end(); ++element) {
 #ifdef __OPENMP_TASK
@@ -403,6 +430,8 @@ void Selection::step_to_next_generation() {
 #ifdef __OPENMP_TASK
   }
 #endif
+#endif
+
 }
 
 void Selection::PerformPlasmidTransfers() {
@@ -711,6 +740,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
     chromosome->dna()->perform_mutations(parent->id());
 
+#ifdef __DETECT_CLONE
     if (! chromosome->dna()->hasMutate()) {
       bool firstClone;
 
@@ -740,6 +770,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       // Notify observers that a new individual was created from <parent>
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
     }
+#endif
 
       {
         NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
@@ -764,11 +795,12 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     }
   }
 
-
+#ifdef __DETECT_CLONE
   if (mutate) {
     new_indiv->init_indiv();
     type_mutate = 1;
   }
+#endif
 
   return new_indiv;
 }
