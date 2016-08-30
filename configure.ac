@@ -441,7 +441,7 @@ AC_MSG_CHECKING([whether to (not) use the detection of cloned individual])
 AC_ARG_WITH(detectclone, [--without-detecteclone to enable the detection of cloned individual], , detectclone=yes)
 AC_MSG_RESULT($detectclone)
 AM_CONDITIONAL(WITH_DETECTCLONE, test x"$detectclone" != xno)
-if test "x$detectclone" = "xno" ; then
+if test "x$detectclone" = "xyes" ; then
    AC_DEFINE(__DETECT_CLONE)
 fi
 
