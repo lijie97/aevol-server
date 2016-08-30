@@ -167,12 +167,16 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
   ProteinConcentration enhancer_tab[_nb_influences];
   ProteinConcentration operator_tab[_nb_influences];
 
+#ifdef __SIMD
   #pragma omp simd
+#endif
   for (int i = 0; i < _nb_influences; i++) {
   	enhancer_tab[i] = _enhancing_coef_list[i] * _protein_list[i]->concentration_;
   	}
 
+#ifdef __SIMD
   #pragma omp simd
+#endif
   for (int i = 0; i < _nb_influences; i++) {
     operator_tab[i] = _operating_coef_list[i] * _protein_list[i]->concentration_;
   }

@@ -1336,7 +1336,7 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   int32_t len = dna_->length();
 
   float dist_a[22] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int pos_a[22];
+  int32_t pos_a[22];
   if (strand == LEADING) {
     //~ printf("LEADING\n");
     #pragma vector always
@@ -1351,8 +1351,8 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   else // (strand == LAGGING)
   {
     //~ printf("LAGGING\n");
-    #pragma vector always
-    #pragma distribute_point
+    //#pragma vector always
+    //#pragma distribute_point
     for (int32_t i  = 0; i < PROM_SIZE; i++)
       pos_a[i] = (pos - i) >= 0 ? (pos - i) % len : ( len - abs ( (pos - i)%len ) ) % len;
 
