@@ -26,7 +26,7 @@
 
 /// TODO: add unit tests
 /// Why should there always be points (X_MIN, 0),(X_MAX, 0) ?
-/// Many tests for double-type equality ==. Should't we check mod ε?
+/// Many tests for ProteinConcentration-type equality ==. Should't we check mod ε?
 
 #include "Fuzzy.h"
 
@@ -58,7 +58,7 @@ namespace aevol {
 ///
 /// TODO: use it! (vld, 2014-12-19)
 ///
-double Fuzzy::y(double x, list<Point>::const_iterator begin) const {
+ProteinConcentration Fuzzy::y(ProteinConcentration x, list<Point>::const_iterator begin) const {
   assert(x >= X_MIN and x <= X_MAX);
   assert(points_.size() >= 2);
 
@@ -78,7 +78,7 @@ double Fuzzy::y(double x, list<Point>::const_iterator begin) const {
   }
 }
 
-double Fuzzy::y(double x) const {
+ProteinConcentration Fuzzy::y(ProteinConcentration x) const {
   return y(x, points_.begin());
 }
 
@@ -91,11 +91,11 @@ double Fuzzy::y(double x) const {
 /// \pre{`y` should be between `p1` and `p2` ordinates} Despite the
 /// fact that the reverse is mathematically sound, it's not supposed
 /// to happend here.
-double Fuzzy::x(const Point& p1, const Point& p2, double y) const {
+ProteinConcentration Fuzzy::x(const Point& p1, const Point& p2, ProteinConcentration y) const {
   assert((p2.y <= y and y <= p1.y) or
          (p1.y <= y and y <= p2.y));
   assert(p1.y != p2.y);
-  double x = p1.x + (y - p1.y) * (p2.x - p1.x) /
+  ProteinConcentration x = p1.x + (y - p1.y) * (p2.x - p1.x) /
                                  (p2.y - p1.y);
   assert((p2.x <= x and x <= p1.x) or
          (p1.x <= x and x <= p2.x));
@@ -121,7 +121,7 @@ double Fuzzy::x(const Point& p1, const Point& p2, double y) const {
 ///   |---+------------+-------+----->
 /// \endverbatim
 ///
-/// TODO: double check if using this function is beneficial. Removed
+/// TODO: ProteinConcentration check if using this function is beneficial. Removed
 /// points_ could then be recreated.
 ///
 /// TODO: test with points_
@@ -151,7 +151,7 @@ void Fuzzy::simplify() {
 /// \param mean abscissa of its apex
 /// \param width of the side opposite to the apex
 /// \param height ordinate of the apex
-void Fuzzy::add_triangle(double mean, double width, double height) {
+void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height) {
   // assert(invariant());
 
   assert(width > 0.0);
@@ -159,7 +159,7 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
   assert(W_MIN <= width); // the maximum width depends on each individual
   // assert(MIN_H <= height and height <= MAX_H); Not necessarily because the concentration can be > 1
 
-  const double threshold = 1e-15; // TODO: should it not be the machine epsilon?
+  const ProteinConcentration threshold = 1e-15; // TODO: should it not be the machine epsilon?
                                   // if not, it should at least be a class constant
 
   if (fabs(width) < threshold or fabs(height) < threshold)
@@ -169,9 +169,9 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
   p0 = p1 = points_.begin();
   p2 = prev(points_.end());
 
-  double x0 = mean - width;
-  double x1 = mean;
-  double x2 = mean + width;
+  ProteinConcentration x0 = mean - width;
+  ProteinConcentration x1 = mean;
+  ProteinConcentration x2 = mean + width;
 
   // TODO: bugfix? if points on borders X_MIN,MAX, should not the ordinate be appropriately set?
   // TODO: create_interpolated_point should return an ITERATOR to point list
@@ -235,28 +235,28 @@ void Fuzzy::sub(const AbstractFuzzy& f) {
 ///
 /// The area of a crossed trapezoid can be computed just the same as a
 /// normal one if the bases are counted algebrically (±).
-double trapezoid_area(const Point& p1, const Point& p2) {
+ProteinConcentration trapezoid_area(const Point& p1, const Point& p2) {
   return fabs((p1.y + p2.y) / 2.0 *
               (p2.x - p1.x));
 }
 
-double Fuzzy::get_geometric_area() const {
+ProteinConcentration Fuzzy::get_geometric_area() const {
   return get_geometric_area(points_.begin(), points_.end());
 }
 
 /// Get integral of the absolute of probability function.
 ///
-double Fuzzy::get_geometric_area(list<Point>::const_iterator begin,
+ProteinConcentration Fuzzy::get_geometric_area(list<Point>::const_iterator begin,
                              list<Point>::const_iterator end) const {
   // Precondition would be along the lines of:
   // assert(points_.begin() <= begin < end < points_.end());
-  double area = 0;
+  ProteinConcentration area = 0;
   for (list<Point>::const_iterator p = begin ; next(p) != end ; ++p)
     area += trapezoid_area(*p, *next(p));
   return area;
 }
 
-double Fuzzy::get_geometric_area(double x_start, double x_stop) const {
+ProteinConcentration Fuzzy::get_geometric_area(ProteinConcentration x_start, ProteinConcentration x_stop) const {
   // assert(invariant());
   // Precondition: X_MIN ≤ x_start < x_stop ≤ X_MAX
   assert(X_MIN <= x_start and x_start < x_stop and x_stop <= X_MAX);
@@ -269,14 +269,14 @@ double Fuzzy::get_geometric_area(double x_start, double x_stop) const {
                                             [x_stop](const Point& p){return p.x > x_stop;});
 
   // area before begin
-  double first_part = trapezoid_area(Point(x_start, y(x_start)), *begin);
+  ProteinConcentration first_part = trapezoid_area(Point(x_start, y(x_start)), *begin);
   // area after prev(end)
-  double last_part = trapezoid_area(*prev(end), Point(x_stop, y(x_stop)));
+  ProteinConcentration last_part = trapezoid_area(*prev(end), Point(x_stop, y(x_stop)));
 
   return first_part + get_geometric_area(begin, end) + last_part;
 }
 
-// double Fuzzy::geometric_area(double start_segment, double end_segment) const {
+// ProteinConcentration Fuzzy::geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const {
 //   // Precondition: X_MIN ≤ start_segment < end_segment ≤ X_MAX
 //   assert(X_MIN <= start_segment and start_segment < end_segment and end_segment <= X_MAX);
 
@@ -285,10 +285,10 @@ double Fuzzy::get_geometric_area(double x_start, double x_stop) const {
 //   return copy.geometric_area(copy.create_interpolated_point(start_segment), next(copy.create_interpolated_point(end_segment)));
 // }
 
-double area_test() {
+ProteinConcentration area_test() {
   Fuzzy f;
   f.add_triangle(0.5, 1.0, 0.5);
-  double a = f.get_geometric_area(0.0, 1.0);
+  ProteinConcentration a = f.get_geometric_area(0.0, 1.0);
   return a;
 }
 
@@ -307,7 +307,7 @@ double area_test() {
 ///      underneath: kept  X                     |
 
 /// `pf` := max(`pf`, `lower_bound`)
-void Fuzzy::clip(clipping_direction direction, double bound) {
+void Fuzzy::clip(clipping_direction direction, ProteinConcentration bound) {
   // assert(invariant());
 
   for (list<Point>::iterator p = points_.begin() ; p != points_.end() ; ++p) {
@@ -329,7 +329,7 @@ void Fuzzy::clip(clipping_direction direction, double bound) {
 }
 
 
-bool Fuzzy::is_identical_to(const AbstractFuzzy& f, double tolerance ) const {
+bool Fuzzy::is_identical_to(const AbstractFuzzy& f, ProteinConcentration tolerance ) const {
   const Fuzzy fs = (Fuzzy&)(f);
   // Since list::size() has constant complexity since C++ 11, checking
   // size is an inexpensive first step.
@@ -370,7 +370,7 @@ void Fuzzy::load(gzFile backup_file) {
   // assert(invariant());
 }
 
-list<Point>::iterator Fuzzy::create_interpolated_point(double x) {
+list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x) {
   return create_interpolated_point(x, points_.begin());
 }
 
@@ -379,7 +379,7 @@ list<Point>::iterator Fuzzy::create_interpolated_point(double x) {
 /// `start_point` must refer to a point before abscissa `x`
 ///
 /// idempotent: creating existing point returns existing point
-list<Point>::iterator Fuzzy::create_interpolated_point(double x, std::list<Point>::iterator start) {
+list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x, std::list<Point>::iterator start) {
   // assert(invariant());
   assert(x >= X_MIN and x <= X_MAX);
 
@@ -421,7 +421,7 @@ void Fuzzy::clear() {
   points_.clear();
 }
 
-void Fuzzy::add_point(double x, double y)
+void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
 {
   list<Point>::iterator p = find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
   if (prev(p)->x == x) {

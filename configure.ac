@@ -378,7 +378,7 @@ fi
 #
 
 AC_MSG_CHECKING([whether to enable OpenMP Task])
-AC_ARG_WITH(x, [  --without-openmptask to OpenMP Tasks], , with_openmptask=yes)
+AC_ARG_WITH(with_openmptask, [  --without-openmptask to OpenMP Tasks], , with_openmptask=yes)
 AC_MSG_RESULT($with_openmptask)
 AM_CONDITIONAL(WITH_OPENMPTASK, test x"$with_openmptask" != xno)
 if test "x$with_openmptask" != xno ; then
@@ -433,16 +433,31 @@ fi
 
 #  ************************* --with-detectclone option *******************************
 #
-#  With this option, tracing is enabled and the __TRACING__ flag is defined
+#  With this option, the detection of cloned individuals is enabled and the __DETECT_CLONE flag is defined
 #
 
 
-AC_MSG_CHECKING([whether to use the detection of cloned individual])
-AC_ARG_WITH(detectclone, [--with-detecteclone to enable the detection of cloned individual], detectclone=$withval, detectclone=no)
+AC_MSG_CHECKING([whether to (not) use the detection of cloned individual])
+AC_ARG_WITH(detectclone, [--without-detecteclone to enable the detection of cloned individual], , detectclone=yes)
 AC_MSG_RESULT($detectclone)
 AM_CONDITIONAL(WITH_DETECTCLONE, test x"$detectclone" != xno)
-if test "x$detectclone" = "xyes" ; then
+if test "x$detectclone" = "xno" ; then
    AC_DEFINE(__DETECT_CLONE)
+fi
+
+
+#  ************************* --with-floatconcentration option *******************************
+#
+#  With this option, protein's concentration is coded with a float (and not a double) and the __FLOAT_CONCENTRATION flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to code the protein concentration on float (else double is used)])
+AC_ARG_WITH(floatconcentration, [--with-floatconcentration to enable the use of float to store protein concentrationl], floatconcentration=$withval, floatconcentration=no)
+AC_MSG_RESULT($floatconcentration)
+AM_CONDITIONAL(WITH_FLOATCONCENTRATION, test x"$floatconcentration" != xno)
+if test "x$floatconcentration" = "xyes" ; then
+   AC_DEFINE(__FLOAT_CONCENTRATION)
 fi
 
 

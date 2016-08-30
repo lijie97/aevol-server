@@ -49,7 +49,11 @@
 
 namespace aevol {
 
-
+#ifdef __FLOAT_CONCENTRATION
+using ProteinConcentration = float;
+#else
+using ProteinConcentration = double;
+#endif
 
 // =================================================================
 //                          Class declarations
@@ -79,7 +83,7 @@ class Protein
                int32_t shine_dal_pos,
                Rna * rna,
                double w_max);
-    Protein( const std::list<Codon*> codon_list, double concentration, double w_max);
+    Protein( const std::list<Codon*> codon_list, ProteinConcentration concentration, double w_max);
     Protein(Protein* signal);
     Protein(gzFile backup_file);
     // =================================================================
@@ -99,11 +103,11 @@ class Protein
     inline int32_t            first_translated_pos()  const;
     inline int32_t            last_translated_pos()   const;
            int32_t            last_STOP_base_pos()    const;
-    inline double             mean()                  const;
-    inline double             width()                 const; // returns the half-width
-    inline double             height()                const;
+    inline ProteinConcentration             mean()                  const;
+    inline ProteinConcentration             width()                 const; // returns the half-width
+    inline ProteinConcentration             height()                const;
     inline int32_t            length()                const; // Number of Amino-Acids (not including START and STOP)
-    inline double             concentration()         const;
+    inline ProteinConcentration             concentration()         const;
     inline  bool              is_functional()         const;
 
     Individual * indiv() const;
@@ -119,7 +123,7 @@ class Protein
     //                           Public Attributes
     // =================================================================
 
-    double            concentration_;
+    ProteinConcentration            concentration_;
 
 
 
@@ -144,9 +148,9 @@ class Protein
     std::list<Codon *> AA_list_;
 
     // Phenotypic contribution (triangle) parameters
-    double mean_;
-    double width_;   // in fact, half-width
-    double height_;
+    ProteinConcentration mean_;
+    ProteinConcentration width_;   // in fact, half-width
+    ProteinConcentration height_;
 };
 
 
@@ -177,17 +181,17 @@ int32_t Protein::last_translated_pos() const
   return last_translated_pos_;
 }
 
-double Protein::mean() const
+ProteinConcentration Protein::mean() const
 {
   return mean_;
 }
 
-double Protein::width() const
+ProteinConcentration Protein::width() const
 {
   return width_;
 }
 
-double Protein::height() const
+ProteinConcentration Protein::height() const
 {
   return height_;
 }
@@ -197,7 +201,7 @@ int32_t Protein::length() const
   return length_;
 }
 
-double Protein::concentration() const
+ProteinConcentration Protein::concentration() const
 {
   return concentration_;
 }

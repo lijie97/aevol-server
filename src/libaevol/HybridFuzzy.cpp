@@ -18,7 +18,7 @@ namespace aevol {
 HybridFuzzy::HybridFuzzy( )
 {
   _pheno_size = PHENO_SIZE;
-  _points = new double[_pheno_size];
+  _points = new ProteinConcentration[_pheno_size];
   for (int i = 0; i < _pheno_size; i++)
     _points[i] = 0.0;
 }
@@ -26,10 +26,14 @@ HybridFuzzy::HybridFuzzy( )
 HybridFuzzy::HybridFuzzy( const HybridFuzzy& model )
 {
   _pheno_size = PHENO_SIZE;
-  _points = new double[_pheno_size];
+  _points = new ProteinConcentration[_pheno_size];
 
 #ifdef __BLAS__
+#ifdef __FLOAT_CONCENTRATION
+  cblas_scopy(_pheno_size,model._points,1,_points,1);
+#else
   cblas_dcopy(_pheno_size,model._points,1,_points,1);
+#endif
 #else
 	for (int i=0; i < _pheno_size; i++)
 		_points[i] = model._points[i];
@@ -39,7 +43,7 @@ HybridFuzzy::HybridFuzzy( const HybridFuzzy& model )
 HybridFuzzy::HybridFuzzy( gzFile backup_file )
 {
   _pheno_size = PHENO_SIZE;
-  _points = new double[_pheno_size];
+  _points = new ProteinConcentration[_pheno_size];
   for (int i = 0; i < _pheno_size; i++)
     _points[i] = 0.0;
 
@@ -70,14 +74,14 @@ void HybridFuzzy::reset( )
     _points[i] = 0.0;
 }
 
-void HybridFuzzy::add_triangle( double mean, double width, double height )
+void HybridFuzzy::add_triangle( ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height )
 {
   if ( fabs(width) < 1e-15 || fabs(height) < 1e-15 ) return;
 
   // Compute triangle points' coordinates
-  double x0 = mean - width;
-  double x1 = mean;
-  double x2 = mean + width;
+  ProteinConcentration x0 = mean - width;
+  ProteinConcentration x1 = mean;
+  ProteinConcentration x2 = mean + width;
 
   int ix0 = (int) (x0 * _pheno_size);
   int ix1 = (int) (x1 * _pheno_size);
@@ -88,7 +92,7 @@ void HybridFuzzy::add_triangle( double mean, double width, double height )
   if (ix2 < 0) ix2 = 0; else if (ix2 > (_pheno_size-1)) ix2 = _pheno_size-1;
 
   // Compute the first equation of the triangle
-  double incY = height / (ix1 - ix0);
+  ProteinConcentration incY = height / (ix1 - ix0);
   int count = 1;
   // Updating value between x0 and x1
 //  _points[ix0] = 0.0;
@@ -112,7 +116,11 @@ void HybridFuzzy::add( const AbstractFuzzy& f )
 {
   const HybridFuzzy to_add = (HybridFuzzy&)(f);
 #ifdef __BLAS__
+#ifdef __FLOAT_CONCENTRATION
+  cblas_saxpy(_pheno_size, 1.0, to_add.points(), 1, _points, 1);
+#else
   cblas_daxpy(_pheno_size, 1.0, to_add.points(), 1, _points, 1);
+#endif
 #else
 		for (int i = 0; i < _pheno_size; i++) {
 			if (to_add._points[i] != 0) _points[i] = _points[i] + to_add._points[i];
@@ -124,7 +132,11 @@ void HybridFuzzy::sub( const AbstractFuzzy& f )
 {
   const HybridFuzzy to_sub = (HybridFuzzy&)(f);
 #ifdef __BLAS__
+#ifdef __FLOAT_CONCENTRATION
+  cblas_saxpy(_pheno_size, -1.0, to_sub.points(), 1, _points, 1);
+#else
   cblas_daxpy(_pheno_size, -1.0, to_sub.points(), 1, _points, 1);
+#endif
 #else
 		for (int i = 0; i < _pheno_size; i++) {
 			if (to_sub._points[i] !=0 ) _points[i] = _points[i] - to_sub._points[i];
@@ -132,14 +144,14 @@ void HybridFuzzy::sub( const AbstractFuzzy& f )
 #endif
 }
 
-double HybridFuzzy::get_geometric_area( ) const
+ProteinConcentration HybridFuzzy::get_geometric_area( ) const
 {
   return get_geometric_area(X_MIN,X_MAX);
 }
 
-double HybridFuzzy::get_geometric_area( double start_segment, double end_segment ) const
+ProteinConcentration HybridFuzzy::get_geometric_area( ProteinConcentration start_segment, ProteinConcentration end_segment ) const
 {
-  double area = 0;
+  ProteinConcentration area = 0;
 
   int istart_segment = (int) (start_segment  * _pheno_size);
   int iend_segment = (int) (end_segment  * _pheno_size);
@@ -155,7 +167,7 @@ double HybridFuzzy::get_geometric_area( double start_segment, double end_segment
 
 
 
-bool HybridFuzzy::is_identical_to( const AbstractFuzzy& f, double tolerance  ) const
+bool HybridFuzzy::is_identical_to( const AbstractFuzzy& f, ProteinConcentration tolerance  ) const
 {
   const HybridFuzzy fs = (HybridFuzzy&)(f);
   // Since list::size() has constant complexity since C++ 11, checking
@@ -193,7 +205,7 @@ void HybridFuzzy::load( gzFile backup_file ) {
 }
 
 
-void HybridFuzzy::clip(clipping_direction direction, double bound) {
+void HybridFuzzy::clip(clipping_direction direction, ProteinConcentration bound) {
 
   if (direction == clipping_direction::min)
     for (int i = 0; i < _pheno_size; i++)
@@ -203,7 +215,7 @@ void HybridFuzzy::clip(clipping_direction direction, double bound) {
       _points[i] = _points[i] > bound ? bound : _points[i];
 }
 
-void HybridFuzzy::add_point(double x, double y) {
+void HybridFuzzy::add_point(ProteinConcentration x, ProteinConcentration y) {
   int ix = (int) ( x * _pheno_size);
   _points[ix] = y;
 }
@@ -211,11 +223,11 @@ void HybridFuzzy::add_point(double x, double y) {
 // =================================================================
 //                           Protected Methods
 // =================================================================
-double HybridFuzzy::get_y( double x ) const
+ProteinConcentration HybridFuzzy::get_y( ProteinConcentration x ) const
 {
   int ix = (int) ( x * _pheno_size);
 
-  double retValue = _points[ix];
+  ProteinConcentration retValue = _points[ix];
 
   return retValue;
 }

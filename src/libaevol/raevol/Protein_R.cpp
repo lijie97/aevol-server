@@ -134,7 +134,7 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
 }
 
 //used to build the signal protein
-Protein_R::Protein_R( const std::list<Codon*> codon_list, double concentration, double w_max)  :
+Protein_R::Protein_R( const std::list<Codon*> codon_list, ProteinConcentration concentration, double w_max)  :
 		Protein::Protein( codon_list, concentration, w_max )
 {
   _initial_concentration = 0;
@@ -182,7 +182,10 @@ Protein_R::Protein_R( Protein_R* signal )  :
 Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
 {
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
-  gzread( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
+  double delta;
+  gzread( backup_file, &delta,   	sizeof(delta) );
+  _delta_concentration = (ProteinConcentration) delta;
+
   gzread( backup_file, &_inherited,   			sizeof(_inherited) );
   gzread( backup_file, &_signal,   			sizeof(_signal) );
 
@@ -243,7 +246,7 @@ void Protein_R::compute_delta_concentration( ExpManager* exp_m )
              _delta_concentration,concentration_,_initial_concentration);*/
 
     _delta_concentration -= exp_m->exp_s()->get_degradation_rate() * concentration_;
-    _delta_concentration *= 1/((double)exp_m->exp_s()->get_nb_degradation_step());
+    _delta_concentration *= 1/((ProteinConcentration)exp_m->exp_s()->get_nb_degradation_step());
 
     //if (_id == 34483)  printf("Prot %ld AFTER degradation concentration %f %f\n",_id,concentration_,_delta_concentration);
   }
@@ -259,7 +262,9 @@ void Protein_R::save( gzFile backup_file )
   Protein::save( backup_file );
 
   // the Influence list is re-calculate afterward, and then is not saved.
-  gzwrite( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
+  double delta = (double) _delta_concentration;
+  gzwrite( backup_file, &delta,   	sizeof(delta) );
+
   gzwrite( backup_file, &_inherited,   			sizeof(_inherited) );
   gzwrite( backup_file, &_signal,   			sizeof(_signal) );
 

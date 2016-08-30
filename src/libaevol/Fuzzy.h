@@ -96,29 +96,29 @@ class Fuzzy : public AbstractFuzzy
   void load(gzFile backup);
   void reset();
   void simplify();
-  void add_triangle(double mean, double width, double height);
+  void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height);
   void add(const AbstractFuzzy& f);
   void sub(const AbstractFuzzy& f);
-  void add_point(double x, double y);
+  void add_point(ProteinConcentration x, ProteinConcentration y);
 
-  void clip(clipping_direction direction, double bound);
+  void clip(clipping_direction direction, ProteinConcentration bound);
   // TODO: should be made protected
-  std::list<Point>::iterator create_interpolated_point(double x);
+  std::list<Point>::iterator create_interpolated_point(ProteinConcentration x);
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
   const std::list<Point>& points() const {return points_;}
 
-  double get_geometric_area() const;
-  double get_geometric_area(std::list<Point>::const_iterator begin,
+  ProteinConcentration get_geometric_area() const;
+  ProteinConcentration get_geometric_area(std::list<Point>::const_iterator begin,
                             std::list<Point>::const_iterator end) const;
-  double get_geometric_area(double start_segment, double end_segment) const;
-  double y(double x, std::list<Point>::const_iterator begin) const;
-  double y(double x) const;
+  ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const;
+  ProteinConcentration y(ProteinConcentration x, std::list<Point>::const_iterator begin) const;
+  ProteinConcentration y(ProteinConcentration x) const;
   // get_x should be moved out of fuzzy class as it really applies to pair of points
-  double x(const Point& left, const Point& right, double y) const;
-  bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const;
+  ProteinConcentration x(const Point& left, const Point& right, ProteinConcentration y) const;
+  bool is_identical_to(const AbstractFuzzy& fs, ProteinConcentration tolerance) const;
   void print() const;
   void clear();
   // ==========================================================================
@@ -149,10 +149,10 @@ class Fuzzy : public AbstractFuzzy
   std::list<Point> points_;
 
   std::list<Point>::iterator create_interpolated_point(
-          double x,
+          ProteinConcentration x,
           std::list<Point>::iterator start);
 };
 
-double trapezoid_area(const Point& p1, const Point& p2);
+ProteinConcentration trapezoid_area(const Point& p1, const Point& p2);
 } // namespace aevol
 #endif // AEVOL_FUZZY_H_

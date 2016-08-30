@@ -64,7 +64,7 @@ class Protein_R : public Protein
     		int32_t shine_dal_pos,
     		Rna* rna,
         double w_max ); // TODO Rna_R?
-	Protein_R( const std::list<Codon*> codon_list, double concentration, double w_max);
+	Protein_R( const std::list<Codon*> codon_list, ProteinConcentration concentration, double w_max);
     Protein_R( Protein_R* signal );
     Protein_R( gzFile backup_file );
 
@@ -87,8 +87,8 @@ class Protein_R : public Protein
     //                            Public Methods
     // =================================================================
     //inline ae_protein_R* copy( void );
-    inline void    multiply_concentration( double factor );
-    inline void    set_concentration ( double concentration);
+    inline void    multiply_concentration( ProteinConcentration factor );
+    inline void    set_concentration ( ProteinConcentration concentration);
     inline void    update_concentration( void );
     inline void    reset_concentration( void );
     inline void    set_initial_concentration( void );
@@ -130,10 +130,10 @@ class Protein_R : public Protein
     //                          Protected Attributes
     // =================================================================
 
-    double    _delta_concentration;
+    ProteinConcentration    _delta_concentration;
     bool      _inherited;
     bool      _signal;
-    double    _initial_concentration; // concentration at cell birth
+    ProteinConcentration    _initial_concentration; // concentration at cell birth
     long      _id;
     int       _local_id;
     ExpManager* exp_m_;
@@ -192,12 +192,12 @@ inline bool Protein_R::is_signal( void )
 //                       Inline functions' definition
 // =====================================================================
 
-inline void Protein_R::multiply_concentration( double factor )
+inline void Protein_R::multiply_concentration( ProteinConcentration factor )
 {
   concentration_ *= factor;
 }
 
-inline void Protein_R::set_concentration( double concentration )
+inline void Protein_R::set_concentration( ProteinConcentration concentration )
 {
   concentration_ = concentration;
 }

@@ -163,7 +163,7 @@ class ExpSetup {
     void     write_binding_matrix_to_file(FILE* binding_matrix_file) const;
     void     print_binding_matrix( void );
 
-    double get_binding_matrix( int row, int column ) const;
+    ProteinConcentration get_binding_matrix( int row, int column ) const;
 #endif
 
   // =======================================================================
@@ -171,7 +171,7 @@ class ExpSetup {
   // =======================================================================
 
 #ifdef __REGUL
-double  _binding_matrix[MAX_QUADON][MAX_CODON];
+    ProteinConcentration  _binding_matrix[MAX_QUADON][MAX_CODON];
 #endif
 
  protected :
@@ -345,7 +345,7 @@ inline void ExpSetup::set_list_eval_step( std::set<int> list_eval_step )
 // =====================================================================
 
 #ifdef __REGUL
-inline double ExpSetup::get_binding_matrix( int row, int column ) const
+inline ProteinConcentration ExpSetup::get_binding_matrix( int row, int column ) const
 {
   return _binding_matrix[row][column];
 }

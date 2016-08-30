@@ -35,23 +35,23 @@ class AbstractFuzzy
   virtual void load(gzFile backup) = 0;
   virtual void reset() = 0;
   virtual void simplify() = 0;
-  virtual void add_triangle(double mean, double width, double height)  = 0;
+  virtual void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height)  = 0;
   virtual void add(const AbstractFuzzy& f)  = 0;
   virtual void sub(const AbstractFuzzy& f) = 0;
-  virtual void add_point(double x, double y) = 0;
+  virtual void add_point(ProteinConcentration x, ProteinConcentration y) = 0;
 
   /// `clipping_direction` is only used for `clip` function's keyword.
   enum clipping_direction: bool {min, max};
-  virtual void clip(clipping_direction direction, double bound) = 0;
+  virtual void clip(clipping_direction direction, ProteinConcentration bound) = 0;
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
 
-  virtual double get_geometric_area() const = 0;
-  virtual double get_geometric_area(double start_segment, double end_segment) const = 0;
+  virtual ProteinConcentration get_geometric_area() const = 0;
+  virtual ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const = 0;
 
-  virtual bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const = 0;
+  virtual bool is_identical_to(const AbstractFuzzy& fs, ProteinConcentration tolerance) const = 0;
 
   virtual void print() const = 0;
 

@@ -30,12 +30,14 @@
 #include <zlib.h>
 #include <utility>
 
+#include "Protein.h"
+
 namespace aevol {
 
 struct Point {
-  double x;
-  double y;
-  Point(double x_, double y_): x(x_), y(y_) {};
+  ProteinConcentration x;
+  ProteinConcentration y;
+  Point(ProteinConcentration x_, ProteinConcentration y_): x(x_), y(y_) {};
   Point() {};
   Point(Point* p): x(p->x), y(p->y) {};
 };

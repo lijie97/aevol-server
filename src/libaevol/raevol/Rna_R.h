@@ -73,8 +73,8 @@ class Rna_R : public Rna
     //                            Public Methods
     // =================================================================
     void    set_influences( std::list<Protein*>& protein_list );
-    double  get_synthesis_rate( void );
-    double  get_affinity_with_protein( int32_t index, Protein *protein );
+    ProteinConcentration  get_synthesis_rate( void );
+    ProteinConcentration  get_affinity_with_protein( int32_t index, Protein *protein );
     int32_t get_enhancer_position( void );
     int32_t get_operator_position( void );
 
@@ -85,8 +85,8 @@ class Rna_R : public Rna
     //                           Public Attributes
     // =================================================================
     std::vector<Protein_R*> _protein_list;
-    std::vector<double> _enhancing_coef_list;
-    std::vector<double> _operating_coef_list;
+    std::vector<ProteinConcentration> _enhancing_coef_list;
+    std::vector<ProteinConcentration> _operating_coef_list;
 /*
  *     std::unordered_map<int,Protein_R*> _protein_list;
     std::unordered_map<int,double> _enhancing_coef_list;
@@ -111,7 +111,7 @@ class Rna_R : public Rna
     //                           Protected Methods
     // =================================================================
     //inline  ae_rna_R* copy( void );
-    double    affinity_with_protein( int32_t index, Protein *protein );
+    ProteinConcentration    affinity_with_protein( int32_t index, Protein *protein );
 
     // =================================================================
     //                          Protected Attributes

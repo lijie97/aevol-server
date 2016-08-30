@@ -37,26 +37,26 @@ class HybridFuzzy : public AbstractFuzzy
   void load(gzFile backup);
   void reset();
   void simplify();
-  void add_triangle(double mean, double width, double height);
+  void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height);
   void add(const AbstractFuzzy& f);
   void sub(const AbstractFuzzy& f);
-  void add_point(double x, double y);
+  void add_point(ProteinConcentration x, ProteinConcentration y);
 
-  void clip(clipping_direction direction, double bound);
+  void clip(clipping_direction direction, ProteinConcentration bound);
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  double* points() const { return _points; };
+  ProteinConcentration* points() const { return _points; };
 
-  double get_geometric_area() const;
+  ProteinConcentration get_geometric_area() const;
 
-  double get_geometric_area(double start_segment, double end_segment) const;
+  ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const;
 
-  double get_y(double x) const;
+  ProteinConcentration get_y(ProteinConcentration x) const;
   // get_x should be moved out of fuzzy class as it really applies to pair of points
 
-  bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const;
+  bool is_identical_to(const AbstractFuzzy& fs, ProteinConcentration tolerance) const;
 
   int get_pheno_size() const { return _pheno_size; };
 
@@ -80,11 +80,11 @@ class HybridFuzzy : public AbstractFuzzy
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  double* _points = NULL;
+  ProteinConcentration* _points = NULL;
   int _pheno_size = PHENO_SIZE;
 };
 
-double trapezoid_area(const Point& p1, const Point& p2);
+ProteinConcentration trapezoid_area(const Point& p1, const Point& p2);
 } // namespace aevol
 
 

@@ -360,7 +360,7 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
     for (int8_t j = 0 ; j < nb_gaussians ; j++) {
       env_gaussians_list_.back().push_back(Gaussian(backup_file));
       //printf("Nb gaussians in current_gaussians : %d\n", env_gaussians_list_.back().size());
-      /*printf("Gaussian %d. Height = %f, Mean = %f, width = %f\n",j, 
+      /*printf("Gaussian %d. Height = %f, Mean = %f, width = %f\n",j,
        env_gaussians_list_.back().back().get_height(),
        env_gaussians_list_.back().back().get_mean(),
        env_gaussians_list_.back().back().get_width()

@@ -355,7 +355,7 @@ Protein::Protein(Protein* parent)
 
 //Constructor for the signal proteins
 //modif raevol_yo_3 : now we really copy the codon list
-Protein::Protein(const std::list<Codon*> codon_list, double concentration, double w_max)
+Protein::Protein(const std::list<Codon*> codon_list, ProteinConcentration concentration, double w_max)
 // WARNING this constructor should not being used for other purpose
 // In particular codon list should be destroyer by the caller of this constructor
 // since we will copy the list to be sure to own it
@@ -589,11 +589,21 @@ Protein::Protein(gzFile backup_file)
   gzread(backup_file, &first_translated_pos_, 	sizeof(first_translated_pos_));
   gzread(backup_file, &last_translated_pos_,  	sizeof(last_translated_pos_));
   gzread(backup_file, &length_,     			      sizeof(length_));
-  gzread(backup_file, &concentration_,     		sizeof(concentration_));
+
+  double tmp;
+  gzread(backup_file, &tmp,     		sizeof(tmp));
+  concentration_ = (ProteinConcentration) tmp;
+
   gzread(backup_file, &is_functional_,         sizeof(is_functional_));
-  gzread(backup_file, &mean_,  			          sizeof(mean_));
-  gzread(backup_file, &width_,    			        sizeof(width_));
-  gzread(backup_file, &height_,                sizeof(height_));
+
+  gzread(backup_file, &tmp,  			          sizeof(tmp));
+  mean_ = (ProteinConcentration) tmp;
+
+  gzread(backup_file, &tmp,    			        sizeof(tmp));
+  width_ = (ProteinConcentration) tmp;
+
+  gzread(backup_file, &tmp,                sizeof(tmp));
+  height_ = (ProteinConcentration) tmp;
 
   // Retreive the AA
   int16_t nb_AA = 0;
@@ -720,11 +730,19 @@ void Protein::save(gzFile backup_file)
   gzwrite(backup_file, &first_translated_pos_, sizeof(first_translated_pos_));
   gzwrite(backup_file, &last_translated_pos_,  sizeof(last_translated_pos_));
   gzwrite(backup_file, &length_,     			    sizeof(length_));
-  gzwrite(backup_file, &concentration_,     		sizeof(concentration_));
+  double tmp = concentration_;
+
+  gzwrite(backup_file, &tmp,     		sizeof(tmp));
   gzwrite(backup_file, &is_functional_,        sizeof(is_functional_));
-  gzwrite(backup_file, &mean_,  			          sizeof(mean_));
-  gzwrite(backup_file, &width_,    			      sizeof(width_));
-  gzwrite(backup_file, &height_,		     	      sizeof(height_));
+
+  tmp = mean_;
+  gzwrite(backup_file, &tmp,     		sizeof(tmp));
+
+  tmp = width_;
+  gzwrite(backup_file, &tmp,     		sizeof(tmp));
+
+  tmp = height_;
+  gzwrite(backup_file, &tmp,     		sizeof(tmp));
 
   // Write the Acide Amino in the backup file
   int16_t nb_AA = AA_list_.size();
