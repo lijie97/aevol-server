@@ -38,7 +38,9 @@
 
 #include <list>
 #include <vector>
+#ifndef __OPENMP_GPU
 #include <algorithm>
+#endif
 
 #include "ExpManager.h"
 #include "ExpSetup.h"

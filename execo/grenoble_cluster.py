@@ -33,8 +33,8 @@ class raevol_matrix(Engine):
         """ """
         self.define_parameters()
 	
-	self.working_dir = '/services/beagle/rouzaudc/large_campaign_v1'
-	self.aevol_binary_directory = '/home/beagle/rouzaudc/heritage_task/'
+	self.working_dir = '/services/beagle/rouzaudc/large_campaign_v2'
+	self.aevol_binary_directory = '/home/beagle/rouzaudc/optimized/'
 	self.template_param_file = self.working_dir+'/param_tmpl.in'
 	self.binding_matrix_file = self.working_dir+'/binding_matrix.rae'
 	self.nb_last_generation = 300000
@@ -85,7 +85,7 @@ class raevol_matrix(Engine):
                         gen_file = open(bucketname+'/last_gener.txt', 'r')
                         last_gen = gen_file.read().strip('\n')
                         gen_file.close()
-                        logger.info("Combination "+slugify(kcomb)+" is at generation "+last_gen"/"+str(self.nb_last_generation))
+                        logger.info("Combination "+slugify(kcomb)+" is at generation "+last_gen+"/"+str(self.nb_last_generation))
                     
                     logger.info("[-------------------------------------------------------------------------------------]")
                     
@@ -99,7 +99,7 @@ class raevol_matrix(Engine):
         """ """
         parameters = {
 	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842, 2784564, 68984554],
-	  'mutation' : ['3.33e-7'],
+	  'mutation' : ['5e-7'],
 	  'env' : ['lat_all'],
 	  'selection' : [2000]
 	  #'mutation' : ['3.33e-5','1e-5','3.33e-6','1e-6','3.33e-7'],
