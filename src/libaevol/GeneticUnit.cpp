@@ -34,7 +34,8 @@
 
 #include <cassert>
 #include <list>
-#ifdef __OPENMP_GPU
+
+#ifndef __OPENMP_GPU
 #include <algorithm>
 #endif
 
