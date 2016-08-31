@@ -34,7 +34,9 @@
 
 #include <cassert>
 #include <list>
+#ifdef __OPENMP_GPU
 #include <algorithm>
+#endif
 
 #ifdef __BLAS__
 #include <cblas.h>

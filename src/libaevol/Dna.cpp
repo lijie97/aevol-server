@@ -38,6 +38,7 @@
 
 #include <list>
 #include <vector>
+
 #ifndef __OPENMP_GPU
 #include <algorithm>
 #endif
