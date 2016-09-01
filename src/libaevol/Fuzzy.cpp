@@ -36,7 +36,11 @@
 
 #include <iterator>
 #include <iostream>
+#ifndef __OPENMP_GPU
 #include <algorithm>
+#else
+#include "algorithm_cuda.h"
+#endif
 
 #include "Point.h"
 #include "macros.h"
@@ -44,7 +48,9 @@
 using std::list;
 using std::prev;
 using std::next;
+#ifndef __OPENMP_GPU
 using std::find_if;
+#endif
 using std::fabs;
 using std::cout;
 using std::endl;
@@ -64,8 +70,12 @@ ProteinConcentration Fuzzy::y(ProteinConcentration x, list<Point>::const_iterato
 
   // Get the first point having abscissa ≥ x
   list<Point>::const_iterator p2 =
+#ifndef __OPENMP_GPU
     find_if(begin, points_.end(),
             [x](const Point& m){return m.x >= x;});
+#else
+    algorithm_cuda::find_if_point_1(begin,points_.end(),x)
+#endif
   assert(p2 != points_.end());
 
   if (p2->x == x) // If p2 has abscissa x, he's the guy
@@ -136,11 +146,29 @@ void Fuzzy::simplify() {
   for (list<Point>::iterator p = points_.begin();
        p != points_.end() and p != prev(points_.end()) and p != prev(points_.end(), 2);
        ++p)
-    if (p->x == next(p)->x and p->x == next(p,2)->x)
-      points_.erase(next(p), prev(find_if(p, points_.end(), [p](const Point& q){return q.x != p->x;})));
-    else if (p->y == next(p)->y and p->y == next(p,2)->y)
-      points_.erase(next(p), prev(find_if(p, points_.end(), [p](const Point& q){return q.y != p->y;})));
-
+    if (p->x == next(p)->x and p->x == next(p,2)->x) {
+      auto tmp = prev(
+#ifndef __OPENMP_GPU
+          find_if(p, points_.end(), [p](const Point& q){return q.x != p->x;})
+#else
+          algorithm_cuda::find_if_point_2(p,points_.end(),p)
+#endif
+      );
+      points_.erase(next(p),tmp);
+    }
+    else if (p->y == next(p)->y and p->y == next(p,2)->y) {
+      auto tmp = prev(
+#ifndef __OPENMP_GPU
+          find_if(p, points_.end(),
+                       [p](const Point& q) {
+                           return q.y != p->y;
+                       })
+#else
+          algorithm_cuda::find_if_point_3(p,points_.end(),p)
+#endif
+      );
+      points_.erase(next(p), tmp);
+    }
   // postcondition:
   // there are no 3 points_ that all share the same abscissas or that all share the same ordinates
   // all the points_ come from previous `points_` list
@@ -262,12 +290,23 @@ ProteinConcentration Fuzzy::get_geometric_area(ProteinConcentration x_start, Pro
   assert(X_MIN <= x_start and x_start < x_stop and x_stop <= X_MAX);
 
   // first point with abscissa ≥ x_start
-  list<Point>::const_iterator begin = find_if(points_.begin(), points_.end(),
+  list<Point>::const_iterator begin =
+#ifndef __OPENMP_GPU
+                                    find_if(points_.begin(), points_.end(),
                                               [x_start](const Point& p){return p.x >= x_start;});
+#else
+                                    algorithm_cuda::find_if_point_1(points_.begin(), points_.end(),
+                                              x_start);
+#endif
   // point following the last one with abscissa ≤ x_stop
-  list<Point>::const_iterator end = find_if(begin, points_.end(),
+  list<Point>::const_iterator end =
+#ifndef __OPENMP_GPU
+                                    find_if(begin, points_.end(),
                                             [x_stop](const Point& p){return p.x > x_stop;});
-
+#else
+                                    algorithm_cuda::find_if_point_4(begin, points_.end(),
+                                            x_stop);
+#endif
   // area before begin
   ProteinConcentration first_part = trapezoid_area(Point(x_start, y(x_start)), *begin);
   // area after prev(end)
@@ -388,7 +427,13 @@ list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x, s
     start = points_.begin();
 
   // get first point with abscissa stricly greater than x
-  list<Point>::iterator p = find_if(start, points_.end(), [x](Point& q){return q.x > x;});
+  list<Point>::iterator p =
+#ifndef __OPENMP_GPU
+      find_if(start, points_.end(), [x](Point& q){return q.x > x;});
+#else
+      algorithm_cuda::find_if_point_5(start, points_.end(), x);
+#endif
+
   if (prev(p)->x == x) {
     // point already in points_
     // assert(invariant());
@@ -423,7 +468,12 @@ void Fuzzy::clear() {
 
 void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
 {
-  list<Point>::iterator p = find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
+  list<Point>::iterator p =
+#ifndef __OPENMP_GPU
+      find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
+#else
+      algorithm_cuda::find_if_point_5(points_.begin(), points_.end(), x);
+#endif
   if (prev(p)->x == x) {
     prev(p)->y += y;
   } else {

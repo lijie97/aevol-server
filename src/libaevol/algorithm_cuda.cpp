@@ -84,5 +84,66 @@ static std::list<Rna_R>::iterator find_if_rna_4(
   }
   return last;
 }
+
+static std::list<Point>::const_iterator find_if_point_1(
+    std::list<Point>::const_iterator first,
+    std::list<Point>::const_iterator last,
+    ProteinConcentration x) {
+
+  for (; first != last; ++first) {
+    if ((*first).x >= x)
+      return first;
+  }
+  return last;
+}
+
+
+static std::list<Point>::iterator find_if_point_2(
+    std::list<Point>::iterator first,
+    std::list<Point>::iterator last,
+    Point p) {
+
+  for (; first != last; ++first) {
+    if ((*first).x != p.x)
+      return first;
+  }
+  return last;
+}
+
+static std::list<Point>::iterator find_if_point_3(
+    std::list<Point>::iterator first,
+    std::list<Point>::iterator last,
+    Point p) {
+
+  for (; first != last; ++first) {
+    if ((*first).y != p.y)
+      return first;
+  }
+  return last;
+}
+
+static std::list<Point>::const_iterator find_if_point_4(
+    std::list<Point>::const_iterator first,
+    std::list<Point>::const_iterator last,
+    ProteinConcentration x) {
+
+  for (; first != last; ++first) {
+    if ((*first).x > x)
+      return first;
+  }
+  return last;
+}
+
+static std::list<Point>::iterator find_if_point_5(
+    std::list<Point>::iterator first,
+    std::list<Point>::iterator last,
+    ProteinConcentration x) {
+
+  for (; first != last; ++first) {
+    if ((*first).x > x)
+      return first;
+  }
+  return last;
+}
 }
 //#endif

@@ -10,9 +10,11 @@
 #include <list>
 #include  <functional>
 
+#include "Protein.h"
 #include "raevol/Protein_R.h"
 #include "raevol/Rna_R.h"
 #include "ae_enums.h"
+#include "Point.h"
 
 using std::vector;
 using std::list;
@@ -49,6 +51,31 @@ namespace aevol {
           std::list<Rna_R>::iterator first,
           std::list<Rna_R>::iterator last,
           int32_t pos);
+
+      static std::list<Point>::const_iterator find_if_point_1(
+          std::list<Point>::const_iterator first,
+          std::list<Point>::const_iterator last,
+          ProteinConcentration x);
+
+      static std::list<Point>::iterator find_if_point_2(
+          std::list<Point>::iterator first,
+          std::list<Point>::iterator last,
+          Point p);
+
+      static std::list<Point>::iterator find_if_point_3(
+          std::list<Point>::iterator first,
+          std::list<Point>::iterator last,
+          Point p);
+
+      static std::list<Point>::const_iterator find_if_point_4(
+          std::list<Point>::const_iterator first,
+          std::list<Point>::const_iterator last,
+          ProteinConcentration x);
+
+      static std::list<Point>::iterator find_if_point_5(
+          std::list<Point>::iterator first,
+          std::list<Point>::iterator last,
+          ProteinConcentration x);
   };
 }
 
