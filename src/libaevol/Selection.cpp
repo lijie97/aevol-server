@@ -270,7 +270,11 @@ void Selection::step_to_next_generation() {
 #ifndef __TBB
 
 #ifdef _OPENMP
+#ifndef __OPENMP_GPU
   #pragma omp parallel
+#else
+  #pragma omp target teams distribute parallel
+#endif
     {
 #endif
 
@@ -278,7 +282,7 @@ void Selection::step_to_next_generation() {
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic) private(x,y,what)
 #else
-#pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
+#pragma omp for schedule(static,1) private(x,y,what)
 #endif
 #endif
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
@@ -310,7 +314,7 @@ void Selection::step_to_next_generation() {
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic)
 #else
-#pragma omp target teams distribute parallel for schedule(static,1)
+#pragma omp for schedule(static,1)
 #endif
 #endif
   for (int i = 0; i < to_evaluate.size(); i++) {
