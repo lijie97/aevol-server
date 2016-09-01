@@ -101,10 +101,10 @@ static std::list<Point>::const_iterator find_if_point_1(
 static std::list<Point>::iterator find_if_point_2(
     std::list<Point>::iterator first,
     std::list<Point>::iterator last,
-    Point p) {
+    list<Point>::iterator p) {
 
   for (; first != last; ++first) {
-    if ((*first).x != p.x)
+    if ((*first).x != (*p).x)
       return first;
   }
   return last;
@@ -113,10 +113,10 @@ static std::list<Point>::iterator find_if_point_2(
 static std::list<Point>::iterator find_if_point_3(
     std::list<Point>::iterator first,
     std::list<Point>::iterator last,
-    Point p) {
+    list<Point>::iterator p) {
 
   for (; first != last; ++first) {
-    if ((*first).y != p.y)
+    if ((*first).y != (*p).y)
       return first;
   }
   return last;

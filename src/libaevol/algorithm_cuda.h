@@ -60,12 +60,12 @@ namespace aevol {
       static std::list<Point>::iterator find_if_point_2(
           std::list<Point>::iterator first,
           std::list<Point>::iterator last,
-          Point p);
+          list<Point>::iterator p);
 
       static std::list<Point>::iterator find_if_point_3(
           std::list<Point>::iterator first,
           std::list<Point>::iterator last,
-          Point p);
+          list<Point>::iterator p);
 
       static std::list<Point>::const_iterator find_if_point_4(
           std::list<Point>::const_iterator first,
