@@ -272,8 +272,6 @@ void Selection::step_to_next_generation() {
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
   #pragma omp parallel
-#else
-  #pragma omp target teams distribute parallel
 #endif
     {
 #endif
@@ -282,7 +280,7 @@ void Selection::step_to_next_generation() {
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic) private(x,y,what)
 #else
-#pragma omp for schedule(static,1) private(x,y,what)
+#pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
 #endif
 #endif
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
@@ -295,7 +293,9 @@ void Selection::step_to_next_generation() {
 #endif
 
 #ifdef _OPENMP
+#ifndef __OPENMP_GPU
 #pragma omp critical(updateindiv)
+#endif
 #endif
       {
         to_evaluate.push_back(pop_grid[x][y]->individual());
@@ -306,7 +306,9 @@ void Selection::step_to_next_generation() {
 
   }
 #ifdef _OPENMP
+  #ifndef __OPENMP_GPU
 #pragma omp barrier
+  #endif
 #endif
   t1 = high_resolution_clock::now();
 
@@ -314,7 +316,7 @@ void Selection::step_to_next_generation() {
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic)
 #else
-#pragma omp for schedule(static,1)
+#pragma omp target teams distribute parallel for schedule(static,1)
 #endif
 #endif
   for (int i = 0; i < to_evaluate.size(); i++) {
@@ -326,7 +328,9 @@ void Selection::step_to_next_generation() {
   }
 
 #ifdef _OPENMP
+#ifndef __OPENMP_GPU
   }
+#endif
 #endif
 
 
