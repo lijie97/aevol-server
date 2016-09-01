@@ -190,8 +190,10 @@ int main(int argc, char* argv[])
       case 'p' : {
         #ifdef _OPENMP
         run_in_parallel = true;
+        #ifndef __OPENMP_GPU
         if (atoi(optarg) > 0)
           omp_set_num_threads(atoi(optarg));
+        #endif
         #endif
         break;
       }
@@ -218,7 +220,9 @@ int main(int argc, char* argv[])
   // It the user didn't ask for a parallel run, set number of threads to 1
   #ifdef _OPENMP
   if (not run_in_parallel)
+  #ifndef __OPENMP_GPU
     omp_set_num_threads(1);
+  #endif
   #endif
 
   // =================================================================
