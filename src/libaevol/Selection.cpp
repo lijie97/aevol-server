@@ -225,7 +225,11 @@ void Selection::step_to_next_generation() {
   } else {
     // Do local competitions
 #ifdef _OPENMP
+#ifndef __OPENMP_GPU
 #pragma omp parallel for schedule(dynamic) private(x,y)
+#else
+#pragma omp target teams distribute parallel for schedule(static,1) private(x,y)
+#endif
 #endif
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
@@ -271,7 +275,11 @@ void Selection::step_to_next_generation() {
 #endif
 
 #ifdef _OPENMP
+#ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic) private(x,y,what)
+#else
+#pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
+#endif
 #endif
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
@@ -299,7 +307,11 @@ void Selection::step_to_next_generation() {
   t1 = high_resolution_clock::now();
 
 #ifdef _OPENMP
+#ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic)
+#else
+#pragma omp target teams distribute parallel for schedule(static,1)
+#endif
 #endif
   for (int i = 0; i < to_evaluate.size(); i++) {
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
