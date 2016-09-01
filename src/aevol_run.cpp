@@ -36,7 +36,9 @@
 #include <sys/stat.h>
 
 #ifdef _OPENMP
+#ifndef __OPENMP_GPU
 #include <omp.h>
+#endif
 #endif
 
 // =================================================================
