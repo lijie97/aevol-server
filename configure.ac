@@ -416,6 +416,23 @@ if test "x$grid5000" = "xyes" ; then
    AEVOLLDFLAGS+=" -fopenmp=libiomp5"
 fi
 
+#  ************************* --with-openmpgpu option *******************************
+#
+#  With this option, aevol can be compiled on aftermath_aevol environment
+#
+
+
+AC_MSG_CHECKING([OpenMP for GPU])
+AC_ARG_WITH(openmpgpu, [--with-openmpgpu compiling OpenMP code for GPU], openmpgpu=$withval, openmpgpu=no)
+AC_MSG_RESULT($openmpgpu)
+AM_CONDITIONAL(WITH_OPENMPGPU, test x"$openmpgpu" != xno)
+if test "x$openmpgpu" = "xyes" ; then
+   AC_DEFINE(__OPENMP_GPU)
+   AEVOLCXXFLAGS+="  -fopenmp=libomp -omptargets=nvptx64sm_35-nvidia-linux"
+   AEVOLLDFLAGS+="  -fopenmp=libomp -omptargets=nvptx64sm_35-nvidia-linux"
+fi
+
+
 
 #  ************************* --with-tracing option *******************************
 #
