@@ -426,7 +426,7 @@ void Selection::step_to_next_generation() {
     notifyObservers(END_GENERATION);
 
 #ifdef __DETECT_CLONE
-    int number_of_clones = 0;
+//    int number_of_clones = 0;
 #ifdef __OPENMP_TASK
   #pragma omp parallel
   #pragma omp single
