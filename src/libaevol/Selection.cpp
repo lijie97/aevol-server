@@ -272,8 +272,8 @@ void Selection::step_to_next_generation() {
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
   #pragma omp parallel
+  {
 #endif
-    {
 #endif
 
 #ifdef _OPENMP
