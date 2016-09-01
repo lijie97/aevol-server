@@ -39,7 +39,9 @@
 #include "GeneticUnit.h"
 #include "ExpManager.h"
 
+#ifndef __OPENMP_GPU
 #include <algorithm>
+#endif
 
 namespace aevol {
 
