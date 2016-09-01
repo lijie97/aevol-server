@@ -19,6 +19,7 @@ using std::list;
 
 namespace aevol {
   class algorithm_cuda {
+   public:
       static std::list<Protein_R>::iterator find_if_protein(
           std::list<Protein_R>::iterator first,
           std::list<Protein_R>::iterator last,
