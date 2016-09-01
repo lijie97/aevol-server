@@ -61,6 +61,17 @@ static std::list<Rna_R>::iterator find_if_rna_3(
   return last;
 }
 
+static std::list<Rna_R>::reverse_iterator find_if_rna_3(
+    std::list<Rna_R>::reverse_iterator first,
+    std::list<Rna_R>::reverse_iterator last,
+    int32_t pos) {
+
+  for (; first != last; ++first) {
+    if ((*first).promoter_pos() >= pos)
+      return first;
+  }
+  return last;
+}
 
 static std::list<Rna_R>::iterator find_if_rna_4(
     std::list<Rna_R>::iterator first,
