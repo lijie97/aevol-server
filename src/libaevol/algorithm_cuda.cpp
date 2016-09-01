@@ -1,0 +1,77 @@
+//
+// Created by arrouan on 01/09/16.
+//
+
+#include <list>
+#include "algorithm_cuda.h"
+
+#include "raevol/Protein_R.h"
+#include "raevol/Rna_R.h"
+
+namespace aevol {
+//#ifdef __OPENMP_GPU
+static std::list<Protein_R>::iterator algorithm_cuda::find_if_protein(
+    std::list<Protein_R>::iterator first, std::list<Protein_R>::iterator last,
+    int32_t shine_dal_pos) {
+  for (; first != last; ++first) {
+    if ((*first).shine_dal_pos() == shine_dal_pos) {
+      return first;
+    }
+  }
+  return last;
+}
+
+static std::list<Rna_R>::iterator algorithm_cuda::find_if_rna_1(
+    std::list<Rna_R>::iterator first, std::list<Rna_R>::iterator last,
+    int32_t from_pos, aevol::Strand strand) {
+  for (; first != last; ++first) {
+    if (strand == LEADING) {
+      if ((*first).promoter_pos() >= from_pos)
+        return first;
+    }
+    else {
+      if ((*first).promoter_pos() < from_pos)
+        return first;
+    }
+  }
+  return last;
+}
+
+static std::list<Rna_R>::iterator find_if_rna_2(
+    std::list<Rna_R>::iterator first,
+    std::list<Rna_R>::iterator last,
+    int32_t pos) {
+
+  for (; first != last; ++first) {
+      if ((*first).promoter_pos() < pos)
+        return first;
+  }
+  return last;
+}
+
+static std::list<Rna_R>::iterator find_if_rna_3(
+    std::list<Rna_R>::iterator first,
+    std::list<Rna_R>::iterator last,
+    int32_t pos) {
+
+  for (; first != last; ++first) {
+    if ((*first).promoter_pos() >= pos)
+      return first;
+  }
+  return last;
+}
+
+
+static std::list<Rna_R>::iterator find_if_rna_4(
+    std::list<Rna_R>::iterator first,
+    std::list<Rna_R>::iterator last,
+    int32_t pos) {
+
+  for (; first != last; ++first) {
+    if ((*first).promoter_pos() <= pos)
+      return first;
+  }
+  return last;
+}
+}
+//#endif

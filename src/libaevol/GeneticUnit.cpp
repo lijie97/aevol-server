@@ -37,6 +37,8 @@
 
 #ifndef __OPENMP_GPU
 #include <algorithm>
+#else
+#include "algorithm_cuda.h"
 #endif
 
 #ifdef __BLAS__
@@ -1022,12 +1024,18 @@ void GeneticUnit::do_translation() {
                                              (strand == LEADING ? i : -i),
                                              genome_length);
           auto& protein_strand = protein_list_[strand];
+#ifndef __OPENMP_GPU
           auto protein = find_if(protein_strand.begin(),
                                  protein_strand.end(),
                                  [shine_dal_pos](Protein& p) {
                                    return p.shine_dal_pos() ==
                                           shine_dal_pos;
                                  });
+#else
+          auto protein = algorithm_cuda::find_if_protein(protein_strand.begin(),
+                                 protein_strand.end(),
+                                 shine_dal_pos);
+#endif
 
           if (protein != protein_strand.end()) {
             protein->add_RNA(&rna);
@@ -2024,6 +2032,7 @@ void GeneticUnit::promoters(Strand strand_id,
   auto it_end = strand.end();
 
   if (before_after_btw != BEFORE) {
+#ifndef __OPENMP_GPU
     it_begin = find_if(strand.begin(),
                        strand.end(),
                        [pos1, strand_id](Rna& p) {
@@ -2034,9 +2043,15 @@ void GeneticUnit::promoters(Strand strand_id,
                            return p.promoter_pos() < pos1;
                          }
                        });
+#else
+    it_begin = algorithm_cuda::find_if_rna_1(strand.begin(),
+                       strand.end(),
+                       pos1, strand_id);
+#endif
   }
 
   if (before_after_btw != AFTER) {
+#ifndef __OPENMP_GPU
     it_end = find_if(it_begin,
                      strand.end(),
                      [pos2, strand_id](Rna& p) {
@@ -2047,6 +2062,11 @@ void GeneticUnit::promoters(Strand strand_id,
                          return p.promoter_pos() < pos2;
                        }
                      });
+#else
+    it_end = algorithm_cuda::find_if_rna_1(it_begin,
+                     strand.end(),
+                     pos2, strand_id);
+#endif
   }
 
   promoters.insert(promoters.end(), it_begin, it_end);
@@ -2121,21 +2141,30 @@ void GeneticUnit::extract_leading_promoters_starting_between(int32_t pos_1,
 
   // Find the first promoters in the interval
   auto& strand = rna_list_[LEADING];
+#ifndef __OPENMP_GPU
   auto first = find_if(strand.begin(),
                        strand.end(),
                        [pos_1](Rna& p) {
                          return p.promoter_pos() >= pos_1;
                        });
-
+#else
+  auto first = algorithm_cuda::find_if_rna_3(strand.begin(),
+                       strand.end(),pos_1);
+#endif
   if (first == strand.end() or first->promoter_pos() >= pos_2) {
     return;
   }
 
   // Find the last promoters in the interval
+#ifndef __OPENMP_GPU
   auto end = find_if(first,
                      strand.end(),
                      [pos_2](Rna& p) { return p.promoter_pos() >= pos_2; });
-
+#else
+  auto end = algorithm_cuda::find_if_rna_3(first,
+                     strand.end(),
+                     pos_2);
+#endif
   // Extract the promoters (remove them from the individual's list and put them in extracted_promoters)
   extracted_promoters.insert(extracted_promoters.end(), first, end);
   strand.erase(first, end);
@@ -2150,21 +2179,30 @@ void GeneticUnit::extract_lagging_promoters_starting_between(int32_t pos_1,
 
   // Find the first promoters in the interval (if any)
   auto& strand = rna_list_[LAGGING];
+#ifndef __OPENMP_GPU
   auto first = find_if(strand.begin(),
                        strand.end(),
                        [pos_2](Rna& r) {
                          return r.promoter_pos() < pos_2;
                        });
-
+#else
+  auto first = algorithm_cuda::find_if_rna_2(strand.begin(),
+                       strand.end(),pos_2);
+#endif
   if (first == strand.end() or first->promoter_pos() < pos_1) {
     return;
   }
 
   // Find the last promoters in the interval
+#ifndef __OPENMP_GPU
   auto end = find_if(first,
                      strand.end(),
                      [pos_1](Rna& r) { return r.promoter_pos() < pos_1; });
-
+#else
+  auto end = algorithm_cuda::find_if_rna_2(first,
+                     strand.end(),
+                     pos_1);
+#endif
   // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
   extracted_promoters.insert(extracted_promoters.end(), first, end);
   strand.erase(first, end);
@@ -2220,6 +2258,7 @@ void GeneticUnit::insert_promoters(Promoters2Strands& promoters_to_insert) {
     // Get to the right position in individual's list (first promoter after the inserted segment)
     int32_t from_pos = promoters_to_insert[strand].back().promoter_pos();
 
+#ifndef __OPENMP_GPU
     auto pos = find_if(rna_list_[strand].begin(),
                        rna_list_[strand].end(),
                        [from_pos, strand](Rna& r) {
@@ -2230,7 +2269,11 @@ void GeneticUnit::insert_promoters(Promoters2Strands& promoters_to_insert) {
                            return r.promoter_pos() < from_pos;
                          }
                        });
-
+#else
+    auto pos = algorithm_cuda::find_if_rna_1(rna_list_[strand].begin(),
+                       rna_list_[strand].end(),
+                       from_pos, strand);
+#endif
     // Insert the promoters in the individual's RNA list
     for (auto& to_insert: promoters_to_insert[strand])
       // TODO vld: could be compacted in a unique emplace(pos, to_insert) ?
@@ -2256,6 +2299,7 @@ void GeneticUnit::insert_promoters_at(Promoters2Strands& promoters_to_insert,
       continue;
     }
     // Get to the right position in individual's list (first promoter after the inserted segment)
+#ifndef __OPENMP_GPU
     auto first = find_if(rna_list_[strand].begin(),
                          rna_list_[strand].end(),
                          [pos, strand](Rna& r) {
@@ -2266,7 +2310,11 @@ void GeneticUnit::insert_promoters_at(Promoters2Strands& promoters_to_insert,
                              return r.promoter_pos() < pos;
                            }
                          });
-
+#else
+    auto first = algorithm_cuda::find_if_rna_1(rna_list_[strand].begin(),
+                         rna_list_[strand].end(),
+                         pos, strand);
+#endif
     // Insert the promoters in the individual's RNA list
     for (auto& to_insert: promoters_to_insert[strand]) {
       // Update promoter position
@@ -2300,11 +2348,18 @@ void GeneticUnit::remove_leading_promoters_starting_between(int32_t pos_1,
     auto& strand = rna_list_[LEADING];
     // Delete RNAs until we pass pos_2 (or we reach the end of the list)
     // STL Warning: don't erase the current iterator in the for-loop!
-    for (auto it = find_if(strand.begin(),
-                           strand.end(),
-                           [pos_1](Rna& r) {
-                             return r.promoter_pos() >= pos_1;
-                           }),
+#ifndef __OPENMP_GPU
+    auto init_loop = find_if(strand.begin(),
+                             strand.end(),
+                             [pos_1](Rna& r) {
+                                 return r.promoter_pos() >= pos_1;
+                             });
+#else
+    auto init_loop = algorithm_cuda::find_if_rna_3(strand.begin(),
+                             strand.end(),
+                             pos_1);
+#endif
+    for (auto it = init_loop,
              nextit = it;
          it != strand.end() and it->promoter_pos() < pos_2;
          it = nextit) {
@@ -2346,11 +2401,18 @@ void GeneticUnit::remove_lagging_promoters_starting_between(int32_t pos_1,
   else {
     auto& strand = rna_list_[LAGGING];
     // Delete RNAs until we pass pos_1 (or we reach the end of the list)
-    for (auto it = find_if(strand.begin(),
-                           strand.end(),
-                           [pos_2](Rna& r) {
-                             return r.promoter_pos() < pos_2;
-                           }),
+#ifndef __OPENMP_GPU
+    auto init_loop = find_if(strand.begin(),
+                             strand.end(),
+                             [pos_2](Rna& r) {
+                                 return r.promoter_pos() < pos_2;
+                             });
+#else
+    auto init_loop = algorithm_cuda::find_if_rna_2(strand.begin(),
+                             strand.end(),
+                             pos_2);
+#endif
+    for (auto it = init_loop,
              nextit = it;
          it != strand.end() and it->promoter_pos() >= pos_1;
          it = nextit) {
@@ -2400,9 +2462,15 @@ void GeneticUnit::remove_lagging_promoters_starting_before(int32_t pos) {
   auto& strand = rna_list_[LAGGING];
   // Delete RNAs until we reach pos (or we reach the end of the list)
   // TODO: optimize by starting from the end (with reverse iterators)
-  for (auto it = find_if(strand.begin(),
-                         strand.end(),
-                         [pos](Rna& r) { return r.promoter_pos() < pos; }),
+#ifndef __OPENMP_GPU
+  auto init_loop = find_if(strand.begin(),
+                           strand.end(),
+                           [pos](Rna& r) { return r.promoter_pos() < pos; });
+#else
+  auto init_loop = algorithm_cuda::find_if_rna_2(strand.begin(),
+                           strand.end(),pos);
+#endif
+  for (auto it = init_loop,
            nextit = it;
        it != strand.end();
        it = nextit) {
@@ -2419,8 +2487,14 @@ void GeneticUnit::remove_leading_promoters_starting_after(int32_t pos) {
 
   auto& strand = rna_list_[LEADING];
   // TODO: optimize by starting from the end (with reverse iterators)
-  for (auto it = find_if(strand.begin(), strand.end(),
-                         [pos](Rna& r) { return r.promoter_pos() >= pos; }),
+#ifndef __OPENMP_GPU
+  auto init_loop = find_if(strand.begin(), strand.end(),
+          [pos](Rna& r) { return r.promoter_pos() >= pos; });
+#else
+  auto init_loop = algorithm_cuda::find_if_rna_3(strand.begin(), strand.end(),
+          pos);
+#endif
+  for (auto it = init_loop,
            nextit = it;
        it != strand.end();
        it = nextit) {
@@ -2489,9 +2563,16 @@ void GeneticUnit::look_for_new_leading_promoters_starting_between(int32_t pos_1,
 
       // Look for the right place to insert the new promoter in the list
       auto& strand = rna_list_[LEADING];
+#ifndef __OPENMP_GPU
       auto first = find_if(strand.begin(),
                            strand.end(),
                            [i](Rna& r) { return r.promoter_pos() >= i; });
+#else
+      auto first = algorithm_cuda::find_if_rna_3(strand.begin(),
+                           strand.end(),
+                           i);
+#endif
+
       if (first == strand.end() or first->promoter_pos() != i) {
 #ifndef __REGUL
         rna_list_[LEADING].emplace(first, this, LEADING, i, dist);
@@ -2541,9 +2622,15 @@ void GeneticUnit::look_for_new_lagging_promoters_starting_between(int32_t pos_1,
 
       // Look for the right place to insert the new promoter in the list
       auto& strand = rna_list_[LAGGING];
+#ifndef __OPENMP_GPU
       auto first = find_if(strand.begin(),
                            strand.end(),
                            [i](Rna& r) { return r.promoter_pos() <= i; });
+#else
+      auto first = algorithm_cuda::find_if_rna_4(strand.begin(),
+                           strand.end(),
+                           i);
+#endif
       if (first == strand.end() or first->promoter_pos() != i) {
 #ifndef __REGUL
         rna_list_[LAGGING].emplace(first, this, LAGGING, i, dist);
@@ -2570,11 +2657,16 @@ void GeneticUnit::look_for_new_leading_promoters_starting_after(int32_t pos) {
                     dist)) { // dist takes the hamming distance of the sequence from the consensus
       // Look for the right place to insert the new promoter in the list
       auto& strand = rna_list_[LEADING];
+#ifndef __OPENMP_GPU
       auto first = find_if(strand.begin(),
                            strand.end(),
                            [i](Rna& r) {
                              return r.promoter_pos() >= i;
                            });
+#else
+      auto first = algorithm_cuda::find_if_rna_3(strand.begin(),
+                           strand.end(),i);
+#endif
       if (first == strand.end() or first->promoter_pos() != i) {
 #ifndef __REGUL
         rna_list_[LEADING].emplace(first, this, LEADING, i, dist);
@@ -2617,9 +2709,14 @@ void GeneticUnit::look_for_new_lagging_promoters_starting_after(int32_t pos) {
     {
       assert (i >= 0 && i < dna_->length());
       // Look for the right place to insert the new promoter in the list
+#ifndef __OPENMP_GPU
       first = find_if(first,
                       strand.end(),
                       [i](Rna& r) { return r.promoter_pos() <= i; });
+#else
+      first = algorithm_cuda::find_if_rna_4(first,
+                      strand.end(),i);
+#endif
       if (first == strand.end() or first->promoter_pos() != i) {
 #ifndef __REGUL
         rna_list_[LAGGING].emplace(first, this, LAGGING, i, dist);
@@ -2648,9 +2745,14 @@ void GeneticUnit::look_for_new_leading_promoters_starting_before(int32_t pos) {
                     dist)) // dist takes the hamming distance of the sequence from the consensus
     {
       // Look for the right place to insert the new promoter in the list
+#ifndef __OPENMP_GPU
       first = find_if(first,
                       strand.end(),
                       [i](Rna& r) { return r.promoter_pos() >= i; });
+#else
+      first = algorithm_cuda::find_if_rna_3(first,
+                      strand.end(),i);
+#endif
       if (first == strand.end() or first->promoter_pos() != i) {
 #ifndef __REGUL
         rna_list_[LEADING].emplace(first, this, LEADING, i, dist);
@@ -2694,11 +2796,16 @@ void GeneticUnit::look_for_new_lagging_promoters_starting_before(int32_t pos) {
     {
       assert (i >= 0 && i < dna_->length());
       // Look for the right place to insert the new promoter in the list
+#ifndef __OPENMP_GPU
       first = find_if(first,
                       strand.end(),
                       [i](Rna& r) {
                         return r.promoter_pos() <= i;
                       });
+#else
+      first = algorithm_cuda::find_if_rna_4(first,
+                      strand.end(),i);
+#endif
       if (first == strand.end() or first->promoter_pos() != i) {
 #ifndef __REGUL
         rna_list_[LAGGING].emplace(first, this, LAGGING, i, dist);
@@ -2716,9 +2823,14 @@ void GeneticUnit::look_for_new_lagging_promoters_starting_before(int32_t pos) {
 void GeneticUnit::move_all_leading_promoters_after(int32_t pos,
                                                    int32_t delta_pos) {
   auto& strand = rna_list_[LEADING];
-  for (auto rna = find_if(strand.begin(), strand.end(), [pos](Rna& r) {
-    return r.promoter_pos() >= pos;
+#ifndef __OPENMP_GPU
+  auto init_loop = find_if(strand.begin(), strand.end(), [pos](Rna& r) {
+      return r.promoter_pos() >= pos;
   });
+#else
+  auto init_loop = algorithm_cuda::find_if_rna_3(strand.begin(), strand.end(), pos);
+#endif
+  for (auto rna = init_loop;
        rna != strand.end();
        ++rna)
     rna->shift_position(delta_pos, dna_->length());
@@ -2758,10 +2870,15 @@ void GeneticUnit::move_all_lagging_promoters_after(int32_t pos,
                                                             Promoters1Strand& new_promoter_list ) {
     // 1) Go to first RNA to copy
     auto& strand = rna_list_[LEADING];
+#ifndef __OPENMP_GPU
     const auto& first = find_if(strand.begin(),
                                 strand.end(),
                                 [pos_1](Rna & r) { return r.promoter_pos() >= pos_1; });
-
+#else
+    const auto& first = algorithm_cuda::find_if_rna_3(strand.begin(),
+                                strand.end(),
+                                pos_1);
+#endif
     // 2) Copy RNAs
     if ( pos_1 < pos_2 ) {
       // Copy from pos_1 to pos_2
@@ -2822,12 +2939,17 @@ void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
                                                           Promoters1Strand& new_promoter_list) {
   // Go to first RNA to copy
   auto& strand = rna_list_[LAGGING];
+#ifndef __OPENMP_GPU
   const auto& first = find_if(strand.rbegin(),
                               strand.rend(),
                               [pos_1](Rna& r) {
                                 return r.promoter_pos() >= pos_1;
                               });
-
+#else
+  const auto& first = algorithm_cuda::find_if_rna_3(strand.rbegin(),
+                              strand.rend(),
+                              pos_1);
+#endif
   // Copy RNAs
   if (pos_1 < pos_2) {
     // Copy from pos_1 to pos_2
@@ -3644,4 +3766,5 @@ void GeneticUnit::clear_transcribed_proteins() {
     protein_list_[strand].clear();
   }
 }
+
 } // namespace aevol

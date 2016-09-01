@@ -173,6 +173,12 @@ Individual_X11.cpp \
 ExpManager_X11.cpp \
 X11Window.cpp
 
+openmp_gpu_sources = \
+algorithm_cuda.cpp
+
+openmp_gpu_headers = \
+algorithm_cuda.h
+
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
@@ -198,3 +204,8 @@ else
   libaevol_a_SOURCES += $(common_headers)
 endif
 endif # X
+
+if WITH_OPENMPGPU
+  libaevol_a_SOURCES += $(openmp_gpu_sources)
+  libaevol_a_SOURCES += $(openmp_gpu_headers)
+endif
