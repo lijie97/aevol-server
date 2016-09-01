@@ -27,7 +27,11 @@
 #include <cstdio>
 #include <cmath>
 #include <sys/stat.h>
+#ifndef __OPENMP_GPU
 #include <algorithm>
+#else
+
+#endif
 #include <cassert>
 #include <list>
 
