@@ -69,12 +69,12 @@ ProteinConcentration Fuzzy::y(ProteinConcentration x, list<Point>::const_iterato
   assert(points_.size() >= 2);
 
   // Get the first point having abscissa ≥ x
-  list<Point>::const_iterator p2 =
+
 #ifndef __OPENMP_GPU
-    find_if(begin, points_.end(),
+  list<Point>::const_iterator p2 = find_if(begin, points_.end(),
             [x](const Point& m){return m.x >= x;});
 #else
-    algorithm_cuda::find_if_point_1(begin,points_.end(),x)
+  list<Point>::const_iterator p2 = algorithm_cuda::find_if_point_1(begin,points_.end(),x)
 #endif
   assert(p2 != points_.end());
 
