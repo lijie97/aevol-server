@@ -91,8 +91,8 @@ static std::list<Point>::const_iterator algorithm_cuda::find_if_point_1(
     ProteinConcentration x) {
 
   for (; first != last; ++first) {
-    if ((*first).x >= x)
-      return first;
+    //if ((*first).x >= x)
+    //  return first;
   }
   return last;
 }
