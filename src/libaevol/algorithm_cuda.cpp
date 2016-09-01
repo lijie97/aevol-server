@@ -37,7 +37,7 @@ static std::list<Rna_R>::iterator algorithm_cuda::find_if_rna_1(
   return last;
 }
 
-static std::list<Rna_R>::iterator find_if_rna_2(
+static std::list<Rna_R>::iterator algorithm_cuda::find_if_rna_2(
     std::list<Rna_R>::iterator first,
     std::list<Rna_R>::iterator last,
     int32_t pos) {
@@ -49,7 +49,7 @@ static std::list<Rna_R>::iterator find_if_rna_2(
   return last;
 }
 
-static std::list<Rna_R>::iterator find_if_rna_3(
+static std::list<Rna_R>::iterator algorithm_cuda::find_if_rna_3(
     std::list<Rna_R>::iterator first,
     std::list<Rna_R>::iterator last,
     int32_t pos) {
@@ -61,7 +61,7 @@ static std::list<Rna_R>::iterator find_if_rna_3(
   return last;
 }
 
-static std::list<Rna_R>::reverse_iterator find_if_rna_3(
+static std::list<Rna_R>::reverse_iterator algorithm_cuda::find_if_rna_3(
     std::list<Rna_R>::reverse_iterator first,
     std::list<Rna_R>::reverse_iterator last,
     int32_t pos) {
@@ -73,7 +73,7 @@ static std::list<Rna_R>::reverse_iterator find_if_rna_3(
   return last;
 }
 
-static std::list<Rna_R>::iterator find_if_rna_4(
+static std::list<Rna_R>::iterator algorithm_cuda::find_if_rna_4(
     std::list<Rna_R>::iterator first,
     std::list<Rna_R>::iterator last,
     int32_t pos) {
@@ -85,7 +85,7 @@ static std::list<Rna_R>::iterator find_if_rna_4(
   return last;
 }
 
-static std::list<Point>::const_iterator find_if_point_1(
+static std::list<Point>::const_iterator algorithm_cuda::find_if_point_1(
     std::list<Point>::const_iterator first,
     std::list<Point>::const_iterator last,
     ProteinConcentration x) {
@@ -98,7 +98,7 @@ static std::list<Point>::const_iterator find_if_point_1(
 }
 
 
-static std::list<Point>::iterator find_if_point_2(
+static std::list<Point>::iterator algorithm_cuda::find_if_point_2(
     std::list<Point>::iterator first,
     std::list<Point>::iterator last,
     list<Point>::iterator p) {
@@ -110,7 +110,7 @@ static std::list<Point>::iterator find_if_point_2(
   return last;
 }
 
-static std::list<Point>::iterator find_if_point_3(
+static std::list<Point>::iterator algorithm_cuda::find_if_point_3(
     std::list<Point>::iterator first,
     std::list<Point>::iterator last,
     list<Point>::iterator p) {
@@ -122,7 +122,7 @@ static std::list<Point>::iterator find_if_point_3(
   return last;
 }
 
-static std::list<Point>::const_iterator find_if_point_4(
+static std::list<Point>::const_iterator algorithm_cuda::find_if_point_4(
     std::list<Point>::const_iterator first,
     std::list<Point>::const_iterator last,
     ProteinConcentration x) {
@@ -134,7 +134,7 @@ static std::list<Point>::const_iterator find_if_point_4(
   return last;
 }
 
-static std::list<Point>::iterator find_if_point_5(
+static std::list<Point>::iterator algorithm_cuda::find_if_point_5(
     std::list<Point>::iterator first,
     std::list<Point>::iterator last,
     ProteinConcentration x) {
