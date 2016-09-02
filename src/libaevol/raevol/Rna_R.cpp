@@ -38,7 +38,6 @@
 //                            Project Files
 // =================================================================
 #include "Rna_R.h"
-#include "Individual_R.h"
 #include "ExpManager.h"
 
 namespace aevol {
@@ -109,7 +108,6 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list )
 	_operating_coef_list.resize(0);
 
 
-
   int i = 0;
   ProteinConcentration enhance=0,operate=0;
 
@@ -153,7 +151,7 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
   ProteinConcentration enhancer_activity  = 0;
   ProteinConcentration operator_activity  = 0;
 
-#ifndef __BLAS__
+//#ifndef __BLAS__
   for (int i = 0; i < _nb_influences; i++) {
     /*if (gen_unit_->indiv()->id() == 12608)
       printf("12608 RNA %d  due to Protein %d is %f %f %f\n",
@@ -163,7 +161,7 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
   	enhancer_activity  += _enhancing_coef_list[i] * _protein_list[i]->concentration_;
     operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
   }
-#else
+/*#else
   ProteinConcentration enhancer_tab[_nb_influences];
   ProteinConcentration operator_tab[_nb_influences];
 
@@ -189,7 +187,7 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
   ProteinConcentration operator_activity_blas = cblas_dasum(_nb_influences,operator_tab,1);
 #endif
 #endif
-
+*/
   ProteinConcentration enhancer_activity_pow_n  = pow( enhancer_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
   ProteinConcentration operator_activity_pow_n  = pow( operator_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
 
@@ -262,12 +260,10 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
 
 
     int32_t quadon_tab[5];
-    Individual_R* indiv = NULL;
     Protein_R* prot = NULL;
-    indiv = dynamic_cast< Individual_R* >( gen_unit_->indiv());
     prot = (Protein_R*) (protein);
     for (int32_t i = 0; i < 5; i++) {
-      quadon_tab[i] = indiv->get_quadon(gen_unit_, strand_, (index + i));
+      quadon_tab[i] = gen_unit_->indiv_r_->get_quadon(gen_unit_, strand_, (index + i));
     }
 
 

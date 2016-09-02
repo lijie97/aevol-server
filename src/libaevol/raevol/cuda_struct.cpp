@@ -5,7 +5,7 @@
 #include "cuda_struct.h"
 
 namespace aevol {
-
+/*
 void cuda_struct::init_struct(int max_protein, int max_rna, int max_influence,
                               int nb_signals, int life_time, int nb_eval,
                               double selection_pressure) {
@@ -221,10 +221,9 @@ void cuda_struct::transfert_to_gpu(ExpManager* exp_m) {
 
     }
 
-  /** TRANSFER Vector **/
 
 }
-
+*/
 void cuda_struct::compute_a_generation(ExpManager* exp_m) {
 
   int degradation_step = exp_m->exp_s()->get_nb_degradation_step();
@@ -664,7 +663,7 @@ void cuda_struct::compute_a_generation_v2(ExpManager* exp_m) {
 
 }
 
-
+/*
 void cuda_struct::print_dist(ExpManager* exp_m) {
   std::set<int>* eval = exp_m->exp_s()->get_list_eval_step();
   const Habitat_R& habitat = dynamic_cast<const Habitat_R&>(exp_m->world()->grid(0,0)->habitat());
@@ -740,21 +739,8 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
     protein_triangle_height[indiv_id * max_protein_ +
                             prot->get_local_id()] = prot->height();
 
-    /*printf("Protein[%d] = %f (%f) -- %d %d %d %f (%d %d %d %f)\n",prot->get_local_id(),
-           prot->concentration(),protein_concentration[indiv_id * max_protein_ +
-                                                       prot->get_local_id()],
-           ix0,ix1,ix2,prot->height(),
-           protein_triangle_ix0[indiv_id * max_protein_ + prot->get_local_id()],
-           protein_triangle_ix1[indiv_id * max_protein_ + prot->get_local_id()],
-           protein_triangle_ix2[indiv_id * max_protein_ + prot->get_local_id()],
-           protein_triangle_height[indiv_id * max_protein_ + prot->get_local_id()]);
-    */
 
     for (auto rna : prot->_rna_R_list) {
-      /*printf("Protein %d is produced by %d (%d)\n",prot->get_local_id(),rna->get_local_id(),
-             indiv_id * max_protein_ * max_rna_ +
-             prot->get_local_id() * max_protein_
-             + rna->get_local_id());*/
       protein_influenced[indiv_id * max_protein_ * max_rna_ +
                          prot->get_local_id() * max_protein_
                          + rna->get_local_id()] = 1;
@@ -781,13 +767,6 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
     basal_level[indiv_id * max_rna_ +
                 rna->get_local_id()] = rna->basal_level();
 
-    /*printf("RNA[%d] = %f %f (%f %f)\n", rna->get_local_id(),
-           rna->get_synthesis_rate(),
-           rna->basal_level(),
-           rna_synthesis[indiv_id * max_rna_ +
-                                            rna->get_local_id()],
-           basal_level[indiv_id * max_rna_ +
-                        rna->get_local_id()]);*/
 
     for (int k = 0; k < rna->_nb_influences; k++) {
       enhance_coef[indiv_id * max_rna_ * max_influence_ +
@@ -876,58 +855,31 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
       for (int l = 0; l < max_protein_; l++) {
         float _delta_concentration = 0;
         for (int m = 0; m < max_rna_; m++) {
-          /*printf("Checking protANR %d (%d %d)\n",indiv_id * max_protein_ * max_rna_ +
-                                    l * max_protein_
-                                    + m,l,m);*/
           if (protein_influenced[indiv_id * max_protein_ * max_rna_ +
                                  l * max_protein_
                                  + m] == 1) {
-            /* printf("%d -- Protein %d is PRODUCED BY %d\n",i,l,m);*/
              _delta_concentration += rna_synthesis[indiv_id * max_rna_ +
                                                    m];
           }
         }
 
-        /*printf("%d - A - Protein %d is Concentration %f (delta: %f)\n",i,l,
-               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
-
         _delta_concentration -= degradation_rate *
                                 protein_concentration[indiv_id * max_protein_ +
                                                       l];
-
-        /*printf("%d - B - Protein %d is Concentration %f (delta: %f)\n",i,l,
-               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
-
-        _delta_concentration *= 1 / ((float) degradation_step);
-
-        /*printf("%d - C - Protein %d is Concentration %f (delta: %f)\n",i,l,
-               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration);*/
+      _delta_concentration *= 1 / ((float) degradation_step);
 
         protein_concentration[indiv_id * max_protein_ +
                               l] += _delta_concentration;
-
-        /*printf("%d - D - Protein %d is Concentration %f (delta: %f) %d\n",i,l,
-               protein_concentration[indiv_id * max_protein_ + l],_delta_concentration,indiv_id * max_protein_ + l);*/
       }
 
       indiv->update_concentrations();
     }
 
     for (auto rna : indiv->_rna_list_coding) {
-      /*printf("%d -- RNA[%d] = %f %f (%f %f)\n",i, rna->get_local_id(),
-             rna->get_synthesis_rate(),
-             rna->basal_level(),
-             rna_synthesis[indiv_id * max_rna_ +
-                           rna->get_local_id()],
-             basal_level[indiv_id * max_rna_ +
-                         rna->get_local_id()]);*/
-
 
     }
 
     for (auto prot : indiv->protein_list_)
-      /*printf("%d -- Protein[%d] = %f (%f) %f\n",i,((Protein_R*)prot)->get_local_id(),
-             prot->concentration(),prot->height(), prot->concentration()*prot->height());*/
 
       indiv->update_phenotype();
 // If we have to evaluate the individual at this age
@@ -948,16 +900,6 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
               (protein_triangle_ix1[indiv_id * max_protein_ + l] -
                protein_triangle_ix0[indiv_id * max_protein_ + l]);
 
-          /*printf("Protein %d %f %f (%d %d %d %f %f) %d\n",l,
-                 height,
-                 incY,
-                 protein_triangle_ix0[indiv_id * max_protein_ + l],
-                 protein_triangle_ix1[indiv_id * max_protein_ + l],
-                 protein_triangle_ix2[indiv_id * max_protein_ + l],
-                 protein_concentration[indiv_id * max_protein_ + l],
-                 protein_triangle_height[indiv_id * max_protein_ + l],
-                 indiv_id * max_protein_ + l
-                  );*/
 
           if (protein_triangle_height[indiv_id * max_protein_ + l] > 0) {
             for (int j = 0; j < 300; j++) {
@@ -1034,24 +976,8 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
           //phen->sub(*(((HybridFuzzy*) habitat.phenotypic_target(i).fuzzy())));
           //HybridFuzzy* del = (HybridFuzzy*)delta;
 
-          /*printf("PH[%d] = PA %f (PI %f P %f) D %f (E %f) PA %f P %f E %f D %f\n",j,phenotype_activ[indiv_id * 300 +j],
-                 phenotype_inhib[indiv_id * 300 +j],
-                 phenotype[indiv_id * 300 +j],
-                 delta[indiv_id * 300 + j],
-                 environment[(i-1) * 300 + j],
-                 ((HybridFuzzy*)indiv->phenotype_activ_)->points()[j],
-                 ((HybridFuzzy*)indiv->phenotype_)->points()[j],
-                 ((HybridFuzzy*)habitat.phenotypic_target(i).fuzzy())->points()[j],
-                 phen->points()[j]);*/
-          /*printf("ENV[%d] = %f -- %f\n",j,environment[(i - 1) * 300 +
-                                                      j],((HybridFuzzy*) habitat.phenotypic_target(
-              i).fuzzy())->points()[j]);*/
         }
 
-
-        /*for (int j = 0; j < 300; j++) {
-          printf("PH[%d] = %f %f\n",j,phenotype_activ[indiv_id * 300 +j],((HybridFuzzy*)indiv->phenotype_activ_)->points()[j]);
-        }*/
 
         float area = 0;
 
@@ -1094,7 +1020,7 @@ void cuda_struct::print_dist(ExpManager* exp_m) {
   indiv->protein_list_ = indiv->_initial_protein_list;
 
 }
-
+*/
 
 void cuda_struct::compute_a_generation_v3(ExpManager* exp_m) {
 

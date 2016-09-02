@@ -359,7 +359,9 @@ class GeneticUnit {
   //                           Public Attributes
   // =================================================================
 
-
+#ifdef __REGUL
+    Individual_R* indiv_r_;
+#endif
 
 
 

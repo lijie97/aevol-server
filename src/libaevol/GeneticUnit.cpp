@@ -552,6 +552,9 @@ GeneticUnit::GeneticUnit(Individual* indiv,
                          int32_t length,
                          std::shared_ptr<JumpingMT> prng) {
   indiv_ = indiv;
+#ifdef __REGUL
+  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
+#endif
   exp_m_ = indiv->exp_m();
 
   transcribed_ = false;
@@ -606,7 +609,9 @@ GeneticUnit::GeneticUnit(Individual* indiv,
                          const Promoters2Strands& prom_list /* = {{},{}} */) {
   exp_m_ = indiv->exp_m();
   indiv_ = indiv;
-
+#ifdef __REGUL
+  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
+#endif
   transcribed_ = false;
   translated_ = false;
   phenotypic_contributions_computed_ = false;
@@ -664,7 +669,9 @@ GeneticUnit::GeneticUnit(Individual* indiv,
 GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model) {
   exp_m_ = indiv->exp_m();
   indiv_ = indiv;
-
+#ifdef __REGUL
+  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
+#endif
   transcribed_ = false;
   translated_ = false;
   phenotypic_contributions_computed_ = false;
@@ -710,7 +717,9 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model) {
 GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent) {
   exp_m_ = indiv->exp_m();
   indiv_ = indiv;
-
+#ifdef __REGUL
+  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
+#endif
   transcribed_ = false;
   translated_ = false;
   phenotypic_contributions_computed_ = false;
@@ -760,6 +769,9 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent) {
 GeneticUnit::GeneticUnit(Individual* indiv, gzFile backup_file) {
   exp_m_ = indiv->exp_m();
   indiv_ = indiv;
+#ifdef __REGUL
+  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
+#endif
 
   transcribed_ = false;
   translated_ = false;
@@ -806,6 +818,9 @@ GeneticUnit::GeneticUnit(Individual* indiv, gzFile backup_file) {
 GeneticUnit::GeneticUnit(Individual* indiv, char* organism_file_name) {
   exp_m_ = indiv->exp_m();
   indiv_ = indiv;
+#ifdef __REGUL
+  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
+#endif
 
   transcribed_ = false;
   translated_ = false;
@@ -1364,8 +1379,10 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
     //~ printf("LAGGING\n");
     //#pragma vector always
     //#pragma distribute_point
-    for (int32_t i  = 0; i < PROM_SIZE; i++)
-      pos_a[i] = (pos - i) >= 0 ? (pos - i) % len : ( len - abs ( (pos - i)%len ) ) % len;
+    for (int32_t i  = 0; i < PROM_SIZE; i++) {
+      int32_t abs_i = abs((pos - i) % len);
+      pos_a[i] = (pos - i) >= 0 ? (pos - i) % len : (len - abs_i) % len;
+    }
 
     #pragma vector always
     for (int16_t i = 0; i < PROM_SIZE; i++) {

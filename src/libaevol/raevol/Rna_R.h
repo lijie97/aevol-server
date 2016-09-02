@@ -40,6 +40,7 @@
 #include "Rna.h"
 #include "Protein_R.h"
 
+
 namespace aevol {
 
 // =================================================================
@@ -47,6 +48,8 @@ namespace aevol {
 // =================================================================
 
 class Protein_R;
+class Individual_R;
+
 class Rna_R : public Rna
 {
   public :
@@ -121,6 +124,7 @@ class Rna_R : public Rna
     int       _local_id;
 
 
+    Individual_R* indiv_;
 
 
 };
