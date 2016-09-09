@@ -93,7 +93,7 @@ class Selection : public Observable
     //                        Accessors: setters
     // =================================================================
     // ----------------------------------------- Pseudo-random number generator
-    inline void set_prng(std::unique_ptr<JumpingMT>&& prng);
+    //inline void set_prng(std::unique_ptr<JumpingMT>&& prng);
 
     // -------------------------------------------------------------- Selection
     inline void set_selection_scheme(SelectionScheme sel_scheme);
@@ -136,7 +136,6 @@ class Selection : public Observable
 
     void set_unique_id(unsigned long long uid) { unique_id = uid; }
 
-    std::unique_ptr<JumpingMT> prng_;
     
     void compute_prob_reprod();
     void compute_local_prob_reprod();
@@ -219,10 +218,10 @@ inline double*Selection::prob_reprod() const
 //                           Setters' definitions
 // =====================================================================
 // ----------------------------------------- Pseudo-random number generator
-inline void Selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
+/*inline void Selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
 {
   prng_ = std::move(prng);
-}
+}*/
 
 // -------------------------------------------------------------- Selection
 inline void Selection::set_selection_scheme(SelectionScheme sel_scheme)

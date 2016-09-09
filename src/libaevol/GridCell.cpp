@@ -114,6 +114,7 @@ void GridCell::save(gzFile backup_file,
   gzwrite(backup_file, &y_, sizeof(y_));
   mut_prng_->save(backup_file);
   stoch_prng_->save(backup_file);
+  reprod_prng_->save(backup_file);
 
   #ifndef __REGUL
   habitat_->save(backup_file, skip_phenotypic_target);
@@ -134,6 +135,12 @@ void GridCell::load(gzFile backup_file,
   // Retrieve PRNGs
   mut_prng_ = std::make_shared<JumpingMT>(backup_file);
   stoch_prng_ = std::make_shared<JumpingMT>(backup_file);
+
+#if __cplusplus == 201103L
+  reprod_prng_ = make_unique<JumpingMT>(backup_file);
+#else
+  reprod_prng_ = std::make_unique<JumpingMT>(backup_file);
+#endif
 
   habitat_ = HabitatFactory::create_unique_habitat(backup_file, phenotypic_target_handler);
 

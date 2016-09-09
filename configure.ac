@@ -378,13 +378,12 @@ fi
 #
 
 AC_MSG_CHECKING([whether to enable OpenMP Task])
-AC_ARG_WITH(with_openmptask, [  --without-openmptask to OpenMP Tasks], , with_openmptask=yes)
-AC_MSG_RESULT($with_openmptask)
-AM_CONDITIONAL(WITH_OPENMPTASK, test x"$with_openmptask" != xno)
-if test "x$with_openmptask" != xno ; then
+AC_ARG_WITH(openmptask, [  --with-openmptask to OpenMP Tasks], openmptask=$withval, openmptask=no)
+AC_MSG_RESULT($openmptask)
+AM_CONDITIONAL(WITH_OPENMPTASK, test x"$openmptask" != xno)
+if test "x$openmptask" = "xyes" ; then
    AC_DEFINE(__OPENMP_TASK)
 fi
-
 
 #  ************************* --with-simd option *******************************
 #
@@ -457,7 +456,7 @@ fi
 AC_MSG_CHECKING([whether to (not) use the detection of cloned individual])
 AC_ARG_WITH(detectclone, [--without-detecteclone to enable the detection of cloned individual], , detectclone=yes)
 AC_MSG_RESULT($detectclone)
-AM_CONDITIONAL(WITH_DETECTCLONE, test x"$detectclone" != xno)
+AM_CONDITIONAL(WITH_DETECTCLONE, test x"$detectclone" != xyes)
 if test "x$detectclone" = "xyes" ; then
    AC_DEFINE(__DETECT_CLONE)
 fi

@@ -594,13 +594,22 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "SEED") == 0)
     {
       int32_t seed = atoi(line->words[1]);
+      std::shared_ptr<JumpingMT> prng = std::make_shared<JumpingMT>(seed);
 
       // Change prngs
 #if __cplusplus == 201103L
-      sel->set_prng(make_unique<JumpingMT>(seed));
+
+      for (int16_t x = 0 ; x < world->width() ; x++)
+        for (int16_t y = 0 ; y < world->height() ; y++) {
+          world->grid(x,y)->set_reprod_prng(make_unique<JumpingMT>(prng->random(1000000)));
+        }
       world->set_prng(make_unique<JumpingMT>(seed));
 #else
-      sel->set_prng(std::make_unique<JumpingMT>(seed));
+      for (int16_t x = 0 ; x < world->width() ; x++)
+        for (int16_t y = 0 ; y < world->height() ; y++) {
+            world->grid(x,y)->set_reprod_prng(std::make_unique<JumpingMT>(prng->random(1000000)));
+          }
+
       world->set_prng(std::make_unique<JumpingMT>(seed));
 #endif
 

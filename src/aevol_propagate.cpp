@@ -259,18 +259,27 @@ int main(int argc, char* argv[])
 #if __cplusplus == 201103L
     auto prng = make_unique<JumpingMT>(generalseed);
 
-    exp_manager->sel()->set_prng(
-        make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
         make_unique<JumpingMT>(prng->random(1000000)));
 #else
     auto prng = std::make_unique<JumpingMT>(generalseed);
 
-    exp_manager->sel()->set_prng(
-        std::make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
         std::make_unique<JumpingMT>(prng->random(1000000)));
 
+#endif
+
+#if __cplusplus == 201103L
+
+    for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
+      for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++) {
+        exp_manager->world()->grid(x,y)->set_reprod_prng(make_unique<JumpingMT>(prng->random(1000000)));
+      }
+#else
+    for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
+        for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++) {
+            exp_manager->world()->grid(x,y)->set_reprod_prng(std::make_unique<JumpingMT>(prng->random(1000000)));
+          }
 #endif
     exp_manager->world()->set_mut_prng(
         std::make_shared<JumpingMT>(prng->random(1000000)));
@@ -300,15 +309,32 @@ int main(int argc, char* argv[])
     if (selseed != -1)
     {
 #if __cplusplus == 201103L
+      auto prng = make_unique<JumpingMT>(selseed);
+#else
+      auto prng = std::make_unique<JumpingMT>(selseed);
+#endif
+
+#if __cplusplus == 201103L
       exp_manager->world()->set_prng(
-          make_unique<JumpingMT>(selseed));
-      exp_manager->sel()->set_prng(
           make_unique<JumpingMT>(selseed));
 #else
       exp_manager->world()->set_prng(
           std::make_unique<JumpingMT>(selseed));
-      exp_manager->sel()->set_prng(
-          std::make_unique<JumpingMT>(selseed));
+
+#endif
+
+#if __cplusplus == 201103L
+
+      for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
+        for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++) {
+          exp_manager->world()->grid(x,y)->set_reprod_prng(make_unique<JumpingMT>(prng->random(1000000)));
+        }
+#else
+      for (int16_t x = 0 ; x < exp_manager->world()->width() ; x++)
+        for (int16_t y = 0 ; y < exp_manager->world()->height() ; y++) {
+            exp_manager->world()->grid(x,y)->set_reprod_prng(std::make_unique<JumpingMT>(prng->random(1000000)));
+          }
+
 #endif
     }
 

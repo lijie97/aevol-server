@@ -117,6 +117,7 @@ class GridCell
   inline void set_individual(Individual * indiv);
   inline void set_mut_prng(std::shared_ptr<JumpingMT> prng);
   inline void set_stoch_prng(std::shared_ptr<JumpingMT> prng);
+  inline void set_reprod_prng(std::unique_ptr<JumpingMT>&& prng);
   // =================================================================
   //                            Public Methods
   // =================================================================
@@ -126,6 +127,8 @@ class GridCell
   void load(gzFile backup_file,
             ExpManager * exp_m,
             PhenotypicTargetHandler* phenotypic_target_handler);
+
+  std::unique_ptr<JumpingMT> reprod_prng_ = nullptr;
 
  protected :
   // =================================================================
@@ -146,6 +149,8 @@ class GridCell
 
   std::shared_ptr<JumpingMT> mut_prng_ = nullptr;
   std::shared_ptr<JumpingMT> stoch_prng_ = nullptr;
+
+
 };
 
 
@@ -201,6 +206,13 @@ inline void GridCell::set_mut_prng(std::shared_ptr<JumpingMT> prng) {
 inline void GridCell::set_stoch_prng(std::shared_ptr<JumpingMT> prng) {
   stoch_prng_ = prng;
 }
+
+
+inline void GridCell::set_reprod_prng(std::unique_ptr<JumpingMT>&& prng)
+{
+  reprod_prng_ = std::move(prng);
+}
+
 
 // =====================================================================
 //                       Inline functions' definition

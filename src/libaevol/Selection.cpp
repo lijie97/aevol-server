@@ -93,7 +93,7 @@ Selection::Selection(ExpManager* exp_m) {
   exp_m_ = exp_m;
 
   // ----------------------------------------- Pseudo-random number generator
-  prng_ = NULL;
+  //prng_ = NULL;
 
   // -------------------------------------------------------------- Selection
   selection_scheme_   = RANK_EXPONENTIAL;
@@ -134,12 +134,12 @@ void Selection::step_to_next_generation() {
   // 3) Make the selected individuals reproduce, thus creating the new generation
   // 4) Replace the current generation by the newly created one.
   // 5) Sort the newly created population*
-
+/*
   if (prng_ == NULL) {
     printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
-
+*/
   // -------------------------------------------------------------------------------
   // 1) Compute the probability of reproduction of each individual in the population
   // -------------------------------------------------------------------------------
@@ -154,12 +154,12 @@ void Selection::step_to_next_generation() {
       compute_local_prob_reprod();
     }
   #endif
-
+/*
   if (prng_ == NULL) {
     printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
-
+*/
   // Create proxies
   World* world = exp_m_->world();
   int16_t grid_width  = world->width();
@@ -206,7 +206,7 @@ void Selection::step_to_next_generation() {
     delete[] fitnesses;
 
     int32_t* nb_offsprings = new int32_t[pop_size];
-    prng_->multinomial_drawing(nb_offsprings, prob_reprod_, pop_size, pop_size);
+    exp_m_->world()->grid(0,0)->reprod_prng_->multinomial_drawing(nb_offsprings, prob_reprod_, pop_size, pop_size);
 
     int index = 0;
     i = 0;
@@ -480,7 +480,11 @@ void Selection::PerformPlasmidTransfers() {
     }
 
     for (int16_t z = 0 ;z < total_size - 1 ; z++) {
-      int16_t rand_nb = prng_->random((int16_t) (total_size-z));
+
+      int16_t x_prng = z / grid_width;
+      int16_t y_prng = z % grid_width;
+
+      int16_t rand_nb = world->grid(x_prng,y_prng)->reprod_prng_->random((int16_t) (total_size-z));
       int16_t* tmp=shuffled_table[z+rand_nb];
       shuffled_table[z+rand_nb]=shuffled_table[z];
       shuffled_table[z]=tmp;
@@ -504,7 +508,7 @@ void Selection::PerformPlasmidTransfers() {
                             * world->indiv_at(x, y)->fitness_by_feature(DONOR)
                             +
             exp_m_->tune_recipient_ability() * world->indiv_at(new_x, new_y)->fitness_by_feature(RECIPIENT) ;
-          if (prng_->random() < ptransfer) { // will x give a plasmid to n ?
+          if (world->grid(x,y)->reprod_prng_->random() < ptransfer) { // will x give a plasmid to n ?
             if (exp_m_->swap_GUs()) {
               world->indiv_at(new_x, new_y)->inject_2GUs(world->indiv_at(x, y));
             }
@@ -553,13 +557,13 @@ void Selection::write_setup_file(gzFile exp_setup_file) const {
 /*!
 */
 void Selection::save(gzFile& backup_file) const {
-  if (prng_ == NULL) {
+  /*if (prng_ == NULL) {
     printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
-  }
+  }*/
 
   // ----------------------------------------- Pseudo-random number generator
-  prng_->save(backup_file);
+  //prng_->save(backup_file);
 }
 
 void Selection::load(gzFile& exp_setup_file,
@@ -577,11 +581,12 @@ void Selection::load(gzFile& exp_setup_file,
   gzread(exp_setup_file, &selection_scope_x_, sizeof(selection_scope_x_));
   gzread(exp_setup_file, &selection_scope_y_, sizeof(selection_scope_y_));
   // ----------------------------------------- Pseudo-random number generator
+  /*
 #if __cplusplus == 201103L
   prng_ = make_unique<JumpingMT>(backup_file);
 #else
   prng_ = std::make_unique<JumpingMT>(backup_file);
-#endif
+#endif*/
 }
 
 
@@ -794,6 +799,8 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     }
 #endif
 
+
+//#pragma omp critical(newindivevent)
       {
         NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
         notifyObservers(NEW_INDIV, eindiv);
@@ -802,7 +809,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   }
   else { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
-    bool inverse_order = (prng_->random((int32_t) 2) < 0.5);
+    bool inverse_order = (exp_m_->world()->grid(x,y)->reprod_prng_->random((int32_t) 2) < 0.5);
 
     if (not inverse_order) { // Apply mutations in normal GU order
       for (const auto& gen_unit: new_indiv->genetic_unit_list()) {
@@ -939,7 +946,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   }
 
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
-  int16_t found_org = prng_->roulette_random(probs, neighborhood_size);
+  int16_t found_org = world->grid(x,y)->reprod_prng_->roulette_random(probs, neighborhood_size);
 
   int16_t x_offset = (found_org / selection_scope_x_) - 1;
   int16_t y_offset = (found_org % selection_scope_y_) - 1;
@@ -1013,11 +1020,11 @@ Individual* Selection::do_replication_tbb(Individual* parent, int32_t index, int
   // Compute statistics
   new_indiv->compute_statistical_data();
 
-//#pragma omp critical
+  #pragma omp critical
 //  {
   // Tell observers the replication is finished
   new_indiv->notifyObservers(END_REPLICATION, nullptr);
-//}
+}
 
   return new_indiv;
 }
