@@ -1690,6 +1690,7 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
   }
   inverted_segment[seg_length] = '\0';
 */
+  #pragma omp simd
   for (int32_t i = 0, j = pos_2 - 1; i < seg_length; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
@@ -2952,6 +2953,7 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 //#pragma simd
 //#pragma distribute_point
+#pragma omp simd
   for (int32_t i = 0, j = pos_C - 1; i < len_B; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';
@@ -2968,6 +2970,7 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 //#pragma simd
 //#pragma distribute_point
+#pragma omp simd
   for (int32_t i = 0, j = pos_D - 1; i < len_C; i++, j--) {
     if (data_[j] == '0') inverted_segment[i] = '1';
     else inverted_segment[i] = '0';

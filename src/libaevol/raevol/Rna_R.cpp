@@ -52,6 +52,7 @@ namespace aevol {
 // =================================================================
 
 long Rna_R::id = 0;
+
 // =================================================================
 //                             Constructors
 // =================================================================
@@ -262,8 +263,36 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
     int32_t quadon_tab[5];
     Protein_R* prot = NULL;
     prot = (Protein_R*) (protein);
-    for (int32_t i = 0; i < 5; i++) {
-      quadon_tab[i] = gen_unit_->indiv_r_->get_quadon(gen_unit_, strand_, (index + i));
+
+    const char* dna = gen_unit_->dna()->data();
+    int32_t  len_dna    = gen_unit_->dna()->length();
+
+    for (int32_t pos = index; pos < index+5; pos++) {
+
+      int8_t quadon[4];
+
+      if ( strand_ == LEADING )
+      {
+#ifdef __SIMD
+#pragma omp simd
+#endif
+        for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
+        {
+          quadon[i] = (dna[((pos+i) % len_dna < 0 ? (pos+i) % len_dna + len_dna : (pos+i) % len_dna)] == '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
+        }
+      }
+      else  // ( strand == LAGGING )
+      {
+#ifdef __SIMD
+#pragma omp simd
+#endif
+        for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
+        {
+          quadon[i] = (dna[((pos-i) % len_dna < 0 ? (pos-i) % len_dna + len_dna : (pos-i) % len_dna)] != '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
+        }
+      }
+
+      quadon_tab[pos-index] = quadon[0]+quadon[1]+quadon[2]+quadon[3];//gen_unit_->indiv_r_->get_quadon(gen_unit_, strand_, (index + i));
     }
 
 

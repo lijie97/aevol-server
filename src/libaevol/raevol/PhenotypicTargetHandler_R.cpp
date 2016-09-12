@@ -190,7 +190,7 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
         id_new_env = id_old_env;
 
         if (long_period) {
-          if (i==6 || i==11 || i==16)
+          if (i%2==0)
             allow_to_change = true;
           else
             allow_to_change = false;
