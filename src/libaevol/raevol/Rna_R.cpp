@@ -52,7 +52,13 @@ namespace aevol {
 // =================================================================
 
 long Rna_R::id = 0;
+int8_t Rna_R::quadon_map[4] = {8, 4, 2, 1};
 
+#ifdef __PROXY_POW_LOOKUP
+std::map<double,double> Rna_R::pow_cache;
+#elif __PROXY_POW_APPROX
+double Rna_R::lookup_table_pow[LOOKUP_TABLE_SIZE];
+#endif
 // =================================================================
 //                             Constructors
 // =================================================================
@@ -63,6 +69,9 @@ Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna_R &model ) : Rna( gen_unit, model
   _operating_coef_list = model._operating_coef_list;
   _id = model._id;
   _nb_influences = model._nb_influences;
+
+  hill_shape_n_= gen_unit_->exp_m()->exp_s()->get_hill_shape_n();
+  hill_shape_ = gen_unit_->exp_m()->exp_s()->get_hill_shape();
 }
 
 Rna_R::Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff ) :
@@ -70,6 +79,9 @@ Rna_R::Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff )
 {
   _id = id++;
   _nb_influences = 0;
+
+  hill_shape_n_= gen_unit_->exp_m()->exp_s()->get_hill_shape_n();
+  hill_shape_ = gen_unit_->exp_m()->exp_s()->get_hill_shape();
 }
 
 /*
@@ -124,7 +136,12 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list )
       _enhancing_coef_list.insert(itenh, enhance);
       _operating_coef_list.insert(itope, operate);
 
+  //    if (std::isnan(_protein_list[i]->concentration_)) {
+  //      printf("Wierd concentration?\n");
+  //    }
+
       _protein_list[i]->is_TF_ = true;
+
      // _protein_concentration_list[i] = prot->concentration();
       i++;
       itprot = _protein_list.begin()+i;
@@ -158,9 +175,13 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
       printf("12608 RNA %d  due to Protein %d is %f %f %f\n",
              _id,_protein_list[i]->get_id(),
              _enhancing_coef_list[i],_operating_coef_list[i],_protein_list[i]->concentration_);*/
+//    printf("E[%d] %f %f %f\n",i,enhancer_activity,_enhancing_coef_list[i],_protein_list[i]->concentration_);
 
-  	enhancer_activity  += _enhancing_coef_list[i] * _protein_list[i]->concentration_;
+    enhancer_activity  += _enhancing_coef_list[i] * _protein_list[i]->concentration_;
+
+//    printf("O[%d] %f %f %f\n",i,operator_activity,_operating_coef_list[i],_protein_list[i]->concentration_);
     operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
+
   }
 /*#else
   ProteinConcentration enhancer_tab[_nb_influences];
@@ -189,9 +210,65 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
 #endif
 #endif
 */
-  ProteinConcentration enhancer_activity_pow_n  = pow( enhancer_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
-  ProteinConcentration operator_activity_pow_n  = pow( operator_activity, gen_unit_->exp_m()->exp_s()->get_hill_shape_n() );
 
+#ifndef __PROXY_POW
+
+
+  ProteinConcentration enhancer_activity_pow_n = enhancer_activity == 0 ? 0 :
+                                                 pow( enhancer_activity, hill_shape_n_ );
+  ProteinConcentration operator_activity_pow_n = operator_activity == 0 ? 0 :
+                                                 pow( operator_activity, hill_shape_n_ );
+
+#elif __PROXY_POW_LOOKUP
+
+  ProteinConcentration enhancer_activity_pow_n;
+  ProteinConcentration operator_activity_pow_n;
+
+  if (enhancer_activity==0) {
+    enhancer_activity_pow_n=0;
+  } else {
+#pragma omp critical(readpowcache)
+  {
+    try {
+      enhancer_activity_pow_n = pow_cache[enhancer_activity];
+    } catch(std::out_of_range& e) {
+      pow_cache[enhancer_activity] = pow( enhancer_activity, hill_shape_n_ );
+      enhancer_activity_pow_n = pow_cache[enhancer_activity];
+    }
+  }
+  }
+
+  if (operator_activity==0) {
+    operator_activity_pow_n=0;
+  } else {
+#pragma omp critical(readpowcache)
+  {
+    try {
+      operator_activity_pow_n = pow_cache[operator_activity];
+    } catch(std::out_of_range& e) {
+      pow_cache[enhancer_activity] = pow( operator_activity, hill_shape_n_ );
+      operator_activity_pow_n = pow_cache[operator_activity];
+    }
+  }
+  }
+#elif __PROXY_POW_APPROX
+//  printf("E %f %d %d\n",enhancer_activity,(int)(enhancer_activity*LOOKUP_TABLE_SIZE),
+//  ((int)(enhancer_activity*LOOKUP_TABLE_SIZE))+1);
+//
+//
+//printf("O %f %d %d\n",operator_activity,(int)(operator_activity*LOOKUP_TABLE_SIZE),
+//  ((int)(operator_activity*LOOKUP_TABLE_SIZE))+1);
+
+
+  ProteinConcentration enhancer_activity_pow_n = enhancer_activity == 0 ? 0 :
+      enhancer_activity <= 1 ? ( lookup_table_pow[(int)(enhancer_activity*LOOKUP_TABLE_SIZE)] +
+      lookup_table_pow[((int)(enhancer_activity*LOOKUP_TABLE_SIZE))+1] )/2 :
+      pow( enhancer_activity, hill_shape_n_ );
+  ProteinConcentration operator_activity_pow_n = operator_activity == 0 ? 0 :
+      operator_activity <= 1 ? ( lookup_table_pow[(int)(operator_activity*LOOKUP_TABLE_SIZE)] +
+      lookup_table_pow[((int)(operator_activity*LOOKUP_TABLE_SIZE))+1] )/2 :
+      pow( operator_activity, hill_shape_n_ );
+#endif
   //if (enhancer_activity != 0.0 || operator_activity != 0.0)
   /*if (_id == 132073) printf("Synthesis of RNA %ld : E %f O %f EP %f OP %f SN %f S %f B %f\n",_id,enhancer_activity,operator_activity,enhancer_activity_pow_n,
                                                 operator_activity_pow_n,gen_unit_->exp_m()->exp_s()->get_hill_shape_n(),
@@ -199,12 +276,20 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
   /*if (gen_unit_->indiv()->id() == 12608)
     printf("12608 RNA %d is %f %f %f\n",_id,enhancer_activity,operator_activity,basal_level_);*/
 
-  return   basal_level_
-           * (gen_unit_->exp_m()->exp_s()->get_hill_shape()
-              / (operator_activity_pow_n + gen_unit_->exp_m()->exp_s()->get_hill_shape()))
+
+  ProteinConcentration ret = basal_level_
+           * (hill_shape_
+              / (operator_activity_pow_n + hill_shape_))
            * (1 + ((1 / basal_level_) - 1)
                   * (enhancer_activity_pow_n /
-                     (enhancer_activity_pow_n + gen_unit_->exp_m()->exp_s()->get_hill_shape())));
+                     (enhancer_activity_pow_n + hill_shape_)));
+
+//  if (std::isnan(ret)) {
+//    printf("syn is nan B %f O %f ON %f E %f EN %f\n",basal_level_,
+//          operator_activity,operator_activity_pow_n,enhancer_activity,enhancer_activity_pow_n);
+//    exit(88);
+//  }
+  return ret;
 }
 
 // =================================================================
@@ -256,6 +341,7 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
     ProteinConcentration max = 0;
     ProteinConcentration temp = 1;
 #else
+    ProteinConcentration max = 0;
     ProteinConcentration  tab_temp[len-4];
 #endif
 
@@ -273,22 +359,44 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
 
       if ( strand_ == LEADING )
       {
+        if (pos+QUADON_SIZE < len_dna) {
 #ifdef __SIMD
 #pragma omp simd
 #endif
-        for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
-        {
-          quadon[i] = (dna[((pos+i) % len_dna < 0 ? (pos+i) % len_dna + len_dna : (pos+i) % len_dna)] == '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
+          for (int8_t i = 0; i < QUADON_SIZE; i++) {
+            quadon[i] = (dna[pos + i] == '1') ? 1 <<  (QUADON_SIZE - i - 1) : 0;
+          }
+        } else {
+#ifdef __SIMD
+#pragma omp simd
+#endif
+          for (int8_t i = 0; i < QUADON_SIZE; i++) {
+            quadon[i] = (dna[((pos + i) % len_dna < 0 ? (pos + i) % len_dna +
+                                                        len_dna : (pos + i) %
+                                                                  len_dna)] ==
+                         '1') ?  (QUADON_SIZE - i - 1) : 0;
+          }
         }
       }
       else  // ( strand == LAGGING )
       {
+        if (pos-QUADON_SIZE >= 0) {
 #ifdef __SIMD
 #pragma omp simd
 #endif
-        for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
-        {
-          quadon[i] = (dna[((pos-i) % len_dna < 0 ? (pos-i) % len_dna + len_dna : (pos-i) % len_dna)] != '1') ? 1 << (QUADON_SIZE - i - 1) : 0;
+          for (int8_t i = 0; i < QUADON_SIZE; i++) {
+            quadon[i] = (dna[pos - i] != '1') ?  (QUADON_SIZE - i - 1) : 0;
+          }
+        } else {
+#ifdef __SIMD
+#pragma omp simd
+#endif
+          for (int8_t i = 0; i < QUADON_SIZE; i++) {
+            quadon[i] = (dna[((pos - i) % len_dna < 0 ? (pos - i) % len_dna +
+                                                        len_dna : (pos - i) %
+                                                                  len_dna)] !=
+                         '1') ?  (QUADON_SIZE - i - 1) : 0;
+          }
         }
       }
 
@@ -305,13 +413,21 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
 #ifndef __BLAS__
       temp = 1;
 #else
-      tab_temp[i]  = (*binding_matrix)[quadon_tab[0]][prot->_cod_tab[i]];
-      tab_temp[i]  *= (*binding_matrix)[quadon_tab[1]][prot->_cod_tab[i+1]];
-      tab_temp[i]  *= (*binding_matrix)[quadon_tab[2]][prot->_cod_tab[i+2]];
-      tab_temp[i]  *= (*binding_matrix)[quadon_tab[3]][prot->_cod_tab[i+3]];
-      tab_temp[i]  *= (*binding_matrix)[quadon_tab[4]][prot->_cod_tab[i+4]];
+      tab_temp[i]  = (*binding_matrix)[quadon_tab[0]][prot->_cod_tab[i]]
+                   * (*binding_matrix)[quadon_tab[1]][prot->_cod_tab[i+1]]
+                   * (*binding_matrix)[quadon_tab[2]][prot->_cod_tab[i+2]]
+                   * (*binding_matrix)[quadon_tab[3]][prot->_cod_tab[i+3]]
+                   * (*binding_matrix)[quadon_tab[4]][prot->_cod_tab[i+4]];
+
+      max = (max < tab_temp[i] ? tab_temp[i] : max);
 #endif
 
+//      if (tab_temp[i] > 1) {
+//        for (int8_t j = 0; j < QUADON_SIZE; j++) {
+//          printf("BM[%d][%d] = %f\n",quadon_tab[j],prot->_cod_tab[i+j],
+//                 (*binding_matrix)[quadon_tab[j]][prot->_cod_tab[i+j]]);
+//        }
+//      }
 #ifndef __BLAS__
       for (int8_t j = 0; j < 5; j++) {
         temp *= gen_unit_->exp_m()->exp_s()->_binding_matrix[quadon_tab[j]][prot->_cod_tab[
@@ -326,7 +442,8 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
 #ifdef __FLOAT_CONCENTRATION
     return tab_temp[cblas_isamax(len-4,tab_temp,1)];
 #else
-    return tab_temp[cblas_idamax(len-4,tab_temp,1)];
+    return max;
+    //return tab_temp[cblas_idamax(len-4,tab_temp,1)];
 #endif
 #else
     return max;
@@ -335,4 +452,57 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
     return 0.0;
   }
 }
+
+#ifdef __PROXY_POW_APPROX
+void Rna_R::load_lookup_table() {
+  char* lookup_table_file_name = new char[100];
+
+  sprintf( lookup_table_file_name, "lookup_table.ae" );
+
+  gzFile lookup_table_file = gzopen( lookup_table_file_name, "r" );
+
+  if ( lookup_table_file == Z_NULL )
+  {
+    printf( "ERROR : Could not read lookup table file %s\n", lookup_table_file_name );
+    exit( EXIT_FAILURE );
+  }
+
+  double value;
+  for (int i=0; i < LOOKUP_TABLE_SIZE; i++) {
+    gzread( lookup_table_file, &value, sizeof(double));
+    lookup_table_pow[i] = (ProteinConcentration) value;
+  }
+
+  gzclose( lookup_table_file );
+
+  delete[] lookup_table_file_name;
+}
+
+void Rna_R::create_lookup_table(double hill_shape_theta, double hill_shape_n) {
+  char* lookup_table_file_name = new char[100];
+
+  sprintf( lookup_table_file_name, "lookup_table.ae" );
+
+  gzFile lookup_table_file = gzopen( lookup_table_file_name, "w" );
+
+  if ( lookup_table_file == Z_NULL )
+  {
+    printf( "ERROR : Could not write lookup table file %s\n", lookup_table_file_name );
+    exit( EXIT_FAILURE );
+  }
+
+  double value;
+  double hill_n = pow( hill_shape_theta, hill_shape_n );
+
+  for (int i=0; i < LOOKUP_TABLE_SIZE; i++) {
+    value = pow(i / LOOKUP_TABLE_SIZE, hill_n);
+
+    gzwrite(lookup_table_file, &value, sizeof(double));
+  }
+
+  gzclose( lookup_table_file );
+
+  delete[] lookup_table_file_name;
+}
+#endif
 } // namespace aevol

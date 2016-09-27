@@ -89,7 +89,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   //                              Public Methods
   // ==========================================================================
   virtual void ApplyVariation();
-  void InitPhenotypicTargetsAndModels(int8_t nb_indiv_age);
+  void InitPhenotypicTargetsAndModels(int16_t nb_indiv_age);
   void print_geometric_areas();
   virtual void save(gzFile backup_file) const;
   virtual void load(gzFile backup_file);
@@ -101,19 +101,19 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     return phenotypic_targets_;
   }
 
-  const PhenotypicTarget_R& phenotypic_target_model(int8_t env_id) const {
-    assert(env_id >= 0 && env_id <= (int8_t) phenotypic_target_models_.size());
+  const PhenotypicTarget_R& phenotypic_target_model(int16_t env_id) const {
+    assert(env_id >= 0 && env_id <= (int16_t) phenotypic_target_models_.size());
     return *(phenotypic_target_models_.at(env_id));
   }
 
-  const PhenotypicTarget_R& phenotypic_target(int8_t age) const {
+  const PhenotypicTarget_R& phenotypic_target(int16_t age) const {
     //printf("AX --- %d %d\n",age,phenotypic_targets_.size());
 
-    assert(age >= 0 && age <= (int8_t) phenotypic_targets_.size());
+    //assert(age >= 0 && age <= (int16_t) phenotypic_targets_.size());
     return *(phenotypic_targets_.at(age-1));
   }
 
-  int8_t number_of_phenotypic_targets() const {
+  int16_t number_of_phenotypic_targets() const {
     return phenotypic_targets_.size();
   }
 
@@ -121,7 +121,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     double total_dist = 0.0;
     //printf("Size %d\n",phenotypic_targets_.size());
 
-    for(int8_t i = 0; i< (int8_t) phenotypic_targets_.size(); i++) {
+    for(int16_t i = 0; i< (int16_t) phenotypic_targets_.size(); i++) {
       //printf("area of %d\n",i);
       //printf("id of %d\n",phenotypic_targets_.at(i)->get_id());
 
@@ -142,7 +142,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     env_gaussians_list_ = gaussians_list;
   }
 
-  void set_signals(const std::vector<std::list<int8_t>>& signals_list) {
+  void set_signals(const std::vector<std::list<int16_t>>& signals_list) {
     env_signals_list_ = signals_list;
   }
 
@@ -164,7 +164,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     env_switch_probability_ = p;
   }
 
-  virtual void set_segmentation(int8_t nb_segments,
+  virtual void set_segmentation(int16_t nb_segments,
                         double* boundaries,
                         PhenotypicFeature * features,
                         bool separate_segments = false) {
@@ -180,8 +180,8 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
 
     // For post_treatment evaluate_regulation
-    void set_single_env(int8_t id);
-    void set_two_env(int8_t id_1, int8_t id_2);
+    void set_single_env(int16_t id);
+    void set_two_env(int16_t id_1, int16_t id_2);
 
  protected :
   // ==========================================================================
@@ -189,12 +189,12 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   void InitPhenotypicTargetsModels();
   void BuildPhenotypicTargetsModels();
-  void BuildPhenotypicTargetModel( int8_t id);
+  void BuildPhenotypicTargetModel( int16_t id);
   // This function keep only the last element of the vector
   void ResetPhenotypicTargets();
-  void InitPhenotypicTargets(int8_t nb_indiv_age);
-  void addEnv( int time, int8_t env_id );
-  void changeEnv( int8_t ind, int8_t env_id );
+  void InitPhenotypicTargets(int16_t nb_indiv_age);
+  void addEnv( int time, int16_t env_id );
+  void changeEnv( int16_t ind, int16_t env_id );
 
 
   // ==========================================================================
@@ -203,11 +203,11 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
 
   std::vector<PhenotypicTarget_R*> phenotypic_targets_;
   std::vector<std::list<Gaussian>> env_gaussians_list_;
-  std::vector<std::list<int8_t>> env_signals_list_;
+  std::vector<std::list<int16_t>> env_signals_list_;
   std::vector<Protein_R*> signals_models_;
   std::list<Protein_R*> signals_models_list_;
   double env_switch_probability_;
-  int8_t _nb_indiv_age;
+  int16_t _nb_indiv_age;
 
   bool hasChanged_;
 

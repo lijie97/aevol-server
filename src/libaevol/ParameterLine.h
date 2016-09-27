@@ -72,7 +72,7 @@ class ParameterLine
     // =================================================================
 
     int16_t nb_words;
-    char    words[50][255];
+    char    words[4096][4096];
 
   protected :
 

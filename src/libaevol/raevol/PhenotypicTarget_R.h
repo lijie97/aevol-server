@@ -62,7 +62,7 @@ class PhenotypicTarget_R : public PhenotypicTarget
   //                               Constructors
   // ==========================================================================
   PhenotypicTarget_R(void); //< Default ctor
-  PhenotypicTarget_R(int8_t id);
+  PhenotypicTarget_R(int16_t id);
   PhenotypicTarget_R(const PhenotypicTarget_R&); //< Copy ctor
   PhenotypicTarget_R(PhenotypicTarget_R&&) = delete; //< Move ctor
 
@@ -83,7 +83,7 @@ class PhenotypicTarget_R : public PhenotypicTarget
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  int8_t get_id() const {
+  int16_t get_id() const {
     return id_;
   }
   std::list<Protein_R*> signals() const {
@@ -106,7 +106,7 @@ class PhenotypicTarget_R : public PhenotypicTarget
   //                               Attributes
   // ==========================================================================
   // An identifier used to know the position of this Phenotypic target in PhenotypicTargetHandler
-  int8_t id_;
+  int16_t id_;
   std::list<Protein_R*> signals_;
 };
 

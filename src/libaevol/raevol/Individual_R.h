@@ -104,8 +104,8 @@ class Individual_R : public virtual Individual
      virtual void init_indiv();
      virtual void init_indiv(const Habitat_R& habitat);
      virtual void one_step( void );
-     virtual void eval_step(const Habitat_R& habitat, int8_t age);
-     virtual void final_step(const Habitat_R& habitat, int8_t age);
+     virtual void eval_step(const Habitat_R& habitat, int16_t age);
+     virtual void final_step(const Habitat_R& habitat, int16_t age);
      //virtual void reevaluate();
      //virtual void clear_everything_except_dna_and_promoters();
      //void do_transcription_translation_folding();

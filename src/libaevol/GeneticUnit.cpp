@@ -1365,9 +1365,16 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   int32_t pos_a[22];
   if (strand == LEADING) {
     //~ printf("LEADING\n");
-    #pragma vector always
-    for (int32_t i  = 0; i < PROM_SIZE; i++)
-      pos_a[i] = (pos + i) % len;
+    if (pos + PROM_SIZE < len) {
+#pragma vector always
+      for (int32_t i  = 0; i < PROM_SIZE; i++)
+        pos_a[i] = pos + i;
+    } else {
+#pragma vector always
+      for (int32_t i  = 0; i < PROM_SIZE; i++)
+        pos_a[i] = (pos + i) % len;
+
+    }
 
     #pragma vector always
     for (int16_t i = 0; i < PROM_SIZE; i++) {
@@ -1379,6 +1386,11 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
     //~ printf("LAGGING\n");
     //#pragma vector always
     //#pragma distribute_point
+    if (pos - PROM_SIZE >= 0) {
+      for (int32_t i  = 0; i < PROM_SIZE; i++) {
+        pos_a[i] = pos - i;
+      }
+    }
     for (int32_t i  = 0; i < PROM_SIZE; i++) {
       int32_t abs_i = abs((pos - i) % len);
       pos_a[i] = (pos - i) >= 0 ? (pos - i) % len : (len - abs_i) % len;
@@ -1461,18 +1473,39 @@ bool GeneticUnit::is_terminator(Strand strand, int32_t pos) const {
   bool terminator[4];
 
   if (strand == LEADING) {
-    for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
-      terminator[i] = genome[(pos + i) %  len] ==
-          genome[(pos + (TERM_SIZE - 1) - i) % len] ? false : true;
+    if (pos+TERM_STEM_SIZE-1+TERM_STEM_SIZE < len) {
+      for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
+        terminator[i] = genome[(pos + i)] ==
+                        genome[(pos + (TERM_SIZE - 1) - i)] ? false
+                                                                  : true;
+      }
+    } else {
+      for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
+        terminator[i] = genome[(pos + i) % len] ==
+                        genome[(pos + (TERM_SIZE - 1) - i) % len] ? false
+                                                                  : true;
+      }
     }
   }
   else // (strand == LAGGING)
   {
-    for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
+    if (pos-TERM_STEM_SIZE-1+TERM_STEM_SIZE >= 0) {
+      for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
 
-      terminator[i] = (genome[(pos - i) >= 0 ? (pos - i) % len : ( len - abs ( (pos - i)%len ) ) % len] ==
-          genome[(pos - (TERM_SIZE - 1) + i) >= 0 ? (pos - (TERM_SIZE - 1) + i) % len
-                                                  : ( len - abs ( (pos - (TERM_SIZE - 1) + i)%len ) ) % len]) ? false : true;
+        terminator[i] = (genome[pos - i] ==
+                         genome[(pos - (TERM_SIZE - 1) + i)]) ? false : true;
+      }
+    } else {
+      for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
+
+        terminator[i] = (genome[(pos - i) >= 0 ? (pos - i) % len :
+                                (len - abs((pos - i) % len)) % len] ==
+                         genome[(pos - (TERM_SIZE - 1) + i) >= 0 ?
+                                (pos - (TERM_SIZE - 1) + i) % len
+                                                                 :
+                                (len - abs((pos - (TERM_SIZE - 1) + i) % len)) %
+                                len]) ? false : true;
+      }
     }
   }
 
@@ -1484,16 +1517,25 @@ bool GeneticUnit::is_shine_dalgarno(Strand strand, int32_t pos) const {
   int32_t len = dna_->length();
 
   if (strand == LEADING) {
-    for (int8_t i = 0; i < SHINE_DAL_SIZE; i++) {
-      if (genome[Utils::mod((pos + i), len)] != SHINE_DAL_SEQ[i]) {
-        return false;
+    if (pos+SHINE_DAL_SIZE < len) {
+      for (int8_t i = 0; i < SHINE_DAL_SIZE; i++) {
+        if (genome[(pos + i)] != SHINE_DAL_SEQ[i]) {
+          return false;
+        }
+      }
+    } else {
+      for (int8_t i = 0; i < SHINE_DAL_SIZE; i++) {
+        if (genome[Utils::mod((pos + i), len)] != SHINE_DAL_SEQ[i]) {
+          return false;
+        }
       }
     }
   }
   else // (strand == LAGGING)
   {
+    if (pos - SHINE_DAL_SIZE >= 0)
     for (int8_t i = 0; i < SHINE_DAL_SIZE; i++) {
-      if (genome[Utils::mod((pos - i), len)] ==
+      if (genome[(pos - i)] ==
           SHINE_DAL_SEQ[i]) // == and not != because we are on the complementary strand...
       {
         return false;

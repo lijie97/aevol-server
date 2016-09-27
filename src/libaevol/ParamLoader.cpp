@@ -1320,7 +1320,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       for( int16_t i = 0; i < nb_env; i++)
       {
         _env_gaussians_list.push_back(std::list<Gaussian>());
-        _env_signals_list.push_back(std::list<int8_t>());
+        _env_signals_list.push_back(std::list<int16_t>());
       }
     }
     else if (strcmp(line->words[0], "CREATE_SIGNAL") == 0)
@@ -1966,8 +1966,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 */
 void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* line_is_interpretable)
 {
-  int16_t i = 0;
-  int16_t j;
+  int32_t i = 0;
+  int32_t j;
 
   // Parse line
   while (line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
@@ -2006,14 +2006,14 @@ void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* l
 */
 ParameterLine *ParamLoader::line(int32_t* cur_line_ptr) // void
 {
-  char line[255];
+  char line[4096];
   ParameterLine * formated_line = new ParameterLine();
 
   bool found_interpretable_line = false; // Found line that is neither a comment nor empty
 
   while (!feof(param_file_) && !found_interpretable_line)
   {
-    if (!fgets(line, 255, param_file_))
+    if (!fgets(line, 4096, param_file_))
     {
       delete formated_line;
       return NULL;

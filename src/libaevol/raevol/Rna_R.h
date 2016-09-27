@@ -39,7 +39,7 @@
 // =================================================================
 #include "Rna.h"
 #include "Protein_R.h"
-
+#include "macros.h"
 
 namespace aevol {
 
@@ -84,6 +84,11 @@ class Rna_R : public Rna
     long get_id() { return _id; };
 
     int nb_influences() { return _nb_influences; }
+
+#ifdef __PROXY_POW_APPROX
+    static void load_lookup_table();
+    static void create_lookup_table(double hill_shape_theta, double hill_shape_n);
+#endif
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -97,6 +102,14 @@ class Rna_R : public Rna
  */
     //std::vector<double> _protein_concentration_list;
     static long id;
+    static int8_t quadon_map[4];
+
+#ifdef __PROXY_POW_LOOKUP
+    static std::map<double,double> pow_cache;
+#elif __PROXY_POW_APPROX
+    static double lookup_table_pow[LOOKUP_TABLE_SIZE];
+#endif
+
 
     int _nb_influences = 0;
   protected :
@@ -126,6 +139,8 @@ class Rna_R : public Rna
 
     Individual_R* indiv_;
 
+    double hill_shape_n_;
+    double hill_shape_;
 
 };
 

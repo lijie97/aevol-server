@@ -57,7 +57,7 @@ PhenotypicTarget_R::PhenotypicTarget_R() : PhenotypicTarget() {
   //signals_ = NULL;
 }
 
-PhenotypicTarget_R::PhenotypicTarget_R( int8_t id) : PhenotypicTarget() {
+PhenotypicTarget_R::PhenotypicTarget_R( int16_t id) : PhenotypicTarget() {
   id_ = id;
   //signals_ = NULL;
 }

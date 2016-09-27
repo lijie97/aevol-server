@@ -210,7 +210,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
 
     std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
-    for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+    for (int16_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
       //Set the concentration of signals for this age
       for (auto prot1 : signal_list) {
         prot1.second->set_concentration(0.0);
@@ -322,7 +322,7 @@ void Individual_R::one_step( void )
   update_concentrations();
 }
 
-void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
+void Individual_R::eval_step( const Habitat_R& habitat, int16_t age ) {
   update_phenotype();
   distance_to_target_computed_ = false;
   phenotype_computed_ = true;
@@ -344,7 +344,7 @@ void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
 }
 
 
-void Individual_R::final_step( const Habitat_R& habitat, int8_t age ) {
+void Individual_R::final_step( const Habitat_R& habitat, int16_t age ) {
   dist_to_target_by_feature_[METABOLISM] = _dist_sum / (double) (exp_m_->exp_s()->get_list_eval_step()->size());
   //printf("AT %d ID %d Meta error : %lf \n",AeTime::time(),id(),dist_to_target_by_feature_[METABOLISM]);
 

@@ -171,7 +171,7 @@ class ExpSetup {
   // =======================================================================
 
 #ifdef __REGUL
-    ProteinConcentration  _binding_matrix[MAX_QUADON][MAX_CODON];
+    ProteinConcentration  _binding_matrix[MAX_QUADON][MAX_CODON]  __attribute__((aligned(16)));
 #endif
 
  protected :

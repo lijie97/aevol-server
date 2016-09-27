@@ -99,6 +99,10 @@ ExpManager::ExpManager()
 
   // ------------------------------------------------------------- Quit signal
   quit_signal_received_ = false;
+
+#ifdef __PROXY_POW_APPROX
+  Rna_R::load_lookup_table();
+#endif
 }
 
 // ===========================================================================

@@ -313,7 +313,7 @@ class ParamLoader {
     //Specific variatio method
     double _env_switch_probability;
     std::vector<std::list<Gaussian>> _env_gaussians_list;
-    std::vector<std::list<int8_t>> _env_signals_list;
+    std::vector<std::list<int16_t>> _env_signals_list;
     std::vector<Protein_R*> _signals_models;
   #endif
 };

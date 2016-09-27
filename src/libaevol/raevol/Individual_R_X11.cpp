@@ -194,7 +194,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   double y_step = 0.7 * win->height();
 
   //printf("START IN HERE .......\n \n");
-  for (int8_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+  for (int16_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
     //Set the concentration of signals for this age
     for (auto prot1 : signal_list) {
       prot1.second->set_concentration(0.0);

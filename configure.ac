@@ -492,6 +492,37 @@ if test "x$kstar" = "xyes" ; then
    AC_DEFINE(__KSTAR)
 fi
 
+#  ************************* --with-proxy-cache option *******************************
+#
+#  With this option, proxy cache support is enabled and the __PROXY_POW_LOOKUP flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use proxy cache])
+AC_ARG_WITH(proxycache, [--with-proxy-cache to enable proxy cache support], proxycache=$withval, proxycache=no)
+AC_MSG_RESULT($proxycache)
+AM_CONDITIONAL(WITH_PROXY_CACHE, test x"$proxycache" != xno)
+if test "x$proxycache" = "xyes" ; then
+   AC_DEFINE(__PROXY_POW_LOOKUP)
+   AC_DEFINE(__PROXY_POW)
+fi
+
+
+#  ************************* --with-proxy-lookup option *******************************
+#
+#  With this option, proxy lookup support is enabled and the __PROXY_POW_APPROX flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use proxy lookup])
+AC_ARG_WITH(proxylookup, [--with-proxy-lookup to enable proxy lookup support], proxylookup=$withval, proxylookup=no)
+AC_MSG_RESULT($proxylookup)
+AM_CONDITIONAL(WITH_PROXY_LOOKUP, test x"$proxylookup" != xno)
+if test "x$proxylookup" = "xyes" ; then
+   AC_DEFINE(__PROXY_POW_APPROX)
+   AC_DEFINE(__PROXY_POW)
+fi
+
 
 #  ************************* back to GENERAL stuff *******************************
 
