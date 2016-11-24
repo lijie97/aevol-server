@@ -83,7 +83,11 @@ Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
   pos_    = pos;
 
   transcript_length_  = -1;
+#ifdef __POW_BASAL
+  basal_level_ = (double) 1.0 / (1<<diff);
+#else
   basal_level_        = 1 - (double)diff / (PROM_MAX_DIFF + 1);
+#endif
 }
 
 /*

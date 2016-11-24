@@ -517,8 +517,8 @@ void Stats::write_current_generation_statistics()
 
 #ifdef __OPENMP_TASK
 #pragma omp task shared(exp_m) depend(inout: stat_depend[GLOB][chrom_or_GU])\
-                 shared(exp_m) depend(inout: stat_depend[SDEV][chrom_or_GU])\
-                 shared(exp_m) depend(out: stat_depend[SKEW][chrom_or_GU])
+                 depend(inout: stat_depend[SDEV][chrom_or_GU])\
+                 depend(out: stat_depend[SKEW][chrom_or_GU])
 #endif
       stat_records[SKEW] = new StatRecord(exp_m_,
                                           exp_m_->indivs(),

@@ -27,17 +27,18 @@ class raevol_matrix(Engine):
         self.options_parser.add_option("-u", dest="selected_cluster",
                     help="run on a specific cluster.",
                     type="string",
-                    default="beagle")
+                    default="mistis")
 
     def run(self):
         """ """
         self.define_parameters()
 	
-	self.working_dir = '/services/beagle/rouzaudc/large_campaign_v2'
-	self.aevol_binary_directory = '/home/beagle/rouzaudc/optimized/'
+	self.working_dir = '/services/beagle/rouzaudc/large_campaign_v20/'
+	self.aevol_binary_directory = '/services/beagle/rouzaudc/binary/'
 	self.template_param_file = self.working_dir+'/param_tmpl.in'
 	self.binding_matrix_file = self.working_dir+'/binding_matrix.rae'
-	self.nb_last_generation = 300000
+	self.lookup_table_file = self.working_dir+'/lookup_table.ae'
+	self.nb_last_generation = 500000
 	
 	self.cluster = self.options.selected_cluster
 	
@@ -54,7 +55,7 @@ class raevol_matrix(Engine):
                 combToRelaunch = 0
                 
                 # Check if some experiment reservation has finished
-                for kcomb in self.oarjob_dict:
+                for kcomb in self.oarjob_dict.keys():
 
                     print "checking "+slugify(kcomb)+ " oar "+self.oarjob_dict[kcomb]
                     
@@ -479,6 +480,7 @@ class raevol_matrix(Engine):
             
             # Copy binding matrix
             copyfile(self.binding_matrix_file, bucketname+'/binding_matrix.rae')
+            copyfile(self.lookup_table_file, bucketname+'/lookup_table.ae')
             
             # Launch aevol_create
             self.write_create_script(bucketname)

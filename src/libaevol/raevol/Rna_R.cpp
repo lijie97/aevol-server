@@ -353,6 +353,9 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
     const char* dna = gen_unit_->dna()->data();
     int32_t  len_dna    = gen_unit_->dna()->length();
 
+#ifdef __SIMD
+#pragma omp simd collapse(2)
+#endif
     for (int32_t pos = index; pos < index+5; pos++) {
 
       int8_t quadon[4];

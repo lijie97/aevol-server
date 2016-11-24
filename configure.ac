@@ -523,6 +523,21 @@ if test "x$proxylookup" = "xyes" ; then
    AC_DEFINE(__PROXY_POW)
 fi
 
+#  ************************* --with-pow-basal option *******************************
+#
+#  With this option, pow basal support is enabled and the __POW_BASAL flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use basal power or not])
+AC_ARG_WITH(powbasal, [--with-pow-basal to enable pow basal support], powbasal=$withval, powbasal=no)
+AC_MSG_RESULT($powbasal)
+AM_CONDITIONAL(WITH_POW_BASAL, test x"$powbasal" != xno)
+if test "x$powbasal" = "xyes" ; then
+   AC_DEFINE(__POW_BASAL)
+fi
+
+
 
 #  ************************* back to GENERAL stuff *******************************
 

@@ -127,6 +127,9 @@ class Individual_R : public virtual Individual
 
     inline std::vector<Protein_R*> get_inherited_protein_list( void) const;
     inline void set_networked( bool networked );
+
+    void dump_network_to_file();
+
     std::vector<Rna_R *> _rna_list_coding;   // Please note that these RNAs are
     // actually managed via genetic units.
 
