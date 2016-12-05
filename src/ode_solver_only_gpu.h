@@ -6,9 +6,7 @@
 #define RAEVOL_CUDA_ODE_SOLVER_ONLY_GPU_H
 #include <cuda.h>
 
-void call_kernel_ode_cuda(int multiply_population, int max_protein,
-                          int nb_signal, int degradationstep,
-                          int degradation_rate);
+
 
 #ifdef __CUDACC__
 __global__

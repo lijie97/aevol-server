@@ -31,8 +31,6 @@
 // =================================================================
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-
-#include "ode_solver_only_gpu.h"
 #include "ode_solver_only.h"
 #include "ae_logger.h"
 using namespace std::chrono;

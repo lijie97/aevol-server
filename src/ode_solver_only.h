@@ -5,6 +5,9 @@
 #ifndef RAEVOL_CUDA_ODE_SOLVER_ONLY_H_H
 #define RAEVOL_CUDA_ODE_SOLVER_ONLY_H_H
 
+void call_kernel_ode_cuda(int multiply_population, int max_protein,
+                          int nb_signal, int degradationstep,
+                          int degradation_rate);
 
 double degradation_rate = 1;
 double hill_shape_n      = 4;
