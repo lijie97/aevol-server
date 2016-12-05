@@ -29,10 +29,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ode_solver_only.h"
-
+#include <cuda.h>
 #include "ode_solver_only_gpu.h"
-
+#include "ode_solver_only.h"
 #include "ae_logger.h"
 using namespace std::chrono;
 
@@ -838,7 +837,7 @@ int transfert_data_to_gpu(int pop_size, int lifestep) {
   cudaMalloc((void**)&dev_nb_rna_influence_operating_coef_l1,
              pop_size * sizeof(int));
 
-  cudaMemcpy(dev_nb_rna_influence_enhacing_coef_l1,
+  cudaMemcpy(dev_nb_rna_influence_enhancing_coef_l1,
              nb_rna_influence_enhacing_coef_l1, pop_size * sizeof(int), cudaMemcpyHostToDevice);
   cudaMemcpy(dev_nb_rna_influence_operating_coef_l1,
              nb_rna_influence_operating_coef_l1, pop_size * sizeof(int), cudaMemcpyHostToDevice);
