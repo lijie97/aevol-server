@@ -745,13 +745,14 @@ int transfert_data_to_gpu(int pop_size, int lifestep) {
     nb_rna_produce_protein[i] = (int*)malloc(
         rna_produce_protein_list.size() * sizeof(int));
     nb_rna_produce[i] = rna_produce_protein_list.size();
+
     for (int prot_id = 0; prot_id < rna_produce_protein_list.size(); prot_id++) {
-      rna_produce_protein_array[i][rna_id] = (int*)malloc(
-          rna_produce_protein_list[i]->at(rna_id)->size()*sizeof(int));
+      rna_produce_protein_array[i][prot_id] = (int*)malloc(
+          rna_produce_protein_list[i]->at(prot_id)->size()*sizeof(int));
       nb_rna_produce_protein[i][prot_id] =
-          rna_produce_protein_list[i]->at(rna_id)->size();
+          rna_produce_protein_list[i]->at(prot_id)->size();
       for (int ix = 0; ix < rna_produce_protein_list[i]->at(prot_id)->size(); ix++) {
-        rna_produce_protein_array[i][rna_id][prot_id] =
+        rna_produce_protein_array[i][prot_id][ix] =
             rna_produce_protein_list[i]->at(prot_id)->at(ix);
 
       }

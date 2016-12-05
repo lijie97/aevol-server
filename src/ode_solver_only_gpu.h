@@ -29,7 +29,9 @@ int **nb_rna_produce_protein, *nb_rna_produce;
 double ***rna_influence_enhancing_coef_array,
     ***rna_influence_operating_coef_array;
 int **nb_rna_influence_enhancing_coef,
-    **nb_rna_influence_operating_coef;
+    **nb_rna_influence_operating_coef,
+    *dev_nb_rna_influence_enhancing_coef_l1,
+    *dev_nb_rna_influence_operating_coef_l1;
 
 double **env_concentration_array;
 
