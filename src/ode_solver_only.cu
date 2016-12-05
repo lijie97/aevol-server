@@ -1,4 +1,3 @@
-#include <cuda.h>
 
 #include "ode_solver_only_gpu.h"
 
