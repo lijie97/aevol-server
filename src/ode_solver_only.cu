@@ -1,6 +1,17 @@
 
 #include "ode_solver_only_gpu.h"
 
+void call_kernel_cuda_ode(int multiply_population, int max_protein,
+                          int nb_signal, int degradationstep,
+                          int degradation_rate) {
+  process_delta<<<1024*multiply_population,max_protein>>>(nb_signal,degradationstep,degradation_rate,
+      dev_rna_produce_protein_array, dev_nb_rna_produce_protein, dev_nb_rna_produce, dev_protein_concentration_array,
+      dev_rna_basal_concentration_array, dev_nb_protein_array, dev_nb_rna_array,
+      dev_rna_influence_enhancing_coef_array, dev_rna_influence_operating_coef_array,
+      dev_nb_rna_influence_enhancing_coef, dev_nb_rna_influence_operating_coef,
+      dev_env_concentration_array,hill_shape,hill_shape_n);
+}
+
 __global__
 void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_produce_protein_array,
                    int **nb_rna_produce_protein, int *nb_rna_produce,   double **protein_concentration_array,

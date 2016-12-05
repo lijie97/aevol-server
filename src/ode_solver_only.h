@@ -20,6 +20,8 @@ void solve_one_indiv_one_step(int indiv_id);
 void update_env_list_indiv(int lifestep, int start_indiv_id, int end_indiv_id);
 void solve_list_indiv_one_step(int start_indiv_id, int end_indiv_id);
 
+int transfert_data_to_gpu(int pop_size, int lifestep);
+
 std::vector<std::vector<double>*> protein_concentration_list;
 std::vector<std::vector<double>*> rna_basal_concentration_list;
 std::vector<std::vector<std::vector<int>*>*> rna_produce_protein_list;

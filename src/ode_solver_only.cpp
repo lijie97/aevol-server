@@ -30,6 +30,9 @@
 //                            Project Files
 // =================================================================
 #include "ode_solver_only.h"
+
+#include "ode_solver_only_gpu.h"
+
 #include "ae_logger.h"
 using namespace std::chrono;
 
@@ -539,12 +542,8 @@ int main(int argc, char* argv[]) {
     } else if (execution_mode == 4) {
       int max_protein = transfert_data_to_gpu(1024*multiply_population,lifestep);
 
-      process_delta<<<1024*multiply_population,max_protein>>>(nb_signal,degradationstep,degradation_rate,
-          dev_rna_produce_protein_array, dev_nb_rna_produce_protein, dev_nb_rna_produce, dev_protein_concentration_array,
-          dev_rna_basal_concentration_array, dev_nb_protein_array, dev_nb_rna_array,
-          dev_rna_influence_enhancing_coef_array, dev_rna_influence_operating_coef_array,
-          dev_nb_rna_influence_enhancing_coef, dev_nb_rna_influence_operating_coef,
-          dev_env_concentration_array,hill_shape,hill_shape_n);
+      call_kernel_ode_cuda(multiply_population, max_protein,
+          nb_signal, degradationstep, degradation_rate);
     }
   }
   t_t2 = high_resolution_clock::now();
