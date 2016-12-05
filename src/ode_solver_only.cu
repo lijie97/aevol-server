@@ -59,7 +59,7 @@ void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_pro
 
       __syncthreads();
 
-      protein_concentration_array[indiv_id][prot_id] += delta[prot_id];
+      protein_concentration_array[indiv_id][prot_id] = delta;
     }
   }
 }
