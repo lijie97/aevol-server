@@ -8,15 +8,16 @@ void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_pro
                    double **rna_basal_concentration_array, int *nb_protein_array, int *nb_rna_array,
                    double ***rna_influence_enhancing_coef_array, double ***rna_influence_operating_coef_array,
                    int **nb_rna_influence_enhancing_coef, int  **nb_rna_influence_operating_coef,
-                   double **env_concentration_array) {
+                   double **env_concentration_array, double hill_shape, double hill_shape_n) {
+
+
+
+  double delta = 0;
+
+  int indiv_id = blockIdx.x;
+  int prot_id = threadIdx.x;
 
   if (prot_id < nb_protein_array[indiv_id] - nb_signal) {
-
-    double delta = 0;
-
-    int indiv_id = blockIdx.x;
-    int prot_id = threadIdx.x;
-
     for (int j = 0; j < degradstep; j++) {
       for (int j = 0;
            j < nb_rna_produce_protein[indiv_id][prot_id]; j++) {
@@ -33,7 +34,7 @@ void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_pro
               * protein_concentration_array[indiv_id][i];
           operator_activity +=
               rna_influence_operating_coef_array[indiv_id][rna_id][i]
-              * protein_concentration_list[indiv_id][i];
+              * protein_concentration_array[indiv_id][i];
         }
 
         double enhancer_activity_pow_n = enhancer_activity == 0 ? 0 :
@@ -54,7 +55,7 @@ void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_pro
       delta -=
           degradrate *
           protein_concentration_list[indiv_id][prot_id];
-      delta *= 1 / (double) degradationstep;
+      delta *= 1 / (double) degradstep;
 
       __syncthreads();
 

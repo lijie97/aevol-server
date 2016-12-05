@@ -544,7 +544,7 @@ int main(int argc, char* argv[]) {
           dev_rna_basal_concentration_array, dev_nb_protein_array, dev_nb_rna_array,
           dev_rna_influence_enhancing_coef_array, dev_rna_influence_operating_coef_array,
           dev_nb_rna_influence_enhancing_coef, dev_nb_rna_influence_operating_coef,
-          dev_env_concentration_array);
+          dev_env_concentration_array,hill_shape,hill_shape_n);
     }
   }
   t_t2 = high_resolution_clock::now();

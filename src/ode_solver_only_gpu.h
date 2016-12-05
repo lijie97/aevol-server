@@ -5,12 +5,13 @@
 #ifndef RAEVOL_CUDA_ODE_SOLVER_ONLY_GPU_H
 #define RAEVOL_CUDA_ODE_SOLVER_ONLY_GPU_H
 
-double degradation_rate = 1;
-double hill_shape_n      = 4;
-double hill_shape_theta  = 0.5;
-double hill_shape        = std::pow( hill_shape_theta, hill_shape_n );
-
-int degradationstep = 0;
+__global__
+void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_produce_protein_array,
+                   int **nb_rna_produce_protein, int *nb_rna_produce,   double **protein_concentration_array,
+                   double **rna_basal_concentration_array, int *nb_protein_array, int *nb_rna_array,
+                   double ***rna_influence_enhancing_coef_array, double ***rna_influence_operating_coef_array,
+                   int **nb_rna_influence_enhancing_coef, int  **nb_rna_influence_operating_coef,
+                   double **env_concentration_array, double hill_shape, double hill_shape_n);
 
 double **protein_concentration_array, **rna_basal_concentration_array;
 int *nb_protein_array, *nb_rna_array;

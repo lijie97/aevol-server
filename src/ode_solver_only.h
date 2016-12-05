@@ -7,6 +7,13 @@
 
 #include "ode_solver_only_gpu.h"
 
+double degradation_rate = 1;
+double hill_shape_n      = 4;
+double hill_shape_theta  = 0.5;
+double hill_shape        = std::pow( hill_shape_theta, hill_shape_n );
+
+int degradationstep = 0;
+
 void update_env_indiv(int lifestep, int indiv_id);
 void solve_one_indiv_one_step(int indiv_id);
 
