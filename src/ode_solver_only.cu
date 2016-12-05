@@ -1,7 +1,7 @@
 
 #include "ode_solver_only_gpu.h"
 
-void call_kernel_cuda_ode(int multiply_population, int max_protein,
+void call_kernel_ode_cuda(int multiply_population, int max_protein,
                           int nb_signal, int degradationstep,
                           int degradation_rate) {
   process_delta<<<1024*multiply_population,max_protein>>>(nb_signal,degradationstep,degradation_rate,
