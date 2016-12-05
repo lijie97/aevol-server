@@ -45,7 +45,7 @@ void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_pro
                  * (hill_shape
                     / (operator_activity_pow_n + hill_shape))
                  * (1 +
-                    ((1 / rna_basal_concentration_list[indiv_id][rna_id]
+                    ((1 / rna_basal_concentration_array[indiv_id][rna_id]
                      ) -
                      1)
                     * (enhancer_activity_pow_n /
@@ -54,12 +54,12 @@ void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_pro
 
       delta -=
           degradrate *
-          protein_concentration_list[indiv_id][prot_id];
+          protein_concentration_array[indiv_id][prot_id];
       delta *= 1 / (double) degradstep;
 
       __syncthreads();
 
-      protein_concentration_list[indiv_id][prot_id] += delta[prot_id];
+      protein_concentration_array[indiv_id][prot_id] += delta[prot_id];
     }
   }
 }
