@@ -33,7 +33,7 @@ class raevol_matrix(Engine):
         """ """
         self.define_parameters()
 	
-	self.working_dir = '/services/beagle/rouzaudc/large_campaign_v20/'
+	self.working_dir = '/services/beagle/rouzaudc/large_campaign_fix/'
 	self.aevol_binary_directory = '/services/beagle/rouzaudc/binary/'
 	self.template_param_file = self.working_dir+'/param_tmpl.in'
 	self.binding_matrix_file = self.working_dir+'/binding_matrix.rae'
@@ -100,12 +100,12 @@ class raevol_matrix(Engine):
         """ """
         parameters = {
 	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842, 2784564, 68984554],
-	  'mutation' : ['5e-7'],
-	  'env' : ['lat_all'],
-	  'selection' : [2000]
-	  #'mutation' : ['3.33e-5','1e-5','3.33e-6','1e-6','3.33e-7'],
-	  #'env' : ['const','lat_3','lat_13','lat_123','lat_all'],
+	  #'mutation' : ['5e-7'],
+	  #'env' : ['lat_all'],
 	  #'selection' : [500,1000,1500,2000]
+	  'mutation' : ['5e-5','1e-5','5e-6','1e-6','5e-7'],
+	  'env' : ['const','lat_3','lat_13','lat_123','lat_all'],
+	  'selection' : [500,1000,1500,2000]
         }
         sweeps = sweep(parameters)
         self.sweeper = ParamSweeper(os.path.join(self.result_dir, "sweeps"), sweeps)
@@ -117,7 +117,7 @@ class raevol_matrix(Engine):
         if os.path.isfile(script_file):
             os.remove(script_file)
             
-        launch_cmd = 'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/services/beagle/mkl/lib/intel64_lin/ '+self.aevol_binary_directory+'/aevol_run -p 16 -e '+str(self.nb_last_generation)+' '
+        launch_cmd = 'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/services/beagle/mkl/lib/intel64_lin/ '+self.aevol_binary_directory+'/aevol_run -p 4 -e '+str(self.nb_last_generation)+' '
         
         if resume:
             launch_cmd += '-r '+str(resumeGeneration)+' '
@@ -456,7 +456,7 @@ class raevol_matrix(Engine):
                 self.write_run_script(bucketname,True,last_gen)
                 
                 # Launch aevol_run
-                frontend = Local('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run.sh  -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
+                frontend = Local('cd '+bucketname+'; oarsub -l /core=4,walltime=120:00:00 ./run.sh  -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
                 frontend.run()
                 
                 a_message = ''
@@ -487,7 +487,7 @@ class raevol_matrix(Engine):
                         
             time.sleep(10)
             
-            frontend = Local('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run_create.sh  -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
+            frontend = Local('cd '+bucketname+'; oarsub -l /core=4,walltime=120:00:00 ./run_create.sh  -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
             frontend.run()
             
             a_message = ''
@@ -519,7 +519,7 @@ class raevol_matrix(Engine):
             time.sleep(10)
             
             # Launch aevol_run
-            frontend = Local('cd '+bucketname+'; oarsub -l /nodes=1,walltime=120:00:00 ./run.sh -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
+            frontend = Local('cd '+bucketname+'; oarsub -l /core=4,walltime=120:00:00 ./run.sh -p \"cluster=\''+self.cluster+'\'\" | grep OAR_JOB_ID | cut -d\'=\' -f2',process_args = { 'shell': True })
             frontend.run()
             
             a_message = ''
