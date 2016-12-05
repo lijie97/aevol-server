@@ -1,7 +1,6 @@
 #include <vector>
 
 #include "ode_solver_only_gpu.h"
-#include "ode_solver_only.h"
 
 void call_kernel_ode_cuda(int multiply_population, int max_protein,
                           int nb_signal, int degradationstep,
