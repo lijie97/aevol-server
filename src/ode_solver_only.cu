@@ -1,3 +1,4 @@
+#include <vector>
 
 #include "ode_solver_only_gpu.h"
 #include "ode_solver_only.h"
@@ -247,6 +248,8 @@ int transfert_data_to_gpu(int pop_size, int lifestep) {
                nb_signal * sizeof(double),
                cudaMemcpyHostToDevice);
   }
+
+  return max_prot;
 }
 
 __global__
