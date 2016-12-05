@@ -5,7 +5,6 @@
 #ifndef RAEVOL_CUDA_ODE_SOLVER_ONLY_H_H
 #define RAEVOL_CUDA_ODE_SOLVER_ONLY_H_H
 
-#include "ode_solver_only_gpu.h"
 
 double degradation_rate = 1;
 double hill_shape_n      = 4;
