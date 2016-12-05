@@ -6,7 +6,9 @@
 #define RAEVOL_CUDA_ODE_SOLVER_ONLY_GPU_H
 #include <cuda.h>
 
+#ifdef __CUDACC__
 __global__
+#endif
 void process_delta(int nb_signal, int degradstep, int degradrate, int ***rna_produce_protein_array,
                    int **nb_rna_produce_protein, int *nb_rna_produce,   double **protein_concentration_array,
                    double **rna_basal_concentration_array, int *nb_protein_array, int *nb_rna_array,
