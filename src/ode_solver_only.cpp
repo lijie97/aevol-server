@@ -29,10 +29,15 @@
 // =================================================================
 //                            Project Files
 // =================================================================
+#ifdef __CUDA
 #include <cuda.h>
 #include <cuda_runtime_api.h>
+#endif
+
 #include "ode_solver_only.h"
 #include "ae_logger.h"
+#include "AeTime.h"
+
 using namespace std::chrono;
 
 
@@ -40,7 +45,7 @@ unordered_map<int,unordered_multiset<string>> ae_logger::logMap;
 string ae_logger::logFile = "logger_csv.log";
 mutex ae_logger::loggerMtx;
 
-#include "aevol.h"
+//#include "aevol.h"
 
 using namespace aevol;
 
@@ -52,7 +57,7 @@ int main(int argc, char* argv[]) {
 
   std::string line;
 
-  const char * short_options = "Vve:p:s:d:m:o:n:";
+  const char * short_options = "Vve:p:s:d:m:o:n:g:";
   static struct option long_options[] = {
       {"version",   no_argument,       NULL,  'V'},
       {"verbose",   no_argument,       NULL,  'v'},
@@ -63,6 +68,7 @@ int main(int argc, char* argv[]) {
       {"merge",       required_argument,  NULL, 'm'},
       {"odesolver",       required_argument,  NULL, 'o'},
       {"parallel",       required_argument,  NULL, 'n'},
+      {"generation",       required_argument,  NULL, 'g'},
       {0, 0, 0, 0}
   };
 
@@ -72,6 +78,7 @@ int main(int argc, char* argv[]) {
   int merge = 0;
   int odesolver = 0;
   int parallelthread = 1;
+  int nb_gen = 1;
 
   int option;
   while((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
@@ -80,7 +87,7 @@ int main(int argc, char* argv[]) {
     {
       case 'V' :
       {
-        Utils::PrintAevolVersion();
+        //Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
       case 'v' : verbose = true;                    break;
@@ -165,6 +172,18 @@ int main(int argc, char* argv[]) {
         }
 
         parallelthread = atoi(optarg);
+
+        break;
+      }
+      case 'g' :
+      {
+        if (strcmp(optarg, "") == 0)
+        {
+          printf("%s: error: Option -g or --generation : missing argument.\n", argv[0]);
+          exit(EXIT_FAILURE);
+        }
+
+        nb_gen = atoi(optarg);
 
         break;
       }
@@ -451,10 +470,11 @@ int main(int argc, char* argv[]) {
   env_concentration_list.reserve(lifestep);
   std::vector<std::vector<double>*>::iterator itenv = env_concentration_list.begin();
   for (int i = 0; i < lifestep; i++) {
-    env_concentration_list.insert(itenv+i,new std::vector<double>());
+    env_concentration_list.insert(itenv+i,new std::vector<double>(nb_signal));
   }
 
-  while ( getline (env_concentration,line) ) {
+  int lstep = 0;
+  while ( getline (env_concentration,line) && lstep < lifestep) {
     std::vector<double> vect;
 
     std::stringstream ss(line);
@@ -470,6 +490,14 @@ int main(int argc, char* argv[]) {
 
     std::vector<double>::iterator itenv2 = env_concentration_list[(int)vect[0]]->begin();
     env_concentration_list[(int)vect[0]]->insert(itenv2+(int)vect[1],vect[2]);
+    lstep++;
+  }
+
+  int max_prot = 0;
+  for (int indiv = 0; indiv < 1024; indiv++) {
+    max_prot = max_prot < protein_concentration_list[indiv]->size() ?
+               protein_concentration_list[indiv]->size() : max_prot;
+
   }
 
   AeTime::set_time(0);
@@ -482,32 +510,36 @@ int main(int argc, char* argv[]) {
     // Explicit Euler custom Solver
     if (execution_mode == 0) {
       // Sequential solver
-      for (int i = 0; i < multiply_population*1024; i++) {
-        for (int lstep = 0; lstep < lifestep; lstep++) {
-          update_env_indiv(lstep,i);
-          solve_one_indiv_one_step(i);
+      for (int gen = 0; gen < nb_gen; gen++) {
+        for (int i = 0; i < multiply_population * 1024; i++) {
+          for (int lstep = 0; lstep < lifestep; lstep++) {
+            update_env_indiv(lstep, i);
+            solve_one_indiv_one_step(i);
 
+          }
         }
       }
     } else if (execution_mode == 1) {
       // Sequential merge
+      for (int gen = 0; gen < nb_gen; gen++) {
+        for (int i = 0; i < multiply_population * 1024; i += merge) {
+          for (int lstep = 0; lstep < lifestep; lstep++) {
+            update_env_list_indiv(lstep, i, i + merge - 1);
+            solve_list_indiv_one_step(i, i + merge - 1);
 
-      for (int i = 0; i < multiply_population*1024; i+=merge) {
-        for (int lstep = 0; lstep < lifestep; lstep++) {
-          update_env_list_indiv(lstep,i,i+merge-1);
-          solve_list_indiv_one_step(i,i+merge-1);
-
+          }
         }
       }
     } else if (execution_mode == 2) {
       // Parallel
-
-      #pragma omp parallel for num_threads(parallelthread) schedule(dynamic)
-      for (int i = 0; i < multiply_population*1024; i++) {
-        //t1 = high_resolution_clock::now();
-        for (int lstep = 0; lstep < lifestep; lstep++) {
-          update_env_indiv(lstep,i);
-          solve_one_indiv_one_step(i);
+      for (int gen = 0; gen < nb_gen; gen++) {
+#pragma omp parallel for num_threads(parallelthread) schedule(dynamic)
+        for (int i = 0; i < multiply_population * 1024; i++) {
+          //t1 = high_resolution_clock::now();
+          for (int lstep = 0; lstep < lifestep; lstep++) {
+            update_env_indiv(lstep, i);
+            solve_one_indiv_one_step(i);
+          }
         }
 /*
         t2 = high_resolution_clock::now();
@@ -520,14 +552,105 @@ int main(int argc, char* argv[]) {
       }
     } else if (execution_mode == 3) {
       // Parallel merge
-      #pragma omp parallel for num_threads(parallelthread) schedule(dynamic)
-      for (int i = 0; i < multiply_population*1024; i+=merge) {
+      for (int gen = 0; gen < nb_gen; gen++) {
+#pragma omp parallel for num_threads(24) schedule(dynamic)
+        for (int i = 0; i < multiply_population * 1024; i += merge) {
+          //t1 = high_resolution_clock::now();
+
+          for (int lstep = 0; lstep < lifestep; lstep++) {
+            update_env_list_indiv(lstep, i, i + merge - 1);
+            solve_list_indiv_one_step(i, i + merge - 1);
+
+          }
+/*
+        t2 = high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        printf("%d %d %d\n",t1,t2,duration);
+
+        ae_logger::addLog(SELECTION,duration);
+        ae_logger::flush(AeTime::time());
+        AeTime::plusplus();*/
+        }
+      }
+    } else if (execution_mode == 4) {
+#ifdef __CUDA
+      int max_protein = transfert_data_to_gpu(1024 * multiply_population,
+                                              lifestep,
+                                              protein_concentration_list,
+                                              rna_basal_concentration_list,
+                                              rna_produce_protein_list,
+                                              rna_influence_enhancing_coef_list,
+                                              rna_influence_operating_coef_list,
+                                              nb_signal,
+                                              env_concentration_list);
+
+      call_kernel_ode_cuda(nb_gen,multiply_population, max_protein,
+                           nb_signal, degradationstep, degradation_rate,
+                           hill_shape_n,
+                           hill_shape);
+#endif
+    } else if (execution_mode == 5) {
+#ifdef __CUDA
+
+      int max_protein = transfert_data_to_gpu_dense(1024 * multiply_population,
+                                                    lifestep,
+                                                    protein_concentration_list,
+                                                    rna_basal_concentration_list,
+                                                    rna_produce_protein_list,
+                                                    rna_influence_enhancing_coef_list,
+                                                    rna_influence_operating_coef_list,
+                                                    nb_signal,
+                                                    env_concentration_list);
+
+      //call_kernel_ode_cuda(multiply_population, max_protein,
+      //                     nb_signal, degradationstep, degradation_rate, hill_shape_n,
+      //                     hill_shape);
+#endif
+    } else if (execution_mode == 6) {
+#ifdef __CUDA
+      int max_protein = transfert_data_to_gpu_float(1024 * multiply_population,
+                                                    lifestep,
+                                                    protein_concentration_list,
+                                                    rna_basal_concentration_list,
+                                                    rna_produce_protein_list,
+                                                    rna_influence_enhancing_coef_list,
+                                                    rna_influence_operating_coef_list,
+                                                    nb_signal,
+                                                    env_concentration_list);
+
+      call_kernel_ode_cuda_float(nb_gen,multiply_population, max_protein,
+                                 nb_signal, degradationstep, degradation_rate,
+                                 hill_shape_n,
+                                 hill_shape);
+#endif
+    } else if (execution_mode == 7) {
+#ifdef __CUDA
+      int max_protein = transfert_data_to_gpu_thrust(nb_gen,
+      multiply_population,
+                                nb_signal, degradationstep,
+                                degradation_rate, hill_shape_n, hill_shape,
+      1024 * multiply_population,
+                                                    lifestep,
+                                                    protein_concentration_list,
+                                                    rna_basal_concentration_list,
+                                                    rna_produce_protein_list,
+                                                    rna_influence_enhancing_coef_list,
+                                                    rna_influence_operating_coef_list,
+
+                                                    env_concentration_list);
+      call_kernel_ode_cuda_thrust(multiply_population,
+                                nb_signal, degradationstep,
+                                degradation_rate, hill_shape_n, hill_shape);
+#endif
+    } else if (execution_mode == 10) {
+      // Parallel
+
+#pragma omp parallel for num_threads(parallelthread) schedule(dynamic)
+      for (int i = 0; i < multiply_population * 1024; i++) {
         //t1 = high_resolution_clock::now();
-
         for (int lstep = 0; lstep < lifestep; lstep++) {
-          update_env_list_indiv(lstep,i,i+merge-1);
-          solve_list_indiv_one_step(i,i+merge-1);
-
+          update_env_indiv(lstep, i);
+          solve_one_indiv_one_step_tl(i);
         }
 /*
         t2 = high_resolution_clock::now();
@@ -538,17 +661,37 @@ int main(int argc, char* argv[]) {
         ae_logger::flush(AeTime::time());
         AeTime::plusplus();*/
       }
-    } else if (execution_mode == 4) {
-      int max_protein = transfert_data_to_gpu(1024*multiply_population,lifestep);
 
-      call_kernel_ode_cuda(multiply_population, max_protein,
-          nb_signal, degradationstep, degradation_rate);
+    } else if (execution_mode == 11) {
+      // Parallel
+
+#pragma omp parallel
+      {
+#pragma omp single
+        {
+          for (int i = 0; i < multiply_population * 1024; i++) {
+
+            #pragma omp task untied
+            for (int lstep = 0; lstep < lifestep; lstep++) {
+              update_env_indiv(lstep, i);
+              solve_one_indiv_one_step_tl2(i);
+            }
+          }
+        }
+      }
+    } else if (execution_mode == 12) {
+      // Parallel
+
+      //#pragma omp parallel
+      //#pragma omp single
+      solve_one_indiv_one_step_tl3(lifestep,multiply_population,max_prot);
     }
   }
   t_t2 = high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
   ae_logger::addLog(TOTAL,duration);
   ae_logger::flush(AeTime::time());
+  std::cout<<"DURATION: "<<duration<<std::endl;
 
   std::ofstream finished("finished.lock");
   finished<<"ok"<<std::endl;
@@ -566,6 +709,258 @@ void update_env_list_indiv(int lifestep, int start_indiv_id, int end_indiv_id) {
   }
 }
 
+void solve_one_indiv_one_step_tl(int indiv_id) {
+  std::vector<double> delta;
+
+  for (int j = 0; j < degradationstep; j++) {
+    delta.clear();
+
+    #pragma omp taskloop
+    for (int prot_id = 0;
+         prot_id < protein_concentration_list[indiv_id]->size(); prot_id++) {
+
+      if (prot_id < protein_concentration_list[indiv_id]->size() - nb_signal) {
+        delta.insert(delta.begin() + prot_id, 0);
+
+        #pragma omp simd
+        for (int j = 0;
+             j < rna_produce_protein_list[indiv_id]->at(prot_id)->size(); j++) {
+          double enhancer_activity = 0;
+          double operator_activity = 0;
+
+          int rna_id = rna_produce_protein_list[indiv_id]->at(prot_id)->at(j);
+
+          for (int i = 0; i <
+                          rna_influence_enhancing_coef_list[indiv_id]->at(rna_id)->size(); i++) {
+
+            enhancer_activity +=
+                rna_influence_enhancing_coef_list[indiv_id]->at(rna_id)->at(i)
+                * protein_concentration_list[indiv_id]->at(i);
+            operator_activity +=
+                rna_influence_operating_coef_list[indiv_id]->at(rna_id)->at(i)
+                * protein_concentration_list[indiv_id]->at(i);
+          }
+
+          double enhancer_activity_pow_n = enhancer_activity == 0 ? 0 :
+                                           pow(enhancer_activity, hill_shape_n);
+          double operator_activity_pow_n = operator_activity == 0 ? 0 :
+                                           pow(operator_activity, hill_shape_n);
+          delta[prot_id] += rna_basal_concentration_list[indiv_id]->at(rna_id)
+                            * (hill_shape
+                               / (operator_activity_pow_n + hill_shape))
+                            * (1 +
+                               ((1 / rna_basal_concentration_list[indiv_id]->at(rna_id)) -
+                                1)
+                               * (enhancer_activity_pow_n /
+                                  (enhancer_activity_pow_n + hill_shape)));
+        }
+
+        delta[prot_id] -=
+            degradation_rate * protein_concentration_list[indiv_id]->at(prot_id);
+        delta[prot_id] *= 1 / (double) degradationstep;
+      }
+    }
+
+    // Apply the changes in concentrations we have just computed
+    #pragma omp taskloop
+    for (int prot_id = 0;
+         prot_id < protein_concentration_list[indiv_id]->size(); prot_id++) {
+      if (prot_id < protein_concentration_list[indiv_id]->size() - nb_signal) {
+        protein_concentration_list[indiv_id]->at(prot_id) += delta[prot_id];
+      }
+    }
+  }
+}
+
+
+
+void solve_one_indiv_one_step_tl2(int indiv_id) {
+  std::vector<double> delta;
+
+  for (int j = 0; j < degradationstep; j++) {
+    delta.clear();
+
+#pragma omp taskloop
+    for (int prot_id = 0;
+         prot_id < protein_concentration_list[indiv_id]->size(); prot_id++) {
+
+      if (prot_id < protein_concentration_list[indiv_id]->size() - nb_signal) {
+        delta.insert(delta.begin() + prot_id, 0);
+
+#pragma omp simd
+        for (int j = 0;
+             j < rna_produce_protein_list[indiv_id]->at(prot_id)->size(); j++) {
+          double enhancer_activity = 0;
+          double operator_activity = 0;
+
+          int rna_id = rna_produce_protein_list[indiv_id]->at(prot_id)->at(j);
+
+          for (int i = 0; i <
+                          rna_influence_enhancing_coef_list[indiv_id]->at(rna_id)->size(); i++) {
+
+            enhancer_activity +=
+                rna_influence_enhancing_coef_list[indiv_id]->at(rna_id)->at(i)
+                * protein_concentration_list[indiv_id]->at(i);
+            operator_activity +=
+                rna_influence_operating_coef_list[indiv_id]->at(rna_id)->at(i)
+                * protein_concentration_list[indiv_id]->at(i);
+          }
+
+          double enhancer_activity_pow_n = enhancer_activity == 0 ? 0 :
+                                           pow(enhancer_activity, hill_shape_n);
+          double operator_activity_pow_n = operator_activity == 0 ? 0 :
+                                           pow(operator_activity, hill_shape_n);
+          delta[prot_id] += rna_basal_concentration_list[indiv_id]->at(rna_id)
+                            * (hill_shape
+                               / (operator_activity_pow_n + hill_shape))
+                            * (1 +
+                               ((1 / rna_basal_concentration_list[indiv_id]->at(rna_id)) -
+                                1)
+                               * (enhancer_activity_pow_n /
+                                  (enhancer_activity_pow_n + hill_shape)));
+        }
+
+        delta[prot_id] -=
+            degradation_rate * protein_concentration_list[indiv_id]->at(prot_id);
+        delta[prot_id] *= 1 / (double) degradationstep;
+      }
+    }
+
+    // Apply the changes in concentrations we have just computed
+#pragma omp taskloop
+    for (int prot_id = 0;
+         prot_id < protein_concentration_list[indiv_id]->size(); prot_id++) {
+      if (prot_id < protein_concentration_list[indiv_id]->size() - nb_signal) {
+        protein_concentration_list[indiv_id]->at(prot_id) += delta[prot_id];
+      }
+    }
+  }
+}
+
+
+void solve_one_indiv_one_step_tl3(int lifestep, int multiply_population, int max_prot) {
+
+  bool update_dep_tab[1024][50];
+
+  bool delta_dep_tab[1024][50][10];
+  bool prot_compute_dep_tab[1024][50][10][1000];
+  bool prot_sum_dep_tab[1024][50][10][1000];
+
+#pragma omp parallel
+  {
+#pragma omp single
+    {
+//#pragma omp taskloop
+      for (int indiv_id = 0;
+           indiv_id < multiply_population * 1024; indiv_id++) {
+        std::vector<double> delta;
+        delta.clear();
+
+        for (int lstep = 0; lstep < lifestep; lstep++) {
+
+          if (lstep == 0) {
+#pragma omp task depend(out:update_dep_tab[indiv_id][lstep])
+            update_env_indiv(lstep, indiv_id);
+          } else {
+            // depend(in:prot_sum_dep_tab[indiv_id][lstep][degradationstep-1][0:max_prot])
+            // #pragma omp task depend(in:update_dep_tab[indiv_id][lstep-1])  depend(out:update_dep_tab[indiv_id][lstep])
+            update_env_indiv(lstep, indiv_id);
+          }
+
+          for (int j = 0; j < degradationstep; j++) {
+
+            if (j == 0) {
+#pragma omp task depend(in:update_dep_tab[indiv_id][lstep]) depend(out:delta_dep_tab[indiv_id][lstep][j])
+              delta.clear();
+            } else {
+//#pragma omp task depend(in:update_dep_tab[indiv_id][lstep]) depend(in:delta_dep_tab[indiv_id][lstep][j-1]) depend(out:delta_dep_tab[indiv_id][lstep][j])
+              delta.clear();
+            }
+
+//#pragma omp taskloop
+            for (int prot_id = 0;
+                 prot_id <
+                 protein_concentration_list[indiv_id]->size(); prot_id++) {
+
+#pragma omp task depend(in:delta_dep_tab[indiv_id][lstep][j])
+ //depend(out:prot_compute_dep_tab[indiv_id][lstep][j][prot_id])
+              if (prot_id <
+                  protein_concentration_list[indiv_id]->size() - nb_signal) {
+                delta.insert(delta.begin() + prot_id, 0);
+
+//#pragma omp simd
+                for (int j = 0;
+                     j <
+                     rna_produce_protein_list[indiv_id]->at(
+                         prot_id)->size(); j++) {
+                  double enhancer_activity = 0;
+                  double operator_activity = 0;
+
+                  int rna_id = rna_produce_protein_list[indiv_id]->at(
+                      prot_id)->at(
+                      j);
+
+                  for (int i = 0; i <
+                                  rna_influence_enhancing_coef_list[indiv_id]->at(
+                                      rna_id)->size(); i++) {
+
+                    enhancer_activity +=
+                        rna_influence_enhancing_coef_list[indiv_id]->at(
+                            rna_id)->at(
+                            i)
+                        * protein_concentration_list[indiv_id]->at(i);
+                    operator_activity +=
+                        rna_influence_operating_coef_list[indiv_id]->at(
+                            rna_id)->at(
+                            i)
+                        * protein_concentration_list[indiv_id]->at(i);
+                  }
+
+                  double enhancer_activity_pow_n = enhancer_activity == 0 ? 0 :
+                                                   pow(enhancer_activity,
+                                                       hill_shape_n);
+                  double operator_activity_pow_n = operator_activity == 0 ? 0 :
+                                                   pow(operator_activity,
+                                                       hill_shape_n);
+                  delta[prot_id] +=
+                      rna_basal_concentration_list[indiv_id]->at(rna_id)
+                      * (hill_shape
+                         / (operator_activity_pow_n + hill_shape))
+                      * (1 +
+                         ((1 /
+                           rna_basal_concentration_list[indiv_id]->at(rna_id)) -
+                          1)
+                         * (enhancer_activity_pow_n /
+                            (enhancer_activity_pow_n + hill_shape)));
+                }
+
+                delta[prot_id] -=
+                    degradation_rate *
+                    protein_concentration_list[indiv_id]->at(prot_id);
+                delta[prot_id] *= 1 / (double) degradationstep;
+              }
+            }
+#pragma omp taskwait
+
+            // Apply the changes in concentrations we have just computed
+//#pragma omp taskloop
+            for (int prot_id = 0;
+                 prot_id <
+                 protein_concentration_list[indiv_id]->size(); prot_id++) {
+// depend(in:prot_compute_dep_tab[indiv_id][lstep][j][prot_id])
+//#pragma omp task depend(out:prot_sum_dep_tab[indiv_id][lstep][j][prot_id])
+              if (prot_id <
+                  protein_concentration_list[indiv_id]->size() - nb_signal) {
+                protein_concentration_list[indiv_id]->at(
+                    prot_id) += delta[prot_id];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 void update_env_indiv(int lifestep, int indiv_id) {
   for (int prot_id = protein_concentration_list[indiv_id]->size() - nb_signal;
@@ -697,5 +1092,3 @@ void solve_list_indiv_one_step(int start_indiv_id, int end_indiv_id) {
     }
   }
 }
-
-

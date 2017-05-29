@@ -31,6 +31,9 @@ AX_CXX_COMPILE_STDCXX_11([noext])
 #if test -z "$HAVE_CXX14";
 #fi
 
+# Detect if CUDA is installed
+AX_CHECK_CUDA
+
 # Check the existance of an arbitrary source file
 AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 
@@ -76,6 +79,7 @@ ACX_PTHREAD()
 AM_CONDITIONAL([HAVE_PTHREADS],[test "x$acx_pthread_ok" = "xyes"])
 AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
+
 
 
 # ****************************************************************************
@@ -538,7 +542,17 @@ if test "x$powbasal" = "xyes" ; then
 fi
 
 
+# ************************** --with-cuda option **********************************
+#
+#
+#
+#
 
+AM_CONDITIONAL([ENABLE_CUDA],[test x"$enable_cuda" != xno])
+if test "x$enable_cuda" = xyes ; then
+   AC_MSG_NOTICE([Enable CUDA Library])
+   LIBS+=" -lcudart -lcuda"
+fi
 #  ************************* back to GENERAL stuff *******************************
 
 AC_CONFIG_FILES([Makefile

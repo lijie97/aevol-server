@@ -39,7 +39,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "Individual.h"
+#include "../Individual.h"
 #include "Rna_R.h"
 #include "Protein_R.h"
 #include "Habitat_R.h"

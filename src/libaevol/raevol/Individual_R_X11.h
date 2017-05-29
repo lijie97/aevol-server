@@ -38,7 +38,7 @@
 //                            Project Files
 // =================================================================
 #include "Individual_R.h"
-#include "Individual_X11.h"
+#include "../Individual_X11.h"
 
 namespace aevol {
 

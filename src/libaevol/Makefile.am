@@ -86,8 +86,7 @@ AeTime.h \
 World.h \
 make_unique.h \
 ae_logger.h \
-HabitatFactory.h \
-raevol/cuda_struct.h
+HabitatFactory.h
 
 common_sources = \
 Alignment.cpp \
@@ -138,8 +137,7 @@ ParamLoader.cpp \
 ParameterLine.cpp \
 AeTime.cpp \
 World.cpp \
-HabitatFactory.cpp \
-raevol/cuda_struct.cpp
+HabitatFactory.cpp
 
 raevol_headers = \
 raevol/Individual_R.h \
@@ -179,6 +177,12 @@ algorithm_cuda.cpp
 openmp_gpu_headers = \
 algorithm_cuda.h
 
+cuda_sources = \
+CUDA_Individual.cu
+
+cuda_headers = \
+CUDA_Individual.h
+
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
@@ -209,3 +213,11 @@ if WITH_OPENMPGPU
   libaevol_a_SOURCES += $(openmp_gpu_sources)
   libaevol_a_SOURCES += $(openmp_gpu_headers)
 endif
+
+if ENABLE_CUDA
+  libaevol_a_SOURCES += $(cuda_sources)
+  libaevol_a_SOURCES += $(cuda_headers)
+endif
+
+.cu.o:
+	$(NVCC) $(DEFS) -g -std=c++11 -arch=sm_35 -c -o $@ $<

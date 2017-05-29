@@ -42,7 +42,7 @@
 #include <zlib.h>
 
 #include "PhenotypicTargetHandler_R.h"
-#include "Habitat.h"
+#include "../Habitat.h"
 
 
 namespace aevol {

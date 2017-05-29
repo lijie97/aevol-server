@@ -37,9 +37,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "Rna.h"
+#include "../Rna.h"
 #include "Protein_R.h"
-#include "macros.h"
+#include "../macros.h"
 
 namespace aevol {
 
@@ -107,7 +107,9 @@ class Rna_R : public Rna
 #ifdef __PROXY_POW_LOOKUP
     static std::map<double,double> pow_cache;
 #elif __PROXY_POW_APPROX
+#ifdef __REGUL
     static double lookup_table_pow[LOOKUP_TABLE_SIZE];
+#endif
 #endif
 
 

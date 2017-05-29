@@ -645,6 +645,7 @@ void Protein::copy_parent(Rna* rna) {
 
 void Protein::add_RNA(Rna * rna)
 {
+
   rna_list_.push_back(rna);
 
 #ifndef __REGUL

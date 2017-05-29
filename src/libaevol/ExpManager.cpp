@@ -43,6 +43,8 @@
 #include "Individual.h"
 
 #include "raevol/cuda_struct.h"
+#include "CUDA_Individual.h"
+#include<cuda_profiler_api.h>
 
 #ifdef __REGUL
 #include "raevol/Individual_R.h"
@@ -101,7 +103,9 @@ ExpManager::ExpManager()
   quit_signal_received_ = false;
 
 #ifdef __PROXY_POW_APPROX
+#ifdef __REGUL
   Rna_R::load_lookup_table();
+#endif
 #endif
 }
 
@@ -291,9 +295,48 @@ void ExpManager::step_to_next_generation() {
   // Take a step in time
   AeTime::plusplus();
 
-  // Create the corresponding new generation
+  //if (AeTime::time() == 14) {
+    // Create the corresponding new generation
+
+auto     t1 = high_resolution_clock::now();
+
+  auto     s_t1 = high_resolution_clock::now();
+
+  transfer_in(this);
+  auto t2 = high_resolution_clock::now();
+  auto duration_A = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+  t1 = high_resolution_clock::now();
+
+  run_a_step(nb_indivs(), (float) best_indiv()->w_max(),
+               selection_pressure());
+
+  t2 = high_resolution_clock::now();
+  auto duration_B = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+    /** Debug START **/
+   // print_debug_promoters_start(this);
+//    print_debug_rna(this);
+//    print_debug_protein(this);
+//    print_debug_phenotype(this);
+    //print_debug_fitness(this);
+    /** Debug END **/
+
+  t1 = high_resolution_clock::now();
+    // Transfer data out of the GPU
+    transfer_out(this);
+  t2 = high_resolution_clock::now();
+  auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
+
+  //}
+  t1 = high_resolution_clock::now();
   exp_s_->step_to_next_generation();
 
+  t2 = high_resolution_clock::now();
+  auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
   // Write statistical data and store phylogenetic data (tree)
 #pragma omp single
 {
@@ -479,6 +522,8 @@ void ExpManager::run_evolution() {
 	  high_resolution_clock::time_point t_t2,t1,t2;
 #endif
 
+  cuda_init();
+
 
   // For each generation
   while (true) { // termination condition is into the loop
@@ -545,6 +590,8 @@ void ExpManager::run_evolution() {
 	  	  ae_logger::addLog(TOTAL,duration);
 	  	  ae_logger::flush(AeTime::time());
 #endif
+  cudaProfilerStop();
+
   output_m_->flush();
   printf("================================================================\n");
   printf("  The run is finished. \n");

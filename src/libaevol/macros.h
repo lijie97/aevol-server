@@ -92,10 +92,10 @@ constexpr int32_t DO_TRANSLATION_LOOP = SHINE_DAL_SIZE + SHINE_START_SPACER + 3 
 constexpr int8_t MAX_CODON   = 1 << CODON_SIZE;
 constexpr int8_t QUADON_SIZE = 4;
 constexpr int8_t MAX_QUADON  = 1 << QUADON_SIZE;
+#endif
 
 #ifdef __PROXY_POW_APPROX
 constexpr int32_t LOOKUP_TABLE_SIZE = 10000000;
-#endif
 #endif
 
 constexpr double X_MIN = 0.0;

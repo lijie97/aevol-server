@@ -116,6 +116,7 @@ class Selection : public Observable
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
     void run_life(Individual_R* new_indiv);
+    void run_life(Individual* new_indiv);
 
     Individual* do_replication(Individual* parent,
                                unsigned long long index,

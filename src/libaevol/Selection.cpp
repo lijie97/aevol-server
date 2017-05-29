@@ -320,11 +320,15 @@ void Selection::step_to_next_generation() {
 #endif
 #endif
   for (int i = 0; i < to_evaluate.size(); i++) {
+#ifdef __REGUL
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
         phenotypic_target_handler_nonconst())->hasChanged()) ||
         !to_evaluate[i]->evaluated_) {
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
     }
+#else
+    run_life(to_evaluate[i]);
+#endif
   }
 
 #ifdef _OPENMP
@@ -826,7 +830,11 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 #ifdef __DETECT_CLONE
   if (mutate) {
+#ifdef __REGUL
     new_indiv->init_indiv();
+#else
+    new_indiv->Evaluate();
+#endif
     type_mutate = 1;
   }
 #endif
@@ -834,12 +842,23 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   return new_indiv;
 }
 
+void Selection::run_life(Individual* new_indiv) {
+  // Evaluate new individual
+  new_indiv->Evaluate();
+
+  // Compute statistics
+  new_indiv->compute_statistical_data();
+
+}
+
 void Selection::run_life(Individual_R* new_indiv) {
 
+#ifdef __REGUL
     if (dynamic_cast<PhenotypicTargetHandler_R*>(&new_indiv->grid_cell()->habitat().
         phenotypic_target_handler_nonconst())->hasChanged()) {
       new_indiv->evaluated_ = false;
     }
+#endif
 
     // Evaluate new individual
     new_indiv->Evaluate();

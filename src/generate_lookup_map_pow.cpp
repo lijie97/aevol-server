@@ -50,6 +50,8 @@ int main(int argc, char* argv[])
 
   printf("Theta %f N %f\n",hill_shape_theta,hill_shape_n);
 #ifdef __PROXY_POW_APPROX
+#ifdef __REGUL
   Rna_R::create_lookup_table(hill_shape_theta,hill_shape_n);
+#endif
 #endif
 }

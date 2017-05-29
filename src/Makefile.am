@@ -44,7 +44,6 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 
 LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 
-
 bin_PROGRAMS = aevol_run aevol_create aevol_modify aevol_propagate generate_lookup_map_pow
 CLEANFILES = aevol_run aevol_create aevol_modify aevol_propagate generate_lookup_map_pow
 
@@ -55,4 +54,5 @@ aevol_create_SOURCES = aevol_create.cpp
 aevol_modify_SOURCES = aevol_modify.cpp
 aevol_propagate_SOURCES = aevol_propagate.cpp
 generate_lookup_map_pow_SOURCES = generate_lookup_map_pow.cpp
+
 
