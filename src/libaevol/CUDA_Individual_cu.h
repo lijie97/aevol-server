@@ -18,6 +18,19 @@ constexpr const char* SHINE_DAL_SEQ_LAG  = "100100111";
 constexpr const char* PROTEIN_END_LEAD  = "001";
 constexpr const char* PROTEIN_END_LAG   = "110";
 
+constexpr int32_t PROMOTER_ARRAY_SIZE = 10000;
+
+/**
+ * Structure
+ */
+struct promoterStruct {
+    int32_t pos = -1;
+    bool leading_or_lagging; // TRUE = leading / FALSE = lagging
+};
+
+typedef struct promoterStruct pStruct;
+
+
 /**
  * Host structure
  *
@@ -28,6 +41,7 @@ int8_t **host_dna_lag_promoter;
 int8_t **host_dna_lead_term;
 int8_t **host_dna_lag_term;
 float **host_phenotype;
+pStruct** host_dynPromoterList;
 
 /**
  * Structure to transfer from host to device memory
@@ -112,6 +126,9 @@ int32_t* idx_rna;
 float** phenotype;
 float** delta;
 
+
+pStruct** dynPromoterList;
+
 /**
  * Structure to transfer from device to host
  */
@@ -128,7 +145,8 @@ __global__ void init_array(int* nb_promoters);
 // DNA -> RNA
 __global__ void search_start_RNA(size_t* dna_size, char** dna,
                                  int8_t** dna_lead_promoter,
-                                 int8_t** dna_lag_promoter, int* nb_promoters, int block_size);
+                                 int8_t** dna_lag_promoter, int* nb_promoters,
+                                 pStruct** dynPromoterList, int block_size);
 __global__ void search_stop_RNA(size_t* dna_size, char** dna,
                                 int8_t** dna_lead_term, int8_t** dna_lag_term, int block_size);
 __global__ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters,
@@ -136,7 +154,8 @@ __global__ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters,
 __global__ void compute_RNA(int pop_size, int8_t** dna_lead_promoter,
                             int8_t** dna_lag_promoter, int8_t** dna_lead_term,
                             int8_t** dna_lag_term, char** dna, size_t* dna_size,
-                            cRNA*** rna, int32_t* idx_rna, int* nb_promoters, int block_size);
+                            cRNA*** rna, int32_t* idx_rna, int* nb_promoters, pStruct** dynPromoterList,
+                            int thread_size, int thread_dim);
 __global__ void max_rna(int32_t* idx_rna, int32_t* max_nb_rna);
 
 // RNA -> Protein
