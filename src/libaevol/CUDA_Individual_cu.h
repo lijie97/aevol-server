@@ -19,12 +19,15 @@ constexpr const char* PROTEIN_END_LEAD  = "001";
 constexpr const char* PROTEIN_END_LAG   = "110";
 
 constexpr int32_t PROMOTER_ARRAY_SIZE = 10000;
+constexpr int32_t TERMINATOR_ARRAY_SIZE = 100000;
 
+constexpr int32_t BUCKET_MAX_SIZE = 20;
 /**
  * Structure
  */
 struct promoterStruct {
     int32_t pos = -1;
+    int8_t error = -1;
     bool leading_or_lagging; // TRUE = leading / FALSE = lagging
 };
 
@@ -42,6 +45,7 @@ int8_t **host_dna_lead_term;
 int8_t **host_dna_lag_term;
 float **host_phenotype;
 pStruct** host_dynPromoterList;
+pStruct** host_dynTerminatorList;
 
 /**
  * Structure to transfer from host to device memory
@@ -66,6 +70,9 @@ int8_t** dna_lag_term;
 
 // Number of promoters
 int* nb_promoters;
+
+// Number of terminator
+int* nb_terminators;
 
 // Environment (static first)
 float* target;
@@ -128,6 +135,7 @@ float** delta;
 
 
 pStruct** dynPromoterList;
+pStruct** dynTerminatorList;
 
 /**
  * Structure to transfer from device to host
@@ -148,7 +156,8 @@ __global__ void search_start_RNA(size_t* dna_size, char** dna,
                                  int8_t** dna_lag_promoter, int* nb_promoters,
                                  pStruct** dynPromoterList, int block_size);
 __global__ void search_stop_RNA(size_t* dna_size, char** dna,
-                                int8_t** dna_lead_term, int8_t** dna_lag_term, int block_size);
+                                int8_t** dna_lead_term, int8_t** dna_lag_term,
+                                int block_size);
 __global__ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters,
                                 int32_t* max_nb_rna,int32_t* idx_rna);
 __global__ void compute_RNA(int pop_size, int8_t** dna_lead_promoter,
