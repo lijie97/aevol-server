@@ -302,7 +302,9 @@ auto     t1 = high_resolution_clock::now();
 
   auto     s_t1 = high_resolution_clock::now();
 
-  transfer_in(this);
+  transfer_in(this, first_gen);
+  first_gen = false;
+
   auto t2 = high_resolution_clock::now();
   auto duration_A = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
@@ -324,7 +326,7 @@ auto     t1 = high_resolution_clock::now();
 
   t1 = high_resolution_clock::now();
     // Transfer data out of the GPU
-    transfer_out(this);
+  transfer_out(this,false);
   t2 = high_resolution_clock::now();
   auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();

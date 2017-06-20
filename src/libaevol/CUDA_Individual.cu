@@ -38,13 +38,13 @@ static void HandleError( cudaError_t err, const char *file, int line )
 }
 
 void cuda_init() {
-  size_t limit = 2000000000;
+  size_t limit = 9000000000;
   cudaDeviceSetLimit(cudaLimitMallocHeapSize, limit);
   cudaDeviceSetLimit(cudaLimitStackSize, 1024*600);
   cudaDeviceSetLimit(cudaLimitPrintfFifoSize, 64*1024*1024);
 }
 
-void transfer_in(ExpManager* exp_m) {
+void transfer_in(ExpManager* exp_m, bool init_all_struct) {
   size_t uCurAvailMemoryInBytes;
   size_t uTotalMemoryInBytes;
   CUresult result = cuMemGetInfo( &uCurAvailMemoryInBytes, &uTotalMemoryInBytes );
@@ -78,15 +78,18 @@ void transfer_in(ExpManager* exp_m) {
 
   checkCuda(cudaMalloc((void**)&nb_promoters,
              exp_m->nb_indivs() * sizeof(int)));
-
-  checkCuda(cudaMalloc((void**)&nb_terminators,
-                       exp_m->nb_indivs() * sizeof(int)));
-
-  //int* host_nb_promoters = (int*)malloc(exp_m->nb_indivs() * sizeof(int));
-  //memset(host_nb_promoters, 0, sizeof(host_nb_promoters));
-  //checkCuda(cudaMemcpy(nb_promoters,host_nb_promoters,exp_m->nb_indivs()*sizeof(int),cudaMemcpyHostToDevice));
   checkCuda(cudaMemset(nb_promoters, 0, exp_m->nb_indivs() * sizeof(int)));
-  checkCuda(cudaMemset(nb_terminators, 0, exp_m->nb_indivs() * sizeof(int)));
+
+  if (init_all_struct) {
+    printf("Init struct");
+    checkCuda(cudaMalloc((void**) &max_nb_elements_rna_list,
+                         exp_m->nb_indivs() * sizeof(int)));
+    checkCuda(cudaMemset(max_nb_elements_rna_list, 0, exp_m->nb_indivs() * sizeof(int)));
+
+    checkCuda(cudaMalloc((void**) &max_nb_elements_protein_list,
+                         exp_m->nb_indivs() * sizeof(int)));
+    checkCuda(cudaMemset(max_nb_elements_protein_list, 0, exp_m->nb_indivs() * sizeof(int)));
+  }
 
   checkCuda(cudaMalloc((void**)&metaerror,
              exp_m->nb_indivs() * sizeof(float)));
@@ -114,13 +117,13 @@ void transfer_in(ExpManager* exp_m) {
              exp_m->nb_indivs() * sizeof(int32_t)));
   checkCuda(cudaMemset(idx_rna, 0, exp_m->nb_indivs() * sizeof(int32_t)));
 
-  checkCuda(cudaMalloc((void***)&protein_list,exp_m->nb_indivs()*sizeof(cProtein**)));
+  if (init_all_struct) checkCuda(cudaMalloc((void***)&protein_list,exp_m->nb_indivs()*sizeof(cProtein*)));
 
   checkCuda(cudaMalloc((void**)&idx_protein,
                        exp_m->nb_indivs() * sizeof(int32_t)));
   checkCuda(cudaMemset(idx_protein, 0, exp_m->nb_indivs() * sizeof(int32_t)));
 
-  checkCuda(cudaMalloc((void***)&rna,exp_m->nb_indivs()*sizeof(cRNA**)));
+  if (init_all_struct) checkCuda(cudaMalloc((void***)&rna,exp_m->nb_indivs()*sizeof(cRNA**)));
 
   checkCuda(cudaMalloc((void***)&dynPromoterList,
                        exp_m->nb_indivs()*sizeof(pStruct*)));
@@ -367,7 +370,7 @@ void print_debug_fitness(ExpManager* exp_m) {
       i);*/
 }
 
-void transfer_out(ExpManager* exp_m) {
+void transfer_out(ExpManager* exp_m, bool delete_all_struct) {
   printf("Starting transfert\n");
 
   float* host_metaerror = (float*)malloc(exp_m->nb_indivs()*sizeof(float));
@@ -426,7 +429,7 @@ void transfer_out(ExpManager* exp_m) {
     }
   }
 
-  free_list<<<1024,1>>>(protein_list,rna,idx_protein,idx_rna);
+  //free_list<<<1024,1>>>(protein_list,rna,idx_protein,idx_rna);
 
  for (int i = 0; i < exp_m->nb_indivs(); i++) {
     HANDLE_ERROR(cudaFree(host_dna[i]));
@@ -440,15 +443,15 @@ void transfer_out(ExpManager* exp_m) {
   }
 
   HANDLE_ERROR(cudaFree(nb_promoters));
-  HANDLE_ERROR(cudaFree(nb_terminators));
+  if (delete_all_struct) HANDLE_ERROR(cudaFree(max_nb_elements_rna_list));
 
   HANDLE_ERROR(cudaFree(nb_protein));
   HANDLE_ERROR(cudaFree(metaerror));
   HANDLE_ERROR(cudaFree(fitness));
   HANDLE_ERROR(cudaFree(idx_protein));
   HANDLE_ERROR(cudaFree(idx_rna));
-  HANDLE_ERROR(cudaFree(protein_list));
-  HANDLE_ERROR(cudaFree(rna));
+  if (delete_all_struct) HANDLE_ERROR(cudaFree(protein_list));
+  if (delete_all_struct) HANDLE_ERROR(cudaFree(rna));
   HANDLE_ERROR(cudaFree(target));
 
   HANDLE_ERROR(cudaFree(dna));
@@ -518,7 +521,7 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure) {
   //    1);
 
 
-  init_RNA_struct<<<nb_indiv,1>>>(nb_indiv,rna,nb_promoters,max_nb_rna,idx_rna);
+  init_RNA_struct<<<nb_indiv,1>>>(nb_indiv,rna,nb_promoters,max_nb_rna,idx_rna,max_nb_elements_rna_list);
   //cudaDeviceSynchronize();
 
   int max_promoters_host;
@@ -558,7 +561,8 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure) {
 
   printf("Max RNA %d (%d %d)\n",max_rna_host,x_dim_size,y_dim_size);
 
-  compute_start_protein<<<x_dim_size,y_dim_size>>>(idx_rna,rna,dna,dna_size,nb_protein,threads_size,y_dim_size);
+  compute_start_protein<<<x_dim_size,y_dim_size>>>(idx_rna,rna,dna,dna_size,nb_protein,
+      threads_size,y_dim_size);
   //cudaDeviceSynchronize();
 
 /*
@@ -570,8 +574,9 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure) {
             uCurAvailMemoryInBytes / ( 1024 * 1024 ));
   }
 */
-  init_protein_struct<<<x_dim_size,y_dim_size>>>(nb_indiv,nb_protein,protein_list,idx_protein,rna,idx_rna,max_nb_protein,threads_size,y_dim_size);
-  //cudaDeviceSynchronize();
+  init_protein_struct<<<x_dim_size,y_dim_size>>>(nb_indiv,nb_protein,protein_list,
+      idx_protein,rna,idx_rna,max_nb_protein,max_nb_elements_protein_list,threads_size,y_dim_size);
+  cudaDeviceSynchronize();
 
   int max_nb_protein_host;
   HANDLE_ERROR(cudaMemcpy(&max_nb_protein_host,
@@ -1037,11 +1042,82 @@ void search_stop_RNA(size_t* dna_size, char** dna, int8_t** dna_lead_term, int8_
 }
 
 __global__
-void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters, int32_t* max_nb_rna,int32_t* idx_rna) {
+void internal_init_RNA_struct(cRNA*** rna, int32_t* max_nb_elements_rna_list, int indiv_id) {
+  int offset = blockIdx.x*1024;
+  int rna_idx = offset+threadIdx.x;
+
+  if (rna_idx < max_nb_elements_rna_list[indiv_id]) {
+    rna[indiv_id][rna_idx] = (cRNA*) malloc(sizeof(cRNA));
+    rna[indiv_id][rna_idx]->max_protein_elements = RNA_LIST_PROTEIN_INCR_SIZE;
+
+    rna[indiv_id][rna_idx]->start_prot = (int*) malloc(
+        RNA_LIST_PROTEIN_INCR_SIZE * sizeof(int));
+  }
+}
+
+__global__
+void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters, int32_t* max_nb_rna,int32_t* idx_rna, int32_t* max_nb_elements_rna_list) {
   int indiv_id = blockIdx.x;
 
   if (nb_promoters[indiv_id] > 0) {
-    rna[indiv_id] = (cRNA**) malloc((nb_promoters[indiv_id]+1)*sizeof(cRNA*));
+    if (nb_promoters[indiv_id] >= max_nb_elements_rna_list[indiv_id]) {
+      // Increase RNA List size
+      for (int i=0; i < max_nb_elements_rna_list[indiv_id];i++) {
+        free(rna[indiv_id][i]->start_prot);
+        free(rna[indiv_id][i]);
+      }
+
+      free(rna[indiv_id]);
+      int before_cpt=max_nb_elements_rna_list[indiv_id];
+      max_nb_elements_rna_list[indiv_id] = (1+((int32_t)nb_promoters[indiv_id]/RNA_LIST_INCR_SIZE))*RNA_LIST_INCR_SIZE;
+
+      rna[indiv_id] = (cRNA**) malloc((max_nb_elements_rna_list[indiv_id]+1)*sizeof(cRNA*));
+
+
+      //int block_offset = max_nb_elements_rna_list[indiv_id]/1024 + 1;
+
+      //internal_init_RNA_struct<<<block_offset,1024>>>(rna,max_nb_elements_rna_list,indiv_id);
+      //cudaDeviceSynchronize();
+      //
+      for (int i=0; i < max_nb_elements_rna_list[indiv_id]; i++) {
+        rna[indiv_id][i] = (cRNA*) malloc(sizeof(cRNA));
+        //printf("Malloc POINTER RNA %d indiv %d : %p\n",max_nb_elements_rna_list[indiv_id],indiv_id,l_rna);
+        rna[indiv_id][i]->max_protein_elements = 50;//RNA_LIST_PROTEIN_INCR_SIZE;
+
+        rna[indiv_id][i]->start_prot =  (int*) malloc(
+            rna[indiv_id][i]->max_protein_elements  * sizeof(int));
+      }
+      printf("Malloc Decrease DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
+             before_cpt,nb_promoters[indiv_id]);
+    } else if (nb_promoters[indiv_id] < max_nb_elements_rna_list[indiv_id]/2 && max_nb_elements_rna_list[indiv_id] - RNA_LIST_INCR_SIZE > 0) {
+      // Decrease RNA List size
+      for (int i=0; i < max_nb_elements_rna_list[indiv_id];i++) {
+        free(rna[indiv_id][i]->start_prot);
+        free(rna[indiv_id][i]);
+      }
+      free(rna[indiv_id]);
+      //max_nb_elements_rna_list[indiv_id] -= RNA_LIST_INCR_SIZE;
+      int before_cpt=max_nb_elements_rna_list[indiv_id];
+      max_nb_elements_rna_list[indiv_id]  = max_nb_elements_rna_list[indiv_id] - RNA_LIST_INCR_SIZE == 0 ?
+                                            RNA_LIST_INCR_SIZE :  max_nb_elements_rna_list[indiv_id] - RNA_LIST_INCR_SIZE;
+
+      rna[indiv_id] = (cRNA**) malloc((max_nb_elements_rna_list[indiv_id]+1)*sizeof(cRNA*));
+
+      //int block_offset = max_nb_elements_rna_list[indiv_id]/1024 + 1;
+
+      //internal_init_RNA_struct<<<block_offset,1024>>>(rna,max_nb_elements_rna_list,indiv_id);
+      //cudaDeviceSynchronize();
+
+      for (int i=0; i < max_nb_elements_rna_list[indiv_id];i++) {
+        rna[indiv_id][i] = (cRNA*) malloc(sizeof(cRNA));
+        rna[indiv_id][i]->max_protein_elements = 50;
+        rna[indiv_id][i]->start_prot =  (int*) malloc(
+            rna[indiv_id][i]->max_protein_elements  * sizeof(int));
+        //RNA_LIST_PROTEIN_INCR_SIZE;
+      }
+      printf("Malloc Decrease DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
+              before_cpt,nb_promoters[indiv_id]);
+    }
 
     atomicMax(max_nb_rna,nb_promoters[indiv_id]+1);
     idx_rna[indiv_id] = 0;
@@ -1061,10 +1137,7 @@ void compute_RNA(int pop_size, int8_t** dna_lead_promoter,
 
   int rna_idx = thread_dim*block_id+pos_block_size;
 
-  if (rna_idx < nb_promoters[indiv_id] && dna_size[indiv_id] < PROM_SIZE) {
-    //printf("COMPUTE RNA -- SMALL SIZE\n");
-    return;
-  } else if (rna_idx < nb_promoters[indiv_id]) {
+  if (dna_size[indiv_id] >= PROM_SIZE && rna_idx < nb_promoters[indiv_id]) {
     if (dynPromoterList[indiv_id][rna_idx].leading_or_lagging) {
       // LEADING
       // Search for terminator
@@ -1072,40 +1145,58 @@ void compute_RNA(int pop_size, int8_t** dna_lead_promoter,
       k = k >= dna_size[indiv_id] ? k - dna_size[indiv_id] : k;
       int k_end = k;
       do {
-
-
         if (dna_lead_term[indiv_id][k] == 1) {
-          cRNA* l_rna = (cRNA*) malloc(sizeof(cRNA));
-          l_rna->begin = dynPromoterList[indiv_id][rna_idx].pos;
-          l_rna->end =
+          int32_t rna_end =
               k + 10 >= dna_size[indiv_id] ? k + 10 - dna_size[indiv_id] :
               k +
               10;
-          l_rna->leading_lagging = !dynPromoterList[indiv_id][rna_idx].leading_or_lagging;
 
-          if (l_rna->begin > l_rna->end)
-            l_rna->length = dna_size[indiv_id] - l_rna->begin + l_rna->end;
+          int32_t rna_length = 0;
+
+          if (dynPromoterList[indiv_id][rna_idx].pos > rna_end)
+            rna_length = dna_size[indiv_id] - dynPromoterList[indiv_id][rna_idx].pos + rna_end;
           else
-            l_rna->length = l_rna->end - l_rna->begin;
+            rna_length = rna_end - dynPromoterList[indiv_id][rna_idx].pos;
 
-
-          if (l_rna->length < 19) {
-            free(l_rna);
+          if (rna_length < 19) {
             break;
           }
 
-          l_rna->e = 1.0 -
+          int idx = atomicAdd(idx_rna + indiv_id, 1);
+
+          rna[indiv_id][idx]->begin = dynPromoterList[indiv_id][rna_idx].pos;
+          rna[indiv_id][idx]->end = rna_end;
+          rna[indiv_id][idx]->length = rna_length;
+          rna[indiv_id][idx]->leading_lagging = !dynPromoterList[indiv_id][rna_idx].leading_or_lagging;
+
+          rna[indiv_id][idx]->e = 1.0 -
                      fabs(((float) dynPromoterList[indiv_id][rna_idx].error)) /
                      5.0;
 
-          l_rna->start_prot = (int*) malloc(
-              (l_rna->length + 1) * sizeof(int));
-          l_rna->start_lenght = 1;
-          l_rna->nb_protein = 0;
+          if (rna_length > rna[indiv_id][idx]->max_protein_elements) {
+            // Increase size
+            free(rna[indiv_id][idx]->start_prot);
+            int before_cpt = rna[indiv_id][idx]->max_protein_elements;
+            rna[indiv_id][idx]->max_protein_elements=(1+((int32_t)rna_length/RNA_LIST_PROTEIN_INCR_SIZE))*RNA_LIST_PROTEIN_INCR_SIZE;
+            rna[indiv_id][idx]->start_prot = (int*) malloc(
+                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(int));
+            if (indiv_id == 828) printf("Malloc Increase DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",rna_length,
+                   indiv_id,rna_idx,
+                   before_cpt,rna[indiv_id][idx]->max_protein_elements);
+          }/* else if ((rna_length < rna[indiv_id][idx]->max_protein_elements/2) && (rna[indiv_id][idx]->max_protein_elements - RNA_LIST_PROTEIN_INCR_SIZE > 0)) {
+            // Decrease size
+            free(rna[indiv_id][idx]->start_prot);
+            int before_cpt = rna[indiv_id][idx]->max_protein_elements;
+            rna[indiv_id][idx]->max_protein_elements-=RNA_LIST_PROTEIN_INCR_SIZE;
+            rna[indiv_id][idx]->start_prot = (int*) malloc(
+                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(int));
+            if (indiv_id == 828)  printf("Malloc Decrease DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",rna_length,
+                   indiv_id,rna_idx,
+                   before_cpt,rna[indiv_id][idx]->max_protein_elements);
+          }*/
 
-          int idx = atomicAdd(idx_rna + indiv_id, 1);
-
-          rna[indiv_id][idx] = l_rna;
+          rna[indiv_id][idx]->start_lenght = 1;
+          rna[indiv_id][idx]->nb_protein = 0;
 
           break;
         }
@@ -1124,30 +1215,61 @@ void compute_RNA(int pop_size, int8_t** dna_lead_promoter,
       do {
 
         if (dna_lag_term[indiv_id][k] == 1) {
-          cRNA* l_rna = (cRNA*) malloc(sizeof(cRNA));
-          l_rna->begin = dynPromoterList[indiv_id][rna_idx].pos;
-          l_rna->end = k - 10 < 0 ? dna_size[indiv_id] + (k - 10) : k - 10;
-          l_rna->leading_lagging = !dynPromoterList[indiv_id][rna_idx].leading_or_lagging;
+          int32_t rna_end = k - 10 < 0 ? dna_size[indiv_id] + (k - 10) : k - 10;
 
-          if (l_rna->begin < l_rna->end)
-            l_rna->length = l_rna->begin + dna_size[indiv_id] - l_rna->end;
+          int32_t rna_length = 0;
+
+          if (dynPromoterList[indiv_id][rna_idx].pos < rna_end)
+            rna_length = dynPromoterList[indiv_id][rna_idx].pos + dna_size[indiv_id] - rna_end;
           else
-            l_rna->length = l_rna->begin - l_rna->end;
+            rna_length = dynPromoterList[indiv_id][rna_idx].pos - rna_end;
 
-          if (l_rna->length < 19) {
-            free(l_rna);
+          if (rna_length < 19) {
             break;
           }
 
-          l_rna->e =
-              1.0 - ((float) dynPromoterList[indiv_id][rna_idx].error) / 5.0;
-          l_rna->start_prot = (int*) malloc(
-              (l_rna->length + 1) * sizeof(int));
-          l_rna->start_lenght = 1;
-          l_rna->nb_protein = 0;
-
           int idx = atomicAdd(idx_rna + indiv_id, 1);
-          rna[indiv_id][idx] = l_rna;
+
+          /*printf("Indiv %d -- Setting RNA %d to begin at %d (promoter idx %d out of %d)\n",
+                 indiv_id,idx,dynPromoterList[indiv_id][rna_idx].pos,rna_idx,nb_promoters[indiv_id]);*/
+
+          rna[indiv_id][idx]->begin = dynPromoterList[indiv_id][rna_idx].pos;
+          rna[indiv_id][idx]->end = rna_end;
+          rna[indiv_id][idx]->length = rna_length;
+
+          rna[indiv_id][idx]->leading_lagging = !dynPromoterList[indiv_id][rna_idx].leading_or_lagging;
+
+
+          rna[indiv_id][idx]->e =
+              1.0 - ((float) dynPromoterList[indiv_id][rna_idx].error) / 5.0;
+
+
+          if (rna_length > rna[indiv_id][idx]->max_protein_elements) {
+            // Increase size
+            free(rna[indiv_id][idx]->start_prot);
+            int before_cpt = rna[indiv_id][idx]->max_protein_elements;
+            rna[indiv_id][idx]->max_protein_elements=(1+((int32_t)rna_length/RNA_LIST_PROTEIN_INCR_SIZE))*RNA_LIST_PROTEIN_INCR_SIZE;
+            rna[indiv_id][idx]->start_prot = (int*) malloc(
+                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(int));
+            if (indiv_id == 828)  printf("Malloc Increase DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",
+                   rna_length,
+                   indiv_id,rna_idx,
+                   before_cpt,rna[indiv_id][idx]->max_protein_elements);
+          }/* else if ((rna_length < rna[indiv_id][idx]->max_protein_elements/2) && (rna[indiv_id][idx]->max_protein_elements - RNA_LIST_PROTEIN_INCR_SIZE > 0)) {
+            // Decrease size
+            free(rna[indiv_id][idx]->start_prot);
+            int before_cpt = rna[indiv_id][idx]->max_protein_elements;
+            rna[indiv_id][idx]->max_protein_elements-=RNA_LIST_PROTEIN_INCR_SIZE;
+            rna[indiv_id][idx]->start_prot = (int*) malloc(
+                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(int));
+            if (indiv_id == 828)   printf("Malloc Decrease DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",
+                   rna_length,
+                   indiv_id,rna_idx,
+                   before_cpt,rna[indiv_id][idx]->max_protein_elements);
+          }*/
+
+          rna[indiv_id][idx]->start_lenght = 1;
+          rna[indiv_id][idx]->nb_protein = 0;
 
           break;
         }
@@ -1286,8 +1408,9 @@ __global__ void compute_start_protein(int32_t* idx_rna, cRNA*** rna,
 }
 
 __global__ void init_protein_struct(int pop_size, int32_t* nb_protein,
-                                    cProtein*** protein_list, int32_t* idx_protein,
-                                    cRNA*** rna, int32_t* idx_rna, int32_t* max_nb_protein, int threads_size, int thread_dim) {
+                                    cProtein** protein_list, int32_t* idx_protein,
+                                    cRNA*** rna, int32_t* idx_rna, int32_t* max_nb_protein, int* max_nb_elements_protein_list,
+                                    int threads_size, int thread_dim) {
   //int indiv_id = blockIdx.x;
   //int rna_idx = threadIdx.x;
 
@@ -1297,8 +1420,39 @@ __global__ void init_protein_struct(int pop_size, int32_t* nb_protein,
 
   int rna_idx = thread_dim*block_id+pos_block_size;
 
-  if (threadIdx.x == 0 && nb_protein[indiv_id] > 0) {
-    protein_list[indiv_id] = (cProtein**) malloc((nb_protein[indiv_id])*sizeof(cProtein*));
+  if (rna_idx == 0 && nb_protein[indiv_id] > 0) {
+    //printf("%d -- Number of Protein %d (array size %d)\n",indiv_id,nb_protein[indiv_id],max_nb_elements_protein_list[indiv_id]);
+    /*if (max_nb_elements_protein_list[indiv_id] == 0) {
+      max_nb_elements_protein_list[indiv_id] = (1+((int32_t)nb_protein[indiv_id]/PROTEIN_LIST_INCR_SIZE))*PROTEIN_LIST_INCR_SIZE;
+
+      protein_list[indiv_id] = (cProtein*) malloc((max_nb_elements_protein_list[indiv_id]+1)*sizeof(cProtein));
+
+      printf("Malloc Init DONE Protein %d indiv %d (current %d)\n",max_nb_elements_protein_list[indiv_id],indiv_id,
+             nb_protein[indiv_id]);
+    } else */if (nb_protein[indiv_id] >= max_nb_elements_protein_list[indiv_id]) {
+      free(protein_list[indiv_id]);
+      int before_cpt=max_nb_elements_protein_list[indiv_id];
+      max_nb_elements_protein_list[indiv_id] = (1+((int32_t)nb_protein[indiv_id]/PROTEIN_LIST_INCR_SIZE))*PROTEIN_LIST_INCR_SIZE;
+
+      protein_list[indiv_id] = (cProtein*) malloc((max_nb_elements_protein_list[indiv_id]+1)*sizeof(cProtein));
+
+      printf("Malloc Increase DONE Protein %d indiv %d (before %d current %d)\n",max_nb_elements_protein_list[indiv_id],indiv_id,
+             before_cpt,nb_protein[indiv_id]);
+    } else if (nb_protein[indiv_id] < max_nb_elements_protein_list[indiv_id]/2 && (max_nb_elements_protein_list[indiv_id] - PROTEIN_LIST_INCR_SIZE > 0)) {
+      free(protein_list[indiv_id]);
+      //max_nb_elements_rna_list[indiv_id] -= RNA_LIST_INCR_SIZE;
+      int before_cpt=max_nb_elements_protein_list[indiv_id];
+      max_nb_elements_protein_list[indiv_id]  = max_nb_elements_protein_list[indiv_id] - PROTEIN_LIST_INCR_SIZE == 0 ?
+                                            PROTEIN_LIST_INCR_SIZE :  max_nb_elements_protein_list[indiv_id] - PROTEIN_LIST_INCR_SIZE;
+
+      protein_list[indiv_id] = (cProtein*) malloc((max_nb_elements_protein_list[indiv_id]+1)*sizeof(cProtein));
+
+      printf("Malloc Decrease DONE Protein %d indiv %d (before %d current %d)\n",max_nb_elements_protein_list[indiv_id],indiv_id,
+             before_cpt,nb_protein[indiv_id]);
+    }
+    //printf("%d -- END OF Number of Protein %d (array size %d)\n",indiv_id,nb_protein[indiv_id],max_nb_elements_protein_list[indiv_id]);
+
+    //protein_list[indiv_id] = (cProtein**) malloc((nb_protein[indiv_id])*sizeof(cProtein*));
     idx_protein[indiv_id] = 0;
   }
 
@@ -1313,7 +1467,7 @@ __global__ void display_size_dna(size_t* dna_size) {
   //if (indiv_id ==0) printf("Address : %lu\n", (unsigned long) l_protein);
 }
 
-__global__ void compute_protein(cRNA*** rna, cProtein*** protein_list, int32_t* idx_protein,
+__global__ void compute_protein(cRNA*** rna, cProtein** protein_list, int32_t* idx_protein,
                                 size_t* dna_size,char** dna,int32_t* idx_rna, int threads_size, int thread_dim, int block_size) {
   //int indiv_id = blockIdx.x;
 
@@ -1444,15 +1598,16 @@ __global__ void compute_protein(cRNA*** rna, cProtein*** protein_list, int32_t* 
             }
 
             if (prot_length >= 3) {
-              cProtein* l_protein = (cProtein*) malloc(sizeof(cProtein));
+              //cProtein* l_protein = (cProtein*) malloc(sizeof(cProtein));
               //cProtein* l_protein = (cProtein*)malloc(sizeof(cProtein));
               //cRNA* l_rna = (cRNA*)malloc(sizeof(cRNA));
-              l_protein->protein_start = rna[indiv_id][rna_idx]->start_prot[protein_idx];
-              l_protein->protein_end = t_k;
-              l_protein->e = rna[indiv_id][rna_idx]->e;
-              l_protein->leading_lagging = rna[indiv_id][rna_idx]->leading_lagging;
-              l_protein->protein_length = prot_length;
               int idx = atomicAdd(idx_protein + indiv_id, 1);
+
+              protein_list[indiv_id][idx].protein_start = rna[indiv_id][rna_idx]->start_prot[protein_idx];
+              protein_list[indiv_id][idx].protein_end = t_k;
+              protein_list[indiv_id][idx].e = rna[indiv_id][rna_idx]->e;
+              protein_list[indiv_id][idx].leading_lagging = rna[indiv_id][rna_idx]->leading_lagging;
+              protein_list[indiv_id][idx].protein_length = prot_length;
 
               /*if (indiv_id == 737)
                 printf("Address %d-%d-%d -- %d : %p (%d %d) -- (%d %d) -- %d\n",
@@ -1460,7 +1615,7 @@ __global__ void compute_protein(cRNA*** rna, cProtein*** protein_list, int32_t* 
                        l_protein->protein_start, l_protein->protein_end,
                        rna[indiv_id][rna_idx]->begin,
                        rna[indiv_id][rna_idx]->end, prot_length);*/
-              protein_list[indiv_id][idx] = l_protein;
+              // = l_protein;
             }
             break;
           }
@@ -1522,11 +1677,11 @@ __global__ void compute_protein(cRNA*** rna, cProtein*** protein_list, int32_t* 
             }
 
             if (prot_length >= 3) {
-              cProtein* l_protein = (cProtein*) malloc(sizeof(cProtein));
-
+              //cProtein* l_protein = (cProtein*) malloc(sizeof(cProtein));
+              int idx = atomicAdd(idx_protein + indiv_id, 1);
               //cProtein* l_protein = (cProtein*) malloc(sizeof(int));
-              l_protein->protein_start = rna[indiv_id][rna_idx]->start_prot[protein_idx];
-              l_protein->protein_end = t_k;
+              protein_list[indiv_id][idx].protein_start = rna[indiv_id][rna_idx]->start_prot[protein_idx];
+              protein_list[indiv_id][idx].protein_end = t_k;
 
               /*if (indiv_id == 878) {
                 for (int k = 0; k < 3; k++) {
@@ -1537,10 +1692,10 @@ __global__ void compute_protein(cRNA*** rna, cProtein*** protein_list, int32_t* 
                 }
                 printf("\n");
               }*/
-              l_protein->protein_length = prot_length;
-              l_protein->e = rna[indiv_id][rna_idx]->e;
-              l_protein->leading_lagging = rna[indiv_id][rna_idx]->leading_lagging;
-              int idx = atomicAdd(idx_protein + indiv_id, 1);
+              protein_list[indiv_id][idx].protein_length = prot_length;
+              protein_list[indiv_id][idx].e = rna[indiv_id][rna_idx]->e;
+              protein_list[indiv_id][idx].leading_lagging = rna[indiv_id][rna_idx]->leading_lagging;
+
 
 
               /*if (indiv_id == 737)
@@ -1549,7 +1704,7 @@ __global__ void compute_protein(cRNA*** rna, cProtein*** protein_list, int32_t* 
                        l_protein->protein_start, l_protein->protein_end,
                        rna[indiv_id][rna_idx]->begin,
                        rna[indiv_id][rna_idx]->end, prot_length,dna_size[indiv_id]);*/
-              protein_list[indiv_id][idx] = l_protein;
+              //protein_list[indiv_id][idx] = l_protein;
             }
             break;
           }
@@ -1575,7 +1730,7 @@ __global__ void max_protein(int32_t* max_nb_protein, int32_t* idx_protein) {
 }
 
 __global__ void translate_protein(float w_max, int32_t* idx_protein,
-                                  cProtein*** protein_list,
+                                  cProtein** protein_list,
                                   char** dna, size_t* dna_size, int threads_size, int thread_dim) {
   int indiv_id = blockIdx.x / threads_size;
   int block_id = blockIdx.x % threads_size;
@@ -1585,9 +1740,9 @@ __global__ void translate_protein(float w_max, int32_t* idx_protein,
 
   if (protein_idx < idx_protein[indiv_id]) {
     // Translate RNA to codon
-    int c_pos = protein_list[indiv_id][protein_idx]->protein_start, t_pos;
-    int end_pos = protein_list[indiv_id][protein_idx]->protein_end;
-    if (protein_list[indiv_id][protein_idx]->leading_lagging == 0) {
+    int c_pos = protein_list[indiv_id][protein_idx].protein_start, t_pos;
+    int end_pos = protein_list[indiv_id][protein_idx].protein_end;
+    if (protein_list[indiv_id][protein_idx].leading_lagging == 0) {
       c_pos += 13;
       end_pos -=3;
 
@@ -1611,10 +1766,10 @@ __global__ void translate_protein(float w_max, int32_t* idx_protein,
     int32_t count_loop = 0;
 
     bool contin = true;
-    if (protein_list[indiv_id][protein_idx]->leading_lagging == 0) {
+    if (protein_list[indiv_id][protein_idx].leading_lagging == 0) {
       // LEADING
 
-      while (count_loop<protein_list[indiv_id][protein_idx]->protein_length/3 && codon_idx < 64) {
+      while (count_loop<protein_list[indiv_id][protein_idx].protein_length/3 && codon_idx < 64) {
         value = 0;
         for (int8_t i = 0; i < 3; i++) {
           t_pos = c_pos + i >= dna_size[indiv_id] ? c_pos + i - dna_size[indiv_id] : c_pos + i;
@@ -1629,7 +1784,7 @@ __global__ void translate_protein(float w_max, int32_t* idx_protein,
       }
     } else {
       // LAGGING
-      while (count_loop<protein_list[indiv_id][protein_idx]->protein_length/3 && codon_idx < 64) {
+      while (count_loop<protein_list[indiv_id][protein_idx].protein_length/3 && codon_idx < 64) {
         value = 0;
         for (int8_t i = 0; i < 3; i++) {
           t_pos = c_pos - i < 0 ? dna_size[indiv_id] + (c_pos - i) : c_pos - i;
@@ -1772,9 +1927,9 @@ __global__ void translate_protein(float w_max, int32_t* idx_protein,
     //  ----------------------------------------------------------------------------------
     //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
     //  ----------------------------------------------------------------------------------
-    protein_list[indiv_id][protein_idx]->m = nb_m != 0 ? M / (pow(2, nb_m) - 1) : 0.5;
-    protein_list[indiv_id][protein_idx]->w = nb_w != 0 ? W / (pow(2, nb_w) - 1) : 0.0;
-    protein_list[indiv_id][protein_idx]->h = nb_h != 0 ? H / (pow(2, nb_h) - 1) : 0.5;
+    protein_list[indiv_id][protein_idx].m = nb_m != 0 ? M / (pow(2, nb_m) - 1) : 0.5;
+    protein_list[indiv_id][protein_idx].w = nb_w != 0 ? W / (pow(2, nb_w) - 1) : 0.0;
+    protein_list[indiv_id][protein_idx].h = nb_h != 0 ? H / (pow(2, nb_h) - 1) : 0.5;
 
     //  ------------------------------------------------------------------------------------
     //  3) Normalize M, W and H values according to the allowed ranges (defined in macros.h)
@@ -1782,23 +1937,24 @@ __global__ void translate_protein(float w_max, int32_t* idx_protein,
     // x_min <= M <= x_max
     // w_min <= W <= w_max
     // h_min <= H <= h_max
-    protein_list[indiv_id][protein_idx]->m  = (X_MAX - X_MIN) * protein_list[indiv_id][protein_idx]->m + X_MIN;
-    protein_list[indiv_id][protein_idx]->w  = (w_max - W_MIN) * protein_list[indiv_id][protein_idx]->w + W_MIN;
-    protein_list[indiv_id][protein_idx]->h  = (H_MAX - H_MIN) * protein_list[indiv_id][protein_idx]->h + H_MIN;
+    protein_list[indiv_id][protein_idx].m  = (X_MAX - X_MIN) * protein_list[indiv_id][protein_idx].m + X_MIN;
+    protein_list[indiv_id][protein_idx].w  = (w_max - W_MIN) * protein_list[indiv_id][protein_idx].w + W_MIN;
+    protein_list[indiv_id][protein_idx].h  = (H_MAX - H_MIN) * protein_list[indiv_id][protein_idx].h + H_MIN;
 
-    if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || protein_list[indiv_id][protein_idx]->w == 0.0 || protein_list[indiv_id][protein_idx]->h == 0.0 )
+    if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || protein_list[indiv_id][protein_idx].w == 0.0 ||
+        protein_list[indiv_id][protein_idx].h == 0.0 )
     {
-      protein_list[indiv_id][protein_idx]->is_functional = false;
+      protein_list[indiv_id][protein_idx].is_functional = false;
     }
     else
     {
-      protein_list[indiv_id][protein_idx]->is_functional = true;
+      protein_list[indiv_id][protein_idx].is_functional = true;
     }
   }
 }
 
 
-__global__ void compute_phenotype(int32_t* idx_protein, cProtein*** protein_list,
+__global__ void compute_phenotype(int32_t* idx_protein, cProtein** protein_list,
                                   float** phenotype, int threads_size, int thread_dim) {
   int indiv_id = blockIdx.x / threads_size;
   int block_id = blockIdx.x % threads_size;
@@ -1807,17 +1963,17 @@ __global__ void compute_phenotype(int32_t* idx_protein, cProtein*** protein_list
   int protein_idx = thread_dim*block_id+pos_block_size;
 
   if (protein_idx < idx_protein[indiv_id]) {
-    if ( fabs(protein_list[indiv_id][protein_idx]->w) < 1e-15 ||
-        fabs(protein_list[indiv_id][protein_idx]->h) < 1e-15 ) return;
+    if ( fabs(protein_list[indiv_id][protein_idx].w) < 1e-15 ||
+        fabs(protein_list[indiv_id][protein_idx].h) < 1e-15 ) return;
 
-    if (protein_list[indiv_id][protein_idx]->is_functional) {
+    if (protein_list[indiv_id][protein_idx].is_functional) {
 
       // Compute triangle points' coordinates
-      float x0 = protein_list[indiv_id][protein_idx]->m -
-                 protein_list[indiv_id][protein_idx]->w;
-      float x1 = protein_list[indiv_id][protein_idx]->m;
-      float x2 = protein_list[indiv_id][protein_idx]->m +
-                 protein_list[indiv_id][protein_idx]->w;
+      float x0 = protein_list[indiv_id][protein_idx].m -
+                 protein_list[indiv_id][protein_idx].w;
+      float x1 = protein_list[indiv_id][protein_idx].m;
+      float x2 = protein_list[indiv_id][protein_idx].m +
+                 protein_list[indiv_id][protein_idx].w;
 
       /*if (indiv_id == 991)
         printf("Protein %d : %f %f %f\n",protein_idx,protein_list[indiv_id][protein_idx]->m,
@@ -1832,8 +1988,8 @@ __global__ void compute_phenotype(int32_t* idx_protein, cProtein*** protein_list
       if (ix2 < 0) ix2 = 0; else if (ix2 > (299)) ix2 = 299;
 
       // Compute the first equation of the triangle
-      float incY = (protein_list[indiv_id][protein_idx]->h *
-                    protein_list[indiv_id][protein_idx]->e) / (ix1 - ix0);
+      float incY = (protein_list[indiv_id][protein_idx].h *
+                    protein_list[indiv_id][protein_idx].e) / (ix1 - ix0);
       int count = 1;
       // Updating value between x0 and x1
 
@@ -1842,19 +1998,19 @@ __global__ void compute_phenotype(int32_t* idx_protein, cProtein*** protein_list
       }
 
       atomicAdd(&phenotype[indiv_id][ix1],
-                (protein_list[indiv_id][protein_idx]->h *
-                 protein_list[indiv_id][protein_idx]->e));
+                (protein_list[indiv_id][protein_idx].h *
+                 protein_list[indiv_id][protein_idx].e));
 
       // Compute the second equation of the triangle
-      incY = (protein_list[indiv_id][protein_idx]->h *
-              protein_list[indiv_id][protein_idx]->e) / (ix2 - ix1);
+      incY = (protein_list[indiv_id][protein_idx].h *
+              protein_list[indiv_id][protein_idx].e) / (ix2 - ix1);
       count = 1;
 
       // Updating value between x1 and x2
       for (int i = ix1 + 1; i < ix2; i++) {
         atomicAdd(&phenotype[indiv_id][i],
-                  ((protein_list[indiv_id][protein_idx]->h *
-                    protein_list[indiv_id][protein_idx]->e) -
+                  ((protein_list[indiv_id][protein_idx].h *
+                    protein_list[indiv_id][protein_idx].e) -
                    (incY * (count++))));
       }
     }
@@ -1905,19 +2061,11 @@ __global__ void compute_metaerror_fitness(double selection_pressure,float** phen
   }
 }
 
-__global__ void free_list(cProtein*** protein_list,
+__global__ void free_list(cProtein** protein_list,
                           cRNA*** rna, int32_t* idx_protein,int32_t* idx_rna) {
 
   int indiv_id = blockIdx.x;
 
-  for (int rna_idx = 0; rna_idx < idx_rna[indiv_id]; rna_idx++) {
-    free(rna[indiv_id][rna_idx]->start_prot);
-    free(rna[indiv_id][rna_idx]);
-  }
-
-  for (int protein_idx =0; protein_idx < idx_protein[indiv_id]; protein_idx++) {
-    free(protein_list[indiv_id][protein_idx]);
-  }
 }
 
 __global__ void debug_dna(size_t* dna_size, char** dna) {
@@ -2009,17 +2157,17 @@ __global__ void debug_rna(size_t* dna_size,
 }
 
 __global__ void debug_protein(int32_t* idx_protein,
-                          cProtein*** protein_list, char** dna,
+                          cProtein** protein_list, char** dna,
                           int indiv_id) {
   printf("Individual %d (GPU) -- %d : \n",indiv_id,idx_protein[indiv_id]);
 
   for (int prot_idx = 0; prot_idx < idx_protein[indiv_id]; prot_idx++) {
     printf("Protein %d : %d %d %lf %lf %lf\n",prot_idx,
-           protein_list[indiv_id][prot_idx]->protein_start,
-           protein_list[indiv_id][prot_idx]->protein_end,
-           protein_list[indiv_id][prot_idx]->m,
-           protein_list[indiv_id][prot_idx]->h,
-           protein_list[indiv_id][prot_idx]->w);
+           protein_list[indiv_id][prot_idx].protein_start,
+           protein_list[indiv_id][prot_idx].protein_end,
+           protein_list[indiv_id][prot_idx].m,
+           protein_list[indiv_id][prot_idx].h,
+           protein_list[indiv_id][prot_idx].w);
   }
 
   printf("\n");

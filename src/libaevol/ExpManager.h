@@ -205,6 +205,8 @@ class ExpManager : public Observer {
   /// Should the simulation be stopped? Set to true when ctrl-Q is received.
   /// Will cause the simulation to be ended after the current time step is completed.
   bool quit_signal_received_;
+
+    bool first_gen = true;
 };
 
 // ===========================================================================

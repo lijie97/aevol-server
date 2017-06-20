@@ -12,8 +12,8 @@ void cuda_init();
 /**
  * Data transfer functions
  */
-void transfer_in(ExpManager* exp_m);
-void transfer_out(ExpManager* exp_m);
+void transfer_in(ExpManager* exp_m, bool init_all_struct);
+void transfer_out(ExpManager* exp_m, bool delete_all_struct);
 
 /**
  * Run all kernel for one generation -- all individuals

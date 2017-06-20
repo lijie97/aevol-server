@@ -198,7 +198,7 @@ class raevol_matrix(Engine):
                     f.write('ENV_ADD_GAUSSIAN  4  0.5   0.65  0.05'+ os.linesep)
                     f.write('ENV_ADD_GAUSSIAN  4  0.5   0.8   0.05'+ os.linesep)
                 elif comb['env'] == 'lat_123':
-                    line = line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 16')
+                    line = line.replace('CONFIGURE_ENVIRONMENT_VALUES','NB_ENVIRONMENTS 8')
                     f.write(line)
                     
                     #const
