@@ -26,7 +26,7 @@ constexpr int32_t BUCKET_MAX_SIZE = 20;
 constexpr int32_t RNA_LIST_INCR_SIZE = 200;
 constexpr int32_t RNA_LIST_PROTEIN_INCR_SIZE = 250;
 
-constexpr int32_t PROTEIN_LIST_INCR_SIZE = 200;
+constexpr int32_t PROTEIN_LIST_INCR_SIZE = 400;
 /**
  * Structure
  */
@@ -118,8 +118,7 @@ struct pRNA {
     int32_t end;
     int8_t leading_lagging; // 0 = leading, 1 = lagging
     double e;
-    int* start_prot;
-    cProtein** protein_list;
+    uint32_t* start_prot;
     int32_t max_protein_elements;
     int32_t nb_protein;
     int32_t length;

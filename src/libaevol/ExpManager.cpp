@@ -302,8 +302,11 @@ auto     t1 = high_resolution_clock::now();
 
   auto     s_t1 = high_resolution_clock::now();
 
+  if (first_gen) {
+    cudaProfilerStop();
+  }
   transfer_in(this, first_gen);
-  first_gen = false;
+
 
   auto t2 = high_resolution_clock::now();
   auto duration_A = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -311,7 +314,7 @@ auto     t1 = high_resolution_clock::now();
   t1 = high_resolution_clock::now();
 
   run_a_step(nb_indivs(), (float) best_indiv()->w_max(),
-               selection_pressure());
+               selection_pressure(),first_gen);
 
   t2 = high_resolution_clock::now();
   auto duration_B = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -339,6 +342,12 @@ auto     t1 = high_resolution_clock::now();
   auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
   std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
+
+  if (first_gen) {
+    cudaProfilerStart();
+    first_gen = false;
+  }
+
   // Write statistical data and store phylogenetic data (tree)
 #pragma omp single
 {
@@ -526,7 +535,7 @@ void ExpManager::run_evolution() {
 
   cuda_init();
 
-
+  cudaProfilerStart();
   // For each generation
   while (true) { // termination condition is into the loop
 
@@ -571,8 +580,6 @@ void ExpManager::run_evolution() {
 
     if (AeTime::time() >= t_end_ or quit_signal_received())
       break;
-
-
 
 #ifdef __TRACING__
     t1 = high_resolution_clock::now();

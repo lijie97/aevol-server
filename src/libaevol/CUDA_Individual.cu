@@ -40,11 +40,16 @@ static void HandleError( cudaError_t err, const char *file, int line )
 void cuda_init() {
   size_t limit = 9000000000;
   cudaDeviceSetLimit(cudaLimitMallocHeapSize, limit);
-  cudaDeviceSetLimit(cudaLimitStackSize, 1024*600);
+  cudaDeviceSetLimit(cudaLimitStackSize, 1024*1024);
   cudaDeviceSetLimit(cudaLimitPrintfFifoSize, 64*1024*1024);
 }
 
 void transfer_in(ExpManager* exp_m, bool init_all_struct) {
+  if (init_all_struct) {
+    cudaDeviceReset();
+    cudaDeviceSynchronize();
+  }
+
   size_t uCurAvailMemoryInBytes;
   size_t uTotalMemoryInBytes;
   CUresult result = cuMemGetInfo( &uCurAvailMemoryInBytes, &uTotalMemoryInBytes );
@@ -58,10 +63,10 @@ void transfer_in(ExpManager* exp_m, bool init_all_struct) {
   host_dna = (char**)malloc(exp_m->nb_indivs()*sizeof(char*));
   checkCuda(cudaMalloc((void***)&dna,exp_m->nb_indivs()*sizeof(char*)));
 
-  host_dna_lead_promoter = (int8_t**)malloc(exp_m->nb_indivs()*sizeof(int8_t*));
-  checkCuda(cudaMalloc((void***)&dna_lead_promoter,exp_m->nb_indivs()*sizeof(int8_t*)));
-  host_dna_lag_promoter = (int8_t**)malloc(exp_m->nb_indivs()*sizeof(int8_t*));
-  checkCuda(cudaMalloc((void***)&dna_lag_promoter,exp_m->nb_indivs()*sizeof(int8_t*)));
+  //host_dna_lead_promoter = (int8_t**)malloc(exp_m->nb_indivs()*sizeof(int8_t*));
+  //checkCuda(cudaMalloc((void***)&dna_lead_promoter,exp_m->nb_indivs()*sizeof(int8_t*)));
+  //host_dna_lag_promoter = (int8_t**)malloc(exp_m->nb_indivs()*sizeof(int8_t*));
+  //checkCuda(cudaMalloc((void***)&dna_lag_promoter,exp_m->nb_indivs()*sizeof(int8_t*)));
 
   host_dna_lead_term = (int8_t**)malloc(exp_m->nb_indivs()*sizeof(int8_t*));
   checkCuda(cudaMalloc((void***)&dna_lead_term,exp_m->nb_indivs()*sizeof(int8_t*)));
@@ -160,11 +165,11 @@ void transfer_in(ExpManager* exp_m, bool init_all_struct) {
     max_dna = max_dna < exp_m->world()->indiv_at(x, y)->genetic_unit(0).seq_length() ?
               exp_m->world()->indiv_at(x, y)->genetic_unit(0).seq_length() : max_dna;
 
-    checkCuda(cudaMalloc((void**) &host_dna_lead_promoter[i],
-               exp_m->world()->indiv_at(x, y)->genetic_unit(0).seq_length() * sizeof(int8_t)));
+    //checkCuda(cudaMalloc((void**) &host_dna_lead_promoter[i],
+    //           exp_m->world()->indiv_at(x, y)->genetic_unit(0).seq_length() * sizeof(int8_t)));
 
-    checkCuda(cudaMalloc((void**) &host_dna_lag_promoter[i],
-               exp_m->world()->indiv_at(x, y)->genetic_unit(0).seq_length() * sizeof(int8_t)));
+    //checkCuda(cudaMalloc((void**) &host_dna_lag_promoter[i],
+    //           exp_m->world()->indiv_at(x, y)->genetic_unit(0).seq_length() * sizeof(int8_t)));
 
     checkCuda(cudaMalloc((void**) &host_dna_lead_term[i],
                exp_m->world()->indiv_at(x, y)->genetic_unit(0).seq_length() * sizeof(int8_t)));
@@ -184,8 +189,8 @@ void transfer_in(ExpManager* exp_m, bool init_all_struct) {
 
   checkCuda(cudaMemcpy(dna,host_dna,exp_m->nb_indivs()*sizeof(char*),cudaMemcpyHostToDevice));
 
-  checkCuda(cudaMemcpy(dna_lag_promoter,host_dna_lag_promoter,exp_m->nb_indivs()*sizeof(int8_t*),cudaMemcpyHostToDevice));
-  checkCuda(cudaMemcpy(dna_lead_promoter,host_dna_lead_promoter,exp_m->nb_indivs()*sizeof(int8_t*),cudaMemcpyHostToDevice));
+  //checkCuda(cudaMemcpy(dna_lag_promoter,host_dna_lag_promoter,exp_m->nb_indivs()*sizeof(int8_t*),cudaMemcpyHostToDevice));
+  //checkCuda(cudaMemcpy(dna_lead_promoter,host_dna_lead_promoter,exp_m->nb_indivs()*sizeof(int8_t*),cudaMemcpyHostToDevice));
 
 
   checkCuda(cudaMemcpy(phenotype,host_phenotype,exp_m->nb_indivs()*sizeof(float*),cudaMemcpyHostToDevice));
@@ -433,8 +438,8 @@ void transfer_out(ExpManager* exp_m, bool delete_all_struct) {
 
  for (int i = 0; i < exp_m->nb_indivs(); i++) {
     HANDLE_ERROR(cudaFree(host_dna[i]));
-   HANDLE_ERROR(cudaFree(host_dna_lead_promoter[i]));
-   HANDLE_ERROR(cudaFree(host_dna_lag_promoter[i]));
+   //HANDLE_ERROR(cudaFree(host_dna_lead_promoter[i]));
+   //HANDLE_ERROR(cudaFree(host_dna_lag_promoter[i]));
    HANDLE_ERROR(cudaFree(host_dna_lead_term[i]));
    HANDLE_ERROR(cudaFree(host_dna_lag_term[i]));
    HANDLE_ERROR(cudaFree(host_phenotype[i]));
@@ -455,8 +460,8 @@ void transfer_out(ExpManager* exp_m, bool delete_all_struct) {
   HANDLE_ERROR(cudaFree(target));
 
   HANDLE_ERROR(cudaFree(dna));
-  HANDLE_ERROR(cudaFree(dna_lead_promoter));
-  HANDLE_ERROR(cudaFree(dna_lag_promoter));
+  //HANDLE_ERROR(cudaFree(dna_lead_promoter));
+  //HANDLE_ERROR(cudaFree(dna_lag_promoter));
   HANDLE_ERROR(cudaFree(dna_lead_term));
   HANDLE_ERROR(cudaFree(dna_lag_term));
   HANDLE_ERROR(cudaFree(phenotype));
@@ -467,9 +472,11 @@ void transfer_out(ExpManager* exp_m, bool delete_all_struct) {
     exit(-42);*/
 }
 
-void run_a_step(int nb_indiv,float w_max, double selection_pressure) {
+void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_gen) {
   cuda_init();
   nb_indiv = 1024;
+
+
   /*limit=0;
   cudaDeviceGetLimit(&limit, cudaLimitStackSize);
   printf("cudaLimitStackSize: %u\n", (unsigned)limit);
@@ -621,6 +628,7 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure) {
     cudaProfilerStop();
     exit(-1);
   }*/
+
 }
 
 __global__
@@ -712,7 +720,7 @@ void search_start_RNA(size_t* dna_size, char** dna, int8_t** dna_lead_promoter,
                        dist_lagging[19] + dist_lagging[20] + dist_lagging[21];
 
 
-        dna_lead_promoter[indiv_id][dna_pos] = dist_lead > 4 ? -1 : dist_lead;
+        //dna_lead_promoter[indiv_id][dna_pos] = dist_lead > 4 ? -1 : dist_lead;
  //       int nb_pro = dist_lead <= 4 ? 1 : 0;
 
         if (dist_lead <= 4) {
@@ -723,7 +731,7 @@ void search_start_RNA(size_t* dna_size, char** dna, int8_t** dna_lead_promoter,
           dynPromoterList[indiv_id][rna_idx].error = dist_lead;
         }
 
-        dna_lag_promoter[indiv_id][dna_pos] = dist_lag > 4 ? -1 : dist_lag;
+        //dna_lag_promoter[indiv_id][dna_pos] = dist_lag > 4 ? -1 : dist_lag;
 //        nb_pro += dist_lag <= 4 ? 1 : 0;
 
         //    if (indiv_id == 410 && dna_pos == 10)
@@ -1048,10 +1056,10 @@ void internal_init_RNA_struct(cRNA*** rna, int32_t* max_nb_elements_rna_list, in
 
   if (rna_idx < max_nb_elements_rna_list[indiv_id]) {
     rna[indiv_id][rna_idx] = (cRNA*) malloc(sizeof(cRNA));
-    rna[indiv_id][rna_idx]->max_protein_elements = RNA_LIST_PROTEIN_INCR_SIZE;
+    rna[indiv_id][rna_idx]->max_protein_elements = 200;
 
-    rna[indiv_id][rna_idx]->start_prot = (int*) malloc(
-        RNA_LIST_PROTEIN_INCR_SIZE * sizeof(int));
+    rna[indiv_id][rna_idx]->start_prot = (uint32_t*) malloc(
+        rna[indiv_id][rna_idx]->max_protein_elements * sizeof(uint32_t));
   }
 }
 
@@ -1074,19 +1082,19 @@ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters, int32_t* max_
       rna[indiv_id] = (cRNA**) malloc((max_nb_elements_rna_list[indiv_id]+1)*sizeof(cRNA*));
 
 
-      //int block_offset = max_nb_elements_rna_list[indiv_id]/1024 + 1;
+      int block_offset = max_nb_elements_rna_list[indiv_id]/1024 + 1;
 
-      //internal_init_RNA_struct<<<block_offset,1024>>>(rna,max_nb_elements_rna_list,indiv_id);
+      internal_init_RNA_struct<<<block_offset,1024>>>(rna,max_nb_elements_rna_list,indiv_id);
       //cudaDeviceSynchronize();
       //
-      for (int i=0; i < max_nb_elements_rna_list[indiv_id]; i++) {
+      /*for (int i=0; i < max_nb_elements_rna_list[indiv_id]; i++) {
         rna[indiv_id][i] = (cRNA*) malloc(sizeof(cRNA));
         //printf("Malloc POINTER RNA %d indiv %d : %p\n",max_nb_elements_rna_list[indiv_id],indiv_id,l_rna);
-        rna[indiv_id][i]->max_protein_elements = 50;//RNA_LIST_PROTEIN_INCR_SIZE;
+        rna[indiv_id][i]->max_protein_elements = 250;//RNA_LIST_PROTEIN_INCR_SIZE;
 
         rna[indiv_id][i]->start_prot =  (int*) malloc(
             rna[indiv_id][i]->max_protein_elements  * sizeof(int));
-      }
+      }*/
       printf("Malloc Decrease DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
              before_cpt,nb_promoters[indiv_id]);
     } else if (nb_promoters[indiv_id] < max_nb_elements_rna_list[indiv_id]/2 && max_nb_elements_rna_list[indiv_id] - RNA_LIST_INCR_SIZE > 0) {
@@ -1103,18 +1111,18 @@ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters, int32_t* max_
 
       rna[indiv_id] = (cRNA**) malloc((max_nb_elements_rna_list[indiv_id]+1)*sizeof(cRNA*));
 
-      //int block_offset = max_nb_elements_rna_list[indiv_id]/1024 + 1;
+      int block_offset = max_nb_elements_rna_list[indiv_id]/1024 + 1;
 
-      //internal_init_RNA_struct<<<block_offset,1024>>>(rna,max_nb_elements_rna_list,indiv_id);
+      internal_init_RNA_struct<<<block_offset,1024>>>(rna,max_nb_elements_rna_list,indiv_id);
       //cudaDeviceSynchronize();
 
-      for (int i=0; i < max_nb_elements_rna_list[indiv_id];i++) {
+      /*for (int i=0; i < max_nb_elements_rna_list[indiv_id];i++) {
         rna[indiv_id][i] = (cRNA*) malloc(sizeof(cRNA));
-        rna[indiv_id][i]->max_protein_elements = 50;
+        rna[indiv_id][i]->max_protein_elements = 250;
         rna[indiv_id][i]->start_prot =  (int*) malloc(
             rna[indiv_id][i]->max_protein_elements  * sizeof(int));
         //RNA_LIST_PROTEIN_INCR_SIZE;
-      }
+      }*/
       printf("Malloc Decrease DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
               before_cpt,nb_promoters[indiv_id]);
     }
@@ -1173,17 +1181,17 @@ void compute_RNA(int pop_size, int8_t** dna_lead_promoter,
                      fabs(((float) dynPromoterList[indiv_id][rna_idx].error)) /
                      5.0;
 
-          if (rna_length > rna[indiv_id][idx]->max_protein_elements) {
+          /*if (rna_length > rna[indiv_id][idx]->max_protein_elements) {
             // Increase size
             free(rna[indiv_id][idx]->start_prot);
             int before_cpt = rna[indiv_id][idx]->max_protein_elements;
             rna[indiv_id][idx]->max_protein_elements=(1+((int32_t)rna_length/RNA_LIST_PROTEIN_INCR_SIZE))*RNA_LIST_PROTEIN_INCR_SIZE;
-            rna[indiv_id][idx]->start_prot = (int*) malloc(
-                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(int));
-            if (indiv_id == 828) printf("Malloc Increase DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",rna_length,
+            rna[indiv_id][idx]->start_prot = (uint32_t*) malloc(
+                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(uint32_t));
+            printf("Malloc Increase DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",rna_length,
                    indiv_id,rna_idx,
                    before_cpt,rna[indiv_id][idx]->max_protein_elements);
-          }/* else if ((rna_length < rna[indiv_id][idx]->max_protein_elements/2) && (rna[indiv_id][idx]->max_protein_elements - RNA_LIST_PROTEIN_INCR_SIZE > 0)) {
+          } else if ((rna_length < rna[indiv_id][idx]->max_protein_elements/2) && (rna[indiv_id][idx]->max_protein_elements - RNA_LIST_PROTEIN_INCR_SIZE > 0)) {
             // Decrease size
             free(rna[indiv_id][idx]->start_prot);
             int before_cpt = rna[indiv_id][idx]->max_protein_elements;
@@ -1244,18 +1252,18 @@ void compute_RNA(int pop_size, int8_t** dna_lead_promoter,
               1.0 - ((float) dynPromoterList[indiv_id][rna_idx].error) / 5.0;
 
 
-          if (rna_length > rna[indiv_id][idx]->max_protein_elements) {
+          /*if (rna_length > rna[indiv_id][idx]->max_protein_elements) {
             // Increase size
             free(rna[indiv_id][idx]->start_prot);
             int before_cpt = rna[indiv_id][idx]->max_protein_elements;
             rna[indiv_id][idx]->max_protein_elements=(1+((int32_t)rna_length/RNA_LIST_PROTEIN_INCR_SIZE))*RNA_LIST_PROTEIN_INCR_SIZE;
-            rna[indiv_id][idx]->start_prot = (int*) malloc(
-                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(int));
-            if (indiv_id == 828)  printf("Malloc Increase DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",
+            rna[indiv_id][idx]->start_prot = (uint32_t*) malloc(
+                (rna[indiv_id][idx]->max_protein_elements + 1) * sizeof(uint32_t));
+            printf("Malloc Increase DONE RNA Protein List %d indiv %d -- %d (before %d current %d)\n",
                    rna_length,
                    indiv_id,rna_idx,
                    before_cpt,rna[indiv_id][idx]->max_protein_elements);
-          }/* else if ((rna_length < rna[indiv_id][idx]->max_protein_elements/2) && (rna[indiv_id][idx]->max_protein_elements - RNA_LIST_PROTEIN_INCR_SIZE > 0)) {
+          } else if ((rna_length < rna[indiv_id][idx]->max_protein_elements/2) && (rna[indiv_id][idx]->max_protein_elements - RNA_LIST_PROTEIN_INCR_SIZE > 0)) {
             // Decrease size
             free(rna[indiv_id][idx]->start_prot);
             int before_cpt = rna[indiv_id][idx]->max_protein_elements;

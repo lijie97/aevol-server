@@ -18,7 +18,7 @@ void transfer_out(ExpManager* exp_m, bool delete_all_struct);
 /**
  * Run all kernel for one generation -- all individuals
  */
-void run_a_step(int nb_indiv,float w_max, double selection_pressure);
+void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_gen);
 
 /**
  * Debug functions
