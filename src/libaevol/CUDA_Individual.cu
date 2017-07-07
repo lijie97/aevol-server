@@ -885,7 +885,7 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
   int block_id = blockIdx.x % block_size;
   int pos_block_size = blockIdx.y;
 
-  int dna_pos = (gridDim.y*block_id+pos_block_size)*bucket_size;
+  int org_dna_pos = (gridDim.y*block_id+pos_block_size)*bucket_size;
 
   __shared__ int prom_dist_leading[BUCKET_MAX_SIZE][26];
   __shared__ int prom_dist_lagging[BUCKET_MAX_SIZE][26];
@@ -894,70 +894,45 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
   __shared__ int term_dist_leading[BUCKET_MAX_SIZE][4];
   __shared__ int term_dist_lagging[BUCKET_MAX_SIZE][4];
 
+  __shared__ int cached_dna[61];
+
   //__shared__ int dist_lead[BUCKET_MAX_SIZE];
   //__shared__ int dist_lag[BUCKET_MAX_SIZE];
 
   int motif_id = threadIdx.x % 52;
   int dna_global_offset = threadIdx.x / 52;
 
-  dna_pos+=dna_global_offset;
-
   /*if (indiv_id == 0 && blockIdx.x == 0 && blockIdx.y == 0)
     printf("Thread %d Block X %d block Y %d -- Motif ID %d (offset %d) : DNA POS %d\n",
            threadIdx.x,blockIdx.x,blockIdx.y,motif_id,dna_global_offset,dna_pos);*/
 
+  if (threadIdx.x % 52 == 0) {
+      cached_dna = dna[indiv_id][org_dna_pos+dna_global_offset];
+  }
 
+  int cached_dna_pos = 21+dna_global_offset;
+
+  __syncthreads();
 
   if (dna_pos < dna_size[indiv_id] && dna_size[indiv_id] >= PROM_SIZE) {
     if (motif_id >= 26 && motif_id < 48) {
       // LAGGING
       int t_motif_id = motif_id - 26;
-      /*if (indiv_id == 0 && dna_pos == 299)
-        printf("Searching prom lagging motif id %d (%d) at %d\n",t_motif_id,motif_id,dna_pos);*/
       prom_dist_lagging[dna_global_offset][t_motif_id] =
-          PROM_SEQ_LAG[t_motif_id] == dna[indiv_id][dna_pos - t_motif_id < 0 ?
-                                                    dna_size[indiv_id] + (dna_pos - t_motif_id) :
-                                                    dna_pos - t_motif_id] ? 0 : 1;
+          PROM_SEQ_LAG[t_motif_id] == cached_dna[cached_dna_pos-t_motif_id] ? 0 : 1;
     } else if (motif_id < 22) {
       // LEADING
-      /*if (indiv_id == 0 && dna_pos == 299)
-        printf("Searching prom leading motif id %d at %d\n",motif_id,dna_pos);*/
       prom_dist_leading[dna_global_offset][motif_id] =
-          PROM_SEQ_LEAD[motif_id] == dna[indiv_id][dna_pos + motif_id >= dna_size[indiv_id] ?
-                                                   dna_pos + motif_id - dna_size[indiv_id] : dna_pos + motif_id] ? 0 : 1;
+          PROM_SEQ_LEAD[motif_id] == cached_dna[cached_dna_pos+motif_id] ? 0 : 1;
     } else if (motif_id >= 22 && motif_id < 26) {
       int t_motif_id = motif_id - 22;
       // LEADING
-      int pos_1 = dna_pos + t_motif_id >= dna_size[indiv_id] ?
-                  (dna_pos + t_motif_id) - dna_size[indiv_id] : dna_pos +
-                      t_motif_id;
-      int pos_2 = dna_pos - t_motif_id + 10 >= dna_size[indiv_id] ?
-                  10 + dna_pos - t_motif_id - dna_size[indiv_id] : dna_pos -
-                      t_motif_id +
-                                                                 10;
       term_dist_leading[dna_global_offset][t_motif_id] =
-          dna[indiv_id][pos_1] != dna[indiv_id][pos_2] ? 1 : 0;
-
-
-      /*if (indiv_id == 0 && dna_pos >= 619 && dna_pos <= 625)
-        printf("Searching term leading motif id %d (%d) at %d (%c %c) : %d\n",t_motif_id,motif_id,dna_pos,dna[indiv_id][pos_1],
-               dna_pos,dna[indiv_id][pos_1],term_dist_leading[dna_global_offset][t_motif_id]);*/
+          cached_dna[cached_dna_pos+t_motif_id] != cached_dna[cached_dna_pos-t_motif_id+10] ? 1 : 0;
     } else {
       int t_motif_id = motif_id - 48;
-
-      /*if (indiv_id == 0 && dna_pos == 299)
-        printf("Searching term lagging motif id %d (%d) at %d\n",t_motif_id,motif_id,dna_pos);*/
-
-      int pos_1 = dna_pos - t_motif_id < 0 ?
-                  dna_size[indiv_id] + (dna_pos - t_motif_id) : dna_pos -
-                                                              t_motif_id;
-      int pos_2 = dna_pos + t_motif_id - 10 < 0 ?
-                  dna_size[indiv_id] + (dna_pos + t_motif_id - 10) : dna_pos +
-                      t_motif_id -
-                                                                   10;
-
       term_dist_lagging[dna_global_offset][t_motif_id] =
-          dna[indiv_id][pos_1] != dna[indiv_id][pos_2] ? 1 : 0;
+          cached_dna[cached_dna_pos-t_motif_id] != cached_dna[cached_dna_pos+t_motif_id-10] ? 1 : 0;
     }
 
     __syncthreads();
