@@ -506,10 +506,13 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
   int y_dim_size = host_max_dna_size / block_size;
   int x_dim_size = 1024 * block_size;
 
-  int bucket_size = 1;
-  /*int bucket_size = 1 + y_dim_size / 52;
-  int thread_number = y_dim_size / bucket_size;
-  y_dim_size = 52 * bucket_size;*/
+  //int bucket_size = 1;
+  int tmp_block = 1 + (( y_dim_size * 52 ) / 1024);
+
+  int bucket_size = 19;
+  int thread_number = bucket_size * 52;
+
+  y_dim_size = 1 + y_dim_size / 19;
 
   dim3 dimGrid(x_dim_size,y_dim_size);
 
@@ -538,9 +541,9 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
   //    1);
 
 
-  printf("X Dim %d Y Dim %d Thread %d Bucket %d Block %d\n",x_dim_size,y_dim_size,52,bucket_size,block_size);
+  printf("X Dim %d Y Dim %d Thread %d Bucket %d Block %d\n",x_dim_size,y_dim_size,thread_number,bucket_size,block_size);
 
-  search_start_stop_RNA_bucket<<<dimGrid,52>>>(dna_size,dna,dna_lead_promoter,dna_lag_promoter,
+  search_start_stop_RNA_bucket<<<dimGrid,thread_number>>>(dna_size,dna,dna_lead_promoter,dna_lag_promoter,
       nb_promoters,dynPromoterList,dna_lead_term,dna_lag_term,bucket_size,block_size);
 
   cudaDeviceSynchronize();
@@ -882,7 +885,7 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
   int block_id = blockIdx.x % block_size;
   int pos_block_size = blockIdx.y;
 
-  int dna_pos = gridDim.y*block_id+pos_block_size;
+  int dna_pos = (gridDim.y*block_id+pos_block_size)*bucket_size;
 
   __shared__ int prom_dist_leading[BUCKET_MAX_SIZE][26];
   __shared__ int prom_dist_lagging[BUCKET_MAX_SIZE][26];
@@ -896,9 +899,13 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
 
   int motif_id = threadIdx.x % 52;
   int dna_global_offset = threadIdx.x / 52;
+
   dna_pos+=dna_global_offset;
-  /*if (indiv_id == 0 && dna_pos == 299)
-    printf("Thread %d Block X %d block Y %d -- Motif ID %d (offset %d)\n",threadIdx.x,blockIdx.x,blockIdx.y,motif_id,dna_global_offset);*/
+
+  /*if (indiv_id == 0 && blockIdx.x == 0 && blockIdx.y == 0)
+    printf("Thread %d Block X %d block Y %d -- Motif ID %d (offset %d) : DNA POS %d\n",
+           threadIdx.x,blockIdx.x,blockIdx.y,motif_id,dna_global_offset,dna_pos);*/
+
 
 
   if (dna_pos < dna_size[indiv_id] && dna_size[indiv_id] >= PROM_SIZE) {
@@ -955,7 +962,7 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
 
     __syncthreads();
 
-    if (motif_id == 0) {
+    if (motif_id % 52 == 0) {
 
       int dist_lead = prom_dist_leading[dna_global_offset][0] +
           prom_dist_leading[dna_global_offset][1] +
@@ -990,7 +997,7 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
 //        if (indiv_id == 0) printf("New Start RNA Found ! POS %d RNA Idx %d\n",dna_pos,rna_idx);
       }
     }
-    else if (motif_id == 22) {
+    else if (motif_id % 52 == 22) {
       int dist_lead = term_dist_leading[dna_global_offset][0] +
           term_dist_leading[dna_global_offset][1] +
           term_dist_leading[dna_global_offset][2] +
@@ -999,7 +1006,7 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
   /*    if (dna_lead_term[indiv_id][dna_pos] == 4)
         printf("New STOP RNA Found ! POS %d RNA Idx %d\n",dna_pos);*/
     }
-    else if (motif_id == 26) {
+    else if (motif_id % 52 == 26) {
       int dist_lag = prom_dist_lagging[dna_global_offset][0] +
           prom_dist_lagging[dna_global_offset][1] +
           prom_dist_lagging[dna_global_offset][2] +
@@ -1031,7 +1038,7 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
         dynPromoterList[indiv_id][rna_idx].error = dist_lag;
       }
     }
-    else if (motif_id == 48) {
+    else if (motif_id % 52 == 48) {
       int dist_lag = term_dist_lagging[dna_global_offset][0] +
           term_dist_lagging[dna_global_offset][1] +
           term_dist_lagging[dna_global_offset][2] +
