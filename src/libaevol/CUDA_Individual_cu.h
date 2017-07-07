@@ -166,6 +166,10 @@ __global__ void search_start_RNA(size_t* dna_size, char** dna,
 __global__ void search_stop_RNA(size_t* dna_size, char** dna,
                                 int8_t** dna_lead_term, int8_t** dna_lag_term,
                                 int block_size);
+__global__ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lead_promoter,
+                                  int8_t** dna_lag_promoter, int* nb_promoters,
+                                  pStruct** dynPromoterList, int8_t** dna_lead_term, int8_t** dna_lag_term,
+                                             int bucket_size, int block_size);
 __global__ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters,
                                 int32_t* max_nb_rna,int32_t* idx_rna, int32_t* max_nb_elements_rna_list);
 __global__ void internal_init_RNA_struct(cRNA*** rna, int32_t* max_nb_elements_rna_list, int indiv_id);
@@ -205,8 +209,8 @@ __global__ void free_list(cProtein** protein_list,
 // Debug kernels
 __global__ void debug_dna(size_t* dna_size, char** dna);
 
-__global__ void debug_promoter_start(size_t* dna_size, int8_t** dna_lead_promoter,
-                                     int8_t** dna_lag_promoter, int* nb_promoters,int indiv_id);
+__global__ void debug_promoter_start(size_t* dna_size, pStruct** dynPromoterList,
+                                     int* nb_promoters,int indiv_id);
 __global__ void debug_promoter_stop(size_t* dna_size,
                                     int8_t** dna_lead_term,
                                     int8_t** dna_lag_term, int* nb_promoters, int indiv_id);

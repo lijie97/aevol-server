@@ -247,7 +247,7 @@ void print_debug_promoters_start(ExpManager* exp_m, int i) {
       printf("\n");
     }
 
-    debug_promoter_start<<<1,1>>>(dna_size,dna_lead_promoter,dna_lag_promoter,nb_promoters,
+    debug_promoter_start<<<1,1>>>(dna_size,dynPromoterList,nb_promoters,
         i);
 printf("Terminator !!! \n");
   debug_promoter_stop<<<1,1>>>(dna_size,dna_lead_term,dna_lag_term,nb_promoters,
@@ -410,6 +410,7 @@ void transfer_out(ExpManager* exp_m, bool delete_all_struct) {
     float i_fit_1 = roundf(fit_1*100);
     float i_fit_2 = roundf(fit_2*100);
 
+
     if (i_fit_1 != i_fit_2) {
       printf(
           "ERROR -- Individual %d : Metaerror (CPU/GPU) : %e -- %e || Fitness (CPU/GPU) : %e -- %e\n",
@@ -418,11 +419,13 @@ void transfer_out(ExpManager* exp_m, bool delete_all_struct) {
           host_metaerror[i],
           exp_m->world()->indiv_at(x, y)->fitness(), host_fitness[i]);
 
-      /*if (i == 823) {
+
+      /*if (i == 0) {
         print_debug_promoters_start(exp_m,i);
         print_debug_rna(exp_m,i);
         print_debug_protein(exp_m,i);
       }*/
+
       //print_debug_promoters_start(exp_m,i);
       //print_debug_rna(exp_m,i);
       //print_debug_protein(exp_m,i);
@@ -497,9 +500,16 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
 
   printf("Nb individual %d / max DNA size %d\n",nb_indiv,host_max_dna_size);
 
+
+
   int block_size = 1 + host_max_dna_size / 65000;
   int y_dim_size = host_max_dna_size / block_size;
   int x_dim_size = 1024 * block_size;
+
+  int bucket_size = 1;
+  /*int bucket_size = 1 + y_dim_size / 52;
+  int thread_number = y_dim_size / bucket_size;
+  y_dim_size = 52 * bucket_size;*/
 
   dim3 dimGrid(x_dim_size,y_dim_size);
 
@@ -508,14 +518,14 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
  // debug_dna<<<1,1>>>(dna_size, dna);
 //  cudaDeviceSynchronize();
   //init_array<<<1024,1>>>(nb_promoters);
-  search_start_RNA<<<dimGrid,44>>>(dna_size,dna,dna_lead_promoter,dna_lag_promoter,nb_promoters,dynPromoterList,block_size);
+  //search_start_RNA<<<dimGrid,44>>>(dna_size,dna,dna_lead_promoter,dna_lag_promoter,nb_promoters,dynPromoterList,block_size);
 
   //debug_promoter_start<<<1,1>>>(dna_size,dna_lead_promoter,dna_lag_promoter,nb_promoters,
   //    1);
   //return;
-  cudaDeviceSynchronize();
-  search_stop_RNA<<<dimGrid,8>>>(dna_size,dna,dna_lead_term,dna_lag_term,block_size);
-  cudaDeviceSynchronize();
+  //cudaDeviceSynchronize();
+  //search_stop_RNA<<<dimGrid,8>>>(dna_size,dna,dna_lead_term,dna_lag_term,block_size);
+  //cudaDeviceSynchronize();
   /*result = cuMemGetInfo( &uCurAvailMemoryInBytes, &uTotalMemoryInBytes );
   if( result == CUDA_SUCCESS )
   {
@@ -527,6 +537,13 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
   //debug_promoter_stop<<<1,1>>>(dna_size,dna_lead_promoter,dna_lag_promoter,nb_promoters,
   //    1);
 
+
+  printf("X Dim %d Y Dim %d Thread %d Bucket %d Block %d\n",x_dim_size,y_dim_size,52,bucket_size,block_size);
+
+  search_start_stop_RNA_bucket<<<dimGrid,52>>>(dna_size,dna,dna_lead_promoter,dna_lag_promoter,
+      nb_promoters,dynPromoterList,dna_lead_term,dna_lag_term,bucket_size,block_size);
+
+  cudaDeviceSynchronize();
 
   init_RNA_struct<<<nb_indiv,1>>>(nb_indiv,rna,nb_promoters,max_nb_rna,idx_rna,max_nb_elements_rna_list);
   //cudaDeviceSynchronize();
@@ -858,31 +875,47 @@ void search_start_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lead_pro
 __global__
 void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lead_promoter,
                              int8_t** dna_lag_promoter, int* nb_promoters,
-                             pStruct** dynPromoterList, int bucket_size, int block_size) {
+                             pStruct** dynPromoterList,
+                             int8_t** dna_lead_term, int8_t** dna_lag_term,
+                             int bucket_size, int block_size) {
   int indiv_id = blockIdx.x / block_size;
   int block_id = blockIdx.x % block_size;
   int pos_block_size = blockIdx.y;
 
   int dna_pos = gridDim.y*block_id+pos_block_size;
 
-  __shared__ int dist_leading[BUCKET_MAX_SIZE][26];
-  __shared__ int dist_lagging[BUCKET_MAX_SIZE][26];
+  __shared__ int prom_dist_leading[BUCKET_MAX_SIZE][26];
+  __shared__ int prom_dist_lagging[BUCKET_MAX_SIZE][26];
 
-  int motif_id = threadIdx.x % 26;
-  int dna_global_offset = threadIdx.x / 26;
+
+  __shared__ int term_dist_leading[BUCKET_MAX_SIZE][4];
+  __shared__ int term_dist_lagging[BUCKET_MAX_SIZE][4];
+
+  //__shared__ int dist_lead[BUCKET_MAX_SIZE];
+  //__shared__ int dist_lag[BUCKET_MAX_SIZE];
+
+  int motif_id = threadIdx.x % 52;
+  int dna_global_offset = threadIdx.x / 52;
   dna_pos+=dna_global_offset;
+  /*if (indiv_id == 0 && dna_pos == 299)
+    printf("Thread %d Block X %d block Y %d -- Motif ID %d (offset %d)\n",threadIdx.x,blockIdx.x,blockIdx.y,motif_id,dna_global_offset);*/
+
 
   if (dna_pos < dna_size[indiv_id] && dna_size[indiv_id] >= PROM_SIZE) {
     if (motif_id >= 26 && motif_id < 48) {
       // LAGGING
       int t_motif_id = motif_id - 26;
-      dist_lagging[dna_global_offset][t_motif_id] =
+      /*if (indiv_id == 0 && dna_pos == 299)
+        printf("Searching prom lagging motif id %d (%d) at %d\n",t_motif_id,motif_id,dna_pos);*/
+      prom_dist_lagging[dna_global_offset][t_motif_id] =
           PROM_SEQ_LAG[t_motif_id] == dna[indiv_id][dna_pos - t_motif_id < 0 ?
                                                     dna_size[indiv_id] + (dna_pos - t_motif_id) :
                                                     dna_pos - t_motif_id] ? 0 : 1;
     } else if (motif_id < 22) {
       // LEADING
-      dist_leading[dna_global_offset][motif_id] =
+      /*if (indiv_id == 0 && dna_pos == 299)
+        printf("Searching prom leading motif id %d at %d\n",motif_id,dna_pos);*/
+      prom_dist_leading[dna_global_offset][motif_id] =
           PROM_SEQ_LEAD[motif_id] == dna[indiv_id][dna_pos + motif_id >= dna_size[indiv_id] ?
                                                    dna_pos + motif_id - dna_size[indiv_id] : dna_pos + motif_id] ? 0 : 1;
     } else if (motif_id >= 22 && motif_id < 26) {
@@ -895,49 +928,57 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
                   10 + dna_pos - t_motif_id - dna_size[indiv_id] : dna_pos -
                       t_motif_id +
                                                                  10;
-      dist_leading[dna_global_offset][motif_id] =
+      term_dist_leading[dna_global_offset][t_motif_id] =
           dna[indiv_id][pos_1] != dna[indiv_id][pos_2] ? 1 : 0;
+
+
+      /*if (indiv_id == 0 && dna_pos >= 619 && dna_pos <= 625)
+        printf("Searching term leading motif id %d (%d) at %d (%c %c) : %d\n",t_motif_id,motif_id,dna_pos,dna[indiv_id][pos_1],
+               dna_pos,dna[indiv_id][pos_1],term_dist_leading[dna_global_offset][t_motif_id]);*/
     } else {
       int t_motif_id = motif_id - 48;
+
+      /*if (indiv_id == 0 && dna_pos == 299)
+        printf("Searching term lagging motif id %d (%d) at %d\n",t_motif_id,motif_id,dna_pos);*/
+
       int pos_1 = dna_pos - t_motif_id < 0 ?
                   dna_size[indiv_id] + (dna_pos - t_motif_id) : dna_pos -
-                                                              motif_id;
-      int pos_2 = dna_pos + motif_id - 10 < 0 ?
+                                                              t_motif_id;
+      int pos_2 = dna_pos + t_motif_id - 10 < 0 ?
                   dna_size[indiv_id] + (dna_pos + t_motif_id - 10) : dna_pos +
                       t_motif_id -
                                                                    10;
 
-      dist_lagging[dna_global_offset][t_motif_id+22] =
+      term_dist_lagging[dna_global_offset][t_motif_id] =
           dna[indiv_id][pos_1] != dna[indiv_id][pos_2] ? 1 : 0;
     }
-
 
     __syncthreads();
 
     if (motif_id == 0) {
 
-      int dist_lead = dist_leading[dna_global_offset][0] +
-                      dist_leading[dna_global_offset][1] +
-                      dist_leading[dna_global_offset][2] +
-                      dist_leading[dna_global_offset][3] +
-                      dist_leading[dna_global_offset][4] +
-                      dist_leading[dna_global_offset][5] +
-                      dist_leading[dna_global_offset][6] +
-                      dist_leading[dna_global_offset][7] +
-                      dist_leading[dna_global_offset][8] +
-                      dist_leading[dna_global_offset][9] +
-                      dist_leading[dna_global_offset][10] +
-                      dist_leading[dna_global_offset][11] +
-                      dist_leading[dna_global_offset][12] +
-                      dist_leading[dna_global_offset][13] +
-                      dist_leading[dna_global_offset][14] +
-                      dist_leading[dna_global_offset][15] +
-                      dist_leading[dna_global_offset][16] +
-                      dist_leading[dna_global_offset][17] +
-                      dist_leading[dna_global_offset][18] +
-                      dist_leading[dna_global_offset][19] +
-                      dist_leading[dna_global_offset][20] +
-                      dist_leading[dna_global_offset][21];
+      int dist_lead = prom_dist_leading[dna_global_offset][0] +
+          prom_dist_leading[dna_global_offset][1] +
+          prom_dist_leading[dna_global_offset][2] +
+          prom_dist_leading[dna_global_offset][3] +
+          prom_dist_leading[dna_global_offset][4] +
+          prom_dist_leading[dna_global_offset][5] +
+          prom_dist_leading[dna_global_offset][6] +
+          prom_dist_leading[dna_global_offset][7] +
+          prom_dist_leading[dna_global_offset][8] +
+          prom_dist_leading[dna_global_offset][9] +
+          prom_dist_leading[dna_global_offset][10] +
+          prom_dist_leading[dna_global_offset][11] +
+          prom_dist_leading[dna_global_offset][12] +
+          prom_dist_leading[dna_global_offset][13] +
+          prom_dist_leading[dna_global_offset][14] +
+          prom_dist_leading[dna_global_offset][15] +
+          prom_dist_leading[dna_global_offset][16] +
+          prom_dist_leading[dna_global_offset][17] +
+          prom_dist_leading[dna_global_offset][18] +
+          prom_dist_leading[dna_global_offset][19] +
+          prom_dist_leading[dna_global_offset][20] +
+          prom_dist_leading[dna_global_offset][21];
 
       if (dist_lead <= 4) {
         int rna_idx = atomicAdd(nb_promoters + indiv_id, 1);
@@ -945,32 +986,42 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
         dynPromoterList[indiv_id][rna_idx].pos = dna_pos;
         dynPromoterList[indiv_id][rna_idx].leading_or_lagging = true;
         dynPromoterList[indiv_id][rna_idx].error = dist_lead;
+
+//        if (indiv_id == 0) printf("New Start RNA Found ! POS %d RNA Idx %d\n",dna_pos,rna_idx);
       }
     }
-
-    if (motif_id == 22) {
-      int dist_lag = dist_lagging[dna_global_offset][0] +
-                     dist_lagging[dna_global_offset][1] +
-                     dist_lagging[dna_global_offset][2] +
-                     dist_lagging[dna_global_offset][3] +
-                     dist_lagging[dna_global_offset][4] +
-                     dist_lagging[dna_global_offset][5] +
-                     dist_lagging[dna_global_offset][6] +
-                     dist_lagging[dna_global_offset][7] +
-                     dist_lagging[dna_global_offset][8] +
-                     dist_lagging[dna_global_offset][9] +
-                     dist_lagging[dna_global_offset][10] +
-                     dist_lagging[dna_global_offset][11] +
-                     dist_lagging[dna_global_offset][12] +
-                     dist_lagging[dna_global_offset][13] +
-                     dist_lagging[dna_global_offset][14] +
-                     dist_lagging[dna_global_offset][15] +
-                     dist_lagging[dna_global_offset][16] +
-                     dist_lagging[dna_global_offset][17] +
-                     dist_lagging[dna_global_offset][18] +
-                     dist_lagging[dna_global_offset][19] +
-                     dist_lagging[dna_global_offset][20] +
-                     dist_lagging[dna_global_offset][21];
+    else if (motif_id == 22) {
+      int dist_lead = term_dist_leading[dna_global_offset][0] +
+          term_dist_leading[dna_global_offset][1] +
+          term_dist_leading[dna_global_offset][2] +
+          term_dist_leading[dna_global_offset][3];
+      dna_lead_term[indiv_id][dna_pos] = dist_lead == 4 ? 1 : 0;
+  /*    if (dna_lead_term[indiv_id][dna_pos] == 4)
+        printf("New STOP RNA Found ! POS %d RNA Idx %d\n",dna_pos);*/
+    }
+    else if (motif_id == 26) {
+      int dist_lag = prom_dist_lagging[dna_global_offset][0] +
+          prom_dist_lagging[dna_global_offset][1] +
+          prom_dist_lagging[dna_global_offset][2] +
+          prom_dist_lagging[dna_global_offset][3] +
+          prom_dist_lagging[dna_global_offset][4] +
+          prom_dist_lagging[dna_global_offset][5] +
+          prom_dist_lagging[dna_global_offset][6] +
+          prom_dist_lagging[dna_global_offset][7] +
+          prom_dist_lagging[dna_global_offset][8] +
+          prom_dist_lagging[dna_global_offset][9] +
+          prom_dist_lagging[dna_global_offset][10] +
+          prom_dist_lagging[dna_global_offset][11] +
+          prom_dist_lagging[dna_global_offset][12] +
+          prom_dist_lagging[dna_global_offset][13] +
+          prom_dist_lagging[dna_global_offset][14] +
+          prom_dist_lagging[dna_global_offset][15] +
+          prom_dist_lagging[dna_global_offset][16] +
+          prom_dist_lagging[dna_global_offset][17] +
+          prom_dist_lagging[dna_global_offset][18] +
+          prom_dist_lagging[dna_global_offset][19] +
+          prom_dist_lagging[dna_global_offset][20] +
+          prom_dist_lagging[dna_global_offset][21];
 
       if (dist_lag <= 4) {
         int rna_idx = atomicAdd(nb_promoters + indiv_id, 1);
@@ -979,6 +1030,13 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
         dynPromoterList[indiv_id][rna_idx].leading_or_lagging = false;
         dynPromoterList[indiv_id][rna_idx].error = dist_lag;
       }
+    }
+    else if (motif_id == 48) {
+      int dist_lag = term_dist_lagging[dna_global_offset][0] +
+          term_dist_lagging[dna_global_offset][1] +
+          term_dist_lagging[dna_global_offset][2] +
+          term_dist_lagging[dna_global_offset][3];
+      dna_lag_term[indiv_id][dna_pos] = dist_lag == 4 ? 1 : 0;
     }
   }
 }
@@ -1095,8 +1153,8 @@ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters, int32_t* max_
         rna[indiv_id][i]->start_prot =  (int*) malloc(
             rna[indiv_id][i]->max_protein_elements  * sizeof(int));
       }*/
-      printf("Malloc Decrease DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
-             before_cpt,nb_promoters[indiv_id]);
+/*      printf("Malloc Increase DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
+             before_cpt,nb_promoters[indiv_id]);*/
     } else if (nb_promoters[indiv_id] < max_nb_elements_rna_list[indiv_id]/2 && max_nb_elements_rna_list[indiv_id] - RNA_LIST_INCR_SIZE > 0) {
       // Decrease RNA List size
       for (int i=0; i < max_nb_elements_rna_list[indiv_id];i++) {
@@ -1123,8 +1181,8 @@ void init_RNA_struct(int pop_size, cRNA*** rna, int* nb_promoters, int32_t* max_
             rna[indiv_id][i]->max_protein_elements  * sizeof(int));
         //RNA_LIST_PROTEIN_INCR_SIZE;
       }*/
-      printf("Malloc Decrease DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
-              before_cpt,nb_promoters[indiv_id]);
+      /*printf("Malloc Decrease DONE RNA %d indiv %d (before %d current %d)\n",max_nb_elements_rna_list[indiv_id],indiv_id,
+              before_cpt,nb_promoters[indiv_id]);*/
     }
 
     atomicMax(max_nb_rna,nb_promoters[indiv_id]+1);
@@ -1444,8 +1502,8 @@ __global__ void init_protein_struct(int pop_size, int32_t* nb_protein,
 
       protein_list[indiv_id] = (cProtein*) malloc((max_nb_elements_protein_list[indiv_id]+1)*sizeof(cProtein));
 
-      printf("Malloc Increase DONE Protein %d indiv %d (before %d current %d)\n",max_nb_elements_protein_list[indiv_id],indiv_id,
-             before_cpt,nb_protein[indiv_id]);
+      /*printf("Malloc Increase DONE Protein %d indiv %d (before %d current %d)\n",max_nb_elements_protein_list[indiv_id],indiv_id,
+             before_cpt,nb_protein[indiv_id]);*/
     } else if (nb_protein[indiv_id] < max_nb_elements_protein_list[indiv_id]/2 && (max_nb_elements_protein_list[indiv_id] - PROTEIN_LIST_INCR_SIZE > 0)) {
       free(protein_list[indiv_id]);
       //max_nb_elements_rna_list[indiv_id] -= RNA_LIST_INCR_SIZE;
@@ -1455,8 +1513,8 @@ __global__ void init_protein_struct(int pop_size, int32_t* nb_protein,
 
       protein_list[indiv_id] = (cProtein*) malloc((max_nb_elements_protein_list[indiv_id]+1)*sizeof(cProtein));
 
-      printf("Malloc Decrease DONE Protein %d indiv %d (before %d current %d)\n",max_nb_elements_protein_list[indiv_id],indiv_id,
-             before_cpt,nb_protein[indiv_id]);
+      /*printf("Malloc Decrease DONE Protein %d indiv %d (before %d current %d)\n",max_nb_elements_protein_list[indiv_id],indiv_id,
+             before_cpt,nb_protein[indiv_id]);*/
     }
     //printf("%d -- END OF Number of Protein %d (array size %d)\n",indiv_id,nb_protein[indiv_id],max_nb_elements_protein_list[indiv_id]);
 
@@ -2086,8 +2144,8 @@ __global__ void debug_dna(size_t* dna_size, char** dna) {
 }
 
 __global__ void debug_promoter_start(size_t* dna_size,
-                                     int8_t** dna_lead_promoter,
-                                     int8_t** dna_lag_promoter, int* nb_promoters, int indiv_id) {
+                                     pStruct** dynPromoterList,
+                                     int* nb_promoters, int indiv_id) {
   //int indiv_id = blockIdx.x;
 
  // for (int i = 0; i < 1024; i++)
@@ -2096,19 +2154,17 @@ __global__ void debug_promoter_start(size_t* dna_size,
 
   printf("Individual %d (GPU) Promoters : LEADING ",indiv_id);
   // LEADING
-  for (int pos = 0; pos < dna_size[indiv_id]; pos++) {
-    if (dna_lead_promoter[indiv_id][pos] > -1) {
-      printf("%d ",pos);
-    }
+  for (int idx = 0; idx < nb_promoters[indiv_id]; idx++) {
+    if (dynPromoterList[indiv_id][idx].leading_or_lagging)
+      printf("%d ",dynPromoterList[indiv_id][idx].pos);
   }
   printf("\n");
 
   printf("Individual %d (GPU) Promoters : LAGGING ",indiv_id);
   // LAGGING
-  for (int pos = 0; pos < dna_size[indiv_id]; pos++) {
-    if (dna_lag_promoter[indiv_id][pos] > -1) {
-      printf("%d ",pos);
-    }
+  for (int idx = 0; idx < nb_promoters[indiv_id]; idx++) {
+    if (!dynPromoterList[indiv_id][idx].leading_or_lagging)
+      printf("%d ",dynPromoterList[indiv_id][idx].pos);
   }
   printf("END\n");
 }
