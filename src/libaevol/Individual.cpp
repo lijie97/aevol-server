@@ -1223,9 +1223,37 @@ void Individual::renew_fitness_by_feature() {
 void Individual::do_transcription_translation_folding() {
   if (transcribed_ == true && translated_ == true && folded_ == true) return;
 
+#ifdef __TRACING__
+  auto t1 = high_resolution_clock::now();
+#endif
+
   do_transcription();
+
+#ifdef __TRACING__
+  auto t2 = high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	ae_logger::addLog(DNA_TO_RNA,duration);
+
+  t1 = high_resolution_clock::now();
+#endif
+
   do_translation();
+
+#ifdef __TRACING__
+  t2 = high_resolution_clock::now();
+	duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	ae_logger::addLog(RNA_TO_PROTEIN,duration);
+
+  t1 = high_resolution_clock::now();
+#endif
+
   do_folding();
+
+#ifdef __TRACING__
+  t2 = high_resolution_clock::now();
+	duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	ae_logger::addLog(COMPUTE_PROTEIN,duration);
+#endif
 
   make_protein_list();
 }
@@ -1566,9 +1594,17 @@ void Individual::EvaluateInContext(const Habitat& habitat) {
   // ----------------------------------------------------------------------
   // Compute phenotype and compare it to the target => fitness
   // ----------------------------------------------------------------------
+#ifdef __TRACING__
+  t1 = high_resolution_clock::now();
+#endif
   compute_phenotype();
   compute_distance_to_target(habitat.phenotypic_target());
   compute_fitness(habitat.phenotypic_target());
+#ifdef __TRACING__
+  t2 = high_resolution_clock::now();
+	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	  	  ae_logger::addLog(PROTEIN_TO_PHENOTYPE,duration);
+#endif
 
   if (exp_m_->output_m()->compute_phen_contrib_by_GU())
     for (auto& gen_unit: genetic_unit_list_) {

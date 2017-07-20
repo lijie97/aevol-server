@@ -21,7 +21,12 @@ using namespace std;
 
 enum logger_category {
 	SELECTION = 0,
-	TOTAL = 1
+	TOTAL = 1,
+  SEARCH_START_RNA = 2,
+  DNA_TO_RNA = 3,
+  RNA_TO_PROTEIN = 4,
+  COMPUTE_PROTEIN = 5,
+  PROTEIN_TO_PHENOTYPE = 6
 };
 
 class ae_logger
@@ -80,6 +85,71 @@ void ae_logger::flush(int generation) {
             loggerFile << "," << *it;
           }
           loggerFile << endl;
+          logMap[i].clear();
+        }
+        break;
+      case SEARCH_START_RNA:
+        long int avg = 0;
+        int cpt = 0;
+        if (logMap[i].size() > 0) {
+          for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
+            avg += std::atol(*it);
+            cpt++;
+          }
+          avg/=cpt;
+          loggerFile<<"SEARCH_START_RNA,"<<generation<<","<<avg<<endl;
+          logMap[i].clear();
+        }
+        break;
+      case DNA_TO_RNA:
+        long int avg = 0;
+        int cpt = 0;
+        if (logMap[i].size() > 0) {
+          for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
+            avg += std::atol(*it);
+            cpt++;
+          }
+          avg/=cpt;
+          loggerFile<<"DNA_TO_RNA,"<<generation<<","<<avg<<endl;
+          logMap[i].clear();
+        }
+        break;
+      case RNA_TO_PROTEIN:
+        long int avg = 0;
+        int cpt = 0;
+        if (logMap[i].size() > 0) {
+          for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
+            avg += std::atol(*it);
+            cpt++;
+          }
+          avg/=cpt;
+          loggerFile<<"RNA_TO_PROTEIN,"<<generation<<","<<avg<<endl;
+          logMap[i].clear();
+        }
+        break;
+      case COMPUTE_PROTEIN:
+        long int avg = 0;
+        int cpt = 0;
+        if (logMap[i].size() > 0) {
+          for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
+            avg += std::atol(*it);
+            cpt++;
+          }
+          avg/=cpt;
+          loggerFile<<"COMPUTE_PROTEIN,"<<generation<<","<<avg<<endl;
+          logMap[i].clear();
+        }
+        break;
+      case PROTEIN_TO_PHENOTYPE:
+        long int avg = 0;
+        int cpt = 0;
+        if (logMap[i].size() > 0) {
+          for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
+            avg += std::atol(*it);
+            cpt++;
+          }
+          avg/=cpt;
+          loggerFile<<"PROTEIN_TO_PHENOTYPE,"<<generation<<","<<avg<<endl;
           logMap[i].clear();
         }
         break;

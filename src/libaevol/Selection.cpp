@@ -769,7 +769,15 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   if (not new_indiv->allow_plasmids()) {
     const GeneticUnit* chromosome = &new_indiv->genetic_unit_list().front();
 
+#ifdef __TRACING__
+    auto t1 = high_resolution_clock::now();
+#endif
     chromosome->dna()->perform_mutations(parent->id());
+#ifdef __TRACING__
+    auto t2 = high_resolution_clock::now();
+	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	  	  ae_logger::addLog(SEARCH_START_RNA,duration);
+#endif
 
 #ifdef __DETECT_CLONE
     if (! chromosome->dna()->hasMutate()) {
