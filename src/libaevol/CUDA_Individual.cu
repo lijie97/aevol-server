@@ -546,7 +546,7 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
   search_start_stop_RNA_bucket<<<dimGrid,thread_number>>>(dna_size,dna,dna_lead_promoter,dna_lag_promoter,
       nb_promoters,dynPromoterList,dna_lead_term,dna_lag_term,bucket_size,block_size);
 
-  cudaDeviceSynchronize();
+  //cudaDeviceSynchronize();
 
   init_RNA_struct<<<nb_indiv,1>>>(nb_indiv,rna,nb_promoters,max_nb_rna,idx_rna,max_nb_elements_rna_list);
   //cudaDeviceSynchronize();
@@ -567,7 +567,7 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
                             dna,dna_size,rna,idx_rna,nb_promoters,dynPromoterList,threads_size,y_dim_size);
 
 
-  cudaDeviceSynchronize();
+  //cudaDeviceSynchronize();
   //debug_rna<<<1,1>>>(dna_size,dna_lead_promoter,dna_lag_promoter,rna,idx_rna,
   //    1020);
 
@@ -603,7 +603,7 @@ void run_a_step(int nb_indiv,float w_max, double selection_pressure, bool first_
 */
   init_protein_struct<<<x_dim_size,y_dim_size>>>(nb_indiv,nb_protein,protein_list,
       idx_protein,rna,idx_rna,max_nb_protein,max_nb_elements_protein_list,threads_size,y_dim_size);
-  cudaDeviceSynchronize();
+  //cudaDeviceSynchronize();
 
   int max_nb_protein_host;
   HANDLE_ERROR(cudaMemcpy(&max_nb_protein_host,
@@ -894,7 +894,7 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
   __shared__ int term_dist_leading[BUCKET_MAX_SIZE][4];
   __shared__ int term_dist_lagging[BUCKET_MAX_SIZE][4];
 
-  __shared__ int cached_dna[61];
+  __shared__ int cached_dna[62];
 
   //__shared__ int dist_lead[BUCKET_MAX_SIZE];
   //__shared__ int dist_lag[BUCKET_MAX_SIZE];
@@ -902,19 +902,31 @@ void search_start_stop_RNA_bucket(size_t* dna_size, char** dna, int8_t** dna_lea
   int motif_id = threadIdx.x % 52;
   int dna_global_offset = threadIdx.x / 52;
 
-  /*if (indiv_id == 0 && blockIdx.x == 0 && blockIdx.y == 0)
-    printf("Thread %d Block X %d block Y %d -- Motif ID %d (offset %d) : DNA POS %d\n",
-           threadIdx.x,blockIdx.x,blockIdx.y,motif_id,dna_global_offset,dna_pos);*/
-
-  if (threadIdx.x % 52 == 0) {
-      cached_dna = dna[indiv_id][org_dna_pos+dna_global_offset];
-  }
-
   int cached_dna_pos = 21+dna_global_offset;
+  int dna_pos = org_dna_pos+dna_global_offset;
 
-  __syncthreads();
 
   if (dna_pos < dna_size[indiv_id] && dna_size[indiv_id] >= PROM_SIZE) {
+
+    if (threadIdx.x < 62) {
+
+      int load_pos = org_dna_pos-21+threadIdx.x;
+      load_pos = load_pos < 0 ? dna_size[indiv_id] + load_pos : load_pos;
+      load_pos = load_pos >= dna_size[indiv_id] ?
+                     load_pos - dna_size[indiv_id] :
+                     load_pos;
+      //printf("Loading into shared memory at %d : DNA pos %d (w/o mod %d size %lu)\n",threadIdx.x,load_pos,org_dna_pos-21+threadIdx.x,dna_size[indiv_id]);
+      cached_dna[threadIdx.x] = dna[indiv_id][load_pos];
+    }
+
+
+
+    /*if (indiv_id == 0 && blockIdx.x == 0 && blockIdx.y == 0)
+      printf("Thread %d Block X %d block Y %d -- Motif ID %d (offset %d) : DNA POS %d (cached %d min %d max %d)\n",
+             threadIdx.x,blockIdx.x,blockIdx.y,motif_id,dna_global_offset,dna_pos,cached_dna_pos,cached_dna_pos-21,cached_dna_pos+21);*/
+
+    __syncthreads();
+
     if (motif_id >= 26 && motif_id < 48) {
       // LAGGING
       int t_motif_id = motif_id - 26;
