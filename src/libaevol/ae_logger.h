@@ -68,7 +68,11 @@ void ae_logger::flush(int generation) {
 
 //	printf("CPT: %d\n",cpt);cpt=0;
 	loggerMtx.lock();
+  long int avg = 0;
+  int cpt = 0;
 	for (int i = 0; i <= 28; i++) {
+    avg = 0;
+    cpt = 0;
     switch (i) {
       case SELECTION:
         loggerFile << "SELECTION," << generation;
@@ -89,11 +93,9 @@ void ae_logger::flush(int generation) {
         }
         break;
       case SEARCH_START_RNA:
-        long int avg = 0;
-        int cpt = 0;
         if (logMap[i].size() > 0) {
           for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
-            avg += std::atol(*it);
+            avg += std::stol(*it);
             cpt++;
           }
           avg/=cpt;
@@ -102,11 +104,9 @@ void ae_logger::flush(int generation) {
         }
         break;
       case DNA_TO_RNA:
-        long int avg = 0;
-        int cpt = 0;
         if (logMap[i].size() > 0) {
           for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
-            avg += std::atol(*it);
+            avg += std::stol(*it);
             cpt++;
           }
           avg/=cpt;
@@ -115,11 +115,9 @@ void ae_logger::flush(int generation) {
         }
         break;
       case RNA_TO_PROTEIN:
-        long int avg = 0;
-        int cpt = 0;
         if (logMap[i].size() > 0) {
           for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
-            avg += std::atol(*it);
+            avg += std::stol(*it);
             cpt++;
           }
           avg/=cpt;
@@ -128,11 +126,9 @@ void ae_logger::flush(int generation) {
         }
         break;
       case COMPUTE_PROTEIN:
-        long int avg = 0;
-        int cpt = 0;
         if (logMap[i].size() > 0) {
           for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
-            avg += std::atol(*it);
+            avg += std::stol(*it);
             cpt++;
           }
           avg/=cpt;
@@ -141,11 +137,9 @@ void ae_logger::flush(int generation) {
         }
         break;
       case PROTEIN_TO_PHENOTYPE:
-        long int avg = 0;
-        int cpt = 0;
         if (logMap[i].size() > 0) {
           for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
-            avg += std::atol(*it);
+            avg += std::stol(*it);
             cpt++;
           }
           avg/=cpt;

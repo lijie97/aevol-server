@@ -43,8 +43,11 @@
 #include "Individual.h"
 
 #include "raevol/cuda_struct.h"
+
+#ifdef __CUDACC__
 #include "CUDA_Individual.h"
 #include<cuda_profiler_api.h>
+#endif
 
 #ifdef __REGUL
 #include "raevol/Individual_R.h"
@@ -302,6 +305,7 @@ auto     t1 = high_resolution_clock::now();
 
   auto     s_t1 = high_resolution_clock::now();
 
+#ifdef __CUDACC__
   if (first_gen) {
     cudaProfilerStop();
   }
@@ -333,20 +337,32 @@ auto     t1 = high_resolution_clock::now();
   t2 = high_resolution_clock::now();
   auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
-
+#endif
   //}
   t1 = high_resolution_clock::now();
-  exp_s_->step_to_next_generation();
 
+  exp_s_->step_to_next_generation();
+#ifdef __CUDACC__
   t2 = high_resolution_clock::now();
+#else
+  auto t2 = high_resolution_clock::now();
+#endif
+
   auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
+
+
+
+#ifdef __CUDACC__
   std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
 
   if (first_gen) {
     cudaProfilerStart();
     first_gen = false;
   }
+#else
+  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<std::endl;
+#endif
 
   // Write statistical data and store phylogenetic data (tree)
 #pragma omp single
@@ -533,9 +549,11 @@ void ExpManager::run_evolution() {
 	  high_resolution_clock::time_point t_t2,t1,t2;
 #endif
 
+#ifdef __CUDACC__
   cuda_init();
 
   cudaProfilerStart();
+#endif
   // For each generation
   while (true) { // termination condition is into the loop
 
@@ -599,7 +617,10 @@ void ExpManager::run_evolution() {
 	  	  ae_logger::addLog(TOTAL,duration);
 	  	  ae_logger::flush(AeTime::time());
 #endif
+
+#ifdef __CUDACC__
   cudaProfilerStop();
+#endif
 
   output_m_->flush();
   printf("================================================================\n");

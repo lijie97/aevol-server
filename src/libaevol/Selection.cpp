@@ -55,6 +55,7 @@
 #include <unordered_map>
 using namespace std;
 using namespace std::chrono;
+#include "ae_logger.h"
 #include "ExpManager.h"
 #include "VisAVis.h"
 

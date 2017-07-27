@@ -35,6 +35,10 @@
 #include <cassert>
 #include <list>
 
+#include<chrono>
+using namespace std::chrono;
+#include "ae_logger.h"
+
 #include "Codon.h"
 #include "ExpSetup.h"
 #include "ExpManager.h"
@@ -1595,13 +1599,13 @@ void Individual::EvaluateInContext(const Habitat& habitat) {
   // Compute phenotype and compare it to the target => fitness
   // ----------------------------------------------------------------------
 #ifdef __TRACING__
-  t1 = high_resolution_clock::now();
+  auto t1 = high_resolution_clock::now();
 #endif
   compute_phenotype();
   compute_distance_to_target(habitat.phenotypic_target());
   compute_fitness(habitat.phenotypic_target());
 #ifdef __TRACING__
-  t2 = high_resolution_clock::now();
+  auto t2 = high_resolution_clock::now();
 	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	  	  ae_logger::addLog(PROTEIN_TO_PHENOTYPE,duration);
 #endif

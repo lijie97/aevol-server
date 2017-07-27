@@ -542,16 +542,26 @@ if test "x$powbasal" = "xyes" ; then
 fi
 
 
-# ************************** --with-cuda option **********************************
+# ************************** --without-cuda option **********************************
 #
 #
 #
 #
 
+AC_MSG_CHECKING([whether to disable CUDA accelerators])
+AC_ARG_WITH(cuda, [  --without-cuda to disable CUDA accelerators], , with_cuda=yes)
+AC_MSG_RESULT($with_cuda)
+AM_CONDITIONAL(WITH_CUDA, test x"$with_cuda" != xno)
 AM_CONDITIONAL([ENABLE_CUDA],[test x"$enable_cuda" != xno])
-if test "x$enable_cuda" = xyes ; then
-   AC_MSG_NOTICE([Enable CUDA Library])
-   LIBS+=" -lcudart -lcuda"
+
+if test "x$with_cuda" != xno ; then
+   	AC_MSG_NOTICE([Enable CUDA Library])
+	LIBS+=" -lcuda -lcudart -lcudadevrt"
+	AC_DEFINE(__CUDACC)
+	AC_DEFINE(__CUDACC__)
+else
+	AC_MSG_NOTICE([Disable CUDA Library])
+	AM_CONDITIONAL([ENABLE_CUDA], [test x"$with_cuda" == xno])
 fi
 #  ************************* back to GENERAL stuff *******************************
 

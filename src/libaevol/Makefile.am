@@ -214,10 +214,12 @@ if WITH_OPENMPGPU
   libaevol_a_SOURCES += $(openmp_gpu_headers)
 endif
 
-if ENABLE_CUDA
+if WITH_CUDA
   libaevol_a_SOURCES += $(cuda_sources)
   libaevol_a_SOURCES += $(cuda_headers)
-endif
+  libaevol_a_LIBADD = $(LIBOBJS) internal_CUDA_Individual.o
 
 .cu.o:
-	$(NVCC) $(DEFS) -g -std=c++11 -arch=sm_35 -c -o $@ $<
+	$(NVCC) $(DEFS) -lineinfo -g -std=c++11 -arch=sm_35 -dc -o internal_$@ $<
+	$(NVCC) -lineinfo -dlink -g -std=c++11 -arch=sm_35 -o $@ internal_$@ -lcudadevrt -lcudart -L/usr/lib/x86_64-linux-gnu/
+endif
