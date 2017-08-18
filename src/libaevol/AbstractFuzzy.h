@@ -35,7 +35,7 @@ class AbstractFuzzy
   virtual void load(gzFile backup) = 0;
   virtual void reset() = 0;
   virtual void simplify() = 0;
-  virtual void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height)  = 0;
+  virtual void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose = false)  = 0;
   virtual void add(const AbstractFuzzy& f)  = 0;
   virtual void sub(const AbstractFuzzy& f) = 0;
   virtual void add_point(ProteinConcentration x, ProteinConcentration y) = 0;

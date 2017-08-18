@@ -144,7 +144,7 @@ void Selection::step_to_next_generation() {
   // -------------------------------------------------------------------------------
   // 1) Compute the probability of reproduction of each individual in the population
   // -------------------------------------------------------------------------------
-  #ifndef FIXED_POPULATION_SIZE
+ #ifndef FIXED_POPULATION_SIZE
     #error this method is not ready for variable population size
     compute_local_prob_reprod();
   #else
@@ -466,6 +466,7 @@ void Selection::PerformPlasmidTransfers() {
       ((exp_m_->prob_plasmid_HT() != 0.0) ||
         (exp_m_->tune_donor_ability() != 0.0) ||
         (exp_m_->tune_recipient_ability() != 0.0))) {
+
     // Create proxies
     World* world = exp_m_->world();
     int16_t grid_width  = world->width();
@@ -549,11 +550,11 @@ void Selection::PerformPlasmidTransfers() {
 */
 void Selection::write_setup_file(gzFile exp_setup_file) const {
   // ---------------------------------------------------- Selection Parameters
-  int8_t tmp_sel_scheme = selection_scheme_;
+  int8_t tmp_sel_scheme = static_cast<int8_t>(selection_scheme_);
   gzwrite(exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme));
   gzwrite(exp_setup_file, &selection_pressure_, sizeof(selection_pressure_));
 
-  int8_t tmp_sel_scope = selection_scope_;
+  int8_t tmp_sel_scope = static_cast<int8_t>(selection_scope_);
   gzwrite(exp_setup_file, &tmp_sel_scope,      sizeof(tmp_sel_scope));
   gzwrite(exp_setup_file, &selection_scope_x_, sizeof(selection_scope_x_));
   gzwrite(exp_setup_file, &selection_scope_y_, sizeof(selection_scope_y_));
@@ -577,12 +578,12 @@ void Selection::load(gzFile& exp_setup_file,
   // ---------------------------------------------------- Selection parameters
   int8_t tmp_sel_scheme;
   gzread(exp_setup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme));
-  selection_scheme_ = (SelectionScheme) tmp_sel_scheme;
+  selection_scheme_ = static_cast<SelectionScheme>(tmp_sel_scheme);
   gzread(exp_setup_file, &selection_pressure_, sizeof(selection_pressure_));
 
   int8_t tmp_sel_scope;
   gzread(exp_setup_file, &tmp_sel_scope, sizeof(tmp_sel_scope));
-  selection_scope_ = (SelectionScope) tmp_sel_scope;
+  selection_scope_ = static_cast<SelectionScope>(tmp_sel_scope);
   gzread(exp_setup_file, &selection_scope_x_, sizeof(selection_scope_x_));
   gzread(exp_setup_file, &selection_scope_y_, sizeof(selection_scope_y_));
   // ----------------------------------------- Pseudo-random number generator
@@ -901,10 +902,14 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   int16_t   count             = 0;
   double    sum_local_fit     = 0.0;
 
+  //printf("Selection scope %d (%d %d) :: %d %d\n",selection_scope_,x,y,neighborhood_size,selection_scope_x_,selection_scope_y_);
+
   for (int8_t i = -1 ; i < selection_scope_x_-1 ; i++) {
     for (int8_t j = -1 ; j < selection_scope_y_-1 ; j++) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
+      //printf("%d %d : %lf %d\n",cur_x,cur_y,world->indiv_at(cur_x, cur_y)->fitness(),count);
+
       local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;

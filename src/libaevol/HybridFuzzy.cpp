@@ -74,7 +74,7 @@ void HybridFuzzy::reset( )
     _points[i] = 0.0;
 }
 
-void HybridFuzzy::add_triangle( ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height )
+void HybridFuzzy::add_triangle( ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose )
 {
   if ( fabs(width) < 1e-15 || fabs(height) < 1e-15 ) return;
 
@@ -90,6 +90,9 @@ void HybridFuzzy::add_triangle( ProteinConcentration mean, ProteinConcentration 
   if (ix0 < 0) ix0 = 0; else if (ix0 > (_pheno_size-1)) ix0 = _pheno_size-1;
   if (ix1 < 0) ix1 = 0; else if (ix1 > (_pheno_size-1)) ix1 = _pheno_size-1;
   if (ix2 < 0) ix2 = 0; else if (ix2 > (_pheno_size-1)) ix2 = _pheno_size-1;
+
+  if (verbose)
+    printf("Adding triangle %d %d %d\n",ix0,ix1,ix2);
 
   // Compute the first equation of the triangle
   ProteinConcentration incY = height / (ix1 - ix0);

@@ -37,7 +37,7 @@ class HybridFuzzy : public AbstractFuzzy
   void load(gzFile backup);
   void reset();
   void simplify();
-  void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height);
+  void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose = false);
   void add(const AbstractFuzzy& f);
   void sub(const AbstractFuzzy& f);
   void add_point(ProteinConcentration x, ProteinConcentration y);

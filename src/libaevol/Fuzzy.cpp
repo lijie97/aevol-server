@@ -179,7 +179,7 @@ void Fuzzy::simplify() {
 /// \param mean abscissa of its apex
 /// \param width of the side opposite to the apex
 /// \param height ordinate of the apex
-void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height) {
+void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose) {
   // assert(invariant());
 
   assert(width > 0.0);

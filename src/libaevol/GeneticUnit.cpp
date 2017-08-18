@@ -959,14 +959,35 @@ void GeneticUnit::do_transcription() {
 
       int32_t i;
       for (i = 0; i < genome_length; ++i) {
+        /*if ((indiv()->grid_cell_->x() == 30 && indiv()->grid_cell_->y() == 9 && AeTime::time()==136)||
+         (indiv()->grid_cell_->x() == 27 && indiv()->grid_cell_->y() == 13 && AeTime::time()==27)) {
+
+          printf("Looking for term @ %d : %d\n",transcript_start + (strand_id == LEADING ? i : -i),is_terminator(strand_id,
+                                                          transcript_start + (strand_id == LEADING ? i : -i)));
+          if (transcript_start + (strand_id == LEADING ? i : -i) == 7) {
+            int pos = transcript_start + (strand_id == LEADING ? i : -i);
+            const char* genome = dna_->data();
+            int32_t len = dna_->length();
+            for (int16_t x_i = 0; x_i < TERM_STEM_SIZE; x_i++) {
+              printf("Search terminator (%d) : %c : %c (%d : %d)\n",pos,genome[Utils::mod(pos + x_i, len)],
+                  genome[Utils::mod(pos + (TERM_SIZE - 1) - x_i, len)],Utils::mod(pos + x_i, len),
+                     Utils::mod(pos + (TERM_SIZE - 1) - x_i, len));
+            }
+          }
+        }*/
         if (is_terminator(strand_id,
                           transcript_start + (strand_id == LEADING ? i : -i))) {
 
-          /*if (indiv()->grid_cell_->x() == 23 && indiv()->grid_cell_->y() == 1) {
-            printf("Found a terminator at %d (SIZE %d START %d TRSTART %d)\n",transcript_start+i,i+TERM_SIZE,rna->promoter_pos(),rna->first_transcribed_pos());
-          }*/
           // Found terminator => set transcript's length
           rna->set_transcript_length(i + TERM_SIZE);
+
+
+          /*if ((indiv()->grid_cell_->x() == 30 && indiv()->grid_cell_->y() == 9 && AeTime::time()==136)||
+              (indiv()->grid_cell_->x() == 27 && indiv()->grid_cell_->y() == 13 && AeTime::time()==27)) {
+            printf("Found a terminator at %d (SIZE %d START %d TRSTART %d)\n",
+                   transcript_start + (strand_id == LEADING ? i : -i),
+                   i+TERM_SIZE,rna->promoter_pos(),rna->first_transcribed_pos());
+          }*/
 
           // Deduce the length of all the RNAs that share the same terminator
           // These are the RNAs whose promoter is entirely (and strictly) included
@@ -1024,27 +1045,41 @@ void GeneticUnit::do_translation() {
     for (auto& rna: rna_list_[strand]) {
       transcript_start = rna.first_transcribed_pos();
       transcript_length = rna.transcript_length();
-      /*if (indiv()->grid_cell_->x() == 24 && indiv()->grid_cell_->y() == 8) {
-        printf("%d -- RNA Search @ %d (%d %d) %d %d\n",AeTime::time(),rna.promoter_pos(),
-               rna.first_transcribed_pos(),
-               rna.last_transcribed_pos(),transcript_length,DO_TRANSLATION_LOOP);
+
+
+      /*if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 20)
+      {
+        printf("Start computing RNA starting at %d -- %d with length %d\n",transcript_start,rna.promoter_pos(),transcript_length);
       }*/
+
       // Try every position where a translation process could occur
       // Minimum number of bases needed is SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE
       // (3 codons for START + STOP + at least one amino-acid)
       for (int32_t i = 0;
            transcript_length - i >= DO_TRANSLATION_LOOP;
            ++i) {
-        /*if (indiv()->grid_cell_->x() == 23 && indiv()->grid_cell_->y() == 1)
+
+        /*if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 20)
         {
-          printf("Searching for start prot at %d starting at %d -- LENGTH %d (min length %d) -- %d\n",
+          printf("Searching for start prot at %d starting at %d -- LENGTH %d (min length %d) -- %d SD %d S %d\n",
                  Utils::mod(transcript_start
-                                                              +
-                                                              (strand == LEADING
-                                                               ? i : -i),
-                                                              genome_length),transcript_start,
-                transcript_length - i,DO_TRANSLATION_LOOP, seq_length());
+                            +
+                            (strand == LEADING
+                             ? i : -i),
+                            genome_length),transcript_start,
+                 transcript_length - i,DO_TRANSLATION_LOOP, seq_length(),
+                 is_shine_dalgarno(strand, Utils::mod(transcript_start
+                                                      + (strand == LEADING ? i : -i),
+                                                      genome_length)),
+                 is_start(strand,
+                          Utils::mod(transcript_start
+                                     + (strand == LEADING ? 1 : -1)
+                                       *
+                                       (i + SHINE_DAL_SIZE + SHINE_START_SPACER),
+                                     genome_length)));
         }*/
+
+
         if (is_shine_dalgarno(strand, Utils::mod(transcript_start
                                                  + (strand == LEADING ? i : -i),
                                                  genome_length))
@@ -1064,6 +1099,8 @@ void GeneticUnit::do_translation() {
           // In that case, we don't need to tranlate it again, we only
           // need to increase the protein's concentration according to
           // the promoter transcription level
+
+
           int32_t shine_dal_pos = Utils::mod(transcript_start +
                                              (strand == LEADING ? i : -i),
                                              genome_length);
@@ -1117,6 +1154,12 @@ void GeneticUnit::do_translation() {
                         CODON_SIZE; // next codon to examine
 
             std::list<Codon*> codon_list;
+
+         /*   if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 20)
+              printf("Length %d j %d Start %d stop %d CPU\n",transcript_length,j,Utils::mod(transcript_start
+                                                                                            + (strand == LEADING ? i : -i),
+                                                                                            genome_length),rna.last_transcribed_pos());
+          */
 
             while (transcript_length - j >= CODON_SIZE) {
 
@@ -1203,13 +1246,10 @@ void GeneticUnit::compute_phenotypic_contribution() {
   for (const auto& strand: protein_list_) // two strands: LEADING & LAGGING
     for (const auto& prot: strand)
       if (prot.is_functional()) {
-        ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
+          ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
             ->add_triangle(prot.mean(),
                            prot.width(),
                            prot.height() * prot.concentration());
-    //    printf("Add triangle : %f %f %f\n",prot.mean(),
-    //           prot.width(),
-    //           prot.height() * prot.concentration());
       }
   // if (prot->height() > 0)
   //   activ_contribution_->add_triangle(prot->mean(),

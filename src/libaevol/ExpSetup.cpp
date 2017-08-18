@@ -39,7 +39,7 @@
 #include "JumpingMT.h"
 
 
-#include "GzHelpers.h"
+//#include "GzHelpers.h"
 
 namespace aevol {
 //##############################################################################
@@ -109,50 +109,63 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 */
 void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   gzwrite(exp_setup_file,
-          fuzzy_flavor_);
-
+          &fuzzy_flavor_,sizeof(fuzzy_flavor_));
   // --------------------------------------------------------------- Transfer
+  int8_t tmp_with_HT = static_cast<int8_t>(with_HT_);
+  int8_t tmp_repl_HT_with_close_points = static_cast<int8_t>(repl_HT_with_close_points_);
+
   gzwrite(exp_setup_file,
-          static_cast<int8_t>(with_HT_),
-          static_cast<int8_t>(repl_HT_with_close_points_));
-  if (with_HT_)
+          &tmp_with_HT,
+          sizeof(tmp_with_HT));
+
+  gzwrite(exp_setup_file,&tmp_repl_HT_with_close_points,sizeof(tmp_repl_HT_with_close_points));
+
+  if (with_HT_) {
     gzwrite(exp_setup_file,
-            HT_ins_rate_,
-            HT_repl_rate_);
+            &HT_ins_rate_,sizeof(HT_ins_rate_));
+    gzwrite(exp_setup_file,&HT_repl_rate_,sizeof(HT_repl_rate_));
+  }
+
+
   if(repl_HT_with_close_points_)
     gzwrite(exp_setup_file,
-            repl_HT_detach_rate_);
+            &repl_HT_detach_rate_,sizeof(repl_HT_detach_rate_));
+
 
   // --------------------------------------------------------------- Plasmids
-  int8_t tmp_with_plasmids = with_plasmids();
-  gzwrite(exp_setup_file, tmp_with_plasmids);
-  if (tmp_with_plasmids)
+  int8_t tmp_with_plasmids = static_cast<int8_t>(with_plasmids());
+  gzwrite(exp_setup_file, &tmp_with_plasmids,sizeof(tmp_with_plasmids));
+
+  if (tmp_with_plasmids) {
     gzwrite(exp_setup_file,
-            prob_plasmid_HT_,
-            tune_donor_ability_,
-            tune_recipient_ability_,
-            donor_cost_,
-            recipient_cost_,
-            static_cast<int8_t>(swap_GUs_));
+            &prob_plasmid_HT_, sizeof(prob_plasmid_HT_));
+    gzwrite(exp_setup_file,&tune_donor_ability_,sizeof(tune_donor_ability_));
+    gzwrite(exp_setup_file,&tune_recipient_ability_,sizeof(tune_recipient_ability_));
+    gzwrite(exp_setup_file,&donor_cost_,sizeof(donor_cost_));
+    gzwrite(exp_setup_file,&recipient_cost_,sizeof(recipient_cost_));
+    int tmp_swap_GUs_ = static_cast<int8_t>(swap_GUs_);
+    gzwrite(exp_setup_file,&tmp_swap_GUs_,sizeof(tmp_swap_GUs_));
+  }
 
   // -------------------------------------------------------------- Secretion
+  int8_t tmp_with_secretion_ = static_cast<int8_t>(with_secretion_);
   gzwrite(exp_setup_file,
-          static_cast<int8_t>(with_secretion_),
-          secretion_contrib_to_fitness_,
-          secretion_cost_);
+          &tmp_with_secretion_,sizeof(tmp_with_secretion_));
+  gzwrite(exp_setup_file,&secretion_contrib_to_fitness_,sizeof(secretion_contrib_to_fitness_));
+  gzwrite(exp_setup_file,&secretion_cost_,sizeof(secretion_cost_));
 
   sel()->write_setup_file(exp_setup_file);
 
 #ifdef __REGUL
   //printf("Nb indiv age : %d\n",_nb_indiv_age);
-  gzwrite( exp_setup_file, _hill_shape);
-  gzwrite( exp_setup_file, _hill_shape_n);
-  gzwrite( exp_setup_file, _hill_shape_theta);
-  gzwrite( exp_setup_file, _degradation_rate);
-  gzwrite( exp_setup_file,  _nb_degradation_step);
-  gzwrite( exp_setup_file, _nb_indiv_age);
-  gzwrite( exp_setup_file, _with_heredity);
-  gzwrite( exp_setup_file, _protein_presence_limit);
+  gzwrite( exp_setup_file,&_hill_shape,sizeof(_hill_shape));
+  gzwrite( exp_setup_file, &_hill_shape_n,sizeof(_hill_shape_n));
+  gzwrite( exp_setup_file, &_hill_shape_theta,sizeof(_hill_shape_theta));
+  gzwrite( exp_setup_file, &_degradation_rate,sizeof(_degradation_rate));
+  gzwrite( exp_setup_file,  &_nb_degradation_step,sizeof(_nb_degradation_step));
+  gzwrite( exp_setup_file, &_nb_indiv_age,sizeof(_nb_indiv_age));
+  gzwrite( exp_setup_file, &_with_heredity,sizeof(_with_heredity));
+  gzwrite( exp_setup_file, &_protein_presence_limit,sizeof(_protein_presence_limit));
 
   char* binding_matrix_file_name = new char[100];
 
@@ -172,71 +185,83 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   delete[] binding_matrix_file_name;
 
   unsigned int eval_step_size = _list_eval_step->size();
-  gzwrite(exp_setup_file, eval_step_size);
+  gzwrite(exp_setup_file, &eval_step_size,sizeof(eval_step_size));
 
   for(auto eval_step : *_list_eval_step) {
-    gzwrite(exp_setup_file, eval_step);
+    gzwrite(exp_setup_file, &eval_step,sizeof(eval_step));
   }
 #endif
 
 }
 
 void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
-  gzread(setup_file,fuzzy_flavor_);
+  gzread(setup_file,&fuzzy_flavor_,sizeof(fuzzy_flavor_));
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
   int8_t tmp_repl_HT_with_close_points;
+
+
   gzread(setup_file,
-         tmp_with_HT,
-         tmp_repl_HT_with_close_points);
+         &tmp_with_HT,sizeof(tmp_with_HT)
+  );
+
+  gzread(setup_file,
+         &tmp_repl_HT_with_close_points,sizeof(tmp_repl_HT_with_close_points)
+  );
+
   with_HT_ = static_cast<bool>(tmp_with_HT);
+
   repl_HT_with_close_points_ = static_cast<bool>(tmp_repl_HT_with_close_points);
+
+
+
   if (with_HT_)
   {
     gzread(setup_file,
-           HT_ins_rate_,
-           HT_repl_rate_);
+           &HT_ins_rate_,sizeof(HT_ins_rate_));
+    gzread(setup_file,&HT_repl_rate_,sizeof(HT_repl_rate_));
   }
    if(repl_HT_with_close_points_)
-    gzread(setup_file, repl_HT_detach_rate_);
+    gzread(setup_file, &repl_HT_detach_rate_,sizeof(repl_HT_detach_rate_));
+
 
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;
-  gzread(setup_file, tmp_with_plasmids);
+  gzread(setup_file,&tmp_with_plasmids,sizeof(tmp_with_plasmids));
   with_plasmids_ = static_cast<bool>(tmp_with_plasmids);
+
   if (with_plasmids_)
   {
     int8_t tmp_swap_GUs;
     gzread(setup_file,
-           prob_plasmid_HT_,
-           tune_donor_ability_,
-           tune_recipient_ability_,
-           donor_cost_,
-           recipient_cost_,
-           tmp_swap_GUs);
+           &prob_plasmid_HT_,sizeof(prob_plasmid_HT_));
+    gzread(setup_file,&tune_donor_ability_,sizeof(tune_donor_ability_));
+    gzread(setup_file,&tune_recipient_ability_,sizeof(tune_recipient_ability_));
+    gzread(setup_file,&donor_cost_,sizeof(donor_cost_));
+    gzread(setup_file,&recipient_cost_,sizeof(recipient_cost_));
+    gzread(setup_file,&tmp_swap_GUs,sizeof(tmp_swap_GUs));
     swap_GUs_ = static_cast<bool>(tmp_swap_GUs);
   }
 
   // ------------------------------------------ Retrieve secretion parameters
   int8_t tmp_with_secretion;
-  gzread(setup_file, tmp_with_secretion,
-         secretion_contrib_to_fitness_,
-         secretion_cost_);
+  gzread(setup_file, &tmp_with_secretion,sizeof(tmp_with_secretion));
+  gzread(setup_file, &secretion_contrib_to_fitness_,sizeof(secretion_contrib_to_fitness_));
+  gzread(setup_file, &secretion_cost_,sizeof(secretion_cost_));
   with_secretion_ = static_cast<bool>(tmp_with_secretion);
-
   // ---------------------------------------------- Retrieve selection context
 
   sel()->load(setup_file, backup_file, verbose);
 
 #ifdef __REGUL
-  gzread( setup_file, _hill_shape);
-  gzread( setup_file, _hill_shape_n);
-  gzread( setup_file, _hill_shape_theta);
-  gzread( setup_file, _degradation_rate);
-  gzread( setup_file,  _nb_degradation_step);
-  gzread( setup_file, _nb_indiv_age);
-  gzread( setup_file, _with_heredity);
-  gzread( setup_file, _protein_presence_limit);
+  gzread( setup_file, &_hill_shape,sizeof(_hill_shape));
+  gzread( setup_file, &_hill_shape_n,sizeof(_hill_shape_n));
+  gzread( setup_file, &_hill_shape_theta,sizeof(_hill_shape_theta));
+  gzread( setup_file, &_degradation_rate,sizeof(_degradation_rate));
+  gzread( setup_file, &_nb_degradation_step,sizeof(_nb_degradation_step));
+  gzread( setup_file, &_nb_indiv_age,sizeof(_nb_indiv_age));
+  gzread( setup_file, &_with_heredity,sizeof(_with_heredity));
+  gzread( setup_file, &_protein_presence_limit,sizeof(_protein_presence_limit));
 
 
   //printf("Nb indiv age : %d\n",_nb_indiv_age);
@@ -260,11 +285,11 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   delete[] binding_matrix_file_name;
 
   unsigned int eval_step_size;
-  gzread(setup_file, eval_step_size);
+  gzread(setup_file, &eval_step_size,sizeof(eval_step_size));
 
   int eval_val;
   for(unsigned int i = 0; i < eval_step_size; i++) {
-    gzread(setup_file, eval_val);
+    gzread(setup_file,&eval_val,sizeof(eval_val));
     _list_eval_step->insert(eval_val);
   }
 #endif

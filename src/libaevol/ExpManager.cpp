@@ -41,6 +41,7 @@
 
 #include "ExpManager.h"
 #include "Individual.h"
+#include "SIMD_Individual.h"
 
 #include "raevol/cuda_struct.h"
 
@@ -339,9 +340,26 @@ auto     t1 = high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
 #endif
   //}
+
+
+
+  SIMD_Individual* simd_individual = new SIMD_Individual(this);
+
+  auto ta = high_resolution_clock::now();
+  simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure());
+  auto tb = high_resolution_clock::now();
+
+  simd_individual->check_result();
+  delete simd_individual;
+
+
+
+  auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>( tb - ta ).count();
+
   t1 = high_resolution_clock::now();
 
   exp_s_->step_to_next_generation();
+
 #ifdef __CUDACC__
   t2 = high_resolution_clock::now();
 #else
@@ -361,7 +379,7 @@ auto     t1 = high_resolution_clock::now();
     first_gen = false;
   }
 #else
-  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<std::endl;
+  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration_simd<<std::endl;
 #endif
 
   // Write statistical data and store phylogenetic data (tree)
