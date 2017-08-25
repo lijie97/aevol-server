@@ -25,7 +25,7 @@ enum MutationEventType {
 class MutationEvent {
 
  public:
-    MutationEvent() {};
+    MutationEvent() = default {};
 
     void switch_pos(int32_t pos);
     void small_insertion(int32_t pos, int32_t number);
@@ -45,9 +45,9 @@ class MutationEvent {
 
     int32_t pos_1_,pos_2_,pos_3_,pos_4_;
 
-    int32_t number; // insertion or deletion
+    int32_t number_; // insertion or deletion
 
-    bool invert;
+    bool invert_;
 
     std::set<MutatePromoterEvent> promoter_event_list_;
 };

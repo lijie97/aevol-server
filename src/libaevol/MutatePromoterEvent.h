@@ -31,7 +31,7 @@ enum MutatePromoterEventType {
 
 class MutatePromoterEvent {
  public:
-    MutatePromoterEvent() {};
+    MutatePromoterEvent() = default {};
 
     void remove_all();
     void remove_leading(int32_t pos1, int32_t pos2);
