@@ -7,14 +7,16 @@
 namespace aevol {
 
 void MutationEvent::switch_pos(int32_t pos) {
-  type_ = MutationEventType::SWITCH;
+  type_ = MutationEventType::DO_SWITCH;
   pos_1_ = pos;
 }
 
-void MutationEvent::small_insertion(int32_t pos, int32_t number) {
+void MutationEvent::small_insertion(int32_t pos, int32_t number, char *seq) {
   type_ = MutationEventType::SMALL_INSERTION;
   pos_1_ = pos;
   number_ = number;
+  seq_ = new char[number+1];
+  seq_ = strncpy(seq_,seq,number+1);
 }
 
 void MutationEvent::small_deletion(int32_t pos, int32_t number) {
@@ -50,5 +52,14 @@ void MutationEvent::deletion(int32_t pos1, int32_t pos2) {
   type_ = MutationEventType::DELETION;
   pos_1_ = pos1;
   pos_2_ = pos2;
+}
+
+MutationEvent::~MutationEvent() {
+  for (auto repl : promoter_event_list_)
+    delete repl;
+
+  promoter_event_list_.clear();
+
+  delete [] seq_;
 }
 }

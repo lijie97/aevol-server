@@ -21,17 +21,18 @@ enum MutatePromoterEventType {
     MOVE_LEADING         = 6,
     MOVE_LAGGING         = 7,
     DUPLICATE            = 8,
-    INSERT               = 9,
+    DO_INSERT               = 9,
     EXTRACT_LEADING      = 10,
     EXTRACT_LAGGING      = 11,
     INVERT               = 12,
-    INSERT_POS           = 13
+    INSERT_POS           = 13,
+    SHIFT_POS            = 14
 };
 
 
 class MutatePromoterEvent {
  public:
-    MutatePromoterEvent() = default {};
+    MutatePromoterEvent() = default;
 
     void remove_all();
     void remove_leading(int32_t pos1, int32_t pos2);
@@ -44,21 +45,23 @@ class MutatePromoterEvent {
     void move_leading(int32_t pos1, int32_t pos2);
     void move_lagging(int32_t pos1, int32_t pos2);
 
-    void duplicate(int32_t pos1, int32_t pos2,list<promoterStruct> list);
+    void duplicate(int32_t pos1, int32_t pos2);
 
-    void insert(list<promoterStruct> list, int32_t pos);
-    void insert(list<promoterStruct> list);
+    void insert(int32_t pos);
+    void insert();
 
-    void extract_leading(int32_t pos1, int32_t pos2, list<promoterStruct> list);
-    void extract_lagging(int32_t pos1, int32_t pos2, list<promoterStruct> list);
+    void extract_leading(int32_t pos1, int32_t pos2);
+    void extract_lagging(int32_t pos1, int32_t pos2);
 
-    void invert(list<promoterStruct> list, int32_t pos1, int32_t pos2);
+    void shift_pos(int32_t pos1, int32_t pos2);
+
+    void invert(int32_t pos1, int32_t pos2);
 
     int32_t type_;
     bool all_;
     int32_t pos_1_,pos_2_;
 
-    list<promoterStruct> tmp_list;
+    //list<promoterStruct> tmp_list;
 };
 }
 

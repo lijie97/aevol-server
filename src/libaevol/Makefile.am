@@ -87,7 +87,10 @@ World.h \
 make_unique.h \
 ae_logger.h \
 HabitatFactory.h \
-SIMD_Individual.h
+SIMD_Individual.h \
+Dna_SIMD.h \
+MutationEvent.h \
+MutatePromoterEvent.h
 
 common_sources = \
 Alignment.cpp \
@@ -139,7 +142,10 @@ ParameterLine.cpp \
 AeTime.cpp \
 World.cpp \
 HabitatFactory.cpp \
-SIMD_Individual.cpp
+SIMD_Individual.cpp \
+Dna_SIMD.cpp \
+MutationEvent.cpp \
+MutatePromoterEvent.cpp
 
 raevol_headers = \
 raevol/Individual_R.h \

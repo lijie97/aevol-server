@@ -44,10 +44,12 @@
 #include "Observer.h"
 #include "ObservableEvent.h"
 
+
 namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
+class SIMD_Individual;
 
 /// Allows for high-level experiment management. (This is Aevol's top-level class.)
 ///
@@ -207,6 +209,10 @@ class ExpManager : public Observer {
   bool quit_signal_received_;
 
     bool first_gen = true;
+
+    // SIMD Stuff
+    SIMD_Individual* simd_individual = nullptr;
+
 };
 
 // ===========================================================================

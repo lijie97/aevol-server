@@ -31,7 +31,7 @@
 //                              Includes
 // =================================================================
 #include "Selection.h"
-
+#include "Dna_SIMD.h"
 #include <math.h>
 
 #ifdef _OPENMP
@@ -761,6 +761,8 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     #endif
   #endif
 
+
+  new_indiv->dna_simd_ = new Dna_SIMD(new_indiv->genetic_unit(0).dna());
 
   // Set the new individual's location on the grid
   exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);

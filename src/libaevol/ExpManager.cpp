@@ -41,6 +41,7 @@
 
 #include "ExpManager.h"
 #include "Individual.h"
+#include "Dna_SIMD.h"
 #include "SIMD_Individual.h"
 
 #include "raevol/cuda_struct.h"
@@ -342,15 +343,17 @@ auto     t1 = high_resolution_clock::now();
   //}
 
 
-
-  SIMD_Individual* simd_individual = new SIMD_Individual(this);
-
   auto ta = high_resolution_clock::now();
-  simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure());
-  auto tb = high_resolution_clock::now();
+  if (simd_individual == nullptr) {
+    simd_individual = new SIMD_Individual(this);
 
-  simd_individual->check_result();
-  delete simd_individual;
+    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure());
+
+    simd_individual->check_result();
+  } else {
+    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
+  }
+  auto tb = high_resolution_clock::now();
 
 
 
@@ -572,6 +575,7 @@ void ExpManager::run_evolution() {
 
   cudaProfilerStart();
 #endif
+
   // For each generation
   while (true) { // termination condition is into the loop
 

@@ -7,13 +7,12 @@
 
 
 #include <cstdint>
-#include <set>
 #include "MutatePromoterEvent.h"
 
 namespace aevol {
 
 enum MutationEventType {
-    SWITCH           = 0,
+    DO_SWITCH           = 0,
     SMALL_INSERTION      = 1,
     SMALL_DELETION = 2,
     DUPLICATION               = 3,
@@ -25,10 +24,11 @@ enum MutationEventType {
 class MutationEvent {
 
  public:
-    MutationEvent() = default {};
+    MutationEvent() = default;
+    ~MutationEvent();
 
     void switch_pos(int32_t pos);
-    void small_insertion(int32_t pos, int32_t number);
+    void small_insertion(int32_t pos, int32_t number, char *seq);
     void small_deletion(int32_t pos, int32_t number);
 
     void duplication(int32_t pos1, int32_t pos2, int32_t pos3);
@@ -40,6 +40,21 @@ class MutationEvent {
 
     void deletion(int32_t pos1, int32_t pos2);
 
+    int32_t type() { return type_; };
+
+    int32_t pos_1() { return pos_1_; }
+    int32_t pos_2() { return pos_2_; }
+    int32_t pos_3() { return pos_3_; }
+    int32_t pos_4() { return pos_4_; }
+
+    int32_t number() { return number_; }
+
+    int32_t invert() { return invert_; }
+
+    char* seq() { return seq_; }
+
+    std::list<MutatePromoterEvent*> promoter_event_list_;
+
  private:
     int32_t type_;
 
@@ -49,7 +64,7 @@ class MutationEvent {
 
     bool invert_;
 
-    std::set<MutatePromoterEvent> promoter_event_list_;
+    char *seq_;
 };
 }
 

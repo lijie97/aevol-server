@@ -51,6 +51,7 @@
 #include "Codon.h"
 #include "Mutation.h"
 #include "ae_enums.h"
+#include "MutationEvent.h"
 
 #ifdef __REGUL
   #include "raevol/Individual_R.h"
@@ -368,14 +369,24 @@ void GeneticUnit::remove_all_promoters() {
   rna_list_[LAGGING].clear();
 }
 
-void GeneticUnit::move_all_promoters_after(int32_t pos, int32_t delta_pos) {
+void GeneticUnit::move_all_promoters_after(int32_t pos, int32_t delta_pos, MutationEvent *mevent) {
+  MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+  mpevent->move_leading(pos,delta_pos);
+  mevent->promoter_event_list_.push_back(mpevent);
+
   move_all_leading_promoters_after(pos, delta_pos);
+
+  mpevent = new MutatePromoterEvent();
+  mpevent->move_lagging(pos,delta_pos);
+  mevent->promoter_event_list_.push_back(mpevent);
+
   move_all_lagging_promoters_after(pos, delta_pos);
 }
 
 void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
                                                 int32_t pos_2,
-                                                Promoters2Strands& extracted_promoters) {
+                                                Promoters2Strands& extracted_promoters,
+                                                MutationEvent* mevent) {
   assert(pos_1 >= 0);
   assert(pos_1 < pos_2);
   assert(pos_2 <= dna_->length());
@@ -383,8 +394,18 @@ void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
   if (pos_2 - pos_1 < PROM_SIZE) {
     return;
   }
+
+  MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+  mpevent->extract_leading(pos_1, pos_2 - PROM_SIZE + 1);
+  mevent->promoter_event_list_.push_back(mpevent);
+
   extract_leading_promoters_starting_between(pos_1, pos_2 - PROM_SIZE + 1,
                                              extracted_promoters[LEADING]);
+
+  mpevent = new MutatePromoterEvent();
+  mpevent->extract_lagging(pos_1 + PROM_SIZE - 1, pos_2);
+  mevent->promoter_event_list_.push_back(mpevent);
+
   extract_lagging_promoters_starting_between(pos_1 + PROM_SIZE - 1, pos_2,
                                              extracted_promoters[LAGGING]);
 }
@@ -413,16 +434,33 @@ void GeneticUnit::extract_promoters_starting_between(int32_t pos_1,
     0                  pos
   \endverbatim
 */
-void GeneticUnit::remove_promoters_around(int32_t pos) {
+void GeneticUnit::remove_promoters_around(int32_t pos, MutationEvent* mevent) {
   if (dna_->length() >= PROM_SIZE) {
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->remove_leading(Utils::mod(pos - PROM_SIZE + 1,
+                                       dna_->length()),
+                            pos);
+    mevent->promoter_event_list_.push_back(mpevent);
+
     remove_leading_promoters_starting_between(Utils::mod(pos - PROM_SIZE + 1,
                                                          dna_->length()),
                                               pos);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->remove_lagging(pos,
+                            Utils::mod(pos + PROM_SIZE - 1,
+                                       dna_->length()));
+    mevent->promoter_event_list_.push_back(mpevent);
+
     remove_lagging_promoters_starting_between(pos,
                                               Utils::mod(pos + PROM_SIZE - 1,
                                                          dna_->length()));
   }
   else {
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->remove_all();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     remove_all_promoters();
   }
 }
@@ -444,16 +482,34 @@ void GeneticUnit::remove_promoters_around(int32_t pos) {
     0                 pos_1               pos_2
   \endverbatim
 */
-void GeneticUnit::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
+void GeneticUnit::remove_promoters_around(int32_t pos_1, int32_t pos_2, MutationEvent* mevent) {
   if (Utils::mod(pos_1 - pos_2, dna_->length()) >= PROM_SIZE) {
+
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->remove_leading(Utils::mod(pos_1 - PROM_SIZE + 1,
+                                       dna_->length()),
+                            pos_2);
+    mevent->promoter_event_list_.push_back(mpevent);
+
     remove_leading_promoters_starting_between(Utils::mod(pos_1 - PROM_SIZE + 1,
                                                          dna_->length()),
                                               pos_2);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->remove_lagging(pos_1,
+                            Utils::mod(pos_2 + PROM_SIZE - 1,
+                                       dna_->length()));
+    mevent->promoter_event_list_.push_back(mpevent);
+
     remove_lagging_promoters_starting_between(pos_1,
                                               Utils::mod(pos_2 + PROM_SIZE - 1,
                                                          dna_->length()));
   }
   else {
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->remove_all();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     remove_all_promoters();
   }
 }
@@ -472,13 +528,25 @@ void GeneticUnit::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
 ///   ^                   ^
 ///   0                  pos
 /// \endverbatim
-void GeneticUnit::look_for_new_promoters_around(int32_t pos) {
+void GeneticUnit::look_for_new_promoters_around(int32_t pos,
+                                                MutationEvent* mevent) {
   assert(pos >= 0 && pos <= dna_->length());
 
   if (dna_->length() >= PROM_SIZE) {
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->locate_leading(Utils::mod(pos - PROM_SIZE + 1, dna_->length()),
+                           pos);
+    mevent->promoter_event_list_.push_back(mpevent);
+
+
     look_for_new_leading_promoters_starting_between(
         Utils::mod(pos - PROM_SIZE + 1, dna_->length()),
         pos);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->locate_lagging(pos,
+                           Utils::mod(pos + PROM_SIZE - 1, dna_->length()));
+    mevent->promoter_event_list_.push_back(mpevent);
     look_for_new_lagging_promoters_starting_between(
         pos,
         Utils::mod(pos + PROM_SIZE - 1, dna_->length()));
@@ -501,16 +569,30 @@ void GeneticUnit::look_for_new_promoters_around(int32_t pos) {
 ///   ^                   ^                   ^
 ///   0                 pos_1               pos_2
 /// \endverbatim
-void GeneticUnit::look_for_new_promoters_around(int32_t pos_1, int32_t pos_2) {
+void GeneticUnit::look_for_new_promoters_around(int32_t pos_1, int32_t pos_2,
+                                                MutationEvent* mevent) {
   //~ if (Utils::mod(pos_1 - pos_2, dna_->length()) == PROM_SIZE - 1)
   //~ {
   //~ // We have to look at every possible position on the genome.
   //~ locate_promoters();
   //~ }
   /*else*/ if (dna_->length() >= PROM_SIZE) {
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->locate_leading(Utils::mod(pos_1 - PROM_SIZE + 1,
+                                      dna_->length()), pos_2);
+    mevent->promoter_event_list_.push_back(mpevent);
+
     look_for_new_leading_promoters_starting_between(
         Utils::mod(pos_1 - PROM_SIZE + 1,
                    dna_->length()), pos_2);
+
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->locate_lagging(pos_1, Utils::mod(
+        pos_2 + PROM_SIZE - 1,
+        dna_->length()));
+    mevent->promoter_event_list_.push_back(mpevent);
+
     look_for_new_lagging_promoters_starting_between(pos_1, Utils::mod(
         pos_2 + PROM_SIZE - 1,
         dna_->length()));
@@ -2311,7 +2393,7 @@ void GeneticUnit::promoters(Strand strand_id,
 }
 
 void GeneticUnit::invert_promoters_included_in(int32_t pos1,
-                                               int32_t pos2) {
+                                               int32_t pos2, MutationEvent* mevent) {
   assert(pos1 >= 0);
   assert(pos1 <= pos2);
   assert(pos2 <= dna_->length());
@@ -2326,7 +2408,7 @@ void GeneticUnit::invert_promoters_included_in(int32_t pos1,
                                           {}};
 
   // 1) Extract the promoters completely included on the segment to be inverted
-  extract_promoters_included_in(pos1, pos2, inverted_promoters);
+  extract_promoters_included_in(pos1, pos2, inverted_promoters,mevent);
 
   // 2) Invert segment's promoters
   GeneticUnit::invert_promoters(inverted_promoters, pos1, pos2);

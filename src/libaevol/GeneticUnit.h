@@ -60,6 +60,7 @@ using Promoters1Strand = std::list<Rna_R>;
 using Promoters2Strands = std::vector<Promoters1Strand>;
 
 class ExpManager;
+class MutationEvent;
 
 class GeneticUnit {
  public :
@@ -264,7 +265,7 @@ class GeneticUnit {
                      int32_t pos2,
                      Promoters1Strand& promoters);
 
-  void invert_promoters_included_in(int32_t pos_1, int32_t pos_2);
+  void invert_promoters_included_in(int32_t pos_1, int32_t pos_2, MutationEvent* mevent);
 
   static void invert_promoters(Promoters2Strands& promoter_lists,
                                int32_t seq_length);
@@ -274,7 +275,8 @@ class GeneticUnit {
 
   void extract_promoters_included_in(int32_t pos_1,
                                      int32_t pos_2,
-                                     Promoters2Strands& extracted_promoters);
+                                     Promoters2Strands& extracted_promoters,
+                                     MutationEvent* mevent);
 
   void extract_promoters_starting_between(
       int32_t pos_1, int32_t pos_2, Promoters2Strands& extracted_promoters);
@@ -300,17 +302,22 @@ class GeneticUnit {
   void insert_promoters_at(Promoters2Strands& promoters_to_insert,
                            int32_t pos);
 
-  void remove_promoters_around(int32_t pos);
+  void remove_promoters_around(int32_t pos,
+                               MutationEvent* mevent);
 
-  void remove_promoters_around(int32_t pos_1, int32_t pos_2);
+  void remove_promoters_around(int32_t pos_1, int32_t pos_2,
+                               MutationEvent* mevent);
 
   void remove_all_promoters();
 
-  void look_for_new_promoters_around(int32_t pos);
+  void look_for_new_promoters_around(int32_t pos,
+                                     MutationEvent* mevent);
 
-  void look_for_new_promoters_around(int32_t pos_1, int32_t pos_2);
+  void look_for_new_promoters_around(int32_t pos_1, int32_t pos_2,
+                                     MutationEvent* mevent);
 
-  void move_all_promoters_after(int32_t pos, int32_t delta_pos);
+  void move_all_promoters_after(int32_t pos, int32_t delta_pos,
+                                MutationEvent *mevent);
 
   void move_all_leading_promoters_after(int32_t pos, int32_t delta_pos);
 

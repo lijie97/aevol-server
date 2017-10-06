@@ -51,45 +51,43 @@ void MutatePromoterEvent::move_lagging(int32_t pos1, int32_t pos2) {
   pos_2_ = pos2;
 }
 
-void MutatePromoterEvent::duplicate(int32_t pos1, int32_t pos2,
-                                    list<promoterStruct> list) {
+void MutatePromoterEvent::duplicate(int32_t pos1, int32_t pos2) {
   type_ = MutatePromoterEventType::DUPLICATE;
   pos_1_ = pos1;
   pos_2_ = pos2;
-  tmp_list = list;
 }
 
-void MutatePromoterEvent::insert(std::list<promoterStruct> list,  int32_t pos) {
+void MutatePromoterEvent::insert(int32_t pos) {
   type_ = MutatePromoterEventType::INSERT_POS;
   pos_1_ = pos;
-  tmp_list = list;
 }
 
-void MutatePromoterEvent::insert(std::list<promoterStruct> list) {
-  type_ = MutatePromoterEventType::INSERT;
-  tmp_list = list;
+void MutatePromoterEvent::insert() {
+  type_ = MutatePromoterEventType::DO_INSERT;
 }
 
-void MutatePromoterEvent::extract_leading(int32_t pos1, int32_t pos2,
-                                          std::list <promoterStruct> list) {
+void MutatePromoterEvent::extract_leading(int32_t pos1, int32_t pos2) {
   type_ = MutatePromoterEventType::EXTRACT_LEADING;
   pos_1_ = pos1;
   pos_2_ = pos2;
-  tmp_list = list;
 }
 
 
-void MutatePromoterEvent::extract_lagging(int32_t pos1, int32_t pos2,
-                                          std::list <promoterStruct> list) {
+void MutatePromoterEvent::extract_lagging(int32_t pos1, int32_t pos2) {
   type_ = MutatePromoterEventType::EXTRACT_LAGGING;
   pos_1_ = pos1;
   pos_2_ = pos2;
-  tmp_list = list;
 }
 
-void MutatePromoterEvent::invert(std::list<promoterStruct> list, int32_t pos1,
+void MutatePromoterEvent::invert(int32_t pos1,
                                  int32_t pos2) {
   type_ = MutatePromoterEventType::INVERT;
+  pos_1_ = pos1;
+  pos_2_ = pos2;
+}
+
+void MutatePromoterEvent::shift_pos(int32_t pos1, int32_t pos2) {
+  type_ = MutatePromoterEventType::SHIFT_POS;
   pos_1_ = pos1;
   pos_2_ = pos2;
 }

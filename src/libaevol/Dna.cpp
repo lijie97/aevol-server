@@ -61,6 +61,9 @@
 #include "Inversion.h"
 #include "InsertionHT.h"
 #include "ReplacementHT.h"
+#include "MutationEvent.h"
+#include "MutatePromoterEvent.h"
+#include "Dna_SIMD.h"
 
 namespace aevol {
 
@@ -875,12 +878,17 @@ bool Dna::do_switch(int32_t pos) {
   if (data_[pos] == '0') data_[pos] = '1';
   else data_[pos] = '0';
 
+  MutationEvent* mevent = new MutationEvent();
+  mevent->switch_pos(pos);
+
+  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
   // Remove promoters containing the switched base
-  gen_unit_->remove_promoters_around(pos, Utils::mod(pos + 1, length_));
+  gen_unit_->remove_promoters_around(pos, Utils::mod(pos + 1, length_),mevent);
 
   // Look for potential new promoters containing the switched base
   if (length_ >= PROM_SIZE)
-    gen_unit_->look_for_new_promoters_around(pos, Utils::mod(pos + 1, length_));
+    gen_unit_->look_for_new_promoters_around(pos, Utils::mod(pos + 1, length_),mevent);
 
   return true;
 }
@@ -891,8 +899,13 @@ bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
   assert(indiv_->amount_of_dna() + nb_insert <=
          indiv_->max_genome_length());
 
+  MutationEvent* mevent = new MutationEvent();
+  mevent->small_insertion(pos,nb_insert,seq);
+
+  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
   // Remove the promoters that will be broken
-  gen_unit_->remove_promoters_around(pos);
+  gen_unit_->remove_promoters_around(pos,mevent);
 
   // Insert the sequence
   insert(pos, seq, nb_insert);
@@ -905,12 +918,17 @@ bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
       // insertion.
       // In that case, we must look for new promoters thoroughly on the whole
       // genome using locate_promoters
+
+      MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+      mpevent->locate_all();
+      mevent->promoter_event_list_.push_back(mpevent);
+
       gen_unit_->locate_promoters();
     }
     else {
-      gen_unit_->move_all_promoters_after(pos, nb_insert);
+      gen_unit_->move_all_promoters_after(pos, nb_insert,mevent);
       gen_unit_->look_for_new_promoters_around(pos, Utils::mod(pos + nb_insert,
-                                                               length_));
+                                                               length_),mevent);
     }
   }
 
@@ -923,9 +941,14 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
   assert(indiv_->amount_of_dna() - nb_del >=
          indiv_->min_genome_length());
 
+  MutationEvent* mevent = new MutationEvent();
+  mevent->small_deletion(pos,nb_del);
+
+  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
   // Remove promoters containing at least one nucleotide from the sequence to
   // delete
-  gen_unit_->remove_promoters_around(pos, Utils::mod(pos + nb_del, length_));
+  gen_unit_->remove_promoters_around(pos, Utils::mod(pos + nb_del, length_),mevent);
 
   // Do the deletion and update promoter list
   if (pos + nb_del <= length_) { // the deletion does not contain the origin of
@@ -935,8 +958,8 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
 
     // Update promoter list
     if (length_ >= PROM_SIZE) {
-      gen_unit_->move_all_promoters_after(pos, -nb_del);
-      gen_unit_->look_for_new_promoters_around(Utils::mod(pos, length_));
+      gen_unit_->move_all_promoters_after(pos, -nb_del, mevent);
+      gen_unit_->look_for_new_promoters_around(Utils::mod(pos, length_),mevent);
     }
   }
   else { // the deletion contains the origin of replication
@@ -948,8 +971,8 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
 
     // Update promoter list
     if (length_ >= PROM_SIZE) {
-      gen_unit_->move_all_promoters_after(0, -nb_del_at_pos_0);
-      gen_unit_->look_for_new_promoters_around(0);
+      gen_unit_->move_all_promoters_after(0, -nb_del_at_pos_0,mevent);
+      gen_unit_->look_for_new_promoters_around(0,mevent);
     }
   }
 
@@ -1318,10 +1341,19 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   // (they will be inserted in the individual's RNA list later)
   Promoters2Strands duplicated_promoters = {{},
                                             {}};
+  MutationEvent* mevent = new MutationEvent();
+  mevent->duplication(pos_1,pos_2,pos_3);
+
+  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
+  MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+  mpevent->duplicate(pos_1,pos_2);
+  mevent->promoter_event_list_.push_back(mpevent);
+
   gen_unit_->duplicate_promoters_included_in(pos_1, pos_2,
                                              duplicated_promoters);
 
-  gen_unit_->remove_promoters_around(pos_3);
+  gen_unit_->remove_promoters_around(pos_3,mevent);
 
   insert(pos_3, duplicate_segment, seg_length);
 
@@ -1332,15 +1364,23 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
       // insertion.
       // In that case, we must look for new promoters thoroughly on the whole
       // genome using locate_promoters
+      mpevent = new MutatePromoterEvent();
+      mpevent->locate_all();
+      mevent->promoter_event_list_.push_back(mpevent);
+
       gen_unit_->locate_promoters();
     }
     else {
-      gen_unit_->move_all_promoters_after(pos_3, seg_length);
+      gen_unit_->move_all_promoters_after(pos_3, seg_length, mevent);
+
+      mpevent = new MutatePromoterEvent();
+      mpevent->insert(pos_3);
+      mevent->promoter_event_list_.push_back(mpevent);
 
       gen_unit_->insert_promoters_at(duplicated_promoters, pos_3);
 
-      gen_unit_->look_for_new_promoters_around(pos_3);
-      gen_unit_->look_for_new_promoters_around(pos_3 + seg_length);
+      gen_unit_->look_for_new_promoters_around(pos_3,mevent);
+      gen_unit_->look_for_new_promoters_around(pos_3 + seg_length,mevent);
     }
   }
 
@@ -1351,6 +1391,12 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 }
 
 bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
+
+  MutationEvent* mevent = new MutationEvent();
+  mevent->deletion(pos_1,pos_2);
+
+  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
 // Delete segment going from pos_1 (included) to pos_2 (excluded)
   if (pos_1 < pos_2) {
     //
@@ -1367,16 +1413,16 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     // Remove promoters containing at least one nucleotide from the sequence
     // to delete
-    gen_unit_->remove_promoters_around(pos_1, pos_2);
+    gen_unit_->remove_promoters_around(pos_1, pos_2,mevent);
 
     // Delete the sequence between pos_1 and pos_2
     remove(pos_1, pos_2);
 
     // Update promoter list
     if (length_ >= PROM_SIZE) {
-      gen_unit_->move_all_promoters_after(pos_1, -segment_length);
+      gen_unit_->move_all_promoters_after(pos_1, -segment_length,mevent);
 
-      gen_unit_->look_for_new_promoters_around(pos_1);
+      gen_unit_->look_for_new_promoters_around(pos_1,mevent);
     }
   }
   else { // if (pos_1 >= pos_2)
@@ -1397,7 +1443,7 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     // Remove promoters containing at least one nucleotide from the sequence
     // to delete
-    gen_unit_->remove_promoters_around(pos_1, pos_2);
+    gen_unit_->remove_promoters_around(pos_1, pos_2,mevent);
 
     // Delete the sequence between pos_1 and pos_2
     remove(pos_1, length_); // delete tmp1 from genome
@@ -1405,9 +1451,9 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     // Update promoter list
     if (length_ >= PROM_SIZE) {
-      gen_unit_->move_all_promoters_after(0, -pos_2);
+      gen_unit_->move_all_promoters_after(0, -pos_2,mevent);
 
-      gen_unit_->look_for_new_promoters_around(0);
+      gen_unit_->look_for_new_promoters_around(0,mevent);
     }
   }
 
@@ -1416,6 +1462,11 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
 
 bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
                            int32_t pos_4, bool invert) {
+  MutationEvent* mevent = new MutationEvent();
+  mevent->translocation(pos_1,pos_2,pos_3,pos_4,invert);
+
+  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
   // Provided that OriC must be at position 0
   //
   //    1) Note that in Case 1 (without inversion), whichever position
@@ -1513,30 +1564,30 @@ bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
   if (not invert) {
     if (pos_min == pos_1) {
-      ABCDE_to_ADCBE(pos_1, pos_3, pos_2, pos_4);
+      ABCDE_to_ADCBE(pos_1, pos_3, pos_2, pos_4,mevent);
     }
     else if (pos_min == pos_2) {
-      ABCDE_to_ADCBE(pos_2, pos_4, pos_1, pos_3);
+      ABCDE_to_ADCBE(pos_2, pos_4, pos_1, pos_3,mevent);
     }
     else if (pos_min == pos_3) {
-      ABCDE_to_ADCBE(pos_3, pos_2, pos_4, pos_1);
+      ABCDE_to_ADCBE(pos_3, pos_2, pos_4, pos_1,mevent);
     }
     else { // if (pos_min == pos_4)
-      ABCDE_to_ADCBE(pos_4, pos_1, pos_3, pos_2);
+      ABCDE_to_ADCBE(pos_4, pos_1, pos_3, pos_2,mevent);
     }
   }
   else { // invert
     if (pos_min == pos_1) {
-      ABCDE_to_ADBpCpE(pos_1, pos_3, pos_2, pos_4);
+      ABCDE_to_ADBpCpE(pos_1, pos_3, pos_2, pos_4,mevent);
     }
     else if (pos_min == pos_2) {
-      ABCDE_to_ADBpCpE(pos_2, pos_4, pos_1, pos_3);
+      ABCDE_to_ADBpCpE(pos_2, pos_4, pos_1, pos_3,mevent);
     }
     else if (pos_min == pos_3) {
-      ABCDE_to_ACpDpBE(pos_3, pos_2, pos_4, pos_1);
+      ABCDE_to_ACpDpBE(pos_3, pos_2, pos_4, pos_1,mevent);
     }
     else { // if (pos_min == pos_4)
-      ABCDE_to_ACpDpBE(pos_4, pos_1, pos_3, pos_2);
+      ABCDE_to_ACpDpBE(pos_4, pos_1, pos_3, pos_2,mevent);
     }
   }
 
@@ -1660,6 +1711,11 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
   if (pos_1 == pos_2) return false; // Invert everything <=> Invert nothing!
   assert(pos_1 < pos_2);
 
+  MutationEvent* mevent = new MutationEvent();
+  mevent->deletion(pos_1,pos_2);
+
+  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
   //
   //       pos_1         pos_2                   -> 0-
   //         |             |                   -       -
@@ -1700,18 +1756,22 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
   inverted_segment[seg_length] = '\0';
 
   // Remove promoters that included a breakpoint
-  gen_unit_->remove_promoters_around(pos_1);
-  gen_unit_->remove_promoters_around(pos_2);
+  gen_unit_->remove_promoters_around(pos_1,mevent);
+  gen_unit_->remove_promoters_around(pos_2,mevent);
 
   // Invert the sequence
   replace(pos_1, inverted_segment, seg_length);
 
   // Update promoter list
   if (length_ >= PROM_SIZE) {
-    gen_unit_->invert_promoters_included_in(pos_1, pos_2);
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->invert(pos_1,pos_2);
+    mevent->promoter_event_list_.push_back(mpevent);
 
-    gen_unit_->look_for_new_promoters_around(pos_1);
-    gen_unit_->look_for_new_promoters_around(pos_2);
+    gen_unit_->invert_promoters_included_in(pos_1, pos_2,mevent);
+
+    gen_unit_->look_for_new_promoters_around(pos_1,mevent);
+    gen_unit_->look_for_new_promoters_around(pos_2,mevent);
   }
 
   delete[] inverted_segment;
@@ -1722,15 +1782,15 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
 bool Dna::do_insertion(int32_t pos, const char* seq_to_insert,
                        int32_t seq_length) {
   // Remove the promoters that will be broken
-  gen_unit_->remove_promoters_around(pos);
+  gen_unit_->remove_promoters_around(pos,nullptr);
 
   // Insert the sequence
   insert(pos, seq_to_insert, seq_length);
 
   // Look for new promoters
   if (length_ >= PROM_SIZE) {
-    gen_unit_->move_all_promoters_after(pos, seq_length);
-    gen_unit_->look_for_new_promoters_around(pos, pos + seq_length);
+    gen_unit_->move_all_promoters_after(pos, seq_length,nullptr);
+    gen_unit_->look_for_new_promoters_around(pos, pos + seq_length,nullptr);
   }
 
   return true;
@@ -2133,15 +2193,15 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 bool Dna::do_ins_HT(int32_t pos, const char* seq_to_insert,
                     int32_t seq_length) { // NOLINT(whitespace/braces)
   // Remove the promoters that will be broken
-  gen_unit_->remove_promoters_around(pos);
+  gen_unit_->remove_promoters_around(pos,nullptr);
 
   // Insert the sequence
   insert(pos, seq_to_insert, seq_length);
 
   // Look for new promoters
   if (length_ >= PROM_SIZE) {
-    gen_unit_->move_all_promoters_after(pos, seq_length);
-    gen_unit_->look_for_new_promoters_around(pos, pos + seq_length);
+    gen_unit_->move_all_promoters_after(pos, seq_length,nullptr);
+    gen_unit_->look_for_new_promoters_around(pos, pos + seq_length,nullptr);
   }
 
   return true;
@@ -2150,7 +2210,7 @@ bool Dna::do_ins_HT(int32_t pos, const char* seq_to_insert,
 bool Dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert,
                      int32_t seq_length) {
   // Remove the promoters that will be broken
-  gen_unit_->remove_promoters_around(pos1);
+  gen_unit_->remove_promoters_around(pos1,nullptr);
 
   // Delete the replaced segment
   do_deletion(pos1, pos2);
@@ -2167,9 +2227,9 @@ bool Dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert,
 
   // Look for new promoters
   if (length_ >= PROM_SIZE) {
-    gen_unit_->move_all_promoters_after(insertion_position, seq_length);
+    gen_unit_->move_all_promoters_after(insertion_position, seq_length,nullptr);
     gen_unit_->look_for_new_promoters_around(insertion_position,
-                                             insertion_position + seq_length);
+                                             insertion_position + seq_length,nullptr);
   }
 
   return true;
@@ -2269,15 +2329,15 @@ GeneticUnit* Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2) {
 
   // =============== Remove/Extract promoters from old sequence ===============
   // Remove promoters around breakpoints
-  gen_unit_->remove_promoters_around(pos_1);
-  gen_unit_->remove_promoters_around(pos_2);
+  gen_unit_->remove_promoters_around(pos_1,nullptr);
+  gen_unit_->remove_promoters_around(pos_2,nullptr);
 
   // Remove promoters belonging to the sequence (to be extracted) from the
   // "old" GU and put them in a stand-alone promoter list (with indices
   // ranging from 0 to seq_length-1)
   Promoters2Strands proms_GU_1 = {{},
                                   {}};
-  gen_unit_->extract_promoters_included_in(pos_1, pos_2, proms_GU_1);
+  gen_unit_->extract_promoters_included_in(pos_1, pos_2, proms_GU_1,nullptr);
   GeneticUnit::shift_promoters(proms_GU_1, -pos_1, length_);
 
   // ==================== Manage sequences ====================
@@ -2304,11 +2364,11 @@ GeneticUnit* Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2) {
 
   // ==================== Update promoter lists ====================
   // Shift the position of the promoters of the "old" GU
-  gen_unit_->move_all_promoters_after(pos_1, -seq_length);
+  gen_unit_->move_all_promoters_after(pos_1, -seq_length,nullptr);
 
   // Look for new promoters around breakpoints
-  gen_unit_->look_for_new_promoters_around(pos_1);
-  GU_1->look_for_new_promoters_around(0);
+  gen_unit_->look_for_new_promoters_around(pos_1,nullptr);
+  GU_1->look_for_new_promoters_around(0,nullptr);
 
   return GU_1;
 }
@@ -2356,7 +2416,7 @@ GeneticUnit* Dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const {
 
   // ==================== Update new GU promoter list ====================
   // Look for new promoters around breakpoints
-  new_GU->look_for_new_promoters_around(0);
+  new_GU->look_for_new_promoters_around(0,nullptr);
 
   return new_GU;
 }
@@ -2453,7 +2513,7 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
 
 
   // Remove promoters that are astride segments A and B : breakpoint pos_B
-  gen_unit_->remove_promoters_around(pos_B);
+  gen_unit_->remove_promoters_around(pos_B,nullptr);
 
 
   set_data(new_seq, len_ABCD);
@@ -2463,10 +2523,10 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
 
   // ==================== Manage promoters ====================
   // Remove promoters that are astride segments C and D : breakpoint pos_D
-  GU_to_insert->remove_promoters_around(pos_D);
+  GU_to_insert->remove_promoters_around(pos_D,nullptr);
 
   // Shift the position of the promoters of segment B
-  gen_unit_->move_all_promoters_after(pos_B, len_CD);
+  gen_unit_->move_all_promoters_after(pos_B, len_CD,nullptr);
 
   // Extract promoters of segments C and D.
   // NOTE : We want ALL THE PROMOTERS to be transfered, not only those that
@@ -2514,8 +2574,8 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
   }
 
   // Look for new promoters around breakpoints
-  gen_unit_->look_for_new_promoters_around(pos_B);
-  gen_unit_->look_for_new_promoters_around(pos_B + len_CD);
+  gen_unit_->look_for_new_promoters_around(pos_B,nullptr);
+  gen_unit_->look_for_new_promoters_around(pos_B + len_CD,nullptr);
 
   gen_unit_->take_ownership_of_all_rnas();
 }
@@ -2810,7 +2870,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
  * Promoter lists are created / updated accordingly
  */
 void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
-                         int32_t pos_E) {
+                         int32_t pos_E, MutationEvent* mevent) {
   // Rearrange the sequence from ABCDE to ADCBE (complex translocation
   // of segment defined between positions pos_B and pos_D)
   //
@@ -2862,10 +2922,10 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // ========== Update promoter list ==========
   if (length_ >= PROM_SIZE) {
     // Remove promoters that include a breakpoint
-    gen_unit_->remove_promoters_around(pos_B);
-    gen_unit_->remove_promoters_around(pos_C);
-    gen_unit_->remove_promoters_around(pos_D);
-    gen_unit_->remove_promoters_around(pos_E);
+    gen_unit_->remove_promoters_around(pos_B, mevent);
+    gen_unit_->remove_promoters_around(pos_C, mevent);
+    gen_unit_->remove_promoters_around(pos_D, mevent);
+    gen_unit_->remove_promoters_around(pos_E, mevent);
 
     // Create temporary lists for promoters to move and/or invert
     Promoters2Strands promoters_B = {{},
@@ -2874,40 +2934,72 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
                                      {}};
     Promoters2Strands promoters_D = {{},
                                      {}};
-
+    MutatePromoterEvent* mpevent;
     // Extract promoters that are totally included in each segment to be moved
     // and shift them to their new positions
     if (len_B >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B);
+      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B,mevent);
+
+      mpevent = new MutatePromoterEvent();
+      mpevent->shift_pos(len_D + len_C,
+                        gen_unit_->dna()->length());
+      mevent->promoter_event_list_.push_back(mpevent);
+
       GeneticUnit::shift_promoters(promoters_B, len_D + len_C,
                                    gen_unit_->dna()->length());
     }
     if (len_C >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_C, pos_D, promoters_C);
+      gen_unit_->extract_promoters_included_in(pos_C, pos_D, promoters_C, mevent);
+
+      mpevent = new MutatePromoterEvent();
+      mpevent->shift_pos(len_D - len_B,
+                        gen_unit_->dna()->length());
+      mevent->promoter_event_list_.push_back(mpevent);
+
       GeneticUnit::shift_promoters(promoters_C, len_D - len_B,
                                    gen_unit_->dna()->length());
     }
     if (len_D >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D);
+      gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D, mevent);
+
+      mpevent = new MutatePromoterEvent();
+      mpevent->shift_pos(-len_B - len_C,
+                        gen_unit_->dna()->length());
+      mevent->promoter_event_list_.push_back(mpevent);
+
       GeneticUnit::shift_promoters(promoters_D, -len_B - len_C,
                                    gen_unit_->dna()->length());
     }
 
     // Reinsert the shifted promoters
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_B);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_C);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_D);
 
     // 5) Look for new promoters including a breakpoint
-    gen_unit_->look_for_new_promoters_around(len_A);
-    gen_unit_->look_for_new_promoters_around(len_AD);
-    gen_unit_->look_for_new_promoters_around(len_ADC);
-    gen_unit_->look_for_new_promoters_around(len_ADCB);
+    gen_unit_->look_for_new_promoters_around(len_A,mevent);
+    gen_unit_->look_for_new_promoters_around(len_AD,mevent);
+    gen_unit_->look_for_new_promoters_around(len_ADC,mevent);
+    gen_unit_->look_for_new_promoters_around(len_ADCB,mevent);
   }
 }
 
 void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
-                           int32_t pos_E) {
+                           int32_t pos_E, MutationEvent* mevent) {
   // Rearrange the sequence from ABCDE to ADBpCpE (complex translocation
   // with inversion of segment defined between positions pos_B and pos_D)
   // Bp (resp Cp) stands for inverted B (resp C)
@@ -3000,10 +3092,10 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // ========== Update promoter list ==========
   if (length_ >= PROM_SIZE) {
     // Remove promoters that include a breakpoint
-    gen_unit_->remove_promoters_around(pos_B);
-    gen_unit_->remove_promoters_around(pos_C);
-    gen_unit_->remove_promoters_around(pos_D);
-    gen_unit_->remove_promoters_around(pos_E);
+    gen_unit_->remove_promoters_around(pos_B,mevent);
+    gen_unit_->remove_promoters_around(pos_C,mevent);
+    gen_unit_->remove_promoters_around(pos_D,mevent);
+    gen_unit_->remove_promoters_around(pos_E,mevent);
 
     // Create temporary lists for promoters to move and/or invert
     Promoters2Strands promoters_B = {{},
@@ -3016,42 +3108,82 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     // 2) Extract promoters that are totally included in each segment to be
     //    moved (B, C and D)
     if (len_B >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B);
+      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B, mevent);
     }
     if (len_C >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_C, pos_D, promoters_C);
+      gen_unit_->extract_promoters_included_in(pos_C, pos_D, promoters_C, mevent);
     }
     if (len_D >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D);
+      gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D, mevent);
     }
 
     // 3a) Invert promoters of segments B and C
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->invert(pos_B, pos_C);
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::invert_promoters(promoters_B, pos_B, pos_C);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->invert(pos_C, pos_D);
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::invert_promoters(promoters_C, pos_C, pos_D);
 
     // 3b) Shift these promoters positions
+    mpevent = new MutatePromoterEvent();
+    mpevent->shift_pos(len_D,
+                      gen_unit_->dna()->length());
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::shift_promoters(promoters_B, len_D,
                                  gen_unit_->dna()->length());
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->shift_pos(len_D,
+                      gen_unit_->dna()->length());
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::shift_promoters(promoters_C, len_D,
                                  gen_unit_->dna()->length());
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->shift_pos(-len_B - len_C,
+                      gen_unit_->dna()->length());
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::shift_promoters(promoters_D, -len_B - len_C,
                                  gen_unit_->dna()->length());
 
     // 4) Reinsert the shifted promoters
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_C);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_B);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_D);
 
     // 5) Look for new promoters including a breakpoint
-    gen_unit_->look_for_new_promoters_around(len_A);
-    gen_unit_->look_for_new_promoters_around(len_AD);
-    gen_unit_->look_for_new_promoters_around(len_ADB);
-    gen_unit_->look_for_new_promoters_around(len_ADBC);
+    gen_unit_->look_for_new_promoters_around(len_A,mevent);
+    gen_unit_->look_for_new_promoters_around(len_AD,mevent);
+    gen_unit_->look_for_new_promoters_around(len_ADB,mevent);
+    gen_unit_->look_for_new_promoters_around(len_ADBC,mevent);
   }
 }
 
 void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
-                           int32_t pos_E) {
+                           int32_t pos_E, MutationEvent* mevent) {
   // Rearrange the sequence from ABCDE to ACpDpBE (complex translocation with
   // inversion of segment defined between positions pos_C and pos_E)
   // Cp (resp Dp) stands for inverted C (resp D)
@@ -3148,10 +3280,10 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // 5) Look for new promoters including a breakpoint
   if (length_ >= PROM_SIZE) {
     // 1) Remove promoters that include a breakpoint
-    gen_unit_->remove_promoters_around(pos_B);
-    gen_unit_->remove_promoters_around(pos_C);
-    gen_unit_->remove_promoters_around(pos_D);
-    gen_unit_->remove_promoters_around(pos_E);
+    gen_unit_->remove_promoters_around(pos_B,mevent);
+    gen_unit_->remove_promoters_around(pos_C,mevent);
+    gen_unit_->remove_promoters_around(pos_D,mevent);
+    gen_unit_->remove_promoters_around(pos_E,mevent);
 
     // Create temporary lists for promoters to move and/or invert
     Promoters2Strands promoters_B = {{},
@@ -3164,37 +3296,77 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     // 2) Extract promoters that are totally included in each segment to be
     //    moved (B, C and D)
     if (len_B >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B);
+      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B,mevent);
     }
     if (len_C >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_C, pos_D, promoters_C);
+      gen_unit_->extract_promoters_included_in(pos_C, pos_D, promoters_C,mevent);
     }
     if (len_D >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D);
+      gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D,mevent);
     }
 
     // 3a) Invert promoters of segments C and D
+    MutatePromoterEvent* mpevent = new MutatePromoterEvent();
+    mpevent->invert(pos_C, pos_D);
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::invert_promoters(promoters_C, pos_C, pos_D);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->invert(pos_D, pos_E);
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::invert_promoters(promoters_D, pos_D, pos_E);
 
     // 3b) Shift these promoters positions
+    mpevent = new MutatePromoterEvent();
+    mpevent->shift_pos(len_C + len_D,
+                      gen_unit_->dna()->length());
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::shift_promoters(promoters_B, len_C + len_D,
                                  gen_unit_->dna()->length());
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->shift_pos(-len_B,
+                      gen_unit_->dna()->length());
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::shift_promoters(promoters_C, -len_B,
                                  gen_unit_->dna()->length());
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->shift_pos(-len_B,
+                      gen_unit_->dna()->length());
+    mevent->promoter_event_list_.push_back(mpevent);
+
     GeneticUnit::shift_promoters(promoters_D, -len_B,
                                  gen_unit_->dna()->length());
 
     // 4) Reinsert the shifted promoters
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_B);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_D);
+
+    mpevent = new MutatePromoterEvent();
+    mpevent->insert();
+    mevent->promoter_event_list_.push_back(mpevent);
+
     gen_unit_->insert_promoters(promoters_C);
 
     // 5) Look for new promoters including a breakpoint
-    gen_unit_->look_for_new_promoters_around(len_A);
-    gen_unit_->look_for_new_promoters_around(len_AC);
-    gen_unit_->look_for_new_promoters_around(len_ACD);
-    gen_unit_->look_for_new_promoters_around(len_ACDB);
+    gen_unit_->look_for_new_promoters_around(len_A,mevent);
+    gen_unit_->look_for_new_promoters_around(len_AC,mevent);
+    gen_unit_->look_for_new_promoters_around(len_ACD,mevent);
+    gen_unit_->look_for_new_promoters_around(len_ACDB,mevent);
   }
 }
 
@@ -3255,9 +3427,9 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
 
 
     // 1) Remove promoters that include a breakpoint
-    gen_unit_->remove_promoters_around(pos_B);
-    gen_unit_->remove_promoters_around(pos_C);
-    destination_GU.remove_promoters_around(pos_E);
+    gen_unit_->remove_promoters_around(pos_B,nullptr);
+    gen_unit_->remove_promoters_around(pos_C,nullptr);
+    destination_GU.remove_promoters_around(pos_E,nullptr);
 
     // Create temporary lists for promoters to move and/or invert
     Promoters2Strands promoters_B = {{},
@@ -3266,7 +3438,7 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
     // 2) Extract promoters that are totally included in each segment to be
     // moved (B, C and E)
     if (len_B >= PROM_SIZE) {
-      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B);
+      gen_unit_->extract_promoters_included_in(pos_B, pos_C, promoters_B,nullptr);
     }
 
     // ========== Replace sequences ==========
@@ -3283,18 +3455,18 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
         rna.set_genetic_unit(&destination_GU);
 
     // Shift the promoters of sequences C and E
-    gen_unit_->move_all_promoters_after(pos_C, -len_B);
-    destination_GU.move_all_promoters_after(pos_E, len_B);
+    gen_unit_->move_all_promoters_after(pos_C, -len_B,nullptr);
+    destination_GU.move_all_promoters_after(pos_E, len_B,nullptr);
 
     // 4) Reinsert the shifted promoters
     destination_GU.insert_promoters(promoters_B);
 
     // 5) Look for new promoters including a breakpoint
-    gen_unit_->look_for_new_promoters_around(0);
-    gen_unit_->look_for_new_promoters_around(len_A);
-    destination_GU.look_for_new_promoters_around(0);
-    destination_GU.look_for_new_promoters_around(len_D);
-    destination_GU.look_for_new_promoters_around(len_DB);
+    gen_unit_->look_for_new_promoters_around(0,nullptr);
+    gen_unit_->look_for_new_promoters_around(len_A,nullptr);
+    destination_GU.look_for_new_promoters_around(0,nullptr);
+    destination_GU.look_for_new_promoters_around(len_D,nullptr);
+    destination_GU.look_for_new_promoters_around(len_DB,nullptr);
   }
 }
 

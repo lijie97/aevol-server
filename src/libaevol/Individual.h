@@ -63,7 +63,7 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 class GridCell;
-
+class Dna_SIMD;
 
 /// Models an individual cell.
 ///
@@ -506,6 +506,8 @@ class Individual : public Observable {
     int number_of_clones_ = 0;
     bool evaluated_;
 
+    // SIMD/CUDA Individual promoter search
+    Dna_SIMD* dna_simd_ = nullptr;
  protected :
   // =================================================================
   //                           Protected Methods
@@ -632,6 +634,7 @@ class Individual : public Observable {
   double modularity_; // Ratio between the pairwise distance between genes whose corresponding
   // phenotypic triangles overlap and the average intergenic distance
   // (ignoring non-functional genes)void compute_phenotype();
+
 
 
 };

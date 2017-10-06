@@ -25,6 +25,10 @@ class promoterStruct {
       pos = t_pos; error = t_error; leading_or_lagging = lead;
     }
 
+    promoterStruct(const promoterStruct& clone) {
+      pos=clone.pos;error=clone.error;leading_or_lagging=clone.leading_or_lagging;
+    }
+
     int32_t pos = -1;
     int8_t error = -1;
     bool leading_or_lagging; // TRUE = leading / FALSE = lagging
@@ -78,7 +82,11 @@ class Internal_SIMD_Struct {
  public:
     Internal_SIMD_Struct() = default;
 
-    std::vector<promoterStruct*> promoters;
+    std::map<int32_t,promoterStruct*> promoters;
+    std::map<int32_t,int32_t> leading_prom_pos;
+    std::map<int32_t,int32_t> lagging_prom_pos;
+    int count_prom = 0;
+
     std::set<int> terminator_lag;
     std::set<int> terminator_lead;
     std::vector<pRNA> rnas;
@@ -87,16 +95,107 @@ class Internal_SIMD_Struct {
     float delta[300];
     double fitness;
     float metaerror;
+
+    Dna_SIMD* dna_;
+
+    void rebuild_index();
+
+    void remove_promoters_around(int32_t pos_1);
+    void remove_promoters_around(int32_t pos_1, int32_t pos_2);
+    void remove_all_promoters();
+
+    void look_for_new_promoters_around(int32_t pos_1, int32_t pos_2);
+    void look_for_new_promoters_around(int32_t pos);
+
+    void locate_promoters();
+
+    void move_all_promoters_after(int32_t pos, int32_t delta_pos);
+
+    void duplicate_promoters_included_in(int32_t pos_1,
+                                         int32_t pos_2,
+                                         std::vector<std::list<promoterStruct*>>& duplicated_promoters);
+    void extract_promoters_included_in(int32_t pos_1,
+                                       int32_t pos_2,
+                                       std::vector<std::list<promoterStruct*>>& extracted_promoters);
+    void insert_promoters(std::vector<std::list<promoterStruct*>>& promoters_to_insert);
+    void insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
+                                                   int32_t pos);
+
+    void invert_promoters_included_in(int32_t pos1,
+                                      int32_t pos2);
+
+
+    static void shift_promoters(
+        std::vector<std::list<promoterStruct*>>& promoters_to_shift,
+        int32_t delta_pos,
+        int32_t seq_length);
+    static void invert_promoters(std::vector<std::list<promoterStruct*>>& promoter_lists,
+                                 int32_t pos1,
+                                 int32_t pos2);
+
+    int8_t is_promoter_leading(int pos);
+    int8_t is_promoter_lagging(int pos);
+    void lst_promoters(bool lorl,
+                                         Position before_after_btw, // with regard to the strand's reading direction
+                                         int32_t pos1,
+                                         int32_t pos2,
+                                         std::list<promoterStruct*>& promoters_list);
+
+ protected:
+    void remove_leading_promoters_starting_between(int32_t pos_1,
+                                                   int32_t pos_2);
+    void remove_leading_promoters_starting_after(int32_t pos);
+    void remove_leading_promoters_starting_before(int32_t pos);
+
+    void remove_lagging_promoters_starting_between(int32_t pos_1,
+                                                   int32_t pos_2);
+    void remove_lagging_promoters_starting_after(int32_t pos);
+    void remove_lagging_promoters_starting_before(int32_t pos);
+
+    void move_all_leading_promoters_after(int32_t pos, int32_t delta_pos);
+    void move_all_lagging_promoters_after(int32_t pos,int32_t delta_pos);
+
+    void look_for_new_leading_promoters_starting_between(int32_t pos_1, int32_t pos_2);
+    void look_for_new_leading_promoters_starting_after(int32_t pos);
+    void look_for_new_leading_promoters_starting_before(int32_t pos);
+
+    void look_for_new_lagging_promoters_starting_between(int32_t pos_1,int32_t pos_2);
+    void look_for_new_lagging_promoters_starting_after(int32_t pos);
+    void look_for_new_lagging_promoters_starting_before(int32_t pos);
+
+    void promoters_included_in(int32_t pos_1,
+                                                     int32_t pos_2,
+                                                     std::vector<std::list<promoterStruct*>>& promoters_list);
+
+    void extract_leading_promoters_starting_between(int32_t pos_1,
+                                                                          int32_t pos_2, std::list<promoterStruct*>& extracted_promoters);
+
+    void extract_lagging_promoters_starting_between(int32_t pos_1,
+                                                                          int32_t pos_2,
+                                                                          std::list<promoterStruct*>& extracted_promoters);
+};
+
+class PromoterList {
+    PromoterList() = default;
+
+    std::map<int32_t,int> leading_prom_pos;
+    std::map<int32_t,int> lagging_prom_pos;
 };
 
 class SIMD_Individual {
  public:
-    explicit SIMD_Individual(ExpManager* exp_m);
+    SIMD_Individual(ExpManager* exp_m);
+
     ~SIMD_Individual();
 
-    void run_a_step(double w_max, double selection_pressure);
+    void clear_struct_before_next_step();
+    void do_mutation();
+
+    void run_a_step(double w_max, double selection_pressure,bool optim_prom = false);
 
     void start_stop_RNA();
+    void opt_prom_compute_RNA();
+
     void compute_RNA();
     void start_protein();
     void compute_protein();
@@ -105,6 +204,7 @@ class SIMD_Individual {
     void compute_fitness(double selection_pressure);
 
     void check_result();
+    void check_dna();
 
  private:
     ExpManager* exp_m_;

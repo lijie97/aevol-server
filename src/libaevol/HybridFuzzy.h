@@ -81,7 +81,7 @@ class HybridFuzzy : public AbstractFuzzy
   //                               Attributes
   // ==========================================================================
   ProteinConcentration* _points = NULL;
-  int _pheno_size = PHENO_SIZE;
+  int _pheno_size = PHENO_SIZE+1;
 };
 
 ProteinConcentration trapezoid_area(const Point& p1, const Point& p2);

@@ -63,6 +63,8 @@ class GeneticUnit;
 class VisAVis;
 class Rna;
 class Rna_R;
+class MutatePromoterEvent;
+class MutationEvent;
 
 class Dna : public ae_string, public Observable {
  public :
@@ -179,9 +181,9 @@ class Dna : public ae_string, public Observable {
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  void ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E);
-  void ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E);
-  void ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E);
+  void ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E, MutationEvent* mevent);
+  void ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E, MutationEvent* mevent);
+  void ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E, MutationEvent* mevent);
   void inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
   void inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
 

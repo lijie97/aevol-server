@@ -220,7 +220,8 @@ void HybridFuzzy::clip(clipping_direction direction, ProteinConcentration bound)
 
 void HybridFuzzy::add_point(ProteinConcentration x, ProteinConcentration y) {
   int ix = (int) ( x * _pheno_size);
-  _points[ix] = y;
+  if (ix < _pheno_size)
+    _points[ix] = y;
 }
 
 // =================================================================
