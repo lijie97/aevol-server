@@ -348,7 +348,7 @@ void ExpSetup::read_binding_matrix_from_backup(gzFile binding_matrix_file) {
   double value;
 	for (int i=0; i < MAX_QUADON; i++) {
 		for (int j=0; j < MAX_CODON; j++) {
-			gzread( binding_matrix_file, (value));
+			gzread( binding_matrix_file, &value, sizeof(value));
 			_binding_matrix[i][j] = (ProteinConcentration) value;
 		}
 	}
@@ -359,7 +359,7 @@ void ExpSetup::write_binding_matrix_to_backup(gzFile binding_matrix_file) const 
 	for (int i=0; i < MAX_QUADON; i++) {
 		for (int j=0; j < MAX_CODON; j++) {
 			value = (double)_binding_matrix[i][j];
-			gzwrite( binding_matrix_file,(value));
+			gzwrite( binding_matrix_file,&value,sizeof(value));
 		}
 	}
 }

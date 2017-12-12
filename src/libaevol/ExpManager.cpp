@@ -349,7 +349,7 @@ auto     t1 = high_resolution_clock::now();
 
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure());
 
-    simd_individual->check_result();
+    //simd_individual->check_result();
   } else {
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
   }

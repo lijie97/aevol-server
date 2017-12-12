@@ -161,6 +161,8 @@ class ExpManager : public Observer {
     OutputManager*output_m_;
 #endif
 
+    // SIMD Stuff
+    SIMD_Individual* simd_individual = nullptr;
  protected:
   // =======================================================================
   //                              Protected Methods
@@ -210,8 +212,6 @@ class ExpManager : public Observer {
 
     bool first_gen = true;
 
-    // SIMD Stuff
-    SIMD_Individual* simd_individual = nullptr;
 
 };
 

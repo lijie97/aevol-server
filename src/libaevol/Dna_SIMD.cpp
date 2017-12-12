@@ -14,6 +14,16 @@ Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {
   indiv_ = indiv;
 }
 
+
+Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
+  length_ = dna->length_;
+  nb_blocks_ = nb_blocks(length_);
+  data_ = new char[nb_blocks_ * BLOCK_SIZE];
+  memcpy(data_, dna->data_, (length_+1) * sizeof(char));
+
+  indiv_ = indiv;
+}
+
 Dna_SIMD::Dna_SIMD(Dna* dna) {
   length_ = dna->length();
   nb_blocks_ = nb_blocks(length_);
@@ -31,12 +41,18 @@ Dna_SIMD::~Dna_SIMD() {
 }
 
 void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
+//  printf("%d -- REMOVE POS 1 %d POS 2 %d LENGTH %d\n",indiv_->indiv_id,pos_1,pos_2,length());
+
   assert(pos_1 >= 0 && pos_2 >= pos_1 && pos_2 <= length_);
 
   // Compute size of new genome
   int32_t new_length    = length_ - (pos_2 - pos_1);
   int32_t new_nb_blocks = nb_blocks(new_length);
-  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE * sizeof(char)];
+
+//  printf("POS 1 %d POS 2 %d  LENGTH %d NEW Length %d Nb Block %d\n",
+//         pos_1,pos_2,length(),new_length,new_nb_blocks);
+
+  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE];
 
   // Copy the remaining of the genome in tmp (preceeding and following parts)
   memcpy(new_genome, data_, pos_1 * sizeof(char));
@@ -229,7 +245,60 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   indiv_->duplicate_promoters_included_in(pos_1, pos_2,
                                              duplicated_promoters);
 
+//  if (indiv_->indiv_id == 49) {
+//    printf("DUPLICATE : Leading promoters lists : ");
+//    for (auto it : indiv_->leading_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DUPLICATE : Lagging promoters lists : ");
+//    for (auto it : indiv_->lagging_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DUPLICATE : Leading promoters lists (promoters): ");
+//    for (auto it : indiv_->promoters) {
+//      printf("%d (%d) -- ", it.second->pos, it.first);
+//    }
+//
+//    printf("\n");
+//
+//    printf("DUPLICATE : Leading DUPLICATED promoters lists : ");
+//    for (auto it : duplicated_promoters[LEADING]) {
+//      printf("%d || ", it->pos);
+//    }
+//    printf("\n");
+//
+//    printf("DUPLICATE : Lagging DUPLICATED promoters lists: ");
+//    for (auto it : duplicated_promoters[LAGGING]) {
+//      printf("%d -- ", it->pos);
+//    }
+//
+//    printf("\n");
+//  }
+
   indiv_->remove_promoters_around(pos_3);
+
+//  if (indiv_->indiv_id == 49) {
+//    printf("REMOVE : Leading promoters lists : ");
+//    for (auto it : indiv_->leading_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//    printf("REMOVE : Lagging promoters lists : ");
+//    for (auto it : indiv_->lagging_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//    printf("REMOVE : Leading promoters lists (promoters): ");
+//    for (auto it : indiv_->promoters) {
+//      printf("%d (%d) -- ", it.second->pos, it.first);
+//    }
+//
+//    printf("\n");
+//  }
 
   insert(pos_3, duplicate_segment, seg_length);
 
@@ -244,8 +313,60 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     }
     else {
       indiv_->move_all_promoters_after(pos_3, seg_length);
+//      if (indiv_->indiv_id == 49) {
+//        printf("MOVE : Leading promoters lists : ");
+//        for (auto it : indiv_->leading_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//        printf("MOVE : Lagging promoters lists : ");
+//        for (auto it : indiv_->lagging_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//        printf("MOVE : Leading promoters lists (promoters): ");
+//        for (auto it : indiv_->promoters) {
+//          printf("%d (%d) -- ", it.second->pos, it.first);
+//        }
+//
+//        printf("\n");
+//
+//          printf("MOVE : Leading duplicated promoters lists : ");
+//          for (auto it : duplicated_promoters[LEADING]) {
+//            printf("%d || ", it->pos);
+//          }
+//          printf("\n");
+//
+//          printf("MOVE : Lagging duplicated promoters lists (promoters): ");
+//          for (auto it : duplicated_promoters[LAGGING]) {
+//            printf("%d -- ", it->pos);
+//          }
+//
+//          printf("\n");
+//      }
 
       indiv_->insert_promoters_at(duplicated_promoters, pos_3);
+
+//      if (indiv_->indiv_id == 49) {
+//        printf("INSERT : Leading promoters lists : ");
+//        for (auto it : indiv_->leading_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//
+//        printf("INSERT : Lagging promoters lists : ");
+//        for (auto it : indiv_->lagging_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//
+//        printf("INSERT : Leading promoters lists (promoters): ");
+//        for (auto it : indiv_->promoters) {
+//          printf("%d (%d) -- ", it.second->pos, it.first);
+//        }
+//
+//        printf("\n");
+//      }
 
       indiv_->look_for_new_promoters_around(pos_3);
       indiv_->look_for_new_promoters_around(pos_3 + seg_length);
@@ -265,29 +386,37 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
   if (not invert) {
     if (pos_min == pos_1) {
+//      printf("A\n");
       ABCDE_to_ADCBE(pos_1, pos_3, pos_2, pos_4);
     }
     else if (pos_min == pos_2) {
+//      printf("B\n");
       ABCDE_to_ADCBE(pos_2, pos_4, pos_1, pos_3);
     }
     else if (pos_min == pos_3) {
+//      printf("C\n");
       ABCDE_to_ADCBE(pos_3, pos_2, pos_4, pos_1);
     }
     else { // if (pos_min == pos_4)
+//      printf("D\n");
       ABCDE_to_ADCBE(pos_4, pos_1, pos_3, pos_2);
     }
   }
   else { // invert
     if (pos_min == pos_1) {
+//      printf("E\n");
       ABCDE_to_ADBpCpE(pos_1, pos_3, pos_2, pos_4);
     }
     else if (pos_min == pos_2) {
+//      printf("F\n");
       ABCDE_to_ADBpCpE(pos_2, pos_4, pos_1, pos_3);
     }
     else if (pos_min == pos_3) {
+//      printf("G\n");
       ABCDE_to_ACpDpBE(pos_3, pos_2, pos_4, pos_1);
     }
     else { // if (pos_min == pos_4)
+//      printf("H\n");
       ABCDE_to_ACpDpBE(pos_4, pos_1, pos_3, pos_2);
     }
   }
@@ -367,10 +496,72 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   }
   inverted_segment[seg_length] = '\0';
 
+//  if (indiv_->indiv_id == 37) {
+//    printf("DO_INVERSION 1 : Leading promoters lists : ");
+//    for (auto it : indiv_->leading_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DO_INVERSION 1 : Lagging promoters lists : ");
+//    for (auto it : indiv_->lagging_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DO_INVERSION 1 : Leading promoters lists (promoters): ");
+//    for (auto it : indiv_->promoters) {
+//      printf("%d (%d) -- ", it.second->pos, it.first);
+//    }
+//
+//    printf("\n");
+//  }
   // Remove promoters that included a breakpoint
   indiv_->remove_promoters_around(pos_1);
+
+//  if (indiv_->indiv_id == 37) {
+//    printf("DO_INVERSION 2.1 : Leading promoters lists : ");
+//    for (auto it : indiv_->leading_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DO_INVERSION 2.1 : Lagging promoters lists : ");
+//    for (auto it : indiv_->lagging_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DO_INVERSION 2.1 : Leading promoters lists (promoters): ");
+//    for (auto it : indiv_->promoters) {
+//      printf("%d (%d) -- ", it.second->pos, it.first);
+//    }
+//
+//    printf("\n");
+//  }
+
   indiv_->remove_promoters_around(pos_2);
 
+//  if (indiv_->indiv_id == 37) {
+//    printf("DO_INVERSION 2 : Leading promoters lists : ");
+//    for (auto it : indiv_->leading_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DO_INVERSION 2 : Lagging promoters lists : ");
+//    for (auto it : indiv_->lagging_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("DO_INVERSION 2 : Leading promoters lists (promoters): ");
+//    for (auto it : indiv_->promoters) {
+//      printf("%d (%d) -- ", it.second->pos, it.first);
+//    }
+//
+//    printf("\n");
+//  }
   // Invert the sequence
   replace(pos_1, inverted_segment, seg_length);
 
@@ -378,8 +569,51 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   if (length_ >= PROM_SIZE) {
     indiv_->invert_promoters_included_in(pos_1, pos_2);
 
+
+//    if (indiv_->indiv_id == 37) {
+//      printf("DO_INVERSION 3 : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_INVERSION 3 : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_INVERSION 3 : Leading promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
+
     indiv_->look_for_new_promoters_around(pos_1);
     indiv_->look_for_new_promoters_around(pos_2);
+
+//    if (indiv_->indiv_id == 37) {
+//      printf("DO_INVERSION 4 : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_INVERSION 4 : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_INVERSION 4 : Leading promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
   }
 
   delete[] inverted_segment;
@@ -403,9 +637,50 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     int32_t segment_length = pos_2 - pos_1;
 
+    /*if (indiv_->indiv_id == 128) {
+      printf("DO_DELETION 1 : Leading promoters lists : ");
+      for (auto it : indiv_->leading_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("DO_DELETION 1 : Lagging promoters lists : ");
+      for (auto it : indiv_->lagging_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("DO_DELETION 1 : Leading promoters lists (promoters): ");
+      for (auto it : indiv_->promoters) {
+        printf("%d (%d) -- ", it.second->pos, it.first);
+      }
+
+      printf("\n");
+    }*/
     // Remove promoters containing at least one nucleotide from the sequence
     // to delete
     indiv_->remove_promoters_around(pos_1, pos_2);
+
+//    if (indiv_->indiv_id == 30) {
+//      printf("DO_DELETION 2 : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_DELETION 2 : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_DELETION 2 : Leading promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
 
     // Delete the sequence between pos_1 and pos_2
     remove(pos_1, pos_2);
@@ -435,7 +710,48 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     // Remove promoters containing at least one nucleotide from the sequence
     // to delete
+//    if (indiv_->indiv_id == 30) {
+//      printf("DO_DELETION 1 : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_DELETION 1 : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_DELETION 1 : Leading promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
     indiv_->remove_promoters_around(pos_1, pos_2);
+
+//    if (indiv_->indiv_id == 30) {
+//      printf("DO_DELETION 2 : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_DELETION 2 : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("DO_DELETION 2 : Leading promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
 
     // Delete the sequence between pos_1 and pos_2
     remove(pos_1, length_); // delete tmp1 from genome
@@ -443,8 +759,48 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     // Update promoter list
     if (length_ >= PROM_SIZE) {
+//      if (indiv_->indiv_id == 30) {
+//        printf("DO_DELETION 3 : Leading promoters lists : ");
+//        for (auto it : indiv_->leading_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//
+//        printf("DO_DELETION 3 : Lagging promoters lists : ");
+//        for (auto it : indiv_->lagging_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//
+//        printf("DO_DELETION 3 : Leading promoters lists (promoters): ");
+//        for (auto it : indiv_->promoters) {
+//          printf("%d (%d) -- ", it.second->pos, it.first);
+//        }
+//
+//        printf("\n");
+//      }
       indiv_->move_all_promoters_after(0, -pos_2);
 
+//      if (indiv_->indiv_id == 30) {
+//        printf("DO_DELETION 4 : Leading promoters lists : ");
+//        for (auto it : indiv_->leading_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//
+//        printf("DO_DELETION 4 : Lagging promoters lists : ");
+//        for (auto it : indiv_->lagging_prom_pos) {
+//          printf("%d (%d) || ", it.first, it.second);
+//        }
+//        printf("\n");
+//
+//        printf("DO_DELETION 4 : Leading promoters lists (promoters): ");
+//        for (auto it : indiv_->promoters) {
+//          printf("%d (%d) -- ", it.second->pos, it.first);
+//        }
+//
+//        printf("\n");
+//      }
       indiv_->look_for_new_promoters_around(0);
     }
   }
@@ -453,33 +809,79 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 }
 
 void Dna_SIMD::apply_mutations() {
-  printf("Mutation list size %ld\n",mutation_list.size());
+//  printf("INDIV %d -- Mutation list size  %ld -- LENGTH %d\n",indiv_->indiv_id,
+//         mutation_list.size(),indiv_->dna_->length());
+//
+//  if (indiv_->indiv_id == 30) {
+//    printf("APPLY_MUTATION : Leading promoters lists : ");
+//    for (auto it : indiv_->leading_prom_pos) {
+//      printf("%d (%d) || ", it.first, it.second);
+//    }
+//    printf("\n");
+//
+//    printf("APPLY_MUTATION : Leading promoters lists (promoters): ");
+//    for (auto it : indiv_->promoters) {
+//      printf("%d (%d) -- ", it.second->pos, it.first);
+//    }
+//
+//    printf("\n");
+//  }
 
   for (auto repl : mutation_list) {
     switch(repl->type()) {
       case DO_SWITCH:
+//        printf("Start switch at %d\n",repl->pos_1());
         do_switch(repl->pos_1());
+//        printf("End switch at %d\n",repl->pos_1());
         break;
       case SMALL_INSERTION:
+//        printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
         do_small_insertion(repl->pos_1(),repl->number(),repl->seq());
+//        printf("End insertion at %d (%d)\n",repl->pos_1(),repl->number(),repl->seq());
         break;
       case SMALL_DELETION:
+//        printf("Start deletion at %d (%d)\n",repl->pos_1(),repl->number());
         do_small_deletion(repl->pos_1(),repl->number());
+//        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
         break;
       case DUPLICATION:
+//        printf("Start duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
         do_duplication(repl->pos_1(),repl->pos_2(),repl->pos_3());
+//        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
         break;
       case TRANSLOCATION:
+//        printf("Start translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
         do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                          repl->pos_4(), repl->invert());
+//        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
         break;
       case INVERSION:
+//        printf("Start invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
         do_inversion(repl->pos_1(), repl->pos_2());
+//        printf("End invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
         break;
       case DELETION:
+//        printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
         do_deletion(repl->pos_1(), repl->pos_2());
+//        printf("End LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
         break;
     }
+//
+//    if (indiv_->indiv_id == 30) {
+//      printf("APPLY_MUTATION : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("APPLY_MUTATION : Leading promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
+
   }
 
 }
@@ -533,12 +935,52 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
   // ========== Update promoter list ==========
   if (length_ >= PROM_SIZE) {
+    //printf("WHO AMI ??? %d\n",indiv_->indiv_id);
+//    if (indiv_->indiv_id == 152) {
+//      printf("BEFORE_REMOVE : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("BEFORE_REMOVE : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("BEFORE_REMOVE : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
     // Remove promoters that include a breakpoint
     indiv_->remove_promoters_around(pos_B);
     indiv_->remove_promoters_around(pos_C);
     indiv_->remove_promoters_around(pos_D);
     indiv_->remove_promoters_around(pos_E);
-
+//    if (indiv_->indiv_id == 152) {
+//      printf("AFTER_REMOVE : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_REMOVE : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_REMOVE : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
     // Create temporary lists for promoters to move and/or invert
     std::vector<std::list<promoterStruct*>> promoters_B = {{},
                                      {}};
@@ -566,19 +1008,77 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
       Internal_SIMD_Struct::shift_promoters(promoters_D, -len_B - len_C,
                                    length());
     }
-
+//    if (indiv_->indiv_id == 152) {
+//      printf("AFTER_EXTRACT : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_EXTRACT : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_EXTRACT : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
     // Reinsert the shifted promoters
     indiv_->insert_promoters(promoters_B);
 
     indiv_->insert_promoters(promoters_C);
 
     indiv_->insert_promoters(promoters_D);
-
+//    if (indiv_->indiv_id == 152) {
+//      printf("AFTER_INSERT : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_INSERT : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_INSERT : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
     // 5) Look for new promoters including a breakpoint
     indiv_->look_for_new_promoters_around(len_A);
     indiv_->look_for_new_promoters_around(len_AD);
     indiv_->look_for_new_promoters_around(len_ADC);
     indiv_->look_for_new_promoters_around(len_ADCB);
+//    if (indiv_->indiv_id == 152) {
+//      printf("AFTER_LOOK : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_LOOK : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_LOOK : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
   }
 }
 
@@ -669,11 +1169,52 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
   // ========== Update promoter list ==========
   if (length_ >= PROM_SIZE) {
+    /*if (indiv_->indiv_id == 26) {
+      printf("BEFORE_REMOVE : Leading promoters lists : ");
+      for (auto it : indiv_->leading_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("BEFORE_REMOVE : Lagging promoters lists : ");
+      for (auto it : indiv_->lagging_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("BEFORE_REMOVE : Promoters lists (promoters): ");
+      for (auto it : indiv_->promoters) {
+        printf("%d (%d) -- ", it.second->pos, it.first);
+      }
+
+      printf("\n");
+    }*/
     // Remove promoters that include a breakpoint
     indiv_->remove_promoters_around(pos_B);
     indiv_->remove_promoters_around(pos_C);
     indiv_->remove_promoters_around(pos_D);
     indiv_->remove_promoters_around(pos_E);
+
+    /*if (indiv_->indiv_id == 26) {
+      printf("AFTER_REMOVE : Leading promoters lists : ");
+      for (auto it : indiv_->leading_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("AFTER_REMOVE : Lagging promoters lists : ");
+      for (auto it : indiv_->lagging_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("AFTER_REMOVE : Promoters lists (promoters): ");
+      for (auto it : indiv_->promoters) {
+        printf("%d (%d) -- ", it.second->pos, it.first);
+      }
+
+      printf("\n");
+    }*/
 
     // Create temporary lists for promoters to move and/or invert
     std::vector<std::list<promoterStruct*>> promoters_B = {{},
@@ -695,10 +1236,74 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
       indiv_->extract_promoters_included_in(pos_D, pos_E, promoters_D);
     }
 
+    /*if (indiv_->indiv_id == 26) {
+      printf("AFTER_EXTRACT : Leading promoters lists : ");
+      for (auto it : indiv_->leading_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("AFTER_EXTRACT : Lagging promoters lists : ");
+      for (auto it : indiv_->lagging_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("AFTER_EXTRACT : Promoters lists (promoters): ");
+      for (auto it : indiv_->promoters) {
+        printf("%d (%d) -- ", it.second->pos, it.first);
+      }
+
+      printf("\n");
+
+      printf("PROMOTER_LIST BEFORE_INVERT B: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_B[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+
+      printf("PROMOTER_LIST BEFORE_INVERT C: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_C[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+
+      printf("PROMOTER_LIST BEFORE_INVERT D: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_D[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+    }*/
+
+
     // 3a) Invert promoters of segments B and C
     Internal_SIMD_Struct::invert_promoters(promoters_B, pos_B, pos_C);
 
     Internal_SIMD_Struct::invert_promoters(promoters_C, pos_C, pos_D);
+
+    /*if (indiv_->indiv_id == 12) {
+      printf("PROMOTER_LIST AFTER_INVERT B: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_B[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+
+      printf("PROMOTER_LIST AFTER_INVERT C: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_C[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+    }*/
 
     // 3b) Shift these promoters positions
     Internal_SIMD_Struct::shift_promoters(promoters_B, len_D,
@@ -710,12 +1315,59 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     Internal_SIMD_Struct::shift_promoters(promoters_D, -len_B - len_C,
                                  length());
 
+    /*if (indiv_->indiv_id == 12) {
+      printf("PROMOTER_LIST AFTER_SHIFT B: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_B[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+
+      printf("PROMOTER_LIST AFTER_SHIFT C: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_C[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+
+      printf("PROMOTER_LIST AFTER_SHIFT D: ");
+      for (auto strand: {LEADING, LAGGING}) {
+        for (auto it : promoters_D[strand]) {
+          printf("%d || ", it->pos);
+        }
+      }
+      printf("\n");
+    }*/
+
     // 4) Reinsert the shifted promoters
     indiv_->insert_promoters(promoters_C);
 
     indiv_->insert_promoters(promoters_B);
 
     indiv_->insert_promoters(promoters_D);
+
+    /*if (indiv_->indiv_id == 12) {
+      printf("AFTER_INSERT : Leading promoters lists : ");
+      for (auto it : indiv_->leading_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("AFTER_INSERT : Lagging promoters lists : ");
+      for (auto it : indiv_->lagging_prom_pos) {
+        printf("%d (%d) || ", it.first, it.second);
+      }
+      printf("\n");
+
+      printf("AFTER_INSERT : Promoters lists (promoters): ");
+      for (auto it : indiv_->promoters) {
+        printf("%d (%d) -- ", it.second->pos, it.first);
+      }
+
+      printf("\n");
+    }*/
 
     // 5) Look for new promoters including a breakpoint
     indiv_->look_for_new_promoters_around(len_A);
@@ -817,11 +1469,55 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // 4) Reinsert the shifted promoters
   // 5) Look for new promoters including a breakpoint
   if (length_ >= PROM_SIZE) {
+
+//    if (indiv_->indiv_id == 77) {
+//      printf("BEFORE_REMOVE : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("BEFORE_REMOVE : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("BEFORE_REMOVE : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
+
     // 1) Remove promoters that include a breakpoint
     indiv_->remove_promoters_around(pos_B);
     indiv_->remove_promoters_around(pos_C);
     indiv_->remove_promoters_around(pos_D);
     indiv_->remove_promoters_around(pos_E);
+
+//    if (indiv_->indiv_id == 77) {
+//      printf("AFTER_REMOVE : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_REMOVE : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_REMOVE : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
+
 
     // Create temporary lists for promoters to move and/or invert
     std::vector<std::list<promoterStruct*>> promoters_B = {{},
@@ -843,10 +1539,73 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
       indiv_->extract_promoters_included_in(pos_D, pos_E, promoters_D);
     }
 
+//    if (indiv_->indiv_id == 77) {
+//      printf("AFTER_EXTRACT : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_EXTRACT : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_EXTRACT : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//
+//      printf("PROMOTER_LIST BEFORE_INVERT B: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_B[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("PROMOTER_LIST BEFORE_INVERT C: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_C[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("PROMOTER_LIST BEFORE_INVERT D: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_D[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//    }
+
     // 3a) Invert promoters of segments C and D
     Internal_SIMD_Struct::invert_promoters(promoters_C, pos_C, pos_D);
 
     Internal_SIMD_Struct::invert_promoters(promoters_D, pos_D, pos_E);
+
+//    if (indiv_->indiv_id == 77) {
+//      printf("PROMOTER_LIST AFTER_INVERT C: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_C[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("PROMOTER_LIST AFTER_INVERT D: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_D[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // 3b) Shift these promoters positions
     Internal_SIMD_Struct::shift_promoters(promoters_B, len_C + len_D,
@@ -858,12 +1617,58 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     Internal_SIMD_Struct::shift_promoters(promoters_D, -len_B,
                                  length());
 
+//    if (indiv_->indiv_id == 77) {
+//      printf("PROMOTER_LIST AFTER_SHIFT B: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_B[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("PROMOTER_LIST AFTER_SHIFT C: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_C[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("PROMOTER_LIST AFTER_SHIFT D: ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto it : promoters_D[strand]) {
+//          printf("%d || ", it->pos);
+//        }
+//      }
+//      printf("\n");
+//    }
     // 4) Reinsert the shifted promoters
     indiv_->insert_promoters(promoters_B);
 
     indiv_->insert_promoters(promoters_D);
 
     indiv_->insert_promoters(promoters_C);
+
+//    if (indiv_->indiv_id == 77) {
+//      printf("AFTER_INSERT : Leading promoters lists : ");
+//      for (auto it : indiv_->leading_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_INSERT : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
+//
+//      printf("AFTER_INSERT : Promoters lists (promoters): ");
+//      for (auto it : indiv_->promoters) {
+//        printf("%d (%d) -- ", it.second->pos, it.first);
+//      }
+//
+//      printf("\n");
+//    }
 
     // 5) Look for new promoters including a breakpoint
     indiv_->look_for_new_promoters_around(len_A);
@@ -872,5 +1677,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     indiv_->look_for_new_promoters_around(len_ACDB);
   }
 }
+
+
 
 }

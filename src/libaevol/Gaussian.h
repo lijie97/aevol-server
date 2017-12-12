@@ -72,7 +72,7 @@ class Gaussian {
   // =================================================================
   //                            Public Methods
   // =================================================================
-  double compute_y(double x) const { return height_ * exp(-(x- mean_)*(x- mean_) / (2* width_ * width_)); }
+  double compute_y(double x) const { return height_ * std::exp(-(x- mean_)*(x- mean_) / (2* width_ * width_)); }
   void save(gzFile backup_file) const;
 
   // =================================================================

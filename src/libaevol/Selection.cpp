@@ -120,6 +120,9 @@ int mutator = 0;
 //                            Public Methods
 // =================================================================
 void Selection::step_to_next_generation() {
+
+
+
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic
@@ -236,6 +239,14 @@ void Selection::step_to_next_generation() {
       x = index / grid_height;
       y = index % grid_height;
       reproducers[x][y] = do_local_competition(x, y);
+
+      exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y] =
+          new Internal_SIMD_Struct(exp_m_->simd_individual->prev_internal_simd_struct
+                                   [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->
+                  height()+reproducers[x][y]->grid_cell()->y()]);
+
+      exp_m_->simd_individual->internal_simd_struct
+      [x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;
     }
   }
 
@@ -270,6 +281,34 @@ void Selection::step_to_next_generation() {
   std::vector<Individual*> to_evaluate;
 #ifndef __TBB
 
+
+/*  printf("Start to next gen -- FROM SELECTION.CPP\n");
+  for (int32_t index = 0; index < exp_m_->world()->width() * exp_m_->world()->height(); index++) {
+    int32_t x = index / exp_m_->world()->height();
+    int32_t y = index % exp_m_->world()->height();
+    auto indiv = exp_m_->world()->grid(x,y)->individual();
+
+    if (indiv->genetic_unit(0).dna()->length() == 8099)
+      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
+             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
+             indiv->grid_cell()->x()*exp_m_->world()->
+                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
+
+    if (x*exp_m_->world()->height()+y==43)
+      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
+             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
+             indiv->grid_cell()->x()*exp_m_->world()->
+                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
+
+    if (x*exp_m_->world()->height()+y==44)
+      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
+             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
+             indiv->grid_cell()->x()*exp_m_->world()->
+                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
+
+  }
+  printf("\n");*/
+
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
   #pragma omp parallel
@@ -287,8 +326,18 @@ void Selection::step_to_next_generation() {
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
     y = index % grid_height;
+
+    /*if (index == 43 || index == 44)
+      printf("BEFORE -- Reproducer %d -> %d : %d\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
+             reproducers[x][y]->genetic_unit(0).dna()->length());*/
+
     do_replication(reproducers[x][y],
                    x * grid_height + y + pop_size * AeTime::time(), what, x, y);
+
+/*    if (index == 43 || index == 44)
+      printf("AFTER -- Reproducer %d -> %d : %d\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
+             reproducers[x][y]->genetic_unit(0).dna()->length());*/
+
 #ifdef __DETECT_CLONE
     if (what == 1 || what == 2) {
 #endif
@@ -373,14 +422,14 @@ void Selection::step_to_next_generation() {
 
 #endif
 
-    // delete the temporary grid and the parental generation
-    for (int16_t x = 0; x < grid_width; x++) {
-      for (int16_t y = 0; y < grid_height; y++) {
-        reproducers[x][y] = nullptr;
-      }
-      delete[] reproducers[x];
+  // delete the temporary grid and the parental generation
+  for (int16_t x = 0; x < grid_width; x++) {
+    for (int16_t y = 0; y < grid_height; y++) {
+      reproducers[x][y] = nullptr;
     }
-    delete[] reproducers;
+    delete[] reproducers[x];
+  }
+  delete[] reproducers;
 
 #ifndef __DETECT_CLONE
 #ifdef __OPENMP_TASK
@@ -762,8 +811,6 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   #endif
 
 
-  new_indiv->dna_simd_ = new Dna_SIMD(new_indiv->genetic_unit(0).dna());
-
   // Set the new individual's location on the grid
   exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
 
@@ -776,7 +823,45 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 #ifdef __TRACING__
     auto t1 = high_resolution_clock::now();
 #endif
+
+
+
+/*    if (x*exp_m_->world()->height()+y == 44 || x*exp_m_->world()->height()+y == 43)
+      printf("Size before mutation %d (parent %d) : %d parent %d vanilla %d parent vanilla %d : %p %p\n",
+             x*exp_m_->world()->height()+y,
+
+             parent->grid_cell()->x()*exp_m_->world()->
+                 height()+parent->grid_cell()->y(),
+
+             exp_m_->simd_individual->internal_simd_struct
+             [x*exp_m_->world()->height()+y]->dna_->length(),
+
+             exp_m_->simd_individual->prev_internal_simd_struct
+             [parent->grid_cell()->x()*exp_m_->world()->
+                 height()+parent->grid_cell()->y()]->dna_->length(),
+
+             chromosome->dna()->length(),
+            parent->genetic_unit(0).dna()->length(),new_indiv,parent);*/
+
     chromosome->dna()->perform_mutations(parent->id());
+
+/*    if (x*exp_m_->world()->height()+y == 44 || x*exp_m_->world()->height()+y == 43)
+      printf("Size AFTER mutation %d (parent %d) : %d parent %d vanilla %d parent vanilla %d: %p %p\n",
+             x*exp_m_->world()->height()+y,
+
+             parent->grid_cell()->x()*exp_m_->world()->
+                 height()+parent->grid_cell()->y(),
+
+             exp_m_->simd_individual->internal_simd_struct
+             [x*exp_m_->world()->height()+y]->dna_->length(),
+
+             exp_m_->simd_individual->prev_internal_simd_struct
+             [parent->grid_cell()->x()*exp_m_->world()->
+                 height()+parent->grid_cell()->y()]->dna_->length(),
+
+             chromosome->dna()->length(),
+             parent->genetic_unit(0).dna()->length(),
+            new_indiv,parent);*/
 #ifdef __TRACING__
     auto t2 = high_resolution_clock::now();
 	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -785,6 +870,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 #ifdef __DETECT_CLONE
     if (! chromosome->dna()->hasMutate()) {
+
       bool firstClone;
 
 #pragma omp critical(firstclone)
@@ -815,6 +901,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     }
 #endif
 
+//    printf("Number of mutations %ld\n", dynamic_cast<Individual*>(new_indiv)->dna_simd_.mutation_list.size());
 
 //#pragma omp critical(newindivevent)
       {

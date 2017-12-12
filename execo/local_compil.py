@@ -44,10 +44,11 @@ class compil_aevol(Engine):
     def define_parameters(self):
         """ """
         parameters = {
-	  'blas' : ['none','mkl','atlas','openblas'],
-	  'experiment' : ['aevol','raevol'],
-	  'compilator' : ['gcc','intel'],
-	  'parallel' : ['openmp','tbb']
+          'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842, 2784564, 68984554],
+          'mutation' : ['5e-5','1e-5','5e-6','1e-6','5e-7'],
+          'env' : ['const','lat_3','lat_13','lat_123','lat_all'],
+          'selection' : [500,1000,1500,2000]
+
         }
         sweeps = sweep(parameters)
         self.sweeper = ParamSweeper(os.path.join(self.result_dir, "sweeps"), sweeps)

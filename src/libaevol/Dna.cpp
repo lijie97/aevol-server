@@ -234,6 +234,10 @@ void Dna::do_small_mutations() {
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
 
   if (nb_mut > 0) {
+    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 6)
+      printf("SMALL %d %d (%d): %d\n",indiv()->grid_cell()->x(),indiv()->grid_cell()->y(),
+           indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y(),
+           nb_mut);
     if (!hasMutated) {
       hasMutated = true;
     }
@@ -311,6 +315,10 @@ void Dna::do_rearrangements() {
 
 
   if (nb_rear > 0) {
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 6)
+//      printf("REAR %d %d (%d): %d (%d %d %d)\n",indiv()->grid_cell()->x(),indiv()->grid_cell()->y(),
+//           indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y(),
+//           nb_rear, nb_dupl, nb_del, nb_inv);
     if (!hasMutated) {
       hasMutated = true;
     }
@@ -881,7 +889,7 @@ bool Dna::do_switch(int32_t pos) {
   MutationEvent* mevent = new MutationEvent();
   mevent->switch_pos(pos);
 
-  indiv_->dna_simd_->mutation_list.push_back(mevent);
+  exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->mutation_list.push_back(mevent);
 
   // Remove promoters containing the switched base
   gen_unit_->remove_promoters_around(pos, Utils::mod(pos + 1, length_),mevent);
@@ -902,7 +910,7 @@ bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
   MutationEvent* mevent = new MutationEvent();
   mevent->small_insertion(pos,nb_insert,seq);
 
-  indiv_->dna_simd_->mutation_list.push_back(mevent);
+  exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->mutation_list.push_back(mevent);
 
   // Remove the promoters that will be broken
   gen_unit_->remove_promoters_around(pos,mevent);
@@ -944,7 +952,10 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
   MutationEvent* mevent = new MutationEvent();
   mevent->small_deletion(pos,nb_del);
 
-  indiv_->dna_simd_->mutation_list.push_back(mevent);
+
+
+  exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->
+      dna_->mutation_list.push_back(mevent);
 
   // Remove promoters containing at least one nucleotide from the sequence to
   // delete
@@ -1337,6 +1348,16 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     duplicate_segment[seg_length] = '\0';
   }
 
+//  if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 8) {
+//    printf("VANILLA_BEFORE_DUPLICATION RNA Promoters lists : ");
+//    for (auto strand: {LEADING, LAGGING}) {
+//      for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//        printf("%d ", rna.promoter_pos());
+//      }
+//    }
+//
+//    printf("\n");
+//  }
   // Create a copy of the promoters beared by the segment to be duplicated
   // (they will be inserted in the individual's RNA list later)
   Promoters2Strands duplicated_promoters = {{},
@@ -1344,7 +1365,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   MutationEvent* mevent = new MutationEvent();
   mevent->duplication(pos_1,pos_2,pos_3);
 
-  indiv_->dna_simd_->mutation_list.push_back(mevent);
+  exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->mutation_list.push_back(mevent);
 
   MutatePromoterEvent* mpevent = new MutatePromoterEvent();
   mpevent->duplicate(pos_1,pos_2);
@@ -1353,9 +1374,40 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   gen_unit_->duplicate_promoters_included_in(pos_1, pos_2,
                                              duplicated_promoters);
 
+//  if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 8) {
+//    printf("VANILLA_BEFORE_DUPLI_PROM RNA Promoters lists : ");
+//    for (auto strand: {LEADING, LAGGING}) {
+//      for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//        printf("%d ", rna.promoter_pos());
+//      }
+//    }
+//    printf("\n");
+//
+//    printf("VANILLA_BEFORE_DUPLI_PROM RNA Duplicated promoters lists : ");
+//    for (auto strand : duplicated_promoters) {
+//      for (auto rna : strand) {
+//        printf("%d ", rna.promoter_pos());
+//      }
+//    }
+//    printf("\n");
+//  }
+
   gen_unit_->remove_promoters_around(pos_3,mevent);
 
+//  if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 8) {
+//    printf("VANILLA_BEFORE_AFTER_REMOVE RNA Promoters lists : ");
+//    for (auto strand: {LEADING, LAGGING}) {
+//      for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//        printf("%d ", rna.promoter_pos());
+//      }
+//    }
+//    printf("\n");
+//  }
+
   insert(pos_3, duplicate_segment, seg_length);
+
+
+
 
   if (length_ >= PROM_SIZE) {
     if (length_ - seg_length < PROM_SIZE) {
@@ -1377,12 +1429,43 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
       mpevent->insert(pos_3);
       mevent->promoter_event_list_.push_back(mpevent);
 
+//      if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 8) {
+//        printf("VANILLA_BEFORE_AFTER_MOVE RNA Promoters lists : ");
+//        for (auto strand: {LEADING, LAGGING}) {
+//          for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//            printf("%d ", rna.promoter_pos());
+//          }
+//        }
+//        printf("\n");
+//      }
+
       gen_unit_->insert_promoters_at(duplicated_promoters, pos_3);
+
+//      if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 8) {
+//        printf("VANILLA_BEFORE_AFTER_INSERT RNA Promoters lists : ");
+//        for (auto strand: {LEADING, LAGGING}) {
+//          for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//            printf("%d ", rna.promoter_pos());
+//          }
+//        }
+//        printf("\n");
+//      }
 
       gen_unit_->look_for_new_promoters_around(pos_3,mevent);
       gen_unit_->look_for_new_promoters_around(pos_3 + seg_length,mevent);
     }
   }
+
+
+//  if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 8) {
+//    printf("VANILLA_BEFORE_AFTER_LOOK RNA Promoters lists : ");
+//    for (auto strand: {LEADING, LAGGING}) {
+//      for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//        printf("%d ", rna.promoter_pos());
+//      }
+//    }
+//    printf("\n");
+//  }
 
 
   delete[] duplicate_segment;
@@ -1395,7 +1478,16 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
   MutationEvent* mevent = new MutationEvent();
   mevent->deletion(pos_1,pos_2);
 
-  indiv_->dna_simd_->mutation_list.push_back(mevent);
+  // printf("LARGE DELETION %d %d (%d): %d %d\n",indiv()->grid_cell()->x(),indiv()->grid_cell()->y(),
+  //        indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y(),
+  //       pos_1,pos_2);
+
+//  if (indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y() == 44)
+//    printf("----------------> Perform large deletion %d %d -- %d -- %d\n",pos_1,pos_2,length(),
+//           exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->length());
+
+  exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->
+      mutation_list.push_back(mevent);
 
 // Delete segment going from pos_1 (included) to pos_2 (excluded)
   if (pos_1 < pos_2) {
@@ -1440,20 +1532,64 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
     //
 
     // int32_t segment_length = length_ + pos_2 - pos_1; //useless variable
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 30) {
+//      printf("30 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // Remove promoters containing at least one nucleotide from the sequence
     // to delete
     gen_unit_->remove_promoters_around(pos_1, pos_2,mevent);
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 30) {
+//      printf("30 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
     // Delete the sequence between pos_1 and pos_2
     remove(pos_1, length_); // delete tmp1 from genome
     remove(0, pos_2);       // delete tmp2 from genome
 
     // Update promoter list
     if (length_ >= PROM_SIZE) {
+//      if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 30) {
+//        printf("30 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//        for (auto strand: {LEADING, LAGGING}) {
+//          for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//            printf("%d ", rna.promoter_pos());
+//          }
+//        }
+//        printf("\n");
+//      }
       gen_unit_->move_all_promoters_after(0, -pos_2,mevent);
-
+//      if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 30) {
+//        printf("30 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//        for (auto strand: {LEADING, LAGGING}) {
+//          for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//            printf("%d ", rna.promoter_pos());
+//          }
+//        }
+//        printf("\n");
+//      }
       gen_unit_->look_for_new_promoters_around(0,mevent);
+//      if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 30) {
+//        printf("30 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//        for (auto strand: {LEADING, LAGGING}) {
+//          for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//            printf("%d ", rna.promoter_pos());
+//          }
+//        }
+//        printf("\n");
+//      }
     }
   }
 
@@ -1465,7 +1601,8 @@ bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
   MutationEvent* mevent = new MutationEvent();
   mevent->translocation(pos_1,pos_2,pos_3,pos_4,invert);
 
-  indiv_->dna_simd_->mutation_list.push_back(mevent);
+  exp_m_->simd_individual->
+      internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->mutation_list.push_back(mevent);
 
   // Provided that OriC must be at position 0
   //
@@ -1712,9 +1849,9 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
   assert(pos_1 < pos_2);
 
   MutationEvent* mevent = new MutationEvent();
-  mevent->deletion(pos_1,pos_2);
+  mevent->inversion(pos_1,pos_2);
 
-  indiv_->dna_simd_->mutation_list.push_back(mevent);
+  exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->mutation_list.push_back(mevent);
 
   //
   //       pos_1         pos_2                   -> 0-
@@ -1755,10 +1892,29 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
   }
   inverted_segment[seg_length] = '\0';
 
+//  if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 5) {
+//    printf("37 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//    for (auto strand: {LEADING, LAGGING}) {
+//      for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//        printf("%d ", rna.promoter_pos());
+//      }
+//    }
+//    printf("\n");
+//  }
+
   // Remove promoters that included a breakpoint
   gen_unit_->remove_promoters_around(pos_1,mevent);
   gen_unit_->remove_promoters_around(pos_2,mevent);
 
+//  if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 5) {
+//    printf("37 -- VANILLA_AFTER_REMOVE RNA Promoters lists : ");
+//    for (auto strand: {LEADING, LAGGING}) {
+//      for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//        printf("%d ", rna.promoter_pos());
+//      }
+//    }
+//    printf("\n");
+//  }
   // Invert the sequence
   replace(pos_1, inverted_segment, seg_length);
 
@@ -1770,8 +1926,29 @@ bool Dna::do_inversion(int32_t pos_1, int32_t pos_2) {
 
     gen_unit_->invert_promoters_included_in(pos_1, pos_2,mevent);
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 5) {
+//      printf("37 -- VANILLA_AFTER_INVERT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     gen_unit_->look_for_new_promoters_around(pos_1,mevent);
     gen_unit_->look_for_new_promoters_around(pos_2,mevent);
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 5) {
+//      printf("37 -- VANILLA_AFTER_INVERT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
   }
 
   delete[] inverted_segment;
@@ -2921,11 +3098,31 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
   // ========== Update promoter list ==========
   if (length_ >= PROM_SIZE) {
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 4 && genetic_unit()->indiv()->grid_cell()->y() == 24) {
+//      printf("152 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     // Remove promoters that include a breakpoint
     gen_unit_->remove_promoters_around(pos_B, mevent);
     gen_unit_->remove_promoters_around(pos_C, mevent);
     gen_unit_->remove_promoters_around(pos_D, mevent);
     gen_unit_->remove_promoters_around(pos_E, mevent);
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 4 && genetic_unit()->indiv()->grid_cell()->y() == 24) {
+//      printf("152 -- VANILLA_AFTER_REMOVE RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // Create temporary lists for promoters to move and/or invert
     Promoters2Strands promoters_B = {{},
@@ -2971,6 +3168,15 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
                                    gen_unit_->dna()->length());
     }
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 4 && genetic_unit()->indiv()->grid_cell()->y() == 24) {
+//      printf("152 -- VANILLA_AFTER_EXTRACT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
     // Reinsert the shifted promoters
     mpevent = new MutatePromoterEvent();
     mpevent->insert();
@@ -2989,12 +3195,30 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     mevent->promoter_event_list_.push_back(mpevent);
 
     gen_unit_->insert_promoters(promoters_D);
-
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 4 && genetic_unit()->indiv()->grid_cell()->y() == 24) {
+//      printf("152 -- VANILLA_AFTER_INSERT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
     // 5) Look for new promoters including a breakpoint
     gen_unit_->look_for_new_promoters_around(len_A,mevent);
     gen_unit_->look_for_new_promoters_around(len_AD,mevent);
     gen_unit_->look_for_new_promoters_around(len_ADC,mevent);
     gen_unit_->look_for_new_promoters_around(len_ADCB,mevent);
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 4 && genetic_unit()->indiv()->grid_cell()->y() == 24) {
+//      printf("152 -- VANILLA_AFTER_LOOK RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
   }
 }
 
@@ -3091,11 +3315,30 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
   // ========== Update promoter list ==========
   if (length_ >= PROM_SIZE) {
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 26) {
+//      printf("26 -- VANILLA_BEFORE_REMOVE RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
     // Remove promoters that include a breakpoint
     gen_unit_->remove_promoters_around(pos_B,mevent);
     gen_unit_->remove_promoters_around(pos_C,mevent);
     gen_unit_->remove_promoters_around(pos_D,mevent);
     gen_unit_->remove_promoters_around(pos_E,mevent);
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 26) {
+//      printf("26 -- VANILLA_AFTER_REMOVE RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // Create temporary lists for promoters to move and/or invert
     Promoters2Strands promoters_B = {{},
@@ -3117,6 +3360,40 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
       gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D, mevent);
     }
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 26) {
+//      printf("26 -- VANILLA_AFTER_EXTRACT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("26 -- VANILLA_PROMOTERS_LIST BEFORE_INVERT B : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_B[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("26 -- VANILLA_PROMOTERS_LIST BEFORE_INVERT C : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_C[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("26 -- VANILLA_PROMOTERS_LIST BEFORE_INVERT D : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_D[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     // 3a) Invert promoters of segments B and C
     MutatePromoterEvent* mpevent = new MutatePromoterEvent();
     mpevent->invert(pos_B, pos_C);
@@ -3129,6 +3406,24 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     mevent->promoter_event_list_.push_back(mpevent);
 
     GeneticUnit::invert_promoters(promoters_C, pos_C, pos_D);
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 26) {
+//      printf("26 -- VANILLA_PROMOTERS_LIST AFTER_INVERT B : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_B[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("26 -- VANILLA_PROMOTERS_LIST AFTER_INVERT C : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_C[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // 3b) Shift these promoters positions
     mpevent = new MutatePromoterEvent();
@@ -3155,6 +3450,30 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     GeneticUnit::shift_promoters(promoters_D, -len_B - len_C,
                                  gen_unit_->dna()->length());
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 26) {
+//      printf("26 -- VANILLA_PROMOTERS_LIST AFTER_SHIFT B : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_B[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//      printf("26 -- VANILLA_PROMOTERS_LIST AFTER_SHIFT C : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_C[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//      printf("26 -- VANILLA_PROMOTERS_LIST AFTER_SHIFT D : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_D[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     // 4) Reinsert the shifted promoters
     mpevent = new MutatePromoterEvent();
     mpevent->insert();
@@ -3173,6 +3492,16 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     mevent->promoter_event_list_.push_back(mpevent);
 
     gen_unit_->insert_promoters(promoters_D);
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 26) {
+//      printf("26 -- VANILLA_AFTER_INSERT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // 5) Look for new promoters including a breakpoint
     gen_unit_->look_for_new_promoters_around(len_A,mevent);
@@ -3285,6 +3614,16 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     gen_unit_->remove_promoters_around(pos_D,mevent);
     gen_unit_->remove_promoters_around(pos_E,mevent);
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_AFTER_REMOVE RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     // Create temporary lists for promoters to move and/or invert
     Promoters2Strands promoters_B = {{},
                                      {}};
@@ -3305,6 +3644,40 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
       gen_unit_->extract_promoters_included_in(pos_D, pos_E, promoters_D,mevent);
     }
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_AFTER_EXTRACT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("VANILLA_PROMOTERS_LIST BEFORE_INVERT B : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_B[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("VANILLA_PROMOTERS_LIST BEFORE_INVERT C : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_C[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//
+//      printf("VANILLA_PROMOTERS_LIST BEFORE_INVERT D : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_D[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     // 3a) Invert promoters of segments C and D
     MutatePromoterEvent* mpevent = new MutatePromoterEvent();
     mpevent->invert(pos_C, pos_D);
@@ -3312,11 +3685,31 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     GeneticUnit::invert_promoters(promoters_C, pos_C, pos_D);
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_PROMOTERS_LIST AFTER_INVERT C : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_C[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     mpevent = new MutatePromoterEvent();
     mpevent->invert(pos_D, pos_E);
     mevent->promoter_event_list_.push_back(mpevent);
 
     GeneticUnit::invert_promoters(promoters_D, pos_D, pos_E);
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_PROMOTERS_LIST AFTER_INVERT D : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_D[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // 3b) Shift these promoters positions
     mpevent = new MutatePromoterEvent();
@@ -3327,6 +3720,16 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     GeneticUnit::shift_promoters(promoters_B, len_C + len_D,
                                  gen_unit_->dna()->length());
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_PROMOTERS_LIST AFTER_SHIFT B : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_B[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     mpevent = new MutatePromoterEvent();
     mpevent->shift_pos(-len_B,
                       gen_unit_->dna()->length());
@@ -3335,6 +3738,16 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     GeneticUnit::shift_promoters(promoters_C, -len_B,
                                  gen_unit_->dna()->length());
 
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_PROMOTERS_LIST AFTER_SHIFT C : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_C[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
+
     mpevent = new MutatePromoterEvent();
     mpevent->shift_pos(-len_B,
                       gen_unit_->dna()->length());
@@ -3342,6 +3755,16 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     GeneticUnit::shift_promoters(promoters_D, -len_B,
                                  gen_unit_->dna()->length());
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_PROMOTERS_LIST AFTER_SHIFT D : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : promoters_D[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // 4) Reinsert the shifted promoters
     mpevent = new MutatePromoterEvent();
@@ -3361,6 +3784,17 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     mevent->promoter_event_list_.push_back(mpevent);
 
     gen_unit_->insert_promoters(promoters_C);
+
+
+//    if (genetic_unit()->indiv()->grid_cell()->x() == 2 && genetic_unit()->indiv()->grid_cell()->y() == 13) {
+//      printf("VANILLA_AFTER_INSERT RNA Promoters lists : ");
+//      for (auto strand: {LEADING, LAGGING}) {
+//        for (auto rna : indiv_->genetic_unit(0).rna_list()[strand]) {
+//          printf("%d ", rna.promoter_pos());
+//        }
+//      }
+//      printf("\n");
+//    }
 
     // 5) Look for new promoters including a breakpoint
     gen_unit_->look_for_new_promoters_around(len_A,mevent);

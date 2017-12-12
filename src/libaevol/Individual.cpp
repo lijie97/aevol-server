@@ -496,8 +496,6 @@ Individual::~Individual() {
 
   delete metrics_;
   delete nc_metrics_;
-
-  //delete dna_simd_;
 }
 
 // =================================================================

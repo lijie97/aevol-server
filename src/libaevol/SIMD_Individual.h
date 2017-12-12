@@ -29,6 +29,10 @@ class promoterStruct {
       pos=clone.pos;error=clone.error;leading_or_lagging=clone.leading_or_lagging;
     }
 
+    promoterStruct(promoterStruct* clone) {
+      pos=clone->pos;error=clone->error;leading_or_lagging=clone->leading_or_lagging;
+    }
+
     int32_t pos = -1;
     int8_t error = -1;
     bool leading_or_lagging; // TRUE = leading / FALSE = lagging
@@ -82,6 +86,10 @@ class Internal_SIMD_Struct {
  public:
     Internal_SIMD_Struct() = default;
 
+    Internal_SIMD_Struct(Internal_SIMD_Struct* clone);
+
+    ~Internal_SIMD_Struct();
+
     std::map<int32_t,promoterStruct*> promoters;
     std::map<int32_t,int32_t> leading_prom_pos;
     std::map<int32_t,int32_t> lagging_prom_pos;
@@ -97,6 +105,8 @@ class Internal_SIMD_Struct {
     float metaerror;
 
     Dna_SIMD* dna_;
+
+    int32_t indiv_id;
 
     void rebuild_index();
 
@@ -206,9 +216,10 @@ class SIMD_Individual {
     void check_result();
     void check_dna();
 
+    Internal_SIMD_Struct** internal_simd_struct;
+    Internal_SIMD_Struct** prev_internal_simd_struct;
  private:
     ExpManager* exp_m_;
-    Internal_SIMD_Struct** internal_simd_struct;
     int* dna_size;
     float target[300];
 };

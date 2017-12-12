@@ -13,9 +13,13 @@
 
 
 namespace aevol {
+
+#define BLOCK_SIZE INT32_C(1024)
+
 class Dna_SIMD {
  public:
     Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv);
+    Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv);
     Dna_SIMD(Dna* dna);
     ~Dna_SIMD();
 

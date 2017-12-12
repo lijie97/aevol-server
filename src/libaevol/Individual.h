@@ -505,9 +505,6 @@ class Individual : public Observable {
     std::list<Protein*> protein_list_;
     int number_of_clones_ = 0;
     bool evaluated_;
-
-    // SIMD/CUDA Individual promoter search
-    Dna_SIMD* dna_simd_ = nullptr;
  protected :
   // =================================================================
   //                           Protected Methods

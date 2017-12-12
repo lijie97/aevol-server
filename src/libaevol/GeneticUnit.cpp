@@ -2317,6 +2317,9 @@ void GeneticUnit::promoters(Strand strand_id,
   auto it_begin = strand.begin();
   auto it_end = strand.end();
 
+/*  printf("-----------> (%d) Pos 1 %d Pos 2 %d LorL %d Position %d\n",indiv_->grid_cell_->x()*indiv_->exp_m()->world()->height()+indiv_->grid_cell_->y(),
+  pos1,pos2,strand_id,before_after_btw);*/
+
   if (before_after_btw != BEFORE) {
 #ifndef __OPENMP_GPU
     it_begin = find_if(strand.begin(),
@@ -2355,6 +2358,13 @@ void GeneticUnit::promoters(Strand strand_id,
 #endif
   }
 
+  /*printf("---------> (%d) Searching for promoters in %d (pos_1 %d -- pos_2 %d):  %d and %d : ",
+         indiv_->grid_cell_->x()*indiv_->exp_m()->world()->height()+indiv_->grid_cell_->y(),
+         strand_id,pos1,pos2,
+         (*it_begin).promoter_pos(),(*it_end).promoter_pos());*/
+/*  for (auto it_c = it_begin; it_c != it_end; it_c++)
+    printf("%d ",(*it_c).promoter_pos());
+  printf("\n");*/
   promoters.insert(promoters.end(), it_begin, it_end);
 }
 

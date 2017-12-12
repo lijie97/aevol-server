@@ -39,7 +39,8 @@ aevol_misc_ancstats \
 aevol_misc_create_eps \
 aevol_misc_extract \
 aevol_misc_lineage \
-aevol_misc_mutagenesis
+aevol_misc_mutagenesis \
+aevol_lucas
 # aevol_misc_fixed_mutations
 # aevol_misc_gene_families
 # aevol_misc_mutational_robustness
@@ -65,3 +66,4 @@ aevol_misc_mutagenesis_SOURCES = mutagenesis.cpp
 # aevol_misc_template_SOURCES = template.cpp
 # aevol_misc_transform_plasmid_SOURCES = transform_plasmid.cpp
 aevol_misc_view_generation_SOURCES = view_generation.cpp
+aevol_lucas_SOURCES = lucas.cpp
