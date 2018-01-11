@@ -11,12 +11,10 @@ void MutationEvent::switch_pos(int32_t pos) {
   pos_1_ = pos;
 }
 
-void MutationEvent::small_insertion(int32_t pos, int32_t number, char *seq) {
+void MutationEvent::small_insertion(int32_t pos, int32_t number) {
   type_ = MutationEventType::SMALL_INSERTION;
   pos_1_ = pos;
   number_ = number;
-  seq_ = new char[number+1];
-  seq_ = strncpy(seq_,seq,number+1);
 }
 
 void MutationEvent::small_deletion(int32_t pos, int32_t number) {

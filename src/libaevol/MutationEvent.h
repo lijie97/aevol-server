@@ -28,7 +28,7 @@ class MutationEvent {
     ~MutationEvent();
 
     void switch_pos(int32_t pos);
-    void small_insertion(int32_t pos, int32_t number, char *seq);
+    void small_insertion(int32_t pos, int32_t number);
     void small_deletion(int32_t pos, int32_t number);
 
     void duplication(int32_t pos1, int32_t pos2, int32_t pos3);
@@ -51,8 +51,6 @@ class MutationEvent {
 
     int32_t invert() { return invert_; }
 
-    char* seq() { return seq_; }
-
     std::list<MutatePromoterEvent*> promoter_event_list_;
 
  private:
@@ -63,8 +61,6 @@ class MutationEvent {
     int32_t number_; // insertion or deletion
 
     bool invert_;
-
-    char *seq_;
 };
 }
 
