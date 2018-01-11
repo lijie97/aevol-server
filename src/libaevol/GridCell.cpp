@@ -142,6 +142,7 @@ void GridCell::load(gzFile backup_file,
   reprod_prng_ = std::make_unique<JumpingMT>(backup_file);
 #endif
 
+
   habitat_ = HabitatFactory::create_unique_habitat(backup_file, phenotypic_target_handler);
 
   // Create individual se charge de retourner un individual_R pour RAevol

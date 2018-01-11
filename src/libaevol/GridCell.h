@@ -103,6 +103,11 @@ class GridCell
   const Habitat& habitat() const {
     return *habitat_;
   }
+
+    Habitat* habitat_ptr() {
+      return habitat_.get();
+    }
+
   const PhenotypicTarget& phenotypic_target() const {
     return habitat_->phenotypic_target();
   }

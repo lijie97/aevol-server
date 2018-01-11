@@ -77,13 +77,13 @@ void SIMD_Individual::do_mutation() {
 
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
 
-    dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
+//    dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
 //    if (indiv_id == 43)
 //      printf("DNA BEFORE SIZE of %d is %d (%d)\n",indiv_id,dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length());
 
       if (internal_simd_struct[indiv_id]->dna_->mutation_list.size() > 0) {
-        int x = indiv_id / exp_m_->world()->height();
-        int y = indiv_id % exp_m_->world()->height();
+ //       int x = indiv_id / exp_m_->world()->height();
+ //       int y = indiv_id % exp_m_->world()->height();
 //        printf("Before mutation %d (%d %d)-- %d %d %d\n",indiv_id,x,y,
 //               internal_simd_struct[indiv_id]->dna_->length(),dna_size[indiv_id],
 //               exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).seq_length());
@@ -93,7 +93,7 @@ void SIMD_Individual::do_mutation() {
 //    if (indiv_id == 43)
 //      printf("DNA AFTER SIZE of %d is %d (%d)\n",indiv_id,dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length());
 
-
+/*
       if (internal_simd_struct[indiv_id]->dna_->mutation_list.size() > 0) {
         int x = indiv_id / exp_m_->world()->height();
         int y = indiv_id % exp_m_->world()->height();
@@ -172,7 +172,7 @@ void SIMD_Individual::do_mutation() {
           exit(40);
         }
 
-      }
+      }*/
 
     dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
   }

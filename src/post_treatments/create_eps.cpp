@@ -79,7 +79,7 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
 
 // In the case of Raevol, the phenotype is drawn using the final concentrations
 // of the proteins, i.e. the ones reached after all the time steps of the lifetime.
-void draw_phenotype(Individual * indiv, const PhenotypicTarget& target, char * directoryName);
+void draw_phenotype(Individual * indiv, const PhenotypicTarget& target, char * directoryName, int generation = -1);
 
 
 
@@ -206,7 +206,14 @@ int main(int argc, char* argv[])
   // phenotype computation. We must do it now.
   // However, as the individuals in the backups are sorted, we don't need to
   // evaluate all the individuals, only the one we are interested in
+#ifdef __REGUL
+  Individual_R* rindiv = dynamic_cast<Individual_R*>(indiv);
+  rindiv->init_indiv();
+#else
   indiv->Evaluate();
+#endif
+
+
 
   // =================================================================
   //                      Create the EPS files
@@ -256,11 +263,12 @@ int main(int argc, char* argv[])
   draw_pos_neg_profiles(indiv, indiv->phenotypic_target(), directory_name);
   printf("OK\n");
 
-
+#ifndef __REGUL
   printf("Creating the EPS file with the phenotype of the chosen individual... ");
   fflush(stdout);
   draw_phenotype(indiv, indiv->phenotypic_target(), directory_name);
   printf("OK\n");
+#endif
 
   printf("Creating the EPS file with the CDS of the chosen individual... ");
   fflush(stdout);
@@ -271,6 +279,40 @@ int main(int argc, char* argv[])
   fflush(stdout);
   draw_genetic_unit_with_mRNAs(indiv_main_genome, directory_name);
   printf("OK\n");
+
+#ifdef __REGUL
+
+
+  std::set<int>* eval = exp_manager->exp_s()->get_list_eval_step();
+  // i is thus the age of the individual
+  for (int16_t i = 1; i <= exp_manager->exp_s()->get_nb_indiv_age(); i++) {
+    //Set the concentration of signals for this age
+    for (auto prot1 : rindiv->signal_list) {
+      prot1.second->set_concentration(0.0);
+    }
+
+    for (Protein_R* prot2 : dynamic_cast<const Habitat_R&>(rindiv->habitat()).phenotypic_target(i).signals()) {
+      rindiv->signal_list[prot2->get_id()]->set_concentration(0.9);
+    }
+
+
+    for (int j = 0; j < exp_manager->exp_s()->get_nb_degradation_step(); j++) {
+      rindiv->one_step();
+    }
+
+    rindiv->update_phenotype();
+
+
+    printf("Creating the EPS file with the phenotype of the chosen individual at step %d... ",i);
+    fflush(stdout);
+    draw_phenotype(indiv, dynamic_cast<const Habitat_R&>(rindiv->habitat()).phenotypic_target( i ), directory_name,i);
+    printf("OK\n");
+
+  }
+
+
+
+#endif
 
 
 
@@ -584,7 +626,7 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
 
 
 
-void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* directoryName)
+void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* directoryName, int generation)
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
@@ -592,7 +634,11 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
 
 
   char filename[128];
+#ifndef __REGUL
   snprintf(filename, 127, "%s/best_phenotype.eps", directoryName);
+#else
+  snprintf(filename, 127, "%s/best_phenotype_%d.eps", directoryName,generation);
+#endif
   FILE * drawingfile = fopen(filename, "w");
 
   if (drawingfile == NULL)
@@ -683,12 +729,15 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
   if (indiv->exp_m()->exp_s()->get_fuzzy_flavor() == 0)
     for (const auto& p: ((Fuzzy*)indiv->phenotype_activ())->points())
       fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
-  else
-    for (int i=0; i < ((HybridFuzzy*)indiv->phenotype_activ())->get_pheno_size(); i++) {
-      int xi = (int) ( i / ((HybridFuzzy*)indiv->phenotype_activ())->get_pheno_size());
+  else {
+    for (int i=0; i < ((HybridFuzzy*)indiv->phenotype())->get_pheno_size(); i++) {
+
+      float xi =  (i / (float)
+                      ((HybridFuzzy*) indiv->phenotype())->get_pheno_size());
       fprintf(drawingfile, "%lf %lf lineto\n", margin +
-                                             scale * xi, margin + scale *
-                                                               ((HybridFuzzy*) indiv->phenotype_activ())->points()[i]);
+                                               scale * xi, margin + scale *
+                                                                    ((HybridFuzzy*) indiv->phenotype())->points()[i]);
+    }
   }
   fprintf( drawingfile, "stroke\n" );
 
@@ -704,7 +753,8 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
       fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   else
   for (int i=0; i < ((HybridFuzzy*)target.fuzzy())->get_pheno_size(); i++) {
-    int xi = (int) ( i / ((HybridFuzzy*)target.fuzzy())->get_pheno_size());
+    float xi =  (i / (float)
+                         ((HybridFuzzy*)target.fuzzy())->get_pheno_size());
     fprintf(drawingfile, "%lf %lf lineto\n", margin +
                                              scale * xi, margin + scale *
                                                                   ((HybridFuzzy*) target.fuzzy())->points()[i]);

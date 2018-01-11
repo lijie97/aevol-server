@@ -363,6 +363,7 @@ auto     t1 = high_resolution_clock::now();
 
   exp_s_->step_to_next_generation();
 
+
 #ifdef __CUDACC__
   t2 = high_resolution_clock::now();
 #else

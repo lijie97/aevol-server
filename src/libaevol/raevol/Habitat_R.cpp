@@ -105,6 +105,7 @@ void Habitat_R::load(gzFile backup_file,
     phenotypic_target_handler_ = new PhenotypicTargetHandler_R(backup_file);
   else
     phenotypic_target_handler_ = phenotypic_target_handler;
+
 }
 // ============================================================================
 //                            Non inline accessors

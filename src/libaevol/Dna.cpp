@@ -234,10 +234,6 @@ void Dna::do_small_mutations() {
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
 
   if (nb_mut > 0) {
-    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 6)
-      printf("SMALL %d %d (%d): %d\n",indiv()->grid_cell()->x(),indiv()->grid_cell()->y(),
-           indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y(),
-           nb_mut);
     if (!hasMutated) {
       hasMutated = true;
     }
