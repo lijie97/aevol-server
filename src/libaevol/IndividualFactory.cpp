@@ -116,7 +116,8 @@ Individual* IndividualFactory::create_random_individual(
   double env_metabolic_area;
   if (better_than_flat) {
 #ifdef __REGUL
-    env_metabolic_area = dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->phenotypic_target_handler().mean_environmental_area();
+    env_metabolic_area = dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->phenotypic_target_handler().
+      mean_environmental_area(exp_m->exp_s());
 #else
     env_metabolic_area = habitat.phenotypic_target_handler().mean_environmental_area();
 #endif

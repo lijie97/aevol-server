@@ -188,8 +188,8 @@ Individual_R* Individual_R::CreateClone(const Individual_R* dolly, int32_t id) {
   return indiv;
 }
 
-void Individual_R::Evaluate() {
-		EvaluateInContext(grid_cell_->habitat());
+void Individual_R::Evaluate(bool no_signal) {
+		EvaluateInContext(dynamic_cast<const Habitat_R&> (habitat()), no_signal);
 }
 
 void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
@@ -207,6 +207,8 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
       printf("AT INIT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
              ((Protein_R*)prot)->get_id(),prot->concentration());
     }*/
+
+    _dist_sum = 0;
 
     std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
@@ -591,6 +593,90 @@ void    Individual_R::clear_everything_except_dna_and_promoters() {
     _dist_sum = 0.0;
 
     Individual::clear_everything_except_dna_and_promoters();
+}
+
+void Individual_R::create_csv(char *directory_name) {
+
+  for (const auto& prot : protein_list_) {
+    ((Protein_R*) prot)->reset_concentration();
+  }
+
+  init_indiv();
+
+
+  char filename[128];
+
+  snprintf(filename, 127, "%s/best_concentration.csv", directory_name);
+
+  FILE * drawingfile = fopen(filename, "w");
+
+  if (drawingfile == NULL)
+  {
+    fprintf(stderr, "Error: could not create the file %s\n", filename);
+  }
+
+
+  fprintf(drawingfile, "Generation,Protein,Concentration\n");
+
+
+  for (const auto& prot : protein_list_) {
+    printf("Protein List %d -> %f (signal: %d)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal() );
+  }
+
+
+  std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
+  // i is thus the age of the individual
+  for (int16_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+    //Set the concentration of signals for this age
+    printf("Prot id from signal_list is ");
+    for (auto prot1 : signal_list) {
+      printf("%d ",prot1.second->get_id());
+      prot1.second->set_concentration(0.0);
+    }
+    printf("\n");
+
+    printf("Prot id from phenotypic target is ");
+    for (Protein_R* prot2 : dynamic_cast<const Habitat_R&>(habitat()).phenotypic_target(i).signals()) {
+      printf("%d ",prot2->get_id());
+      signal_list[prot2->get_id()]->set_concentration(0.9);
+    }
+    printf("\n");
+
+    for (auto prot : signal_list) {
+      printf("before %d prot %d : %f (%p)\n",i,prot.second->get_id(),prot.second->concentration(),prot.second);
+    }
+
+
+    for (const auto& prot : protein_list_) {
+      if (((Protein_R*)prot)->is_signal()) printf("Protein List %d -> %f (signal: %d) (%p)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal(),prot);
+    }
+
+    for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
+      one_step();
+    }
+
+
+    for (auto prot : signal_list) {
+      printf("after %d prot %d : %f\n",i,prot.second->get_id(),prot.second->concentration());
+    }
+
+
+    for (const auto& prot : protein_list_) {
+      if (((Protein_R*)prot)->is_signal()) printf("Protein List %d -> %f (signal: %d)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal() );
+    }
+
+    int prot_idx = 0;
+    for (const auto& prot : protein_list_) {
+      if (((Protein_R*)prot)->is_signal()) printf("%d -- %d is signal %f\n",i,((Protein_R*)prot)->get_id(),prot->concentration());
+      fprintf(drawingfile, "%d,%d,%lf\n",i,prot_idx,prot->concentration());
+      prot_idx++;
+    }
+
+    update_phenotype();
+
+  }
+
+  fclose(drawingfile);
 }
 
 } // namespace aevol

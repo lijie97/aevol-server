@@ -117,19 +117,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     return phenotypic_targets_.size();
   }
 
-  virtual double mean_environmental_area() const {
-    double total_dist = 0.0;
-    //printf("Size %d\n",phenotypic_targets_.size());
-
-    for(int16_t i = 0; i< (int16_t) phenotypic_targets_.size(); i++) {
-      //printf("area of %d\n",i);
-      //printf("id of %d\n",phenotypic_targets_.at(i)->get_id());
-
-      total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
-    }
-
-    return total_dist/(double) phenotypic_targets_.size();
-  }
+    virtual double mean_environmental_area(ExpSetup* exp_s) const;
 
   const std::list<Protein_R*> signals() const {
     return signals_models_list_;

@@ -94,7 +94,7 @@ class Individual_R : public virtual Individual
     /**
       * Main evaluation method
       */
-     virtual void Evaluate();
+     virtual void Evaluate(bool no_signal = true);
      /**
       * Evaluate within the provided context
       */
@@ -115,6 +115,12 @@ class Individual_R : public virtual Individual
      //void compute_phenotype();
      //void compute_distance_to_target(const PhenotypicTarget& target);
     //void update_phenotype();
+     void update_phenotype( void );
+
+    void create_csv(char* directory_name);
+
+    void clear_dist_sum() { _dist_sum = 0; };
+
 
     void    set_influences( void );
     void    update_concentrations( void );
@@ -138,6 +144,8 @@ class Individual_R : public virtual Individual
     // =================================================================
 
     std::list<Protein*> _initial_protein_list;
+
+    std::unordered_map<int,Protein_R*> signal_list;
   protected :
 
     // =================================================================
@@ -154,13 +162,11 @@ class Individual_R : public virtual Individual
     // =================================================================
     virtual void make_protein_list( void );
     virtual void make_rna_list( void );
-    void update_phenotype( void );
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
     std::vector<Protein_R*> _inherited_protein_list;
-    std::unordered_map<int,Protein_R*> signal_list;
 
 
     int _indiv_age;

@@ -421,8 +421,6 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
     //printf("Restore %d : %d\n",i,id);
     addEnv(i,id);
   }
-
-  //printf("Number of env XX %ld\n",phenotypic_targets_.size());
 }
 
 // ============================================================================
@@ -557,8 +555,6 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargets(int16_t nb_indiv_age) {
 
 void PhenotypicTargetHandler_R::addEnv( int time, int16_t env_id ) {
   assert(env_id >= 0 && env_id <= phenotypic_target_models_.size());
-  //printf("Add env %d : %d\n",time,phenotypic_target_models_[env_id]->get_id());
-
   phenotypic_targets_[time] = phenotypic_target_models_.at(env_id);
 }
 
@@ -569,17 +565,18 @@ void PhenotypicTargetHandler_R::changeEnv( int16_t ind, int16_t env_id ) {
 
 void PhenotypicTargetHandler_R::set_single_env(int16_t id) {
   phenotypic_targets_.clear();
-  phenotypic_targets_.reserve(_nb_indiv_age);
-
+  phenotypic_targets_.resize(_nb_indiv_age);
 
   for (int i = 0; i < _nb_indiv_age; i++) {
     addEnv(i,id);
   }
+
+  phenotypic_targets_.resize(_nb_indiv_age);
 }
 
 void PhenotypicTargetHandler_R::set_two_env(int16_t id_1, int16_t id_2) {
   phenotypic_targets_.clear();
-  phenotypic_targets_.reserve(_nb_indiv_age);
+  phenotypic_targets_.resize(_nb_indiv_age);
 
   int16_t half = (int) _nb_indiv_age / 2;
 
@@ -590,6 +587,23 @@ void PhenotypicTargetHandler_R::set_two_env(int16_t id_1, int16_t id_2) {
   for (int i = 0; i < half; i++) {
     addEnv(half+i,id_2);
   }
+  phenotypic_targets_.resize(_nb_indiv_age);
+}
+
+double PhenotypicTargetHandler_R::mean_environmental_area(ExpSetup* exp_s) const {
+  double total_dist = 0.0;
+  //printf("Size %d\n",phenotypic_targets_.size());
+
+  for(int16_t i = 0; i< (int16_t) phenotypic_targets_.size(); i++) {
+    //printf("area of %d\n",i);
+    //printf("id of %d\n",phenotypic_targets_.at(i)->get_id());
+
+    if (exp_s->get_list_eval_step()->find(i) != exp_s->get_list_eval_step()->end()) {
+      total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
+    }
+  }
+
+  return total_dist/(double) exp_s->get_list_eval_step()->size();
 }
 // ============================================================================
 //                            Non inline accessors
