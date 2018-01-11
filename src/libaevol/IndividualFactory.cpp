@@ -31,7 +31,7 @@
 //                                   Includes
 // ============================================================================
 #include "IndividualFactory.h"
-
+#include "ExpManager.h"
 #include <limits>
 
 namespace aevol {

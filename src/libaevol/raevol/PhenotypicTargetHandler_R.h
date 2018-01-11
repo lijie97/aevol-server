@@ -55,6 +55,7 @@ namespace aevol {
 //                          Class declarations
 // ============================================================================
 class Habitat_R;
+class ExpSetup;
 
 
 
