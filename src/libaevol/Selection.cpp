@@ -819,6 +819,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
   delete exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y];
   exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(new_indiv);
+  exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->generate_mutations();
 
   bool mutate = true;
 
@@ -849,8 +850,6 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
              chromosome->dna()->length(),
             parent->genetic_unit(0).dna()->length(),new_indiv,parent);*/
 
-    chromosome->dna()->perform_mutations(parent->id());
-
 /*    if (x*exp_m_->world()->height()+y == 44 || x*exp_m_->world()->height()+y == 43)
       printf("Size AFTER mutation %d (parent %d) : %d parent %d vanilla %d parent vanilla %d: %p %p\n",
              x*exp_m_->world()->height()+y,
@@ -875,7 +874,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 #endif
 
 #ifdef __DETECT_CLONE
-    if (! chromosome->dna()->hasMutate()) {
+    if (! exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate()) {
 
       bool firstClone;
 
@@ -904,6 +903,10 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 #endif
       // Notify observers that a new individual was created from <parent>
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
+    } else {
+#endif
+    chromosome->dna()->apply_mutations();
+#ifdef __DETECT_CLONE
     }
 #endif
 
