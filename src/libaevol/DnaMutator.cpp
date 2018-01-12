@@ -86,8 +86,18 @@ void DnaMutator::generate_small_mutations() {
         nb_insert = 1 + mut_prng_->random(max_indel_size_);
       }
 
+      // Insert the sequence
+      // Prepare the sequence to be inserted
+      char* inserted_seq = new char[nb_insert + 1];
+      char inserted_char;
+      for (int16_t j = 0; j < nb_insert; j++) {
+        inserted_char = static_cast<char>('0' + mut_prng_->random(NB_BASE));
+        inserted_seq[j] = inserted_char;
+      }
+      inserted_seq[nb_insert] = '\0';
+
       MutationEvent* mevent = new MutationEvent();
-      mevent->small_insertion(pos,nb_insert);
+      mevent->small_insertion(pos,nb_insert,inserted_seq);
 
       mutation_list_.push_back(mevent);
 

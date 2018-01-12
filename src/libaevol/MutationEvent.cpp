@@ -11,10 +11,11 @@ void MutationEvent::switch_pos(int32_t pos) {
   pos_1_ = pos;
 }
 
-void MutationEvent::small_insertion(int32_t pos, int32_t number) {
+void MutationEvent::small_insertion(int32_t pos, int32_t number, char* seq) {
   type_ = MutationEventType::SMALL_INSERTION;
   pos_1_ = pos;
   number_ = number;
+  seq_ = seq;
 }
 
 void MutationEvent::small_deletion(int32_t pos, int32_t number) {
@@ -57,5 +58,8 @@ MutationEvent::~MutationEvent() {
     delete repl;
 
   promoter_event_list_.clear();
+
+  if (seq_ != nullptr)
+    delete [] seq_;
 }
 }

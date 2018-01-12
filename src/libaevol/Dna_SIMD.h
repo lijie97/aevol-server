@@ -27,7 +27,7 @@ class Dna_SIMD {
 
     bool do_switch(int32_t pos);
     bool do_small_insertion(int32_t pos,
-                                      int16_t nb_insert);
+                                      int16_t nb_insert, char* seq);
     bool do_small_deletion(int32_t pos, int16_t nb_del);
     bool do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3);
     bool do_inversion(int32_t pos_1, int32_t pos_2);

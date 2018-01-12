@@ -21,6 +21,13 @@ class DnaMutator {
 
     DnaMutator(Individual* indiv);
 
+    ~DnaMutator() {
+      for (auto repl : mutation_list_) {
+        delete repl;
+      }
+      mutation_list_.clear();
+    }
+
     void generate_mutations();
     void generate_rearrangements();
     void generate_small_mutations();
