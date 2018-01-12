@@ -57,7 +57,5 @@ MutationEvent::~MutationEvent() {
     delete repl;
 
   promoter_event_list_.clear();
-
-  delete [] seq_;
 }
 }

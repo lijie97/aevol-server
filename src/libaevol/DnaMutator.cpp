@@ -197,7 +197,6 @@ void DnaMutator::generate_rearrangements() {
     }
     else {
       int32_t pos_1, pos_2;
-      int32_t segment_length;
       pos_1 = mut_prng_->random(length_);
       pos_2 = mut_prng_->random(length_);
 

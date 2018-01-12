@@ -131,11 +131,13 @@ bool Dna_SIMD::do_switch(int32_t pos) {
   return true;
 }
 
-bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
+bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert) {
   // Remove the promoters that will be broken
   indiv_->remove_promoters_around(pos);
 
   // Insert the sequence
+  char *seq;
+  // TODO: Compute SEQ
   insert(pos, seq, nb_insert);
 
   // Look for new promoters
@@ -836,7 +838,7 @@ void Dna_SIMD::apply_mutations() {
         break;
       case SMALL_INSERTION:
 //        printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
-        do_small_insertion(repl->pos_1(),repl->number(),repl->seq());
+        do_small_insertion(repl->pos_1(),repl->number());
 //        printf("End insertion at %d (%d)\n",repl->pos_1(),repl->number(),repl->seq());
         break;
       case SMALL_DELETION:

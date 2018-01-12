@@ -904,7 +904,7 @@ bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
          indiv_->max_genome_length());
 
   MutationEvent* mevent = new MutationEvent();
-  mevent->small_insertion(pos,nb_insert,seq);
+  mevent->small_insertion(pos,nb_insert);
 
   exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->mutation_list.push_back(mevent);
 

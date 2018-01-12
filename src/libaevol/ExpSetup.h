@@ -87,6 +87,8 @@ class ExpSetup {
   bool   with_secretion() const { return with_secretion_; }
   double secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
   double secretion_cost() const { return secretion_cost_; }
+  std::shared_ptr<MutationParams> mut_params() { return mut_params_;}
+
 
 #ifdef __REGUL
     inline bool   get_with_heredity( void ) const;
@@ -128,6 +130,8 @@ class ExpSetup {
   void set_with_secretion(bool with_secretion) { with_secretion_ = with_secretion; }
   void set_secretion_contrib_to_fitness(double secretion_contrib) { secretion_contrib_to_fitness_ = secretion_contrib; }
   void set_secretion_cost(double secretion_cost) { secretion_cost_ = secretion_cost; }
+
+    void set_mutation_parameters(std::shared_ptr<MutationParams> mut_params) { mut_params_ = mut_params; }
 
 #ifdef __REGUL
     inline void set_with_heredity( bool with_heredity );
@@ -209,6 +213,11 @@ class ExpSetup {
   bool   with_secretion_;
   double secretion_contrib_to_fitness_;
   double secretion_cost_;
+
+
+    // Mutation rates etc...
+    std::shared_ptr<MutationParams> mut_params_;
+
 #ifdef __REGUL
     // Binding matrix
 

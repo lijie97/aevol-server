@@ -32,6 +32,7 @@
 // =================================================================
 #include "Selection.h"
 #include "Dna_SIMD.h"
+#include "DnaMutator.h"
 #include <math.h>
 
 #ifdef _OPENMP
@@ -244,6 +245,8 @@ void Selection::step_to_next_generation() {
           new Internal_SIMD_Struct(exp_m_->simd_individual->prev_internal_simd_struct
                                    [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->
                   height()+reproducers[x][y]->grid_cell()->y()]);
+
+
 
       exp_m_->simd_individual->internal_simd_struct
       [x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;
@@ -813,6 +816,9 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
   // Set the new individual's location on the grid
   exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
+
+  delete exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y];
+  exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(new_indiv);
 
   bool mutate = true;
 

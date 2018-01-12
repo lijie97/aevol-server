@@ -1650,6 +1650,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   param_mut->set_translocation_proportion(translocation_proportion_);
   param_mut->set_inversion_proportion(inversion_proportion_);
 
+  exp_s->set_mutation_parameters(param_mut);
+
   Individual * indiv = NULL;
   int32_t id_new_indiv = 0;
 

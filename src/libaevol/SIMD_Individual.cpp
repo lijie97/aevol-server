@@ -4,6 +4,7 @@
 
 #include "SIMD_Individual.h"
 #include "Dna_SIMD.h"
+#include "DnaMutator.h"
 
 #include <omp.h>
 #include "HybridFuzzy.h"
@@ -74,6 +75,22 @@ void SIMD_Individual::do_mutation() {
 //      printf("\n");
 //    }
 //  }
+  for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
+    int x = indiv_id / exp_m_->world()->height();
+    int y = indiv_id % exp_m_->world()->height();
+    delete exp_m_->dna_mutator_array_[indiv_id];
+    exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
+        exp_m_->world()->grid(x,y)->mut_prng(),
+        internal_simd_struct[indiv_id]->dna_->length(),
+        exp_m_->exp_s()->mut_params()->duplication_rate(),
+        exp_m_->exp_s()->mut_params()->deletion_rate(),
+        exp_m_->exp_s()->mut_params()->translocation_rate(),
+        exp_m_->exp_s()->mut_params()->inversion_rate(),
+        exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+        exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+        exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+        exp_m_->exp_s()->mut_params()->max_indel_size());
+  }
 
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
 

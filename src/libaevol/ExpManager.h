@@ -50,7 +50,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class SIMD_Individual;
-
+class DnaMutator;
 /// Allows for high-level experiment management. (This is Aevol's top-level class.)
 ///
 /// An experiment manager allows one to... manage an experiment.
@@ -160,6 +160,9 @@ class ExpManager : public Observer {
     /// Output manager
     OutputManager*output_m_;
 #endif
+
+  // DNA Mutator tables
+    DnaMutator** dna_mutator_array_ = nullptr;
 
     // SIMD Stuff
     SIMD_Individual* simd_individual = nullptr;

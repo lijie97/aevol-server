@@ -90,7 +90,8 @@ HabitatFactory.h \
 SIMD_Individual.h \
 Dna_SIMD.h \
 MutationEvent.h \
-MutatePromoterEvent.h
+MutatePromoterEvent.h \
+DnaMutator.h
 
 common_sources = \
 Alignment.cpp \
@@ -145,7 +146,8 @@ HabitatFactory.cpp \
 SIMD_Individual.cpp \
 Dna_SIMD.cpp \
 MutationEvent.cpp \
-MutatePromoterEvent.cpp
+MutatePromoterEvent.cpp \
+DnaMutator.cpp
 
 raevol_headers = \
 raevol/Individual_R.h \
