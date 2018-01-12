@@ -62,7 +62,7 @@
 #include "InsertionHT.h"
 #include "ReplacementHT.h"
 #include "MutationEvent.h"
-#include "Dna_SIMD.h"
+#include "DnaMutator.h"
 
 namespace aevol {
 
@@ -3744,5 +3744,56 @@ void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
   inter_GU_ABCDE_to_ACDBE(0, pos_B, pos_E);
   inter_GU_ABCDE_to_ACDBE(len_B, (len_B + len_C), len_DA);
 }
+
+
+void Dna::apply_mutations() {
+  int32_t segment_length;
+  Mutation* mut = nullptr;
+
+  for (auto repl : exp_m_->dna_mutator_array_[indiv()->grid_cell()->x()*exp_m_->world()->height()+indiv()->grid_cell()->y()]->mutation_list_) {
+    switch(repl->type()) {
+      case DO_SWITCH:
+        mut = new PointMutation(repl->pos_1());
+        do_switch(repl->pos_1());
+        break;
+      case SMALL_INSERTION:
+        mut = new SmallInsertion(repl->pos_1(),repl->number(),repl->seq());
+        do_small_insertion(repl->pos_1(),repl->number(),repl->seq());
+        break;
+      case SMALL_DELETION:
+        mut = new SmallDeletion(repl->pos_1(),repl->number());
+        do_small_deletion(repl->pos_1(),repl->number());
+        break;
+      case DUPLICATION:
+        segment_length = Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
+        mut = new Duplication(repl->pos_1(),repl->pos_2(),repl->pos_3(), segment_length);
+        do_duplication(repl->pos_1(),repl->pos_2(),repl->pos_3());
+        break;
+      case TRANSLOCATION:
+        segment_length = repl->pos_2() - repl->pos_1();
+        mut = new Translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                                repl->pos_4(), segment_length, repl->invert());
+        do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                         repl->pos_4(), repl->invert());
+        break;
+      case INVERSION:
+        segment_length = repl->pos_2() - repl->pos_1();
+        mut = new Inversion(repl->pos_1(), repl->pos_2(), segment_length);
+        do_inversion(repl->pos_1(), repl->pos_2());
+        break;
+      case DELETION:
+        segment_length = Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
+        mut = new Deletion(repl->pos_1(), repl->pos_2(), segment_length);
+        do_deletion(repl->pos_1(), repl->pos_2());
+        break;
+    }
+
+    if (mut != NULL) {
+      indiv_->notifyObservers(MUTATION, mut);
+      delete mut;
+    }
+  }
+}
+
 
 }// namespace aevol

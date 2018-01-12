@@ -176,6 +176,7 @@ class Dna : public ae_string, public Observable {
 
   bool hasMutate() { return hasMutated; };
   void set_hasMutate(bool mutate) { hasMutated = mutate; }
+  void apply_mutations();
 
  protected :
   // =================================================================
