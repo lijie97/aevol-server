@@ -8,6 +8,7 @@
 
 #include <cstdint>
 
+#include "SIMD_Individual.h"
 #include "Dna.h"
 #include "MutationEvent.h"
 

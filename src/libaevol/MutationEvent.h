@@ -7,7 +7,6 @@
 
 
 #include <cstdint>
-#include "MutatePromoterEvent.h"
 
 namespace aevol {
 
@@ -52,8 +51,6 @@ class MutationEvent {
     int32_t invert() { return invert_; }
 
     char* seq() { return seq_; }
-
-    std::list<MutatePromoterEvent*> promoter_event_list_;
 
  private:
     int32_t type_;

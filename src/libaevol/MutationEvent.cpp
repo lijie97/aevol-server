@@ -54,11 +54,6 @@ void MutationEvent::deletion(int32_t pos1, int32_t pos2) {
 }
 
 MutationEvent::~MutationEvent() {
-  for (auto repl : promoter_event_list_)
-    delete repl;
-
-  promoter_event_list_.clear();
-
   if (seq_ != nullptr)
     delete [] seq_;
 }
