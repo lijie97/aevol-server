@@ -346,6 +346,9 @@ auto     t1 = high_resolution_clock::now();
   auto ta = high_resolution_clock::now();
   if (simd_individual == nullptr) {
     dna_mutator_array_ = new DnaMutator*[grid_height()*grid_width()];
+    for (int i = 0; i < grid_height()*grid_width(); i++) {
+      dna_mutator_array_[i] = nullptr;
+    }
 
     simd_individual = new SIMD_Individual(this);
 

@@ -20,7 +20,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
     int x = indiv_id / exp_m_->world()->height();
     int y = indiv_id % exp_m_->world()->height();
-    internal_simd_struct[indiv_id] = new Internal_SIMD_Struct();
+    internal_simd_struct[indiv_id] = new Internal_SIMD_Struct(exp_m);
     internal_simd_struct[indiv_id]->dna_ = new Dna_SIMD(exp_m->world()->grid(x,y)->individual()->genetic_unit(0).dna());
     internal_simd_struct[indiv_id]->indiv_id = indiv_id;
     prev_internal_simd_struct[indiv_id] = nullptr;
@@ -90,7 +90,9 @@ void SIMD_Individual::do_mutation() {
           exp_m_->exp_s()->mut_params()->point_mutation_rate(),
           exp_m_->exp_s()->mut_params()->small_insertion_rate(),
           exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-          exp_m_->exp_s()->mut_params()->max_indel_size());
+          exp_m_->exp_s()->mut_params()->max_indel_size(),
+          exp_m_->exp_s()->min_genome_length(),
+          exp_m_->exp_s()->max_genome_length());
       exp_m_->dna_mutator_array_[indiv_id]->generate_mutations();
     }
   }
@@ -107,7 +109,10 @@ void SIMD_Individual::do_mutation() {
 //        printf("Before mutation %d (%d %d)-- %d %d %d\n",indiv_id,x,y,
 //               internal_simd_struct[indiv_id]->dna_->length(),dna_size[indiv_id],
 //               exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).seq_length());
-        internal_simd_struct[indiv_id]->dna_->apply_mutations();
+        if (standalone_)
+          internal_simd_struct[indiv_id]->dna_->apply_mutations_standalone();
+        else
+          internal_simd_struct[indiv_id]->dna_->apply_mutations();
       }
 
 //    if (indiv_id == 43)
@@ -1759,8 +1764,9 @@ void SIMD_Individual::check_result() {
 }
 
 /** Internal_SIMD_Struct Constructor and Destructor **/
-Internal_SIMD_Struct::Internal_SIMD_Struct(Internal_SIMD_Struct* clone) {
+Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone) {
   count_prom = 0;
+  exp_m_ = exp_m;
 
   dna_ = new Dna_SIMD(clone->dna_,this);
 

@@ -156,6 +156,13 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
 
   sel()->write_setup_file(exp_setup_file);
 
+  mut_params_->save(exp_setup_file);
+
+  // ---------------------------------------------- Retrieve SIMD parameters
+  gzwrite(exp_setup_file, &min_genome_length_,sizeof(min_genome_length_));
+  gzwrite(exp_setup_file, &max_genome_length_,sizeof(max_genome_length_));
+
+
 #ifdef __REGUL
   //printf("Nb indiv age : %d\n",_nb_indiv_age);
   gzwrite( exp_setup_file,&_hill_shape,sizeof(_hill_shape));
@@ -252,6 +259,12 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   // ---------------------------------------------- Retrieve selection context
 
   sel()->load(setup_file, backup_file, verbose);
+
+  mut_params_ = std::make_shared<MutationParams>(setup_file);
+
+  // ---------------------------------------------- Retrieve SIMD parameters
+  gzread(setup_file, &min_genome_length_,sizeof(min_genome_length_));
+  gzread(setup_file, &max_genome_length_,sizeof(max_genome_length_));
 
 #ifdef __REGUL
   gzread( setup_file, &_hill_shape,sizeof(_hill_shape));

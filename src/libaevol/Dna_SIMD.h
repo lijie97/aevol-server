@@ -26,6 +26,8 @@ class Dna_SIMD {
 
     void apply_mutations();
 
+    void apply_mutations_standalone();
+
     bool do_switch(int32_t pos);
     bool do_small_insertion(int32_t pos,
                                       int16_t nb_insert, char* seq);

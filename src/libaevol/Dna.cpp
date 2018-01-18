@@ -232,7 +232,14 @@ void Dna::do_small_mutations() {
       binomial_random(length_, indiv_->small_deletion_rate());
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
 
+
+
   if (nb_mut > 0) {
+
+/*    printf("%d -- Swi %d Ins %d Del %d\n",
+           indiv()->id(),
+           nb_swi,
+           nb_ins,nb_del);*/
     if (!hasMutated) {
       hasMutated = true;
     }
@@ -309,7 +316,11 @@ void Dna::do_rearrangements() {
   int32_t nb_rear = nb_dupl + nb_del + nb_trans + nb_inv;
 
 
+
+
   if (nb_rear > 0) {
+/*    printf("%d -- Dupli %d Large_Del %d Trans %d Inv %d\n",indiv()->id(),
+           nb_dupl,nb_del,nb_trans,nb_inv);*/
 //    if (genetic_unit()->indiv()->grid_cell()->x() == 0 && genetic_unit()->indiv()->grid_cell()->y() == 6)
 //      printf("REAR %d %d (%d): %d (%d %d %d)\n",indiv()->grid_cell()->x(),indiv()->grid_cell()->y(),
 //           indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y(),
@@ -3750,50 +3761,82 @@ void Dna::apply_mutations() {
   int32_t segment_length;
   Mutation* mut = nullptr;
 
-  for (auto repl : exp_m_->dna_mutator_array_[indiv()->grid_cell()->x()*exp_m_->world()->height()+indiv()->grid_cell()->y()]->mutation_list_) {
-    switch(repl->type()) {
-      case DO_SWITCH:
-        mut = new PointMutation(repl->pos_1());
-        do_switch(repl->pos_1());
-        break;
-      case SMALL_INSERTION:
-        mut = new SmallInsertion(repl->pos_1(),repl->number(),repl->seq());
-        do_small_insertion(repl->pos_1(),repl->number(),repl->seq());
-        break;
-      case SMALL_DELETION:
-        mut = new SmallDeletion(repl->pos_1(),repl->number());
-        do_small_deletion(repl->pos_1(),repl->number());
-        break;
-      case DUPLICATION:
-        segment_length = Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
-        mut = new Duplication(repl->pos_1(),repl->pos_2(),repl->pos_3(), segment_length);
-        do_duplication(repl->pos_1(),repl->pos_2(),repl->pos_3());
-        break;
-      case TRANSLOCATION:
-        segment_length = repl->pos_2() - repl->pos_1();
-        mut = new Translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                                repl->pos_4(), segment_length, repl->invert());
-        do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                         repl->pos_4(), repl->invert());
-        break;
-      case INVERSION:
-        segment_length = repl->pos_2() - repl->pos_1();
-        mut = new Inversion(repl->pos_1(), repl->pos_2(), segment_length);
-        do_inversion(repl->pos_1(), repl->pos_2());
-        break;
-      case DELETION:
-        segment_length = Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
-        mut = new Deletion(repl->pos_1(), repl->pos_2(), segment_length);
-        do_deletion(repl->pos_1(), repl->pos_2());
-        break;
+  MutationEvent* repl = exp_m_->
+      dna_mutator_array_[indiv_->grid_cell()->x() * exp_m_->world()->height() +
+                         indiv_->grid_cell()->y()]
+      ->generate_next_mutation(length_);
+
+  while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x() * exp_m_->world()->height() +
+                            indiv_->grid_cell()->y()]->mutation_available()) {
+    if (repl != nullptr) {
+      switch (repl->type()) {
+        case DO_SWITCH:
+          //printf("%d -- Switch at %d\n",indiv()->id(),repl->pos_1());
+          mut = new PointMutation(repl->pos_1());
+          do_switch(repl->pos_1());
+          break;
+        case SMALL_INSERTION:
+          //printf("%d -- Insertion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
+          mut = new SmallInsertion(repl->pos_1(), repl->number(), repl->seq());
+          do_small_insertion(repl->pos_1(), repl->number(), repl->seq());
+          break;
+        case SMALL_DELETION:
+          //printf("%d -- Deletion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
+          mut = new SmallDeletion(repl->pos_1(), repl->number());
+          do_small_deletion(repl->pos_1(), repl->number());
+          break;
+        case DUPLICATION:
+          segment_length =
+              Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
+          /*printf("%d -- Duplication pos_1 %d pos_2 %d pos_3 %d seg_lengh %d\n",
+                 indiv()->id(),repl->pos_1(),repl->pos_2(),repl->pos_3(),segment_length);*/
+
+          mut = new Duplication(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                                segment_length);
+          do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
+          break;
+        case TRANSLOCATION:
+          segment_length = repl->pos_2() - repl->pos_1();
+          /*printf("%d -- Translocation pos_1 %d pos_2 %d pos_3 %d pos_4 %d seg_lengh %d\n",
+                 indiv()->id(),repl->pos_1(),repl->pos_2(),repl->pos_3(),
+                 repl->pos_4(),segment_length);*/
+
+          mut = new Translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                                  repl->pos_4(), segment_length,
+                                  repl->invert());
+          do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                           repl->pos_4(), repl->invert());
+          break;
+        case INVERSION:
+          segment_length = repl->pos_2() - repl->pos_1();
+          /*printf("%d -- Inversion pos_1 %d pos_2 %d seg_lengh %d\n",
+                 indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);*/
+          mut = new Inversion(repl->pos_1(), repl->pos_2(), segment_length);
+          do_inversion(repl->pos_1(), repl->pos_2());
+          break;
+        case DELETION:
+          segment_length =
+              Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
+          /*printf("%d -- Deletion pos_1 %d pos_2 %d seg_lengh %d\n",
+                 indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);*/
+          mut = new Deletion(repl->pos_1(), repl->pos_2(), segment_length);
+          do_deletion(repl->pos_1(), repl->pos_2());
+          break;
+      }
+      if (mut != nullptr) {
+        indiv_->notifyObservers(MUTATION, mut);
+        delete mut;
+      }
     }
 
-    if (mut != NULL) {
-      indiv_->notifyObservers(MUTATION, mut);
-      delete mut;
-    }
+
+
+    repl = exp_m_->
+        dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
+        ->generate_next_mutation(length_);
   }
 }
+
 
 
 }// namespace aevol

@@ -41,7 +41,6 @@ aevol_misc_extract \
 aevol_misc_lineage \
 aevol_misc_mutagenesis \
 aevol_misc_create_csv \
-aevol_misc_evaluate_regulation \
 aevol_lucas
 # aevol_misc_fixed_mutations
 # aevol_misc_gene_families
@@ -53,6 +52,11 @@ if WITH_X
   bin_PROGRAMS += aevol_misc_view_generation
 endif # X
 # noinst_PROGRAMS = aevol_misc_template
+
+if WITH_RAEVOL
+  bin_PROGRAMS += aevol_misc_evaluate_regulation
+endif
+
 
 CLEANFILES = $(bin_PROGRAMS)
 

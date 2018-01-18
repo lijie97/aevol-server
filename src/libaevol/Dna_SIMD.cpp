@@ -3,6 +3,7 @@
 //
 
 #include "Dna_SIMD.h"
+#include "DnaMutator.h"
 
 namespace aevol {
 Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {
@@ -806,6 +807,57 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
   return true;
 }
+
+void Dna_SIMD::apply_mutations_standalone() {
+  MutationEvent* repl = indiv_->exp_m_->
+      dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length_);
+
+  while (indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_available()) {
+    if (repl != nullptr)
+      switch (repl->type()) {
+        case DO_SWITCH:
+//        printf("Start switch at %d\n",repl->pos_1());
+          do_switch(repl->pos_1());
+//        printf("End switch at %d\n",repl->pos_1());
+          break;
+        case SMALL_INSERTION:
+//        printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
+          do_small_insertion(repl->pos_1(), repl->number(), repl->seq());
+//        printf("End insertion at %d (%d)\n",repl->pos_1(),repl->number(),repl->seq());
+          break;
+        case SMALL_DELETION:
+//        printf("Start deletion at %d (%d)\n",repl->pos_1(),repl->number());
+          do_small_deletion(repl->pos_1(), repl->number());
+//        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
+          break;
+        case DUPLICATION:
+//        printf("Start duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
+          do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
+//        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
+          break;
+        case TRANSLOCATION:
+//        printf("Start translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
+          do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                           repl->pos_4(), repl->invert());
+//        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
+          break;
+        case INVERSION:
+//        printf("Start invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+          do_inversion(repl->pos_1(), repl->pos_2());
+//        printf("End invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+          break;
+        case DELETION:
+//        printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+          do_deletion(repl->pos_1(), repl->pos_2());
+//        printf("End LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+          break;
+      }
+
+    repl = indiv_->exp_m_->
+        dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length_);
+  }
+}
+
 
 void Dna_SIMD::apply_mutations() {
 //  printf("INDIV %d -- Mutation list size  %ld -- LENGTH %d\n",indiv_->indiv_id,

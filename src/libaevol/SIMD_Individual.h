@@ -84,9 +84,9 @@ class pProtein {
 
 class Internal_SIMD_Struct {
  public:
-    Internal_SIMD_Struct() = default;
+    Internal_SIMD_Struct(ExpManager* exp_m) { exp_m_ = exp_m;};
 
-    Internal_SIMD_Struct(Internal_SIMD_Struct* clone);
+    Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone);
 
     ~Internal_SIMD_Struct();
 
@@ -107,6 +107,8 @@ class Internal_SIMD_Struct {
     Dna_SIMD* dna_;
 
     int32_t indiv_id;
+
+    ExpManager* exp_m_;
 
     void rebuild_index();
 
@@ -183,6 +185,7 @@ class Internal_SIMD_Struct {
     void extract_lagging_promoters_starting_between(int32_t pos_1,
                                                                           int32_t pos_2,
                                                                           std::list<promoterStruct*>& extracted_promoters);
+
 };
 
 class PromoterList {

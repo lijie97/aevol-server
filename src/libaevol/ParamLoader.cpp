@@ -1527,6 +1527,10 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   exp_s->set_fuzzy_flavor(_fuzzy_flavor);
 
+  //------------------------------------------------------------------ Parameter for SIMD
+  exp_s->set_min_genome_length(min_genome_length_);
+  exp_s->set_max_genome_length(max_genome_length_);
+
 #ifdef __REGUL
   exp_s->set_with_heredity(_with_heredity);
   exp_s->set_degradation_rate(_degradation_rate);

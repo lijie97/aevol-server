@@ -87,7 +87,11 @@ class ExpSetup {
   bool   with_secretion() const { return with_secretion_; }
   double secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
   double secretion_cost() const { return secretion_cost_; }
+
+  // ------------------------------------------------------------ Parameter for SIMD
   std::shared_ptr<MutationParams> mut_params() { return mut_params_;}
+  int32_t min_genome_length() const { return min_genome_length_; }
+  int32_t max_genome_length() const { return max_genome_length_; }
 
 
 #ifdef __REGUL
@@ -130,6 +134,10 @@ class ExpSetup {
   void set_with_secretion(bool with_secretion) { with_secretion_ = with_secretion; }
   void set_secretion_contrib_to_fitness(double secretion_contrib) { secretion_contrib_to_fitness_ = secretion_contrib; }
   void set_secretion_cost(double secretion_cost) { secretion_cost_ = secretion_cost; }
+
+    // ------------------------------------------------------------ Parameter for SIMD
+    void set_min_genome_length(int32_t min_genome_length) { min_genome_length_ = min_genome_length; }
+    void set_max_genome_length(int32_t max_genome_length) { max_genome_length_ = max_genome_length; }
 
     void set_mutation_parameters(std::shared_ptr<MutationParams> mut_params) { mut_params_ = mut_params; }
 
@@ -217,6 +225,9 @@ class ExpSetup {
 
     // Mutation rates etc...
     std::shared_ptr<MutationParams> mut_params_;
+
+    int32_t min_genome_length_;
+    int32_t max_genome_length_;
 
 #ifdef __REGUL
     // Binding matrix
