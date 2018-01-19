@@ -47,6 +47,7 @@ class pRNA {
       leading_lagging = t_leading_lagging;
       e = t_e;
       length = t_length;
+      is_coding_ = false;
     }
 
     int32_t begin;
@@ -55,6 +56,7 @@ class pRNA {
     double e;
     std::vector<int32_t> start_prot;
     int32_t length;
+    bool is_coding_;
 };
 
 class pProtein {
@@ -219,13 +221,22 @@ class SIMD_Individual {
     void check_result();
     void check_dna();
 
+    bool standalone() const { return standalone_; }
+
     Internal_SIMD_Struct** internal_simd_struct;
     Internal_SIMD_Struct** prev_internal_simd_struct;
+    Internal_SIMD_Struct* best_indiv;
+    int32_t nb_indivs_;
+
  private:
     ExpManager* exp_m_;
     int* dna_size;
     float target[300];
-    bool standalone_ = false;
+    bool standalone_ = true;
+
+    void selection();
+
+
 };
 }
 

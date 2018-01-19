@@ -44,6 +44,7 @@ class Dna_SIMD {
 
     const char* data() const {return data_;}
     int32_t length() const {return length_;}
+    int32_t parent_length() const {return parent_length_;}
 
     static inline int32_t nb_blocks(int32_t length);
 
@@ -56,9 +57,23 @@ class Dna_SIMD {
 
     std::list<MutationEvent*> mutation_list;
     char* data_;
+
+
+    // Stats
+    int32_t nb_swi_;
+    int32_t nb_indels_;
+    int32_t nb_mut_;
+
+    int32_t nb_large_dupl_;
+    int32_t nb_large_del_;
+    int32_t nb_large_trans_;
+    int32_t nb_large_inv_;
+    int32_t nb_rear_;
+
  private:
 
     int32_t length_;
+    int32_t parent_length_;
     int32_t nb_blocks_;
     Internal_SIMD_Struct* indiv_;
 

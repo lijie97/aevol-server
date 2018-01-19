@@ -12,7 +12,11 @@
 namespace aevol {
 
 SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
+
+  printf("Create SIMD Controller\n");
+
   exp_m_ = exp_m;
+  nb_indivs_ = exp_m_->nb_indivs();
 
   internal_simd_struct = new Internal_SIMD_Struct* [exp_m_->nb_indivs()];
   prev_internal_simd_struct = new Internal_SIMD_Struct* [exp_m_->nb_indivs()];
@@ -23,7 +27,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     internal_simd_struct[indiv_id] = new Internal_SIMD_Struct(exp_m);
     internal_simd_struct[indiv_id]->dna_ = new Dna_SIMD(exp_m->world()->grid(x,y)->individual()->genetic_unit(0).dna());
     internal_simd_struct[indiv_id]->indiv_id = indiv_id;
-    prev_internal_simd_struct[indiv_id] = nullptr;
+    prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
   }
 
   dna_size = new int[exp_m_->nb_indivs()];
@@ -31,6 +35,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
     x = indiv_id / exp_m_->world()->height();
     y = indiv_id % exp_m_->world()->height();
+
     dna_size[indiv_id] = exp_m_->world()->grid(x,
                                                y)->individual()->genetic_unit(
         0).
@@ -55,6 +60,58 @@ void SIMD_Individual::clear_struct_before_next_step() {
     internal_simd_struct[indiv_id]->rnas.clear();
     internal_simd_struct[indiv_id]->terminator_lead.clear();
     internal_simd_struct[indiv_id]->terminator_lag.clear();
+  }
+}
+
+void SIMD_Individual::selection() {
+  int32_t selection_scope_x = exp_m_->sel()->selection_scope_x();
+  int32_t selection_scope_y = exp_m_->sel()->selection_scope_y();
+
+  int32_t grid_width = exp_m_->grid_width();
+  int32_t grid_height = exp_m_->grid_height();
+
+  int16_t neighborhood_size = selection_scope_x * selection_scope_y;
+
+  for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
+    double *  local_fit_array   = new double[neighborhood_size];
+    double *  probs             = new double[neighborhood_size];
+    int16_t   count             = 0;
+    double    sum_local_fit     = 0.0;
+
+    int32_t x = indiv_id / grid_height;
+    int32_t y = indiv_id % grid_height;
+
+    int cur_x,cur_y;
+
+    for (int8_t i = -1 ; i < selection_scope_x-1 ; i++) {
+      for (int8_t j = -1; j < selection_scope_y - 1; j++) {
+        cur_x = (x + i + grid_width)  % grid_width;
+        cur_y = (y + j + grid_height) % grid_height;
+
+        local_fit_array[count]  = prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness;
+        sum_local_fit += local_fit_array[count];
+        count++;
+      }
+    }
+
+    for(int16_t i = 0 ; i < neighborhood_size ; i++) {
+      probs[i] = local_fit_array[i]/sum_local_fit;
+    }
+
+    int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_->roulette_random(probs, neighborhood_size);
+
+    int16_t x_offset = (found_org / selection_scope_x) - 1;
+    int16_t y_offset = (found_org % selection_scope_y) - 1;
+
+    delete [] local_fit_array;
+    delete [] probs;
+
+    exp_m_->simd_individual->internal_simd_struct[indiv_id] =
+        new Internal_SIMD_Struct(exp_m_,prev_internal_simd_struct
+                [((x+x_offset+grid_width)  % grid_width)*grid_height+
+                    ((y+y_offset+grid_height) % grid_height)]);
+
+    exp_m_->simd_individual->internal_simd_struct[indiv_id]->indiv_id = indiv_id;
   }
 }
 
@@ -1114,6 +1171,9 @@ void SIMD_Individual::compute_protein() {
                                           internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging,
                                           internal_simd_struct[indiv_id]->rnas[rna_idx].e
                 );
+
+                internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].is_coding_ = true;
               }/* else if (indiv_id == 906)
                   printf("Length %d j %d DNA Size %d start prot %d end prot %d start %d stop %d\n",internal_simd_struct[indiv_id]->
                       rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
@@ -1172,6 +1232,8 @@ void SIMD_Individual::compute_protein() {
                                           internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging,
                                           internal_simd_struct[indiv_id]->rnas[rna_idx].e
                 );
+                internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].is_coding_ = true;
               } /*else if (indiv_id == 906)
                 printf("Length %d j %d DNA Size %d start prot %d end prot %d start %d stop %d\n",internal_simd_struct[indiv_id]->
                            rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
@@ -1564,6 +1626,9 @@ void SIMD_Individual::compute_fitness(double selection_pressure) {
 }
 
 void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool optim_prom) {
+  if (standalone_ && optim_prom)
+    selection();
+
   if (optim_prom) {
     printf("Clear structures\n");
     clear_struct_before_next_step();
@@ -1595,12 +1660,26 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
  /* printf("Check results\n");
   check_result();*/
 
-  printf("Copy to old generation struct\n");
-  for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    delete prev_internal_simd_struct[indiv_id];
-    prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-    internal_simd_struct[indiv_id] = nullptr;
+  if (optim_prom) {
+    printf("Copy to old generation struct\n");
+    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+      delete prev_internal_simd_struct[indiv_id];
+      prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+      internal_simd_struct[indiv_id] = nullptr;
+    }
   }
+
+  // Search for the best
+  double best_fitness = prev_internal_simd_struct[0]->fitness;
+  int idx_best = 0;
+  for (int indiv_id = 1; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+    if (prev_internal_simd_struct[indiv_id]->fitness > best_fitness) {
+      idx_best = indiv_id;
+      best_fitness = prev_internal_simd_struct[indiv_id]->fitness;
+    }
+  }
+
+  best_indiv = prev_internal_simd_struct[idx_best];
 
   printf("Start to next gen\n");
 //  for (int32_t index = 0; index < exp_m_->world()->width() * exp_m_->world()->height(); index++) {

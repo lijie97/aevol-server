@@ -352,7 +352,7 @@ auto     t1 = high_resolution_clock::now();
 
     simd_individual = new SIMD_Individual(this);
 
-    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure());
+    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
     //simd_individual->check_result();
   } else {
@@ -366,7 +366,7 @@ auto     t1 = high_resolution_clock::now();
 
   t1 = high_resolution_clock::now();
 
-  exp_s_->step_to_next_generation();
+  if (!simd_individual->standalone()) exp_s_->step_to_next_generation();
 
 
 #ifdef __CUDACC__
@@ -391,11 +391,13 @@ auto     t1 = high_resolution_clock::now();
   std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration_simd<<std::endl;
 #endif
 
-  // Write statistical data and store phylogenetic data (tree)
+  if (!simd_individual->standalone()) {
+    // Write statistical data and store phylogenetic data (tree)
 #pragma omp single
-{
-  output_m_->write_current_generation_outputs();
-}
+    {
+      output_m_->write_current_generation_outputs();
+    }
+  }
 }
 
 /*!
@@ -582,13 +584,20 @@ void ExpManager::run_evolution() {
   cudaProfilerStart();
 #endif
 
+  bool first_run = true;
   // For each generation
   while (true) { // termination condition is into the loop
 
     printf("============================== %" PRId64 " ==============================\n",
            AeTime::time());
-    printf("  Best individual's (%d) distance to target (metabolic) : %f\n",best_indiv()->id(),
-           best_indiv()->dist_to_target_by_feature(METABOLISM));
+    if (simd_individual->standalone() && !first_run) {
+      printf("  Best individual's (%d) distance to target (metabolic) : %f\n",simd_individual->best_indiv->indiv_id,
+             simd_individual->best_indiv->metaerror);
+    } else {
+      first_run = false;
+      printf("  Best individual's (%d) distance to target (metabolic) : %f\n",best_indiv()->id(),
+             best_indiv()->dist_to_target_by_feature(METABOLISM));
+    }
 
 
 /*
