@@ -60,15 +60,15 @@ class Dna_SIMD {
 
 
     // Stats
-    int32_t nb_swi_;
-    int32_t nb_indels_;
-    int32_t nb_mut_;
+    int32_t nb_swi_ = 0;
+    int32_t nb_indels_= 0;
+    int32_t nb_mut_= 0;
 
-    int32_t nb_large_dupl_;
-    int32_t nb_large_del_;
-    int32_t nb_large_trans_;
-    int32_t nb_large_inv_;
-    int32_t nb_rear_;
+    int32_t nb_large_dupl_= 0;
+    int32_t nb_large_del_= 0;
+    int32_t nb_large_trans_= 0;
+    int32_t nb_large_inv_= 0;
+    int32_t nb_rear_= 0;
 
  private:
 

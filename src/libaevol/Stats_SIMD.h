@@ -7,6 +7,7 @@
 
 
 #include <cstdint>
+#include <fstream>
 
 #include "SIMD_Individual.h"
 
@@ -14,7 +15,18 @@ namespace aevol {
 
 class Stats_SIMD {
  public:
-    Stats_SIMD(SIMD_Individual* simd_individual);
+    Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation,
+               bool best_or_not);
+
+    ~Stats_SIMD() {
+      if (is_indiv_) {
+        statfile_best_.flush();
+        statfile_best_.close();
+      } else {
+        statfile_mean_.flush();
+        statfile_mean_.close();
+      }
+    }
 
     void compute_best();
     void compute_average();
@@ -24,8 +36,11 @@ class Stats_SIMD {
 
     bool is_indiv() { return is_indiv_; }
 
+
  protected:
     SIMD_Individual* simd_individual_;
+
+    int64_t generation_;
 
     bool is_indiv_;
 
@@ -65,7 +80,12 @@ class Stats_SIMD {
     int32_t nb_bases_non_essential_ = 0;
     int32_t nb_bases_non_essential_including_nf_genes_ = 0;
 
-    bool is_computed_;
+    bool is_computed_ = false;
+
+    // Stats
+
+    std::ofstream statfile_best_;
+    std::ofstream statfile_mean_;
 };
 
 }

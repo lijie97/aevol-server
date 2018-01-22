@@ -8,6 +8,7 @@
 
 #include <omp.h>
 #include "HybridFuzzy.h"
+#include "Stats_SIMD.h"
 
 namespace aevol {
 
@@ -1630,38 +1631,38 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     selection();
 
   if (optim_prom) {
-    printf("Clear structures\n");
+    //printf("Clear structures\n");
     clear_struct_before_next_step();
 
-    printf("Apply mutation + Optimized search promoters\n");
+    //printf("Apply mutation + Optimized search promoters\n");
     do_mutation();
     /*printf("Check DNA:  Optimized search promoters\n");
     check_dna();*/
 
-    printf("Optimized search stop RNA and Compute RNA\n");
+    //printf("Optimized search stop RNA and Compute RNA\n");
     opt_prom_compute_RNA();
   } else {
-    printf("Search RNA start/stop motifs\n");
+    //printf("Search RNA start/stop motifs\n");
     start_stop_RNA();
-    printf("Compute RNAs\n");
+    //printf("Compute RNAs\n");
     compute_RNA();
   }
-  printf("Search Protein start motifs\n");
+  //printf("Search Protein start motifs\n");
   start_protein();
-  printf("Compute Proteins\n");
+  //printf("Compute Proteins\n");
   compute_protein();
-  printf("Translate protein\n");
+  //printf("Translate protein\n");
   translate_protein(w_max);
-  printf("Compute phenotype\n");
+  //printf("Compute phenotype\n");
   compute_phenotype();
-  printf("Compute fitness\n");
+  //printf("Compute fitness\n");
   compute_fitness(selection_pressure);
 
  /* printf("Check results\n");
   check_result();*/
 
   if (optim_prom) {
-    printf("Copy to old generation struct\n");
+    //printf("Copy to old generation struct\n");
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       delete prev_internal_simd_struct[indiv_id];
       prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
@@ -1681,7 +1682,17 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
   best_indiv = prev_internal_simd_struct[idx_best];
 
-  printf("Start to next gen\n");
+  // Stats
+  Stats_SIMD* stats_best = new Stats_SIMD(this, AeTime::time(), true);
+  stats_best->write_best();
+  delete stats_best;
+
+  Stats_SIMD* stats_mean = new Stats_SIMD(this, AeTime::time(), false);
+  stats_mean->write_average();
+  delete stats_mean;
+
+
+  //printf("Start to next gen\n");
 //  for (int32_t index = 0; index < exp_m_->world()->width() * exp_m_->world()->height(); index++) {
 //    int32_t x = index / exp_m_->world()->height();
 //    int32_t y = index % exp_m_->world()->height();
