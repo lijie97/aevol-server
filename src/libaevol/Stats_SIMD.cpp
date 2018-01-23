@@ -14,10 +14,9 @@ Stats_SIMD::Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation, boo
   generation_ = generation;
 
 
-  statfile_best_.open("stats/stats_simd_best.csv",std::ofstream::app);
-  statfile_mean_.open("stats/stats_simd_mean.csv",std::ofstream::app);
-
   if (generation_==1) {
+    statfile_best_.open("stats/stats_simd_best.csv",std::ofstream::trunc);
+    statfile_mean_.open("stats/stats_simd_mean.csv",std::ofstream::trunc);
     if (is_indiv_)
       statfile_best_<<"Generation"<<","<<"fitness"<<","<<"metabolic_error"<<","<<
                   "amount_of_dna"<<","<<"nb_coding_rnas"<<","<<"nb_non_coding_rnas"<<","<<
@@ -34,7 +33,11 @@ Stats_SIMD::Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation, boo
                     "nb_del"<<","<<"nb_trans"<<","<<"nb_inv"<<","<<"dupl_rate"<<","<<"del_rate"
                     <<","<<"trans_rate"<<","<<"inv_rate"
                     <<std::endl;
+  } else {
+    statfile_best_.open("stats/stats_simd_best.csv",std::ofstream::app);
+    statfile_mean_.open("stats/stats_simd_mean.csv",std::ofstream::app);
   }
+
 }
 
 void Stats_SIMD::compute_best() {

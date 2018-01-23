@@ -590,15 +590,23 @@ void ExpManager::run_evolution() {
 
     printf("============================== %" PRId64 " ==============================\n",
            AeTime::time());
-    if (simd_individual->standalone() && !first_run) {
-      printf("  Best individual's (%d) distance to target (metabolic) : %f\n",simd_individual->best_indiv->indiv_id,
-             simd_individual->best_indiv->metaerror);
+    if (!first_run) {
+      if (simd_individual->standalone()) {
+        printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
+               simd_individual->best_indiv->indiv_id,
+               simd_individual->best_indiv->metaerror);
+      } else {
+        printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
+               best_indiv()->id(),
+               best_indiv()->dist_to_target_by_feature(METABOLISM));
+      }
     } else {
-      first_run = false;
-      printf("  Best individual's (%d) distance to target (metabolic) : %f\n",best_indiv()->id(),
+      printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
+             best_indiv()->id(),
              best_indiv()->dist_to_target_by_feature(METABOLISM));
     }
 
+    first_run = false;
 
 /*
     int16_t nb_activators = 0;
