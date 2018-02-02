@@ -44,6 +44,8 @@ class DnaMutator {
 
     bool hasMutate() {return hasMutate_;}
 
+    bool setMutate(bool mutate) {hasMutate_ = mutate;}
+
  private:
     std::shared_ptr<JumpingMT> mut_prng_;
     int32_t length_;

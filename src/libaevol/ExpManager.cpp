@@ -366,7 +366,8 @@ auto     t1 = high_resolution_clock::now();
 
   t1 = high_resolution_clock::now();
 
-  if (!simd_individual->standalone()) exp_s_->step_to_next_generation();
+  if (!simd_individual->standalone())
+    exp_s_->step_to_next_generation();
 
 
 #ifdef __CUDACC__
@@ -592,9 +593,10 @@ void ExpManager::run_evolution() {
            AeTime::time());
     if (!first_run) {
       if (simd_individual->standalone()) {
-        printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
+        printf("  Best individual's (%d) distance to target (metabolic) : %f (clones %d)\n",
                simd_individual->best_indiv->indiv_id,
-               simd_individual->best_indiv->metaerror);
+               simd_individual->best_indiv->metaerror,
+        simd_individual->nb_clones_);
       } else {
         printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
                best_indiv()->id(),

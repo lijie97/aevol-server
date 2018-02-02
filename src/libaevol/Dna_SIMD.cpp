@@ -5,75 +5,67 @@
 #include "Dna_SIMD.h"
 #include "DnaMutator.h"
 
-//Set bit y (0-indexed) of x to '1' by generating a a mask with a '1' in the proper bit location and ORing x with the mask.
-
-#define SET(x,y) x |= (1 << y)
-
-//Set bit y (0-indexed) of x to '0' by generating a mask with a '0' in the y position and 1's elsewhere then ANDing the mask with x.
-
-#define CLEAR(x,y) x &= ~(1<< y)
-
-//Return '1' if the bit value at position y within x is '1' and '0' if it's 0 by ANDing x with a bit mask where the bit in y's position is '1' and '0' elsewhere and comparing it to all 0's.  Returns '1' in least significant bit position if the value of the bit is '1', '0' if it was '0'.
-
-#define READ(x,y) ((0u == (x & (1<<y)))?0u:1u)
-
-//Toggle bit y (0-index) of x to the inverse: '0' becomes '1', '1' becomes '0' by XORing x with a bitmask where the bit in position y is '1' and all others are '0'.
-
-#define TOGGLE(x,y) (x ^= (1<<y))
-
-/*
- *
-down vote
-Here is a stab at a solution. Not sure if it compiles.
-
-typedef boost::dynamic_bitset<> Bits;
-
-Bits Concatenate(const Bits& first, const Bits& second)
-{
-    Bits value(first);
-
-    //Increase the size of the bit buffer to fit the data being placed in it
-    value.resize(first.size() + second.size());
-    value <<= second.size();
-    value |= second;
-    return value;
-}
- */
+#include "BitSet_SIMD.h"
 
 namespace aevol {
 Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {
+#ifdef WITH_BITSET
+  //printf("Building BitSet\n");
+  bitset_ = new BitSet_SIMD(dna->data(),dna->length());
+  //printf("BitSet is BUILT\n");
+#else
   length_ = dna->length();
-  parent_length_ = length_;
+
   nb_blocks_ = nb_blocks(length_);// _mm_free(ptr)
   posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char)); //new char[nb_blocks_ * BLOCK_SIZE];
   memcpy(data_, dna->data(), (length_+1) * sizeof(char));
-
+#endif
+  parent_length_ = length();
   indiv_ = indiv;
 }
 
 
 Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
+#ifdef WITH_BITSET
+  bitset_ = new BitSet_SIMD(dna->bitset_);
+#else
   length_ = dna->length_;
-  parent_length_ = length_;
+
   nb_blocks_ = nb_blocks(length_);
   posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
   memcpy(data_, dna->data_, (length_+1) * sizeof(char));
-
+#endif
+  parent_length_ = length();
   indiv_ = indiv;
 }
 
 Dna_SIMD::Dna_SIMD(Dna* dna) {
+#ifdef WITH_BITSET
+  //printf("Building BitSet\n");
+  bitset_ = new BitSet_SIMD(dna->data(),dna->length());
+  //printf("BitSet is BUILT\n");
+  //int a=1;
+  //printf("BitSet is BUILT...\n");
+#else
   length_ = dna->length();
-  parent_length_ = length_;
 
   nb_blocks_ = nb_blocks(length_);
   posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
 
   memcpy(data_, dna->data(), (length_+1) * sizeof(char));
+#endif
+
+  //printf("Calling LENGTH\n");
+  parent_length_ = length();
+  //printf("Dna_SIMD out of constructor\n");
 }
 
 Dna_SIMD::~Dna_SIMD() {
+#ifdef WITH_BITSET
+  delete bitset_;
+#else
   free(data_);
+#endif
 
   for (auto repl : mutation_list)
     delete repl;
@@ -81,6 +73,7 @@ Dna_SIMD::~Dna_SIMD() {
   mutation_list.clear();
 }
 
+#ifndef WITH_BITSET
 void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
 //  printf("%d -- REMOVE POS 1 %d POS 2 %d LENGTH %d\n",indiv_->indiv_id,pos_1,pos_2,length());
 
@@ -158,22 +151,54 @@ void Dna_SIMD::replace(int32_t pos, char* seq, int32_t seq_length) {
   // Perform the replacement
   memcpy(&data_[pos], seq, seq_length * sizeof(char));
 }
+#endif
 
 bool Dna_SIMD::do_switch(int32_t pos) {
+#ifdef WITH_BITSET
+  bitset_->flip(pos);
+#else
   // Perform the mutation
   if (data_[pos] == '0') data_[pos] = '1';
   else data_[pos] = '0';
+#endif
 
   // Remove promoters containing the switched base
-  indiv_->remove_promoters_around(pos, Utils::mod(pos + 1, length_));
+  indiv_->remove_promoters_around(pos, Utils::mod(pos + 1, length()));
 
   // Look for potential new promoters containing the switched base
-  if (length_ >= PROM_SIZE)
-    indiv_->look_for_new_promoters_around(pos, Utils::mod(pos + 1, length_));
+  if (length() >= PROM_SIZE)
+    indiv_->look_for_new_promoters_around(pos, Utils::mod(pos + 1, length()));
 
   return true;
 }
 
+#ifdef WITH_BITSET
+bool Dna_SIMD::do_small_insertion(int32_t pos, BitSet_SIMD* seq) {
+  // Remove the promoters that will be broken
+  indiv_->remove_promoters_around(pos);
+
+  bitset_->insert_at(seq,pos);
+
+  // Look for new promoters
+  if (length() >= PROM_SIZE) {
+    if (length() - seq->length_ < PROM_SIZE) {
+      // Special case where the genome was smaller than a promoter before the
+      // insertion and greater than (or as big as) a promoter after the
+      // insertion.
+      // In that case, we must look for new promoters thoroughly on the whole
+      // genome using locate_promoters
+      indiv_->locate_promoters();
+    }
+    else {
+      indiv_->move_all_promoters_after(pos, seq->length_);
+      indiv_->look_for_new_promoters_around(pos, Utils::mod(pos + seq->length_,
+                                                            length()));
+    }
+  }
+
+  return true;
+}
+#else
 bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
   // Remove the promoters that will be broken
   indiv_->remove_promoters_around(pos);
@@ -199,34 +224,45 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
 
   return true;
 }
-
+#endif
 
 bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
   // Remove promoters containing at least one nucleotide from the sequence to
   // delete
-  indiv_->remove_promoters_around(pos, Utils::mod(pos + nb_del, length_));
+  indiv_->remove_promoters_around(pos, Utils::mod(pos + nb_del, length()));
 
   // Do the deletion and update promoter list
-  if (pos + nb_del <= length_) { // the deletion does not contain the origin of
+  if (pos + nb_del <= length()) { // the deletion does not contain the origin of
     // replication
     // Do the deletion
+#ifdef WITH_BITSET
+    bitset_->remove(pos,pos+nb_del);
+#else
     remove(pos, pos + nb_del);
+#endif
 
     // Update promoter list
-    if (length_ >= PROM_SIZE) {
+    if (length() >= PROM_SIZE) {
       indiv_->move_all_promoters_after(pos, -nb_del);
-      indiv_->look_for_new_promoters_around(Utils::mod(pos, length_));
+      indiv_->look_for_new_promoters_around(Utils::mod(pos, length()));
     }
   }
   else { // the deletion contains the origin of replication
     // Do the deletion
-    int32_t nb_del_at_pos_0 = nb_del - length_ + pos;
+    int32_t nb_del_at_pos_0 = nb_del - length() + pos;
+
+#ifdef WITH_BITSET
+    bitset_->remove(pos, length());
+    bitset_->remove(0, nb_del_at_pos_0);
+#else
     remove(pos, length_);
     remove(0, nb_del_at_pos_0);
+#endif
+
     pos -= nb_del_at_pos_0;
 
     // Update promoter list
-    if (length_ >= PROM_SIZE) {
+    if (length() >= PROM_SIZE) {
       indiv_->move_all_promoters_after(0, -nb_del_at_pos_0);
       indiv_->look_for_new_promoters_around(0);
     }
@@ -238,7 +274,11 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
 
 bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 // Duplicate segment [pos_1; pos_2[ and insert the duplicate before pos_3
+#ifdef WITH_BITSET
+  BitSet_SIMD *duplicate_segment;
+#else
   char* duplicate_segment = NULL;
+#endif
   int32_t seg_length;
 
   if (pos_1 < pos_2) {
@@ -251,11 +291,14 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     //                                             -----      |
     //                                             pos_2    <-'
     //
-
     seg_length = pos_2 - pos_1;
+#ifdef WITH_BITSET
+    duplicate_segment = bitset_->duplicate(pos_1,pos_2);
+#else
     posix_memalign((void **)&duplicate_segment,64,(seg_length+1)* sizeof(char));//new char[seg_length + 1];
     memcpy(duplicate_segment, &data_[pos_1], seg_length);
     duplicate_segment[seg_length] = '\0';
+#endif
   }
   else { // if (pos_1 >= pos_2)
     // The segment to duplicate includes the origin of replication.
@@ -270,14 +313,19 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     //                                                  -----
     //
     //
-
-    int32_t tmp1_len = length_ - pos_1;
+    int32_t tmp1_len = length() - pos_1;
     int32_t tmp2_len = pos_2;
     seg_length = tmp1_len + tmp2_len;
+
+#ifdef WITH_BITSET
+    duplicate_segment = bitset_->duplicate(pos_1,pos_1+tmp1_len);
+    duplicate_segment->append(bitset_->duplicate(0,pos_2));
+#else
     posix_memalign((void **)&duplicate_segment,64,(seg_length+1)* sizeof(char));//new char[seg_length + 1];
     memcpy(duplicate_segment, &data_[pos_1], tmp1_len);     // Copy tmp1
     memcpy(&duplicate_segment[tmp1_len], data_, tmp2_len);  // Copy tmp2
     duplicate_segment[seg_length] = '\0';
+#endif
   }
 
   if (seg_length <= 0)
@@ -345,10 +393,14 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 //    printf("\n");
 //  }
 
+#ifdef WITH_BITSET
+  bitset_->insert_at(duplicate_segment,pos_3);
+#else
   insert(pos_3, duplicate_segment, seg_length);
+#endif
 
-  if (length_ >= PROM_SIZE) {
-    if (length_ - seg_length < PROM_SIZE) {
+  if (length() >= PROM_SIZE) {
+    if (length() - seg_length < PROM_SIZE) {
       // Special case where the genome was smaller than a promoter before
       // the insertion and greater than (or as big as) a promoter after the
       // insertion.
@@ -419,7 +471,12 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   }
 
 
+#ifdef WITH_BITSET
+  delete duplicate_segment;
+#else
   free(duplicate_segment);
+#endif
+
 
   return true;
 }
@@ -528,6 +585,11 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   int32_t seg_length = pos_2 - pos_1;
 
   // Create the inverted sequence
+#ifdef WITH_BITSET
+  BitSet_SIMD* inverted_segment = bitset_->duplicate(pos_1,pos_2,true);
+
+  inverted_segment->flip_all();
+#else
   char* inverted_segment = NULL;
   posix_memalign((void **)&inverted_segment,64,(seg_length+1)* sizeof(char));//new char[seg_length + 1];
 
@@ -540,7 +602,7 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
     else inverted_segment[i] = '0';
   }
   inverted_segment[seg_length] = '\0';
-
+#endif
 //  if (indiv_->indiv_id == 37) {
 //    printf("DO_INVERSION 1 : Leading promoters lists : ");
 //    for (auto it : indiv_->leading_prom_pos) {
@@ -608,10 +670,14 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
 //    printf("\n");
 //  }
   // Invert the sequence
+#ifdef WITH_BITSET
+  bitset_->replace(inverted_segment,pos_1);
+#else
   replace(pos_1, inverted_segment, seg_length);
+#endif
 
   // Update promoter list
-  if (length_ >= PROM_SIZE) {
+  if (length() >= PROM_SIZE) {
     indiv_->invert_promoters_included_in(pos_1, pos_2);
 
 
@@ -661,7 +727,11 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
 //    }
   }
 
+#ifdef WITH_BITSET
+  delete inverted_segment;
+#else
   free(inverted_segment);
+#endif
 
   return true;
 }
@@ -728,10 +798,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 //    }
 
     // Delete the sequence between pos_1 and pos_2
+#ifdef WITH_BITSET
+    bitset_->remove(pos_1,pos_2);
+#else
     remove(pos_1, pos_2);
+#endif
+
 
     // Update promoter list
-    if (length_ >= PROM_SIZE) {
+    if (length() >= PROM_SIZE) {
       indiv_->move_all_promoters_after(pos_1, -segment_length);
 
       indiv_->look_for_new_promoters_around(pos_1);
@@ -799,11 +874,16 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 //    }
 
     // Delete the sequence between pos_1 and pos_2
+#ifdef WITH_BITSET
+    bitset_->remove(pos_1,bitset_->length_);
+    bitset_->remove(0,pos_2);
+#else
     remove(pos_1, length_); // delete tmp1 from genome
     remove(0, pos_2);       // delete tmp2 from genome
+#endif
 
     // Update promoter list
-    if (length_ >= PROM_SIZE) {
+    if (length() >= PROM_SIZE) {
 //      if (indiv_->indiv_id == 30) {
 //        printf("DO_DELETION 3 : Leading promoters lists : ");
 //        for (auto it : indiv_->leading_prom_pos) {
@@ -855,7 +935,7 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
 void Dna_SIMD::apply_mutations_standalone() {
   MutationEvent* repl = indiv_->exp_m_->
-      dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length_);
+      dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length());
 
   while (indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_available()) {
     if (repl != nullptr)
@@ -869,7 +949,11 @@ void Dna_SIMD::apply_mutations_standalone() {
           break;
         case SMALL_INSERTION:
 //        printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
+#ifdef WITH_BITSET
+          do_small_insertion(repl->pos_1(), repl->seq());
+#else
           do_small_insertion(repl->pos_1(), repl->number(), repl->seq());
+#endif
           nb_indels_++;
           nb_mut_++;
 //        printf("End insertion at %d (%d)\n",repl->pos_1(),repl->number(),repl->seq());
@@ -913,7 +997,7 @@ void Dna_SIMD::apply_mutations_standalone() {
       }
 
     repl = indiv_->exp_m_->
-        dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length_);
+        dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length());
   }
 }
 
@@ -946,7 +1030,11 @@ void Dna_SIMD::apply_mutations() {
         break;
       case SMALL_INSERTION:
 //        printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
+#ifdef WITH_BITSET
+        do_small_insertion(repl->pos_1(),repl->seq());
+#else
         do_small_insertion(repl->pos_1(),repl->number(),repl->seq());
+#endif
 //        printf("End insertion at %d (%d)\n",repl->pos_1(),repl->number(),repl->seq());
         break;
       case SMALL_DELETION:
@@ -1021,12 +1109,23 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   int32_t len_B = pos_C - pos_B;
   int32_t len_C = pos_D - pos_C;
   int32_t len_D = pos_E - pos_D;
-  int32_t len_E = length_ - pos_E;
+  int32_t len_E = length() - pos_E;
   int32_t len_AD = len_A + len_D;
   int32_t len_ADC = len_AD + len_C;
   int32_t len_ADCB = len_ADC + len_B;
 
   // Create new sequence
+#ifdef WITH_BITSET
+  BitSet_SIMD* bitset = new BitSet_SIMD(bitset_->length_);
+  bitset->replace(bitset_,0,len_A,0);
+  bitset->replace(bitset_,pos_D,pos_D+len_D,len_A);
+  bitset->replace(bitset_,pos_C,pos_C+len_C,len_AD);
+  bitset->replace(bitset_,pos_B,pos_B+len_B,len_ADC);
+  bitset->replace(bitset_,pos_E,pos_E+len_E,len_ADCB);
+
+  delete bitset_;
+  bitset_ = bitset;
+#else
   char* new_genome;
   posix_memalign((void **)&new_genome,64,nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
 
@@ -1042,10 +1141,11 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // to update length_ and nb_blocks_
   free(data_);
   data_ = new_genome;
+#endif
 
 
   // ========== Update promoter list ==========
-  if (length_ >= PROM_SIZE) {
+  if (length() >= PROM_SIZE) {
     //printf("WHO AMI ??? %d\n",indiv_->indiv_id);
 //    if (indiv_->indiv_id == 152) {
 //      printf("BEFORE_REMOVE : Leading promoters lists : ");
@@ -1218,11 +1318,43 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   int32_t len_B = pos_C - pos_B;
   int32_t len_C = pos_D - pos_C;
   int32_t len_D = pos_E - pos_D;
-  int32_t len_E = length_ - pos_E;
+  int32_t len_E = length() - pos_E;
   int32_t len_AD = len_A + len_D;
   int32_t len_ADB = len_AD + len_B;
   int32_t len_ADBC = len_ADB + len_C;
 
+#ifdef WITH_BITSET
+  // Create new sequence
+  BitSet_SIMD* bitset = new BitSet_SIMD(bitset_->length_);
+
+  // Copy segments A and D
+  bitset->replace(bitset_,0,len_A,0);
+  bitset->replace(bitset_,pos_D,pos_D+len_D,len_A);
+
+  // Build Bp and put it in the new genome
+  BitSet_SIMD* inverted_segment = bitset_->duplicate(pos_C-len_B,pos_C,true);
+  inverted_segment->flip_all();
+
+  bitset->replace(inverted_segment,0,len_B,len_AD);
+
+  delete inverted_segment;
+
+
+  // Build Cp and put it in the new genome
+  inverted_segment = bitset_->duplicate(pos_D-len_C,pos_D,true);
+  inverted_segment->flip_all();
+
+  bitset->replace(inverted_segment,0,len_C,len_ADB);
+
+  delete inverted_segment;
+
+  // Copy segment E into the new genome
+  bitset->replace(bitset_,pos_E,pos_E+len_E,len_ADBC);
+
+  // Replace sequence
+  delete bitset_;
+  bitset_ = bitset;
+#else
   // Create new sequence
   char* new_genome;
   posix_memalign((void **)&new_genome,64,nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
@@ -1278,10 +1410,10 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // Replace sequence
   free(data_);
   data_ = new_genome;
-
+#endif
 
   // ========== Update promoter list ==========
-  if (length_ >= PROM_SIZE) {
+  if (length() >= PROM_SIZE) {
     /*if (indiv_->indiv_id == 26) {
       printf("BEFORE_REMOVE : Leading promoters lists : ");
       for (auto it : indiv_->leading_prom_pos) {
@@ -1511,16 +1643,50 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   //          A       C'      D'       B       E
   //       |-----<]=======>=======<]------->-------|
 
+
+
   // Compute segment lengths
   int32_t len_A = pos_B;
   int32_t len_B = pos_C - pos_B;
   int32_t len_C = pos_D - pos_C;
   int32_t len_D = pos_E - pos_D;
-  int32_t len_E = length_ - pos_E;
+  int32_t len_E = length() - pos_E;
   int32_t len_AC = len_A + len_C;
   int32_t len_ACD = len_AC + len_D;
   int32_t len_ACDB = len_ACD + len_B;
 
+  //printf("%d %d %d %d -- %d %d %d %d %d\n",pos_B,pos_C,pos_D,pos_E,len_A,len_B,len_C,len_D,len_E);
+
+#ifdef WITH_BITSET
+  // Create new sequence
+  BitSet_SIMD* bitset = new BitSet_SIMD(bitset_->length_);
+
+  // Copy segment A
+  bitset->replace(bitset_,0);
+
+  // Build Cp and put it in the new genome
+  BitSet_SIMD* inverted_segment = bitset_->duplicate(pos_D-len_C,pos_D,true);
+
+  bitset->replace(inverted_segment,len_A);
+
+  delete inverted_segment;
+
+  // Build Dp and put it in the new genome
+  inverted_segment = bitset_->duplicate(pos_E-len_D,pos_E,true);
+
+  bitset->replace(inverted_segment,len_AC);
+
+  delete inverted_segment;
+
+
+  // Copy segments B and E
+  bitset->replace(bitset_,pos_B,pos_B+len_B,len_ACD);
+  bitset->replace(bitset_,pos_E,pos_E+len_E,len_ACDB);
+
+  // Replace sequence
+  delete bitset_;
+  bitset_ = bitset;
+#else
   // Create new sequence
   char* new_genome;
   posix_memalign((void **)&new_genome,64,nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
@@ -1574,6 +1740,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // Replace sequence
   free(data_);
   data_ = new_genome;
+#endif
 
 
   // ========== Update promoter list ==========
@@ -1583,7 +1750,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // 3) Shift (and invert when needed) these promoters positions
   // 4) Reinsert the shifted promoters
   // 5) Look for new promoters including a breakpoint
-  if (length_ >= PROM_SIZE) {
+  if (length() >= PROM_SIZE) {
 
 //    if (indiv_->indiv_id == 77) {
 //      printf("BEFORE_REMOVE : Leading promoters lists : ");

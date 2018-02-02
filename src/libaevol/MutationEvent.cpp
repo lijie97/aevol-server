@@ -11,12 +11,20 @@ void MutationEvent::switch_pos(int32_t pos) {
   pos_1_ = pos;
 }
 
+#ifdef WITH_BITSET
+void MutationEvent::small_insertion(int32_t pos, BitSet_SIMD* seq) {
+  type_ = MutationEventType::SMALL_INSERTION;
+  pos_1_ = pos;
+  seq_ = seq;
+}
+#else
 void MutationEvent::small_insertion(int32_t pos, int32_t number, char* seq) {
   type_ = MutationEventType::SMALL_INSERTION;
   pos_1_ = pos;
   number_ = number;
   seq_ = seq;
 }
+#endif
 
 void MutationEvent::small_deletion(int32_t pos, int32_t number) {
   type_ = MutationEventType::SMALL_DELETION;
@@ -55,6 +63,10 @@ void MutationEvent::deletion(int32_t pos1, int32_t pos2) {
 
 MutationEvent::~MutationEvent() {
   if (seq_ != nullptr)
+#ifdef WITH_BITSET
+    delete seq_;
+#else
     delete [] seq_;
+#endif
 }
 }

@@ -109,6 +109,9 @@ class Internal_SIMD_Struct {
     Dna_SIMD* dna_;
 
     int32_t indiv_id;
+    int32_t parent_id;
+
+    int32_t usage_count_ = 1;
 
     ExpManager* exp_m_;
 
@@ -129,8 +132,7 @@ class Internal_SIMD_Struct {
                                          int32_t pos_2,
                                          std::vector<std::list<promoterStruct*>>& duplicated_promoters);
     void extract_promoters_included_in(int32_t pos_1,
-                                       int32_t pos_2,
-                                       std::vector<std::list<promoterStruct*>>& extracted_promoters);
+                                       int32_t pos_2, std::vector<std::list<promoterStruct*>>& extracted_promoters);
     void insert_promoters(std::vector<std::list<promoterStruct*>>& promoters_to_insert);
     void insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
                                                    int32_t pos);
@@ -227,6 +229,7 @@ class SIMD_Individual {
     Internal_SIMD_Struct** prev_internal_simd_struct;
     Internal_SIMD_Struct* best_indiv;
     int32_t nb_indivs_;
+    int32_t nb_clones_;
 
  private:
     ExpManager* exp_m_;

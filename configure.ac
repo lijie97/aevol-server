@@ -541,6 +541,20 @@ if test "x$powbasal" = "xyes" ; then
    AC_DEFINE(__POW_BASAL)
 fi
 
+#  ************************* --with-bitset option *******************************
+#
+#  With this option, pow basal support is enabled and the __POW_BASAL flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use custom BitSet or Char* DNA encoding])
+AC_ARG_WITH(bitset, [--with-bitset to enable custom BitSet support], bitset=$withval, bitset=no)
+AC_MSG_RESULT($bitset)
+AM_CONDITIONAL(WITH_BITSET, test x"$bitset" != xno)
+if test "x$bitset" = "xyes" ; then
+   AC_DEFINE(WITH_BITSET)
+fi
+
 
 # ************************** --without-cuda option **********************************
 #

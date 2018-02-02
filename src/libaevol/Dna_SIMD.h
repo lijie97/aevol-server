@@ -11,7 +11,7 @@
 #include "SIMD_Individual.h"
 #include "Dna.h"
 #include "MutationEvent.h"
-
+#include "BitSet_SIMD.h"
 
 namespace aevol {
 
@@ -29,8 +29,12 @@ class Dna_SIMD {
     void apply_mutations_standalone();
 
     bool do_switch(int32_t pos);
+#ifdef WITH_BITSET
+    bool do_small_insertion(int32_t pos, BitSet_SIMD* seq);
+#else
     bool do_small_insertion(int32_t pos,
                                       int16_t nb_insert, char* seq);
+#endif
     bool do_small_deletion(int32_t pos, int16_t nb_del);
     bool do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3);
     bool do_inversion(int32_t pos_1, int32_t pos_2);
@@ -38,12 +42,23 @@ class Dna_SIMD {
                                int32_t pos_4, bool invert);
     bool do_deletion(int32_t pos_1, int32_t pos_2);
 
+#ifndef WITH_BITSET
     void remove(int32_t first, int32_t last);
     void insert(int32_t pos, const char* seq, int32_t seq_length = -1);
     void replace(int32_t pos, char* seq, int32_t seq_length = -1);
+#endif
 
+#ifndef WITH_BITSET
     const char* data() const {return data_;}
-    int32_t length() const {return length_;}
+#endif
+    int32_t length() const {
+#ifdef WITH_BITSET
+      return bitset_->length_;
+#else
+      return length_;
+#endif
+    }
+
     int32_t parent_length() const {return parent_length_;}
 
     static inline int32_t nb_blocks(int32_t length);
@@ -56,8 +71,13 @@ class Dna_SIMD {
                                int32_t pos_E);
 
     std::list<MutationEvent*> mutation_list;
-    char* data_;
 
+#ifdef WITH_BITSET
+    BitSet_SIMD* bitset_;
+#else
+    char* data_;
+    int32_t length_;
+#endif
 
     // Stats
     int32_t nb_swi_ = 0;
@@ -72,7 +92,6 @@ class Dna_SIMD {
 
  private:
 
-    int32_t length_;
     int32_t parent_length_;
     int32_t nb_blocks_;
     Internal_SIMD_Struct* indiv_;

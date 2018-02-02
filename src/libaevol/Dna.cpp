@@ -3777,8 +3777,12 @@ void Dna::apply_mutations() {
           break;
         case SMALL_INSERTION:
           //printf("%d -- Insertion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
+#ifdef WITH_BITSET
+          printf("BitSet is not supported yet by Dna class\n");
+#else
           mut = new SmallInsertion(repl->pos_1(), repl->number(), repl->seq());
           do_small_insertion(repl->pos_1(), repl->number(), repl->seq());
+#endif
           break;
         case SMALL_DELETION:
           //printf("%d -- Deletion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
