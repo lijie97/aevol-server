@@ -31,6 +31,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     internal_simd_struct[indiv_id]->dna_ = new Dna_SIMD(exp_m->world()->grid(x,y)->individual()->genetic_unit(0).dna());
     //printf("SetIndiv\n");
     internal_simd_struct[indiv_id]->indiv_id = indiv_id;
+    internal_simd_struct[indiv_id]->parent_id = indiv_id;
     //printf("Set Prev Indiv\n");
     prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
   }
@@ -112,7 +113,7 @@ void SIMD_Individual::selection() {
     exp_m_->simd_individual->internal_simd_struct[indiv_id] =
         new Internal_SIMD_Struct(exp_m_,prev_internal_simd_struct
                 [((x+x_offset+grid_width)  % grid_width)*grid_height+
-                    ((y+y_offset+grid_height) % grid_height)]);
+                    ((y+y_offset+grid_height) % grid_height)],false);
 
     exp_m_->simd_individual->internal_simd_struct[indiv_id]->indiv_id = indiv_id;
     exp_m_->simd_individual->internal_simd_struct[indiv_id]->parent_id =
@@ -169,6 +170,12 @@ void SIMD_Individual::do_mutation() {
 //      printf("DNA BEFORE SIZE of %d is %d (%d)\n",indiv_id,dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length());
 
       if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
+#ifdef WITH_BITSET
+        internal_simd_struct[indiv_id]->dna_->bitset_ =
+            new BitSet_SIMD(prev_internal_simd_struct
+              [internal_simd_struct[indiv_id]->parent_id]->dna_->bitset_);
+#endif
+
  //       int x = indiv_id / exp_m_->world()->height();
  //       int y = indiv_id % exp_m_->world()->height();
 //        printf("Before mutation %d (%d %d)-- %d %d %d\n",indiv_id,x,y,
@@ -1825,7 +1832,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                                           "",
                                           0);
 
-      indiv->add_GU(prev_internal_simd_struct[indiv_id]->dna_->data_, prev_internal_simd_struct[indiv_id]->dna_->length());
+      char* dna_string = prev_internal_simd_struct[indiv_id]->dna_->to_char();
+      indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
       indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
       indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
       indiv->compute_statistical_data();
@@ -2013,11 +2021,11 @@ void SIMD_Individual::check_result() {
 }
 
 /** Internal_SIMD_Struct Constructor and Destructor **/
-Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone) {
+Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone, bool copy_dna) {
   count_prom = 0;
   exp_m_ = exp_m;
 
-  dna_ = new Dna_SIMD(clone->dna_,this);
+  dna_ = new Dna_SIMD(clone->dna_,this,copy_dna);
 
   for (const auto& prom : clone->promoters) {
     if (prom.second != nullptr) {

@@ -11,6 +11,7 @@
 aevol::BitSet_SIMD::BitSet_SIMD(const char* data, int32_t length) {
   length_ = length;
 
+#ifdef _DYNAMIC_CUSTOM_BITSET
   nb_char_block_ = (length_/ (8*sizeof(char))) + 1;
 
   nb_block_ = nb_char_block_/BITSET_BLOCK_SIZE + 1;
@@ -32,36 +33,54 @@ aevol::BitSet_SIMD::BitSet_SIMD(const char* data, int32_t length) {
     else
       set_to_1(i);
   }
+#elif _STATIC_BITSET
+  for (int32_t i = 0; i < length_; i++) {
+    //printf("Loading %d\n",i);
+    if (data[i]=='1')
+      data_.set(i);
+  }
+#endif
 
   //printf("Going out\n");
 }
 
 aevol::BitSet_SIMD::BitSet_SIMD(aevol::BitSet_SIMD* bitset) {
   length_ = bitset->length_;
+#ifdef _DYNAMIC_CUSTOM_BITSET
   nb_char_block_ = bitset->nb_char_block_;
   nb_block_ = bitset->nb_block_;
 
   posix_memalign((void **)&data_ ,64, nb_block_ * BITSET_BLOCK_SIZE* sizeof(char));
 
   memcpy(data_, bitset->data_, (nb_char_block_) * sizeof(char));
+#elif _STATIC_BITSET
+  data_ = bitset->data_;
+#endif
 }
 
 aevol::BitSet_SIMD::BitSet_SIMD(int32_t length) {
   length_ = length;
-
+#if _DYNAMIC_CUSTOM_BITSET
   nb_char_block_ = (length_/ (8*sizeof(char))) + 1;
 
   nb_block_ = nb_char_block_/BITSET_BLOCK_SIZE + 1;
 
   posix_memalign((void **)&data_ ,64, nb_block_ * BITSET_BLOCK_SIZE* sizeof(char));
   memset(data_,0,nb_block_ * BITSET_BLOCK_SIZE* sizeof(char));
+#elif _STATIC_BITSET
+
+#endif
 }
 
 void aevol::BitSet_SIMD::print() {
   printf("Length %d\n",length_);
   for (int32_t i = 0; i < length_; i++) {
     printf("\n %d ",i);
+#ifdef _DYNAMIC_CUSTOM_BITSET
     if (get(i))
+#elif _STATIC_BITSET
+    if (data_[i])
+#endif
       printf("1");
     else
       printf("0");
@@ -70,8 +89,10 @@ void aevol::BitSet_SIMD::print() {
 }
 
 void aevol::BitSet_SIMD::append(aevol::BitSet_SIMD* bitset) {
-  char* new_data;
   int32_t old_length = length_;
+#ifdef _DYNAMIC_STATIC_BITSET
+  char* new_data;
+
 
   if (length_+bitset->length_ > nb_block_*BITSET_BLOCK_SIZE*sizeof(char)) {
     length_ = length_+bitset->length_;
@@ -90,11 +111,22 @@ void aevol::BitSet_SIMD::append(aevol::BitSet_SIMD* bitset) {
 
   for (int32_t i = old_length; i < length_; i++)
     bitset->get(i-old_length) ? set_to_1(i) : set_to_0(i);
+#elif _STATIC_BITSET
+  length_ = length_+bitset->length_;
+
+  for (int32_t i = old_length; i < length_; i++)
+    data_.set(i,bitset->data_[i-old_length]);
+#endif
 }
 
 void aevol::BitSet_SIMD::insert_at(aevol::BitSet_SIMD* bitset, int32_t position) {
-  char* new_data;
+
   int32_t old_length = length_;
+
+
+#ifdef _DYNAMIC_CUSTOM_BITSET
+  char* new_data;
+
   char* old_data = data_;
   bool to_free = false;
 
@@ -126,18 +158,35 @@ void aevol::BitSet_SIMD::insert_at(aevol::BitSet_SIMD* bitset, int32_t position)
 
   if (to_free)
     free(old_data);
+#elif _STATIC_BITSET
+  length_ = length_ + bitset->length_;
+
+  std::bitset<BITSET_STATIC_MAX_SIZE> tmp = data_;
+
+  for (int32_t i = position+bitset->length_; i < length_; i++) {
+    tmp.set(i,data_[i - bitset->length_]);
+  }
+
+  for (int32_t i = position; i < position+bitset->length_; i++)
+    tmp.set(i-position,bitset->data_[i-position]);
+
+  data_ = tmp;
+#endif
 }
 
 void aevol::BitSet_SIMD::remove(int32_t pos_1, int32_t pos_2) {
   assert(pos_1 >= 0 && pos_2 >= pos_1 && pos_2 <= length_);
 
-  char* new_data;
+
   int32_t old_length = length_;
+  length_    = length_ - (pos_2 - pos_1);
+
+#ifdef _DYNAMIC_CUSTOM_BITSET
+  char* new_data;
   char* old_data = data_;
 
 
   // Compute size of new genome
-  length_    = length_ - (pos_2 - pos_1);
   int old_char_block = nb_char_block_;
 
   nb_char_block_ = (length_/ (8*sizeof(char))) + 1;
@@ -158,6 +207,15 @@ void aevol::BitSet_SIMD::remove(int32_t pos_1, int32_t pos_2) {
   }
 
   free(old_data);
+#elif _STATIC_BITSET
+  std::bitset<BITSET_STATIC_MAX_SIZE> tmp;
+
+  tmp = data_;
+
+  for (int32_t i = 0; i < old_length-pos_2; i++) {
+    tmp.set(pos_1+i,data_[pos_2+i]);
+  }
+#endif
 }
 
 aevol::BitSet_SIMD* aevol::BitSet_SIMD::duplicate(int32_t pos_1, int32_t pos_2, bool invert) {
@@ -168,12 +226,20 @@ aevol::BitSet_SIMD* aevol::BitSet_SIMD::duplicate(int32_t pos_1, int32_t pos_2, 
   if (invert) {
     for (int32_t i = 0, j = pos_2 - 1; i < duplicate_bitset->length_; i++, j--) {
       //printf("%d %d\n",i,j);
+#ifdef _DYNAMIC_CUSTOM_BITSET
       get(j) ? duplicate_bitset->set_to_1(i) : duplicate_bitset->set_to_0(i);
+#elif _STATIC_BITSET
+      duplicate_bitset->data_.set(i,data_[j]);
+#endif
     }
   } else {
     for (int32_t i = 0; i < duplicate_bitset->length_; i++) {
+#ifdef _DYNAMIC_CUSTOM_BITSET
       get(pos_1+i) ?
       duplicate_bitset->set_to_1(i) : duplicate_bitset->set_to_0(i);
+#elif _STATIC_BITSET
+      duplicate_bitset->data_.set(i,data_[pos_1+i]);
+#endif
     }
   }
 
@@ -183,25 +249,38 @@ aevol::BitSet_SIMD* aevol::BitSet_SIMD::duplicate(int32_t pos_1, int32_t pos_2, 
 void aevol::BitSet_SIMD::replace(aevol::BitSet_SIMD* bitset, int32_t position) {
   //printf("%d to %d by %d\n",position,length_,bitset->length_);
 
+
   for (int32_t i = position; i < position+bitset->length_; i++) {
+#ifdef _DYNAMIC_CUSTOM_BITSET
     bitset->get(i-position) ? set_to_1(i) : set_to_0(i);
+#elif _STATIC_BITSET
+    data_.set(i,bitset->data_[i-position]);
+#endif
   }
 }
 
 
 void aevol::BitSet_SIMD::replace(aevol::BitSet_SIMD* bitset, int32_t start, int32_t stop, int32_t position) {
   for (int32_t i = position, j = start; i < position+(stop-start); i++, j++) {
+#ifdef _DYNAMIC_CUSTOM_BITSET
     bitset->get(j) ? set_to_1(i) : set_to_0(i);
+#elif _STATIC_BITSET
+    data_.set(i,bitset->data_[j]);
+#endif
   }
 }
 
 void aevol::BitSet_SIMD::insert_at(aevol::BitSet_SIMD* bitset, int32_t start,
                                    int32_t stop, int32_t position) {
-  char* new_data;
-  int32_t old_length = length_;
-  char* old_data = data_;
 
+  int32_t old_length = length_;
   int32_t to_add_length = stop - start;
+
+#ifdef _DYNAMIC_CUSTOM_BITSET
+  char* old_data = data_;
+  char* new_data;
+
+
   bool to_free = false;
   //printf("insert at %d : start %d stop %d length %d current length %d\n",position,start,stop,length_+to_add_length,length_);
 
@@ -237,6 +316,18 @@ void aevol::BitSet_SIMD::insert_at(aevol::BitSet_SIMD* bitset, int32_t start,
 
   if (to_free)
     free(old_data);
+#elif _STATIC_BITSET
+  length_ = length_+to_add_length;
+
+  std::bitset<BITSET_STATIC_MAX_SIZE> tmp = data_;
+
+  for (int32_t i = position; i < old_length; i++) {
+    tmp.set(i+to_add_length,bitset->data_[i]);
+  }
+
+  for (int32_t i = start; i < stop; i++)
+    tmp.set(i+position,bitset->data_[i]);
+#endif
 }
 
 /*

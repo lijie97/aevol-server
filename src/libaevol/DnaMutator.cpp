@@ -241,8 +241,18 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
       for (int16_t j = 0; j < nb_insert; j++) {
         inserted_char = static_cast<char>('0' + mut_prng_->random(NB_BASE));
 #ifdef WITH_BITSET
-        if (inserted_char == '0') inserted_seq->set_to_0(j);
-        else inserted_seq->set_to_1(j);
+        if (inserted_char == '0')
+#ifdef _DYNAMIC_CUSTOM_BITSET
+          inserted_seq->set_to_0(j);
+#elif _STATIC_BITSET
+          inserted_seq->data_.set(j,false);
+#endif
+        else
+#ifdef _DYNAMIC_CUSTOM_BITSET
+          inserted_seq->set_to_1(j);
+#elif _STATIC_BITSET
+          inserted_seq->data_.set(j,true);
+#endif
 #else
         inserted_seq[j] = inserted_char;
 #endif

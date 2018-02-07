@@ -88,7 +88,7 @@ class Internal_SIMD_Struct {
  public:
     Internal_SIMD_Struct(ExpManager* exp_m) { exp_m_ = exp_m;};
 
-    Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone);
+    Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone, bool copy_dna = true);
 
     ~Internal_SIMD_Struct();
 

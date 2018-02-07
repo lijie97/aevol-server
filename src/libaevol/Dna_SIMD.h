@@ -20,7 +20,7 @@ namespace aevol {
 class Dna_SIMD {
  public:
     Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv);
-    Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv);
+    Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, bool copy_dna = true);
     Dna_SIMD(Dna* dna);
     ~Dna_SIMD();
 
@@ -53,9 +53,19 @@ class Dna_SIMD {
 #endif
     int32_t length() const {
 #ifdef WITH_BITSET
+      if (bitset_ == nullptr)
+        return parent_length_;
       return bitset_->length_;
 #else
       return length_;
+#endif
+    }
+
+    char* to_char() {
+#ifdef WITH_BITSET
+      return bitset_->to_char();
+#else
+      return data_;
 #endif
     }
 
@@ -73,7 +83,7 @@ class Dna_SIMD {
     std::list<MutationEvent*> mutation_list;
 
 #ifdef WITH_BITSET
-    BitSet_SIMD* bitset_;
+    BitSet_SIMD* bitset_ = nullptr;
 #else
     char* data_;
     int32_t length_;

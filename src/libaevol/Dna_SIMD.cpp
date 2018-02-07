@@ -20,14 +20,17 @@ Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {
   posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char)); //new char[nb_blocks_ * BLOCK_SIZE];
   memcpy(data_, dna->data(), (length_+1) * sizeof(char));
 #endif
-  parent_length_ = length();
+  parent_length_ = dna->length();
   indiv_ = indiv;
 }
 
 
-Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
+Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, bool copy_dna) {
 #ifdef WITH_BITSET
-  bitset_ = new BitSet_SIMD(dna->bitset_);
+  if (copy_dna)
+    bitset_ = new BitSet_SIMD(dna->bitset_);
+  else
+    bitset_ = nullptr;
 #else
   length_ = dna->length_;
 
@@ -35,7 +38,7 @@ Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
   posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
   memcpy(data_, dna->data_, (length_+1) * sizeof(char));
 #endif
-  parent_length_ = length();
+  parent_length_ = dna->bitset_->length_;
   indiv_ = indiv;
 }
 
@@ -56,7 +59,7 @@ Dna_SIMD::Dna_SIMD(Dna* dna) {
 #endif
 
   //printf("Calling LENGTH\n");
-  parent_length_ = length();
+  parent_length_ = dna->length();
   //printf("Dna_SIMD out of constructor\n");
 }
 

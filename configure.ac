@@ -553,6 +553,7 @@ AC_MSG_RESULT($bitset)
 AM_CONDITIONAL(WITH_BITSET, test x"$bitset" != xno)
 if test "x$bitset" = "xyes" ; then
    AC_DEFINE(WITH_BITSET)
+   AC_DEFINE(_STATIC_BITSET)
 fi
 
 
