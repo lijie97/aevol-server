@@ -1741,23 +1741,36 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     opt_prom_compute_RNA();
   } else {
     if (standalone_) {
+      double dupl_rate = exp_m_->exp_s()->mut_params()->duplication_rate();
+      double del_rate = exp_m_->exp_s()->mut_params()->deletion_rate();
+      double trans_rate = exp_m_->exp_s()->mut_params()->translocation_rate();
+      double inv_rate = exp_m_->exp_s()->mut_params()->inversion_rate();
+      double point_mut_rate = exp_m_->exp_s()->mut_params()->point_mutation_rate();
+      double small_ins_rate = exp_m_->exp_s()->mut_params()->small_insertion_rate();
+      double small_del_rate = exp_m_->exp_s()->mut_params()->small_deletion_rate();
+      double max_indel_size = exp_m_->exp_s()->mut_params()->max_indel_size();
+      double min_genome = exp_m_->exp_s()->min_genome_length();
+      double max_genome = exp_m_->exp_s()->max_genome_length();
+
+
       for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
         int x = indiv_id / exp_m_->world()->height();
         int y = indiv_id % exp_m_->world()->height();
         delete exp_m_->dna_mutator_array_[indiv_id];
+
         exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
             exp_m_->world()->grid(x, y)->mut_prng(),
             internal_simd_struct[indiv_id]->dna_->length(),
-            exp_m_->exp_s()->mut_params()->duplication_rate(),
-            exp_m_->exp_s()->mut_params()->deletion_rate(),
-            exp_m_->exp_s()->mut_params()->translocation_rate(),
-            exp_m_->exp_s()->mut_params()->inversion_rate(),
-            exp_m_->exp_s()->mut_params()->point_mutation_rate(),
-            exp_m_->exp_s()->mut_params()->small_insertion_rate(),
-            exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-            exp_m_->exp_s()->mut_params()->max_indel_size(),
-            exp_m_->exp_s()->min_genome_length(),
-            exp_m_->exp_s()->max_genome_length());
+            dupl_rate,
+            del_rate,
+            trans_rate,
+            inv_rate,
+            point_mut_rate,
+            small_ins_rate,
+            small_del_rate,
+            max_indel_size,
+            min_genome,
+            max_genome);
         exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
       }
     }

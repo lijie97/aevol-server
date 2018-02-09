@@ -80,6 +80,8 @@ void aevol::BitSet_SIMD::print() {
     if (get(i))
 #elif _STATIC_BITSET
     if (data_[i])
+#else
+    if (true)
 #endif
       printf("1");
     else
@@ -221,8 +223,6 @@ void aevol::BitSet_SIMD::remove(int32_t pos_1, int32_t pos_2) {
 aevol::BitSet_SIMD* aevol::BitSet_SIMD::duplicate(int32_t pos_1, int32_t pos_2, bool invert) {
   BitSet_SIMD* duplicate_bitset = new BitSet_SIMD(pos_2-pos_1);
 
-  //printf("Duplicate %d %d (%d) %d %d\n",pos_1,pos_2,pos_2-pos_1,duplicate_bitset->length_,length_);
-
   if (invert) {
     for (int32_t i = 0, j = pos_2 - 1; i < duplicate_bitset->length_; i++, j--) {
       //printf("%d %d\n",i,j);
@@ -327,6 +327,10 @@ void aevol::BitSet_SIMD::insert_at(aevol::BitSet_SIMD* bitset, int32_t start,
 
   for (int32_t i = start; i < stop; i++)
     tmp.set(i+position,bitset->data_[i]);
+
+  data_ = tmp;
+
+  delete bitset;
 #endif
 }
 

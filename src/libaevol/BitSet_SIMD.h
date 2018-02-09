@@ -37,6 +37,8 @@ constexpr int8_t BITSET_CODON_SIZE  = 3;
 
 constexpr int32_t BITSET_STATIC_MAX_SIZE  = 10000000;
 
+
+
 class BitSet_SIMD {
  public:
     BitSet_SIMD(BitSet_SIMD* bitset);
@@ -117,7 +119,8 @@ class BitSet_SIMD {
     BitSet_SIMD* duplicate(int32_t pos_1, int32_t pos2, bool invert = false);
 
     __inline int8_t is_promoter(bool LEADING, int pos) {
-      __declspec(align(32)) int8_t dist[22];
+      //__declspec(align(32))
+      int8_t dist[22];
 
 #ifdef _STATIC_BITSET
       if (LEADING) {
@@ -200,15 +203,15 @@ class BitSet_SIMD {
 
 #ifdef _STATIC_BITSET
       if (LEADING) {
-        dist[0] = data_[pos + 0 >= length_ ? pos + 0 - length_ : pos + 0] != data_[pos - 0 + 10 >= length_ ? pos - 0 + 10 - length_ : pos - 0 + 10] ? true : false;
-        dist[1] = data_[pos + 1 >= length_ ? pos + 1 - length_ : pos + 1] != data_[pos - 1 + 10 >= length_ ? pos - 1 + 10 - length_ : pos - 1 + 10] ? true : false;
-        dist[2] = data_[pos + 2 >= length_ ? pos + 2 - length_ : pos + 2] != data_[pos - 2 + 10 >= length_ ? pos - 2 + 10 - length_ : pos - 2 + 10] ? true : false;
-        dist[3] = data_[pos + 3 >= length_ ? pos + 3 - length_ : pos + 3] != data_[pos - 3 + 10 >= length_ ? pos - 3 + 10 - length_ : pos - 3 + 10] ? true : false;
+        dist[0] = data_[pos + 0 >= length_ ? pos + 0 - length_ : pos + 0] ^ data_[pos - 0 + 10 >= length_ ? pos - 0 + 10 - length_ : pos - 0 + 10];
+        dist[1] = data_[pos + 1 >= length_ ? pos + 1 - length_ : pos + 1] ^ data_[pos - 1 + 10 >= length_ ? pos - 1 + 10 - length_ : pos - 1 + 10];
+        dist[2] = data_[pos + 2 >= length_ ? pos + 2 - length_ : pos + 2] ^ data_[pos - 2 + 10 >= length_ ? pos - 2 + 10 - length_ : pos - 2 + 10];
+        dist[3] = data_[pos + 3 >= length_ ? pos + 3 - length_ : pos + 3] ^ data_[pos - 3 + 10 >= length_ ? pos - 3 + 10 - length_ : pos - 3 + 10];
       } else {
-        dist[0] = data_[pos - 0 < 0 ? pos - 0 + length_ : pos - 0] != data_[pos + 0 - 10 < 0 ? pos + 0 - 10 + length_ : pos + 0 - 10] ? true : false;
-        dist[1] = data_[pos - 1 < 0 ? pos - 1 + length_ : pos - 1] != data_[pos + 1 - 10 < 0 ? pos + 1 - 10 + length_ : pos + 1 - 10] ? true : false;
-        dist[2] = data_[pos - 2 < 0 ? pos - 2 + length_ : pos - 2] != data_[pos + 2 - 10 < 0 ? pos + 2 - 10 + length_ : pos + 2 - 10] ? true : false;
-        dist[3] = data_[pos - 3 < 0 ? pos - 3 + length_ : pos - 3] != data_[pos + 3 - 10 < 0 ? pos + 3 - 10 + length_ : pos + 3 - 10] ? true : false;
+        dist[0] = data_[pos - 0 < 0 ? pos - 0 + length_ : pos - 0] ^ data_[pos + 0 - 10 < 0 ? pos + 0 - 10 + length_ : pos + 0 - 10];
+        dist[1] = data_[pos - 1 < 0 ? pos - 1 + length_ : pos - 1] ^ data_[pos + 1 - 10 < 0 ? pos + 1 - 10 + length_ : pos + 1 - 10];
+        dist[2] = data_[pos - 2 < 0 ? pos - 2 + length_ : pos - 2] ^ data_[pos + 2 - 10 < 0 ? pos + 2 - 10 + length_ : pos + 2 - 10];
+        dist[3] = data_[pos - 3 < 0 ? pos - 3 + length_ : pos - 3] ^ data_[pos + 3 - 10 < 0 ? pos + 3 - 10 + length_ : pos + 3 - 10];
       }
 #endif
 #ifdef _DYNAMIC_CUSTOM_BITSET

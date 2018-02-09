@@ -31,14 +31,16 @@ Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, bool copy_dna) {
     bitset_ = new BitSet_SIMD(dna->bitset_);
   else
     bitset_ = nullptr;
+  parent_length_ = dna->bitset_->length_;
 #else
   length_ = dna->length_;
 
   nb_blocks_ = nb_blocks(length_);
   posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
   memcpy(data_, dna->data_, (length_+1) * sizeof(char));
+
+  parent_length_ = dna->length_;
 #endif
-  parent_length_ = dna->bitset_->length_;
   indiv_ = indiv;
 }
 
@@ -278,7 +280,7 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
 bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 // Duplicate segment [pos_1; pos_2[ and insert the duplicate before pos_3
 #ifdef WITH_BITSET
-  BitSet_SIMD *duplicate_segment;
+  BitSet_SIMD *duplicate_segment = nullptr;
 #else
   char* duplicate_segment = NULL;
 #endif
@@ -331,8 +333,14 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 #endif
   }
 
-  if (seg_length <= 0)
+  if (seg_length <= 0) {
+#ifdef WITH_BITSET
+    delete duplicate_segment;
+#else
+    free(duplicate_segment);
+#endif
     return true;
+  }
 
   // Create a copy of the promoters beared by the segment to be duplicated
   // (they will be inserted in the individual's RNA list later)
