@@ -324,7 +324,9 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 
 #ifdef WITH_BITSET
     duplicate_segment = bitset_->duplicate(pos_1,pos_1+tmp1_len);
-    duplicate_segment->append(bitset_->duplicate(0,pos_2));
+    BitSet_SIMD* append_seg = bitset_->duplicate(0,pos_2);
+    duplicate_segment->append(append_seg);
+    delete append_seg;
 #else
     posix_memalign((void **)&duplicate_segment,64,(seg_length+1)* sizeof(char));//new char[seg_length + 1];
     memcpy(duplicate_segment, &data_[pos_1], tmp1_len);     // Copy tmp1
