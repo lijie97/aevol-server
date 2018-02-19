@@ -310,7 +310,7 @@ void SIMD_Individual::start_stop_RNA() {
 
 //#pragma omp parallel
 //#pragma omp single
-#pragma omp parallel for collapse(2) default(shared)
+#pragma omp parallel for //collapse(2) default(shared)
   for (int indiv_id = 0; indiv_id < nb_indiv; indiv_id++) {
 //#pragma omp parallel for firstprivate(indiv_id)
     for (int dna_pos = 0; dna_pos < dna_size[indiv_id]; dna_pos++) {
@@ -535,7 +535,7 @@ void SIMD_Individual::opt_prom_compute_RNA() {
     }
   }
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int indiv_id = 0; indiv_id < nb_indiv; indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
       internal_simd_struct[indiv_id]->rnas.resize(internal_simd_struct[indiv_id]->promoters.size());
@@ -543,7 +543,7 @@ void SIMD_Individual::opt_prom_compute_RNA() {
       internal_simd_struct[indiv_id]->rnas.clear();
       internal_simd_struct[indiv_id]->terminator_lead.clear();
       internal_simd_struct[indiv_id]->terminator_lag.clear();*/
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
       for (int rna_idx = 0; rna_idx <
                             (int) internal_simd_struct[indiv_id]->promoters.size();
            rna_idx++) {
@@ -772,10 +772,10 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 void SIMD_Individual::compute_RNA() {
 
   int nb_indiv = exp_m_->nb_indivs();
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int indiv_id = 0; indiv_id < nb_indiv; indiv_id++) {
     internal_simd_struct[indiv_id]->rnas.resize(internal_simd_struct[indiv_id]->promoters.size());
-#pragma omp parallel for firstprivate(indiv_id)
+#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
     for (int rna_idx = 0; rna_idx <
                           (int) internal_simd_struct[indiv_id]->promoters.size(); rna_idx++) {
       /*if (indiv_id == 345 && AeTime::time() == 47 &&
@@ -930,10 +930,10 @@ void SIMD_Individual::compute_RNA() {
 
 void SIMD_Individual::start_protein() {
   //int x, y;
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
-#pragma omp parallel for firstprivate(indiv_id)
+#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
       for (int rna_idx = 0; rna_idx <
                             (int) internal_simd_struct[indiv_id]->rnas.size(); rna_idx++) {
         if (internal_simd_struct[indiv_id]->rnas[rna_idx].is_init_) {
@@ -1054,7 +1054,7 @@ void SIMD_Individual::start_protein() {
 }
 
 void SIMD_Individual::compute_protein() {
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
       int resize_to=0;
@@ -1067,11 +1067,11 @@ void SIMD_Individual::compute_protein() {
       internal_simd_struct[indiv_id]->
           proteins.resize(resize_to);
 
-#pragma omp parallel for firstprivate(indiv_id)
+#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
       for (int rna_idx = 0; rna_idx <
                             (int) internal_simd_struct[indiv_id]->rnas.size(); rna_idx++) {
         if (internal_simd_struct[indiv_id]->rnas[rna_idx].is_init_) {
-#pragma omp parallel for firstprivate(indiv_id, rna_idx)
+#pragma omp parallel for firstprivate(indiv_id, rna_idx) schedule(dynamic)
           for (int protein_idx = 0;
                protein_idx < (int) internal_simd_struct[indiv_id]->
                    rnas[rna_idx].start_prot.size(); protein_idx++) {
@@ -1366,10 +1366,10 @@ void SIMD_Individual::compute_protein() {
 }
 
 void SIMD_Individual::translate_protein(double w_max) {
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
-#pragma omp parallel for firstprivate(indiv_id)
+#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
       for (int protein_idx = 0; protein_idx <
                                 (int) internal_simd_struct[indiv_id]->proteins.size(); protein_idx++) {
 
@@ -1634,7 +1634,7 @@ void SIMD_Individual::compute_phenotype() {
   }
 
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
       //printf("%d -- Protein to phenotype for %ld\n",i,internal_simd_struct[i]->proteins.size());
