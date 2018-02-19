@@ -11,6 +11,10 @@
 #include <cstdio>
 #include <bitset>
 
+#ifdef _DYNAMIC_BITSET
+#include <boost/dynamic_bitset.hpp>
+#endif
+
 namespace aevol {
 
 #define BITSET_BLOCK_SIZE INT32_C(1024)
@@ -77,6 +81,8 @@ class BitSet_SIMD {
       __assume_aligned(data_, 64);
       data_[(position / CHAR_TO_BITS)] ^= (1 << (position % CHAR_TO_BITS));
 #elif _STATIC_BITSET
+      data_[position].flip();
+#elif _DYNAMIC_BITSET
       data_[position].flip();
 #endif
     }
@@ -234,13 +240,24 @@ class BitSet_SIMD {
       return dist[0] && dist[1] && dist[2] && dist[3];
     }
 
-    __inline bool is_shine_dalgarno_protein_start(bool LEADING, int pos) {
+    __inline bool is_shine_dalgarno_protein_start(bool LEADING, int32_t pos) {
 
       bool start[9] = {false, false, false,
                        false, false, false,
                        false, false, false};
 
 #ifdef _STATIC_BITSET
+#pragma omp simd
+      for (int32_t k = 0; k < 9; k++) {
+        int32_t k_t = k >= 6 ? k + 4 : k;
+        if (LEADING)
+          (data_[pos + k_t >= length_ ? pos + k_t - length_ : pos + k_t] ==
+           get(BITSET_SHINE_DAL_SEQ_LEAD,k)) ? (start[k] = true) : (start[k] = false);
+        else
+          (data_[pos - k_t < 0 ? length_ + (pos - k_t) : pos - k_t] ==
+           get(BITSET_SHINE_DAL_SEQ_LAG,k)) ? (start[k] = true) : (start[k] = false);
+      }
+      /*
       if (LEADING) {
         (data_[pos + 0 >= length_ ? pos + 0 - length_ : pos + 0] ==
          get(BITSET_SHINE_DAL_SEQ_LEAD, 0)) ? (start[0] = true)
@@ -299,7 +316,7 @@ class BitSet_SIMD {
         (data_[pos - 12 < 0 ? length_ + (pos - 12) : pos - 12] ==
          get(BITSET_SHINE_DAL_SEQ_LAG, 8)) ? (start[8] = true)
                                            : (start[8] = false);
-      }
+      }*/
 #endif
 
 #ifdef _DYNAMIC_CUSTOM_BITSET
