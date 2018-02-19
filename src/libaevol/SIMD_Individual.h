@@ -40,6 +40,7 @@ class promoterStruct {
 
 class pRNA {
  public:
+    pRNA() {};
     pRNA(int32_t t_begin, int32_t t_end, int8_t t_leading_lagging, double t_e,
          int32_t t_length) {
       begin = t_begin;
@@ -48,6 +49,7 @@ class pRNA {
       e = t_e;
       length = t_length;
       is_coding_ = false;
+      is_init_ = true;
     }
 
     int32_t begin;
@@ -57,10 +59,13 @@ class pRNA {
     std::vector<int32_t> start_prot;
     int32_t length;
     bool is_coding_;
+
+    bool is_init_ = false;
 };
 
 class pProtein {
  public:
+    pProtein() {};
     pProtein(int32_t t_protein_start,
       int32_t t_protein_end,
       int32_t t_protein_length,
@@ -70,6 +75,7 @@ class pProtein {
       protein_length = t_protein_length;
       leading_lagging = t_leading_lagging;
       e = t_e;
+      is_init_ = true;
     }
 
     int32_t protein_start;
@@ -82,6 +88,7 @@ class pProtein {
     double e;
     bool is_functional;
 
+    bool is_init_ = false;
 };
 
 class Internal_SIMD_Struct {

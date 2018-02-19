@@ -308,13 +308,12 @@ void SIMD_Individual::start_stop_RNA() {
   //#pragma omp parallel for collapse(2) default(shared)
 //#pragma omp parallel for
 
-#pragma omp parallel
-#pragma omp single
+//#pragma omp parallel
+//#pragma omp single
+#pragma omp parallel for collapse(2) default(shared)
   for (int indiv_id = 0; indiv_id < nb_indiv; indiv_id++) {
 //#pragma omp parallel for firstprivate(indiv_id)
     for (int dna_pos = 0; dna_pos < dna_size[indiv_id]; dna_pos++) {
-#pragma omp task firstprivate(indiv_id, dna_pos)
-      {
 #ifdef WITH_BITSET
         if (internal_simd_struct[indiv_id]->dna_->bitset_->length_ > 0) {
           int dist_lead = internal_simd_struct[indiv_id]->dna_->bitset_->is_promoter(
@@ -432,24 +431,16 @@ void SIMD_Individual::start_stop_RNA() {
 //#pragma omp critical(add_to_promoters)
             {
               int prom_idx;
-#pragma omp atomic capture
-              {
+
                 prom_idx = internal_simd_struct[indiv_id]->count_prom;
                 internal_simd_struct[indiv_id]->count_prom =
                     internal_simd_struct[indiv_id]->count_prom + 1;
-              }
 /*
               if (indiv_id == 6)
                 printf("Adding promoters %d at %d\n",dna_pos,prom_idx);*/
 
-#pragma omp critical(promoters)
-              {
                 internal_simd_struct[indiv_id]->promoters[prom_idx] = nprom;
-              }
-#pragma omp critical(add_to_promoters_lead)
-              {
                 internal_simd_struct[indiv_id]->leading_prom_pos[dna_pos] = prom_idx;
-              }
             }
           }
 
@@ -467,11 +458,8 @@ void SIMD_Individual::start_stop_RNA() {
 #else
           if (is_terminator_lead) {
 #endif
-#pragma omp critical(add_to_terminator_lead)
-            {
               internal_simd_struct[indiv_id]->terminator_lead.insert(
                   dna_pos);
-            }
           }
 
 #ifndef WITH_BITSET
@@ -505,21 +493,11 @@ void SIMD_Individual::start_stop_RNA() {
 //#pragma omp critical(add_to_promoters)
             {
               int prom_idx;
-#pragma omp atomic capture
-              {
                 prom_idx = internal_simd_struct[indiv_id]->count_prom;
                 internal_simd_struct[indiv_id]->count_prom =
                     internal_simd_struct[indiv_id]->count_prom + 1;
-              }
-
-#pragma omp critical(promoters)
-              {
                 internal_simd_struct[indiv_id]->promoters[prom_idx] = nprom;
-              }
-#pragma omp critical(add_to_promoters_lags)
-              {
                 internal_simd_struct[indiv_id]->lagging_prom_pos[dna_pos] = prom_idx;
-              }
             }
           }
 
@@ -534,15 +512,11 @@ void SIMD_Individual::start_stop_RNA() {
 #else
           if (is_terminator_lag) {
 #endif
-#pragma omp critical(add_to_terminator_lag)
-            {
               internal_simd_struct[indiv_id]->terminator_lag.insert(
                   dna_pos);
-            }
           }
         }
       }
-    }
   }
 //#pragma omp taskwait
 }
@@ -551,7 +525,6 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 
   int nb_indiv = exp_m_->nb_indivs();
 
-#pragma omp barrier
 
   for (int indiv_id = 0; indiv_id < nb_indiv; indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
@@ -562,38 +535,32 @@ void SIMD_Individual::opt_prom_compute_RNA() {
     }
   }
 
-#pragma omp parallel
-#pragma omp single
+#pragma omp parallel for
   for (int indiv_id = 0; indiv_id < nb_indiv; indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
+      internal_simd_struct[indiv_id]->rnas.resize(internal_simd_struct[indiv_id]->promoters.size());
       /*internal_simd_struct[indiv_id]->proteins.clear();
       internal_simd_struct[indiv_id]->rnas.clear();
       internal_simd_struct[indiv_id]->terminator_lead.clear();
       internal_simd_struct[indiv_id]->terminator_lag.clear();*/
-
+#pragma omp parallel for
       for (int rna_idx = 0; rna_idx <
                             (int) internal_simd_struct[indiv_id]->promoters.size();
            rna_idx++) {
-
-#pragma omp task firstprivate(indiv_id, rna_idx)
-        {
           promoterStruct* prom;
-#pragma omp critical(promoters)
-          {
-            prom = internal_simd_struct[indiv_id]->promoters[rna_idx];
-          }
+          prom = internal_simd_struct[indiv_id]->promoters[rna_idx];
+        //internal_simd_struct[indiv_id]->rnas[rna_idx] = nullptr;
 
-          if (prom != nullptr) {
+
+        if (prom != nullptr) {
             int prom_pos;
             bool lead_lag;
             double prom_error;
-#pragma omp critical(promoters)
-            {
               prom_pos = internal_simd_struct[indiv_id]->promoters[rna_idx]->pos;
               lead_lag = internal_simd_struct[indiv_id]->promoters[rna_idx]->leading_or_lagging;
               prom_error = fabs(
                   ((float) internal_simd_struct[indiv_id]->promoters[rna_idx]->error));
-            }
+
 
             if (lead_lag) {
 //        if (indiv_id == 152) printf("Searching for RNA (OPT) for indiv %d RNA %d LEAD\n",indiv_id,rna_idx);
@@ -619,7 +586,7 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 
                 if (is_term)
 #else
-                  #pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_:64)
+                  //#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_:64)
                   for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++)
                     term_dist_leading +=
                         internal_simd_struct[indiv_id]->dna_->data_[cur_pos + t_motif_id >= dna_size[indiv_id] ? cur_pos +
@@ -678,16 +645,13 @@ void SIMD_Individual::opt_prom_compute_RNA() {
                 rna_length -= 21;
 
                 if (rna_length > 0) {
-#pragma omp critical(rnas)
-                  {
-                    internal_simd_struct[indiv_id]->rnas.emplace_back(
+                    internal_simd_struct[indiv_id]->rnas[rna_idx] = pRNA(
                         prom_pos,
                         rna_end,
                         !lead_lag,
                         1.0 -
                         prom_error /
                         5.0, rna_length);
-                  }
                 }
               }
 //        if (indiv_id == 152) printf("Hop to next\n");
@@ -711,7 +675,7 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 
                 if (is_term)
 #else
-                #pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_:64)
+                //#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_:64)
                 for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
                     term_dist_lagging +=
                         internal_simd_struct[indiv_id]->dna_->data_[cur_pos - t_motif_id < 0 ? cur_pos -
@@ -785,16 +749,13 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 
                 if (rna_length >= 0) {
 
-#pragma omp critical(rnas)
-                  {
-                    internal_simd_struct[indiv_id]->rnas.emplace_back(
+                    internal_simd_struct[indiv_id]->rnas[rna_idx] = pRNA(
                         prom_pos,
                         rna_end,
                         !lead_lag,
                         1.0 -
                         prom_error /
                         5.0, rna_length);
-                  }
                 }
 //        if (indiv_id == 152) printf("Hop to next\n");
 
@@ -805,7 +766,6 @@ void SIMD_Individual::opt_prom_compute_RNA() {
       }
 //    if (indiv_id == 152) printf("--------> %d -- With no terminator %d %d\n",indiv_id,
 //           wno_terminator[0],wno_terminator[1]);
-    }
   }
 }
 
@@ -814,6 +774,7 @@ void SIMD_Individual::compute_RNA() {
   int nb_indiv = exp_m_->nb_indivs();
 #pragma omp parallel for
   for (int indiv_id = 0; indiv_id < nb_indiv; indiv_id++) {
+    internal_simd_struct[indiv_id]->rnas.resize(internal_simd_struct[indiv_id]->promoters.size());
 #pragma omp parallel for firstprivate(indiv_id)
     for (int rna_idx = 0; rna_idx <
                           (int) internal_simd_struct[indiv_id]->promoters.size(); rna_idx++) {
@@ -892,7 +853,7 @@ void SIMD_Individual::compute_RNA() {
           continue;
         }
 
-        internal_simd_struct[indiv_id]->rnas.emplace_back(
+        internal_simd_struct[indiv_id]->rnas[rna_idx] = pRNA(
             internal_simd_struct[indiv_id]->promoters[rna_idx]->pos,
             rna_end,
             !internal_simd_struct[indiv_id]->promoters[rna_idx]->leading_or_lagging,
@@ -953,7 +914,7 @@ void SIMD_Individual::compute_RNA() {
           continue;
         }
 
-        internal_simd_struct[indiv_id]->rnas.emplace_back(
+        internal_simd_struct[indiv_id]->rnas[rna_idx] = pRNA(
             internal_simd_struct[indiv_id]->promoters[rna_idx]->pos,
             rna_end,
             !internal_simd_struct[indiv_id]->promoters[rna_idx]->leading_or_lagging,
@@ -975,24 +936,25 @@ void SIMD_Individual::start_protein() {
 #pragma omp parallel for firstprivate(indiv_id)
       for (int rna_idx = 0; rna_idx <
                             (int) internal_simd_struct[indiv_id]->rnas.size(); rna_idx++) {
-        int x = indiv_id / exp_m_->world()->height();
-        int y = indiv_id % exp_m_->world()->height();
+        if (internal_simd_struct[indiv_id]->rnas[rna_idx].is_init_) {
+          int x = indiv_id / exp_m_->world()->height();
+          int y = indiv_id % exp_m_->world()->height();
 
-        int c_pos = internal_simd_struct[indiv_id]->rnas[rna_idx].begin;
+          int c_pos = internal_simd_struct[indiv_id]->rnas[rna_idx].begin;
 
 //      printf("Searching for proteins in %d of indiv %d\n",rna_idx,indiv_id);
 
-        if (internal_simd_struct[indiv_id]->rnas[rna_idx].length >= 22) {
-          if (internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging ==
-              0) {
-            c_pos += 22;
-            c_pos =
-                c_pos >= dna_size[indiv_id] ? c_pos - dna_size[indiv_id]
-                                            : c_pos;
-          } else {
-            c_pos -= 22;
-            c_pos = c_pos < 0 ? ((int) dna_size[indiv_id]) + c_pos : c_pos;
-          }
+          if (internal_simd_struct[indiv_id]->rnas[rna_idx].length >= 22) {
+            if (internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging ==
+                0) {
+              c_pos += 22;
+              c_pos =
+                  c_pos >= dna_size[indiv_id] ? c_pos - dna_size[indiv_id]
+                                              : c_pos;
+            } else {
+              c_pos -= 22;
+              c_pos = c_pos < 0 ? ((int) dna_size[indiv_id]) + c_pos : c_pos;
+            }
 
 /*        if (indiv_id == 601 && AeTime::time() >= 322)
           printf("Search for protein at %d -> %d -- RNA IDX %d (LEADING/LAGGING %d)\n",c_pos,
@@ -1001,87 +963,89 @@ void SIMD_Individual::start_protein() {
                  internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging);*/
 
 
-          while (c_pos != internal_simd_struct[indiv_id]->rnas[rna_idx].end) {
-            bool start = false;
-            int t_pos, k_t;
+            while (c_pos != internal_simd_struct[indiv_id]->rnas[rna_idx].end) {
+              bool start = false;
+              int t_pos, k_t;
 
-            if (internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging ==
-                0) {
-              // Search for Shine Dalgarro + START codon on LEADING
+              if (internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging ==
+                  0) {
+                // Search for Shine Dalgarro + START codon on LEADING
 #ifdef WITH_BITSET
-              start = internal_simd_struct[indiv_id]->dna_->bitset_->is_shine_dalgarno_protein_start(
-                  true, c_pos);
+                start = internal_simd_struct[indiv_id]->dna_->bitset_->is_shine_dalgarno_protein_start(
+                    true, c_pos);
 #else
 
-              #pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_,SHINE_DAL_SEQ_LEAD:64)
-              for (int k = 0; k < 9; k++) {
-                k_t = k >= 6 ? k + 4 : k;
-                t_pos = c_pos + k_t >= dna_size[indiv_id] ? c_pos + k_t -
-                                                            dna_size[indiv_id] :
-                        c_pos + k_t;
+//#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_, SHINE_DAL_SEQ_LEAD:64)
+                for (int k = 0; k < 9; k++) {
+                  k_t = k >= 6 ? k + 4 : k;
+                  t_pos = c_pos + k_t >= dna_size[indiv_id] ? c_pos + k_t -
+                                                              dna_size[indiv_id]
+                                                            :
+                          c_pos + k_t;
 
-                if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] ==
-                    SHINE_DAL_SEQ_LEAD[k]) {
-                  start = true;
-                } else {
-                  start = false;
-                  break;
+                  if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] ==
+                      SHINE_DAL_SEQ_LEAD[k]) {
+                    start = true;
+                  } else {
+                    start = false;
+                    break;
+                  }
                 }
-              }
 #endif
-            } else {
+              } else {
 
-              // Search for Shine Dalgarro + START codon on LAGGING
+                // Search for Shine Dalgarro + START codon on LAGGING
 #ifdef WITH_BITSET
-              start = internal_simd_struct[indiv_id]->dna_->bitset_->is_shine_dalgarno_protein_start(
-                  false, c_pos);
+                start = internal_simd_struct[indiv_id]->dna_->bitset_->is_shine_dalgarno_protein_start(
+                    false, c_pos);
 #else
-#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_,SHINE_DAL_SEQ_LAG:64)
-              for (int k = 0; k < 9; k++) {
-                k_t = k >= 6 ? k + 4 : k;
-                t_pos =
-                    c_pos - k_t < 0 ? dna_size[indiv_id] + (c_pos - k_t) :
-                    c_pos - k_t;
+//#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_, SHINE_DAL_SEQ_LAG:64)
+                for (int k = 0; k < 9; k++) {
+                  k_t = k >= 6 ? k + 4 : k;
+                  t_pos =
+                      c_pos - k_t < 0 ? dna_size[indiv_id] + (c_pos - k_t) :
+                      c_pos - k_t;
 
-                if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] ==
-                    SHINE_DAL_SEQ_LAG[k]) {
-                  start = true;
-                } else {
-                  start = false;
-                  break;
+                  if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] ==
+                      SHINE_DAL_SEQ_LAG[k]) {
+                    start = true;
+                  } else {
+                    start = false;
+                    break;
+                  }
                 }
-              }
 #endif
-            }
+              }
 
-            /*if (indiv_id == 601 && AeTime::time() == 323 && rna_idx == 199)
-              printf("Searching for start prot at %d : %d (%d)\n",c_pos,start,k_t);*/
+              /*if (indiv_id == 601 && AeTime::time() == 323 && rna_idx == 199)
+                printf("Searching for start prot at %d : %d (%d)\n",c_pos,start,k_t);*/
 
-            if (start) {
-              /*if (indiv_id == 601 && AeTime::time() == 323 && internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging == true)
-                printf("Found Start LAG POS %d\n",c_pos);*/
+              if (start) {
+                /*if (indiv_id == 601 && AeTime::time() == 323 && internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging == true)
+                  printf("Found Start LAG POS %d\n",c_pos);*/
 
-              //printf("Start protein %d\n",c_pos);
+                //printf("Start protein %d\n",c_pos);
 
-              internal_simd_struct[indiv_id]->rnas[rna_idx].start_prot.
-                  push_back(c_pos);
-            }
+                internal_simd_struct[indiv_id]->rnas[rna_idx].start_prot.
+                    push_back(c_pos);
+              }
 
-            if (internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging ==
-                0) {
-              c_pos++;
-              c_pos =
-                  c_pos >= dna_size[indiv_id] ? c_pos - dna_size[indiv_id]
-                                              : c_pos;
-            } else {
-              c_pos--;
-              c_pos = c_pos < 0 ? dna_size[indiv_id] + c_pos : c_pos;
-            }
+              if (internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging ==
+                  0) {
+                c_pos++;
+                c_pos =
+                    c_pos >= dna_size[indiv_id] ? c_pos - dna_size[indiv_id]
+                                                : c_pos;
+              } else {
+                c_pos--;
+                c_pos = c_pos < 0 ? dna_size[indiv_id] + c_pos : c_pos;
+              }
 
 //          if (indiv_id == 180 && AeTime::time() == 2) {exit(-1);printf("Searching at %d (END %d LENGTH %ld DNASIZE %ld)\n",
 //                                      c_pos,internal_simd_struct[indiv_id]->rnas[rna_idx].end,
 //                                      internal_simd_struct[indiv_id]->rnas[rna_idx].length,
 //                                      dna_size[indiv_id]);}
+            }
           }
         }
       }
@@ -1093,219 +1057,61 @@ void SIMD_Individual::compute_protein() {
 #pragma omp parallel for
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
+      int resize_to=0;
+      for (int rna_idx = 0; rna_idx <
+                            (int) internal_simd_struct[indiv_id]->rnas.size(); rna_idx++) {
+        if (internal_simd_struct[indiv_id]->rnas[rna_idx].is_init_)
+          resize_to+=internal_simd_struct[indiv_id]->
+              rnas[rna_idx].start_prot.size();
+      }
+      internal_simd_struct[indiv_id]->
+          proteins.resize(resize_to);
+
 #pragma omp parallel for firstprivate(indiv_id)
       for (int rna_idx = 0; rna_idx <
                             (int) internal_simd_struct[indiv_id]->rnas.size(); rna_idx++) {
+        if (internal_simd_struct[indiv_id]->rnas[rna_idx].is_init_) {
 #pragma omp parallel for firstprivate(indiv_id, rna_idx)
-        for (int protein_idx = 0;
-             protein_idx < (int) internal_simd_struct[indiv_id]->
-                 rnas[rna_idx].start_prot.size(); protein_idx++) {
-          int x = indiv_id / exp_m_->world()->height();
-          int y = indiv_id % exp_m_->world()->height();
+          for (int protein_idx = 0;
+               protein_idx < (int) internal_simd_struct[indiv_id]->
+                   rnas[rna_idx].start_prot.size(); protein_idx++) {
+            int x = indiv_id / exp_m_->world()->height();
+            int y = indiv_id % exp_m_->world()->height();
 
-          int start_protein_pos = internal_simd_struct[indiv_id]->
-              rnas[rna_idx].leading_lagging == 0 ?
-                                  internal_simd_struct[indiv_id]->
-                                      rnas[rna_idx].start_prot[protein_idx] +
-                                  13 :
-                                  internal_simd_struct[indiv_id]->
-                                      rnas[rna_idx].start_prot[protein_idx] -
-                                  13;
-          int length;
-
-          if (internal_simd_struct[indiv_id]->
-              rnas[rna_idx].leading_lagging == 0) {
-            start_protein_pos = start_protein_pos >= dna_size[indiv_id] ?
-                                start_protein_pos - dna_size[indiv_id]
-                                                                        : start_protein_pos;
-
-            if (internal_simd_struct[indiv_id]->
-                rnas[rna_idx].start_prot[protein_idx] <
-                internal_simd_struct[indiv_id]->
-                    rnas[rna_idx].end) {
-              length = internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].end -
-                       internal_simd_struct[indiv_id]->
-                           rnas[rna_idx].start_prot[protein_idx];
-            } else {
-              length = dna_size[indiv_id] -
-                       internal_simd_struct[indiv_id]->
-                           rnas[rna_idx].start_prot[protein_idx] +
-                       internal_simd_struct[indiv_id]->
-                           rnas[rna_idx].end;
-
-            }
-
-            length -= 13;
-          } else {
-
-
-            start_protein_pos = start_protein_pos < 0 ?
-                                dna_size[indiv_id] + start_protein_pos
-                                                      : start_protein_pos;
-
-            if (internal_simd_struct[indiv_id]->
-                rnas[rna_idx].start_prot[protein_idx] >
-                internal_simd_struct[indiv_id]->
-                    rnas[rna_idx].end) {
-              length = internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].start_prot[protein_idx] -
-                       internal_simd_struct[indiv_id]->
-                           rnas[rna_idx].end;
-            } else {
-              length = internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].start_prot[protein_idx] +
-                       dna_size[indiv_id] - internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].end;
-            }
-
-            length -= 13;
-
-            /*if (indiv_id == 107 && AeTime::time() == 6 && internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging == true)
-              printf("Found for Start Prot for LAG RNA IDX %d (%d) at %d SEARCHING LENGHT %d RNA END %d\n",rna_idx,protein_idx,internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].start_prot[protein_idx],length,internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].end);*/
-          }
-
-          bool is_protein = false;
-
-          //length -= 2;
-          length += 1;
-          length = length - (length % 3);
-
-          int j = 0;
-          int32_t transcribed_start = 0;
-
-          if (internal_simd_struct[indiv_id]->
-              rnas[rna_idx].leading_lagging == 0) {
-            transcribed_start = internal_simd_struct[indiv_id]->
-                rnas[rna_idx].begin + 22;
-            transcribed_start = transcribed_start >= dna_size[indiv_id] ?
-                                transcribed_start - dna_size[indiv_id]
-                                                                        : transcribed_start;
-
-            if (transcribed_start <= internal_simd_struct[indiv_id]->
-                rnas[rna_idx].start_prot[protein_idx]) {
-              j = internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].start_prot[protein_idx] -
-                  transcribed_start;
-            } else {
-              j = dna_size[indiv_id] -
-                  transcribed_start +
-                  internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].start_prot[protein_idx];
-
-            }
-          } else {
-            transcribed_start = internal_simd_struct[indiv_id]->
-                rnas[rna_idx].begin - 22;
-            transcribed_start = transcribed_start < 0 ?
-                                dna_size[indiv_id] + transcribed_start
-                                                      : transcribed_start;
-
-            if (transcribed_start >=
-                internal_simd_struct[indiv_id]->
-                    rnas[rna_idx].start_prot[protein_idx]) {
-              j = transcribed_start -
-                  internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].start_prot[protein_idx];
-            } else {
-              j = transcribed_start +
-                  dna_size[indiv_id] - internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].start_prot[protein_idx];
-            }
-          }
-
-          j += 13;
-
-          /*if (indiv_id == 906 && AeTime::time() == 69)
-            printf("Length %d j %d DNA Size %d start prot %d start %d stop %d transcribed_start %d\n",internal_simd_struct[indiv_id]->
-                rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
-                rnas[rna_idx].start_prot[protein_idx],internal_simd_struct[indiv_id]->
-                rnas[rna_idx].begin,internal_simd_struct[indiv_id]->
-                rnas[rna_idx].end,transcribed_start);*/
-
-          while (internal_simd_struct[indiv_id]->
-              rnas[rna_idx].length - j >= 3) {
-
-            int t_k;
-
-            /*if (indiv_id == 906 && AeTime::time() == 69)
-              printf("Length %d j %d DNA Size %d start prot %d (%d) start %d stop %d\n",internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].start_prot[protein_idx],start_protein_pos,internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].begin,internal_simd_struct[indiv_id]->
-                  rnas[rna_idx].end);*/
+            int start_protein_pos = internal_simd_struct[indiv_id]->
+                rnas[rna_idx].leading_lagging == 0 ?
+                                    internal_simd_struct[indiv_id]->
+                                        rnas[rna_idx].start_prot[protein_idx] +
+                                    13 :
+                                    internal_simd_struct[indiv_id]->
+                                        rnas[rna_idx].start_prot[protein_idx] -
+                                    13;
+            int length;
 
             if (internal_simd_struct[indiv_id]->
                 rnas[rna_idx].leading_lagging == 0) {
               start_protein_pos = start_protein_pos >= dna_size[indiv_id] ?
                                   start_protein_pos - dna_size[indiv_id]
                                                                           : start_protein_pos;
-#ifdef WITH_BITSET
-              is_protein = internal_simd_struct[indiv_id]->dna_->bitset_->is_protein_stop(
-                  true, start_protein_pos);
-              t_k = start_protein_pos + 2 >= dna_size[indiv_id] ?
-                    start_protein_pos - dna_size[indiv_id] + 2 :
-                    start_protein_pos + 2;
-#else
-              is_protein = false;
 
-              for (int k = 0; k < 3; k++) {
-                t_k = start_protein_pos + k >= dna_size[indiv_id] ?
-                      start_protein_pos - dna_size[indiv_id] + k :
-                      start_protein_pos + k;
-
-                if (internal_simd_struct[indiv_id]->dna_->data_[t_k] == PROTEIN_END_LEAD[k]) {
-                  is_protein = true;
-                } else {
-                  is_protein = false;
-                  break;
-                }
-              }
-#endif
-
-              if (is_protein) {
-                int prot_length = -1;
-
-                if (internal_simd_struct[indiv_id]->
-                    rnas[rna_idx].start_prot[protein_idx] + 13 < t_k) {
-                  prot_length = t_k -
-                                (internal_simd_struct[indiv_id]->
-                                    rnas[rna_idx].start_prot[protein_idx] +
-                                 13);
-                } else {
-                  prot_length = dna_size[indiv_id] -
-                                (internal_simd_struct[indiv_id]->
-                                    rnas[rna_idx].start_prot[protein_idx] +
-                                 13) + t_k;
-                }
-
-                if (prot_length >= 3) {
-#pragma omp critical
+              if (internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].start_prot[protein_idx] <
                   internal_simd_struct[indiv_id]->
-                      proteins.emplace_back(internal_simd_struct[indiv_id]->
-                                                rnas[rna_idx].start_prot[protein_idx], t_k, prot_length,
-                                            internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging,
-                                            internal_simd_struct[indiv_id]->rnas[rna_idx].e
-                  );
-
-                  internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].is_coding_ = true;
-                }/* else if (indiv_id == 906)
-                  printf("Length %d j %d DNA Size %d start prot %d end prot %d start %d stop %d\n",internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].start_prot[protein_idx],t_k,
+                      rnas[rna_idx].end) {
+                length = internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].end -
                          internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].begin,internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].end);*/
-                break;
+                             rnas[rna_idx].start_prot[protein_idx];
+              } else {
+                length = dna_size[indiv_id] -
+                         internal_simd_struct[indiv_id]->
+                             rnas[rna_idx].start_prot[protein_idx] +
+                         internal_simd_struct[indiv_id]->
+                             rnas[rna_idx].end;
+
               }
 
-              start_protein_pos += 3;
-              start_protein_pos = start_protein_pos >= dna_size[indiv_id] ?
-                                  start_protein_pos - dna_size[indiv_id]
-                                                                          : start_protein_pos;
+              length -= 13;
             } else {
 
 
@@ -1313,53 +1119,229 @@ void SIMD_Individual::compute_protein() {
                                   dna_size[indiv_id] + start_protein_pos
                                                         : start_protein_pos;
 
-#ifdef WITH_BITSET
-              is_protein = internal_simd_struct[indiv_id]->dna_->bitset_->is_protein_stop(
-                  false, start_protein_pos);
-              t_k = start_protein_pos - 2 < 0 ?
-                    dna_size[indiv_id] + (start_protein_pos - 2) :
-                    start_protein_pos - 2;
-#else
-              is_protein = false;
-              for (int k = 0; k < 3; k++) {
-                t_k = start_protein_pos - k < 0 ?
-                      dna_size[indiv_id] + (start_protein_pos - k) :
-                      start_protein_pos - k;
-
-                if (internal_simd_struct[indiv_id]->dna_->data_[t_k] == PROTEIN_END_LAG[k]) {
-                  is_protein = true;
-                } else {
-                  is_protein = false;
-                  break;
-                }
+              if (internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].start_prot[protein_idx] >
+                  internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].end) {
+                length = internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].start_prot[protein_idx] -
+                         internal_simd_struct[indiv_id]->
+                             rnas[rna_idx].end;
+              } else {
+                length = internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].start_prot[protein_idx] +
+                         dna_size[indiv_id] - internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].end;
               }
+
+              length -= 13;
+
+              /*if (indiv_id == 107 && AeTime::time() == 6 && internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging == true)
+                printf("Found for Start Prot for LAG RNA IDX %d (%d) at %d SEARCHING LENGHT %d RNA END %d\n",rna_idx,protein_idx,internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].start_prot[protein_idx],length,internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].end);*/
+            }
+
+            bool is_protein = false;
+
+            //length -= 2;
+            length += 1;
+            length = length - (length % 3);
+
+            int j = 0;
+            int32_t transcribed_start = 0;
+
+            if (internal_simd_struct[indiv_id]->
+                rnas[rna_idx].leading_lagging == 0) {
+              transcribed_start = internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].begin + 22;
+              transcribed_start = transcribed_start >= dna_size[indiv_id] ?
+                                  transcribed_start - dna_size[indiv_id]
+                                                                          : transcribed_start;
+
+              if (transcribed_start <= internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].start_prot[protein_idx]) {
+                j = internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].start_prot[protein_idx] -
+                    transcribed_start;
+              } else {
+                j = dna_size[indiv_id] -
+                    transcribed_start +
+                    internal_simd_struct[indiv_id]->
+                        rnas[rna_idx].start_prot[protein_idx];
+
+              }
+            } else {
+              transcribed_start = internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].begin - 22;
+              transcribed_start = transcribed_start < 0 ?
+                                  dna_size[indiv_id] + transcribed_start
+                                                        : transcribed_start;
+
+              if (transcribed_start >=
+                  internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].start_prot[protein_idx]) {
+                j = transcribed_start -
+                    internal_simd_struct[indiv_id]->
+                        rnas[rna_idx].start_prot[protein_idx];
+              } else {
+                j = transcribed_start +
+                    dna_size[indiv_id] - internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].start_prot[protein_idx];
+              }
+            }
+
+            j += 13;
+
+            /*if (indiv_id == 906 && AeTime::time() == 69)
+              printf("Length %d j %d DNA Size %d start prot %d start %d stop %d transcribed_start %d\n",internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].start_prot[protein_idx],internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].begin,internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].end,transcribed_start);*/
+
+            while (internal_simd_struct[indiv_id]->
+                rnas[rna_idx].length - j >= 3) {
+
+              int t_k;
+
+              /*if (indiv_id == 906 && AeTime::time() == 69)
+                printf("Length %d j %d DNA Size %d start prot %d (%d) start %d stop %d\n",internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].start_prot[protein_idx],start_protein_pos,internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].begin,internal_simd_struct[indiv_id]->
+                    rnas[rna_idx].end);*/
+
+              if (internal_simd_struct[indiv_id]->
+                  rnas[rna_idx].leading_lagging == 0) {
+                start_protein_pos = start_protein_pos >= dna_size[indiv_id] ?
+                                    start_protein_pos - dna_size[indiv_id]
+                                                                            : start_protein_pos;
+#ifdef WITH_BITSET
+                is_protein = internal_simd_struct[indiv_id]->dna_->bitset_->is_protein_stop(
+                    true, start_protein_pos);
+                t_k = start_protein_pos + 2 >= dna_size[indiv_id] ?
+                      start_protein_pos - dna_size[indiv_id] + 2 :
+                      start_protein_pos + 2;
+#else
+                is_protein = false;
+
+                for (int k = 0; k < 3; k++) {
+                  t_k = start_protein_pos + k >= dna_size[indiv_id] ?
+                        start_protein_pos - dna_size[indiv_id] + k :
+                        start_protein_pos + k;
+
+                  if (internal_simd_struct[indiv_id]->dna_->data_[t_k] ==
+                      PROTEIN_END_LEAD[k]) {
+                    is_protein = true;
+                  } else {
+                    is_protein = false;
+                    break;
+                  }
+                }
 #endif
 
-              if (is_protein) {
-                int prot_length = -1;
-                if (internal_simd_struct[indiv_id]->
-                    rnas[rna_idx].start_prot[protein_idx] - 13 > t_k) {
-                  prot_length =
-                      (internal_simd_struct[indiv_id]->
-                          rnas[rna_idx].start_prot[protein_idx] - 13) -
-                      t_k;
-                } else {
-                  prot_length =
-                      (internal_simd_struct[indiv_id]->
-                          rnas[rna_idx].start_prot[protein_idx] - 13) +
-                      dna_size[indiv_id] - t_k;
+                if (is_protein) {
+                  int prot_length = -1;
+
+                  if (internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].start_prot[protein_idx] + 13 < t_k) {
+                    prot_length = t_k -
+                                  (internal_simd_struct[indiv_id]->
+                                      rnas[rna_idx].start_prot[protein_idx] +
+                                   13);
+                  } else {
+                    prot_length = dna_size[indiv_id] -
+                                  (internal_simd_struct[indiv_id]->
+                                      rnas[rna_idx].start_prot[protein_idx] +
+                                   13) + t_k;
+                  }
+
+                  if (prot_length >= 3) {
+                    internal_simd_struct[indiv_id]->
+                        proteins[protein_idx] = pProtein(
+                        internal_simd_struct[indiv_id]->
+                            rnas[rna_idx].start_prot[protein_idx], t_k,
+                        prot_length,
+                        internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging,
+                        internal_simd_struct[indiv_id]->rnas[rna_idx].e
+                    );
+
+
+                    internal_simd_struct[indiv_id]->
+                        rnas[rna_idx].is_coding_ = true;
+                  }/* else if (indiv_id == 906)
+                  printf("Length %d j %d DNA Size %d start prot %d end prot %d start %d stop %d\n",internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].start_prot[protein_idx],t_k,
+                         internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].begin,internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].end);*/
+                  break;
                 }
-                if (prot_length >= 3) {
-#pragma omp critical
-                  internal_simd_struct[indiv_id]->
-                      proteins.emplace_back(internal_simd_struct[indiv_id]->
-                                                rnas[rna_idx].start_prot[protein_idx], t_k, prot_length,
-                                            internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging,
-                                            internal_simd_struct[indiv_id]->rnas[rna_idx].e
-                  );
-                  internal_simd_struct[indiv_id]->
-                      rnas[rna_idx].is_coding_ = true;
-                } /*else if (indiv_id == 906)
+
+                start_protein_pos += 3;
+                start_protein_pos = start_protein_pos >= dna_size[indiv_id] ?
+                                    start_protein_pos - dna_size[indiv_id]
+                                                                            : start_protein_pos;
+              } else {
+
+
+                start_protein_pos = start_protein_pos < 0 ?
+                                    dna_size[indiv_id] + start_protein_pos
+                                                          : start_protein_pos;
+
+#ifdef WITH_BITSET
+                is_protein = internal_simd_struct[indiv_id]->dna_->bitset_->is_protein_stop(
+                    false, start_protein_pos);
+                t_k = start_protein_pos - 2 < 0 ?
+                      dna_size[indiv_id] + (start_protein_pos - 2) :
+                      start_protein_pos - 2;
+#else
+                is_protein = false;
+                for (int k = 0; k < 3; k++) {
+                  t_k = start_protein_pos - k < 0 ?
+                        dna_size[indiv_id] + (start_protein_pos - k) :
+                        start_protein_pos - k;
+
+                  if (internal_simd_struct[indiv_id]->dna_->data_[t_k] ==
+                      PROTEIN_END_LAG[k]) {
+                    is_protein = true;
+                  } else {
+                    is_protein = false;
+                    break;
+                  }
+                }
+#endif
+
+                if (is_protein) {
+                  int prot_length = -1;
+                  if (internal_simd_struct[indiv_id]->
+                      rnas[rna_idx].start_prot[protein_idx] - 13 > t_k) {
+                    prot_length =
+                        (internal_simd_struct[indiv_id]->
+                            rnas[rna_idx].start_prot[protein_idx] - 13) -
+                        t_k;
+                  } else {
+                    prot_length =
+                        (internal_simd_struct[indiv_id]->
+                            rnas[rna_idx].start_prot[protein_idx] - 13) +
+                        dna_size[indiv_id] - t_k;
+                  }
+                  if (prot_length >= 3) {
+
+                    internal_simd_struct[indiv_id]->
+                        proteins[protein_idx] = pProtein(
+                        internal_simd_struct[indiv_id]->
+                            rnas[rna_idx].start_prot[protein_idx], t_k,
+                        prot_length,
+                        internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging,
+                        internal_simd_struct[indiv_id]->rnas[rna_idx].e
+                    );
+//#pragma omp atomic
+                    internal_simd_struct[indiv_id]->
+                        rnas[rna_idx].is_coding_ = true;
+                  } /*else if (indiv_id == 906)
                 printf("Length %d j %d DNA Size %d start prot %d end prot %d start %d stop %d\n",internal_simd_struct[indiv_id]->
                            rnas[rna_idx].length,j,dna_size[indiv_id],internal_simd_struct[indiv_id]->
                            rnas[rna_idx].start_prot[protein_idx],t_k,
@@ -1367,14 +1349,15 @@ void SIMD_Individual::compute_protein() {
                            rnas[rna_idx].begin,internal_simd_struct[indiv_id]->
                         rnas[rna_idx].end);*/
 
-                break;
+                  break;
+                }
+                start_protein_pos = start_protein_pos - 3;
+                start_protein_pos = start_protein_pos < 0 ?
+                                    dna_size[indiv_id] + start_protein_pos
+                                                          : start_protein_pos;
               }
-              start_protein_pos = start_protein_pos - 3;
-              start_protein_pos = start_protein_pos < 0 ?
-                                  dna_size[indiv_id] + start_protein_pos
-                                                        : start_protein_pos;
+              j += 3;
             }
-            j += 3;
           }
         }
       }
@@ -1390,241 +1373,247 @@ void SIMD_Individual::translate_protein(double w_max) {
       for (int protein_idx = 0; protein_idx <
                                 (int) internal_simd_struct[indiv_id]->proteins.size(); protein_idx++) {
 
-        int x = indiv_id / exp_m_->world()->height();
-        int y = indiv_id % exp_m_->world()->height();
+        if (internal_simd_struct[indiv_id]->proteins[protein_idx].is_init_) {
+          int x = indiv_id / exp_m_->world()->height();
+          int y = indiv_id % exp_m_->world()->height();
 
-        int c_pos = internal_simd_struct[indiv_id]->proteins[protein_idx].protein_start, t_pos;
-        int end_pos = internal_simd_struct[indiv_id]->proteins[protein_idx].protein_end;
-        if (internal_simd_struct[indiv_id]->proteins[protein_idx].leading_lagging ==
-            0) {
-          c_pos += 13;
-          end_pos -= 3;
+          int c_pos = internal_simd_struct[indiv_id]->proteins[protein_idx].protein_start, t_pos;
+          int end_pos = internal_simd_struct[indiv_id]->proteins[protein_idx].protein_end;
+          if (internal_simd_struct[indiv_id]->proteins[protein_idx].leading_lagging ==
+              0) {
+            c_pos += 13;
+            end_pos -= 3;
 
-          c_pos =
-              c_pos >= dna_size[indiv_id] ? c_pos - dna_size[indiv_id] : c_pos;
-          end_pos = end_pos < 0 ? dna_size[indiv_id] + end_pos : end_pos;
-        } else {
-          c_pos -= 13;
-          end_pos += 3;
-
-          end_pos = end_pos >= dna_size[indiv_id] ? end_pos - dna_size[indiv_id]
-                                                  : end_pos;
-          c_pos = c_pos < 0 ? dna_size[indiv_id] + c_pos : c_pos;
-        }
-
-        int8_t value = 0;
-        int8_t codon_list[64] = {};
-        int8_t codon_idx = 0;
-        int32_t count_loop = 0;
-
-        if (internal_simd_struct[indiv_id]->proteins[protein_idx].leading_lagging ==
-            0) {
-          // LEADING
-
-          while (count_loop <
-                 internal_simd_struct[indiv_id]->proteins[protein_idx].protein_length /
-                 3 &&
-                 codon_idx < 64) {
-#ifdef WITH_BITSET
-            codon_list[codon_idx] = internal_simd_struct[indiv_id]->dna_->bitset_->extract_codon(
-                true, c_pos);
-#else
-            value = 0;
-            for (int8_t i = 0; i < 3; i++) {
-              t_pos =
-                  c_pos + i >= dna_size[indiv_id] ? c_pos + i - dna_size[indiv_id]
-                                                  : c_pos + i;
-              if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] == '1')
-                value += 1 << (CODON_SIZE - i - 1);
-            }
-            codon_list[codon_idx] = value;
-#endif
-            codon_idx++;
-
-            count_loop++;
-            c_pos += 3;
             c_pos =
                 c_pos >= dna_size[indiv_id] ? c_pos - dna_size[indiv_id]
                                             : c_pos;
+            end_pos = end_pos < 0 ? dna_size[indiv_id] + end_pos : end_pos;
+          } else {
+            c_pos -= 13;
+            end_pos += 3;
+
+            end_pos =
+                end_pos >= dna_size[indiv_id] ? end_pos - dna_size[indiv_id]
+                                              : end_pos;
+            c_pos = c_pos < 0 ? dna_size[indiv_id] + c_pos : c_pos;
           }
-        } else {
-          // LAGGING
-          while (count_loop <
-                 internal_simd_struct[indiv_id]->proteins[protein_idx].protein_length /
-                 3 &&
-                 codon_idx < 64) {
+
+          int8_t value = 0;
+          int8_t codon_list[64] = {};
+          int8_t codon_idx = 0;
+          int32_t count_loop = 0;
+
+          if (internal_simd_struct[indiv_id]->proteins[protein_idx].leading_lagging ==
+              0) {
+            // LEADING
+
+            while (count_loop <
+                   internal_simd_struct[indiv_id]->proteins[protein_idx].protein_length /
+                   3 &&
+                   codon_idx < 64) {
 #ifdef WITH_BITSET
-            codon_list[codon_idx] = internal_simd_struct[indiv_id]->dna_->bitset_->extract_codon(
-                false, c_pos);
+              codon_list[codon_idx] = internal_simd_struct[indiv_id]->dna_->bitset_->extract_codon(
+                  true, c_pos);
 #else
-            value = 0;
-            for (int8_t i = 0; i < 3; i++) {
-              t_pos =
-                  c_pos - i < 0 ? dna_size[indiv_id] + (c_pos - i) : c_pos - i;
-              if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] != '1')
-                value += 1 << (CODON_SIZE - i - 1);
-            }
-            codon_list[codon_idx] = value;
+              value = 0;
+              for (int8_t i = 0; i < 3; i++) {
+                t_pos =
+                    c_pos + i >= dna_size[indiv_id] ? c_pos + i -
+                                                      dna_size[indiv_id]
+                                                    : c_pos + i;
+                if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] == '1')
+                  value += 1 << (CODON_SIZE - i - 1);
+              }
+              codon_list[codon_idx] = value;
 #endif
-            codon_idx++;
+              codon_idx++;
 
-            count_loop++;
-
-            c_pos -= 3;
-            c_pos = c_pos < 0 ? c_pos + dna_size[indiv_id] : c_pos;
-          }
-        }
-
-        double M = 0.0;
-        double W = 0.0;
-        double H = 0.0;
-
-        int32_t nb_m = 0;
-        int32_t nb_w = 0;
-        int32_t nb_h = 0;
-
-        bool bin_m = false; // Initializing to false will yield a conservation of the high weight bit
-        bool bin_w = false; // when applying the XOR operator for the Gray to standard conversion
-        bool bin_h = false;
-
-
-        for (int i = 0; i < codon_idx; i++) {
-          switch (codon_list[i]) {
-            case CODON_M0 : {
-              // M codon found
-              nb_m++;
-
-              // Convert Gray code to "standard" binary code
-              bin_m ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
-
-              // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
-              //~ M <<= 1;
-              M *= 2;
-
-              // Add this nucleotide's contribution to M
-              if (bin_m) M += 1;
-
-              break;
+              count_loop++;
+              c_pos += 3;
+              c_pos =
+                  c_pos >= dna_size[indiv_id] ? c_pos - dna_size[indiv_id]
+                                              : c_pos;
             }
-            case CODON_M1 : {
-              // M codon found
-              nb_m++;
+          } else {
+            // LAGGING
+            while (count_loop <
+                   internal_simd_struct[indiv_id]->proteins[protein_idx].protein_length /
+                   3 &&
+                   codon_idx < 64) {
+#ifdef WITH_BITSET
+              codon_list[codon_idx] = internal_simd_struct[indiv_id]->dna_->bitset_->extract_codon(
+                  false, c_pos);
+#else
+              value = 0;
+              for (int8_t i = 0; i < 3; i++) {
+                t_pos =
+                    c_pos - i < 0 ? dna_size[indiv_id] + (c_pos - i) : c_pos -
+                                                                       i;
+                if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] != '1')
+                  value += 1 << (CODON_SIZE - i - 1);
+              }
+              codon_list[codon_idx] = value;
+#endif
+              codon_idx++;
 
-              // Convert Gray code to "standard" binary code
-              bin_m ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+              count_loop++;
 
-              // A lower-than-the-previous-lowest bit was found, make a left bitwise shift
-              //~ M <<= 1;
-              M *= 2;
-
-              // Add this nucleotide's contribution to M
-              if (bin_m) M += 1;
-
-              break;
-            }
-            case CODON_W0 : {
-              // W codon found
-              nb_w++;
-
-              // Convert Gray code to "standard" binary code
-              bin_w ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
-
-              // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
-              //~ W <<= 1;
-              W *= 2;
-
-              // Add this nucleotide's contribution to W
-              if (bin_w) W += 1;
-
-              break;
-            }
-            case CODON_W1 : {
-              // W codon found
-              nb_w++;
-
-              // Convert Gray code to "standard" binary code
-              bin_w ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
-
-              // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
-              //~ W <<= 1;
-              W *= 2;
-
-              // Add this nucleotide's contribution to W
-              if (bin_w) W += 1;
-
-              break;
-            }
-            case CODON_H0 :
-            case CODON_START : // Start codon codes for the same amino-acid as H0 codon
-            {
-              // H codon found
-              nb_h++;
-
-              // Convert Gray code to "standard" binary code
-              bin_h ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
-
-              // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
-              //~ H <<= 1;
-              H *= 2;
-
-              // Add this nucleotide's contribution to H
-              if (bin_h) H += 1;
-
-              break;
-            }
-            case CODON_H1 : {
-              // H codon found
-              nb_h++;
-
-              // Convert Gray code to "standard" binary code
-              bin_h ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
-
-              // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
-              //~ H <<= 1;
-              H *= 2;
-
-              // Add this nucleotide's contribution to H
-              if (bin_h) H += 1;
-
-              break;
+              c_pos -= 3;
+              c_pos = c_pos < 0 ? c_pos + dna_size[indiv_id] : c_pos;
             }
           }
-        }
+
+          double M = 0.0;
+          double W = 0.0;
+          double H = 0.0;
+
+          int32_t nb_m = 0;
+          int32_t nb_w = 0;
+          int32_t nb_h = 0;
+
+          bool bin_m = false; // Initializing to false will yield a conservation of the high weight bit
+          bool bin_w = false; // when applying the XOR operator for the Gray to standard conversion
+          bool bin_h = false;
+
+
+          for (int i = 0; i < codon_idx; i++) {
+            switch (codon_list[i]) {
+              case CODON_M0 : {
+                // M codon found
+                nb_m++;
+
+                // Convert Gray code to "standard" binary code
+                bin_m ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                //~ M <<= 1;
+                M *= 2;
+
+                // Add this nucleotide's contribution to M
+                if (bin_m) M += 1;
+
+                break;
+              }
+              case CODON_M1 : {
+                // M codon found
+                nb_m++;
+
+                // Convert Gray code to "standard" binary code
+                bin_m ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                // A lower-than-the-previous-lowest bit was found, make a left bitwise shift
+                //~ M <<= 1;
+                M *= 2;
+
+                // Add this nucleotide's contribution to M
+                if (bin_m) M += 1;
+
+                break;
+              }
+              case CODON_W0 : {
+                // W codon found
+                nb_w++;
+
+                // Convert Gray code to "standard" binary code
+                bin_w ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                //~ W <<= 1;
+                W *= 2;
+
+                // Add this nucleotide's contribution to W
+                if (bin_w) W += 1;
+
+                break;
+              }
+              case CODON_W1 : {
+                // W codon found
+                nb_w++;
+
+                // Convert Gray code to "standard" binary code
+                bin_w ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                //~ W <<= 1;
+                W *= 2;
+
+                // Add this nucleotide's contribution to W
+                if (bin_w) W += 1;
+
+                break;
+              }
+              case CODON_H0 :
+              case CODON_START : // Start codon codes for the same amino-acid as H0 codon
+              {
+                // H codon found
+                nb_h++;
+
+                // Convert Gray code to "standard" binary code
+                bin_h ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                //~ H <<= 1;
+                H *= 2;
+
+                // Add this nucleotide's contribution to H
+                if (bin_h) H += 1;
+
+                break;
+              }
+              case CODON_H1 : {
+                // H codon found
+                nb_h++;
+
+                // Convert Gray code to "standard" binary code
+                bin_h ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                //~ H <<= 1;
+                H *= 2;
+
+                // Add this nucleotide's contribution to H
+                if (bin_h) H += 1;
+
+                break;
+              }
+            }
+          }
 
 
 
-        //  ----------------------------------------------------------------------------------
-        //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
-        //  ----------------------------------------------------------------------------------
-        internal_simd_struct[indiv_id]->proteins[protein_idx].m =
-            nb_m != 0 ? M / (pow(2, nb_m) - 1) : 0.5;
-        internal_simd_struct[indiv_id]->proteins[protein_idx].w =
-            nb_w != 0 ? W / (pow(2, nb_w) - 1) : 0.0;
-        internal_simd_struct[indiv_id]->proteins[protein_idx].h =
-            nb_h != 0 ? H / (pow(2, nb_h) - 1) : 0.5;
+          //  ----------------------------------------------------------------------------------
+          //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
+          //  ----------------------------------------------------------------------------------
+          internal_simd_struct[indiv_id]->proteins[protein_idx].m =
+              nb_m != 0 ? M / (pow(2, nb_m) - 1) : 0.5;
+          internal_simd_struct[indiv_id]->proteins[protein_idx].w =
+              nb_w != 0 ? W / (pow(2, nb_w) - 1) : 0.0;
+          internal_simd_struct[indiv_id]->proteins[protein_idx].h =
+              nb_h != 0 ? H / (pow(2, nb_h) - 1) : 0.5;
 
-        //  ------------------------------------------------------------------------------------
-        //  3) Normalize M, W and H values according to the allowed ranges (defined in macros.h)
-        //  ------------------------------------------------------------------------------------
-        // x_min <= M <= x_max
-        // w_min <= W <= w_max
-        // h_min <= H <= h_max
-        internal_simd_struct[indiv_id]->proteins[protein_idx].m =
-            (X_MAX - X_MIN) *
-            internal_simd_struct[indiv_id]->proteins[protein_idx].m + X_MIN;
-        internal_simd_struct[indiv_id]->proteins[protein_idx].w =
-            (w_max - W_MIN) *
-            internal_simd_struct[indiv_id]->proteins[protein_idx].w + W_MIN;
-        internal_simd_struct[indiv_id]->proteins[protein_idx].h =
-            (H_MAX - H_MIN) *
-            internal_simd_struct[indiv_id]->proteins[protein_idx].h + H_MIN;
+          //  ------------------------------------------------------------------------------------
+          //  3) Normalize M, W and H values according to the allowed ranges (defined in macros.h)
+          //  ------------------------------------------------------------------------------------
+          // x_min <= M <= x_max
+          // w_min <= W <= w_max
+          // h_min <= H <= h_max
+          internal_simd_struct[indiv_id]->proteins[protein_idx].m =
+              (X_MAX - X_MIN) *
+              internal_simd_struct[indiv_id]->proteins[protein_idx].m + X_MIN;
+          internal_simd_struct[indiv_id]->proteins[protein_idx].w =
+              (w_max - W_MIN) *
+              internal_simd_struct[indiv_id]->proteins[protein_idx].w + W_MIN;
+          internal_simd_struct[indiv_id]->proteins[protein_idx].h =
+              (H_MAX - H_MIN) *
+              internal_simd_struct[indiv_id]->proteins[protein_idx].h + H_MIN;
 
-        if (nb_m == 0 || nb_w == 0 || nb_h == 0 ||
-            internal_simd_struct[indiv_id]->proteins[protein_idx].w == 0.0 ||
-            internal_simd_struct[indiv_id]->proteins[protein_idx].h == 0.0) {
-          internal_simd_struct[indiv_id]->proteins[protein_idx].is_functional = false;
-        } else {
-          internal_simd_struct[indiv_id]->proteins[protein_idx].is_functional = true;
+          if (nb_m == 0 || nb_w == 0 || nb_h == 0 ||
+              internal_simd_struct[indiv_id]->proteins[protein_idx].w == 0.0 ||
+              internal_simd_struct[indiv_id]->proteins[protein_idx].h == 0.0) {
+            internal_simd_struct[indiv_id]->proteins[protein_idx].is_functional = false;
+          } else {
+            internal_simd_struct[indiv_id]->proteins[protein_idx].is_functional = true;
+          }
         }
       }
     }
@@ -1649,86 +1638,87 @@ void SIMD_Individual::compute_phenotype() {
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
       //printf("%d -- Protein to phenotype for %ld\n",i,internal_simd_struct[i]->proteins.size());
-#pragma omp parallel for firstprivate(indiv_id)
+//#pragma omp parallel for firstprivate(indiv_id)
       for (int protein_idx = 0; protein_idx <
                                 (int) internal_simd_struct[indiv_id]->proteins.size(); protein_idx++) {
-
-        /*if (indiv_id == 908 && AeTime::time() == 87) {
-          printf("Computing phenotype for 908 at 64\n");
-        }*/
-
-        if (fabs(internal_simd_struct[indiv_id]->proteins[protein_idx].w) <
-            1e-15 ||
-            fabs(internal_simd_struct[indiv_id]->proteins[protein_idx].h) <
-            1e-15)
-          continue;
-
-
-        if (internal_simd_struct[indiv_id]->proteins[protein_idx].is_functional) {
-
-          // Compute triangle points' coordinates
-          float x0 = internal_simd_struct[indiv_id]->proteins[protein_idx].m -
-                     internal_simd_struct[indiv_id]->proteins[protein_idx].w;
-          float x1 = internal_simd_struct[indiv_id]->proteins[protein_idx].m;
-          float x2 = internal_simd_struct[indiv_id]->proteins[protein_idx].m +
-                     internal_simd_struct[indiv_id]->proteins[protein_idx].w;
-
-          int ix0 = (int) (x0 * 300);
-          int ix1 = (int) (x1 * 300);
-          int ix2 = (int) (x2 * 300);
-
-          if (ix0 < 0) ix0 = 0; else if (ix0 > (299)) ix0 = 299;
-          if (ix1 < 0) ix1 = 0; else if (ix1 > (299)) ix1 = 299;
-          if (ix2 < 0) ix2 = 0; else if (ix2 > (299)) ix2 = 299;
-
-
+        if (internal_simd_struct[indiv_id]->proteins[protein_idx].is_init_) {
           /*if (indiv_id == 908 && AeTime::time() == 87) {
-            printf("Prot %d (%f %f %f) PHEN %d %d %d\n",protein_idx,internal_simd_struct[indiv_id]->proteins[protein_idx].m,
-            internal_simd_struct[indiv_id]->proteins[protein_idx].w,internal_simd_struct[indiv_id]->proteins[protein_idx].h*
-                                                                    internal_simd_struct[indiv_id]->proteins[protein_idx].e,
-            ix0,ix1,ix2);
+            printf("Computing phenotype for 908 at 64\n");
           }*/
 
-          // Compute the first equation of the triangle
-          float incY =
-              (internal_simd_struct[indiv_id]->proteins[protein_idx].h *
-               internal_simd_struct[indiv_id]->proteins[protein_idx].e) /
-              (ix1 - ix0);
-          int count = 1;
-          // Updating value between x0 and x1
+          if (fabs(internal_simd_struct[indiv_id]->proteins[protein_idx].w) <
+              1e-15 ||
+              fabs(internal_simd_struct[indiv_id]->proteins[protein_idx].h) <
+              1e-15)
+            continue;
 
-          for (int i = ix0 + 1; i < ix1; i++) {
-#pragma omp critical
-            {
-              internal_simd_struct[indiv_id]->phenotype[i] =
-                  internal_simd_struct[indiv_id]->phenotype[i] +
-                  (incY * (count++));
-            }
-          }
 
-#pragma omp critical
-          {
-            internal_simd_struct[indiv_id]->phenotype[ix1] =
-                internal_simd_struct[indiv_id]->phenotype[ix1] +
+          if (internal_simd_struct[indiv_id]->proteins[protein_idx].is_functional) {
+
+            // Compute triangle points' coordinates
+            float x0 = internal_simd_struct[indiv_id]->proteins[protein_idx].m -
+                       internal_simd_struct[indiv_id]->proteins[protein_idx].w;
+            float x1 = internal_simd_struct[indiv_id]->proteins[protein_idx].m;
+            float x2 = internal_simd_struct[indiv_id]->proteins[protein_idx].m +
+                       internal_simd_struct[indiv_id]->proteins[protein_idx].w;
+
+            int ix0 = (int) (x0 * 300);
+            int ix1 = (int) (x1 * 300);
+            int ix2 = (int) (x2 * 300);
+
+            if (ix0 < 0) ix0 = 0; else if (ix0 > (299)) ix0 = 299;
+            if (ix1 < 0) ix1 = 0; else if (ix1 > (299)) ix1 = 299;
+            if (ix2 < 0) ix2 = 0; else if (ix2 > (299)) ix2 = 299;
+
+
+            /*if (indiv_id == 908 && AeTime::time() == 87) {
+              printf("Prot %d (%f %f %f) PHEN %d %d %d\n",protein_idx,internal_simd_struct[indiv_id]->proteins[protein_idx].m,
+              internal_simd_struct[indiv_id]->proteins[protein_idx].w,internal_simd_struct[indiv_id]->proteins[protein_idx].h*
+                                                                      internal_simd_struct[indiv_id]->proteins[protein_idx].e,
+              ix0,ix1,ix2);
+            }*/
+
+            // Compute the first equation of the triangle
+            float incY =
                 (internal_simd_struct[indiv_id]->proteins[protein_idx].h *
-                 internal_simd_struct[indiv_id]->proteins[protein_idx].e);
-          }
+                 internal_simd_struct[indiv_id]->proteins[protein_idx].e) /
+                (ix1 - ix0);
+            int count = 1;
+            // Updating value between x0 and x1
 
-          // Compute the second equation of the triangle
-          incY = (internal_simd_struct[indiv_id]->proteins[protein_idx].h *
-                  internal_simd_struct[indiv_id]->proteins[protein_idx].e) /
-                 (ix2 - ix1);
-          count = 1;
+            for (int i = ix0 + 1; i < ix1; i++) {
+//#pragma omp critical
+              {
+                internal_simd_struct[indiv_id]->phenotype[i] =
+                    internal_simd_struct[indiv_id]->phenotype[i] +
+                    (incY * (count++));
+              }
+            }
 
-          // Updating value between x1 and x2
-          for (int i = ix1 + 1; i < ix2; i++) {
-#pragma omp critical
+//#pragma omp critical
             {
-              internal_simd_struct[indiv_id]->phenotype[i] =
-                  internal_simd_struct[indiv_id]->phenotype[i] +
-                  ((internal_simd_struct[indiv_id]->proteins[protein_idx].h *
-                    internal_simd_struct[indiv_id]->proteins[protein_idx].e) -
-                   (incY * (count++)));
+              internal_simd_struct[indiv_id]->phenotype[ix1] =
+                  internal_simd_struct[indiv_id]->phenotype[ix1] +
+                  (internal_simd_struct[indiv_id]->proteins[protein_idx].h *
+                   internal_simd_struct[indiv_id]->proteins[protein_idx].e);
+            }
+
+            // Compute the second equation of the triangle
+            incY = (internal_simd_struct[indiv_id]->proteins[protein_idx].h *
+                    internal_simd_struct[indiv_id]->proteins[protein_idx].e) /
+                   (ix2 - ix1);
+            count = 1;
+
+            // Updating value between x1 and x2
+            for (int i = ix1 + 1; i < ix2; i++) {
+//#pragma omp atomic
+              {
+                internal_simd_struct[indiv_id]->phenotype[i] =
+                    internal_simd_struct[indiv_id]->phenotype[i] +
+                    ((internal_simd_struct[indiv_id]->proteins[protein_idx].h *
+                      internal_simd_struct[indiv_id]->proteins[protein_idx].e) -
+                     (incY * (count++)));
+              }
             }
           }
         }
