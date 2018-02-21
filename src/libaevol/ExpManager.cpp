@@ -119,10 +119,10 @@ ExpManager::ExpManager()
 // ===========================================================================
 ExpManager::~ExpManager() noexcept
 {
+  delete simd_individual;
   delete exp_s_;
   delete output_m_;
   delete world_;
-  delete simd_individual;
 }
 
 // ===========================================================================

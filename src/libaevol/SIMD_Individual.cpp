@@ -284,12 +284,27 @@ void SIMD_Individual::do_mutation() {
 
 SIMD_Individual::~SIMD_Individual() {
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    internal_simd_struct[indiv_id]->rnas.clear();
-    internal_simd_struct[indiv_id]->proteins.clear();
-    delete internal_simd_struct[indiv_id]->dna_;
+    if (internal_simd_struct[indiv_id] != nullptr) {
+      internal_simd_struct[indiv_id]->rnas.clear();
+      internal_simd_struct[indiv_id]->proteins.clear();
 
-    delete internal_simd_struct[indiv_id];
-    delete prev_internal_simd_struct[indiv_id];
+      if (internal_simd_struct[indiv_id]->usage_count_ > 1)
+        internal_simd_struct[indiv_id]->usage_count_--;
+      else {
+        delete internal_simd_struct[indiv_id];
+        internal_simd_struct[indiv_id] = nullptr;
+      }
+    }
+
+    if (prev_internal_simd_struct[indiv_id] != nullptr) {
+      if (prev_internal_simd_struct[indiv_id]->usage_count_ > 1)
+        prev_internal_simd_struct[indiv_id]->usage_count_--;
+      else {
+        delete prev_internal_simd_struct[indiv_id];
+        prev_internal_simd_struct[indiv_id] = nullptr;
+      }
+    }
+
   }
 
   delete[] prev_internal_simd_struct;
