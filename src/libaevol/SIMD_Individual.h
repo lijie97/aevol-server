@@ -106,8 +106,8 @@ class Internal_SIMD_Struct {
 
     std::set<int> terminator_lag;
     std::set<int> terminator_lead;
-    std::vector<pRNA> rnas;
-    std::vector<pProtein> proteins;
+    std::vector<pRNA*> rnas;
+    std::vector<pProtein*> proteins;
     float phenotype[300];
     float delta[300];
     double fitness;
@@ -119,6 +119,9 @@ class Internal_SIMD_Struct {
     int32_t parent_id;
 
     int32_t usage_count_ = 1;
+
+    int32_t protein_count_ = 0;
+    int32_t rna_count_ = 0;
 
     ExpManager* exp_m_;
 

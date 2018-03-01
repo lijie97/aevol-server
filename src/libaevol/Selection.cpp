@@ -905,6 +905,12 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
     } else {
 #endif
+    {
+      NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
+      notifyObservers(NEW_INDIV, eindiv);
+      delete eindiv;
+    }
+
     chromosome->dna()->apply_mutations();
 #ifdef __DETECT_CLONE
     }
@@ -913,11 +919,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 //    printf("Number of mutations %ld\n", dynamic_cast<Individual*>(new_indiv)->dna_simd_.mutation_list.size());
 
 //#pragma omp critical(newindivevent)
-      {
-        NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
-        notifyObservers(NEW_INDIV, eindiv);
-        delete eindiv;
-      }
+
   }
   else { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
