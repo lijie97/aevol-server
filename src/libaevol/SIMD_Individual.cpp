@@ -145,6 +145,7 @@ void SIMD_Individual::do_mutation() {
       int x = indiv_id / exp_m_->world()->height();
       int y = indiv_id % exp_m_->world()->height();
       delete exp_m_->dna_mutator_array_[indiv_id];
+
       exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
           exp_m_->world()->grid(x, y)->mut_prng(),
           internal_simd_struct[indiv_id]->dna_->length(),
@@ -285,7 +286,13 @@ void SIMD_Individual::do_mutation() {
 SIMD_Individual::~SIMD_Individual() {
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (internal_simd_struct[indiv_id] != nullptr) {
+      for (auto rn : internal_simd_struct[indiv_id]->rnas) {
+       delete rn;
+      }
       internal_simd_struct[indiv_id]->rnas.clear();
+      for (auto prot : internal_simd_struct[indiv_id]->proteins) {
+        delete prot;
+      }
       internal_simd_struct[indiv_id]->proteins.clear();
 
       if (internal_simd_struct[indiv_id]->usage_count_ > 1)
@@ -305,6 +312,7 @@ SIMD_Individual::~SIMD_Individual() {
       }
     }
 
+    delete exp_m_->dna_mutator_array_[indiv_id];
   }
 
   delete[] prev_internal_simd_struct;
@@ -804,6 +812,7 @@ void SIMD_Individual::opt_prom_compute_RNA() {
                       internal_simd_struct[indiv_id]->rna_count_ =
                           internal_simd_struct[indiv_id]->rna_count_ + 1;
                     }
+
                     internal_simd_struct[indiv_id]->rnas[glob_rna_idx] = new pRNA(
                         prom_pos,
                         rna_end,
@@ -2270,6 +2279,17 @@ Internal_SIMD_Struct::~Internal_SIMD_Struct() {
   lagging_prom_pos.clear();
 
   delete dna_;
+
+  for (auto rn : rnas) {
+    delete rn;
+  }
+
+  for (auto prot : proteins) {
+    delete prot;
+  }
+
+  rnas.clear();
+  proteins.clear();
 }
 
 /**
