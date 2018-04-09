@@ -196,9 +196,7 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
       mutation_list_.push_back(mevent);
 
     }
-  }
-
-  if (cpt_mut_>0) {
+  } else if (cpt_mut_>0) {
     random_value = mut_prng_->random(nb_mut_);
 
     cpt_mut_--;
