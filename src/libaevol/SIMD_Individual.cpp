@@ -1974,6 +1974,14 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             max_genome);
         exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
       }
+
+
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+        int x = indiv_id / exp_m_->world()->height();
+        int y = indiv_id % exp_m_->world()->height();
+
+        delete exp_m_->world()->grid(x,y)->individual();
+      }
     }
 
     //printf("Search RNA start/stop motifs\n");
@@ -2030,7 +2038,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   delete stats_mean;
 
   if (AeTime::time() % exp_m_->backup_step() == 0) {
-    for (int indiv_id = 1; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       int x = indiv_id / exp_m_->world()->height();
       int y = indiv_id % exp_m_->world()->height();
 
@@ -2045,8 +2053,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                                           indiv_id,
                                           "",
                                           0);
+      int32_t nb_blocks_ = prev_internal_simd_struct[indiv_id]->dna_->length()/BLOCK_SIZE + 1;
+      char* dna_string = new char[nb_blocks_ * BLOCK_SIZE];
+      memset(dna_string,0,
+             (prev_internal_simd_struct[indiv_id]->dna_->length()+1) * sizeof(char));
+      memcpy(dna_string, prev_internal_simd_struct[indiv_id]->dna_->to_char(),
+             (prev_internal_simd_struct[indiv_id]->dna_->length()+1) * sizeof(char));
 
-      char* dna_string = prev_internal_simd_struct[indiv_id]->dna_->to_char();
       indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
       indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
       indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
@@ -2065,6 +2078,16 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
     last_gener_file << AeTime::time() << std::endl;
     last_gener_file.close();
+
+    if (AeTime::time() != exp_m_->end_step()) {
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+        int x = indiv_id / exp_m_->world()->height();
+        int y = indiv_id % exp_m_->world()->height();
+
+        delete exp_m_->world()->grid(x, y)->individual();
+      }
+    }
+
   }
 
   //printf("Start to next gen\n");

@@ -577,7 +577,7 @@ void ExpManager::run_evolution() {
 
 #ifdef __TRACING__
   high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
-	  high_resolution_clock::time_point t_t2,t1,t2;
+    high_resolution_clock::time_point t_t2,t1,t2;
 #endif
 
 #ifdef __CUDACC__
@@ -590,14 +590,16 @@ void ExpManager::run_evolution() {
   // For each generation
   while (true) { // termination condition is into the loop
 
-    printf("============================== %" PRId64 " ==============================\n",
-           AeTime::time());
+    printf(
+        "============================== %" PRId64 " ==============================\n",
+        AeTime::time());
     if (!first_run) {
       if (simd_individual->standalone()) {
-        printf("  Best individual's (%d) distance to target (metabolic) : %f (clones %d)\n",
-               simd_individual->best_indiv->indiv_id,
-               simd_individual->best_indiv->metaerror,
-        simd_individual->nb_clones_);
+        printf(
+            "  Best individual's (%d) distance to target (metabolic) : %f (clones %d)\n",
+            simd_individual->best_indiv->indiv_id,
+            simd_individual->best_indiv->metaerror,
+            simd_individual->nb_clones_);
       } else {
         printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
                best_indiv()->id(),
@@ -654,16 +656,16 @@ void ExpManager::run_evolution() {
     step_to_next_generation();
 #ifdef __TRACING__
     t2 = high_resolution_clock::now();
-	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	  	  ae_logger::addLog(SELECTION,duration);
-	  	  ae_logger::flush(AeTime::time());
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        ae_logger::addLog(SELECTION,duration);
+        ae_logger::flush(AeTime::time());
 #endif
   }
 #ifdef __TRACING__
   t_t2 = high_resolution_clock::now();
-	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
-	  	  ae_logger::addLog(TOTAL,duration);
-	  	  ae_logger::flush(AeTime::time());
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
+        ae_logger::addLog(TOTAL,duration);
+        ae_logger::flush(AeTime::time());
 #endif
 
 #ifdef __CUDACC__
@@ -674,9 +676,12 @@ void ExpManager::run_evolution() {
   printf("================================================================\n");
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
-  FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
-  fputs(best_indiv()->genetic_unit_sequence(0), org_file);
-  fclose(org_file);
+
+  if (!simd_individual->standalone()) {
+    FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
+    fputs(best_indiv()->genetic_unit_sequence(0), org_file);
+    fclose(org_file);
+  }
 }
 
 void ExpManager::update_best()
