@@ -243,13 +243,31 @@ void Selection::step_to_next_generation() {
 
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y] =
           new Internal_SIMD_Struct(exp_m_,exp_m_->simd_individual->prev_internal_simd_struct
-                                   [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->
-                  height()+reproducers[x][y]->grid_cell()->y()]);
+          [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()],false);
 
+      exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;
+      exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->parent_id =
+          reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y();
 
+/*      if ( x*exp_m_->world()->height()+y == 80) {
+        printf("80 -- DNA Size %d (parent %d) -- reproducer %d (%d)\n",
+               exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->dna_->length_,
+               exp_m_->simd_individual->prev_internal_simd_struct
+               [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()]->dna_->length_,
+               reproducers[x][y]->genetic_unit(0).dna()->length(),
+               reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()
+        );
+      }*/
 
-      exp_m_->simd_individual->internal_simd_struct
-      [x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;
+      /*if ( x*exp_m_->world()->height()+y == 49) {
+        printf("49 -- DNA Size %d (parent %d) -- reproducer %d (%d)\n",
+               exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->dna_->length_,
+               exp_m_->simd_individual->prev_internal_simd_struct
+               [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()]->dna_->length_,
+               reproducers[x][y]->genetic_unit(0).dna()->length(),
+               reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()
+        );
+      }*/
     }
   }
 
@@ -873,6 +891,10 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 	  	  ae_logger::addLog(SEARCH_START_RNA,duration);
 #endif
 
+/*    if (x*exp_m_->world()->height()+y==93) {
+      printf("Indiv 93 has mutate %d\n",exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate());
+    }*/
+
 #ifdef __DETECT_CLONE
     if (! exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate()) {
 
@@ -919,6 +941,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 //    printf("Number of mutations %ld\n", dynamic_cast<Individual*>(new_indiv)->dna_simd_.mutation_list.size());
 
 //#pragma omp critical(newindivevent)
+
 
   }
   else { // For each GU, apply mutations

@@ -100,6 +100,8 @@ void SIMD_Individual::selection() {
 
     for(int16_t i = 0 ; i < neighborhood_size ; i++) {
       probs[i] = local_fit_array[i]/sum_local_fit;
+      //printf("%d -- prob[%d] : %e : fitness %e sum %e\n",indiv_id,i,probs[i],
+      //       local_fit_array[i],sum_local_fit);
     }
 
     int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_->roulette_random(probs, neighborhood_size);
@@ -119,6 +121,9 @@ void SIMD_Individual::selection() {
     exp_m_->simd_individual->internal_simd_struct[indiv_id]->parent_id =
         ((x+x_offset+grid_width)  % grid_width)*grid_height+
         ((y+y_offset+grid_height) % grid_height);
+
+    //printf("New indiv %d parent %d\n",exp_m_->simd_individual->internal_simd_struct[indiv_id]->indiv_id,
+    //       exp_m_->simd_individual->internal_simd_struct[indiv_id]->parent_id);
   }
 }
 
@@ -162,7 +167,6 @@ void SIMD_Individual::do_mutation() {
       exp_m_->dna_mutator_array_[indiv_id]->generate_mutations();
     }
   }
-
   nb_clones_ = 0;
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
 
@@ -182,6 +186,10 @@ void SIMD_Individual::do_mutation() {
 //        printf("Before mutation %d (%d %d)-- %d %d %d\n",indiv_id,x,y,
 //               internal_simd_struct[indiv_id]->dna_->length(),dna_size[indiv_id],
 //               exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).seq_length());
+
+        /*if (indiv_id == 49) {
+          printf("Size before mutation %d\n",internal_simd_struct[indiv_id]->dna_->length());
+        }*/
         if (standalone_)
           internal_simd_struct[indiv_id]->dna_->apply_mutations_standalone();
         else
@@ -194,6 +202,11 @@ void SIMD_Individual::do_mutation() {
         internal_simd_struct[indiv_id]->usage_count_++;
       }
 
+/*
+    if (indiv_id == 49) {
+      printf("Size after mutation %d\n",internal_simd_struct[indiv_id]->dna_->length());
+    }
+*/
 //    if (indiv_id == 43)
 //      printf("DNA AFTER SIZE of %d is %d (%d)\n",indiv_id,dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length());
 
@@ -1125,14 +1138,17 @@ void SIMD_Individual::start_protein() {
 #endif
                   }
 
-                  /*if (indiv_id == 601 && AeTime::time() == 323 && rna_idx == 199)
-                    printf("Searching for start prot at %d : %d (%d)\n",c_pos,start,k_t);*/
+//                  if (indiv_id == 905)
+//                    printf("Search for start prot at %d : %d (%d)\n",c_pos,start,k_t);
 
                   if (start) {
                     /*if (indiv_id == 601 && AeTime::time() == 323 && internal_simd_struct[indiv_id]->rnas[rna_idx].leading_lagging == true)
                       printf("Found Start LAG POS %d\n",c_pos);*/
 
                     //printf("Start protein %d\n",c_pos);
+
+                    //if (indiv_id == 905)
+                      //printf("Found start prot at %d : %d (%d)\n",c_pos,start,k_t);
 
                     internal_simd_struct[indiv_id]->rnas[rna_idx]->start_prot.
                         push_back(c_pos);
@@ -1936,8 +1952,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     //printf("Apply mutation + Optimized search promoters\n");
     do_mutation();
     /*printf("Check DNA:  Optimized search promoters\n");
-    check_dna();*/
-
+    */
+    check_dna();
     //printf("Optimized search stop RNA and Compute RNA\n");
     opt_prom_compute_RNA();
   } else {
@@ -1982,6 +1998,27 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
         delete exp_m_->world()->grid(x,y)->individual();
       }
+    } else {
+        for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
+          int x = indiv_id / exp_m_->world()->height();
+          int y = indiv_id % exp_m_->world()->height();
+          delete exp_m_->dna_mutator_array_[indiv_id];
+
+          exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
+              exp_m_->world()->grid(x, y)->mut_prng(),
+              internal_simd_struct[indiv_id]->dna_->length(),
+              exp_m_->exp_s()->mut_params()->duplication_rate(),
+              exp_m_->exp_s()->mut_params()->deletion_rate(),
+              exp_m_->exp_s()->mut_params()->translocation_rate(),
+              exp_m_->exp_s()->mut_params()->inversion_rate(),
+              exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+              exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+              exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+              exp_m_->exp_s()->mut_params()->max_indel_size(),
+              exp_m_->exp_s()->min_genome_length(),
+              exp_m_->exp_s()->max_genome_length());
+          exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
+        }
     }
 
     //printf("Search RNA start/stop motifs\n");
@@ -2001,7 +2038,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   compute_fitness(selection_pressure);
 
   //printf("Check results\n");
-  //check_result();
+  check_result();
 
   if (optim_prom) {
     //printf("Copy to old generation struct\n");
@@ -2011,6 +2048,12 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       else
         prev_internal_simd_struct[indiv_id]->usage_count_--;
       
+      prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+      internal_simd_struct[indiv_id] = nullptr;
+    }
+  } else {
+    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+
       prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
       internal_simd_struct[indiv_id] = nullptr;
     }
@@ -2037,7 +2080,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   stats_mean->write_average();
   delete stats_mean;
 
-  if (AeTime::time() % exp_m_->backup_step() == 0) {
+  if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       int x = indiv_id / exp_m_->world()->height();
       int y = indiv_id % exp_m_->world()->height();
@@ -2113,15 +2156,24 @@ void SIMD_Individual::check_dna() {
     x = i / exp_m_->world()->height();
     y = i % exp_m_->world()->height();
 
-    ///printf("Check DNA indiv %d %ld %ld\n",i,dna_size[i],exp_m_->world()->grid(x, y)->individual()->genetic_unit(
-    ///    0).dna()->length());
     for (int dna_pos = 0; dna_pos < dna_size[i]; dna_pos++) {
       if (exp_m_->world()->grid(x, y)->individual()->genetic_unit(
-          0).dna()->data()[dna_pos] != internal_simd_struct[i]->dna_->data_[dna_pos])
+          0).dna()->data()[dna_pos] != internal_simd_struct[i]->dna_->data_[dna_pos]) {
+
+        printf("Check DNA indiv %d %ld %ld --- NB Mutation %ld\n",i,dna_size[i],exp_m_->world()->grid(x, y)->individual()->genetic_unit(
+            0).dna()->length(),exp_m_->dna_mutator_array_[i]->mutation_list_.size());
+
         printf("Divergence between classic DNA and SIMD DNA %d %d at pos %d\n",
                exp_m_->world()->grid(x, y)->individual()->genetic_unit(
-                   0).dna()->data()[dna_pos], internal_simd_struct[i]->dna_->data_[dna_pos],
-            dna_pos);
+                   0).dna()->data()[dna_pos],
+               internal_simd_struct[i]->dna_->data_[dna_pos],
+               dna_pos);
+        for (auto mute : exp_m_->dna_mutator_array_[i]->mutation_list_) {
+          printf("Mutation type %d\n",mute->type());
+        }
+
+        break;
+      }
     }
   }
 #else
@@ -2134,6 +2186,8 @@ void SIMD_Individual::check_result() {
   int x, y;
 
   for (int i = 0; i < (int) exp_m_->nb_indivs(); i++) {
+    //if (i != 905) continue;
+
     x = i / exp_m_->world()->height();
     y = i % exp_m_->world()->height();
 
@@ -2152,17 +2206,17 @@ void SIMD_Individual::check_result() {
         prot_size++;
       }
     }
-    //if (i_fit_1 != i_fit_2) {
-    if (dna_size[i] > 300)
+    if (i_fit_1 != i_fit_2 && dna_size[i] > 300)
+    //if (dna_size[i] > 300)
       if ((internal_simd_struct[i]->rnas.size() != exp_m_->world()->grid(x, y)->individual()->rna_list().size()) ||
         (internal_simd_struct[i]->proteins.size() != prot_size)) {
       printf(
-          "ERROR -- Individual %d : Metaerror (CPU/GPU) : %e || Fitness (CPU/GPU) : %e \n",
+          "ERROR -- Individual %d : Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
           i,
-          //exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
-          //    METABOLISM),
+          exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
+              METABOLISM),
           internal_simd_struct[i]->metaerror,
-          //exp_m_->world()->grid(x, y)->individual()->fitness(),
+          exp_m_->world()->grid(x, y)->individual()->fitness(),
           internal_simd_struct[i]->fitness);
 
 /*      printf(
@@ -2179,12 +2233,12 @@ void SIMD_Individual::check_result() {
               0).seq_length());*/
 
       int idx = 0;
-        /*
+
       for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
         printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
                rna->promoter_pos(), rna->last_transcribed_pos(), rna->strand(), rna->transcript_length());
         idx++;
-      }*/
+      }
 
       idx = 0;
       for (idx = 0; idx < (int) (internal_simd_struct[i]->rnas.size()); idx++) {
@@ -2199,13 +2253,13 @@ void SIMD_Individual::check_result() {
 
       idx = 0;
         int prot_cpt_a=0,prot_cpt_b=0;
-        /*
+
       for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
         printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d\n", idx,
                prot->first_translated_pos(), prot->last_translated_pos(), prot->last_STOP_base_pos(), prot->length(), prot->strand(),
                prot->mean(),prot->width(),prot->height(),prot->is_functional());
         idx++;
-      }*/
+      }
 
       for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
         printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d\n", idx,

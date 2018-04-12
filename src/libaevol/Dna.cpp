@@ -1331,6 +1331,11 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     duplicate_segment[seg_length] = '\0';
   }
 
+/*  if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
+    printf(
+        "VANILLA -- Duplication _lengh %d\n", seg_length);
+  }*/
+
 //  if (genetic_unit()->indiv()->grid_cell()->x() == 1 && genetic_unit()->indiv()->grid_cell()->y() == 8) {
 //    printf("VANILLA_BEFORE_DUPLICATION RNA Promoters lists : ");
 //    for (auto strand: {LEADING, LAGGING}) {
@@ -1379,9 +1384,21 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 //    printf("\n");
 //  }
 
+
+/*  if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
+    printf(
+        "%d -- INSERT POS %d SEQ_LENGTH %d SIZE BEFORE %d\n",
+        indiv()->id(), pos_3,seg_length,length_);
+  }*/
+
   insert(pos_3, duplicate_segment, seg_length);
 
 
+/*  if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
+    printf(
+        "%d -- INSERT SIZE AFTER %d\n",
+        indiv()->id(), length_);
+  }*/
 
 
   if (length_ >= PROM_SIZE) {
@@ -3761,14 +3778,25 @@ void Dna::apply_mutations() {
   int32_t segment_length;
   Mutation* mut = nullptr;
 
-  MutationEvent* repl = exp_m_->
-      dna_mutator_array_[indiv_->grid_cell()->x() * exp_m_->world()->height() +
-                         indiv_->grid_cell()->y()]
-      ->generate_next_mutation(length_);
+  MutationEvent* repl = nullptr;
 
-  while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x() * exp_m_->world()->height() +
-                            indiv_->grid_cell()->y()]->mutation_available()) {
+  do {
+
+    //if (indiv()->id()==93) {
+    //  printf("Mutation for ? %d\n",indiv()->id()%(1024*AeTime::time()));
+    //}
+
+
+    repl = exp_m_->
+        dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
+        ->generate_next_mutation(length_);
+
+/*    if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==93) {
+      printf("Mutation is %p\n",repl);
+    }*/
+
     if (repl != nullptr) {
+
       switch (repl->type()) {
         case DO_SWITCH:
           //printf("%d -- Switch at %d\n",indiv()->id(),repl->pos_1());
@@ -3792,12 +3820,23 @@ void Dna::apply_mutations() {
         case DUPLICATION:
           segment_length =
               Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
-          /*printf("%d -- Duplication pos_1 %d pos_2 %d pos_3 %d seg_lengh %d\n",
-                 indiv()->id(),repl->pos_1(),repl->pos_2(),repl->pos_3(),segment_length);*/
+
+/*          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
+            printf(
+                "%d -- Duplication pos_1 %d pos_2 %d pos_3 %d seg_lengh %d\n",
+                indiv()->id(), repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                segment_length);
+            printf("Size before %d\n",length_);
+          }*/
 
           mut = new Duplication(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                 segment_length);
           do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
+
+
+/*          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
+            printf("Size after %d\n",length_);
+          }*/
           break;
         case TRANSLOCATION:
           segment_length = repl->pos_2() - repl->pos_1();
@@ -3835,10 +3874,8 @@ void Dna::apply_mutations() {
 
 
 
-    repl = exp_m_->
-        dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
-        ->generate_next_mutation(length_);
-  }
+  } while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x() * exp_m_->world()->height() +
+                                      indiv_->grid_cell()->y()]->mutation_available());
 }
 
 

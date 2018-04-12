@@ -245,7 +245,7 @@ class SIMD_Individual {
     ExpManager* exp_m_;
     int* dna_size;
     float target[300];
-    bool standalone_ = true;
+    bool standalone_ = false;
 
     void selection();
 

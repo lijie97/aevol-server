@@ -123,7 +123,7 @@ void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
   }
 
   // Compute size of new genome
-  int32_t new_length    = length_ + seq_length + 1;
+  int32_t new_length    = length_ + seq_length;
   int32_t new_nb_blocks = nb_blocks(new_length);
   char*   new_genome;
   posix_memalign((void **)&new_genome ,64, new_nb_blocks * BLOCK_SIZE* sizeof(char));//new char[new_nb_blocks * BLOCK_SIZE * sizeof(char)];
@@ -340,6 +340,11 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     duplicate_segment[seg_length] = '\0';
 #endif
   }
+
+/*  if (indiv_->indiv_id==49) {
+    printf(
+        "Duplication _lengh %d\n", seg_length);
+  }*/
 
   if (seg_length <= 0) {
 #ifdef WITH_BITSET
@@ -1009,7 +1014,7 @@ void Dna_SIMD::apply_mutations_standalone() {
         case DELETION:
 //        printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
           do_deletion(repl->pos_1(), repl->pos_2());
-          nb_large_del_;
+          nb_large_del_++;
           nb_rear_++;
 //        printf("End LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
           break;
@@ -1022,8 +1027,6 @@ void Dna_SIMD::apply_mutations_standalone() {
 
 
 void Dna_SIMD::apply_mutations() {
-//  printf("INDIV %d -- Mutation list size  %ld -- LENGTH %d\n",indiv_->indiv_id,
-//         mutation_list.size(),indiv_->dna_->length());
 //
 //  if (indiv_->indiv_id == 30) {
 //    printf("APPLY_MUTATION : Leading promoters lists : ");
@@ -1040,10 +1043,15 @@ void Dna_SIMD::apply_mutations() {
 //    printf("\n");
 //  }
 
-  for (auto repl : mutation_list) {
+
+  for (auto repl : indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_list_) {
+/*    if (indiv_->indiv_id == 49) {
+      printf("Mutation type %d\n",repl->type());
+    }*/
+
     switch(repl->type()) {
       case DO_SWITCH:
-//        printf("Start switch at %d\n",repl->pos_1());
+        //printf("Start switch at %d\n",repl->pos_1());
         do_switch(repl->pos_1());
 //        printf("End switch at %d\n",repl->pos_1());
         break;
@@ -1062,7 +1070,7 @@ void Dna_SIMD::apply_mutations() {
 //        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
         break;
       case DUPLICATION:
-//        printf("Start duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
+        /*if (indiv_->indiv_id == 49) printf("Start duplication at %d (%d %d) size %d\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),length_);*/
         do_duplication(repl->pos_1(),repl->pos_2(),repl->pos_3());
 //        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
         break;

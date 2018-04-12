@@ -346,11 +346,6 @@ auto     t1 = high_resolution_clock::now();
 
   auto ta = high_resolution_clock::now();
   if (simd_individual == nullptr) {
-    dna_mutator_array_ = new DnaMutator*[grid_height()*grid_width()];
-    for (int i = 0; i < grid_height()*grid_width(); i++) {
-      dna_mutator_array_[i] = nullptr;
-    }
-
     simd_individual = new SIMD_Individual(this);
 
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
@@ -587,6 +582,13 @@ void ExpManager::run_evolution() {
 #endif
 
   bool first_run = true;
+
+  dna_mutator_array_ = new DnaMutator*[grid_height()*grid_width()];
+  for (int i = 0; i < grid_height()*grid_width(); i++) {
+    dna_mutator_array_[i] = nullptr;
+  }
+
+
   // For each generation
   while (true) { // termination condition is into the loop
 

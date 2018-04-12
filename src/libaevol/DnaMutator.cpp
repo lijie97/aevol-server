@@ -3,6 +3,7 @@
 //
 
 #include "DnaMutator.h"
+#include "AeTime.h"
 
 namespace aevol {
 DnaMutator::DnaMutator(std::shared_ptr<JumpingMT> mut_prng,
@@ -102,6 +103,13 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
   int32_t random_value;
   MutationEvent* mevent = nullptr;
 
+
+/*  if (id_%(AeTime::time()*1024)==93) {
+    printf("Mutation %d (%d %d %d %d %d) -- %d (%d %d %d %d)\n",
+           cpt_rear_,nb_rear_,nb_large_inv_,nb_large_trans_,nb_large_del_,nb_large_dupl_,
+           cpt_mut_,nb_mut_,nb_swi_,nb_ins_,nb_del_);
+  }*/
+
   if (cpt_rear_>0) {
     random_value = mut_prng_->random(nb_rear_);
     cpt_rear_--;
@@ -198,15 +206,21 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
     }
   } else if (cpt_mut_>0) {
     random_value = mut_prng_->random(nb_mut_);
-
+/*    if (id_%(AeTime::time()*1024)==93) {
+      printf("Random value %d\n",random_value);
+    }*/
     cpt_mut_--;
 
     if (random_value < nb_swi_) {
       nb_swi_--;
 
       int32_t pos = mut_prng_->random(length_);
+/*
+      if (id_%(AeTime::time()*1024)==93) {
+        printf("SWITCH POS %d\n",pos);
+      }*/
 
-      MutationEvent* mevent = new MutationEvent();
+      mevent = new MutationEvent();
       mevent->switch_pos(pos);
       mutation_list_.push_back(mevent);
 
