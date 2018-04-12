@@ -2261,7 +2261,9 @@ void SIMD_Individual::check_result() {
         idx++;
       }
 
-      for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
+      for (int idx = 0; idx <
+                                  (int) internal_simd_struct[i]->protein_count_; idx++) {
+      //for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
         printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d\n", idx,
                internal_simd_struct[i]->proteins[idx]->protein_start,
                internal_simd_struct[i]->proteins[idx]->protein_end,
