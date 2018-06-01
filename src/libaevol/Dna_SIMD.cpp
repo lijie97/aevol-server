@@ -48,7 +48,7 @@ Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, bool copy_dna) {
 
 Dna_SIMD::Dna_SIMD(Dna* dna) {
 #ifdef WITH_BITSET
-  //printf("Building BitSet\n");
+ // printf("Building BitSet\n");
   bitset_ = new BitSet_SIMD(dna->data(),dna->length());
   //printf("BitSet is BUILT\n");
   //int a=1;
