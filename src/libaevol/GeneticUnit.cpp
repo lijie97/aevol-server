@@ -1247,9 +1247,22 @@ void GeneticUnit::compute_phenotypic_contribution() {
   if (!translated_) do_translation();
 
   //printf("Prot list: %ld %ld\n",protein_list_[LEADING].size(),protein_list_[LEADING].size());
+
+
+
   for (const auto& strand: protein_list_) // two strands: LEADING & LAGGING
     for (const auto& prot: strand)
       if (prot.is_functional()) {
+        /*if (indiv_->grid_cell()->x()*exp_m()->world()->height()+indiv_->grid_cell()->y() == 894) {
+          printf("Protein is %f %f %f %f\n",prot.mean(),
+                 prot.width(),
+                 prot.height(),prot.concentration());
+
+          ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
+              ->add_triangle(prot.mean(),
+                             prot.width(),
+                             prot.height() * prot.concentration(), true);
+        } else*/
           ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
             ->add_triangle(prot.mean(),
                            prot.width(),

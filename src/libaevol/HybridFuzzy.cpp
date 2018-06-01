@@ -83,22 +83,25 @@ void HybridFuzzy::add_triangle( ProteinConcentration mean, ProteinConcentration 
   ProteinConcentration x1 = mean;
   ProteinConcentration x2 = mean + width;
 
-  int ix0 = (int) (x0 * _pheno_size);
-  int ix1 = (int) (x1 * _pheno_size);
-  int ix2 = (int) (x2 * _pheno_size);
+  int ix0 = (int) (x0 * 300);
+  int ix1 = (int) (x1 * 300);
+  int ix2 = (int) (x2 * 300);
 
-  if (ix0 < 0) ix0 = 0; else if (ix0 > (_pheno_size-1)) ix0 = _pheno_size-1;
-  if (ix1 < 0) ix1 = 0; else if (ix1 > (_pheno_size-1)) ix1 = _pheno_size-1;
-  if (ix2 < 0) ix2 = 0; else if (ix2 > (_pheno_size-1)) ix2 = _pheno_size-1;
+  if (ix0 < 0) ix0 = 0; else if (ix0 > (299)) ix0 = 299;
+  if (ix1 < 0) ix1 = 0; else if (ix1 > (299)) ix1 = 299;
+  if (ix2 < 0) ix2 = 0; else if (ix2 > (299)) ix2 = 299;
 
   if (verbose)
-    printf("Adding triangle %d %d %d\n",ix0,ix1,ix2);
+    printf("Adding triangle %d %d %d (%f %f %f) -- %f\n",ix0,ix1,ix2,x0,x1,x2,height);
 
   // Compute the first equation of the triangle
   ProteinConcentration incY = height / (ix1 - ix0);
   int count = 1;
   // Updating value between x0 and x1
 //  _points[ix0] = 0.0;
+  if (verbose)
+    printf("incY first loop %f\n",incY);
+
   for (int i = ix0+1; i < ix1; i++) {
     _points[i]+=incY*(count++);
   }
@@ -108,6 +111,9 @@ void HybridFuzzy::add_triangle( ProteinConcentration mean, ProteinConcentration 
   // Compute the second equation of the triangle
   incY = height / (ix2 - ix1);
   count = 1;
+
+  if (verbose)
+    printf("incY second loop %f\n",incY);
 
   // Updating value between x1 and x2
   for (int i = ix1+1; i < ix2; i++) {

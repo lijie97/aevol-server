@@ -7,6 +7,7 @@
 
 #include "ExpManager.h"
 
+
 namespace aevol {
 
 constexpr const char* PROM_SEQ_LEAD = "0101011001110010010110";
@@ -235,6 +236,9 @@ class SIMD_Individual {
 
     bool standalone() const { return standalone_; }
 
+
+    void build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler);
+
     Internal_SIMD_Struct** internal_simd_struct;
     Internal_SIMD_Struct** prev_internal_simd_struct;
     Internal_SIMD_Struct* best_indiv;
@@ -248,6 +252,7 @@ class SIMD_Individual {
     bool standalone_ = false;
 
     void selection();
+
 
 
 };

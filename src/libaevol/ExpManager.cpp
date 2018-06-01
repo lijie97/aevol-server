@@ -341,25 +341,14 @@ auto     t1 = high_resolution_clock::now();
   auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
 #endif
-  //}
 
-
-  auto ta = high_resolution_clock::now();
+  bool simd_first = false;
   if (simd_individual == nullptr) {
+    simd_first = true;
     simd_individual = new SIMD_Individual(this);
-
-    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
-
-    //simd_individual->check_result();
-  } else {
-    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
   }
-  auto tb = high_resolution_clock::now();
 
-
-
-  auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>( tb - ta ).count();
-
+  //}
   t1 = high_resolution_clock::now();
 
   if (!simd_individual->standalone())
@@ -373,6 +362,22 @@ auto     t1 = high_resolution_clock::now();
 #endif
 
   auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+  auto ta = high_resolution_clock::now();
+
+  if (simd_first) {
+    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
+    //simd_individual->check_result();
+  } else {
+    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
+  }
+  auto tb = high_resolution_clock::now();
+
+
+
+  auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>( tb - ta ).count();
+
+
 
 
 
@@ -424,6 +429,8 @@ void ExpManager::load(gzFile& exp_s_file,
   world_ = new World();
   world_->load(world_file, this);
   printf(" OK\n");
+
+  printf("-------------- Nb Gaussians %d\n",world()->phenotypic_target_handler()->gaussians().size());
 
   sel()->set_unique_id(  grid_height()*grid_width()+1 );
 

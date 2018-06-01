@@ -109,6 +109,11 @@ class PhenotypicTargetHandler
   const list<Gaussian>& gaussians() const {
     return initial_gaussians_;
   }
+
+    const list<Gaussian>& current_gaussians() const {
+      return current_gaussians_;
+    }
+
   const PhenotypicTargetVariationMethod& var_method() const {
     return var_method_;
   }

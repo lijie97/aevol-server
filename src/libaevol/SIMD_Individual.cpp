@@ -46,9 +46,17 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
   }
 
-  for (int i = 0; i < 300; i++) {
-    target[i] = (float) ((HybridFuzzy*) exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy())->points()[i];
-  }
+  //for (int i = 0; i < 300; i++) {
+  //  target[i] = (float) ((HybridFuzzy*) exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy())->points()[i];
+  //}
+  build_phenotypic_target(exp_m->world()->phenotypic_target_handler());
+
+
+
+  /*for (int i = 0; i < 300; i++) {
+    printf("%i  -- %f / %lf\n", i, target[i],
+           ((HybridFuzzy*) exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy())->points()[i]);
+  }*/
 }
 
 void SIMD_Individual::clear_struct_before_next_step() {
@@ -78,6 +86,7 @@ void SIMD_Individual::selection() {
 
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
     double *  local_fit_array   = new double[neighborhood_size];
+    double *  local_meta_array   = new double[neighborhood_size];
     double *  probs             = new double[neighborhood_size];
     int16_t   count             = 0;
     double    sum_local_fit     = 0.0;
@@ -93,6 +102,7 @@ void SIMD_Individual::selection() {
         cur_y = (y + j + grid_height) % grid_height;
 
         local_fit_array[count]  = prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness;
+        local_meta_array[count]  = prev_internal_simd_struct[cur_x*grid_height+cur_y]->metaerror;
         sum_local_fit += local_fit_array[count];
         count++;
       }
@@ -100,8 +110,8 @@ void SIMD_Individual::selection() {
 
     for(int16_t i = 0 ; i < neighborhood_size ; i++) {
       probs[i] = local_fit_array[i]/sum_local_fit;
-      //printf("%d -- prob[%d] : %e : fitness %e sum %e\n",indiv_id,i,probs[i],
-      //       local_fit_array[i],sum_local_fit);
+      //printf("%d -- prob[%d] : %e : fitness %e (%f) sum %e\n",indiv_id,i,probs[i],
+      //       local_fit_array[i],local_meta_array[i],sum_local_fit);
     }
 
     int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_->roulette_random(probs, neighborhood_size);
@@ -1833,11 +1843,11 @@ void SIMD_Individual::compute_phenotype() {
               if (internal_simd_struct[indiv_id]->proteins[protein_idx]->is_functional) {
 
                 // Compute triangle points' coordinates
-                float x0 =
+                double x0 =
                     internal_simd_struct[indiv_id]->proteins[protein_idx]->m -
                     internal_simd_struct[indiv_id]->proteins[protein_idx]->w;
-                float x1 = internal_simd_struct[indiv_id]->proteins[protein_idx]->m;
-                float x2 =
+                double x1 = internal_simd_struct[indiv_id]->proteins[protein_idx]->m;
+                double x2 =
                     internal_simd_struct[indiv_id]->proteins[protein_idx]->m +
                     internal_simd_struct[indiv_id]->proteins[protein_idx]->w;
 
@@ -1849,6 +1859,18 @@ void SIMD_Individual::compute_phenotype() {
                 if (ix1 < 0) ix1 = 0; else if (ix1 > (299)) ix1 = 299;
                 if (ix2 < 0) ix2 = 0; else if (ix2 > (299)) ix2 = 299;
 
+/*                if (indiv_id == 894) {
+                  printf("Height %f %f %f %f -- %f\n",internal_simd_struct[indiv_id]->proteins[protein_idx]->m,
+                         internal_simd_struct[indiv_id]->proteins[protein_idx]->w,
+                         internal_simd_struct[indiv_id]->proteins[protein_idx]->h,
+                         internal_simd_struct[indiv_id]->proteins[protein_idx]->e,
+                         (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
+                         internal_simd_struct[indiv_id]->proteins[protein_idx]->e)
+                  );
+
+                  printf("X0-1-2 %d %d %d (%f %f %f)\n", ix0, ix1, ix2, x0, x1,
+                         x2);
+                }*/
 
                 /*if (indiv_id == 908 && AeTime::time() == 87) {
                   printf("Prot %d (%f %f %f) PHEN %d %d %d\n",protein_idx,internal_simd_struct[indiv_id]->proteins[protein_idx].m,
@@ -1858,13 +1880,15 @@ void SIMD_Individual::compute_phenotype() {
                 }*/
 
                 // Compute the first equation of the triangle
-                float incY =
+                double incY =
                     (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
                      internal_simd_struct[indiv_id]->proteins[protein_idx]->e) /
                     (ix1 - ix0);
                 int count = 1;
                 // Updating value between x0 and x1
 
+                /*if (indiv_id == 894)
+                  printf("incY first loop %f\n",incY);*/
                 for (int i = ix0 + 1; i < ix1; i++) {
 //#pragma omp critical
                   {
@@ -1889,6 +1913,8 @@ void SIMD_Individual::compute_phenotype() {
                     (ix2 - ix1);
                 count = 1;
 
+/*                if (indiv_id == 894)
+                  printf("incY second loop %f\n",incY);*/
                 // Updating value between x1 and x2
                 for (int i = ix1 + 1; i < ix2; i++) {
 //#pragma omp atomic
@@ -1902,10 +1928,67 @@ void SIMD_Individual::compute_phenotype() {
                 }
               }
             }
+
+/*              if (indiv_id == 894)
+                for (int i = 213; i <= 227; i++) {
+                  printf("SIMD -- X[%d] = %f\n",i,internal_simd_struct[indiv_id]->phenotype[i]);
+                }*/
           }
         }
       }
     }
+  }
+}
+
+
+void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler) {
+  for (int16_t i = 0; i <= 300; i++) {
+    Point new_point = Point(
+        X_MIN + (double) i * (X_MAX - X_MIN) / (double) 300, 0.0);
+    //printf("Gaussians %d\n",phenotypic_target_handler->current_gaussians().size());
+
+    for (const Gaussian& g: phenotypic_target_handler->current_gaussians())
+      new_point.y += g.compute_y(new_point.x);
+
+    //printf("Sampling %d = %lf\n",(int)(new_point.x * 300),new_point.y);
+
+    if (i < 300)
+      target[(int)(new_point.x * 300)] = (float) new_point.y;
+
+  }
+
+  for (int i = 1; i < 300; i++) {
+      if (target[i] == 0.0) {
+        int minL = i - 1;
+        int maxL = i + 1;
+        int dist = 1;
+
+        while (target[maxL] == 0.0) {
+          maxL++;
+          dist++;
+        }
+        float inc = 0.0;
+        if (target[maxL] > target[minL]) {
+          inc = (target[maxL] - target[minL]) / dist;
+        } else {
+          inc = (target[minL] - target[maxL]) / dist;
+          minL = maxL;
+        }
+
+        for (int j = i; j < maxL; j++) {
+          target[j] = target[minL] + inc;
+          inc += inc;
+        }
+
+      }
+    }
+
+  for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
+
+    if (target[fuzzy_idx] > 1)
+      target[fuzzy_idx] = 1;
+    if (target[fuzzy_idx] < 0)
+      target[fuzzy_idx] = 0;
   }
 }
 
@@ -1942,23 +2025,46 @@ void SIMD_Individual::compute_fitness(double selection_pressure) {
 }
 
 void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool optim_prom) {
-  if (standalone_ && optim_prom)
+  if (standalone_) {
     selection();
+
+/*    for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
+      int x = indiv_id / exp_m_->world()->height();
+      int y = indiv_id % exp_m_->world()->height();
+      delete exp_m_->dna_mutator_array_[indiv_id];
+
+      exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
+          exp_m_->world()->grid(x, y)->mut_prng(),
+          internal_simd_struct[indiv_id]->dna_->length(),
+          exp_m_->exp_s()->mut_params()->duplication_rate(),
+          exp_m_->exp_s()->mut_params()->deletion_rate(),
+          exp_m_->exp_s()->mut_params()->translocation_rate(),
+          exp_m_->exp_s()->mut_params()->inversion_rate(),
+          exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+          exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+          exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+          exp_m_->exp_s()->mut_params()->max_indel_size(),
+          exp_m_->exp_s()->min_genome_length(),
+          exp_m_->exp_s()->max_genome_length());
+      //exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
+    }*/
+
+    do_mutation();
+  }
 
   if (optim_prom) {
     //printf("Clear structures\n");
     //clear_struct_before_next_step();
 
     //printf("Apply mutation + Optimized search promoters\n");
-    do_mutation();
     /*printf("Check DNA:  Optimized search promoters\n");
     */
-    check_dna();
+    //check_dna();
     //printf("Optimized search stop RNA and Compute RNA\n");
     opt_prom_compute_RNA();
   } else {
     if (standalone_) {
-      double dupl_rate = exp_m_->exp_s()->mut_params()->duplication_rate();
+/*      double dupl_rate = exp_m_->exp_s()->mut_params()->duplication_rate();
       double del_rate = exp_m_->exp_s()->mut_params()->deletion_rate();
       double trans_rate = exp_m_->exp_s()->mut_params()->translocation_rate();
       double inv_rate = exp_m_->exp_s()->mut_params()->inversion_rate();
@@ -1988,8 +2094,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             max_indel_size,
             min_genome,
             max_genome);
-        exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
-      }
+        //exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
+      }*/
 
 
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
@@ -1999,26 +2105,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         delete exp_m_->world()->grid(x,y)->individual();
       }
     } else {
-        for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
-          int x = indiv_id / exp_m_->world()->height();
-          int y = indiv_id % exp_m_->world()->height();
-          delete exp_m_->dna_mutator_array_[indiv_id];
 
-          exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
-              exp_m_->world()->grid(x, y)->mut_prng(),
-              internal_simd_struct[indiv_id]->dna_->length(),
-              exp_m_->exp_s()->mut_params()->duplication_rate(),
-              exp_m_->exp_s()->mut_params()->deletion_rate(),
-              exp_m_->exp_s()->mut_params()->translocation_rate(),
-              exp_m_->exp_s()->mut_params()->inversion_rate(),
-              exp_m_->exp_s()->mut_params()->point_mutation_rate(),
-              exp_m_->exp_s()->mut_params()->small_insertion_rate(),
-              exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-              exp_m_->exp_s()->mut_params()->max_indel_size(),
-              exp_m_->exp_s()->min_genome_length(),
-              exp_m_->exp_s()->max_genome_length());
-          exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
-        }
     }
 
     //printf("Search RNA start/stop motifs\n");
@@ -2037,9 +2124,10 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   //printf("Compute fitness\n");
   compute_fitness(selection_pressure);
 
-  //printf("Check results\n");
-  check_result();
 
+  //printf("Check results\n");
+  //check_result();
+  //exit(-44);
   if (optim_prom) {
     //printf("Copy to old generation struct\n");
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
@@ -2072,13 +2160,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   best_indiv = prev_internal_simd_struct[idx_best];
 
   // Stats
-  Stats_SIMD* stats_best = new Stats_SIMD(this, AeTime::time(), true);
+/*  Stats_SIMD* stats_best = new Stats_SIMD(this, AeTime::time(), true);
   stats_best->write_best();
   delete stats_best;
 
   Stats_SIMD* stats_mean = new Stats_SIMD(this, AeTime::time(), false);
   stats_mean->write_average();
-  delete stats_mean;
+  delete stats_mean;*/
 
   if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
@@ -2191,6 +2279,7 @@ void SIMD_Individual::check_result() {
     x = i / exp_m_->world()->height();
     y = i % exp_m_->world()->height();
 
+
     double fit_1 = exp_m_->world()->grid(x,
                                          y)->individual()->dist_to_target_by_feature(
         METABOLISM);
@@ -2201,11 +2290,13 @@ void SIMD_Individual::check_result() {
 
     int prot_size = 0;
 
+
     for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
       for (auto rna : prot->rna_list()) {
         prot_size++;
       }
     }
+
     if (i_fit_1 != i_fit_2 && dna_size[i] > 300)
     //if (dna_size[i] > 300)
       if ((internal_simd_struct[i]->rnas.size() != exp_m_->world()->grid(x, y)->individual()->rna_list().size()) ||
@@ -2219,7 +2310,7 @@ void SIMD_Individual::check_result() {
           exp_m_->world()->grid(x, y)->individual()->fitness(),
           internal_simd_struct[i]->fitness);
 
-/*      printf(
+      printf(
           "Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld Metaerror %f/%f Fitness %e/%e DNA Size %d/%d\n",
           internal_simd_struct[i]->rnas.size(),
           exp_m_->world()->grid(x, y)->individual()->rna_list().size(),
@@ -2230,11 +2321,11 @@ void SIMD_Individual::check_result() {
               METABOLISM), internal_simd_struct[i]->fitness,
           exp_m_->world()->grid(x, y)->individual()->fitness(), dna_size[i],
           exp_m_->world()->grid(x, y)->individual()->genetic_unit(
-              0).seq_length());*/
+              0).seq_length());
 
       int idx = 0;
 
-      for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
+      /*for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
         printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
                rna->promoter_pos(), rna->last_transcribed_pos(), rna->strand(), rna->transcript_length());
         idx++;
@@ -2275,7 +2366,7 @@ void SIMD_Individual::check_result() {
                 );
         prot_cpt_b++;
       }
-
+*/
 /*
         idx = 0;
         for (idx = 0; idx < (int) (internal_simd_struct[i]->rnas.size()); idx++) {
@@ -2286,9 +2377,9 @@ void SIMD_Individual::check_result() {
           }
         }*/
 
-//      for (int j = 0; j < 300; j++) {
-//        printf("PHENOTYPE [%d] : %f/%f\n",j,internal_simd_struct[i]->phenotype[j],((HybridFuzzy*) exp_m_->world()->indiv_at(x, y)->phenotype())->points()[j]);
-//      }
+  //    for (int j = 0; j < 300; j++) {
+  //      printf("PHENOTYPE [%d] : %f/%f\n",j,internal_simd_struct[i]->phenotype[j],((HybridFuzzy*) exp_m_->world()->indiv_at(x, y)->phenotype())->points()[j]);
+  //    }
 
 /*      char c = getchar();
       if (c=='q')

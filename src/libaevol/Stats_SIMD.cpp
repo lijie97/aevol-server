@@ -13,6 +13,27 @@ Stats_SIMD::Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation, boo
   is_indiv_ = best_or_not;
   generation_ = generation;
 
+  pop_size_ = 0;
+
+  fitness_ = 0;
+  metabolic_error_ = 0;
+
+  amount_of_dna_ = 0;
+  nb_coding_rnas_ = 0;
+  nb_non_coding_rnas_ = 0;
+
+  nb_functional_genes_ = 0;
+  nb_non_functional_genes_ = 0;
+
+  nb_mut_ = 0;
+  nb_rear_ = 0;
+  nb_switch_ = 0;
+  nb_indels_ = 0;
+  nb_dupl_ = 0;
+  nb_del_ = 0;
+  nb_trans_ = 0;
+  nb_inv_ = 0;
+
 
   if (generation_==1) {
     statfile_best_.open("stats/stats_simd_best.csv",std::ofstream::trunc);

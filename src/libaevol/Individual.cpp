@@ -46,6 +46,7 @@ using namespace std::chrono;
 #include "GeneticUnit.h"
 #include "VisAVis.h"
 #include "Utils.h"
+#include "HybridFuzzy.h"
 
 #ifdef __NO_X
   #ifdef __REGUL
@@ -1299,6 +1300,11 @@ void Individual::compute_phenotype() {
   for (const auto& gen_unit: genetic_unit_list_) {
     phenotype_activ_->add(*gen_unit.activ_contribution());
     phenotype_inhib_->add(*gen_unit.inhib_contribution());
+
+/*    if (grid_cell()->x()*exp_m()->world()->height()+grid_cell()->y() == 894)
+      for (int i = 213; i <= 227; i++) {
+        printf("VANILLA -- X[%d] = %f\n",i,((HybridFuzzy*)phenotype_activ_)->points()[i]);
+      }*/
   }
 
   phenotype_activ_->clip(AbstractFuzzy::max,   Y_MAX);
