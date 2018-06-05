@@ -199,9 +199,11 @@ void aevol::BitSet_SIMD::remove(int32_t pos_1, int32_t pos_2) {
   memset(new_data,0,nb_block_ * BITSET_BLOCK_SIZE* sizeof(char));
 
   // Copy the remaining of the genome in tmp (preceeding and following parts)
-  memcpy(new_data, data_, (nb_char_block_) * sizeof(char));
+  memcpy(new_data, data_, ((int)(pos_1/8)+1) * sizeof(char));
 
   data_ = new_data;
+
+  //printf("Reduce from %d to %d :: pos1 %d pos2 %d (copy from 0 to %d)\n",old_length,length_,pos_1,pos_2,old_length-pos_2);
 
   for (int32_t i = 0; i < old_length-pos_2; i++) {
     get(old_data,pos_2+i) ?

@@ -10,7 +10,7 @@
 
 #include <cstdio>
 #include <bitset>
-
+#include <assert.h>
 #ifdef _DYNAMIC_BITSET
 #include <boost/dynamic_bitset.hpp>
 #endif
@@ -69,7 +69,11 @@ class BitSet_SIMD {
     }
 
     __inline bool get(int32_t position) {
-      __assume_aligned(data_, 64);
+      //__assume_aligned(data_, 64);
+        if (position >= length_ || position < 0) {
+            printf("Position %d Length %d\n",position,length_);
+
+        }
       return data_[(position/CHAR_TO_BITS)] & (1 << (position%CHAR_TO_BITS));
     }
 
@@ -181,7 +185,6 @@ class BitSet_SIMD {
 #ifdef _DYNAMIC_CUSTOM_BITSET
       for (int8_t motif_id = 0; motif_id < 22; motif_id++) {
           if (LEADING)
-
             dist[motif_id] = get(BITSET_PROM_SEQ_LEAD,motif_id) == get(pos + motif_id >= length_ ? pos +
                                                                                                    motif_id -
                                                                                                    length_
@@ -223,11 +226,16 @@ class BitSet_SIMD {
 #ifdef _DYNAMIC_CUSTOM_BITSET
       #pragma ivdep
       for (int8_t motif_id = 0; motif_id < 4; motif_id++) {
-        if (LEADING)
-          dist[motif_id] = get(pos + motif_id >= length_ ? pos + motif_id - length_
-                                              : pos + motif_id) !=
-                                      get(pos - motif_id + 10 >= length_ ? pos - motif_id + 10 - length_
-                                              : pos - motif_id + 10) ? true : false;
+        if (LEADING) {
+            /*printf("Read %d  and %d -- (length %d)\n",pos + motif_id >= length_ ? pos + motif_id - length_
+                                                                     : pos + motif_id,pos - motif_id + 10 >= length_ ? pos - motif_id + 10 - length_
+                                                                                                                     : pos - motif_id + 10,length_);
+*/
+            dist[motif_id] = get(pos + motif_id >= length_ ? pos + motif_id - length_
+                                                           : pos + motif_id) !=
+                             get(pos - motif_id + 10 >= length_ ? pos - motif_id + 10 - length_
+                                                                : pos - motif_id + 10) ? true : false;
+        }
         else
           dist[motif_id] = get(pos - motif_id < 0 ? pos - motif_id + length_
                                    : pos - motif_id) !=
@@ -429,6 +437,7 @@ class BitSet_SIMD {
           ret[i] = '0';
       }
       ret[length_] = '\0';
+      return ret;
 #elif _STATIC_BITSET
       char *ret = (char*)data_.to_string().c_str();
       return ret;

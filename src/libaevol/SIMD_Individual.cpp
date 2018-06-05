@@ -120,6 +120,7 @@ void SIMD_Individual::selection() {
     int16_t y_offset = (found_org % selection_scope_y) - 1;
 
     delete [] local_fit_array;
+    delete [] local_meta_array;
     delete [] probs;
 
     exp_m_->simd_individual->internal_simd_struct[indiv_id] =
@@ -640,6 +641,9 @@ void SIMD_Individual::opt_prom_compute_RNA() {
                                                           dna_size[indiv_id] :
                           cur_pos;
                 int start_pos = cur_pos;
+                  if (cur_pos >= dna_size[indiv_id] || cur_pos < 0) {
+                      printf("-----START LEAD-----> Position %d Length %d -- indiv id %d\n",cur_pos,dna_size[indiv_id],indiv_id);
+                  }
 
                 bool terminator_found = false;
                 bool no_terminator = false;
@@ -650,6 +654,10 @@ void SIMD_Individual::opt_prom_compute_RNA() {
                 while (!terminator_found) {
                   loop_size++;
 #ifdef WITH_BITSET
+                    if (cur_pos >= dna_size[indiv_id] || cur_pos < 0) {
+                      printf("-----LEAD-----> Position %d Length %d\n",cur_pos,dna_size[indiv_id]);
+                  }
+
                   bool is_term = internal_simd_struct[indiv_id]->dna_->bitset_->is_terminator(
                       true, cur_pos);
 
@@ -680,6 +688,11 @@ void SIMD_Individual::opt_prom_compute_RNA() {
                                                                   dna_size[indiv_id]
                                                                 :
                               cur_pos + 1;
+
+                        if (cur_pos >= dna_size[indiv_id] || cur_pos < 0) {
+                            printf("-----NEXT LEAD-----> Position %d Length %d\n",cur_pos,dna_size[indiv_id]);
+                        }
+
 //            if (indiv_id == 152) printf("Next cur value %d (prev %d)\n",cur_pos,term_dist_leading);
                     term_dist_leading = 0;
                     if (cur_pos == start_pos) {
@@ -751,6 +764,10 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 
                 while (!terminator_found) {
 #ifdef WITH_BITSET
+                  if (cur_pos >= dna_size[indiv_id] || cur_pos < 0) {
+                      printf("---LAG------------> Position %d Length %d\n",cur_pos,dna_size[indiv_id]);
+                  }
+
                   bool is_term = internal_simd_struct[indiv_id]->dna_->bitset_->is_terminator(
                       false, cur_pos);
 
@@ -2092,8 +2109,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     //printf("Optimized search stop RNA and Compute RNA\n");
     opt_prom_compute_RNA();
   } else {
-    if (standalone_) {
-/*      double dupl_rate = exp_m_->exp_s()->mut_params()->duplication_rate();
+    //if (standalone_) {
+      /*double dupl_rate = exp_m_->exp_s()->mut_params()->duplication_rate();
       double del_rate = exp_m_->exp_s()->mut_params()->deletion_rate();
       double trans_rate = exp_m_->exp_s()->mut_params()->translocation_rate();
       double inv_rate = exp_m_->exp_s()->mut_params()->inversion_rate();
@@ -2123,11 +2140,11 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             max_indel_size,
             min_genome,
             max_genome);
-        //exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
+        exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
       }*/
 
 
-      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+/*      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
         int x = indiv_id / exp_m_->world()->height();
         int y = indiv_id % exp_m_->world()->height();
 
@@ -2135,13 +2152,21 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       }
     } else {
 
-    }
+    }*/
 
     //printf("Search RNA start/stop motifs\n");
     start_stop_RNA();
     //printf("Compute RNAs\n");
     compute_RNA();
   }
+
+  for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+      if (internal_simd_struct[indiv_id]->promoters.size() != internal_simd_struct[indiv_id]->leading_prom_pos.size() + internal_simd_struct[indiv_id]->lagging_prom_pos.size()) {
+          printf("Error cache is not synchronized !!! -- %d\n",indiv_id);
+      }
+
+  }
+
   //printf("Search Protein start motifs\n");
   start_protein();
   //printf("Compute Proteins\n");
@@ -2169,6 +2194,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       internal_simd_struct[indiv_id] = nullptr;
     }
   } else {
+      //printf("Copy to old generation struct\n");
+
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
 
       prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
@@ -2199,9 +2226,11 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
   if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
 
-    /*for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       int x = indiv_id / exp_m_->world()->height();
       int y = indiv_id % exp_m_->world()->height();
+
+      delete exp_m_->world()->grid(x,y)->individual();
 
       Individual * indiv = new Individual(exp_m_,
                                           exp_m_->world()->grid(x,y)->mut_prng(),
@@ -2218,7 +2247,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       char* dna_string = new char[nb_blocks_ * BLOCK_SIZE];
       memset(dna_string,0,
              (prev_internal_simd_struct[indiv_id]->dna_->length()+1) * sizeof(char));
-      memcpy(dna_string, prev_internal_simd_struct[indiv_id]->dna_->to_char(),
+
+
+      char* to_copy = prev_internal_simd_struct[indiv_id]->dna_->to_char();
+
+
+      //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+      memcpy(dna_string, to_copy,
              (prev_internal_simd_struct[indiv_id]->dna_->length()+1) * sizeof(char));
 
       indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
@@ -2228,6 +2263,10 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       indiv->EvaluateInContext(exp_m_->world()->grid(x,y)->habitat());
 
       exp_m_->world()->grid(x,y)->set_individual(indiv);
+
+#ifdef WITH_BITSET
+      delete [] to_copy;
+#endif
 
     }
 
@@ -2240,15 +2279,17 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     last_gener_file << AeTime::time() << std::endl;
     last_gener_file.close();
 
-    if (AeTime::time() != exp_m_->end_step()) {
+    //if (AeTime::time() != exp_m_->end_step()) {
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
         int x = indiv_id / exp_m_->world()->height();
         int y = indiv_id % exp_m_->world()->height();
 
+          exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+          exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
         delete exp_m_->world()->grid(x, y)->individual();
       }
-    }
-     */
+    //}
+
 
   }
 
@@ -2582,6 +2623,7 @@ void Internal_SIMD_Struct::look_for_new_promoters_around(int32_t pos) {
 
 void Internal_SIMD_Struct::insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
                                       int32_t pos) {
+
   for (auto strand: {LEADING, LAGGING}) {
     if (promoters_to_insert[strand].size() <= 0) {
       continue;
@@ -2589,24 +2631,58 @@ void Internal_SIMD_Struct::insert_promoters_at(std::vector<std::list<promoterStr
 
     // Insert the promoters in the individual's RNA list
     for (auto& to_insert: promoters_to_insert[strand]) {
+        int prev_pos = to_insert->pos;
       // Update promoter position
       to_insert->pos = Utils::mod(to_insert->pos + pos, dna_->length());
-      int prom_idx;
-#pragma omp atomic capture
-      {
-        prom_idx = count_prom;
-        count_prom = count_prom + 1;
-      }
-
-      promoters[prom_idx] = to_insert;
-
-      /*printf("Add new promoters %d at %d\n",prom_idx,to_insert->pos);*/
-
       if (strand == LEADING) {
-        leading_prom_pos[to_insert->pos] = prom_idx;
+          if ( leading_prom_pos.find(to_insert->pos) == leading_prom_pos.end() ) {
+/*              if (indiv_id == 433) {
+                printf("Before cache state %d %d %d\n",promoters.size(),leading_prom_pos.size(),lagging_prom_pos.size());
+              }*/
+
+              int prom_idx;
+#pragma omp atomic capture
+              {
+                  prom_idx = count_prom;
+                  count_prom = count_prom + 1;
+              }
+
+              promoters[prom_idx] = to_insert;
+
+
+/*              if (indiv_id == 433) printf("Add new promoters %d at %d (from %d)\n", prom_idx, to_insert->pos, prev_pos);
+              if (indiv_id == 433) printf("Will update leading prom %d : %d\n", to_insert->pos, prom_idx);
+              if (indiv_id == 433) {
+                  if (leading_prom_pos.find(to_insert->pos) == leading_prom_pos.end()) {
+                      printf("Is available\n");
+                  } else {
+                      printf("A promoter is already at this position ?!? %d %d\n");
+                  }
+
+
+              }*/
+
+
+              leading_prom_pos[to_insert->pos] = prom_idx;
+
+/*              if (indiv_id == 433) {
+                  printf("AFTER cache state %d %d %d\n",promoters.size(),leading_prom_pos.size(),lagging_prom_pos.size());
+              }*/
+          }
       } else {
-        lagging_prom_pos[to_insert->pos] = prom_idx;
-      }
+              if (lagging_prom_pos.find(to_insert->pos) == lagging_prom_pos.end()) {
+                  int prom_idx;
+#pragma omp atomic capture
+                  {
+                      prom_idx = count_prom;
+                      count_prom = count_prom + 1;
+                  }
+
+                  promoters[prom_idx] = to_insert;
+                  lagging_prom_pos[to_insert->pos] = prom_idx;
+              }
+          }
+
     }
   }
 }
@@ -2723,20 +2799,32 @@ void Internal_SIMD_Struct::insert_promoters(std::vector<std::list<promoterStruct
     }
     // Insert the promoters in the individual's RNA list
     for (auto& to_insert: promoters_to_insert[strand]) {
-      int prom_idx;
-#pragma omp atomic capture
-      {
-        prom_idx = count_prom;
-        count_prom = count_prom + 1;
-      }
-
-      promoters[prom_idx] = to_insert;
-
-
       if (strand == LEADING) {
-        leading_prom_pos[to_insert->pos] = prom_idx;
+        if (leading_prom_pos.find(to_insert->pos) == leading_prom_pos.end()) {
+
+          int prom_idx;
+#pragma omp atomic capture
+          {
+            prom_idx = count_prom;
+            count_prom = count_prom + 1;
+          }
+
+          promoters[prom_idx] = to_insert;
+          leading_prom_pos[to_insert->pos] = prom_idx;
+        }
       } else {
-        lagging_prom_pos[to_insert->pos] = prom_idx;
+        if (lagging_prom_pos.find(to_insert->pos) == lagging_prom_pos.end()) {
+          int prom_idx;
+#pragma omp atomic capture
+          {
+            prom_idx = count_prom;
+            count_prom = count_prom + 1;
+          }
+
+          promoters[prom_idx] = to_insert;
+
+          lagging_prom_pos[to_insert->pos] = prom_idx;
+        }
       }
     }
   }
@@ -2876,30 +2964,68 @@ void Internal_SIMD_Struct::remove_leading_promoters_starting_after(int32_t pos) 
     return;
 
 
-  /*printf("--------------------------------------------> Remove everything after %d: %d -- %d\n",pos, init_it->first,this->indiv_id);
-//  if (indiv_id == 63) {
-  printf("Leading promoters lists : ");
+
+  /*if (indiv_id == 626) {
+      printf("--------------------------------------------> Remove everything after %d: %d -- %d\n",pos, init_it->first,this->indiv_id);
+
+  printf("BEFORE Leading promoters lists : ");
   for (auto it : leading_prom_pos) {
     printf("%d ", it.first);
   }
+      printf("\n");
+      printf("BEFORE Leading promoters lists (promoters): ");
+      for (auto it : promoters) {
+          if (it.second->leading_or_lagging)
+              printf("%d ", it.second->pos);
+      }
   printf("\n");
-//  }
-*/
+  }*/
+
   for (auto it = init_it,
            nextit = it;
        it != leading_prom_pos.end();
        it = nextit) {
-    //printf("--------------------------------------------> Remove everything after %d : delete %d %d\n",pos,
-    //       it->first,promoters[it->second]->pos);
+   /* if (indiv_id == 626) printf("--------------------------------------------> Remove everything after %d : delete %d %d\n",pos,
+           it->first,it->second,promoters[it->second]->pos);*/
 
     delete promoters[it->second];
     promoters.erase(it->second);
     nextit = next(it);
     leading_prom_pos.erase(it);
   }
+
+   /* if (indiv_id == 626) {
+    printf("AFTER Leading promoters lists : ");
+    for (auto it : leading_prom_pos) {
+        printf("%d ", it.first);
+    }
+        printf("\n");
+    printf("AFTER Leading promoters lists (promoters): ");
+    for (auto it : promoters) {
+        if (it.second->leading_or_lagging)
+            printf("%d ", it.second->pos);
+    }
+    printf("\n");
+}*/
 }
 
 void Internal_SIMD_Struct::remove_leading_promoters_starting_before(int32_t pos) {
+
+    /*if (indiv_id == 626) {
+        printf("--------------------------------------------> Remove everything before %d: %d -- %d\n",pos, this->indiv_id);
+
+        printf("BEFORE Leading promoters lists : ");
+        for (auto it : leading_prom_pos) {
+            printf("%d ", it.first);
+        }
+        printf("\n");
+        printf("BEFORE Leading promoters lists (promoters): ");
+        for (auto it : promoters) {
+            if (it.second->leading_or_lagging)
+                printf("%d ", it.second->pos);
+        }
+        printf("\n");
+    }*/
   // Delete RNAs until we reach pos (or we reach the end of the list)
   for (auto it = leading_prom_pos.begin(),
            nextit = it;
@@ -2910,6 +3036,20 @@ void Internal_SIMD_Struct::remove_leading_promoters_starting_before(int32_t pos)
     nextit = next(it);
     leading_prom_pos.erase(it);
   }
+
+    /*if (indiv_id == 626) {
+        printf("AFTER Leading promoters lists : ");
+        for (auto it : leading_prom_pos) {
+            printf("%d ", it.first);
+        }
+        printf("\n");
+        printf("AFTER Leading promoters lists (promoters): ");
+        for (auto it : promoters) {
+            if (it.second->leading_or_lagging)
+                printf("%d ", it.second->pos);
+        }
+        printf("\n");
+    }*/
 }
 
 
@@ -2920,6 +3060,9 @@ void Internal_SIMD_Struct::move_all_leading_promoters_after(int32_t pos,
                                                    int32_t delta_pos) {
   std::map<int32_t,int32_t> tmp_prom;
 
+/*        if (indiv_id == 388) {
+            printf("Cache state AA %d %d %d\n",promoters.size(),leading_prom_pos.size(),lagging_prom_pos.size());
+        }*/
   for (auto it = leading_prom_pos.lower_bound(pos), nextit=it;
        it != leading_prom_pos.end();
        it = nextit) {
@@ -2932,11 +3075,30 @@ void Internal_SIMD_Struct::move_all_leading_promoters_after(int32_t pos,
 
     promoters[it->second]->pos = new_pos;
     nextit = next(it);
-    leading_prom_pos.erase(it);
-    tmp_prom[new_pos] = prom_idx;
+
+      if (tmp_prom.find(new_pos) == tmp_prom.end()) {
+          tmp_prom[new_pos] = prom_idx;
+      } else {
+          promoters.erase(it->second);
+      }
+      leading_prom_pos.erase(it);
+
   }
 
-  leading_prom_pos.insert(tmp_prom.begin(),tmp_prom.end());
+/*        if (indiv_id == 388) {
+            printf("Cache state BB %d %d %d %d\n",promoters.size(),leading_prom_pos.size(),lagging_prom_pos.size(),tmp_prom.size());
+        }*/
+  for (auto to_insert : tmp_prom) {
+    if (leading_prom_pos.find(to_insert.first) == leading_prom_pos.end()) {
+        leading_prom_pos[to_insert.first] = to_insert.second;
+    } else {
+        promoters.erase(to_insert.second);
+    }
+  }
+
+/*        if (indiv_id == 388) {
+            printf("Cache state CC %d %d %d\n",promoters.size(),leading_prom_pos.size(),lagging_prom_pos.size());
+        }*/
 }
 
 /** LOOK **/
@@ -3259,6 +3421,9 @@ void Internal_SIMD_Struct::move_all_lagging_promoters_after(int32_t pos,
                                                    int32_t delta_pos) {
   std::map<int32_t,int32_t> tmp_prom;
 
+/*        if (indiv_id == 433) {
+            printf("Cache state %d %d %d\n",promoters.size(),leading_prom_pos.size(),lagging_prom_pos.size());
+        }*/
  for (auto it = lagging_prom_pos.lower_bound(pos), nextit = it;
        it != lagging_prom_pos.end() and it->first >= pos;
        it=nextit) {
@@ -3270,11 +3435,29 @@ void Internal_SIMD_Struct::move_all_lagging_promoters_after(int32_t pos,
 
    promoters[it->second]->pos = new_pos;
    nextit = next(it);
-   lagging_prom_pos.erase(it);
-   tmp_prom[new_pos] = prom_idx;
+
+
+     if (tmp_prom.find(new_pos) == tmp_prom.end()) {
+         tmp_prom[new_pos] = prom_idx;
+     } else {
+         promoters.erase(it->second);
+     }
+
+     lagging_prom_pos.erase(it);
  }
 
-  lagging_prom_pos.insert(tmp_prom.begin(),tmp_prom.end());
+// if (indiv_id == 433) {
+//    printf("Cache state %d %d %d\n",promoters.size(),leading_prom_pos.size(),lagging_prom_pos.size());
+// }
+
+
+        for (auto to_insert : tmp_prom) {
+            if (lagging_prom_pos.find(to_insert.first) == lagging_prom_pos.end()) {
+                lagging_prom_pos[to_insert.first] = to_insert.second;
+            }else {
+                promoters.erase(to_insert.second);
+            }
+        }
 }
 
 /** MOVE **/
