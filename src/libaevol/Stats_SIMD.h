@@ -8,10 +8,11 @@
 
 #include <cstdint>
 #include <fstream>
-
-#include "SIMD_Individual.h"
+#include <limits>
 
 namespace aevol {
+
+    class SIMD_Individual;
 
 class Stats_SIMD {
  public:
@@ -33,6 +34,8 @@ class Stats_SIMD {
 
     void write_best();
     void write_average();
+
+    void reinit(int64_t generation);
 
     bool is_indiv() { return is_indiv_; }
 
@@ -86,6 +89,7 @@ class Stats_SIMD {
 
     std::ofstream statfile_best_;
     std::ofstream statfile_mean_;
+
 };
 
 }

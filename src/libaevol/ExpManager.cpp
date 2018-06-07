@@ -342,11 +342,10 @@ auto     t1 = high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
 #endif
 
-  bool simd_first = false;
+/*  bool simd_first = false;
   if (simd_individual == nullptr) {
     simd_first = true;
-    simd_individual = new SIMD_Individual(this);
-  }
+  }*/
 
   //}
   t1 = high_resolution_clock::now();
@@ -365,12 +364,11 @@ auto     t1 = high_resolution_clock::now();
 
   auto ta = high_resolution_clock::now();
 
-  if (simd_first) {
-    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
+/*  if (simd_first) {
     //simd_individual->check_result();
-  } else {
+  } else {*/
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
-  }
+  //}
   auto tb = high_resolution_clock::now();
 
 
@@ -595,15 +593,18 @@ void ExpManager::run_evolution() {
     dna_mutator_array_[i] = nullptr;
   }
 
+  simd_individual = new SIMD_Individual(this);
+  simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
-  // For each generation
+
+        // For each generation
   while (true) { // termination condition is into the loop
 
     printf(
         "============================== %" PRId64 " ==============================\n",
         AeTime::time());
     if (!first_run) {
-      if (simd_individual->standalone()) {
+      if (SIMD_Individual::standalone_simd) {
         printf(
             "  Best individual's (%d) distance to target (metabolic) : %f (clones %d)\n",
             simd_individual->best_indiv->indiv_id,

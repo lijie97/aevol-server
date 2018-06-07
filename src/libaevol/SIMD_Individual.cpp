@@ -12,10 +12,12 @@
 
 namespace aevol {
 
+     bool SIMD_Individual::standalone_simd = true;
+
 SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 
   printf("Create SIMD Controller\n");
-
+    standalone_ = standalone_simd;
   exp_m_ = exp_m;
   nb_indivs_ = exp_m_->nb_indivs();
 
@@ -345,6 +347,10 @@ SIMD_Individual::~SIMD_Individual() {
   delete[] internal_simd_struct;
 
   delete[] dna_size;
+
+
+  delete stats_best;
+  delete stats_mean;
 }
 
 void SIMD_Individual::start_stop_RNA() {
@@ -1234,7 +1240,7 @@ void SIMD_Individual::compute_protein() {
         for (int rna_idx = 0; rna_idx <
                               (int) internal_simd_struct[indiv_id]->rna_count_; rna_idx++) {
           if (internal_simd_struct[indiv_id]->rnas[rna_idx]->is_init_) {
-///#pragma omp parallel for firstprivate(indiv_id, rna_idx) schedule(dynamic)
+//#pragma omp parallel for firstprivate(indiv_id, rna_idx) schedule(dynamic)
             for (int protein_idx = 0;
                  protein_idx < (int) internal_simd_struct[indiv_id]->
                      rnas[rna_idx]->start_prot.size(); protein_idx++) {
@@ -2216,13 +2222,17 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   best_indiv = prev_internal_simd_struct[idx_best];
 
   // Stats
-  Stats_SIMD* stats_best = new Stats_SIMD(this, AeTime::time(), true);
-  stats_best->write_best();
-  delete stats_best;
+  if (!optim_prom) {
+    stats_best = new Stats_SIMD(this, AeTime::time(), true);
+    stats_mean = new Stats_SIMD(this, AeTime::time(), false);
+  } else {
+    stats_best->reinit(AeTime::time());
+    stats_mean->reinit(AeTime::time());
+  }
 
-  Stats_SIMD* stats_mean = new Stats_SIMD(this, AeTime::time(), false);
+
+  stats_best->write_best();
   stats_mean->write_average();
-  delete stats_mean;
 
   if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
 
@@ -2279,7 +2289,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     last_gener_file << AeTime::time() << std::endl;
     last_gener_file.close();
 
-    //if (AeTime::time() != exp_m_->end_step()) {
+    if (AeTime::time() == exp_m_->end_step()) {
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
         int x = indiv_id / exp_m_->world()->height();
         int y = indiv_id % exp_m_->world()->height();
@@ -2288,7 +2298,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
           exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
         delete exp_m_->world()->grid(x, y)->individual();
       }
-    //}
+    }
 
 
   }

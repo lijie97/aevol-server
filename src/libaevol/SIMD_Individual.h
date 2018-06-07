@@ -6,6 +6,7 @@
 #define RAEVOL_CUDA_SIMD_INDIVIDUAL_H
 
 #include "ExpManager.h"
+#include "Stats_SIMD.h"
 
 
 namespace aevol {
@@ -245,11 +246,16 @@ class SIMD_Individual {
     int32_t nb_indivs_;
     int32_t nb_clones_;
 
+    static bool standalone_simd;//= true;
+
  private:
     ExpManager* exp_m_;
     int* dna_size;
     float target[300];
-    bool standalone_ = true;
+    bool standalone_;
+
+    Stats_SIMD* stats_best;
+    Stats_SIMD* stats_mean;
 
     void selection();
 

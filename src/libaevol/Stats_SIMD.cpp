@@ -1,6 +1,10 @@
 //
 // Created by arrouan on 19/01/18.
 //
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <fcntl.h>
 
 #include "Stats_SIMD.h"
 #include "Dna_SIMD.h"
@@ -35,30 +39,88 @@ Stats_SIMD::Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation, boo
   nb_inv_ = 0;
 
 
-  if (generation_==1) {
-    statfile_best_.open("stats/stats_simd_best.csv",std::ofstream::trunc);
-    statfile_mean_.open("stats/stats_simd_mean.csv",std::ofstream::trunc);
-    if (is_indiv_)
-      statfile_best_<<"Generation"<<","<<"fitness"<<","<<"metabolic_error"<<","<<
-                  "amount_of_dna"<<","<<"nb_coding_rnas"<<","<<"nb_non_coding_rnas"<<","<<
-                  "nb_functional_genes"<<","<<"nb_non_functional_genes"<<","<<"nb_mut"
-                  <<","<<"nb_switch"<<","<<"nb_indels"<<","<<"nb_rear"<<","<<"nb_dupl"<<","<<
-                  "nb_del"<<","<<"nb_trans"<<","<<"nb_inv"<<","<<"dupl_rate"<<","<<"del_rate"
-                  <<","<<"trans_rate"<<","<<"inv_rate"
-                  <<std::endl;
-    else
-      statfile_mean_<<"Generation"<<","<<"fitness"<<","<<"metabolic_error"<<","<<
-                    "amount_of_dna"<<","<<"nb_coding_rnas"<<","<<"nb_non_coding_rnas"<<","<<
-                    "nb_functional_genes"<<","<<"nb_non_functional_genes"<<","<<"nb_mut"
-                    <<","<<"nb_switch"<<","<<"nb_indels"<<","<<"nb_rear"<<","<<"nb_dupl"<<","<<
-                    "nb_del"<<","<<"nb_trans"<<","<<"nb_inv"<<","<<"dupl_rate"<<","<<"del_rate"
-                    <<","<<"trans_rate"<<","<<"inv_rate"
-                    <<std::endl;
-  } else {
-    statfile_best_.open("stats/stats_simd_best.csv",std::ofstream::app);
-    statfile_mean_.open("stats/stats_simd_mean.csv",std::ofstream::app);
-  }
+  if (generation_==0) {
+      if (is_indiv_)
+        statfile_best_.open("stats/stats_simd_best.csv",std::ofstream::trunc);
+      else
+        statfile_mean_.open("stats/stats_simd_mean.csv",std::ofstream::trunc);
 
+    if (is_indiv_) {
+        statfile_best_ << "Generation" << "," << "fitness" << "," << "metabolic_error" << "," <<
+                       "amount_of_dna" << "," << "nb_coding_rnas" << "," << "nb_non_coding_rnas" << "," <<
+                       "nb_functional_genes" << "," << "nb_non_functional_genes" << "," << "nb_mut"
+                       << "," << "nb_switch" << "," << "nb_indels" << "," << "nb_rear" << "," << "nb_dupl" << "," <<
+                       "nb_del" << "," << "nb_trans" << "," << "nb_inv" << "," << "dupl_rate" << "," << "del_rate"
+                       << "," << "trans_rate" << "," << "inv_rate"
+                       << std::endl;
+        statfile_best_.flush();
+    } else {
+        statfile_mean_ << "Generation" << "," << "fitness" << "," << "metabolic_error" << "," <<
+                       "amount_of_dna" << "," << "nb_coding_rnas" << "," << "nb_non_coding_rnas" << "," <<
+                       "nb_functional_genes" << "," << "nb_non_functional_genes" << "," << "nb_mut"
+                       << "," << "nb_switch" << "," << "nb_indels" << "," << "nb_rear" << "," << "nb_dupl" << "," <<
+                       "nb_del" << "," << "nb_trans" << "," << "nb_inv" << "," << "dupl_rate" << "," << "del_rate"
+                       << "," << "trans_rate" << "," << "inv_rate"
+                       << std::endl;
+        statfile_mean_.flush();
+    }
+  } else {
+      printf("Resume without rheader\n");
+    std::ifstream tmp_mean;
+    std::ifstream tmp_best;
+
+    if (is_indiv_) {
+      tmp_best.open("stats/stats_simd_best.csv",std::ifstream::in);
+      statfile_best_.open("stats/stats_simd_best.csv.tmp", std::ofstream::trunc);
+    } else {
+      tmp_mean.open("stats/stats_simd_mean.csv",std::ifstream::in);
+      statfile_mean_.open("stats/stats_simd_mean.csv.tmp", std::ofstream::trunc);
+    }
+
+    std::string str;
+    for (int i = 0; i <= generation_; i++) {
+      if (is_indiv_) {
+        std::getline(tmp_best, str);
+        statfile_best_ << str << std::endl;
+      } else {
+        std::getline(tmp_mean, str);
+        statfile_mean_ << str << std::endl;
+      }
+    }
+
+    if (is_indiv_) {
+      statfile_best_.flush();
+      statfile_best_.close();
+    } else {
+      statfile_mean_.flush();
+      statfile_mean_.close();
+    }
+
+    if (is_indiv_) {
+      statfile_best_.open("stats/stats_simd_best.csv", std::ofstream::trunc);
+        tmp_best.close();
+      tmp_best.open("stats/stats_simd_best.csv.tmp", std::ifstream::in);
+        tmp_best.seekg(0, std::ios::beg);
+    } else {
+      statfile_mean_.open("stats/stats_simd_mean.csv", std::ofstream::trunc);
+        tmp_mean.close();
+      tmp_mean.open("stats/stats_simd_mean.csv.tmp", std::ifstream::in);
+        tmp_mean.seekg(0, std::ios::beg);
+    }
+
+    for (int i = 0; i <= generation_; i++) {
+      if (is_indiv_) {
+        std::getline(tmp_best, str);
+        statfile_best_ << str << std::endl;
+      } else {
+        std::getline(tmp_mean, str);
+        statfile_mean_ << str << std::endl;
+      }
+    }
+
+      tmp_best.close();
+      tmp_mean.close();
+  }
 }
 
 void Stats_SIMD::compute_best() {
@@ -219,7 +281,35 @@ void Stats_SIMD::write_average() {
                   nb_del_<<","<<nb_trans_<<","<<nb_inv_<<","<<dupl_rate_<<","<<del_rate_
                   <<","<<trans_rate_<<","<<inv_rate_
                   <<std::endl;
+    statfile_mean_.flush();
   }
 }
+
+    void Stats_SIMD::reinit(int64_t generation) {
+      generation_ = generation;
+
+      pop_size_ = 0;
+
+      fitness_ = 0;
+      metabolic_error_ = 0;
+
+      amount_of_dna_ = 0;
+      nb_coding_rnas_ = 0;
+      nb_non_coding_rnas_ = 0;
+
+      nb_functional_genes_ = 0;
+      nb_non_functional_genes_ = 0;
+
+      nb_mut_ = 0;
+      nb_rear_ = 0;
+      nb_switch_ = 0;
+      nb_indels_ = 0;
+      nb_dupl_ = 0;
+      nb_del_ = 0;
+      nb_trans_ = 0;
+      nb_inv_ = 0;
+
+      is_computed_ = false;
+    }
 
 }
