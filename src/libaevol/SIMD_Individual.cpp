@@ -647,9 +647,6 @@ void SIMD_Individual::opt_prom_compute_RNA() {
                                                           dna_size[indiv_id] :
                           cur_pos;
                 int start_pos = cur_pos;
-                  if (cur_pos >= dna_size[indiv_id] || cur_pos < 0) {
-                      printf("-----START LEAD-----> Position %d Length %d -- indiv id %d\n",cur_pos,dna_size[indiv_id],indiv_id);
-                  }
 
                 bool terminator_found = false;
                 bool no_terminator = false;
@@ -694,10 +691,6 @@ void SIMD_Individual::opt_prom_compute_RNA() {
                                                                   dna_size[indiv_id]
                                                                 :
                               cur_pos + 1;
-
-                        if (cur_pos >= dna_size[indiv_id] || cur_pos < 0) {
-                            printf("-----NEXT LEAD-----> Position %d Length %d\n",cur_pos,dna_size[indiv_id]);
-                        }
 
 //            if (indiv_id == 152) printf("Next cur value %d (prev %d)\n",cur_pos,term_dist_leading);
                     term_dist_leading = 0;
@@ -1085,15 +1078,13 @@ void SIMD_Individual::compute_RNA() {
 void SIMD_Individual::start_protein() {
   //int x, y;
 //#pragma omp parallel for schedule(dynamic)
-#pragma omp parallel
-#pragma omp single
-  {
+
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
 //#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
         for (int rna_idx = 0; rna_idx <
                               (int) internal_simd_struct[indiv_id]->rna_count_; rna_idx++) {
-#pragma omp task firstprivate(indiv_id, rna_idx)
+#pragma omp task firstprivate(indiv_id, rna_idx) depend(inout: internal_simd_struct[indiv_id])
           {
             if (internal_simd_struct[indiv_id]->rnas[rna_idx]->is_init_) {
               int x = indiv_id / exp_m_->world()->height();
@@ -1216,14 +1207,14 @@ void SIMD_Individual::start_protein() {
         }
       }
     }
-  }
+ // }
 }
 
 void SIMD_Individual::compute_protein() {
 //#pragma omp parallel for schedule(dynamic)
-#pragma omp parallel
+/*#pragma omp parallel
 #pragma omp single
-  {
+  {*/
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
         int resize_to = 0;
@@ -1244,7 +1235,7 @@ void SIMD_Individual::compute_protein() {
             for (int protein_idx = 0;
                  protein_idx < (int) internal_simd_struct[indiv_id]->
                      rnas[rna_idx]->start_prot.size(); protein_idx++) {
-#pragma omp task firstprivate(indiv_id, rna_idx, protein_idx)
+#pragma omp task firstprivate(indiv_id, rna_idx, protein_idx) depend(in: internal_simd_struct[indiv_id])
               {
                 int x = indiv_id / exp_m_->world()->height();
                 int y = indiv_id % exp_m_->world()->height();
@@ -1555,24 +1546,24 @@ void SIMD_Individual::compute_protein() {
         }
       }
     }
-  }
+//  }
 }
 
 void SIMD_Individual::translate_protein(double w_max) {
 //#pragma omp parallel for schedule(dynamic)
-#pragma omp parallel
+/*#pragma omp parallel
 #pragma omp single
-  {
+  {*/
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
         /*printf("Translate protein for indiv %d : %ld (%d) -- %ld (%d)\n",
                indiv_id,internal_simd_struct[indiv_id]->proteins.size(),internal_simd_struct[indiv_id]->protein_count_,
                internal_simd_struct[indiv_id]->rnas.size(),internal_simd_struct[indiv_id]->rna_count_);*/
 
-#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
+//#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
         for (int protein_idx = 0; protein_idx <
                                   (int) internal_simd_struct[indiv_id]->protein_count_; protein_idx++) {
-#pragma omp task firstprivate(indiv_id, protein_idx)
+#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
           {
             if (internal_simd_struct[indiv_id]->proteins[protein_idx]->is_init_) {
               int x = indiv_id / exp_m_->world()->height();
@@ -1828,7 +1819,7 @@ void SIMD_Individual::translate_protein(double w_max) {
         }
       }
     }
-  }
+//  }
 }
 
 void SIMD_Individual::compute_phenotype() {
@@ -1845,9 +1836,9 @@ void SIMD_Individual::compute_phenotype() {
   }
 
 
-#pragma omp parallel
+/*#pragma omp parallel
 #pragma omp single
-  {
+  {*/
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
         //printf("%d -- Protein to phenotype for %ld\n",i,internal_simd_struct[i]->proteins.size());
@@ -1868,7 +1859,7 @@ void SIMD_Individual::compute_phenotype() {
                   1e-15)
                 continue;
 
-#pragma omp task firstprivate(indiv_id, protein_idx)
+#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
               {
               if (internal_simd_struct[indiv_id]->proteins[protein_idx]->is_functional) {
 
@@ -1967,7 +1958,7 @@ void SIMD_Individual::compute_phenotype() {
         }
       }
     }
-  }
+//  }
 }
 
 
@@ -2159,7 +2150,26 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     } else {
 
     }*/
+      for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
+          int x = indiv_id / exp_m_->world()->height();
+          int y = indiv_id % exp_m_->world()->height();
+          delete exp_m_->dna_mutator_array_[indiv_id];
 
+          exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
+                  exp_m_->world()->grid(x, y)->mut_prng(),
+                  internal_simd_struct[indiv_id]->dna_->length(),
+                  exp_m_->exp_s()->mut_params()->duplication_rate(),
+                  exp_m_->exp_s()->mut_params()->deletion_rate(),
+                  exp_m_->exp_s()->mut_params()->translocation_rate(),
+                  exp_m_->exp_s()->mut_params()->inversion_rate(),
+                  exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+                  exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+                  exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+                  exp_m_->exp_s()->mut_params()->max_indel_size(),
+                  exp_m_->exp_s()->min_genome_length(),
+                  exp_m_->exp_s()->max_genome_length());
+          exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
+      }
     //printf("Search RNA start/stop motifs\n");
     start_stop_RNA();
     //printf("Compute RNAs\n");
@@ -2173,17 +2183,24 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
   }
 
-  //printf("Search Protein start motifs\n");
-  start_protein();
-  //printf("Compute Proteins\n");
-  compute_protein();
-  //printf("Translate protein\n");
-  translate_protein(w_max);
-  //printf("Compute phenotype\n");
-  compute_phenotype();
-  //printf("Compute fitness\n");
-  compute_fitness(selection_pressure);
-
+#pragma omp parallel
+#pragma omp single
+    {
+        //printf("Search Protein start motifs\n");
+        start_protein();
+//#pragma omp taskwait
+        //printf("Compute Proteins\n");
+        compute_protein();
+//#pragma omp taskwait
+        //printf("Translate protein\n");
+        translate_protein(w_max);
+//#pragma omp taskwait
+        //printf("Compute phenotype\n");
+        compute_phenotype();
+//#pragma omp taskwait
+        //printf("Compute fitness\n");
+        compute_fitness(selection_pressure);
+    }
 
   //printf("Check results\n");
   //check_result();
