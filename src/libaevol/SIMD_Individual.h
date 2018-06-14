@@ -226,11 +226,19 @@ class SIMD_Individual {
     void opt_prom_compute_RNA();
 
     void compute_RNA();
+
     void start_protein();
     void compute_protein();
     void translate_protein(double w_max);
     void compute_phenotype();
     void compute_fitness(double selection_pressure);
+
+    void start_protein(int indiv_id);
+    void compute_protein(int indiv_id);
+    void translate_protein(int indiv_id, double w_max);
+    void compute_phenotype(int indiv_id);
+    void compute_fitness(int indiv_id, double selection_pressure);
+
 
     void check_result();
     void check_dna();
