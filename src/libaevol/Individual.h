@@ -505,7 +505,13 @@ class Individual : public Observable {
     std::list<Protein*> protein_list_;
     int number_of_clones_ = 0;
     bool evaluated_;
- protected :
+
+
+        // The chromosome and plasmids (if allowed)
+        std::list<GeneticUnit> genetic_unit_list_;
+
+
+    protected :
   // =================================================================
   //                           Protected Methods
   // =================================================================
@@ -572,9 +578,6 @@ class Individual : public Observable {
   // When using structured population, this is the cell the individual is in
 
   // int16_t x, y;
-
-  // The chromosome and plasmids (if allowed)
-  std::list<GeneticUnit> genetic_unit_list_;
 
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.

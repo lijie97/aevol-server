@@ -212,7 +212,7 @@ class GeneticUnit {
 
   void do_translation();
 
-  void compute_phenotypic_contribution();
+  void compute_phenotypic_contribution(int indiv_id = -1);
 
   void take_ownership_of_all_rnas() { Dna::set_GU(rna_list(), this); };
 
@@ -365,6 +365,7 @@ class GeneticUnit {
 #endif
 
 
+        bool phenotypic_contributions_computed_;
 
  protected :
   // =================================================================
@@ -562,7 +563,6 @@ class GeneticUnit {
   // computation (mainly in post-treaments)
   bool transcribed_;
   bool translated_;
-  bool phenotypic_contributions_computed_;
   bool non_coding_computed_;
   bool distance_to_target_computed_;
   bool fitness_computed_;

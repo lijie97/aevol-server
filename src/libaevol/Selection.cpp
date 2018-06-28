@@ -1037,7 +1037,9 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
-      count++;
+/*        if (268 == x*grid_height+y)
+            printf("CPU Local SUM Fit %e -- Fitness %e\n",sum_local_fit,local_fit_array[count]);*/
+        count++;
     }
   }
   //printf("Competition 2\n");
@@ -1111,6 +1113,9 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   delete [] sort_fit_array;
   delete [] initial_location;
   delete [] probs;
+/*    world->grid(x,y)->probs = probs;
+    world->grid(x,y)->local_fit_array = local_fit_array;
+    world->grid(x,y)->sum_local_fit = sum_local_fit;*/
 
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);

@@ -60,7 +60,7 @@
 
 #endif
 
-
+#include "HybridFuzzy.h"
 #include "Fuzzy.h"
 #include "PointMutation.h"
 #include "SmallDeletion.h"
@@ -1241,7 +1241,10 @@ void GeneticUnit::do_translation() {
   }
 }
 
-void GeneticUnit::compute_phenotypic_contribution() {
+void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
+
+/*  if (indiv_id == 268) printf("Will compute\n");*/
+
   if (phenotypic_contributions_computed_) return;
   phenotypic_contributions_computed_ = true;
   if (!translated_) do_translation();
@@ -1249,10 +1252,14 @@ void GeneticUnit::compute_phenotypic_contribution() {
   //printf("Prot list: %ld %ld\n",protein_list_[LEADING].size(),protein_list_[LEADING].size());
 
 
-
+/*    if (indiv_id == 268) {
+        activ_contribution_->clear();
+        inhib_contribution_->clear();
+    }*/
   for (const auto& strand: protein_list_) // two strands: LEADING & LAGGING
     for (const auto& prot: strand)
       if (prot.is_functional()) {
+          /*if (indiv_id == 268) printf("Adding a prot\n");*/
         /*if (indiv_->grid_cell()->x()*exp_m()->world()->height()+indiv_->grid_cell()->y() == 894) {
           printf("Protein is %f %f %f %f\n",prot.mean(),
                  prot.width(),
@@ -1267,6 +1274,11 @@ void GeneticUnit::compute_phenotypic_contribution() {
             ->add_triangle(prot.mean(),
                            prot.width(),
                            prot.height() * prot.concentration());
+
+          if (indiv_id == 101)
+          for (int i = 0; i <= 1; i++) {
+            printf("CPU -- X[%d] = %f (%e %e %e)\n",i,((HybridFuzzy*)activ_contribution_)->points()[i],prot.mean(),prot.width(),prot.height());
+          }
       }
   // if (prot->height() > 0)
   //   activ_contribution_->add_triangle(prot->mean(),

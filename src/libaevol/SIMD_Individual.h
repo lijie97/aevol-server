@@ -84,9 +84,9 @@ class pProtein {
     int32_t protein_end;
     int32_t protein_length;
     int8_t leading_lagging; // 0 = leading, 1 = lagging
-    float m;
-    float w;
-    float h;
+    double m;
+    double w;
+    double h;
     double e;
     bool is_functional;
 
@@ -110,10 +110,10 @@ class Internal_SIMD_Struct {
     std::set<int> terminator_lead;
     std::vector<pRNA*> rnas;
     std::vector<pProtein*> proteins;
-    float phenotype[300];
-    float delta[300];
+    double phenotype[300];
+    double delta[300];
     double fitness;
-    float metaerror;
+    double metaerror;
 
     Dna_SIMD* dna_;
 
@@ -233,6 +233,12 @@ class SIMD_Individual {
     void compute_phenotype();
     void compute_fitness(double selection_pressure);
 
+
+    void do_mutation(int indiv_id);
+
+    void start_stop_RNA(int indiv_id);
+    void opt_prom_compute_RNA(int indiv_id);
+    void compute_RNA(int indiv_id);
     void start_protein(int indiv_id);
     void compute_protein(int indiv_id);
     void translate_protein(int indiv_id, double w_max);
@@ -251,6 +257,9 @@ class SIMD_Individual {
     Internal_SIMD_Struct** internal_simd_struct;
     Internal_SIMD_Struct** prev_internal_simd_struct;
     Internal_SIMD_Struct* best_indiv;
+
+    int32_t* next_generation_reproducer_;
+
     int32_t nb_indivs_;
     int32_t nb_clones_;
 
@@ -267,6 +276,9 @@ class SIMD_Individual {
 
     void selection();
 
+    void selection(int indiv_id);
+
+    void check_selection(int indiv_id);
 
 
 };

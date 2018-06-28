@@ -1911,10 +1911,13 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   for (int16_t x = 0; x < exp_m->grid_width(); x++) {
     for (int16_t y = 0; y < exp_m->grid_height(); y++) {
+      int32_t seed = prng_->random(1000000);
 #if __cplusplus == 201103L
-      exp_m->world()->grid(x,y)->set_reprod_prng(make_unique<JumpingMT>(prng_->random(1000000)));
+      exp_m->world()->grid(x,y)->set_reprod_prng(make_unique<JumpingMT>(seed));
+      exp_m->world()->grid(x,y)->set_reprod_prng_simd(make_unique<JumpingMT>(seed));
 #else
-      exp_m->world()->grid(x,y)->set_reprod_prng(std::make_unique<JumpingMT>(prng_->random(1000000)));
+      exp_m->world()->grid(x,y)->set_reprod_prng(std::make_unique<JumpingMT>(seed));
+      exp_m->world()->grid(x,y)->set_reprod_prng_simd(std::make_unique<JumpingMT>(seed));
 #endif
     }
   }

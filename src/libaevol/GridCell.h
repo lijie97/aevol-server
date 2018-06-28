@@ -123,6 +123,7 @@ class GridCell
   inline void set_mut_prng(std::shared_ptr<JumpingMT> prng);
   inline void set_stoch_prng(std::shared_ptr<JumpingMT> prng);
   inline void set_reprod_prng(std::unique_ptr<JumpingMT>&& prng);
+    inline void set_reprod_prng_simd(std::unique_ptr<JumpingMT>&& prng);
   // =================================================================
   //                            Public Methods
   // =================================================================
@@ -134,7 +135,10 @@ class GridCell
             PhenotypicTargetHandler* phenotypic_target_handler);
 
   std::unique_ptr<JumpingMT> reprod_prng_ = nullptr;
-
+    std::unique_ptr<JumpingMT> reprod_prng_simd_ = nullptr;
+    double *  probs;
+    double *  local_fit_array;
+    double    sum_local_fit;
  protected :
   // =================================================================
   //                           Protected Methods
@@ -218,7 +222,10 @@ inline void GridCell::set_reprod_prng(std::unique_ptr<JumpingMT>&& prng)
   reprod_prng_ = std::move(prng);
 }
 
-
+    inline void GridCell::set_reprod_prng_simd(std::unique_ptr<JumpingMT>&& prng)
+    {
+      reprod_prng_simd_ = std::move(prng);
+    }
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
