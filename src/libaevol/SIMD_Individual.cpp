@@ -2307,7 +2307,7 @@ void SIMD_Individual::start_protein() {
 //#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
         for (int rna_idx = 0; rna_idx <
                               (int) internal_simd_struct[indiv_id]->rna_count_; rna_idx++) {
-#pragma omp task firstprivate(indiv_id, rna_idx) depend(inout: internal_simd_struct[indiv_id])
+//#pragma omp task firstprivate(indiv_id, rna_idx) depend(inout: internal_simd_struct[indiv_id])
           {
             if (internal_simd_struct[indiv_id]->rnas[rna_idx]->is_init_) {
               int x = indiv_id / exp_m_->world()->height();
@@ -2799,7 +2799,7 @@ void SIMD_Individual::compute_protein() {
             for (int protein_idx = 0;
                  protein_idx < (int) internal_simd_struct[indiv_id]->
                      rnas[rna_idx]->start_prot.size(); protein_idx++) {
-#pragma omp task firstprivate(indiv_id, rna_idx, protein_idx) depend(in: internal_simd_struct[indiv_id])
+//#pragma omp task firstprivate(indiv_id, rna_idx, protein_idx) depend(in: internal_simd_struct[indiv_id])
               {
                 int x = indiv_id / exp_m_->world()->height();
                 int y = indiv_id % exp_m_->world()->height();
@@ -3127,7 +3127,7 @@ void SIMD_Individual::translate_protein(double w_max) {
 //#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
         for (int protein_idx = 0; protein_idx <
                                   (int) internal_simd_struct[indiv_id]->protein_count_; protein_idx++) {
-#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
+//#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
           {
             if (internal_simd_struct[indiv_id]->proteins[protein_idx]->is_init_) {
               int x = indiv_id / exp_m_->world()->height();
@@ -3703,7 +3703,7 @@ void SIMD_Individual::compute_phenotype() {
                   1e-15)
                 continue;
 
-#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
+//#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
               {
               if (internal_simd_struct[indiv_id]->proteins[protein_idx]->is_functional) {
 
@@ -4091,9 +4091,9 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 #pragma omp single nowait
     {
         nb_clones_ = 0;
-//#pragma omp taskloop
+#pragma omp taskloop
         for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
-            #pragma omp task firstprivate(indiv_id)
+            //#pragma omp task firstprivate(indiv_id)
             {
            // if (AeTime::time() > 0 && optim_prom) check_selection(indiv_id);
             if (standalone_ && optim_prom) {
