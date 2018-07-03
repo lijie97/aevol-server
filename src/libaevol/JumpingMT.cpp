@@ -236,13 +236,14 @@ double JumpingMT::gaussian_random()
   return x1 * r;
 }
 
-int32_t JumpingMT::roulette_random(double* probs, int32_t nb_elts)
+int32_t JumpingMT::roulette_random(double* probs, int32_t nb_elts, bool verbose )
 {
   double pick_one = 0.0;
 
   while (pick_one == 0.0)
   {
     pick_one = random();
+    //if (verbose) printf("pick one : %f\n",pick_one);
   }
 
   int32_t found_org = 0;

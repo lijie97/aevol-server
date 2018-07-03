@@ -246,26 +246,32 @@ void SIMD_Individual::selection() {
                 local_fit_array[count]  = prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness;
 
 
-/*                    printf("Local fit %e %d %d %d -> %e\n",local_fit_array[count],cur_x,cur_y,cur_x*grid_height+cur_y,
-                           prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);*/
+//                    printf("Local fit %e %d %d %d -> %e\n",local_fit_array[count],cur_x,cur_y,cur_x*grid_height+cur_y,
+//                           prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);
 
                 local_meta_array[count]  = prev_internal_simd_struct[cur_x*grid_height+cur_y]->metaerror;
                 sum_local_fit += local_fit_array[count];
-/*                if (indiv_id == 268)
-                    printf("SIMD Local SUM Fit %e -- Fitness %e\n",sum_local_fit,local_fit_array[count]);*/
+                /*if (indiv_id == 0)
+                    printf("SIMD Local SUM Fit %e -- Fitness %e (CPU %e)\n",sum_local_fit,local_fit_array[count],exp_m_->world()->grid(x,y)->local_fit_array[count]);*/
                 count++;
             }
         }
 
         for(int16_t i = 0 ; i < neighborhood_size ; i++) {
             probs[i] = local_fit_array[i]/sum_local_fit;
-            /*if (i == 0)
-                printf("Local fit X %e %d %d %d -> %e\n",local_fit_array[i],cur_x,cur_y,cur_x*grid_height+cur_y,
+
+                /*printf("Local fit X %e %d %d %d -> %e\n",local_fit_array[i],cur_x,cur_y,cur_x*grid_height+cur_y,
                        prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);*/
             //printf("%d -- prob[%d] : %e : fitness %e (%f) sum %e\n",indiv_id,i,probs[i],
             //       local_fit_array[i],local_meta_array[i],sum_local_fit);
         }
 
+        //printf("SIMD PRNG\n");
+        /*        bool verbose = false;
+        if (indiv_id == 2)  {
+            printf("SIMD PRNG\n");
+            verbose = true;
+        }*/
         int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_simd_->roulette_random(probs, neighborhood_size);
 
         int16_t x_offset = (found_org / selection_scope_x) - 1;
@@ -276,26 +282,27 @@ void SIMD_Individual::selection() {
                        ((y+y_offset+grid_height) % grid_height);
 
 
-/*            for (int i = 0; i < neighborhood_size; i++) {
+            for (int i = 0; i < neighborhood_size; i++) {
                 float i_fit_1 = roundf(exp_m_->world()->grid(x,y)->probs[i] * 10000);
                 float i_fit_2 = roundf(probs[i] * 10000);
 
-                if (found_id != internal_simd_struct[indiv_id]->parent_id) {
+                if (found_id != next_generation_reproducer_[indiv_id]) {
 
-                    printf("For individual %d : Selection is diff SIMD %d CPU %d (Meta error %f -- %f || Fitness %e -- %e (%e %e diff %e -- %e %e -- %e %e)\n",
-                           indiv_id, found_id, internal_simd_struct[indiv_id]->parent_id,
-                           prev_internal_simd_struct[internal_simd_struct[indiv_id]->parent_id]->metaerror,
+                    printf("For individual %d : Selection is diff SIMD %d CPU %d (Meta error %f -- %f || Fitness %e -- %e)\n",
+                            // (Probs %e %e diff %e -- Fit Array %e %e -- Sum Fit %e %e)\n",
+                           indiv_id, found_id, next_generation_reproducer_[indiv_id],
+                           prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->metaerror,
                            prev_internal_simd_struct[found_id]->metaerror,
-                           prev_internal_simd_struct[internal_simd_struct[indiv_id]->parent_id]->fitness,
-                           prev_internal_simd_struct[found_id]->fitness,exp_m_->world()->grid(x,y)->probs[i],probs[i],
+                           prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->fitness,
+                           prev_internal_simd_struct[found_id]->fitness/*,exp_m_->world()->grid(x,y)->probs[i],probs[i],
                            exp_m_->world()->grid(x,y)->probs[i]-probs[i],
                            exp_m_->world()->grid(x,y)->local_fit_array[i],local_fit_array[i],
-                           exp_m_->world()->grid(x,y)->sum_local_fit,sum_local_fit
+                           exp_m_->world()->grid(x,y)->sum_local_fit,sum_local_fit*/
 
                     );
 
                 }
-            }*/
+            }
 
 
         delete [] local_fit_array;
@@ -4078,7 +4085,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
 #pragma omp task firstprivate(indiv_id)
             {
-            //if (optim_prom) check_selection(indiv_id);
+           // if (AeTime::time() > 0 && optim_prom) check_selection(indiv_id);
             if (standalone_ && optim_prom) {
 
                 selection(indiv_id);
@@ -4276,19 +4283,29 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   //exit(-44);
   if (optim_prom) {
 //    printf("OPT -- Copy to old generation struct\n");
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-      if (prev_internal_simd_struct[indiv_id]->usage_count_-1 == 0)
-        delete prev_internal_simd_struct[indiv_id];
-      else
-        prev_internal_simd_struct[indiv_id]->usage_count_--;
-      
-      prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-      internal_simd_struct[indiv_id] = nullptr;
-    }
+//#pragma omp parallel
+//#pragma omp single
+//#pragma omp taskloop
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+          int usage_cpt = 0;
+
+          //#pragma omp critical
+          {
+              usage_cpt = prev_internal_simd_struct[indiv_id]->usage_count_--;
+
+              if (usage_cpt == 0)
+                  delete prev_internal_simd_struct[indiv_id];
+          }
+
+          prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+          internal_simd_struct[indiv_id] = nullptr;
+      }
   } else {
 //      printf("Copy to old generation struct\n");
-
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+#pragma omp parallel
+#pragma omp single
+#pragma omp taskloop
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
 
       prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
       internal_simd_struct[indiv_id] = nullptr;
@@ -4630,6 +4647,7 @@ Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Stru
   count_prom = 0;
   exp_m_ = exp_m;
 
+  usage_count_ = 1;
   dna_ = new Dna_SIMD(clone->dna_,this,copy_dna);
 
   //promoters.resize(clone->promoters.size());

@@ -1031,12 +1031,14 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     for (int8_t j = -1 ; j < selection_scope_y_-1 ; j++) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
-      //printf("%d %d : %lf %d\n",cur_x,cur_y,world->indiv_at(cur_x, cur_y)->fitness(),count);
 
       local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
+
+        //if (0 == x*grid_height+y) printf("%d %d : %e %d\n",cur_x,cur_y,world->indiv_at(cur_x, cur_y)->fitness(),count);
+
 /*        if (268 == x*grid_height+y)
             printf("CPU Local SUM Fit %e -- Fitness %e\n",sum_local_fit,local_fit_array[count]);*/
         count++;
@@ -1093,6 +1095,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     case FITNESS_PROPORTIONATE : {
       for(int16_t i = 0 ; i < neighborhood_size ; i++) {
         probs[i] = local_fit_array[i]/sum_local_fit;
+         // if (0 == x*grid_height+y) printf("%d : %e %e\n",i,local_fit_array[i],sum_local_fit);
       }
 
       break;
@@ -1104,6 +1107,11 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   }
 
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
+    /*bool verbose = false;
+    if (2 == x*grid_height+y) {
+        printf("PRNG CPU\n");
+        verbose = true;
+    }*/
   int16_t found_org = world->grid(x,y)->reprod_prng_->roulette_random(probs, neighborhood_size);
 
   int16_t x_offset = (found_org / selection_scope_x_) - 1;
@@ -1113,9 +1121,13 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   delete [] sort_fit_array;
   delete [] initial_location;
   delete [] probs;
-/*    world->grid(x,y)->probs = probs;
-    world->grid(x,y)->local_fit_array = local_fit_array;
-    world->grid(x,y)->sum_local_fit = sum_local_fit;*/
+
+    //world->grid(x,y)->probs = probs;
+    //world->grid(x,y)->local_fit_array = local_fit_array;
+    //world->grid(x,y)->sum_local_fit = sum_local_fit;
+
+    exp_m_->simd_individual->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
+                                            ((y+y_offset+grid_height) % grid_height);
 
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);
