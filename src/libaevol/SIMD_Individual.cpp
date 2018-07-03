@@ -193,10 +193,11 @@ void SIMD_Individual::selection() {
 
             next_generation_reproducer_[indiv_id] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                           ((y+y_offset+grid_height) % grid_height);
+            dna_size[indiv_id] = prev_internal_simd_struct[cur_x*grid_height+cur_y]->dna_->length();
 
 
 
-             exp_m_->simd_individual->internal_simd_struct[indiv_id] =
+             /*exp_m_->simd_individual->internal_simd_struct[indiv_id] =
                     new Internal_SIMD_Struct(exp_m_,prev_internal_simd_struct
                     [((x+x_offset+grid_width)  % grid_width)*grid_height+
                      ((y+y_offset+grid_height) % grid_height)],false);
@@ -206,7 +207,7 @@ void SIMD_Individual::selection() {
 
              exp_m_->simd_individual->internal_simd_struct[indiv_id]->parent_id =
                     ((x+x_offset+grid_width)  % grid_width)*grid_height+
-                    ((y+y_offset+grid_height) % grid_height);
+                    ((y+y_offset+grid_height) % grid_height);*/
 
 
 
@@ -505,7 +506,7 @@ void SIMD_Individual::selection() {
                 exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
                         exp_m_->world()->grid(x, y)->mut_prng(),
                         //prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
-                        internal_simd_struct[indiv_id]->dna_->length(),
+                        dna_size[indiv_id],
                         exp_m_->exp_s()->mut_params()->duplication_rate(),
                         exp_m_->exp_s()->mut_params()->deletion_rate(),
                         exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -526,13 +527,13 @@ void SIMD_Individual::selection() {
             if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
 
 
-                /*exp_m_->simd_individual->internal_simd_struct[indiv_id] =
+                exp_m_->simd_individual->internal_simd_struct[indiv_id] =
                         new Internal_SIMD_Struct(exp_m_,prev_internal_simd_struct
                         [next_generation_reproducer_[indiv_id]],false);
 
                 exp_m_->simd_individual->internal_simd_struct[indiv_id]->indiv_id = indiv_id;
                 exp_m_->simd_individual->internal_simd_struct[indiv_id]->parent_id =
-                        next_generation_reproducer_[indiv_id];*/
+                        next_generation_reproducer_[indiv_id];
 
 #ifdef WITH_BITSET
                 internal_simd_struct[indiv_id]->dna_->bitset_ =
@@ -555,16 +556,21 @@ void SIMD_Individual::selection() {
                     internal_simd_struct[indiv_id]->dna_->apply_mutations();
             } else {
 
+                #pragma omp atomic
                 nb_clones_++;
+
                 int32_t parent_id;
                 if (standalone_)
                     parent_id = next_generation_reproducer_[indiv_id];
                 else
                     parent_id = internal_simd_struct[indiv_id]->parent_id;
 
-                delete internal_simd_struct[indiv_id];
+                //delete internal_simd_struct[indiv_id];
                 internal_simd_struct[indiv_id] = prev_internal_simd_struct[parent_id];
+
+                #pragma omp atomic
                 internal_simd_struct[indiv_id]->usage_count_++;
+
             }
 
 /*
@@ -4070,16 +4076,16 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         nb_clones_ = 0;
 
         for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
-
+#pragma omp task firstprivate(indiv_id)
+            {
             //if (optim_prom) check_selection(indiv_id);
             if (standalone_ && optim_prom) {
 
                 selection(indiv_id);
             }
 
-#pragma omp taskwait
-#pragma omp task firstprivate(indiv_id)
-            {
+//#pragma omp taskwait
+
 
   if (standalone_ && optim_prom) {
 
