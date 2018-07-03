@@ -280,6 +280,8 @@ class SIMD_Individual {
 
     void check_selection(int indiv_id);
 
+    int rna_grain_size = 32;
+    int protein_grain_size = 32;
 
 };
 }
