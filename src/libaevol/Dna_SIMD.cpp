@@ -71,13 +71,16 @@ Dna_SIMD::~Dna_SIMD() {
 #ifdef WITH_BITSET
   delete bitset_;
 #else
-  free(data_);
+  if (data_ != nullptr) { free(data_); data_=nullptr;}
 #endif
 
-  for (auto repl : mutation_list)
-    delete repl;
+if (mutation_list.size() > 0) {
+    for (auto repl : mutation_list)
+        delete repl;
+    mutation_list.clear();
+}
 
-  mutation_list.clear();
+
 }
 
 #ifndef WITH_BITSET

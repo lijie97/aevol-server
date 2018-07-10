@@ -99,6 +99,7 @@ int main(int argc, char* argv[])
   int64_t t0 = -1;
   int64_t t_end = -1;
   int64_t nb_steps = -1;
+  int grain_size = 1;
 
   #ifndef __NO_X
     bool show_display_on_startup = true;
@@ -110,7 +111,7 @@ int main(int argc, char* argv[])
   // -------------------------------------------------------------------------
   // 2) Define allowed options
   // -------------------------------------------------------------------------
-  const char * options_list = "he:n:r:vVwxp:";
+  const char * options_list = "he:n:r:vVwxp:g:";
   static struct option long_options_list[] = {
     // Print help
     { "help",     no_argument,        NULL, 'h' },
@@ -130,6 +131,7 @@ int main(int argc, char* argv[])
     { "noX",      no_argument,        NULL, 'x' },
     // Run in parallel on x threads (0 or negative value yields system default)
     { "parallel", required_argument,  NULL, 'p' },
+    { "grainsize", required_argument,  NULL, 'g' },
     { 0, 0, 0, 0 }
   };
 
@@ -197,6 +199,10 @@ int main(int argc, char* argv[])
         #endif
         break;
       }
+      case 'g' : {
+        grain_size = atoi(optarg);
+        break;
+      }
       default : {
         // An error message is printed in getopt_long, we just need to exit
         exit(EXIT_FAILURE);
@@ -234,6 +240,7 @@ int main(int argc, char* argv[])
     exp_manager = new ExpManager();
   #endif
 
+    exp_manager->grain_size = grain_size;
   exp_manager->load(t0, verbose, true);
   exp_manager->set_t_end(t_end);
 

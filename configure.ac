@@ -556,6 +556,34 @@ if test "x$bitset" = "xyes" ; then
    AC_DEFINE(_DYNAMIC_CUSTOM_BITSET)
 fi
 
+#  ************************* --with-l1task option *******************************
+#
+#  With this option, pow basal support is enabled and the __POW_BASAL flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use Task or TaskLoop for first level parallelism])
+AC_ARG_WITH(l1task, [--with-l1task to enable Task as first level parallelism], l1task=$withval, l1task=no)
+AC_MSG_RESULT($l1task)
+AM_CONDITIONAL(WITH_L1TASK, test x"$l1task" != xno)
+if test "x$l1task" = "xyes" ; then
+   AC_DEFINE(WITH_L1TASK)
+fi
+
+#  ************************* --with-finetaskloop option *******************************
+#
+#  With this option, pow basal support is enabled and the __POW_BASAL flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use TaskLoop for second level parallelism])
+AC_ARG_WITH(finetaskloop, [--with-finetaskloop to enable TaskLoop as second level parallelism], finetaskloop=$withval, finetaskloop=no)
+AC_MSG_RESULT($finetaskloop)
+AM_CONDITIONAL(WITH_FINETASKLOOP, test x"$finetaskloop" != xno)
+if test "x$finetaskloop" = "xyes" ; then
+   AC_DEFINE(WITH_FINETASKLOOP)
+fi
+
 
 # ************************** --without-cuda option **********************************
 #
@@ -578,6 +606,22 @@ else
 	AC_MSG_NOTICE([Disable CUDA Library])
 	AM_CONDITIONAL([ENABLE_CUDA], [test x"$with_cuda" == xno])
 fi
+
+
+
+#   ************************ --without-standalonesimd option *********************
+#
+
+AC_MSG_CHECKING([whether to enable SIMD Standalone])
+AC_ARG_WITH(x, [  --without-standalonesimd to disable SIMD standalone], , with_standalonesimd=yes)
+AC_MSG_RESULT($with_standalonesimd)
+AM_CONDITIONAL(WITH_STANDALONESIMD, test x"$with_standalonesimd" != xno)
+if test "x$with_standalonesimd" != xno ; then
+   AC_DEFINE(WITH_STANDALONE_SIMD)
+else
+   AC_DEFINE(__NO_VANILLA)
+fi
+
 #  ************************* back to GENERAL stuff *******************************
 
 AC_CONFIG_FILES([Makefile

@@ -380,6 +380,19 @@ auto     t1 = high_resolution_clock::now();
 
 
 
+
+
+  if (!simd_individual->standalone()) {
+    t1 = high_resolution_clock::now();
+    // Write statistical data and store phylogenetic data (tree)
+#pragma omp single
+    {
+      output_m_->write_current_generation_outputs();
+    }
+    t2 = high_resolution_clock::now();
+    duration_2 += std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+  }
+
 #ifdef __CUDACC__
   std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
 
@@ -390,14 +403,6 @@ auto     t1 = high_resolution_clock::now();
 #else
   std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration_simd<<std::endl;
 #endif
-
-  if (!simd_individual->standalone()) {
-    // Write statistical data and store phylogenetic data (tree)
-#pragma omp single
-    {
-      output_m_->write_current_generation_outputs();
-    }
-  }
 }
 
 /*!
@@ -594,31 +599,36 @@ void ExpManager::run_evolution() {
   }
 
   simd_individual = new SIMD_Individual(this);
+  simd_individual->protein_grain_size = grain_size;
+  simd_individual->rna_grain_size = grain_size;
+
   simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
 
         // For each generation
   while (true) { // termination condition is into the loop
 
-    printf(
-        "============================== %" PRId64 " ==============================\n",
-        AeTime::time());
-    if (!first_run) {
-      if (SIMD_Individual::standalone_simd) {
-        printf(
-            "  Best individual's (%d) distance to target (metabolic) : %f (clones %d)\n",
-            simd_individual->best_indiv->indiv_id,
-            simd_individual->best_indiv->metaerror,
-            simd_individual->nb_clones_);
+    if (AeTime::time() % 100 == 0) {
+      printf(
+              "============================== %" PRId64 " ==============================\n",
+              AeTime::time());
+      if (!first_run) {
+        if (SIMD_Individual::standalone_simd) {
+          printf(
+                  "  Best individual's (%d) distance to target (metabolic) : %f (clones %d)\n",
+                  simd_individual->best_indiv->indiv_id,
+                  simd_individual->best_indiv->metaerror,
+                  simd_individual->nb_clones_);
+        } else {
+          printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
+                 best_indiv()->id(),
+                 best_indiv()->dist_to_target_by_feature(METABOLISM));
+        }
       } else {
         printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
                best_indiv()->id(),
                best_indiv()->dist_to_target_by_feature(METABOLISM));
       }
-    } else {
-      printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
-             best_indiv()->id(),
-             best_indiv()->dist_to_target_by_feature(METABOLISM));
     }
 
     first_run = false;

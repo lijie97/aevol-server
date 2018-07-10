@@ -12,7 +12,11 @@
 
 namespace aevol {
 
+#ifndef WITH_STANDALONE_SIMD
+     bool SIMD_Individual::standalone_simd = false;
+#else
      bool SIMD_Individual::standalone_simd = true;
+#endif
 
 SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 
@@ -38,6 +42,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     internal_simd_struct[indiv_id]->parent_id = indiv_id;
     //printf("Set Prev Indiv\n");
     prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+      internal_simd_struct[indiv_id]->global_id = AeTime::time()*1024+indiv_id;
   }
 
   dna_size = new int[exp_m_->nb_indivs()];
@@ -532,14 +537,18 @@ void SIMD_Individual::selection() {
 //      printf("DNA BEFORE SIZE of %d is %d (%d)\n",indiv_id,dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length());
 
             if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
+/*             if (internal_simd_struct[indiv_id] != nullptr) {
+                printf("Warning will replace something that is not null !!!\n");
 
+             }*/
 
-                exp_m_->simd_individual->internal_simd_struct[indiv_id] =
+             internal_simd_struct[indiv_id] =
                         new Internal_SIMD_Struct(exp_m_,prev_internal_simd_struct
                         [next_generation_reproducer_[indiv_id]],false);
 
-                exp_m_->simd_individual->internal_simd_struct[indiv_id]->indiv_id = indiv_id;
-                exp_m_->simd_individual->internal_simd_struct[indiv_id]->parent_id =
+                internal_simd_struct[indiv_id]->global_id = AeTime::time()*1024+indiv_id;
+                internal_simd_struct[indiv_id]->indiv_id = indiv_id;
+                internal_simd_struct[indiv_id]->parent_id =
                         next_generation_reproducer_[indiv_id];
 
 #ifdef WITH_BITSET
@@ -678,35 +687,109 @@ SIMD_Individual::~SIMD_Individual() {
 
     printf("Destroy SIMD Controller\n");
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    if (internal_simd_struct[indiv_id] != nullptr) {
-      for (auto rn : internal_simd_struct[indiv_id]->rnas) {
-       delete rn;
-      }
-      internal_simd_struct[indiv_id]->rnas.clear();
-      for (auto prot : internal_simd_struct[indiv_id]->proteins) {
-        delete prot;
-      }
-      internal_simd_struct[indiv_id]->proteins.clear();
 
-      if (internal_simd_struct[indiv_id]->usage_count_ > 1)
-        internal_simd_struct[indiv_id]->usage_count_--;
-      else {
-        delete internal_simd_struct[indiv_id];
-        internal_simd_struct[indiv_id] = nullptr;
+/*
+      if (internal_simd_struct[indiv_id] != nullptr) {
+          printf("Internal %d : %d \n", indiv_id, internal_simd_struct[indiv_id]->usage_count_);
       }
-    }
+*/
 
+      if (internal_simd_struct[indiv_id] != nullptr) {
+
+
+          if (internal_simd_struct[indiv_id]->usage_count_ > 0)
+              internal_simd_struct[indiv_id]->usage_count_--;
+          else {
+              if (internal_simd_struct[indiv_id]->usage_count_ != -1) {
+                  internal_simd_struct[indiv_id]->usage_count_ = -1;
+
+                  for (auto rn : internal_simd_struct[indiv_id]->rnas) {
+                      delete rn;
+                  }
+                  internal_simd_struct[indiv_id]->rnas.clear();
+                  for (auto prot : internal_simd_struct[indiv_id]->proteins) {
+                      delete prot;
+                  }
+                  internal_simd_struct[indiv_id]->proteins.clear();
+
+                  delete internal_simd_struct[indiv_id];
+                  internal_simd_struct[indiv_id] = nullptr;
+              }
+          }
+      }
+  }
+
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
     if (prev_internal_simd_struct[indiv_id] != nullptr) {
-      if (prev_internal_simd_struct[indiv_id]->usage_count_ > 1)
+      if (prev_internal_simd_struct[indiv_id]->usage_count_ > 0)
         prev_internal_simd_struct[indiv_id]->usage_count_--;
       else {
-        delete prev_internal_simd_struct[indiv_id];
-        prev_internal_simd_struct[indiv_id] = nullptr;
+          if (prev_internal_simd_struct[indiv_id]->usage_count_ != -1) {
+              prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
+
+              /*printf("DELETE --- PREV %d (%d) : %d \n", indiv_id, prev_internal_simd_struct[indiv_id]->usage_count_,
+                     prev_internal_simd_struct[indiv_id]->global_id);*/
+              for (auto rn : prev_internal_simd_struct[indiv_id]->rnas) {
+                  delete rn;
+              }
+              prev_internal_simd_struct[indiv_id]->rnas.clear();
+              for (auto prot : prev_internal_simd_struct[indiv_id]->proteins) {
+                  delete prot;
+              }
+              prev_internal_simd_struct[indiv_id]->proteins.clear();
+
+              delete prev_internal_simd_struct[indiv_id];
+              prev_internal_simd_struct[indiv_id] = nullptr;
+          }
       }
     }
 
     delete exp_m_->dna_mutator_array_[indiv_id];
   }
+
+    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+     /*   if (internal_simd_struct[indiv_id] != nullptr) {
+            printf("Still here %d : %d\n",internal_simd_struct[indiv_id]->global_id,
+                        internal_simd_struct[indiv_id]->usage_count_);
+        //}
+        //    delete internal_simd_struct[indiv_id];
+        }
+*/
+        if (prev_internal_simd_struct[indiv_id] != nullptr) {
+            if (prev_internal_simd_struct[indiv_id]->usage_count_ != -1) {
+                prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
+                /*printf("Still here %d -- %d : %d\n", indiv_id, prev_internal_simd_struct[indiv_id]->global_id,
+                       prev_internal_simd_struct[indiv_id]->usage_count_);*/
+
+                for (auto rn : prev_internal_simd_struct[indiv_id]->rnas) {
+                    delete rn;
+                }
+
+                prev_internal_simd_struct[indiv_id]->rnas.clear();
+                for (auto prot : prev_internal_simd_struct[indiv_id]->proteins) {
+                    delete prot;
+                }
+                prev_internal_simd_struct[indiv_id]->proteins.clear();
+
+                delete prev_internal_simd_struct[indiv_id];
+                prev_internal_simd_struct[indiv_id] = nullptr;
+            }
+        }
+    }
+
+/*    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+        *//*   if (internal_simd_struct[indiv_id] != nullptr) {
+               printf("Still here %d : %d\n",internal_simd_struct[indiv_id]->global_id,
+                           internal_simd_struct[indiv_id]->usage_count_);
+           //}
+           //    delete internal_simd_struct[indiv_id];
+           }
+   *//*
+        if (prev_internal_simd_struct[indiv_id] != nullptr) {
+            printf("WHAT Still here %d -- %d : %d\n",indiv_id,prev_internal_simd_struct[indiv_id]->global_id,
+                   prev_internal_simd_struct[indiv_id]->usage_count_);
+        }
+    }*/
 
   delete[] prev_internal_simd_struct;
   delete[] internal_simd_struct;
@@ -716,6 +799,15 @@ SIMD_Individual::~SIMD_Individual() {
 
   delete stats_best;
   delete stats_mean;
+
+    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+        int x = indiv_id / exp_m_->world()->height();
+        int y = indiv_id % exp_m_->world()->height();
+
+        exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+        exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+        delete exp_m_->world()->grid(x, y)->individual();
+    }
 }
 
 
@@ -1520,7 +1612,9 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 //#pragma omp task firstprivate(indiv_id)
 //          {
 
+#ifdef WITH_FINETASKLOOP
 #pragma omp taskloop grainsize(rna_grain_size)
+#endif
                 for (int prom_idx = 0; prom_idx< internal_simd_struct[indiv_id]->promoters.size(); prom_idx++) {
 
                     if (internal_simd_struct[indiv_id]->promoters.find(prom_idx) !=
@@ -1984,7 +2078,9 @@ void SIMD_Individual::compute_RNA() {
                 internal_simd_struct[indiv_id]->rnas.resize(
                         internal_simd_struct[indiv_id]->promoters.size());
 //#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
+#ifdef WITH_FINETASKLOOP
 #pragma omp taskloop grainsize(rna_grain_size)
+#endif
                 for (int rna_idx = 0; rna_idx <
                                       (int) internal_simd_struct[indiv_id]->promoters.size(); rna_idx++) {
 //#pragma omp task firstprivate(indiv_id, rna_idx)
@@ -2169,7 +2265,9 @@ void SIMD_Individual::compute_RNA() {
     }
 
     void SIMD_Individual::start_protein(int indiv_id) {
-#pragma omp taskloop grainsize(rna_grain_size)
+#ifdef WITH_FINETASKLOOP
+                    #pragma omp taskloop grainsize(rna_grain_size)
+#endif
         for (int rna_idx = 0; rna_idx <
                               (int) internal_simd_struct[indiv_id]->rna_count_; rna_idx++) {
 //#pragma omp task firstprivate(indiv_id, rna_idx) depend(out: internal_simd_struct[indiv_id])
@@ -2449,7 +2547,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 proteins.resize(resize_to);
     }
 //#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
+#ifdef WITH_FINETASKLOOP
 #pragma omp taskloop grainsize(rna_grain_size)
+#endif
                 for (int rna_idx = 0; rna_idx <
                                       (int) internal_simd_struct[indiv_id]->rna_count_; rna_idx++) {
                     if (internal_simd_struct[indiv_id]->rnas[rna_idx]->is_init_) {
@@ -3388,7 +3488,9 @@ void SIMD_Individual::translate_protein(double w_max) {
 
 
     void SIMD_Individual::translate_protein(int indiv_id, double w_max) {
-#pragma omp taskloop grainsize(protein_grain_size)
+#ifdef WITH_FINETASKLOOP
+                    #pragma omp taskloop grainsize(protein_grain_size)
+#endif
         for (int protein_idx = 0; protein_idx <
                                   (int) internal_simd_struct[indiv_id]->protein_count_; protein_idx++) {
 //#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
@@ -4091,9 +4193,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 #pragma omp single nowait
     {
         nb_clones_ = 0;
-#pragma omp taskloop
+#ifndef WITH_L1TASK
+        #pragma omp taskloop
+#endif
         for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
-            //#pragma omp task firstprivate(indiv_id)
+#ifdef WITH_L1TASK
+            #pragma omp task firstprivate(indiv_id)
+#endif
             {
            // if (AeTime::time() > 0 && optim_prom) check_selection(indiv_id);
             if (standalone_ && optim_prom) {
@@ -4157,8 +4263,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   }
 
 
-//#pragma omp task firstprivate(indiv_id)
- //           {
+/*#pragma omp task firstprivate(indiv_id)
+            {*/
   if (optim_prom) {
     //printf("Clear structures\n");
     //clear_struct_before_next_step();
@@ -4297,28 +4403,52 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 //#pragma omp single
 //#pragma omp taskloop
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+          //if (indiv_id == 0)
+          //    printf("%d -- usage %d -- \n", indiv_id, internal_simd_struct[indiv_id]->usage_count_);
           int usage_cpt = 0;
 
-          //#pragma omp critical
+#pragma omp critical
           {
-              usage_cpt = prev_internal_simd_struct[indiv_id]->usage_count_--;
+              if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
+                  prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
 
-              if (usage_cpt == 0)
                   delete prev_internal_simd_struct[indiv_id];
+              } else
+                  prev_internal_simd_struct[indiv_id]->usage_count_--;
+              /*else {
+                  printf("Still alive %d : %d\n",prev_internal_simd_struct[indiv_id]->global_id,
+                         prev_internal_simd_struct[indiv_id]->usage_count_);
+              }*/
+
           }
 
           prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
           internal_simd_struct[indiv_id] = nullptr;
       }
-  } else {
-//      printf("Copy to old generation struct\n");
-#pragma omp parallel
-#pragma omp single
-#pragma omp taskloop
-      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+  } else if (standalone_ && (!optim_prom)) {
 
-      prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-      internal_simd_struct[indiv_id] = nullptr;
+      } else {
+//      printf("Copy to old generation struct\n");
+//#pragma omp parallel
+//#pragma omp single
+//#pragma omp taskloop
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+          int usage_cpt = 0;
+
+          #pragma omp critical
+          {
+              if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
+                  prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
+
+                  delete prev_internal_simd_struct[indiv_id];
+              } else
+                prev_internal_simd_struct[indiv_id]->usage_count_--;
+              //usage_cpt = prev_internal_simd_struct[indiv_id]->usage_count_;
+
+          }
+
+          prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+          internal_simd_struct[indiv_id] = nullptr;
     }
   }
 
@@ -4331,6 +4461,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       best_fitness = prev_internal_simd_struct[indiv_id]->fitness;
     }
   }
+/*
+  printf("IDX BEST %d\n",idx_best);*/
 
   best_indiv = prev_internal_simd_struct[idx_best];
 
@@ -4687,10 +4819,12 @@ Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Stru
 }
 
 Internal_SIMD_Struct::~Internal_SIMD_Struct() {
-  for (auto element = promoters.begin();
-       element != promoters.end(); ++element) {
-    delete element->second;
-  }
+    if (promoters.size() > 0) {
+        for (auto element = promoters.begin();
+             element != promoters.end(); ++element) {
+            if (element->second != nullptr) delete element->second;
+        }
+    }
 
   promoters.clear();
 

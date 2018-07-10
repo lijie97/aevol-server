@@ -127,6 +127,8 @@ class Internal_SIMD_Struct {
 
     ExpManager* exp_m_;
 
+    int global_id = -1;
+
     void rebuild_index();
 
     void remove_promoters_around(int32_t pos_1);
@@ -264,7 +266,8 @@ class SIMD_Individual {
     int32_t nb_clones_;
 
     static bool standalone_simd;//= true;
-
+    int rna_grain_size = 32;
+    int protein_grain_size = 32;
  private:
     ExpManager* exp_m_;
     int* dna_size;
@@ -280,8 +283,7 @@ class SIMD_Individual {
 
     void check_selection(int indiv_id);
 
-    int rna_grain_size = 32;
-    int protein_grain_size = 32;
+
 
 };
 }

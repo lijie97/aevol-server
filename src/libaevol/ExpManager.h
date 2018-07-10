@@ -167,6 +167,7 @@ class ExpManager : public Observer {
 
     // SIMD Stuff
     SIMD_Individual* simd_individual = nullptr;
+    int grain_size = 1;
  protected:
   // =======================================================================
   //                              Protected Methods
