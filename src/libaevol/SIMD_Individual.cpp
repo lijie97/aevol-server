@@ -33,7 +33,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
     int x = indiv_id / exp_m_->world()->height();
     int y = indiv_id % exp_m_->world()->height();
-    //printf("Building indiv %d\n",indiv_id);
+
     internal_simd_struct[indiv_id] = new Internal_SIMD_Struct(exp_m);
     //printf("DNA SIMD %d\n",indiv_id);
     internal_simd_struct[indiv_id]->dna_ = new Dna_SIMD(exp_m->world()->grid(x,y)->individual()->genetic_unit(0).dna());
@@ -43,6 +43,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     //printf("Set Prev Indiv\n");
     prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
       internal_simd_struct[indiv_id]->global_id = AeTime::time()*1024+indiv_id;
+      printf("Building indiv %d %d\n",indiv_id,internal_simd_struct[indiv_id]->dna_->length_);
   }
 
   dna_size = new int[exp_m_->nb_indivs()];
@@ -4342,8 +4343,10 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       //}
 
     start_stop_RNA(indiv_id);
-    //printf("Compute RNAs\n");
+
     compute_RNA(indiv_id);
+
+      //if (indiv_id == 381) printf("Compute RNAs %d %d\n",internal_simd_struct[381]->rnas.size(),internal_simd_struct[381]->promoters.size());
   }
 
   /*
@@ -4387,18 +4390,20 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                         compute_fitness(indiv_id, selection_pressure);
                     }
                 }
+                //if (indiv_id == 381) printf("Compute IndiS %d %d\n",internal_simd_struct[381]->rnas.size(),internal_simd_struct[381]->promoters.size());
+
             }
         }
 //#pragma omp taskwait
     }
 
 
-
+    //printf("Compute BCLEAN %d %d\n",prev_internal_simd_struct[381]->rnas.size(),prev_internal_simd_struct[381]->promoters.size());
   //printf("Check results\n");
   //check_result();
   //exit(-44);
   if (optim_prom) {
-//    printf("OPT -- Copy to old generation struct\n");
+    //printf("OPT -- Copy to old generation struct\n");
 //#pragma omp parallel
 //#pragma omp single
 //#pragma omp taskloop
@@ -4409,16 +4414,18 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
 #pragma omp critical
           {
-              if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
-                  prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
 
-                  delete prev_internal_simd_struct[indiv_id];
-              } else
-                  prev_internal_simd_struct[indiv_id]->usage_count_--;
-              /*else {
-                  printf("Still alive %d : %d\n",prev_internal_simd_struct[indiv_id]->global_id,
-                         prev_internal_simd_struct[indiv_id]->usage_count_);
-              }*/
+                  if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
+                      prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
+
+                      delete prev_internal_simd_struct[indiv_id];
+                  } else
+                      prev_internal_simd_struct[indiv_id]->usage_count_--;
+                  /*else {
+                      printf("Still alive %d : %d\n",prev_internal_simd_struct[indiv_id]->global_id,
+                             prev_internal_simd_struct[indiv_id]->usage_count_);
+                  }*/
+
 
           }
 
@@ -4428,7 +4435,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   } else if (standalone_ && (!optim_prom)) {
 
       } else {
-//      printf("Copy to old generation struct\n");
+      //printf("Copy to old generation struct\n");
 //#pragma omp parallel
 //#pragma omp single
 //#pragma omp taskloop
@@ -4437,13 +4444,15 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
           #pragma omp critical
           {
-              if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
-                  prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
+              if (prev_internal_simd_struct[indiv_id] != internal_simd_struct[indiv_id]) {
+                  if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
+                      prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
 
-                  delete prev_internal_simd_struct[indiv_id];
-              } else
-                prev_internal_simd_struct[indiv_id]->usage_count_--;
-              //usage_cpt = prev_internal_simd_struct[indiv_id]->usage_count_;
+                      delete prev_internal_simd_struct[indiv_id];
+                  } else
+                      prev_internal_simd_struct[indiv_id]->usage_count_--;
+                  //usage_cpt = prev_internal_simd_struct[indiv_id]->usage_count_;
+              }
 
           }
 
@@ -4452,7 +4461,10 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     }
   }
 
-  // Search for the best
+  //printf("Compute XXX %d %d\n",prev_internal_simd_struct[381]->rnas.size(),prev_internal_simd_struct[381]->promoters.size());
+
+
+    // Search for the best
   double best_fitness = prev_internal_simd_struct[0]->fitness;
   int idx_best = 0;
   for (int indiv_id = 1; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
