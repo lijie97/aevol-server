@@ -131,24 +131,12 @@ void Stats_SIMD::compute_best() {
 
   amount_of_dna_ = simd_individual_->best_indiv->dna_->length();
 
-  for (int i = 0; i < simd_individual_->best_indiv->rna_count_; i++) {
-    if (simd_individual_->best_indiv->rnas[i] != nullptr) {
-      if (simd_individual_->best_indiv->rnas[i]->is_coding_)
-        nb_coding_rnas_++;
-      else
-        nb_non_coding_rnas_++;
-    }
-  }
+  nb_coding_rnas_ = simd_individual_->best_indiv->nb_coding_RNAs;
+  nb_non_coding_rnas_ = simd_individual_->best_indiv->nb_non_coding_RNAs;
 
-  for (int i = 0; i < simd_individual_->best_indiv->protein_count_; i++) {
-    if (simd_individual_->best_indiv->proteins[i] != nullptr) {
-      if (simd_individual_->best_indiv->proteins[i]->is_functional) {
-        nb_functional_genes_++;
-      } else {
-        nb_non_functional_genes_++;
-      }
-    }
-  }
+  nb_functional_genes_ = simd_individual_->best_indiv->nb_func_genes;
+  nb_non_functional_genes_ = simd_individual_->best_indiv->nb_non_func_genes;
+
 
   nb_mut_ = simd_individual_->best_indiv->dna_->nb_mut_;
   nb_rear_ = simd_individual_->best_indiv->dna_->nb_rear_;
@@ -186,24 +174,11 @@ void Stats_SIMD::compute_average() {
 
     amount_of_dna_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->length();
 
-    for (int i = 0; i < simd_individual_->prev_internal_simd_struct[indiv_id]->rna_count_; i++) {
-      if (simd_individual_->prev_internal_simd_struct[indiv_id]->rnas[i] != nullptr) {
-        if (simd_individual_->prev_internal_simd_struct[indiv_id]->rnas[i]->is_coding_)
-          nb_coding_rnas_++;
-        else
-          nb_non_coding_rnas_++;
-      }
-    }
+    nb_coding_rnas_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_coding_RNAs;
+    nb_non_coding_rnas_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs;
 
-    for (int i = 0; i < simd_individual_->prev_internal_simd_struct[indiv_id]->protein_count_; i++) {
-      if (simd_individual_->prev_internal_simd_struct[indiv_id]->rnas[i] != nullptr) {
-        if (simd_individual_->prev_internal_simd_struct[indiv_id]->proteins[i]->is_functional) {
-          nb_functional_genes_++;
-        } else {
-          nb_non_functional_genes_++;
-        }
-      }
-    }
+    nb_functional_genes_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_func_genes;
+    nb_non_functional_genes_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_non_func_genes;
 
     nb_mut_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_mut_;
     nb_rear_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_rear_;

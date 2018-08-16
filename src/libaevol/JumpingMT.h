@@ -40,6 +40,7 @@
 
 #include <zlib.h>
 
+#include <vector>
 
 
 // =================================================================
@@ -114,11 +115,15 @@ class JumpingMT
     // =================================================================
     static int32_t nb_jumps;
     static double  jump_time;
+/*
 
 
 
+    std::vector<double> pickones;
+    std::vector<double> pickones2;
+    std::vector<double> pickones3;
 
-
+    std::vector<double> cloned_probs;*/
   protected :
 
     // =================================================================
@@ -145,6 +150,7 @@ class JumpingMT
     //                          Protected Attributes
     // =================================================================
     sfmt_t* sfmt_;
+
 };
 
 

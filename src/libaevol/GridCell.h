@@ -138,7 +138,11 @@ class GridCell
     std::unique_ptr<JumpingMT> reprod_prng_simd_ = nullptr;
     double *  probs;
     double *  local_fit_array;
+    double *  local_meta_array;
     double    sum_local_fit;
+    double*    loc_phenotype;
+    int *  indiv_index;
+    Individual* old_one;
  protected :
   // =================================================================
   //                           Protected Methods

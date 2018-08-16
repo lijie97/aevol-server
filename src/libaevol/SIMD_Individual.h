@@ -93,7 +93,7 @@ class pProtein {
     bool is_init_ = false;
 };
 
-class Internal_SIMD_Struct {
+class Internal_SIMD_Struct : public Observable {
  public:
     Internal_SIMD_Struct(ExpManager* exp_m) { exp_m_ = exp_m;};
 
@@ -128,6 +128,16 @@ class Internal_SIMD_Struct {
     ExpManager* exp_m_;
 
     int global_id = -1;
+
+
+    /** Variables for Tree mgmt **/
+    int32_t  nb_genes_activ = 0;
+    int32_t  nb_genes_inhib = 0;
+    int32_t  nb_func_genes = 0;
+    int32_t  nb_non_func_genes = 0;
+    int32_t  nb_coding_RNAs = 0;
+    int32_t  nb_non_coding_RNAs = 0;
+    /** END of Variables for Tree Mgmt **/
 
     void rebuild_index();
 
@@ -250,7 +260,7 @@ class SIMD_Individual {
 
     void check_result();
     void check_dna();
-
+    void check_individual(int indiv_id, int x, int y);
     bool standalone() const { return standalone_; }
 
 
@@ -271,7 +281,7 @@ class SIMD_Individual {
  private:
     ExpManager* exp_m_;
     int* dna_size;
-    float target[300];
+    double* target;
     bool standalone_;
 
     Stats_SIMD* stats_best;

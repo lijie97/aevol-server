@@ -124,11 +124,13 @@ class OutputManager {
 
   static int64_t last_gener();
 
+  void write_tree() const;
+
  protected :
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  void write_tree() const;
+
 
   // =================================================================
   //                          Protected Attributes

@@ -433,7 +433,7 @@ void ExpManager::load(gzFile& exp_s_file,
   world_->load(world_file, this);
   printf(" OK\n");
 
-  printf("-------------- Nb Gaussians %d\n",world()->phenotypic_target_handler()->gaussians().size());
+  //printf("-------------- Nb Gaussians %d\n",world()->phenotypic_target_handler()->gaussians().size());
 
   sel()->set_unique_id(  grid_height()*grid_width()+1 );
 

@@ -34,7 +34,6 @@
 #include "AeTime.h"
 
 
-
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -238,11 +237,15 @@ double JumpingMT::gaussian_random()
 
 int32_t JumpingMT::roulette_random(double* probs, int32_t nb_elts, bool verbose )
 {
+    //cloned_probs.resize(nb_elts);
+    //for (int i = 0; i < nb_elts; i++) cloned_probs[i] = probs[i];
+
   double pick_one = 0.0;
 
   while (pick_one == 0.0)
   {
     pick_one = random();
+    //pickones.push_back(pick_one);
     //if (verbose) printf("pick one : %f\n",pick_one);
   }
 
@@ -252,7 +255,10 @@ int32_t JumpingMT::roulette_random(double* probs, int32_t nb_elts, bool verbose 
   while (pick_one > 0)
   {
     assert(found_org<nb_elts-1);
+    //pickones3.push_back(probs[found_org+1]);
+
     pick_one -= probs[++found_org];
+    //pickones2.push_back(pick_one);
   }
   return found_org;
 }

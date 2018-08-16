@@ -183,6 +183,9 @@ bool Dna_SIMD::do_switch(int32_t pos) {
   if (length() >= PROM_SIZE)
     indiv_->look_for_new_promoters_around(pos, Utils::mod(pos + 1, length()));
 
+  PointMutation* mut = new PointMutation(pos);
+  indiv_->notifyObservers(MUTATION, mut);
+
   return true;
 }
 
@@ -210,6 +213,10 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, BitSet_SIMD* seq) {
     }
   }
 
+
+  SmallInsertion* mut = new SmallInsertion(pos, seq->length_, seq->to_char());
+  indiv_->notifyObservers(MUTATION, mut);
+
   return true;
 }
 #else
@@ -235,6 +242,10 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
                                                                length_));
     }
   }
+
+
+  SmallInsertion* mut = new SmallInsertion(pos, nb_insert, seq);
+  indiv_->notifyObservers(MUTATION, mut);
 
   return true;
 }
@@ -281,6 +292,9 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
       indiv_->look_for_new_promoters_around(0);
     }
   }
+
+  SmallDeletion* mut = new SmallDeletion(pos, nb_del);
+  indiv_->notifyObservers(MUTATION, mut);
 
   return true;
 }
@@ -517,6 +531,8 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   free(duplicate_segment);
 #endif
 
+  Duplication* mut = new Duplication(pos_1, pos_2, pos_3, seg_length);
+  indiv_->notifyObservers(MUTATION, mut);
 
   return true;
 }
@@ -562,6 +578,12 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
       ABCDE_to_ACpDpBE(pos_4, pos_1, pos_3, pos_2);
     }
   }
+
+  int32_t segment_length = pos_2 - pos_1;
+
+  Translocation* mut = new Translocation(pos_1, pos_2, pos_3, pos_4,
+                                         segment_length, invert);
+  indiv_->notifyObservers(MUTATION, mut);
 
   return true;
 }
@@ -773,6 +795,9 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   free(inverted_segment);
 #endif
 
+  Inversion* mut = new Inversion(pos_1, pos_2, seg_length);
+  indiv_->notifyObservers(MUTATION, mut);
+
   return true;
 }
 
@@ -969,6 +994,10 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
       indiv_->look_for_new_promoters_around(0);
     }
   }
+
+  int32_t segment_length = Utils::mod(pos_2 - pos_1 - 1, length()) + 1;
+  Deletion* mut =new Deletion(pos_1, pos_2, segment_length);
+  indiv_->notifyObservers(MUTATION, mut);
 
   return true;
 }

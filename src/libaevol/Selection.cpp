@@ -59,7 +59,7 @@ using namespace std::chrono;
 #include "ae_logger.h"
 #include "ExpManager.h"
 #include "VisAVis.h"
-
+#include "HybridFuzzy.h"
 #ifdef __NO_X
   #ifndef __REGUL
     #include "Individual.h"
@@ -228,6 +228,13 @@ void Selection::step_to_next_generation() {
       i++;
     }
   } else {
+/*      for (int32_t index = 0; index < grid_width * grid_height; index++) {
+          x = index / grid_height;
+          y = index % grid_height;
+
+          world->grid(x, y)->old_one = Individual::CreateClone(world->indiv_at(x, y), 444444);
+      }*/
+
     // Do local competitions
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
@@ -1019,11 +1026,16 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
 
   // Build a temporary local array of fitness values
   double *  local_fit_array   = new double[neighborhood_size];
+  //double *  local_meta_array   = new double[neighborhood_size];
   double *  sort_fit_array    = new double[neighborhood_size];
   int16_t * initial_location  = new int16_t[neighborhood_size];
   double *  probs             = new double[neighborhood_size];
   int16_t   count             = 0;
   double    sum_local_fit     = 0.0;
+  //double* loc_phenotype = new double[300];
+
+    //world->grid(x,y)->indiv_index  = new int[neighborhood_size];
+
 
   //printf("Selection scope %d (%d %d) :: %d %d\n",selection_scope_,x,y,neighborhood_size,selection_scope_x_,selection_scope_y_);
 
@@ -1032,10 +1044,17 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
 
+    /*  if (count==0) {
+          for (int ip = 0; ip < 300; ip++)
+              loc_phenotype[ip] = ((HybridFuzzy *)  world->indiv_at(cur_x, cur_y)->phenotype())->points()[ip];
+      }*/
+
       local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
+      //local_meta_array[count]  = world->indiv_at(cur_x, cur_y)->dist_to_target_by_feature(METABOLISM);
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
+      //world->grid(x,y)->indiv_index[count] = cur_x * grid_height + cur_y;
 
         //if (0 == x*grid_height+y) printf("%d %d : %e %d\n",cur_x,cur_y,world->indiv_at(cur_x, cur_y)->fitness(),count);
 
@@ -1117,14 +1136,18 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   int16_t x_offset = (found_org / selection_scope_x_) - 1;
   int16_t y_offset = (found_org % selection_scope_y_) - 1;
 
+
   delete [] local_fit_array;
   delete [] sort_fit_array;
   delete [] initial_location;
   delete [] probs;
 
-    //world->grid(x,y)->probs = probs;
-    //world->grid(x,y)->local_fit_array = local_fit_array;
-    //world->grid(x,y)->sum_local_fit = sum_local_fit;
+
+/*    world->grid(x,y)->probs = probs;
+    world->grid(x,y)->local_fit_array = local_fit_array;
+    world->grid(x,y)->sum_local_fit = sum_local_fit;
+    world->grid(x,y)->local_meta_array = local_meta_array;
+    world->grid(x,y)->loc_phenotype = loc_phenotype;*/
 
     exp_m_->simd_individual->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                             ((y+y_offset+grid_height) % grid_height);
