@@ -437,6 +437,10 @@ void ExpManager::load(gzFile& exp_s_file,
 
   sel()->set_unique_id(  grid_height()*grid_width()+1 );
 
+    simd_individual = new SIMD_Individual(this);
+    simd_individual->protein_grain_size = grain_size;
+    simd_individual->rna_grain_size = grain_size;
+
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
@@ -446,15 +450,27 @@ void ExpManager::load(gzFile& exp_s_file,
 
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
-    sel()->addObserver(tree(), NEW_INDIV);
-    for (int16_t x = 0 ; x < grid_width() ; x++) {
-      for (int16_t y = 0; y < grid_height(); y++) {
-        world_->indiv_at(x,y)->addObserver(
-            tree(),
-            END_REPLICATION);
+      if (SIMD_Individual::standalone_simd) {
+          simd_individual->addObserver(tree(), NEW_INDIV);
+          for (int16_t x = 0; x < grid_width(); x++) {
+              for (int16_t y = 0; y < grid_height(); y++) {
+                  simd_individual->internal_simd_struct[x*grid_height()+y]->addObserver(
+                          tree(),
+                          END_REPLICATION);
+              }
+          }
+          simd_individual->addObserver(tree(), END_GENERATION);
+      } else {
+          sel()->addObserver(tree(), NEW_INDIV);
+          for (int16_t x = 0; x < grid_width(); x++) {
+              for (int16_t y = 0; y < grid_height(); y++) {
+                  world_->indiv_at(x, y)->addObserver(
+                          tree(),
+                          END_REPLICATION);
+              }
+          }
+          sel()->addObserver(tree(), END_GENERATION);
       }
-    }
-    sel()->addObserver(tree(), END_GENERATION);
   }
 
   // --------------------------------------------------- Recompute unsaved data
@@ -598,9 +614,7 @@ void ExpManager::run_evolution() {
     dna_mutator_array_[i] = nullptr;
   }
 
-  simd_individual = new SIMD_Individual(this);
-  simd_individual->protein_grain_size = grain_size;
-  simd_individual->rna_grain_size = grain_size;
+
 
   simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 

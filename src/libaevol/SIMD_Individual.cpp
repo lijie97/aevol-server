@@ -5,11 +5,12 @@
 #include "SIMD_Individual.h"
 #include "Dna_SIMD.h"
 #include "DnaMutator.h"
-
-#include <omp.h>
 #include "HybridFuzzy.h"
 #include "Stats_SIMD.h"
+#include "ExpManager.h"
 
+
+#include <omp.h>
 namespace aevol {
 
 #ifndef WITH_STANDALONE_SIMD
@@ -757,6 +758,13 @@ void SIMD_Individual::selection() {
         }
 
       }*/
+        if (standalone_) {
+            int x = indiv_id / exp_m_->world()->height();
+            int y = indiv_id % exp_m_->world()->height();
+            NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
+                    prev_internal_simd_struct[next_generation_reproducer_[indiv_id]], x, y);
+            notifyObservers(NEW_INDIV, eindiv);
+        }
 
             dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
         //exit(12);
@@ -4471,10 +4479,24 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                 //if (indiv_id == 381) printf("Compute IndiS %d %d\n",internal_simd_struct[381]->rnas.size(),internal_simd_struct[381]->promoters.size());
 
             }
+            if (standalone_) {
+#pragma omp critical
+                {
+                    int x = indiv_id / exp_m_->world()->height();
+                    int y = indiv_id % exp_m_->world()->height();
+                    EndReplicationEvent *eindiv = new EndReplicationEvent(
+                            internal_simd_struct[indiv_id], x, y);
+                    // Tell observers the replication is finished
+                    internal_simd_struct[indiv_id]->notifyObservers(END_REPLICATION, eindiv);
+                }
+            }
         }
+
 //#pragma omp taskwait
     }
 
+
+    notifyObservers(END_GENERATION);
 
     //printf("Compute BCLEAN %d %d\n",prev_internal_simd_struct[381]->rnas.size(),prev_internal_simd_struct[381]->promoters.size());
   //printf("Check results\n");
@@ -4596,7 +4618,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   stats_best->write_best();
   stats_mean->write_average();
 
-  if (standalone_ && AeTime::time() % exp_m_->output_m()->tree_step() == 0) {
+  if (standalone_ && AeTime::time() % exp_m_->output_m()->tree_step() == 0 && AeTime::time() > 0) {
       exp_m_->output_m()->write_tree();
   }
 

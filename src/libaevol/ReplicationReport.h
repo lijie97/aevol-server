@@ -43,7 +43,6 @@
 #include "ae_enums.h"
 #include "Observer.h"
 #include "ObservableEvent.h"
-#include "Individual.h"
 
 namespace aevol {
 
@@ -119,6 +118,10 @@ class ReplicationReport : public Observer {
     // =================================================================
     void init(Tree* tree, Individual* offspring, Individual* parent);
     void signal_end_of_replication(Individual* indiv);
+
+    void init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent);
+    void signal_end_of_replication(Internal_SIMD_Struct* indiv);
+
     void signal_end_of_generation(int i);
     void write_to_tree_file(gzFile tree_file) const;
 
@@ -138,6 +141,7 @@ class ReplicationReport : public Observer {
     //                          Protected Attributes
     // =================================================================
     Individual* indiv_ = nullptr;
+    Internal_SIMD_Struct* simd_indiv_ = nullptr;
     unsigned long long id_ = -1;
     unsigned long long parent_id_ = -1;
 

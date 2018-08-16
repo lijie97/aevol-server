@@ -5,11 +5,22 @@
 #ifndef RAEVOL_CUDA_SIMD_INDIVIDUAL_H
 #define RAEVOL_CUDA_SIMD_INDIVIDUAL_H
 
-#include "ExpManager.h"
-#include "Stats_SIMD.h"
+#include <vector>
+#include <map>
+#include <set>
 
+//#include "ExpManager.h"
+//#include "Stats_SIMD.h"
+//#include "Dna_SIMD.h"
+#include "Observable.h"
+#include "PhenotypicTargetHandler.h"
+#include "ae_enums.h"
 
 namespace aevol {
+
+    class ExpManager;
+    class Dna_SIMD;
+    class Stats_SIMD;
 
 constexpr const char* PROM_SEQ_LEAD = "0101011001110010010110";
 constexpr const char* PROM_SEQ_LAG  = "1010100110001101101001";
@@ -223,7 +234,7 @@ class PromoterList {
     std::map<int32_t,int> lagging_prom_pos;
 };
 
-class SIMD_Individual {
+class SIMD_Individual : public Observable{
  public:
     SIMD_Individual(ExpManager* exp_m);
 

@@ -7,15 +7,17 @@
 
 
 #include <cstdint>
+#include <list>
 
-#include "SIMD_Individual.h"
-#include "Dna.h"
+//#include "Dna.h"
 #include "MutationEvent.h"
 #include "BitSet_SIMD.h"
 
 namespace aevol {
 
 #define BLOCK_SIZE INT32_C(1024)
+class Dna;
+class Internal_SIMD_Struct;
 
 class Dna_SIMD {
  public:

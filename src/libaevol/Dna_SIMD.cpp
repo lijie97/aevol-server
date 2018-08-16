@@ -2,10 +2,14 @@
 // Created by Jonathan Rouzaud-Cornabas on 24/08/17.
 //
 
+
+#include "SIMD_Individual.h"
+#include "ExpManager.h"
 #include "Dna_SIMD.h"
 #include "DnaMutator.h"
-
 #include "BitSet_SIMD.h"
+#include "Individual.h"
+
 
 namespace aevol {
 Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {

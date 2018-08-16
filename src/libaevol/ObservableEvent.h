@@ -42,6 +42,7 @@ enum ObservableEvent {
 namespace  aevol {
 
 class Individual;
+class Internal_SIMD_Struct;
 
 class NewIndivEvent {
  public:
@@ -52,8 +53,18 @@ class NewIndivEvent {
       y = yx;
     }
 
+    NewIndivEvent(Internal_SIMD_Struct* childx, Internal_SIMD_Struct* parentx, int xx, int yx) {
+        simd_child = childx;
+        simd_parent = parentx;
+        x = xx;
+        y = yx;
+    }
+
+
     Individual* child;
     Individual* parent;
+    Internal_SIMD_Struct* simd_child;
+    Internal_SIMD_Struct* simd_parent;
 
     int x;
     int y;
@@ -67,7 +78,15 @@ class EndReplicationEvent {
       y = yx;
     }
 
+
+    EndReplicationEvent(Internal_SIMD_Struct* childx, int xx, int yx) {
+        simd_child = childx;
+        x = xx;
+        y = yx;
+    }
+
     Individual* child;
+    Internal_SIMD_Struct* simd_child;
 
     int x;
     int y;

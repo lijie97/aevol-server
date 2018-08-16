@@ -73,7 +73,7 @@ using namespace std::chrono;
     #include "raevol/Individual_R_X11.h"
   #endif
 #endif
-
+#include "SIMD_Individual.h"
 
 namespace aevol {
 

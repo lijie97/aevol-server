@@ -43,7 +43,7 @@
 #include "ExpSetup.h"
 #include "Individual.h"
 #include "Utils.h"
-
+#include "SIMD_Individual.h"
 
 namespace aevol {
 
@@ -190,10 +190,15 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
 
       auto ievent = reinterpret_cast<NewIndivEvent*>(arg);
 
-      report_by_index(AeTime::time(), ievent->x *
-                                      ievent->child->exp_m()->grid_height()
-                                      + ievent->y)->
-          init(this, ievent->child, ievent->parent);
+      if (SIMD_Individual::standalone_simd) {
+        report_by_index(AeTime::time(), ievent->simd_child->indiv_id)->
+                init(this, ievent->simd_child, ievent->simd_parent);
+      } else {
+        report_by_index(AeTime::time(), ievent->x *
+                                        ievent->child->exp_m()->grid_height()
+                                        + ievent->y)->
+                init(this, ievent->child, ievent->parent);
+      }
       break;
     }
     case END_GENERATION : {
@@ -202,11 +207,15 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
     }
     case END_REPLICATION : {
       auto ievent = reinterpret_cast<EndReplicationEvent*>(arg);
-
-      report_by_index(AeTime::time(), ievent->x *
-                                      ievent->child->exp_m()->grid_height()
-                                      + ievent->y)->signal_end_of_replication(
-          ievent->child);
+      if (SIMD_Individual::standalone_simd) {
+        report_by_index(AeTime::time(), ievent->simd_child->indiv_id)->signal_end_of_replication(
+                ievent->simd_child);
+      } else {
+        report_by_index(AeTime::time(), ievent->x *
+                                        ievent->child->exp_m()->grid_height()
+                                        + ievent->y)->signal_end_of_replication(
+                ievent->child);
+      }
       break;
     }
     default : {

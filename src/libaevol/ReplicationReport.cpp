@@ -35,10 +35,12 @@
 
 // =================================================================
 //                            Project Files
-// =================================================================
+
 #include "ReplicationReport.h"
 #include "DnaReplicationReport.h"
 #include "Mutation.h"
+#include "SIMD_Individual.h"
+#include "Dna_SIMD.h"
 #include "Individual.h"
 #include "GridCell.h"
 #include "ExpManager.h"
@@ -201,6 +203,32 @@ void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* pare
   indiv_->addObserver(tree, END_REPLICATION);
 }
 
+void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent)
+{
+
+      simd_indiv_ = offspring;
+
+      id_ = simd_indiv_->indiv_id;
+      parent_id_ = parent->indiv_id;
+
+      genome_size_        = 0;
+      metabolic_error_    = 0.0;
+      nb_genes_activ_     = 0;
+      nb_genes_inhib_     = 0;
+      nb_non_fun_genes_   = 0;
+      nb_coding_RNAs_     = 0;
+      nb_non_coding_RNAs_ = 0;
+
+      parent_metabolic_error_ = parent->metaerror;
+      parent_secretion_error_ = 0.0;
+      parent_genome_size_     = parent->dna_->length();
+      mean_align_score_       = 0.0;
+
+      // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
+      simd_indiv_->addObserver(this, MUTATION);
+      simd_indiv_->addObserver(tree, END_REPLICATION);
+}
+
 /**
  * Method called at the end of the replication of an individual.
  * Actions such as finalize the calculation of average values can be done here.
@@ -219,6 +247,20 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
   nb_non_coding_RNAs_ = indiv_->nb_non_coding_RNAs();
 }
 
+
+void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
+      // TODO <david.parsons@inria.fr> tmp patch
+      if (indiv_ == NULL) simd_indiv_ = indiv;
+
+      // Retrieve data from the individual
+      genome_size_        = simd_indiv_->dna_->length();
+      metabolic_error_    = simd_indiv_->metaerror;
+      nb_genes_activ_     = simd_indiv_->nb_genes_activ;
+      nb_genes_inhib_     = simd_indiv_->nb_genes_inhib;
+      nb_non_fun_genes_   = simd_indiv_->nb_func_genes;
+      nb_coding_RNAs_     = simd_indiv_->nb_coding_RNAs;
+      nb_non_coding_RNAs_ = simd_indiv_->nb_non_coding_RNAs;
+}
 /**
  * Method called at the end of a generation.
  * Actions such as update the individuals' ranks can be done here.
