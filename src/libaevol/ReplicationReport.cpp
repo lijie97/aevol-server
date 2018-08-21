@@ -211,6 +211,8 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
       id_ = simd_indiv_->indiv_id;
       parent_id_ = parent->indiv_id;
 
+      rank_ = 0;
+
       genome_size_        = 0;
       metabolic_error_    = 0.0;
       nb_genes_activ_     = 0;
@@ -266,15 +268,24 @@ void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
  * Actions such as update the individuals' ranks can be done here.
  */
 void ReplicationReport::signal_end_of_generation(int i) {
-  rank_ = indiv_->rank();
+    if (!SIMD_Individual::standalone_simd)
+        rank_ = indiv_->rank();
 }
 
 void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
   gzwrite(tree_file, &id_,         sizeof(id_));
-  assert(rank_ != -1);
-  gzwrite(tree_file, &rank_,       sizeof(rank_));
+
+  int rankx = -1;
+  if (SIMD_Individual::standalone_simd) {
+      rankx = 0;
+  } else {
+      assert(rank_ != -1);
+      rankx = rank_;
+  }
+
+  gzwrite(tree_file, &rank_,       sizeof(rankx));
   gzwrite(tree_file, &parent_id_,  sizeof(parent_id_));
   gzwrite(tree_file, &donor_id_,   sizeof(donor_id_));
 
@@ -302,8 +313,10 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 //                          Non inline accessors
 // =================================================================
 void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
+        printf("Receive ??? events\n");
   switch (e) {
     case MUTATION :
+        printf("Receive mutation events\n");
       dna_replic_report_.add_mut(reinterpret_cast<Mutation*>(arg));
       break;
     default :

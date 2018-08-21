@@ -87,7 +87,6 @@ int main(int argc, char** argv)
   int64_t t0 = 0;
   int64_t t_end = -1;
   int32_t final_indiv_index = -1;
-  int32_t final_indiv_rank  = -1;
   char tree_file_name[50];
 
   const char * short_options = "hVvncb:i:r:e:";
@@ -99,7 +98,6 @@ int main(int argc, char** argv)
     {"fullcheck", no_argument,       NULL,  'c'},
     {"begin",     required_argument, NULL,  'b'},
     {"index",     required_argument, NULL,  'i'},
-    {"rank",      required_argument, NULL,  'r'},
     {"end",       required_argument,  NULL, 'e' },
     {0, 0, 0, 0}
   };
@@ -124,7 +122,6 @@ int main(int argc, char** argv)
       case 'c' : check_genome = FULL_CHECK;         break;
       case 'b' : t0  = atol(optarg);                break;
       case 'i' : final_indiv_index  = atol(optarg); break;
-      case 'r' : final_indiv_rank  = atol(optarg);  break;
       case 'e' :
       {
         if (strcmp(optarg, "") == 0)
@@ -243,19 +240,27 @@ int main(int argc, char** argv)
     reports[t_end - t0 - 1] =
         new ReplicationReport(*(tree->report_by_index(t_end,
                                                           final_indiv_index)));
-    final_indiv_rank = reports[t_end - t0 - 1]->rank();
+    //final_indiv_rank = reports[t_end - t0 - 1]->rank();
 
     indices[t_end - t0]  = final_indiv_index;
+  } else {
+      reports[t_end - t0 - 1] =
+              new ReplicationReport(*(tree->report_by_index(t_end,
+                                                            exp_manager->best_indiv()->id())));
+      //final_indiv_rank = reports[t_end - t0 - 1]->rank();
+      final_indiv_index = reports[t_end - t0 - 1]->id();
+
+      indices[t_end - t0]  = final_indiv_index;
   }
-  else
+/*  else
   {
-    if (final_indiv_rank == -1)
+    *//*if (final_indiv_rank == -1)
     {
       // No index nor rank was given in the command line.
       // By default, we construct the lineage of the best individual, the rank of which
       // is simply the number of individuals in the population.
       final_indiv_rank = exp_manager->nb_indivs();
-    }
+    }*//*
 
     // Retrieve the replication report of the individual of interest (at t_end)
     reports[t_end - t0 - 1] = new ReplicationReport(*(tree->report_by_rank(t_end, final_indiv_rank)));
@@ -263,9 +268,9 @@ int main(int argc, char** argv)
 
     indices[t_end - t0]  = final_indiv_index;
     //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
-  }
+  }*/
 
-  if (verbose) printf("The final individual has the index %" PRId32 " (rank %" PRId32 ")\n", final_indiv_index, final_indiv_rank);
+  if (verbose) printf("The final individual has the index %" PRId32 "\n", final_indiv_index);
 
 
   // =======================
@@ -275,12 +280,12 @@ int main(int argc, char** argv)
 
   #ifdef __REGUL
     snprintf(output_file_name, 100,
-        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".rae",
-        t0, t_end, final_indiv_index, final_indiv_rank);
+        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 ".rae",
+        t0, t_end, final_indiv_index);
   #else
     snprintf(output_file_name, 100,
-        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".ae",
-        t0, t_end, final_indiv_index, final_indiv_rank);
+        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 ".ae",
+        t0, t_end, final_indiv_index);
   #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
@@ -372,7 +377,6 @@ int main(int argc, char** argv)
   gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
-  gzwrite(lineage_file, &final_indiv_rank, sizeof(final_indiv_rank));
 
   initial_ancestor->grid_cell()->save(lineage_file);
 
@@ -447,6 +451,10 @@ int main(int argc, char** argv)
 
     // Replay the mutations stored in the current replication report on the
     // current genome
+      printf("Mutation to do %d %d %d\n",reports[i]->dna_replic_report().HT().size(),
+             reports[i]->dna_replic_report().rearrangements().size(),
+             reports[i]->dna_replic_report().mutations().size());
+
     unit = initial_ancestor->genetic_unit_list().cbegin();
     for (const auto& mut: reports[i]->dna_replic_report().HT()) {
       (unit->dna())->undergo_this_mutation(*mut);
@@ -549,10 +557,10 @@ void print_help(char* prog_path)
   printf("\n");
 #ifdef __REGUL
   printf("Usage : rlineage -h\n");
-  printf("or :    rlineage [-vn] [-i index | -r rank] [-b gener1] -e end_gener \n");
+  printf("or :    rlineage [-vn] [-i index [-b gener1] -e end_gener \n");
 #else
   printf("Usage : lineage -h\n");
-  printf("or :    lineage [-vn] [-i index | -r rank] [-b gener1] -e end_gener \n");
+  printf("or :    lineage [-vn] [-i index [-b gener1] -e end_gener \n");
 #endif
   printf("\n");
 #ifdef __REGUL
@@ -596,15 +604,6 @@ void print_help(char* prog_path)
   printf("\t                  index is index. The index must be comprised \n");
   printf("\t                  between 0 and N-1, with N the size of the \n");
   printf("\t                  population at the ending generation. If neither\n");
-  printf("\t                  index nor rank are specified, the program computes \n");
-  printf("\t                  the lineage of the best individual of the ending \n");
-  printf("\t                  generation.\n");
-  printf("\n");
-  printf("\t-r rank or --rank rank : \n");
-  printf("\t                  Retrieve the lineage of the individual whose\n");
-  printf("\t                  rank is rank. The rank must be comprised \n");
-  printf("\t                  between 1 and N, with N the size of the \n");
-  printf("\t                  population at the endind generation. If neither\n");
   printf("\t                  index nor rank are specified, the program computes \n");
   printf("\t                  the lineage of the best individual of the ending \n");
   printf("\t                  generation.\n");

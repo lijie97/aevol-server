@@ -48,6 +48,9 @@
  * Notify all observers of event e providing optional argument
  */
 void Observable::notifyObservers(ObservableEvent e, void* arg) {
+    if (e == MUTATION)
+        printf("Size NOTIFY-OBS %ld\n",observers_[e].size());
+
     for (auto& o : observers_[e]) {
       o->update(*this, e, arg);
     }

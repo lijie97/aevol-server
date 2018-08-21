@@ -437,6 +437,11 @@ void ExpManager::load(gzFile& exp_s_file,
 
   sel()->set_unique_id(  grid_height()*grid_width()+1 );
 
+  dna_mutator_array_ = new DnaMutator*[grid_height()*grid_width()];
+    for (int i = 0; i < grid_height()*grid_width(); i++) {
+        dna_mutator_array_[i] = nullptr;
+    }
+
     simd_individual = new SIMD_Individual(this);
     simd_individual->protein_grain_size = grain_size;
     simd_individual->rna_grain_size = grain_size;
@@ -609,10 +614,7 @@ void ExpManager::run_evolution() {
 
   bool first_run = true;
 
-  dna_mutator_array_ = new DnaMutator*[grid_height()*grid_width()];
-  for (int i = 0; i < grid_height()*grid_width(); i++) {
-    dna_mutator_array_[i] = nullptr;
-  }
+
 
 
 

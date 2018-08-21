@@ -72,10 +72,21 @@ using std::map;
   // ==========================================================================
   void addObserver(Observer* o, ObservableEvent e) {
     observers_[e].emplace_back(o);
+    if (e == MUTATION)
+        printf("Size ADD-OBS %ld\n",observers_[e].size());
   };
+
   void deleteObserver(Observer* o, ObservableEvent e) {
     observers_[e].remove(o);
   };
+
+  void clearAllObserver() {
+      observers_[NEW_INDIV].clear();
+      observers_[MUTATION].clear();
+      observers_[END_REPLICATION].clear();
+      observers_[END_GENERATION].clear();
+  };
+
   void notifyObservers(ObservableEvent e, void* arg = nullptr);
 
   // ==========================================================================
@@ -85,7 +96,7 @@ using std::map;
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
-
+  map<ObservableEvent, list<Observer*> > observers_;
  protected :
   // ==========================================================================
   //                            Protected Methods
@@ -94,7 +105,7 @@ using std::map;
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  map<ObservableEvent, list<Observer*> > observers_;
+
 };
 
 

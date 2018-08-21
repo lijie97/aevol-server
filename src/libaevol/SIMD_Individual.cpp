@@ -660,7 +660,7 @@ void SIMD_Individual::selection() {
                 if (standalone_)
                     parent_id = next_generation_reproducer_[indiv_id];
                 else
-                    parent_id = internal_simd_struct[indiv_id]->parent_id;
+                    parent_id = next_generation_reproducer_[indiv_id];
 
                 //delete internal_simd_struct[indiv_id];
                 internal_simd_struct[indiv_id] = prev_internal_simd_struct[parent_id];
@@ -759,11 +759,16 @@ void SIMD_Individual::selection() {
 
       }*/
         if (standalone_) {
-            int x = indiv_id / exp_m_->world()->height();
-            int y = indiv_id % exp_m_->world()->height();
-            NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
-                    prev_internal_simd_struct[next_generation_reproducer_[indiv_id]], x, y);
-            notifyObservers(NEW_INDIV, eindiv);
+#pragma omp critical
+            {
+                int x = indiv_id / exp_m_->world()->height();
+                int y = indiv_id % exp_m_->world()->height();
+                NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
+                                                          prev_internal_simd_struct[next_generation_reproducer_[indiv_id]],
+                                                          x, y);
+                notifyObservers(NEW_INDIV, eindiv);
+                delete eindiv;
+            }
         }
 
             dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
@@ -888,14 +893,16 @@ SIMD_Individual::~SIMD_Individual() {
   delete stats_best;
   delete stats_mean;
 
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-        int x = indiv_id / exp_m_->world()->height();
-        int y = indiv_id % exp_m_->world()->height();
+  if (standalone_) {
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+          int x = indiv_id / exp_m_->world()->height();
+          int y = indiv_id % exp_m_->world()->height();
 
-        exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-        exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-        delete exp_m_->world()->grid(x, y)->individual();
-    }
+          exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+          exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+          delete exp_m_->world()->grid(x, y)->individual();
+      }
+  }
 }
 
 
@@ -4288,7 +4295,10 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             #pragma omp task firstprivate(indiv_id)
 #endif
             {
-            if (AeTime::time() > 0 && optim_prom) check_selection(indiv_id);
+
+                printf("Manage %d\n",indiv_id);
+
+            //if (AeTime::time() > 0 && optim_prom) check_selection(indiv_id);
             if (standalone_ && optim_prom) {
 
                 selection(indiv_id);
@@ -4478,17 +4488,20 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                 }
                 //if (indiv_id == 381) printf("Compute IndiS %d %d\n",internal_simd_struct[381]->rnas.size(),internal_simd_struct[381]->promoters.size());
 
-            }
-            if (standalone_) {
+                if (standalone_ && optim_prom) {
 #pragma omp critical
-                {
-                    int x = indiv_id / exp_m_->world()->height();
-                    int y = indiv_id % exp_m_->world()->height();
-                    EndReplicationEvent *eindiv = new EndReplicationEvent(
-                            internal_simd_struct[indiv_id], x, y);
-                    // Tell observers the replication is finished
-                    internal_simd_struct[indiv_id]->notifyObservers(END_REPLICATION, eindiv);
+                    {
+                        int x = indiv_id / exp_m_->world()->height();
+                        int y = indiv_id % exp_m_->world()->height();
+
+                        EndReplicationEvent *eindiv = new EndReplicationEvent(
+                                internal_simd_struct[indiv_id], x, y);
+                        // Tell observers the replication is finished
+                        internal_simd_struct[indiv_id]->notifyObservers(END_REPLICATION, eindiv);
+                        delete eindiv;
+                    }
                 }
+                printf("Manage END %d\n",indiv_id);
             }
         }
 
@@ -4496,7 +4509,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     }
 
 
-    notifyObservers(END_GENERATION);
+    if (optim_prom)
+        notifyObservers(END_GENERATION);
 
     //printf("Compute BCLEAN %d %d\n",prev_internal_simd_struct[381]->rnas.size(),prev_internal_simd_struct[381]->promoters.size());
   //printf("Check results\n");
@@ -4557,6 +4571,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
           }
 
           prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+          prev_internal_simd_struct[indiv_id]->clearAllObserver();
           internal_simd_struct[indiv_id] = nullptr;
     }
   }

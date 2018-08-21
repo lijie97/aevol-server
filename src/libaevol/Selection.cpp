@@ -247,14 +247,14 @@ void Selection::step_to_next_generation() {
       x = index / grid_height;
       y = index % grid_height;
       reproducers[x][y] = do_local_competition(x, y);
-
+/*
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y] =
           new Internal_SIMD_Struct(exp_m_,exp_m_->simd_individual->prev_internal_simd_struct
           [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()],false);
 
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->parent_id =
-          reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y();
+          reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y();*/
 
 /*      if ( x*exp_m_->world()->height()+y == 80) {
         printf("80 -- DNA Size %d (parent %d) -- reproducer %d (%d)\n",
@@ -420,11 +420,14 @@ void Selection::step_to_next_generation() {
       x = index / grid_height;
       y = index % grid_height;
 
-      EndReplicationEvent* eindiv = new EndReplicationEvent(
-          world->indiv_at(x, y), x, y);
-      // Tell observers the replication is finished
-      world->indiv_at(x, y)->notifyObservers(END_REPLICATION, eindiv);
-      delete eindiv;
+#pragma omp critical
+        {
+            EndReplicationEvent *eindiv = new EndReplicationEvent(
+                    world->indiv_at(x, y), x, y);
+            // Tell observers the replication is finished
+            world->indiv_at(x, y)->notifyObservers(END_REPLICATION, eindiv);
+            delete eindiv;
+        }
     }
    /* t2 = high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -841,6 +844,8 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
   // Set the new individual's location on the grid
   exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
+  //NewIndivEvent *eindiv = new NewIndivEvent(new_indiv,parent, x, y);
+  //notifyObservers(NEW_INDIV, eindiv);
 
   delete exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y];
   exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(new_indiv);
