@@ -38,6 +38,7 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 // preprocessor.
 
 // Backup directories and file name formats
+#define TIMESTEP_FORMAT "%09" PRId64
 // Experimental Setup
 #define EXP_S_DIR                 "exp_setup"
 #define EXP_S_FNAME_BASE          "exp_setup_%06" PRId64

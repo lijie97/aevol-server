@@ -159,6 +159,8 @@ int main(int argc, char** argv)
   // Load the simulation
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
+  exp_manager->exp_s()->set_fuzzy_flavor(1);
+  FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_manager->exp_s());
 
   // Check that the tree was recorded
   if (not exp_manager->record_tree()) {
@@ -244,12 +246,20 @@ int main(int argc, char** argv)
 
     indices[t_end - t0]  = final_indiv_index;
   } else {
+      /*for (int i = 0; i < 1024; i++) {
+          printf("ID %p\n",tree->report_by_index(t_end-1,
+                                1020)->simd_indiv_);
+      }*/
+
       reports[t_end - t0 - 1] =
               new ReplicationReport(*(tree->report_by_index(t_end,
-                                                            exp_manager->best_indiv()->id())));
+                                                            1020)));
+
       //final_indiv_rank = reports[t_end - t0 - 1]->rank();
       final_indiv_index = reports[t_end - t0 - 1]->id();
-
+      /*printf("BEST %d ID is %d at %d : %d\n",exp_manager->best_indiv()->id(),reports[t_end - t0 - 1]->id(),t_end - t0 - 1,
+             tree->report_by_index(t_end,
+                                   1020)->id());*/
       indices[t_end - t0]  = final_indiv_index;
   }
 /*  else
@@ -289,6 +299,8 @@ int main(int argc, char** argv)
   #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
+  gzFile indiv_file = gzopen("test.gz", "w");
+
   if (lineage_file == NULL)
   {
     fprintf(stderr, "File %s could not be created, exiting.\n", output_file_name);
@@ -372,16 +384,25 @@ int main(int argc, char** argv)
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  const Individual* const initial_ancestor = exp_manager->indiv_by_id(indices[0]);
+    Individual* initial_ancestor = exp_manager->indiv_by_id(indices[0]);
 
-  gzwrite(lineage_file, &t0, sizeof(t0));
+
+    gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
 
-  initial_ancestor->grid_cell()->save(lineage_file);
+  //printf("Value %d %d %d\n ",t0,t_end,final_indiv_index);
+
+  //printf("Size %d %d %d\n",initial_ancestor->grid_cell()->x(),initial_ancestor->grid_cell()->y(),indices[0]);
+
+    initial_ancestor->EvaluateInContext(initial_ancestor->grid_cell()->habitat());
+
+    initial_ancestor->save(lineage_file);
+
+    //gzclose(lineage_file);
 
 
-  if (verbose)
+    if (verbose)
   {
     printf("OK\n");
     printf("=============================================== \n");
@@ -451,11 +472,12 @@ int main(int argc, char** argv)
 
     // Replay the mutations stored in the current replication report on the
     // current genome
-      printf("Mutation to do %d %d %d\n",reports[i]->dna_replic_report().HT().size(),
+/*      printf("%d -- Mutation to do %d %d %d -- %d\n",t,reports[i]->dna_replic_report().HT().size(),
              reports[i]->dna_replic_report().rearrangements().size(),
-             reports[i]->dna_replic_report().mutations().size());
+             reports[i]->dna_replic_report().mutations().size(),initial_ancestor->genetic_unit_list().cbegin()->dna()->length());*/
 
     unit = initial_ancestor->genetic_unit_list().cbegin();
+
     for (const auto& mut: reports[i]->dna_replic_report().HT()) {
       (unit->dna())->undergo_this_mutation(*mut);
     }
@@ -498,6 +520,11 @@ int main(int argc, char** argv)
                 (int32_t)strlen(str1), str1);
         fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n",
                 (int32_t)strlen(str2), str2);
+
+        for (int pos = 0; pos < stored_gen_unit->dna()->length(); pos++)
+            if (str1[pos]!=str2[pos]) printf("Not the same at %d\n",pos);
+
+
         delete [] str1;
         delete [] str2;
         gzclose(lineage_file);
@@ -524,7 +551,8 @@ int main(int argc, char** argv)
   }
 
 
-  gzclose(lineage_file);
+
+    gzclose(lineage_file);
   delete [] reports;
   delete exp_manager;
 

@@ -557,28 +557,32 @@ void Stats::write_current_generation_statistics()
 #endif
 }
 
-void Stats::write_statistics_of_this_indiv(Individual * indiv)
-{
-  StatRecord * stat_record;
-
-  for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
-  {
-    stat_record = new StatRecord(exp_m_, indiv, (chrom_or_gen_unit) chrom_or_GU, true);
-
-    for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
+    void Stats::write_statistics_of_this_indiv(Individual * indiv,
+                                               ReplicationReport* replic_report)
     {
-      if (stat_files_names_[chrom_or_GU][BEST][stat_type] != NULL)
-      {
-        assert(stat_files_[chrom_or_GU][BEST][stat_type] != NULL);
+      StatRecord * stat_record;
 
-        stat_record->write_to_file(stat_files_[chrom_or_GU][BEST][stat_type],
-                                   (stats_type) stat_type);
+      for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
+      {
+        stat_record = new StatRecord(exp_m_->exp_s(), indiv, replic_report,
+                                     (chrom_or_gen_unit) chrom_or_GU, true);
+
+        for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
+        {
+          if (stat_files_names_[chrom_or_GU][BEST][stat_type] != nullptr)
+          {
+            assert(stat_files_[chrom_or_GU][BEST][stat_type] != nullptr);
+
+            stat_record->write_to_file(stat_files_[chrom_or_GU][BEST][stat_type],
+                                       (stats_type) stat_type);
+          }
+        }
+
+        delete stat_record;
       }
     }
 
-    delete stat_record;
-  }
-}
+
 
 void Stats::flush() {
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++) {

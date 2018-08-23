@@ -72,8 +72,8 @@ using std::map;
   // ==========================================================================
   void addObserver(Observer* o, ObservableEvent e) {
     observers_[e].emplace_back(o);
-    if (e == MUTATION)
-        printf("Size ADD-OBS %ld\n",observers_[e].size());
+/*    if (e == MUTATION)
+        printf("Size ADD-OBS %ld\n",observers_[e].size());*/
   };
 
   void deleteObserver(Observer* o, ObservableEvent e) {

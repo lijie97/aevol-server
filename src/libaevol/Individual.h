@@ -314,6 +314,8 @@ class Individual : public Observable {
   double* double_probes() const;
 
 
+  bool transcribed() const { return transcribed_; }
+
   // =================================================================
   //                        Accessors: Setters
   // =================================================================

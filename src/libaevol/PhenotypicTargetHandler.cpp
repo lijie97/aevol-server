@@ -339,8 +339,6 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   for (int8_t i = 0 ; i < nb_gaussians ; i++)
     current_gaussians_.push_back(Gaussian(backup_file));
 
-  printf("NB Gaussians %d\n",nb_gaussians);
-
   // --------------------------------------------------------------------------
   //  Retrieve sampling
   gzread(backup_file, &sampling_, sizeof(sampling_));

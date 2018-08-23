@@ -53,9 +53,11 @@ class NewIndivEvent {
       y = yx;
     }
 
-    NewIndivEvent(Internal_SIMD_Struct* childx, Internal_SIMD_Struct* parentx, int xx, int yx) {
+    NewIndivEvent(Internal_SIMD_Struct* childx, Internal_SIMD_Struct* parentx, int xx, int yx, int indiv_id, int parent_id) {
         simd_child = childx;
         simd_parent = parentx;
+        indiv_id_ = indiv_id;
+        parent_id_ = parent_id;
         x = xx;
         y = yx;
     }
@@ -68,6 +70,9 @@ class NewIndivEvent {
 
     int x;
     int y;
+
+    int indiv_id_;
+    int parent_id_;
 };
 
 class EndReplicationEvent {

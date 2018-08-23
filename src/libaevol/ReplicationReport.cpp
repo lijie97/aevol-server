@@ -203,13 +203,14 @@ void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* pare
   indiv_->addObserver(tree, END_REPLICATION);
 }
 
-void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent)
+void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id,
+                                int parent_id)
 {
 
       simd_indiv_ = offspring;
 
-      id_ = simd_indiv_->indiv_id;
-      parent_id_ = parent->indiv_id;
+      id_ = indiv_id;
+      parent_id_ = parent_id;
 
       rank_ = 0;
 
@@ -276,8 +277,9 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
   gzwrite(tree_file, &id_,         sizeof(id_));
+  //printf("ID %d\n",id_);
 
-  int rankx = -1;
+    int32_t rankx = -1;
   if (SIMD_Individual::standalone_simd) {
       rankx = 0;
   } else {
@@ -313,10 +315,10 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 //                          Non inline accessors
 // =================================================================
 void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
-        printf("Receive ??? events\n");
+        //printf("Receive ??? events\n");
   switch (e) {
     case MUTATION :
-        printf("Receive mutation events\n");
+        //printf("Receive mutation events\n");
       dna_replic_report_.add_mut(reinterpret_cast<Mutation*>(arg));
       break;
     default :

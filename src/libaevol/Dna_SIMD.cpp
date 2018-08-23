@@ -189,7 +189,7 @@ bool Dna_SIMD::do_switch(int32_t pos) {
 
   if (SIMD_Individual::standalone_simd) {
       PointMutation *mut = new PointMutation(pos);
-      printf("SEND MUTATION EVENT (%ld)\n",indiv_->observers_[MUTATION].size());
+/*      printf("SEND MUTATION EVENT (%ld)\n",indiv_->observers_[MUTATION].size());*/
       indiv_->notifyObservers(MUTATION, mut);
       delete mut;
   }
@@ -323,6 +323,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   char* duplicate_segment = NULL;
 #endif
   int32_t seg_length;
+    //printf("Mutation is %d %d %d -- %d\n",pos_1,pos_2,pos_3,length());
 
   if (pos_1 < pos_2) {
     //
@@ -548,6 +549,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 
     if (SIMD_Individual::standalone_simd) {
         Duplication *mut = new Duplication(pos_1, pos_2, pos_3, seg_length);
+
         indiv_->notifyObservers(MUTATION, mut);
         delete mut;
     }
@@ -826,6 +828,7 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
 
 
 bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
+    //printf("DO DELETION is %d %d -- %d\n",pos_1,pos_2,length());
   // Delete segment going from pos_1 (included) to pos_2 (excluded)
   if (pos_1 < pos_2) {
     //

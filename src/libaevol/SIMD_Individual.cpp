@@ -632,6 +632,19 @@ void SIMD_Individual::selection() {
                 internal_simd_struct[indiv_id]->parent_id =
                         next_generation_reproducer_[indiv_id];
 
+                if (standalone_) {
+#pragma omp critical
+                    {
+                        int x = indiv_id / exp_m_->world()->height();
+                        int y = indiv_id % exp_m_->world()->height();
+                        NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
+                                                                  prev_internal_simd_struct[next_generation_reproducer_[indiv_id]],
+                                                                  x, y,indiv_id,next_generation_reproducer_[indiv_id]);
+                        notifyObservers(NEW_INDIV, eindiv);
+                        delete eindiv;
+                    }
+                }
+
 #ifdef WITH_BITSET
                 internal_simd_struct[indiv_id]->dna_->bitset_ =
             new BitSet_SIMD(prev_internal_simd_struct
@@ -653,6 +666,8 @@ void SIMD_Individual::selection() {
                     internal_simd_struct[indiv_id]->dna_->apply_mutations();
             } else {
 
+
+
                 #pragma omp atomic
                 nb_clones_++;
 
@@ -664,6 +679,19 @@ void SIMD_Individual::selection() {
 
                 //delete internal_simd_struct[indiv_id];
                 internal_simd_struct[indiv_id] = prev_internal_simd_struct[parent_id];
+
+                if (standalone_) {
+#pragma omp critical
+                    {
+                        int x = indiv_id / exp_m_->world()->height();
+                        int y = indiv_id % exp_m_->world()->height();
+                        NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
+                                                                  prev_internal_simd_struct[next_generation_reproducer_[indiv_id]],
+                                                                  x, y,indiv_id,next_generation_reproducer_[indiv_id]);
+                        notifyObservers(NEW_INDIV, eindiv);
+                        delete eindiv;
+                    }
+                }
 
                 #pragma omp atomic
                 internal_simd_struct[indiv_id]->usage_count_++;
@@ -758,18 +786,7 @@ void SIMD_Individual::selection() {
         }
 
       }*/
-        if (standalone_) {
-#pragma omp critical
-            {
-                int x = indiv_id / exp_m_->world()->height();
-                int y = indiv_id % exp_m_->world()->height();
-                NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
-                                                          prev_internal_simd_struct[next_generation_reproducer_[indiv_id]],
-                                                          x, y);
-                notifyObservers(NEW_INDIV, eindiv);
-                delete eindiv;
-            }
-        }
+
 
             dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
         //exit(12);
@@ -779,6 +796,10 @@ void SIMD_Individual::selection() {
 SIMD_Individual::~SIMD_Individual() {
 
     printf("Destroy SIMD Controller\n");
+
+    delete stats_best;
+    delete stats_mean;
+
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
 
 /*
@@ -890,18 +911,20 @@ SIMD_Individual::~SIMD_Individual() {
   delete[] dna_size;
 
 
-  delete stats_best;
-  delete stats_mean;
 
   if (standalone_) {
-      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+      /*for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
           int x = indiv_id / exp_m_->world()->height();
           int y = indiv_id % exp_m_->world()->height();
 
-          exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-          exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-          delete exp_m_->world()->grid(x, y)->individual();
-      }
+          if (exp_m_->world()->grid(x, y)->individual()!= nullptr) {
+              if (exp_m_->world()->grid(x, y)->individual()->transcribed()) {
+                  exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+                  exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+                  delete exp_m_->world()->grid(x, y)->individual();
+              }
+          }
+      }*/
   }
 }
 
@@ -4296,7 +4319,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 #endif
             {
 
-                printf("Manage %d\n",indiv_id);
+                //printf("Manage %d\n",indiv_id);
 
             //if (AeTime::time() > 0 && optim_prom) check_selection(indiv_id);
             if (standalone_ && optim_prom) {
@@ -4501,7 +4524,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                         delete eindiv;
                     }
                 }
-                printf("Manage END %d\n",indiv_id);
+                //printf("Manage END %d\n",indiv_id);
             }
         }
 
@@ -4672,11 +4695,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
       memcpy(dna_string, to_copy,
              (prev_internal_simd_struct[indiv_id]->dna_->length()+1) * sizeof(char));
 
+
+      indiv->genetic_unit_list_.clear();
       indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
       indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
       indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
-      indiv->compute_statistical_data();
       indiv->EvaluateInContext(exp_m_->world()->grid(x,y)->habitat());
+      indiv->compute_statistical_data();
 
       exp_m_->world()->grid(x,y)->set_individual(indiv);
 

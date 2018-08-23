@@ -56,6 +56,8 @@ class ExpManager;
 class Stats;
 class Individual;
 class ae_population;
+class ExpSetup;
+class ReplicationReport;
 
 enum indiv_or_pop
 {
@@ -113,6 +115,11 @@ class StatRecord
                    Individual * indiv,
                    chrom_or_gen_unit chrom_or_gu = CHROM,
                    bool compute_non_coding = true);
+    StatRecord(ExpSetup* exp_s,
+               Individual * indiv,
+               ReplicationReport* replic_report,
+               chrom_or_gen_unit chrom_or_gu = CHROM,
+               bool compute_non_coding = true);
     StatRecord(ExpManager * exp_m,
                    const std::list<Individual *> indivs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);

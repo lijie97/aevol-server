@@ -295,8 +295,8 @@ class SIMD_Individual : public Observable{
     double* target;
     bool standalone_;
 
-    Stats_SIMD* stats_best;
-    Stats_SIMD* stats_mean;
+    Stats_SIMD* stats_best = nullptr;
+    Stats_SIMD* stats_mean = nullptr;
 
     void selection();
 

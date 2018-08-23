@@ -24,183 +24,66 @@
 //
 // ****************************************************************************
 
+// The input file is produced by the lineage post-treatment, please refer to it
+// for e.g. the file format/content
 
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
-#include <inttypes.h>
+// ============================================================================
+//                                   Includes
+// ============================================================================
+#include <cinttypes>
 #include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <zlib.h>
 #include <err.h>
-#include <errno.h>
+#include <cerrno>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <list>
+#include <iostream>
 
-
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "aevol.h"
-
 
 using namespace aevol;
 
-
-enum check_type
-{
-  FULL_CHECK  = 0,
-  LIGHT_CHECK = 1,
-  ENV_CHECK   = 2,
-  NO_CHECK    = 3
-};
-
-
-
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Helper functions
+void interpret_cmd_line_options(int argc, char* argv[]);
 void print_help(char* prog_path);
-
-FILE* open_environment_stat_file(const char * prefix);
+FILE* open_environment_stat_file(const char* prefix, const char* postfix);
 void write_environment_stats(int64_t t,
                              const PhenotypicTargetHandler* pth,
                              FILE* env_file);
-
-FILE* open_terminators_stat_file(const char * prefix);
-void write_terminators_stats(int64_t t,  Individual* indiv, FILE* terminator_file);
-
-FILE* open_zones_stat_file(const char * prefix);
+FILE* open_terminators_stat_file(const char* prefix, const char* postfix);
+void write_terminators_stats(int64_t t, Individual* indiv,
+                             FILE* terminator_file);
+FILE* open_zones_stat_file(const char* prefix, const char* postfix);
 void write_zones_stats(int64_t t,
                        Individual* indiv,
                        const PhenotypicTargetHandler* phenotypicTargetHandler,
                        FILE* zone_file);
-
-FILE* open_operons_stat_file(const char * prefix);
+FILE* open_operons_stat_file(const char* prefix, const char* postfix);
 void write_operons_stats(int64_t t, Individual* indiv, FILE* operon_file);
 
+// Command-line option variables
+static char* lineage_file_name = nullptr;
+static bool verbose = false;
+static bool full_check = false;
+static bool trace_mutations = false;
 
-double* dist_to_target_segment;
+int main(int argc, char* argv[]) {
+  interpret_cmd_line_options(argc, argv);
 
-
-int main(int argc, char** argv)
-{
-  // The input file (lineage.ae or lineage.rae) must contain the following information:
-  //
-  // - common data                                                (ae_common::write_to_backup)
-  // - begin gener                                                (int64_t)
-  // - end gener                                                  (int64_t)
-  // - final individual index                                     (int32_t)
-  // - initial genome size                                        (int32_t)
-  // - initial ancestor (nb genetic units + sequences)            (Individual::write_to_backup)
-  // - replication report of ancestor at time t0+1  (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at time t0+2  (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at time t0+3  (ae_replic_report::write_to_backup)
-  // - ...
-  // - replication report of ancestor at time t_end_ (ae_replic_report::write_to_backup)
-
-
-
-
-  // =====================
-  //  Parse command line
-  // =====================
-
-  // Default values
-  char*       lineage_file_name   = NULL;
-  bool        verbose             = false;
-  check_type  check               = LIGHT_CHECK;
-  double      tolerance           = 0;
-
-  const char * short_options = "hVvncf:lt:";
-  static struct option long_options[] =
-  {
-    {"help",        no_argument,       NULL, 'h'},
-    {"version",     no_argument,       NULL, 'V' },
-    {"verbose",     no_argument,       NULL, 'v'},
-    {"nocheck",     no_argument,       NULL, 'n'},
-    {"fullcheck",   no_argument,       NULL, 'c'},
-    {"file",        required_argument, NULL, 'f'},
-    {"tolerance",   required_argument, NULL, 't'},
-    {0, 0, 0, 0}
-  };
-
-  int option;
-  while ((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
-  {
-    switch(option)
-    {
-      case 'h' :
-      {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' :
-      {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'v' : verbose = true;                    break;
-      case 'n' : check = NO_CHECK;                  break;
-      case 'c' : check = FULL_CHECK;                break;
-      case 'f' :
-      {
-        if (strcmp(optarg, "") == 0)
-        {
-          fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-        lineage_file_name = new char[strlen(optarg) + 1];
-        sprintf(lineage_file_name, "%s", optarg);
-        break;
-      }
-      case 't' :
-      {
-        if (strcmp(optarg, "") == 0)
-        {
-          fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-        check = ENV_CHECK;
-        tolerance = atof(optarg);
-        break;
-      }
-      default :
-      {
-        fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
-        print_help(argv[0]);
-        exit(EXIT_FAILURE);
-      }
-    }
-  }
-
-
-
-  if (lineage_file_name == NULL)
-  {
-    fprintf(stderr, "ERROR : Option -f or --file missing. \n");
-    exit(EXIT_FAILURE);
-  }
-
-
-  printf("\n");
-  printf("WARNING : Parameter change during simulation is not managed in general.\n");
-  printf("          Only changes in environmental target done with aevol_modify are handled.\n");
-  printf("\n");
+  printf("\n"
+         "WARNING : Parameter change during simulation is not managed in general.\n"
+         "          Only changes in environmental target done with aevol_modify are handled.\n"
+         "\n");
 
   // =======================
   //  Open the lineage file
   // =======================
   gzFile lineage_file = gzopen(lineage_file_name, "r");
-  if (lineage_file == Z_NULL)
-  {
+  if (lineage_file == Z_NULL) {
     fprintf(stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name);
     exit(EXIT_FAILURE);
   }
@@ -210,16 +93,12 @@ int main(int argc, char** argv)
   int32_t final_indiv_index = 0;
   int32_t final_indiv_rank  = 0;
 
-
   gzread(lineage_file, &t0, sizeof(t0));
   gzread(lineage_file, &t_end, sizeof(t_end));
   gzread(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
-  gzread(lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank));
 
-  if (verbose)
-  {
-    printf("\n\n");
-    printf("===============================================================================\n");
+  if (verbose) {
+    printf("\n\n""===============================================================================\n");
     printf(" Statistics of the ancestors of indiv. %" PRId32
            " (rank %" PRId32 ") from time %" PRId64 " to %" PRId64 "\n",
            final_indiv_index, final_indiv_rank, t0, t_end);
@@ -229,10 +108,12 @@ int main(int argc, char** argv)
 
 
   // =============================
-  //  Open the experience manager
+  //  Open the experiment manager
   // =============================
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t0, true, false);
+    exp_manager->exp_s()->set_fuzzy_flavor(1);
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_manager->exp_s());
 
   // The current version doesn't allow for phenotypic variation nor for
   // different phenotypic targets among the grid
@@ -253,50 +134,87 @@ int main(int argc, char** argv)
   // =========================
   // Create missing directories
   int status;
-  status = mkdir("stats/ancstats/", 0755);
-  if ((status == -1) && (errno != EEXIST))
-  {
-    err(EXIT_FAILURE, "stats/ancstats/");
+  status = mkdir("stats/ancestor_stats/", 0755);
+  if ((status == -1) && (errno != EEXIST)) {
+    err(EXIT_FAILURE, "stats/ancestor_stats/");
   }
 
-  char prefix[50];
-  snprintf(prefix, 50,
-      "ancstats/ancstats-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32,
+  // Open main output files (uses the Stats utility class)
+  auto prefix = "ancestor_stats/ancestor_stats";
+  char postfix[255];
+  snprintf(postfix, 255,
+      "-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32,
       t0, t_end, final_indiv_index, final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
-  Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix, addition_old_stats, delete_old_stats);
-  //mystats->write_headers();
+  Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix,
+                             addition_old_stats, delete_old_stats);
 
-  // Optional outputs
-  FILE* env_output_file = open_environment_stat_file(prefix);
-  FILE* term_output_file = open_terminators_stat_file(prefix);
+  // Optional additional outputs
+  FILE* env_output_file = open_environment_stat_file(prefix, postfix);
+  FILE* term_output_file = open_terminators_stat_file(prefix, postfix);
   FILE* zones_output_file = NULL;
 
   // Next line patchy (specific for the constraints mentioned earlier, i.e.
   // works only for shared and unvarying phenotypic target)
-  if (phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
-  {
-    zones_output_file = open_zones_stat_file(prefix);
+  if (phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
+    zones_output_file = open_zones_stat_file(prefix, postfix);
   }
-  FILE* operons_output_file = open_operons_stat_file(prefix);
+  FILE* operons_output_file = open_operons_stat_file(prefix, postfix);
 
+  // Open optional output files
+  FILE* fixed_mutations_file = nullptr;
+  if (trace_mutations) {
+    char fixed_mutations_file_name[255];
+    snprintf(fixed_mutations_file_name, 60,
+             "stats/fixedmut-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%"
+                 PRId32 "-r%" PRId32 ".out",
+             t0, t_end, final_indiv_index, final_indiv_rank);
+    fixed_mutations_file = fopen(fixed_mutations_file_name, "w");
+    if (fixed_mutations_file == nullptr) {
+      Utils::ExitWithUsrMsg(std::string("Could not create the output file ") +
+                            fixed_mutations_file_name);
+    }
+
+    // Write the header
+    fprintf(fixed_mutations_file, "# #################################################################\n");
+    fprintf(fixed_mutations_file, "#  Mutations in the lineage of the best indiv at generation %" PRId64 "\n", t_end);
+    fprintf(fixed_mutations_file, "# #################################################################\n");
+    fprintf(fixed_mutations_file, "#  1.  Generation       (mut. occurred when producing the indiv. of this generation)\n");
+    fprintf(fixed_mutations_file, "#  2.  Genetic unit     (which underwent the mutation, 0 = chromosome) \n");
+    fprintf(fixed_mutations_file, "#  3.  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv, 7:insert, 8:ins_HT, 9:repl_HT) \n");
+    fprintf(fixed_mutations_file, "#  4.  pos_0            (position for the small events, begin_segment for the rearrangements, begin_segment of the inserted segment for ins_HT, begin_segment of replaced segment for repl_HT) \n");
+    fprintf(fixed_mutations_file, "#  5.  pos_1            (-1 for the small events, end_segment for the rearrangements, end_segment of the inserted segment for ins_HT, begin_segment of donor segment for repl_HT) \n");
+    fprintf(fixed_mutations_file, "#  6.  pos_2            (reinsertion point for duplic., cutting point in segment for transloc., insertion point in the receiver for ins_HT, end_segment of the replaced segment for repl_HT, -1 for other events)\n");
+    fprintf(fixed_mutations_file, "#  7.  pos_3            (reinsertion point for transloc., breakpoint in the donor for ins_HT, end_segment of the donor segment for repl_HT, -1 for other events)\n");
+    fprintf(fixed_mutations_file, "#  8.  invert           (transloc, was the segment inverted (0/1)?, sense of insertion for ins_HT (0=DIRECT, 1=INDIRECT), sense of the donor segment for repl_HT (0=DIRECT, 1=INDIRECT),-1 for other events)\n");
+    fprintf(fixed_mutations_file, "#  9.  align_score      (score that was needed for the rearrangement to occur, score of the first alignment for ins_HT and repl_HT)\n");
+    fprintf(fixed_mutations_file, "#  10. align_score2     (score for the reinsertion for transloc, score of the second alignment for ins_HT and repl_HT)\n");
+    fprintf(fixed_mutations_file, "#  11. seg_len          (segment length for rearrangement, donor segment length for ins_HT and repl_HT)\n");
+    fprintf(fixed_mutations_file, "#  12. repl_seg_len     (replaced segment length for repl_HT, -1 for the others)\n");
+    fprintf(fixed_mutations_file, "#  13. GU_length        (before the event)\n");
+    fprintf(fixed_mutations_file, "#  14. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n");
+    fprintf(fixed_mutations_file, "#  15. Number of coding RNAs possibly disrupted by the breakpoints \n");
+    fprintf(fixed_mutations_file, "#  16. Number of coding RNAs completely included in the segment (donor segment in the case of a transfer) \n");
+    fprintf(fixed_mutations_file, "#  17. Number of coding RNAs that were completely included in the replaced segment (meaningful only for repl_HT) \n");
+    fprintf(fixed_mutations_file, "####################################################################################################################\n");
+    fprintf(fixed_mutations_file, "#\n");
+    fprintf(fixed_mutations_file, "# Header for R\n");
+    fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n");
+
+  }
 
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-  GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
-
-  // Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
-  auto* indiv = grid_cell->individual();
-  indiv->Evaluate();
+  Individual* indiv = new Individual(exp_manager, lineage_file);
+  //auto* indiv = grid_cell->individual();
+  indiv->EvaluateInContext(exp_manager->world()->grid(0,0)->habitat());
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
 
-  mystats->write_statistics_of_this_indiv(indiv,nullptr);
-
-  // Optional outputs
+  // Additional outputs
   write_environment_stats(t0, phenotypicTargetHandler, env_output_file);
   write_terminators_stats(t0, indiv, term_output_file);
   if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
@@ -305,24 +223,21 @@ int main(int argc, char** argv)
   }
   write_operons_stats(t0, indiv, operons_output_file);
 
-
-  if (verbose)
-  {
+  if (verbose) {
     printf("Initial fitness     = %f\n", indiv->fitness());
     printf("Initial genome size = %" PRId32 "\n", indiv->total_genome_size());
   }
-
-  //delete exp_manager;
 
   // ==========================================================================
   //  Replay the mutations to get the successive ancestors and analyze them
   // ==========================================================================
   ReplicationReport* rep = nullptr;
-
   int32_t index;
-
   ExpManager* exp_manager_backup = nullptr;
-  Habitat *backup_habitat = nullptr;
+  int32_t unitlen_before;
+  double metabolic_error_before;
+  double impact_on_metabolic_error;
+  char mut_descr_string[255];
 
   bool check_now = false;
 
@@ -333,43 +248,14 @@ int main(int argc, char** argv)
     index = rep->id(); // who we are building...
 
     // Check now?
-    check_now = ((check == FULL_CHECK && Utils::mod(time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && Utils::mod(time(), backup_step) == 0) ||
-                 (check == LIGHT_CHECK && time() == t_end));
+    check_now = time() == t_end ||
+        (full_check && Utils::mod(time(), backup_step) == 0);
 
     if (verbose)
         printf("Rebuilding ancestor at generation %" PRId64
             " (index %" PRId32 ")...", time(), index);
 
-    indiv->Reevaluate();
-
-    // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
-    // done for all the grid cells, disable checking until coded
-
-//    // Check, and possibly update, the environment according to the backup files
-//    // (update necessary if the env. was modified by aevol_modify at some point)
-//    if (Utils::mod(time(), backup_step) == 0)
-//    {
-//      char world_file_name[255];
-//      sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, time());
-//      gzFile world_file = gzopen(world_file_name, "r");
-//      backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
-//
-//      if (! env->is_identical_to(*backup_env, tolerance))
-//      {
-//        printf("Warning: At time()=%" PRId64 ", the replayed environment is not the same\n", time());
-//        printf("         as the one saved at time()=%" PRId64 "... \n", time());
-//        printf("         with tolerance of %lg\n", tolerance);
-//        printf("Replacing the replayed environment by the one stored in the backup.\n");
-//        delete env;
-//        h = new Habitat(*backup_habitat);
-//      }
-//      delete backup_habitat;
-//    }
-
-
-    // Warning: this portion of code won'time() work if the number of units changes
-    // during the evolution
+    indiv->ReevaluateInContext(exp_manager->world()->grid(0,0)->habitat());
 
     // 2) Replay replication (create current individual's child)
     GeneticUnit& gen_unit = indiv->genetic_unit_nonconst(0);
@@ -389,17 +275,66 @@ int main(int argc, char** argv)
     // TODO <david.parsons@inria.fr> disabled for multiple GUs
     const auto& dnarep = rep->dna_replic_report();
 
+    // TODO(dpa) The following 3 for loops should be factorized.
+    // However, this is not as easy as it sounds :-D
+    // see std::list::splice
     for (const auto& mut: dnarep.HT())
       gen_unit.dna()->undergo_this_mutation(*mut);
-    for (const auto& mut: dnarep.rearrangements())
-      gen_unit.dna()->undergo_this_mutation(*mut);
-    for (const auto& mut: dnarep.mutations())
+
+    for (const auto& mut: dnarep.rearrangements()) {
+      if (trace_mutations) {
+        // Store initial values before the mutation
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+        unitlen_before = gen_unit.dna()->length();
+      }
+
+      // Apply mutation
       gen_unit.dna()->undergo_this_mutation(*mut);
 
-    if (check_now)
-    {
-      if (verbose)
-      {
+      if (trace_mutations) {
+        indiv->Reevaluate();
+
+        // Compute the metabolic impact of the mutation
+        impact_on_metabolic_error =
+            indiv->dist_to_target_by_feature(METABOLISM) -
+            metabolic_error_before;
+
+        mut->generic_description_string(mut_descr_string);
+        fprintf(fixed_mutations_file,
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+                time(), 0, mut_descr_string, unitlen_before,
+                impact_on_metabolic_error);
+      }
+    }
+
+    for (const auto& mut: dnarep.mutations()) {
+      if (trace_mutations) {
+        // Store initial values before the mutation
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+        unitlen_before = gen_unit.dna()->length();
+      }
+
+      // Apply mutation
+      gen_unit.dna()->undergo_this_mutation(*mut);
+
+      if (trace_mutations) {
+        indiv->Reevaluate();
+
+        // Compute the metabolic impact of the mutation
+        impact_on_metabolic_error =
+            indiv->dist_to_target_by_feature(METABOLISM) -
+            metabolic_error_before;
+
+        mut->generic_description_string(mut_descr_string);
+        fprintf(fixed_mutations_file,
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+                time(), 0, mut_descr_string, unitlen_before,
+                impact_on_metabolic_error);
+      }
+    }
+
+    if (check_now) {
+      if (verbose) {
         printf("Checking the sequence of the unit...");
         fflush(NULL);
       }
@@ -428,6 +363,8 @@ int main(int argc, char** argv)
         delete [] str1;
         delete [] str2;
         gzclose(lineage_file);
+        if (trace_mutations)
+          gzclose(lineage_file);
         delete indiv;
         delete stored_indiv;
         delete exp_manager_backup;
@@ -440,18 +377,18 @@ int main(int argc, char** argv)
     }
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-    indiv->Reevaluate();
+      indiv->ReevaluateInContext(exp_manager->world()->grid(0,0)->habitat());
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
-    mystats->write_statistics_of_this_indiv(indiv,rep);
+    mystats->write_statistics_of_this_indiv(indiv, rep);
 
-    // Optional outputs
+    // Additional outputs
     write_environment_stats(time(), phenotypicTargetHandler, env_output_file);
     write_terminators_stats(time(), indiv, term_output_file);
-    if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
-    {
-      write_zones_stats(time(), indiv, phenotypicTargetHandler, zones_output_file);
+    if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
+      write_zones_stats(time(), indiv, phenotypicTargetHandler,
+                        zones_output_file);
     }
     write_operons_stats(time(), indiv, operons_output_file);
 
@@ -459,8 +396,7 @@ int main(int argc, char** argv)
 
     delete rep;
 
-    if (check_now)
-    {
+    if (check_now) {
       delete stored_indiv;
       delete exp_manager_backup;
     }
@@ -470,11 +406,10 @@ int main(int argc, char** argv)
 
   gzclose(lineage_file);
 
-  // Optional outputs
+  // Additional outputs
   fclose(env_output_file);
   fclose(term_output_file);
-  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
-  {
+  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
     fclose(zones_output_file);
   }
   fclose(operons_output_file);
@@ -483,34 +418,32 @@ int main(int argc, char** argv)
   delete mystats;
   delete indiv;
 
-  exit(EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
 
 
 
 
-FILE* open_environment_stat_file(const char * prefix)
-{
+FILE* open_environment_stat_file(const char* prefix, const char* postfix) {
   // Open file
   char* env_output_file_name = new char[80];
-  sprintf(env_output_file_name, "stats/%s_envir.out",prefix);
+  sprintf(env_output_file_name, "stats/%s_envir%s.out", prefix, postfix);
   FILE* env_output_file = fopen(env_output_file_name, "w");
   delete env_output_file_name;
 
   // Write headers
   // TODO vld: was limited to "if environment->gaussians_provided"
   // are gaussians always available now?
-  fprintf(env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n");
+  fprintf(env_output_file,
+          "# Each line contains: Generation, and then, for each gaussian: M W H.\n");
   fprintf(env_output_file, "#\n");
 
   return env_output_file;
 }
 
 
-void write_environment_stats(int64_t t,
-                             const PhenotypicTargetHandler* pth,
-                             FILE* env_output_file)
-{
+void write_environment_stats(int64_t t, const PhenotypicTargetHandler* pth,
+                             FILE* env_output_file) {
   // Num gener
   fprintf(env_output_file, "%" PRId64, t);
 
@@ -524,10 +457,9 @@ void write_environment_stats(int64_t t,
 
 
 
-FILE* open_terminators_stat_file(const char * prefix)
-{
+FILE* open_terminators_stat_file(const char* prefix, const char* postfix) {
   char* term_output_file_name = new char[80];
-  sprintf(term_output_file_name, "stats/%s_nb_term.out",prefix);
+  sprintf(term_output_file_name, "stats/%s_nb_term%s.out", prefix, postfix);
   FILE* term_output_file = fopen(term_output_file_name, "w");
   delete [] term_output_file_name;
 
@@ -541,8 +473,8 @@ FILE* open_terminators_stat_file(const char * prefix)
   return term_output_file;
 }
 
-void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_file)
-{
+void write_terminators_stats(int64_t t,  Individual* indiv,
+                             FILE* term_output_file) {
   fprintf(term_output_file, "%" PRId64 " %" PRId32 " %" PRId32 "\n",
             t,
             indiv->total_genome_size(),
@@ -551,11 +483,10 @@ void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_fi
 
 
 
-FILE* open_zones_stat_file(const char * prefix)
-{
+FILE* open_zones_stat_file(const char* prefix, const char* postfix) {
   // Open file
   char* zones_output_file_name = new char[80];
-  sprintf(zones_output_file_name, "stats/%s_zones.out",prefix);
+  sprintf(zones_output_file_name, "stats/%s_zones%s.out", prefix, postfix);
   FILE* zones_output_file = fopen(zones_output_file_name, "w");
   delete [] zones_output_file_name;
 
@@ -674,10 +605,9 @@ void write_zones_stats(int64_t t,
 
 
 
-FILE* open_operons_stat_file(const char * prefix)
-{
+FILE* open_operons_stat_file(const char* prefix, const char* postfix) {
   char* operons_output_file_name = new char[80];
-  sprintf(operons_output_file_name, "stats/%s_operons.out",prefix);
+  sprintf(operons_output_file_name, "stats/%s_operons%s.out", prefix, postfix);
   FILE* operons_output_file = fopen(operons_output_file_name, "w");
   delete [] operons_output_file_name,
 
@@ -727,56 +657,88 @@ void write_operons_stats(int64_t t, Individual* indiv, FILE*  operons_output_fil
             nb_genes_per_rna[19]);
 }
 
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // =====================
+  //  Parse command line
+  // =====================
+  const char * short_options = "hVF:vM";
+  static struct option long_options[] = {
+    {"help",                no_argument, NULL, 'h'},
+    {"version",             no_argument, NULL, 'V'},
+    {"full-check",          no_argument, NULL, 'F'},
+    {"trace-mutations",     no_argument, NULL, 'M'},
+    {"verbose",             no_argument, NULL, 'v'},
+    {0, 0, 0, 0}
+  };
 
+  int option;
+  while((option = getopt_long(argc, argv, short_options,
+                              long_options, nullptr)) != -1) {
+    switch(option) {
+      case 'h':
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'V':
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      case 'v':
+        verbose = true;
+        break;
+      case 'F':
+        full_check = true;
+        break;
+      case 'M':
+        trace_mutations = true;
+        break;
+      default:
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+    }
+  }
 
+  // There should be only one remaining arg: the lineage file
+  if (optind != argc - 1) {
+    Utils::ExitWithUsrMsg("please specify a lineage file");
+  }
 
-/*!
-  \brief
+  lineage_file_name = new char[strlen(argv[optind]) + 1];
+  sprintf(lineage_file_name, "%s", argv[optind]);
+}
 
-*/
-void print_help(char* prog_path)
-{
+void print_help(char* prog_path) {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
+
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
   printf("\n");
-  printf("*********************** aevol - Artificial Evolution ******************* \n");
-  printf("*                                                                      * \n");
-  printf("*                      Ancstats post-treatment program                 * \n");
-  printf("*                                                                      * \n");
-  printf("************************************************************************ \n");
-  printf("\n\n");
-  printf("This program is Free Software. No Warranty.\n");
-  printf("Copyright (C) 2009  LIRIS.\n");
+  printf("%s: create an experiment with setup as specified in PARAM_FILE.\n",
+  prog_name);
   printf("\n");
-#ifdef __REGUL
-  printf("Usage : rancstats -h\n");
-  printf("or :    rancstats [-vn] -f lineage_file \n");
-#else
-  printf("Usage : ancstats -h\n");
-  printf("or :    ancstats [-vn] -f lineage_file \n");
-#endif
-  printf("\n");
-  printf("This program compute some statistics for the individuals within lineage_file.\n");
-  printf("\n");
-  printf("\n");
-  printf("\t-h or --help       : Display this help.\n");
-  printf("\n");
-  printf("\t-v or --verbose    : Be verbose, listing generations as they are \n");
-  printf("\t                       treated.\n");
-  printf("\n");
-  printf("\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
-  printf("\t                       program faster, but it is not recommended. \n");
-  printf("\t                       It is better to let the program check that \n");
-  printf("\t                       when we rebuild the genomes of the ancestors\n");
-  printf("\t                       from the lineage file, we get the same sequences\n");
-  printf("\t                       as those stored in the backup files.\n");
-  printf("\n");
-  printf("\t-c or --fullcheck  : Will perform the genome and environment checks every\n");
-  printf("\t                       <BACKUP_STEP> generations. Default behaviour is\n");
-  printf("\t                       lighter as it only perform sthese checks at the\n");
-  printf("\t                       ending generation.\n");
-  printf("\n");
-  printf("\t-f lineage_file or --file lineage_file : \n");
-  printf("\t                       Compute the statistics for the individuals within lineage_file.\n");
-  printf("\t-t tolerance or --tolerance tolerance : \n");
-  printf("\t                       Tolerance used to compare the replayed environment to environment in backup\n");
-  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s LINEAGE_FILE [-FMv]\n",
+  prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -F, --full-check\n");
+  printf("\tperform genome checks whenever possible\n");
+  printf("  -M, --trace-mutations\n");
+  printf("\toutputs the fixed mutations (in a separate file)\n");
+  printf("  -v, --verbose\n\tbe verbose\n");
 }

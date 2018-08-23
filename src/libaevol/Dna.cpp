@@ -1288,6 +1288,7 @@ Mutation* Dna::do_insertion(const char* seq_to_insert,
 
 
 bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
+  //printf("Mutation is %d %d %d -- %d\n",pos_1,pos_2,pos_3,length());
 // Duplicate segment [pos_1; pos_2[ and insert the duplicate before pos_3
   char* duplicate_segment = NULL;
   int32_t seg_length;
@@ -1458,7 +1459,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 }
 
 bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
-
+    //printf("DO DELETION is %d %d -- %d\n",pos_1,pos_2,length());
   // printf("LARGE DELETION %d %d (%d): %d %d\n",indiv()->grid_cell()->x(),indiv()->grid_cell()->y(),
   //        indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y(),
   //       pos_1,pos_2);

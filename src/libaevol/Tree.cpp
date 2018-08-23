@@ -172,6 +172,7 @@ void Tree::write_to_tree_file(gzFile tree_file) {
   for (int64_t t = 0 ; t < tree_step_ ; t++)
     for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
       assert(replics_[t][indiv_i] != NULL);
+      //printf("Write %d at %d\n",indiv_i,t);
       replics_[t][indiv_i]->write_to_tree_file(tree_file);
     }
 
@@ -191,8 +192,9 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
       auto ievent = reinterpret_cast<NewIndivEvent*>(arg);
 
       if (SIMD_Individual::standalone_simd) {
-        report_by_index(AeTime::time(), ievent->simd_child->indiv_id)->
-                init(this, ievent->simd_child, ievent->simd_parent);
+          //printf("Update with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
+        report_by_index(AeTime::time(), ievent->indiv_id_)->
+                init(this, ievent->simd_child, ievent->simd_parent,ievent->indiv_id_,ievent->parent_id_);
       } else {
         report_by_index(AeTime::time(), ievent->x *
                                         ievent->child->exp_m()->grid_height()
