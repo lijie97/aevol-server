@@ -360,7 +360,7 @@ void Selection::step_to_next_generation() {
              reproducers[x][y]->genetic_unit(0).dna()->length());*/
 
     do_replication(reproducers[x][y],
-                   x * grid_height + y + pop_size * AeTime::time(), what, x, y);
+                   x * grid_height + y, what, x, y);
 
 /*    if (index == 43 || index == 44)
       printf("AFTER -- Reproducer %d -> %d : %d\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
@@ -847,6 +847,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   //NewIndivEvent *eindiv = new NewIndivEvent(new_indiv,parent, x, y);
   //notifyObservers(NEW_INDIV, eindiv);
 
+
   delete exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y];
   exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(new_indiv);
   exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->generate_mutations();
@@ -935,12 +936,18 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       new_indiv = dynamic_cast<Individual_R_X11*>(parent);
     #endif
 #endif
+       {
+      NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
+      notifyObservers(NEW_INDIV, eindiv);
+      delete eindiv;
+    }
+
       // Notify observers that a new individual was created from <parent>
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
     } else {
 #endif
     {
-      NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y);
+      NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
       notifyObservers(NEW_INDIV, eindiv);
       delete eindiv;
     }

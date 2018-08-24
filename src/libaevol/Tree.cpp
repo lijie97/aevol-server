@@ -199,7 +199,7 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
         report_by_index(AeTime::time(), ievent->x *
                                         ievent->child->exp_m()->grid_height()
                                         + ievent->y)->
-                init(this, ievent->child, ievent->parent);
+                init(this, ievent->child, ievent->parent,ievent->indiv_id_,ievent->parent_id_);
       }
       break;
     }

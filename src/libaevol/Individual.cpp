@@ -378,6 +378,7 @@ Individual::Individual(const Individual* parent, int32_t id,
   age_ = parent->age_ + 1;
 
   id_ = id;
+  parent_id_ = parent->id();
   rank_ = -1;
 
   evaluated_ = false;

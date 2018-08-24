@@ -1288,7 +1288,7 @@ Mutation* Dna::do_insertion(const char* seq_to_insert,
 
 
 bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
-  //printf("Mutation is %d %d %d -- %d\n",pos_1,pos_2,pos_3,length());
+  //printf("%d %d -- Do duplication is %d %d %d -- %d\n",indiv_->id(), indiv()->parent_id_, pos_1,pos_2,pos_3,length());
 // Duplicate segment [pos_1; pos_2[ and insert the duplicate before pos_3
   char* duplicate_segment = NULL;
   int32_t seg_length;
@@ -1459,7 +1459,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 }
 
 bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
-    //printf("DO DELETION is %d %d -- %d\n",pos_1,pos_2,length());
+    //printf("%d %d -- DO DELETION is %d %d -- %d\n",indiv_->id(), indiv()->parent_id_,pos_1,pos_2,length());
   // printf("LARGE DELETION %d %d (%d): %d %d\n",indiv()->grid_cell()->x(),indiv()->grid_cell()->y(),
   //        indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y(),
   //       pos_1,pos_2);
@@ -1578,6 +1578,7 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
 
 bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
                            int32_t pos_4, bool invert) {
+    //printf("%d %d -- Do Translocation %d %d %d %d %d\n",indiv_->id(), indiv()->parent_id_,pos_1,pos_2,pos_3,pos_4,invert);
   // Provided that OriC must be at position 0
   //
   //    1) Note that in Case 1 (without inversion), whichever position

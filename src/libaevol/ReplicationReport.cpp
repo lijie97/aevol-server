@@ -177,13 +177,13 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
  * This should be called as soon as a replication is started (just after calling
  * the offspring constructor and before doing the mutations)
  */
-void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* parent)
+void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
 {
 
   indiv_ = offspring;
 
-  id_ = indiv_->id();
-  parent_id_ = parent->id();
+  id_ = indiv_id;
+  parent_id_ = parent_id;
 
   genome_size_        = 0;
   metabolic_error_    = 0.0;

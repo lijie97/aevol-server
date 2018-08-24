@@ -46,9 +46,11 @@ class Internal_SIMD_Struct;
 
 class NewIndivEvent {
  public:
-    NewIndivEvent(Individual* childx, Individual* parentx, int xx, int yx) {
+    NewIndivEvent(Individual* childx, Individual* parentx, int xx, int yx, int indiv_id, int parent_id) {
       child = childx;
       parent = parentx;
+        indiv_id_ = indiv_id;
+        parent_id_ = parent_id;
       x = xx;
       y = yx;
     }

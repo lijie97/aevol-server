@@ -299,7 +299,6 @@ int main(int argc, char** argv)
   #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
-  gzFile indiv_file = gzopen("test.gz", "w");
 
   if (lineage_file == NULL)
   {
@@ -448,8 +447,8 @@ int main(int argc, char** argv)
     // Write the replication report of the ancestor for current generation
     if (verbose)
     {
-      printf("Writing the replication report for t= %" PRId64 " (built from indiv %" PRId32 " at t= %" PRId64 ")\n",
-             t, indices[i], t-1);
+      printf("Writing the replication report for t= %" PRId64 " (built from indiv %" PRId32 " at t= %" PRId64 " parent %" PRId32 " indiv %" PRId32 ")\n",
+             t, indices[i], t-1,reports[i]->parent_id(),reports[i]->id());
     }
     reports[i]->write_to_tree_file(lineage_file);
     if (verbose) printf(" OK\n");
@@ -472,7 +471,7 @@ int main(int argc, char** argv)
 
     // Replay the mutations stored in the current replication report on the
     // current genome
-/*      printf("%d -- Mutation to do %d %d %d -- %d\n",t,reports[i]->dna_replic_report().HT().size(),
+      /*printf("%d -- Mutation to do %d %d %d -- %d\n",t,reports[i]->dna_replic_report().HT().size(),
              reports[i]->dna_replic_report().rearrangements().size(),
              reports[i]->dna_replic_report().mutations().size(),initial_ancestor->genetic_unit_list().cbegin()->dna()->length());*/
 

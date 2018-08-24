@@ -116,7 +116,7 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void init(Tree* tree, Individual* offspring, Individual* parent);
+    void init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
     void signal_end_of_replication(Individual* indiv);
 
     void init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id, int parent_id);

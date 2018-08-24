@@ -512,7 +512,7 @@ class Individual : public Observable {
         // The chromosome and plasmids (if allowed)
         std::list<GeneticUnit> genetic_unit_list_;
 
-
+        int32_t parent_id_;
     protected :
   // =================================================================
   //                           Protected Methods
@@ -543,6 +543,7 @@ class Individual : public Observable {
   //           as soon as they are created (the rank is only known when all the individuals have been evaluated).
   //           The rank will now be handled in a specific new attribute. (1 for the worst indiv, POP_SIZE for the best)
   unsigned long long id_;   // [0 ; POP_SIZE[
+
   int32_t rank_; // [1 ; POP_SIZE]
 
   // Total activation (resp. inhibition) of metabolic functions
