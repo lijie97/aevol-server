@@ -631,18 +631,18 @@ void ExpManager::run_evolution() {
       if (!first_run) {
         if (SIMD_Individual::standalone_simd) {
           printf(
-                  "  Best individual's (%d) distance to target (metabolic) : %f (clones %d)\n",
-                  simd_individual->best_indiv->indiv_id,
+                  "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
+                  //simd_individual->best_indiv->indiv_id,
                   simd_individual->best_indiv->metaerror,
                   simd_individual->nb_clones_);
         } else {
-          printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
-                 best_indiv()->id(),
+          printf("  Best individual's distance to target (metabolic) : %f\n",
+                 //best_indiv()->id(),
                  best_indiv()->dist_to_target_by_feature(METABOLISM));
         }
       } else {
-        printf("  Best individual's (%d) distance to target (metabolic) : %f\n",
-               best_indiv()->id(),
+        printf("  Best individual's distance to target (metabolic) : %f\n",
+               //best_indiv()->id(),
                best_indiv()->dist_to_target_by_feature(METABOLISM));
       }
     }

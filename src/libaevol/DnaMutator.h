@@ -18,9 +18,9 @@ class DnaMutator {
                double inversion_rate,
                double point_mutation_rate, double small_insertion_rate,
                double small_deletion_rate, int16_t max_indel_size,
-               int32_t min_genome_length, int32_t max_genome_length);
+               int32_t min_genome_length, int32_t max_genome_length, int indiv_id, int x, int y);
 
-    DnaMutator(Individual* indiv);
+    DnaMutator(Individual* indiv, int x, int y);
 
     ~DnaMutator() {
       int cpt = 0;
@@ -45,6 +45,8 @@ class DnaMutator {
     bool hasMutate() {return hasMutate_;}
 
     bool setMutate(bool mutate) {hasMutate_ = mutate;}
+
+    int x_,y_;
 
  private:
     std::shared_ptr<JumpingMT> mut_prng_;

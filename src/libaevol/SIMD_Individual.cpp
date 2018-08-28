@@ -176,46 +176,76 @@ void SIMD_Individual::selection() {
 
         int16_t neighborhood_size = selection_scope_x * selection_scope_y;
 
-            double *  local_fit_array   = new double[neighborhood_size];
-            double *  local_meta_array   = new double[neighborhood_size];
-            double *  probs             = new double[neighborhood_size];
-            int16_t   count             = 0;
-            double    sum_local_fit     = 0.0;
+        double *  local_fit_array   = new double[neighborhood_size];
+        double *  local_meta_array   = new double[neighborhood_size];
+        double *  probs             = new double[neighborhood_size];
+        int16_t   count             = 0;
+        double    sum_local_fit     = 0.0;
 
-            int32_t x = indiv_id / grid_height;
-            int32_t y = indiv_id % grid_height;
+        int * indiv_index = new int[neighborhood_size];
 
-            int cur_x,cur_y;
+        int32_t x = indiv_id / grid_height;
+        int32_t y = indiv_id % grid_height;
 
-            for (int8_t i = -1 ; i < selection_scope_x-1 ; i++) {
-                for (int8_t j = -1; j < selection_scope_y - 1; j++) {
-                    cur_x = (x + i + grid_width)  % grid_width;
-                    cur_y = (y + j + grid_height) % grid_height;
+        int cur_x,cur_y;
 
-                    local_fit_array[count]  = prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness;
-                    local_meta_array[count]  = prev_internal_simd_struct[cur_x*grid_height+cur_y]->metaerror;
-                    sum_local_fit += local_fit_array[count];
-                    count++;
+        for (int8_t i = -1 ; i < selection_scope_x-1 ; i++) {
+            for (int8_t j = -1; j < selection_scope_y - 1; j++) {
+                cur_x = (x + i + grid_width) % grid_width;
+                cur_y = (y + j + grid_height) % grid_height;
+
+
+                local_fit_array[count] = prev_internal_simd_struct[cur_x * grid_height + cur_y]->fitness;
+
+                local_meta_array[count] = prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror;
+
+                //printf("Local fit %e %d %d %d -> %e\n",local_fit_array[count],cur_x,cur_y,cur_x*grid_height+cur_y,
+                //       prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);
+
+
+                /*printf("Metaerror : %e -- %e\n", local_meta_array[count],
+                       internal_simd_struct[cur_x * grid_height + cur_y]->metaerror);*/
+                if (local_meta_array[count] != prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror) {
+                    printf("NONONNONONONN\n");
+                    exit(-1);
                 }
+                sum_local_fit += local_fit_array[count];
+
+
+                indiv_index[count] = cur_x * grid_height + cur_y;
+                /*if (indiv_id == 0)
+                    printf("SIMD Local SUM Fit %e -- Fitness %e (CPU %e)\n",sum_local_fit,local_fit_array[count],exp_m_->world()->grid(x,y)->local_fit_array[count]);*/
+                count++;
             }
+        }
 
-            for(int16_t i = 0 ; i < neighborhood_size ; i++) {
-                probs[i] = local_fit_array[i]/sum_local_fit;
-                //printf("%d -- prob[%d] : %e : fitness %e (%f) sum %e\n",indiv_id,i,probs[i],
-                //       local_fit_array[i],local_meta_array[i],sum_local_fit);
-            }
+        for(int16_t i = 0 ; i < neighborhood_size ; i++) {
+            probs[i] = local_fit_array[i]/sum_local_fit;
 
-            int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_->roulette_random(probs, neighborhood_size);
+            /*printf("Local fit X %e %d %d %d -> %e\n",local_fit_array[i],cur_x,cur_y,cur_x*grid_height+cur_y,
+                   prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);*/
+            //printf("%d -- prob[%d] : %e : fitness %e (%f) sum %e\n",indiv_id,i,probs[i],
+            //       local_fit_array[i],local_meta_array[i],sum_local_fit);
+        }
 
-            int16_t x_offset = (found_org / selection_scope_x) - 1;
-            int16_t y_offset = (found_org % selection_scope_y) - 1;
+        //printf("SIMD PRNG\n");
+        /*        bool verbose = false;
+        if (indiv_id == 2)  {
+            printf("SIMD PRNG\n");
+            verbose = true;
+        }*/
+        int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_simd_->roulette_random(probs, neighborhood_size);
+
+        int16_t x_offset = (found_org / selection_scope_x) - 1;
+        int16_t y_offset = (found_org % selection_scope_y) - 1;
 
             delete [] local_fit_array;
             delete [] local_meta_array;
             delete [] probs;
 
+
             next_generation_reproducer_[indiv_id] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
-                                          ((y+y_offset+grid_height) % grid_height);
+                                                    ((y+y_offset+grid_height) % grid_height);
             dna_size[indiv_id] = prev_internal_simd_struct[cur_x*grid_height+cur_y]->dna_->length();
 
 
@@ -428,7 +458,7 @@ void SIMD_Individual::selection() {
 
       exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
           exp_m_->world()->grid(x, y)->mut_prng(),
-          internal_simd_struct[indiv_id]->dna_->length(),
+          prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
           exp_m_->exp_s()->mut_params()->duplication_rate(),
           exp_m_->exp_s()->mut_params()->deletion_rate(),
           exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -438,7 +468,7 @@ void SIMD_Individual::selection() {
           exp_m_->exp_s()->mut_params()->small_deletion_rate(),
           exp_m_->exp_s()->mut_params()->max_indel_size(),
           exp_m_->exp_s()->min_genome_length(),
-          exp_m_->exp_s()->max_genome_length());
+          exp_m_->exp_s()->max_genome_length(),indiv_id,x,y);
       exp_m_->dna_mutator_array_[indiv_id]->generate_mutations();
     }
   }
@@ -598,8 +628,8 @@ void SIMD_Individual::selection() {
 
                 exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
                         exp_m_->world()->grid(x, y)->mut_prng(),
-                        //prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
-                        dna_size[indiv_id],
+                        prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
+                        //dna_size[indiv_id],
                         exp_m_->exp_s()->mut_params()->duplication_rate(),
                         exp_m_->exp_s()->mut_params()->deletion_rate(),
                         exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -609,7 +639,7 @@ void SIMD_Individual::selection() {
                         exp_m_->exp_s()->mut_params()->small_deletion_rate(),
                         exp_m_->exp_s()->mut_params()->max_indel_size(),
                         exp_m_->exp_s()->min_genome_length(),
-                        exp_m_->exp_s()->max_genome_length());
+                        exp_m_->exp_s()->max_genome_length(), indiv_id,x,y);
                 exp_m_->dna_mutator_array_[indiv_id]->generate_mutations();
         }
 
@@ -4365,7 +4395,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
           exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
                   exp_m_->world()->grid(x, y)->mut_prng(),
-                  internal_simd_struct[indiv_id]->dna_->length(),
+                  prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
                   exp_m_->exp_s()->mut_params()->duplication_rate(),
                   exp_m_->exp_s()->mut_params()->deletion_rate(),
                   exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -4375,13 +4405,19 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                   exp_m_->exp_s()->mut_params()->small_deletion_rate(),
                   exp_m_->exp_s()->mut_params()->max_indel_size(),
                   exp_m_->exp_s()->min_genome_length(),
-                  exp_m_->exp_s()->max_genome_length());
+                  exp_m_->exp_s()->max_genome_length(),indiv_id,x,y);
           exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
       //}
   } else if (!standalone_ && optim_prom) {
       do_mutation(indiv_id);
   }
 
+/*  if (AeTime::time() > 0) printf("%ld -- Indiv %d (%d %d) Parent %d Length %d (%d) Parent Length %d Mutation %ld\n",AeTime::time(),indiv_id,
+         exp_m_->dna_mutator_array_[indiv_id]->x_,exp_m_->dna_mutator_array_[indiv_id]->y_,
+         next_generation_reproducer_[indiv_id],
+         dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length_,
+                                 prev_internal_simd_struct[ next_generation_reproducer_[indiv_id]]->dna_->length_,
+                                 exp_m_->dna_mutator_array_[indiv_id]->mutation_list_.size());*/
 
 /*#pragma omp task firstprivate(indiv_id)
             {*/
@@ -4447,7 +4483,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
           exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
                   exp_m_->world()->grid(x, y)->mut_prng(),
-                  internal_simd_struct[indiv_id]->dna_->length(),
+                  prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
                   exp_m_->exp_s()->mut_params()->duplication_rate(),
                   exp_m_->exp_s()->mut_params()->deletion_rate(),
                   exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -4457,7 +4493,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                   exp_m_->exp_s()->mut_params()->small_deletion_rate(),
                   exp_m_->exp_s()->mut_params()->max_indel_size(),
                   exp_m_->exp_s()->min_genome_length(),
-                  exp_m_->exp_s()->max_genome_length());
+                  exp_m_->exp_s()->max_genome_length(),indiv_id,x,y);
           exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
       //}
 

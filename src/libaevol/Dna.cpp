@@ -3881,8 +3881,8 @@ void Dna::apply_mutations() {
 
 
 
-  } while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x() * exp_m_->world()->height() +
-                                      indiv_->grid_cell()->y()]->mutation_available());
+  } while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
+                        ->mutation_available() > 0);
 }
 
 

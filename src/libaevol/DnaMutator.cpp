@@ -16,7 +16,7 @@ DnaMutator::DnaMutator(std::shared_ptr<JumpingMT> mut_prng,
       double small_insertion_rate,
       double small_deletion_rate,
       int16_t max_indel_size,
-      int32_t min_genome_length, int32_t max_genome_length) {
+      int32_t min_genome_length, int32_t max_genome_length, int indiv_id, int x, int y) {
   mut_prng_ = mut_prng;
   length_ = length;
   duplication_rate_ = duplication_rate;
@@ -30,10 +30,15 @@ DnaMutator::DnaMutator(std::shared_ptr<JumpingMT> mut_prng,
 
   min_genome_length_ = min_genome_length;
   max_genome_length_ = max_genome_length;
+
+  id_ = indiv_id;
+  x_ = x;
+  y_ = y;
 }
 
-DnaMutator::DnaMutator(Individual * indiv) {
+DnaMutator::DnaMutator(Individual * indiv, int x, int y) {
   mut_prng_ = indiv->mut_prng();
+
   length_ = indiv->amount_of_dna();
   duplication_rate_ = indiv->duplication_rate();
   deletion_rate_ = indiv->deletion_rate();
@@ -48,6 +53,8 @@ DnaMutator::DnaMutator(Individual * indiv) {
   max_genome_length_ = indiv->max_genome_length();
 
   id_ = indiv->id();
+  x_ = x;
+  y_ = y;
 }
 
 
@@ -55,9 +62,8 @@ void DnaMutator::generate_mutations() {
   generate_rearrangements();
   generate_small_mutations();
 
-/*  if (nb_rear_+nb_mut_ > 0)
-    printf("%d -- DNAMutator -- Dupli %d Large_Del %d Trans %d Inv %d Swi %d Ins %d Del %d\n",
-      id_,
+/*    printf("%d Length %d -- DNAMutator -- Dupli %d Large_Del %d Trans %d Inv %d Swi %d Ins %d Del %d\n",
+      id_,length_,
       nb_large_dupl_,nb_large_del_,nb_large_trans_,nb_large_inv_,nb_swi_,
       nb_ins_,nb_del_);*/
 }
@@ -104,17 +110,22 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
   MutationEvent* mevent = nullptr;
 
 
-/*  if (id_%(AeTime::time()*1024)==93) {
-    printf("Mutation %d (%d %d %d %d %d) -- %d (%d %d %d %d)\n",
-           cpt_rear_,nb_rear_,nb_large_inv_,nb_large_trans_,nb_large_del_,nb_large_dupl_,
-           cpt_mut_,nb_mut_,nb_swi_,nb_ins_,nb_del_);
-  }*/
+
+
 
   if (cpt_rear_>0) {
-    random_value = mut_prng_->random(nb_rear_);
+    random_value = mut_prng_->random(cpt_rear_);
+
+      /*printf("%ld -- Indiv %ld -- Mutation %d (%d %d %d %d %d) -- %d (%d %d %d %d) Length %d-- Value %d\n",
+             AeTime::time(),id_,cpt_rear_,nb_rear_,nb_large_inv_,nb_large_trans_,nb_large_del_,nb_large_dupl_,
+             cpt_mut_,nb_mut_,nb_swi_,nb_ins_,nb_del_,length_,random_value);*/
+
     cpt_rear_--;
 
+
+
     if (random_value < nb_large_dupl_) {
+
       nb_large_dupl_--;  // Updating the urn (no replacement!)...
 
       int32_t pos_1, pos_2, pos_3;
@@ -123,11 +134,14 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
       pos_3 = mut_prng_->random(length_);
 
       int32_t genome_size_after = length_ + Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
+        //printf("Large Dupli %d %d %d -- %d (%d)\n",pos_1,pos_2,pos_3,genome_size_after,max_genome_length_);
       if (genome_size_after > max_genome_length_)
         return nullptr;
 
       mevent = new MutationEvent();
       mevent->duplication(pos_1,pos_2,pos_3);
+
+      //printf("Duplication Event %p\n",mevent);
 
       mutation_list_.push_back(mevent);
 
@@ -205,11 +219,17 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
 
     }
   } else if (cpt_mut_>0) {
-    random_value = mut_prng_->random(nb_mut_);
+    random_value = mut_prng_->random(cpt_mut_);
 /*    if (id_%(AeTime::time()*1024)==93) {
       printf("Random value %d\n",random_value);
     }*/
+/*
+      printf("%ld -- Indiv %ld -- Mutation %d (%d %d %d %d %d) -- %d (%d %d %d %d) Length %d -- Value %d\n",
+             AeTime::time(),id_,cpt_rear_,nb_rear_,nb_large_inv_,nb_large_trans_,nb_large_del_,nb_large_dupl_,
+             cpt_mut_,nb_mut_,nb_swi_,nb_ins_,nb_del_,length_,random_value);
+*/
     cpt_mut_--;
+
 
     if (random_value < nb_swi_) {
       nb_swi_--;
@@ -306,6 +326,8 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
     }
   }
 
+/*  if (mevent != nullptr) printf("Mutation %d is type %d\n",id_,mevent->type());
+  else printf("%d -- Mutation is NULL\n",id_);*/
   return mevent;
 }
 

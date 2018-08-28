@@ -849,7 +849,20 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 
   delete exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y];
-  exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(new_indiv);
+  //exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(new_indiv,x,y);
+  exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(
+            exp_m_->world()->grid(x, y)->mut_prng(),
+            parent->amount_of_dna(),
+            exp_m_->exp_s()->mut_params()->duplication_rate(),
+            exp_m_->exp_s()->mut_params()->deletion_rate(),
+            exp_m_->exp_s()->mut_params()->translocation_rate(),
+            exp_m_->exp_s()->mut_params()->inversion_rate(),
+            exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+            exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+            exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+            exp_m_->exp_s()->mut_params()->max_indel_size(),
+            exp_m_->exp_s()->min_genome_length(),
+            exp_m_->exp_s()->max_genome_length(),x*exp_m_->world()->height()+y,x,y);
   exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->generate_mutations();
 
   bool mutate = true;
