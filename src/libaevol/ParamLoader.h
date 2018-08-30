@@ -273,6 +273,10 @@ class ParamLoader {
   bool record_tree_;
   int32_t tree_step_;
 
+
+  // LightTree
+  bool record_light_tree_;
+
   // Dumps // TODO : explain
   bool    make_dumps_;
   int32_t dump_step_;

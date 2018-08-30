@@ -75,15 +75,19 @@ class Stats
     // =================================================================
     Stats() = delete;
     Stats(const Stats &) = delete;
-    Stats(ExpManager * exp_m,
+    Stats(const std::string prefix, const std::string postfix = "",
+          bool best_indiv_only = false);
+    Stats(ExpManager* exp_m,
           bool best_indiv_only = false,
-          const char* prefix = "stat",
+          const std::string prefix = "stat",
+          const std::string postfix = "",
           bool with_plasmids = false,
           bool compute_phen_contrib_by_GU = false);
-    Stats(ExpManager * exp_m,
+    Stats(ExpManager* exp_m,
           int64_t time,
           bool best_indiv_only = false,
-          const char * prefix = "stat",
+          const std::string prefix = "stat",
+          const std::string postfix = "",
           bool addition_old_stats = true,
           bool delete_old_stats = true);
 
@@ -105,8 +109,8 @@ class Stats
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void write_current_generation_statistics();
-    void write_statistics_of_this_indiv(Individual* indiv,
+    void write_current_generation_statistics(int64_t gen);
+    void write_statistics_of_this_indiv(int64_t time, Individual* indiv,
                                         ReplicationReport* replic_report);
 
     void flush();
@@ -116,6 +120,10 @@ class Stats
     void CreateTmpFiles(int64_t time);
     void MoveTmpFiles(const std::string& destdir);
     void PromoteTmpFiles();
+
+    void add_indivs(int64_t gen, const std::list<Individual*> indivs);
+    void delete_indivs(int64_t gen);
+
 
 #ifdef __KSTAR
     ExpManager * exp_m_;
@@ -128,11 +136,15 @@ class Stats
     //                           Protected Methods
     // =================================================================
     void init_data();
-    void set_file_names(const char* prefix,
-                        bool one_lambda_indiv_only,
-                        bool with_plasmids = false,
-                        bool compute_phen_contrib_by_GU = false);
+    void set_file_names(const std::string prefix,
+                            const std::string postfix,
+                            bool best_indiv_only,
+                            bool with_plasmids = false,
+                            bool compute_phen_contrib_by_GU = false);
     void open_files();
+
+    Individual* b_indiv(int64_t gen) const;
+    std::list<std::pair<Individual*, ReplicationReport*>> indivs_annotated(int64_t gen) const;
 
     inline void write_header(FILE* file_name, const char* header);
     inline void write_header(FILE* file_name, const char* header, int8_t key);
@@ -142,18 +154,20 @@ class Stats
     // =================================================================
 #ifndef __KSTAR
     ExpManager * exp_m_;
+
+        // 3D tables of stat files (FILE*) and their names (char*)
+        // Dimensions are given by:
+        //    * genetic unit (ALL_GU, CHROM or PLASMIDS)
+        //    * BEST or GLOB
+        //    * stat type (FITNESS_STATS, MUTATION_STATS, GENES_STATS, BP_STATS or REAR_STATS)
+        // Files that are not wanted MUST have their name set to NULL.
+        // The files themselves are also NULL because we don't fopen() them.
     FILE**** stat_files_;
     char**** stat_files_names_;
 #endif
 
-    // 3D tables of stat files (FILE*) and their names (char*)
-    // Dimensions are given by:
-    //    * genetic unit (ALL_GU, CHROM or PLASMIDS)
-    //    * BEST or GLOB
-    //    * stat type (FITNESS_STATS, MUTATION_STATS, GENES_STATS, BP_STATS or REAR_STATS)
-    // Files that are not wanted MUST have their name set to NULL.
-    // The files themselves are also NULL because we don't fopen() them.
-
+    //indivs
+    std::map<int64_t, std::list<Individual*>> indivs_;
 };
 
 

@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_TREE_H_
-#define AEVOL_TREE_H_
+#ifndef AEVOL_LIGHTTREE_H_
+#define AEVOL_LIGHTTREE_H_
 
 
 // =================================================================
@@ -34,16 +34,15 @@
 // =================================================================
 #include <inttypes.h>
 
+#include <vector>
+#include <unordered_map>
 #include <cstdio>
 #include <cstdlib>
-#include <cassert>
-
-#include <map>
 
 #include "ReplicationReport.h"
 #include "Observer.h"
 #include "ObservableEvent.h"
-#include "ae_enums.h"
+#include "Individual.h"
 
 
 namespace aevol {
@@ -52,44 +51,45 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ExpManager;
+class AncestorStats;
 
+class Node {
+public:
+  Node(int64_t t, int32_t lid) { tid_ = t; id_ = lid; };
 
-class Tree : public Observer
+  ~Node() { delete replics_; };
+  ReplicationReport* replics() const { return replics_; };
+
+  int64_t tid_;
+  int32_t id_;
+  std::unordered_map<int64_t, std::unordered_map<int32_t, Node*>> childs_;
+  Node* parent_ = nullptr;
+  ReplicationReport * replics_ = nullptr;
+  std::string nhx_ = "";
+};
+
+class LightTree : public Observer
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    Tree() = delete;
-    Tree(const Tree &model) = delete;
-    // To be used when we want to run a simulation.
-    Tree(ExpManager* exp_m, int64_t tree_step);
-    // To be used when we want to INSPECT a tree,
-    // not when we want to run a simulation.
-    Tree(ExpManager* exp_m, char* tree_file_name);
+    LightTree();
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Tree() noexcept;
+    virtual ~LightTree() noexcept;
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline int64_t  tree_step() const {
-      return tree_step_;
-    };
 
-    // Precondition for the following methods:
-    // the tree was emptied every TREE_STEP generations ==> it contains
-    // only the last generations since the last emptying ==> do not ask
-    // something about an older generation
-    std::map<int32_t, ReplicationReport*> reports(int64_t t) const;
-    ReplicationReport* report_by_index(int64_t t, int32_t index) const;
-    ReplicationReport* report_by_rank(int64_t t, int32_t rank) const;
-
+    int64_t mrca_time() const { return mrca_time_; };
+    int64_t saved_mrca_time() const { return saved_mrca_time_; };
+    int64_t saved_indivs_time() const { return saved_indivs_time_; };
+    ReplicationReport* get_first_replics(int64_t t) const { return allNodes_.at(t).begin()->second->replics(); };
 
     // =================================================================
     //                        Accessors: setters
@@ -98,45 +98,70 @@ class Tree : public Observer
     // =================================================================
     //                            Public Methods
     // =================================================================
+
+    void init_tree(int64_t time, std::list<Individual*> root_indiv);
+
+    // for the generation gen, the methode link the nodes with the generation gen-1
+    // by creating the link parent/children
+    // it also prune the tree
+    // if ask it perform ancestor_stat
+    void update_tree(int64_t gen);
+
+    // write the Newick format tree
+    void write_tree(int64_t t = -1);
+
+    void write_to_tree_file(int64_t gen, gzFile trunc_file, gzFile branches_file);
+
+    void read_from_tree_file();
+
+    void keep_indivs(std::list<Individual*> indivs);
+
+    void save_mrca_indiv();
+
+    void setup_anc_stat();
+
+    void close_anc_stat();
+
     void signal_end_of_generation();
-    void write_to_tree_file(int64_t gen, gzFile tree_file);
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
-
 
     // =================================================================
     //                           Public Attributes
     // =================================================================
-    static const int32_t NO_PARENT;
-
-
-
-
 
   protected :
     // =================================================================
     //                           Protected Methods
     // =================================================================
 
+    void prune(Node * oldNode);
+    void update_mrca(int64_t gen);
+
+    // attribute the relation child/parent for the nodes of the t generation
+    // to the t-1 generation
+    // it fills the parentsNodes_
+    void link_nodes(int64_t t);
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager* exp_m_;
 
-    int64_t tree_step_;
+    // the actual tree
+    std::unordered_map<int64_t, std::unordered_map<int32_t, Node*>> allNodes_;
+    // all the nodes that have children in the current generation
+    // if a node is not in this list, we prune its branche
+    std::vector<int32_t> parentsNodes_;
+    // generation of the actual mrca
+    int64_t mrca_time_;
+    // generation of the last saved mrca
+    int64_t saved_mrca_time_;
 
-    //ReplicationReport*** replics_;
-    std::map<int64_t, std::map<int32_t, ReplicationReport*>> replics_;
-    // Two-dimensional table of ReplicationReport*
-    //    dimension 1 (lines)   : generation
-    //    dimension 2 (columns) : individual
-    //
-    // !!!!! WARNING !!!!!
-    // The report at line l, column c is for the
-    // replication that created the indiv with index c of generation l+1
+    // list of all the Individual at the generation wented to stop the simulation
+    std::unordered_map<int32_t, Individual*> saved_indivs_;
+    int64_t saved_indivs_time_;
 
-    // light tree representation
-    int32_t** parent_;
+    AncestorStats* anc_stat_;
 };
 
 

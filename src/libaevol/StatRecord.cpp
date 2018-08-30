@@ -490,7 +490,7 @@ StatRecord::StatRecord(const StatRecord &model)
             }
         }
     }
-
+/*
 StatRecord::StatRecord(ExpManager* exp_m,
                        Individual* indiv,
                        chrom_or_gen_unit chrom_or_gu,
@@ -867,102 +867,98 @@ StatRecord::StatRecord(ExpManager* exp_m,
       mean_align_score_ = replic_report->mean_align_score();
     }
   }
-}
+}*/
 
 // Calculate average statistics for all the recorded values
-StatRecord::StatRecord(ExpManager * exp_m,
-                               const list<Individual *> indivs,
-                               chrom_or_gen_unit chrom_or_gu)
-{
-  exp_m_ = exp_m;
-  initialize_data();
+    StatRecord::StatRecord(ExpSetup* exp_s,
+                           std::list<std::pair<Individual*,
+                                   ReplicationReport*>> annotated_indivs,
+                           chrom_or_gen_unit chrom_or_gu) {
+        record_type_ = POP;
 
-  record_type_ = POP;
+        // ---------------
+        // Simulation data
+        // ---------------
+        pop_size_ = static_cast<int32_t>(annotated_indivs.size());
 
-  // ---------------
-  // Simulation data
-  // ---------------
-  pop_size_ = (double) indivs.size();
-
-  // ------------------------------------------------------------------
-  // Compute statistical data for the each individual in the population
-  // ------------------------------------------------------------------
-  for (const auto& indiv: indivs)
-  {
-    StatRecord * indiv_stat_record = new StatRecord(exp_m_, indiv, chrom_or_gu, false);
-    this->add(indiv_stat_record, indiv->id());
-    delete indiv_stat_record;
-  }
+        // ------------------------------------------------------------------
+        // Compute statistical data for the each individual in the population
+        // ------------------------------------------------------------------
+        for (const auto& annotated_indiv : annotated_indivs) {
+            StatRecord indiv_stat_record(exp_s,
+                                         annotated_indiv.first,
+                                         annotated_indiv.second,
+                                         chrom_or_gu, false);
+            this->add(&indiv_stat_record, annotated_indiv.first->id());
+        }
 
 
-  // ------------------------------------------------------------------
-  // Divide every accumulator by the number of indivs in the population
-  // ------------------------------------------------------------------
-  this->divide(pop_size_);
-}
+        // ------------------------------------------------------------------
+        // Divide every accumulator by the number of indivs in the population
+        // ------------------------------------------------------------------
+        this->divide(pop_size_);
+    }
 
 // Calculate standard deviation for all the recorded values
-StatRecord::StatRecord(ExpManager * exp_m,
-                               const list<Individual *> indivs,
-                               const StatRecord * means,
-                               chrom_or_gen_unit chrom_or_gu)
-{
-  exp_m_ = exp_m;
-  initialize_data();
+    StatRecord::StatRecord(ExpSetup* exp_s,
+                           std::list<std::pair<Individual*,
+                                   ReplicationReport*>> annotated_indivs,
+                           const StatRecord * means,
+                           chrom_or_gen_unit chrom_or_gu) {
+        record_type_ = STDEVS;
 
-  record_type_ = STDEVS;
+        // ---------------
+        // Simulation data
+        // ---------------
+        pop_size_ = static_cast<int32_t>(annotated_indivs.size());
 
-  // ---------------
-  // Simulation data
-  // ---------------
-  pop_size_ = indivs.size();
+        // ------------------------------------------------------------------
+        // Compute statistical data for the each individual in the population
+        // ------------------------------------------------------------------
+        for (const auto& annotated_indiv : annotated_indivs) {
+            StatRecord indiv_stat_record(exp_s,
+                                         annotated_indiv.first,
+                                         annotated_indiv.second,
+                                         chrom_or_gu, false);
+            this->substract_power(means, &indiv_stat_record, 2);
+        }
 
-  // ------------------------------------------------------------------
-  // Compute statistical data for the each individual in the population
-  // ------------------------------------------------------------------
-  for (const auto& indiv : indivs) {
-    StatRecord * indiv_stat_record = new StatRecord(exp_m_, indiv, chrom_or_gu, false);
-    this->substract_power(means, indiv_stat_record, 2);
-    delete indiv_stat_record;
-  }
+        // ---------------------------------------------------------------------------------
+        // Divide every accumulator by the square root of number of indivs in the population
+        // ---------------------------------------------------------------------------------
+        this->divide(pow((pop_size_-1), 0.5));
+    }
 
-  // ---------------------------------------------------------------------------------
-  // Divide every accumulator by the square root of number of indivs in the population
-  // ---------------------------------------------------------------------------------
-  this->divide(pow((pop_size_-1), 0.5));
-}
+    // Calculate skewness for all the recorded values
+    StatRecord::StatRecord(ExpSetup* exp_s,
+                           std::list<std::pair<Individual*,
+                                   ReplicationReport*>> annotated_indivs,
+                           const StatRecord* means,
+                           const StatRecord* stdevs,
+                           chrom_or_gen_unit chrom_or_gu) {
+        record_type_ = SKEWNESS;
 
- // Calculate skewness for all the recorded values
-StatRecord::StatRecord(ExpManager * exp_m,
-                               const list<Individual *> indivs,
-                               const StatRecord * means,
-                               const StatRecord * stdevs,
-                               chrom_or_gen_unit chrom_or_gu)
-{
-  exp_m_ = exp_m;
-  initialize_data();
+        // ---------------
+        // Simulation data
+        // ---------------
+        pop_size_ = static_cast<int32_t>(annotated_indivs.size());
 
-  record_type_ = SKEWNESS;
+        // ------------------------------------------------------------------
+        // Compute statistical data for the each individual in the population
+        // ------------------------------------------------------------------
+        for (const auto& annotated_indiv : annotated_indivs) {
+            StatRecord indiv_stat_record(exp_s,
+                                         annotated_indiv.first,
+                                         annotated_indiv.second,
+                                         chrom_or_gu, false);
+            this->substract_power(means, &indiv_stat_record, 3);
+        }
 
-  // ---------------
-  // Simulation data
-  // ---------------
-  pop_size_ = (double) indivs.size();
+        this->divide(-pop_size_);
 
-  // ------------------------------------------------------------------
-  // Compute statistical data for the each individual in the population
-  // ------------------------------------------------------------------
-  for (const auto& indiv : indivs)
-  {
-    StatRecord * indiv_stat_record = new StatRecord(exp_m_, indiv, chrom_or_gu, false);
-    this->substract_power(means, indiv_stat_record, 3);
-    delete indiv_stat_record;
-  }
+        this->divide_record(stdevs, 3/2);
+    }
 
-  this->divide(-pop_size_);
-
-  this->divide_record(stdevs, 3/2);
-}
 
 // =================================================================
 //                             Destructors
@@ -1034,181 +1030,106 @@ void StatRecord::initialize_data()
     av_value_operating_influences_ = 0.0;
   #endif
 }
+    void StatRecord::write_to_file(int64_t time, FILE* stat_file, stats_type stat_type_to_print) const
+    {
+        if (stat_type_to_print == FITNESS_STATS)
+        {
+            fprintf(stat_file,
+                    "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
+                    time,
+                    pop_size_,
+                    fitness_,
+                    amount_of_dna_,
+                    metabolic_error_,
+                    parent_metabolic_error_,
+                    metabolic_fitness_,
+                    secretion_error_,
+                    parent_secretion_error_,
+                    secretion_fitness_,
+                    compound_amount_);
+#ifdef __REGUL
+            fprintf(stat_file,
+          " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
+          nb_influences_,
+          nb_enhancing_influences_,
+          nb_operating_influences_,
+          av_value_influences_,
+          av_value_enhancing_influences_,
+          av_value_operating_influences_);
+#endif
+        }
+        if (stat_type_to_print == MUTATION_STATS)
+        {
+            fprintf(stat_file,
+                    "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
+                    time,
+                    nb_mut_,
+                    nb_rear_,
+                    nb_switch_,
+                    nb_indels_,
+                    nb_dupl_,
+                    nb_del_,
+                    nb_trans_,
+                    nb_inv_);
+        }
+        if (stat_type_to_print == GENES_STATS)
+        {
+            fprintf(stat_file,
+                    "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
+                    time,
+                    nb_coding_rnas_,
+                    nb_non_coding_rnas_,
+                    av_size_coding_rnas_,
+                    av_size_non_coding_rnas_,
+                    nb_functional_genes_,
+                    nb_non_functional_genes_,
+                    av_size_functional_gene_,
+                    av_size_non_functional_gene_);
+        }
+        if (stat_type_to_print == BP_STATS) {
+            if (record_type_ == INDIV) {
+                fprintf(stat_file,
+                        "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
+                        time,
+                        nb_bases_in_0_CDS_,
+                        nb_bases_in_0_functional_CDS_,
+                        nb_bases_in_0_non_functional_CDS_,
+                        nb_bases_in_0_RNA_,
+                        nb_bases_in_0_coding_RNA_,
+                        nb_bases_in_0_non_coding_RNA_,
+                        nb_bases_non_essential_,
+                        nb_bases_non_essential_including_nf_genes_);
+            }
+            else // if record_type_ == POP
+            {
+                // TO DO (if needed) : base-pair stats for all individuals, not just for the best one.
+                //
+                // fprintf(stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
+                //         AeTime::time(),
+                //         nb_bases_in_0_CDS_,
+                //         nb_bases_in_0_functional_CDS_,
+                //         nb_bases_in_0_non_functional_CDS_,
+                //         nb_bases_in_0_RNA_,
+                //         nb_bases_in_0_coding_RNA_,
+                //         nb_bases_in_0_non_coding_RNA_,
+                //         nb_bases_non_essential_,
+                //         nb_bases_non_essential_including_nf_genes_);
+            }
+        }
+        if (stat_type_to_print == REAR_STATS)
+        {
+            fprintf(stat_file,
+                    "%" PRId64 " %e %e %e %e %f",
+                    time,
+                    dupl_rate_,
+                    del_rate_,
+                    trans_rate_,
+                    inv_rate_,
+                    mean_align_score_);
+        }
 
-void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) const
-{
-  if (record_type_ == INDIV)
-  {
-    if (stat_type_to_print == FITNESS_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
-          AeTime::time(),
-          pop_size_,
-          fitness_,
-          amount_of_dna_,
-          metabolic_error_,
-          parent_metabolic_error_,
-          metabolic_fitness_,
-          secretion_error_,
-          parent_secretion_error_,
-          secretion_fitness_,
-          compound_amount_);
-      #ifdef __REGUL
-        fprintf(stat_file,
-            " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
-            nb_influences_,
-            nb_enhancing_influences_,
-            nb_operating_influences_,
-            av_value_influences_,
-            av_value_enhancing_influences_,
-            av_value_operating_influences_);
-      #endif
+        fprintf(stat_file, "\n");
     }
-    if (stat_type_to_print == MUTATION_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-          AeTime::time(),
-          nb_mut_,
-          nb_rear_,
-          nb_switch_,
-          nb_indels_,
-          nb_dupl_,
-          nb_del_,
-          nb_trans_,
-          nb_inv_);
-    }
-    if (stat_type_to_print == GENES_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
-          AeTime::time(),
-          nb_coding_rnas_,
-          nb_non_coding_rnas_,
-          av_size_coding_rnas_,
-          av_size_non_coding_rnas_,
-          nb_functional_genes_,
-          nb_non_functional_genes_,
-          av_size_functional_gene_,
-          av_size_non_functional_gene_);
-    }
-    if (stat_type_to_print == BP_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-          AeTime::time(),
-          nb_bases_in_0_CDS_,
-          nb_bases_in_0_functional_CDS_,
-          nb_bases_in_0_non_functional_CDS_,
-          nb_bases_in_0_RNA_,
-          nb_bases_in_0_coding_RNA_,
-          nb_bases_in_0_non_coding_RNA_,
-          nb_bases_non_essential_,
-          nb_bases_non_essential_including_nf_genes_);
-    }
-    if (stat_type_to_print == REAR_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %e %e %e %e %f",
-          AeTime::time(),
-          dupl_rate_,
-          del_rate_,
-          trans_rate_,
-          inv_rate_,
-          mean_align_score_);
-    }
-  }
-  else // if record_type_ == POP
-  {
-   if (stat_type_to_print == FITNESS_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
-          AeTime::time(),
-          pop_size_,
-          fitness_,
-          amount_of_dna_,
-          metabolic_error_,
-          parent_metabolic_error_,
-          metabolic_fitness_,
-          secretion_error_,
-          parent_secretion_error_,
-          secretion_fitness_,
-          compound_amount_);
-
-      #ifdef __REGUL
-        fprintf(stat_file,
-            " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
-            nb_influences_,
-            nb_enhancing_influences_,
-            nb_operating_influences_,
-            av_value_influences_,
-            av_value_enhancing_influences_,
-            av_value_operating_influences_);
-      #endif
-    }
-    if (stat_type_to_print == MUTATION_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
-          " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-          AeTime::time(),
-          nb_mut_,
-          nb_rear_,
-          nb_switch_,
-          nb_indels_,
-          nb_dupl_,
-          nb_del_,
-          nb_trans_,
-          nb_inv_);
-
-    }
-    if (stat_type_to_print == GENES_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32
-          " %f %f",
-          AeTime::time(),
-          nb_coding_rnas_,
-          nb_non_coding_rnas_,
-          av_size_coding_rnas_,
-          av_size_non_coding_rnas_,
-          nb_functional_genes_,
-          nb_non_functional_genes_,
-          av_size_functional_gene_,
-          av_size_non_functional_gene_);
-    }
-    if (stat_type_to_print == BP_STATS)
-    {
-     // TO DO (if needed) : base-pair stats for all individuals, not just for the best one.
-     //
-     // fprintf(stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
-     //         AeTime::time(),
-     //         nb_bases_in_0_CDS_,
-     //         nb_bases_in_0_functional_CDS_,
-     //         nb_bases_in_0_non_functional_CDS_,
-     //         nb_bases_in_0_RNA_,
-     //         nb_bases_in_0_coding_RNA_,
-     //         nb_bases_in_0_non_coding_RNA_,
-     //         nb_bases_non_essential_,
-     //         nb_bases_non_essential_including_nf_genes_);
-    }
-    if (stat_type_to_print == REAR_STATS)
-    {
-      fprintf(stat_file,
-          "%" PRId64 " %e %e %e %e %f",
-          AeTime::time(),
-          dupl_rate_,
-          del_rate_,
-          trans_rate_,
-          inv_rate_,
-          mean_align_score_);
-    }
-  }
-
-  fprintf(stat_file, "\n");
-}
 
 void StatRecord::divide(double divisor)
 {

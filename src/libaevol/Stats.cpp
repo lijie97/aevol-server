@@ -66,47 +66,59 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-/*!
-  Create a NEW stat manager
+/**
+ * This is a temporary patch for experiment propagation, it shall become
+ * obsolete or need to be adapted when in/out dirs are managed properly
  */
-Stats::Stats(ExpManager * exp_m,
-             bool best_indiv_only /*= false*/,
-             const char* prefix /*= "stat"*/,
-             bool with_plasmids /*= false*/,
-             bool compute_phen_contrib_by_GU /*= false*/)
-{
-  exp_m_ = exp_m;
-  init_data();
-  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// exp_m_->with_plasmids(), exp_m_->output_m()->compute_phen_contrib_by_GU());
-  open_files();
-  write_headers();
-}
+    Stats::Stats(const string prefix, const string postfix /*= ""*/,
+                 bool best_indiv_only /*= false*/) {
+      init_data();
+      set_file_names(prefix, postfix, best_indiv_only);
+    }
 
-/*!
-  Create a stat manager to append existing stats
+/**
+ * Create a NEW stat manager
  */
-Stats::Stats(ExpManager * exp_m,
-             int64_t time,
-             bool best_indiv_only,
-             const char * prefix /* = "stat" */,
-             bool addition_old_stats /* = true */,
-             bool delete_old_stats /* = true */) {
-  exp_m_ = exp_m;
-  init_data();
-  set_file_names(prefix, best_indiv_only);
+    Stats::Stats(ExpManager * exp_m,
+                 bool best_indiv_only /*= false*/,
+                 const string prefix /*= "stat"*/,
+                 const string postfix /*= ""*/,
+                 bool with_plasmids /*= false*/,
+                 bool compute_phen_contrib_by_GU /*= false*/) {
+      exp_m_ = exp_m;
+      init_data();
+      set_file_names(prefix, postfix, best_indiv_only, with_plasmids,
+                     compute_phen_contrib_by_GU);
+      open_files();
+      write_headers();
+    }
 
-  if (addition_old_stats) {
-    CreateTmpFiles(time);
-    PromoteTmpFiles();
-  }
-  else { // ancstat case
-    open_files();
-    write_headers(true);
-  }
+/**
+ * Create a stat manager to append to existing stats
+ */
+    Stats::Stats(ExpManager * exp_m,
+                 int64_t time,
+                 bool best_indiv_only/* = false */,
+                 const string prefix /*= "stat"*/,
+                 const string postfix /*= ""*/,
+                 bool addition_old_stats /* = true */,
+                 bool delete_old_stats /* = true */) {
+      exp_m_ = exp_m;
+      init_data();
+      set_file_names(prefix, postfix, best_indiv_only);
 
-  // Flush the new stat files
-  flush();
-}
+      if (addition_old_stats) {
+        CreateTmpFiles(time);
+        PromoteTmpFiles();
+      }
+      else { // ancstat case
+        open_files();
+        write_headers(true);
+      }
+
+      // Flush the new stat files
+      flush();
+    }
 
 // =================================================================
 //                             Destructors
@@ -473,91 +485,92 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
   flush();
 }
 
-void Stats::write_current_generation_statistics()
-{
-  StatRecord** stat_records;
+    void Stats::write_current_generation_statistics(int64_t gen) {
+      // debug std::cout << "writing stats for gen : " << gen << '\n';
+      StatRecord** stat_records;
 
-  bool stat_depend[4][NB_CHROM_OR_GU];
+#ifdef __OPENMP_TASK
+      bool stat_depend[4][NB_CHROM_OR_GU];
   bool stat_file_depend[4][NB_CHROM_OR_GU][NB_STATS_TYPES];
-
   ExpManager* exp_m = exp_m_;
-
-#ifdef __OPENMP_TASK
-#pragma omp parallel
-#pragma omp single
-  {
 #endif
-    for (int8_t chrom_or_GU = 0; chrom_or_GU < NB_CHROM_OR_GU; chrom_or_GU++) {
-      if ((not exp_m_->output_m()->compute_phen_contrib_by_GU()) &&
-          chrom_or_GU > ALL_GU)
-        continue;
 
-      stat_records = new StatRecord* [NB_BEST_OR_GLOB];
+      Individual* best_indiv = b_indiv(gen);
+      ReplicationReport* best_replic_report = exp_m_->tree() ?
+                                              exp_m_->tree()->report_by_index(gen, best_indiv->id()) :
+                                              nullptr;
+      std::list<std::pair<Individual*, ReplicationReport*>> annotated_indivs =
+              indivs_annotated(gen);
+
+      for (int8_t chrom_or_GU = 0; chrom_or_GU < NB_CHROM_OR_GU; chrom_or_GU++) {
+        if ((not exp_m_->output_m()->compute_phen_contrib_by_GU()) &&
+            chrom_or_GU > ALL_GU)
+          continue;
+
+        stat_records = new StatRecord* [NB_BEST_OR_GLOB];
 #ifdef __OPENMP_TASK
+        #pragma omp taskgroup
+{
 #pragma omp task shared(exp_m) depend(out: stat_depend[BEST][chrom_or_GU])
 #endif
-      stat_records[BEST] = new StatRecord(exp_m_,
-                                          exp_m_->best_indiv(),
-                                          (chrom_or_gen_unit) chrom_or_GU);
+        stat_records[BEST] = new StatRecord(exp_m_->exp_s(),
+                                            best_indiv,
+                                            best_replic_report,
+                                            (chrom_or_gen_unit) chrom_or_GU);
 
 #ifdef __OPENMP_TASK
 #pragma omp task shared(exp_m) depend(out: stat_depend[GLOB][chrom_or_GU])
 #endif
-      stat_records[GLOB] = new StatRecord(exp_m_,
-                                          exp_m_->indivs(),
-                                          (chrom_or_gen_unit) chrom_or_GU);
+        stat_records[GLOB] = new StatRecord(exp_m_->exp_s(),
+                                            annotated_indivs,
+                                            (chrom_or_gen_unit) chrom_or_GU);
 
 #ifdef __OPENMP_TASK
-#pragma omp task shared(exp_m) depend(inout: stat_depend[GLOB][chrom_or_GU]) depend(out: stat_depend[SDEV][chrom_or_GU])
+        #pragma omp task shared(exp_m) depend(inout: stat_depend[GLOB][chrom_or_GU])\
+                               depend(out: stat_depend[SDEV][chrom_or_GU])
 #endif
-      stat_records[SDEV] = new StatRecord(exp_m_,
-                                          exp_m_->indivs(),
-                                          stat_records[GLOB],
-                                          (chrom_or_gen_unit) chrom_or_GU);
+        stat_records[SDEV] = new StatRecord(exp_m_->exp_s(),
+                                            annotated_indivs,
+                                            stat_records[GLOB],
+                                            (chrom_or_gen_unit) chrom_or_GU);
 
 #ifdef __OPENMP_TASK
-#pragma omp task shared(exp_m) depend(inout: stat_depend[GLOB][chrom_or_GU])\
-                 depend(inout: stat_depend[SDEV][chrom_or_GU])\
-                 depend(out: stat_depend[SKEW][chrom_or_GU])
+        #pragma omp task shared(exp_m) depend(inout: stat_depend[GLOB][chrom_or_GU])\
+                  depend(inout: stat_depend[SDEV][chrom_or_GU])\
+                  depend(out: stat_depend[SKEW][chrom_or_GU])
 #endif
-      stat_records[SKEW] = new StatRecord(exp_m_,
-                                          exp_m_->indivs(),
-                                          stat_records[GLOB],
-                                          stat_records[SDEV],
-                                          (chrom_or_gen_unit) chrom_or_GU);
+        stat_records[SKEW] = new StatRecord(exp_m_->exp_s(),
+                                            annotated_indivs,
+                                            stat_records[GLOB],
+                                            stat_records[SDEV],
+                                            (chrom_or_gen_unit) chrom_or_GU);
 //#pragma omp taskwait
-      for (int8_t best_or_glob = 0;
-           best_or_glob < NB_BEST_OR_GLOB; best_or_glob++) {
-        for (int8_t stat_type = 0; stat_type < NB_STATS_TYPES; stat_type++) {
-          if (stat_files_names_[chrom_or_GU][best_or_glob][stat_type] != NULL) {
+        for (int8_t best_or_glob = 0; best_or_glob < NB_BEST_OR_GLOB; best_or_glob++) {
+          for (int8_t stat_type = 0; stat_type < NB_STATS_TYPES; stat_type++) {
+            if (stat_files_names_[chrom_or_GU][best_or_glob][stat_type] != NULL) {
 #ifdef __OPENMP_TASK
-#pragma omp task \
-                 depend(inout: stat_depend[best_or_glob][chrom_or_GU])\
-                 depend(inout: stat_file_depend[best_or_glob][chrom_or_GU][stat_type])
+              #pragma omp task \
+                  depend(inout: stat_depend[best_or_glob][chrom_or_GU])\
+                  depend(inout: stat_file_depend[best_or_glob][chrom_or_GU][stat_type])
 #endif
-            stat_records[best_or_glob]->write_to_file(
-                stat_files_[chrom_or_GU][best_or_glob][stat_type],
-                (stats_type) stat_type);
+              stat_records[best_or_glob]->write_to_file(gen,
+                                                        stat_files_[chrom_or_GU][best_or_glob][stat_type],(stats_type) stat_type);
+            }
           }
+
+#ifdef __OPENMP_TASK
+#pragma omp task depend(in: stat_depend[best_or_glob][chrom_or_GU])
+#endif
+          delete stat_records[best_or_glob];
         }
-
 #ifdef __OPENMP_TASK
-#pragma omp task \
-                 depend(in: stat_depend[best_or_glob][chrom_or_GU])
+        }
 #endif
-        delete stat_records[best_or_glob];
+        delete[] stat_records;
       }
-#ifdef __OPENMP_TASK
-#pragma omp taskwait
-#endif
-      delete[] stat_records;
     }
-#ifdef __OPENMP_TASK
-  }
-#endif
-}
 
-    void Stats::write_statistics_of_this_indiv(Individual * indiv,
+    void Stats::write_statistics_of_this_indiv(int64_t time, Individual * indiv,
                                                ReplicationReport* replic_report)
     {
       StatRecord * stat_record;
@@ -572,12 +585,10 @@ void Stats::write_current_generation_statistics()
           if (stat_files_names_[chrom_or_GU][BEST][stat_type] != nullptr)
           {
             assert(stat_files_[chrom_or_GU][BEST][stat_type] != nullptr);
-
-            stat_record->write_to_file(stat_files_[chrom_or_GU][BEST][stat_type],
+            stat_record->write_to_file(time, stat_files_[chrom_or_GU][BEST][stat_type],
                                        (stats_type) stat_type);
           }
         }
-
         delete stat_record;
       }
     }
@@ -597,6 +608,10 @@ void Stats::flush() {
       }
     }
   }
+}
+
+void Stats::add_indivs(int64_t gen, const std::list<Individual*> indivs) {
+  indivs_[gen] = indivs;
 }
 
 // =================================================================
@@ -638,76 +653,79 @@ void Stats::init_data() {
 //     headers. Once this is done, the name will be deleted to mark the file as
 //     "not to be written into"
 //
-void Stats::set_file_names(const char* prefix,
-                              bool one_lambda_indiv_only,
-                              bool with_plasmids /*= false*/,
-                              bool compute_phen_contrib_by_GU /*= false*/) {
-  // 1) Create stats directory
-  int status;
-  status = mkdir(STATS_DIR, 0755);
-  if ((status == -1) && (errno != EEXIST)) {
-    err(EXIT_FAILURE, STATS_DIR);
-  }
-
-  const char* chrom_or_gu_name[NB_CHROM_OR_GU] =
-      {"", "chromosome_", "plasmids_"};
-  const char* best_or_glob_name[NB_BEST_OR_GLOB] =
-      {"best_", "glob_", "sdev_", "skew_"};
-  const char* stat_type_name[NB_STATS_TYPES] =
-      {"fitness_", "mutation_", "genes_", "bp_", "rear_"};
-
-  for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++) {
-    // If plasmids are not allowed, don't issue "chromosome" and
-    // "plasmids" files
-    if (not with_plasmids && chrom_or_GU > 0)
-      continue;
-
-    // Idem if COMPUTE_PHEN_CONTRIB_BY_GU not set
-    if ((not compute_phen_contrib_by_GU && chrom_or_GU > ALL_GU))
-      continue;
-
-
-    for (int8_t best_or_glob = 0 ;
-         best_or_glob < NB_BEST_OR_GLOB ;
-         best_or_glob++) {
-      if (one_lambda_indiv_only && best_or_glob != BEST) continue;
-
-      for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++) {
-        // // We don't want REAR_STATS when rearrangements are done without
-        // alignments
-        // if (stat_type == REAR_STATS && ! exp_m_->with_alignments())
-        //   continue;
-
-        // For now, we only want sdev and skew for fitness data
-        if (best_or_glob > GLOB && stat_type > FITNESS_STATS) continue;
-        if ((chrom_or_GU != ALL_GU || best_or_glob != GLOB) &&
-            stat_type > REAR_STATS) continue;
-
-        stat_files_names_[chrom_or_GU][best_or_glob][stat_type] = new char[255];
-
-        // Construct the correct name
-        if (one_lambda_indiv_only) {
-          sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
-                    STATS_DIR"/%s%s%s.out",
-                    prefix,
-                    stat_type_name[stat_type],
-                    chrom_or_gu_name[chrom_or_GU]);
-        }
-        else
-        {
-          sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
-                    STATS_DIR"/%s%s%s%s.out",
-                    prefix,
-                    stat_type_name[stat_type],
-                    chrom_or_gu_name[chrom_or_GU],
-                    best_or_glob_name[best_or_glob]);
+    void Stats::set_file_names(const string prefix,
+                               const string postfix,
+                               bool best_indiv_only,
+                               bool with_plasmids /*= false*/,
+                               bool compute_phen_contrib_by_GU /*= false*/) {
+        // 1) Create stats directory
+        int status;
+        status = mkdir(STATS_DIR, 0755);
+        if ((status == -1) && (errno != EEXIST)) {
+            err(EXIT_FAILURE, STATS_DIR);
         }
 
-      }
+        const char* chrom_or_gu_name[NB_CHROM_OR_GU] =
+                {"", "_chromosome", "_plasmids"};
+        const char* best_or_glob_name[NB_BEST_OR_GLOB] =
+                {"_best", "_glob", "_sdev", "_skew"};
+        const char* stat_type_name[NB_STATS_TYPES] =
+                {"_fitness" ,"_mutation", "_genes", "_bp", "_rear"};
+
+        for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++) {
+            // If plasmids are not allowed, don't issue "chromosome" and
+            // "plasmids" files
+            if (not with_plasmids && chrom_or_GU > 0)
+                continue;
+
+            // Idem if COMPUTE_PHEN_CONTRIB_BY_GU not set
+            if ((not compute_phen_contrib_by_GU && chrom_or_GU > ALL_GU))
+                continue;
+
+
+            for (int8_t best_or_glob = 0 ;
+                 best_or_glob < NB_BEST_OR_GLOB ;
+                 best_or_glob++) {
+                if (best_indiv_only && best_or_glob != BEST) continue;
+
+                for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++) {
+                    // // We don't want REAR_STATS when rearrangements are done without
+                    // alignments
+                    // if (stat_type == REAR_STATS && ! exp_m_->with_alignments())
+                    //   continue;
+
+                    // For now, we only want sdev and skew for fitness data
+                    if (best_or_glob > GLOB && stat_type > FITNESS_STATS) continue;
+                    if ((chrom_or_GU != ALL_GU || best_or_glob != GLOB) &&
+                        stat_type > REAR_STATS) continue;
+
+                    stat_files_names_[chrom_or_GU][best_or_glob][stat_type] = new char[255];
+
+                    // Construct the correct name
+                    if (best_indiv_only) {
+                        sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
+                                STATS_DIR"/%s%s%s%s.out",
+                                prefix.c_str(),
+                                stat_type_name[stat_type],
+                                chrom_or_gu_name[chrom_or_GU],
+                                postfix.c_str());
+                    }
+                    else
+                    {
+                        sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
+                                STATS_DIR"/%s%s%s%s%s.out",
+                                prefix.c_str(),
+                                stat_type_name[stat_type],
+                                chrom_or_gu_name[chrom_or_GU],
+                                best_or_glob_name[best_or_glob],
+                                postfix.c_str());
+                    }
+
+                }
+            }
+
+        }
     }
-
-  }
-}
 
 /**
  * Open files that have a non NULL name
@@ -845,5 +863,38 @@ void Stats::MoveTmpFiles(const std::string& destdir) {
     }
   }
 }
+
+
+    void Stats::delete_indivs(int64_t gen) {
+      // debug std::cout << "Deleting gen : " << gen << '\n';
+      for(auto indiv_it = indivs_[gen].begin() ; indiv_it != indivs_[gen].end() ; ++indiv_it) {
+        delete *indiv_it;
+      }
+      indivs_.erase(gen);
+    }
+
+    Individual* Stats::b_indiv(int64_t gen) const {
+      if(gen < 1) {
+        return exp_m_->best_indiv();
+      }
+      for(const auto& indiv : indivs_.at(gen)) {
+        if(indiv->rank() == exp_m_->nb_indivs())
+          return indiv;
+      }
+      return nullptr;
+    }
+
+/**
+ * Returns a list of all the individuals with their replication report
+ */
+    std::list<std::pair<Individual*, ReplicationReport*>>
+    Stats::indivs_annotated(int64_t gen) const {
+      std::list<std::pair<Individual*, ReplicationReport*>> annotated_list;
+      for (const auto& indiv : indivs_.at(gen)) {
+        annotated_list.emplace_back(indiv, exp_m_->tree() ?
+                                           exp_m_->tree()->report_by_index(gen, indiv->id()) : nullptr);
+      }
+      return annotated_list;
+    }
 
 } // namespace aevol

@@ -92,7 +92,10 @@ Dna_SIMD.h \
 MutationEvent.h \
 DnaMutator.h \
 Stats_SIMD.h \
-BitSet_SIMD.h
+BitSet_SIMD.h \
+LightTree.h \
+SaveWorld.h \
+AncestorStats.h
 
 common_sources = \
 Alignment.cpp \
@@ -149,7 +152,10 @@ Dna_SIMD.cpp \
 MutationEvent.cpp \
 DnaMutator.cpp \
 Stats_SIMD.cpp \
-BitSet_SIMD.cpp
+BitSet_SIMD.cpp \
+LightTree.cpp \
+SaveWorld.cpp \
+AncestorStats.cpp
 
 raevol_headers = \
 raevol/Individual_R.h \

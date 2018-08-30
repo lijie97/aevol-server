@@ -66,7 +66,7 @@ Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
   exp_m_ = exp_m;
   tree_step_ = tree_step;
 
-  replics_ = new ReplicationReport** [tree_step_];
+/*  replics_ = new ReplicationReport** [tree_step_];
 
   for (int32_t time = 0 ; time < tree_step ; time++) {
     replics_[time] = new ReplicationReport* [exp_m->nb_indivs()];
@@ -75,7 +75,7 @@ Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
          num_indiv++) {
       replics_[time][num_indiv] = new ReplicationReport();
     }
-  }
+  }*/
 }
 
 
@@ -92,10 +92,10 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
     exit(EXIT_FAILURE);
   }
 
-  replics_ = new ReplicationReport** [tree_step_];
-
-  for (int64_t t = 0 ; t < tree_step_ ; t++) {
-    replics_[t] = new ReplicationReport* [exp_m_->nb_indivs()];
+  /*replics_ = new ReplicationReport** [tree_step_];*/
+  for (int64_t t = AeTime::time()-tree_step_+1 ; t <= AeTime::time() ; t++) {
+  //for (int64_t t = 0 ; t < tree_step_ ; t++) {
+    //replics_[t] = new ReplicationReport* [exp_m_->nb_indivs()];
     for (int32_t indiv_i = 0 ;
          indiv_i < exp_m_->nb_indivs() ;
          indiv_i++) {
@@ -104,7 +104,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
                                                                nullptr);
 
       // Put it at its rightful position
-      replics_[t][indiv_i] = replic_report;
+      replics_[t][replic_report->id()] = replic_report;
     }
   }
   gzclose(tree_file);
@@ -117,7 +117,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
 //                             Destructors
 // =================================================================
 Tree::~Tree() {
-  if (replics_ != NULL)  {
+/*  if (replics_ != NULL)  {
     for (int32_t i = 0 ; i < tree_step_ ; i++)
       if (replics_[i] != NULL) {
         for (int32_t j = 0 ; j < exp_m_->nb_indivs() ; j++)
@@ -125,36 +125,54 @@ Tree::~Tree() {
         delete [] replics_[i];
       }
     delete [] replics_;
-  }
+  }*/
+      for(auto pair_gen_replics : replics_)
+        for(auto pair_replics : pair_gen_replics.second)
+          delete pair_replics.second;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-ReplicationReport** Tree::reports(int64_t t) const {
-  return replics_[Utils::mod(t - 1, tree_step_)];
-}
-
-ReplicationReport* Tree::report_by_index(int64_t t, int32_t index) const {
-  return replics_[Utils::mod(t - 1, tree_step_)][index];
-}
-
-
-ReplicationReport* Tree::report_by_rank(int64_t t, int32_t rank) const {
-  int32_t nb_indivs = exp_m_->nb_indivs();
-  assert(rank <= nb_indivs);
-
-  for (int32_t i = 0 ; i < nb_indivs ; i++) {
-    if (replics_[Utils::mod(t - 1, tree_step_)][i]->rank() == rank) {
-      return replics_[Utils::mod(t - 1, tree_step_)][i];
+    std::map<int32_t, ReplicationReport*> Tree::reports(int64_t t) const {
+      return replics_.at(t);
     }
-  }
 
-  fprintf(stderr,
-          "ERROR: Couldn't find indiv with rank %" PRId32 " in file %s:%d\n",
-          rank, __FILE__, __LINE__);
-  return NULL;
-}
+    ReplicationReport* Tree::report_by_index(int64_t t, int32_t index) const {
+      if(t == 0)
+        return nullptr;
+      ReplicationReport* rep = nullptr;
+
+#ifdef __OPENMP_TASK
+      #pragma omp critical(tree)
+  {
+#endif
+      rep = replics_.at(t).at(index);
+#ifdef __OPENMP_TASK
+      }
+#endif
+      return rep;
+    }
+
+
+    ReplicationReport* Tree::report_by_rank(int64_t t, int32_t rank) const {
+      if(t == 0)
+        return nullptr;
+
+      int32_t nb_indivs = exp_m_->nb_indivs();
+      assert(rank <= nb_indivs);
+
+      for (int32_t i = 0 ; i < nb_indivs ; i++) {
+        if (replics_.at(t).at(i)->rank() == rank) {
+          return replics_.at(t).at(i);
+        }
+      }
+
+      fprintf(stderr,
+              "ERROR: Couldn't find indiv with rank %" PRId32 " in file %s:%d\n",
+              rank, __FILE__, __LINE__);
+      return NULL;
+    }
 
 void Tree::signal_end_of_generation() {
   auto cur_reports = reports(AeTime::time());
@@ -163,26 +181,30 @@ void Tree::signal_end_of_generation() {
       printf("error!!!\n");exit(-1);
     }
 
-    cur_reports[i]->signal_end_of_generation(i);
+    cur_reports[i]->signal_end_of_generation();
   }
 }
 
-void Tree::write_to_tree_file(gzFile tree_file) {
-  // Write the tree in the backup
-  for (int64_t t = 0 ; t < tree_step_ ; t++)
-    for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
-      assert(replics_[t][indiv_i] != NULL);
-      //printf("Write %d at %d\n",indiv_i,t);
-      replics_[t][indiv_i]->write_to_tree_file(tree_file);
-    }
+    void Tree::write_to_tree_file(int64_t gen, gzFile tree_file) {
+      // Write the tree in the backup
+      std::cout << "writing tree from : " << replics_.begin()->first << " to " << gen << '\n';
+      for (int64_t t = replics_.begin()->first ; t <= gen ; t++) {
+        for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
+          assert(replics_[t][indiv_i] != NULL);
+          replics_[t][indiv_i]->write_to_tree_file(tree_file);
+          delete replics_[t][indiv_i];
+          replics_[t].erase(indiv_i);
+        }
+        replics_.erase(t);
+      }
 
-  // Reinitialize the tree
-  for (int32_t t = 0 ; t < tree_step_ ; t++)
-    for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
-      delete replics_[t][indiv_i];
-      replics_[t][indiv_i] = new ReplicationReport();
+      // // Reinitialize the tree
+      // for (int64_t t = 0 ; t < tree_step_ ; t++)
+      //   for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
+      //     delete replics_[t][indiv_i];
+      //     replics_[t][indiv_i] = new ReplicationReport();
+      //   }
     }
-}
 
 void Tree::update(Observable& o, ObservableEvent e, void* arg) {
   switch (e) {
@@ -191,16 +213,34 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
 
       auto ievent = reinterpret_cast<NewIndivEvent*>(arg);
 
+#ifdef __OPENMP_TASK
+      #pragma omp critical(tree)
+      {
+#endif
+        if (SIMD_Individual::standalone_simd) {
+            //printf("Update with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
+            replics_[AeTime::time()][ievent->indiv_id_] = new ReplicationReport();
+        } else {
+            replics_[AeTime::time()][ievent->x *
+                                     ievent->child->exp_m()->grid_height()
+                                     + ievent->y] = new ReplicationReport();
+        }
+#ifdef __OPENMP_TASK
+      }
+#endif
+
+      //replics_[AeTime::time()][new_indiv->id()]->init(new_indiv, parent);
       if (SIMD_Individual::standalone_simd) {
-          //printf("Update with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
-        report_by_index(AeTime::time(), ievent->indiv_id_)->
+        //printf("Update with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
+        replics_[AeTime::time()][ievent->indiv_id_]->
                 init(this, ievent->simd_child, ievent->simd_parent,ievent->indiv_id_,ievent->parent_id_);
       } else {
-        report_by_index(AeTime::time(), ievent->x *
-                                        ievent->child->exp_m()->grid_height()
-                                        + ievent->y)->
+        replics_[AeTime::time()][ievent->x *
+                                 ievent->child->exp_m()->grid_height()
+                                 + ievent->y]->
                 init(this, ievent->child, ievent->parent,ievent->indiv_id_,ievent->parent_id_);
       }
+
       break;
     }
     case END_GENERATION : {
@@ -210,12 +250,12 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
     case END_REPLICATION : {
       auto ievent = reinterpret_cast<EndReplicationEvent*>(arg);
       if (SIMD_Individual::standalone_simd) {
-        report_by_index(AeTime::time(), ievent->simd_child->indiv_id)->signal_end_of_replication(
+        replics_[AeTime::time()][ievent->simd_child->indiv_id]->signal_end_of_replication(
                 ievent->simd_child);
       } else {
-        report_by_index(AeTime::time(), ievent->x *
-                                        ievent->child->exp_m()->grid_height()
-                                        + ievent->y)->signal_end_of_replication(
+        replics_[AeTime::time()][ievent->x *
+                                 ievent->child->exp_m()->grid_height()
+                                 + ievent->y]->signal_end_of_replication(
                 ievent->child);
       }
       break;

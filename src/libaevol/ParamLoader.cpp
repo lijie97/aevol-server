@@ -253,6 +253,9 @@ ParamLoader::ParamLoader(const char* file_name)
   record_tree_  = false;
   tree_step_    = 100;
 
+  //LightTree
+  record_light_tree_ = false;
+
   // Dumps
   make_dumps_ = false;
   dump_step_  = 1000;
@@ -410,6 +413,24 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
            "Tree mode management has been removed.\n",
            param_file_name_, cur_line);
     exit(EXIT_FAILURE);
+  }
+  else if (strcmp(line->words[0], "RECORD_LIGHT_TREE") == 0)
+  {
+    if (strncmp(line->words[1], "true", 4) == 0)
+    {
+      record_light_tree_ = true;
+    }
+    else if (strncmp(line->words[1], "false", 5) == 0)
+    {
+      record_light_tree_ = false;
+    }
+    else
+    {
+      printf("ERROR in param file \"%s\" on line %" PRId32
+             ": unknown light tree recording option (use true/false).\n",
+             param_file_name_, cur_line);
+      exit(EXIT_FAILURE);
+    }
   }
   else if (strcmp(line->words[0], "MORE_STATS") == 0)
   {
@@ -1953,6 +1974,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   {
     output_m->init_tree(exp_m, tree_step_);
   }
+
+  output_m->init_light_tree(record_light_tree_);
 
   if (make_dumps_)
   {

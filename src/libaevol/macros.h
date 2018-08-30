@@ -58,6 +58,9 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define STATS_DIR   "stats"
 // Tree
 #define TREE_DIR    "tree"
+#define LIGHTTREE_DIR "lightTree"
+// LightTree file in newick format
+constexpr auto LIGHTTREE_FILE_NAME = "light_tree.txt";
 // Last gener file
 #define LAST_GENER_FNAME "last_gener.txt"
 // Best last organism file

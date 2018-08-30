@@ -4693,7 +4693,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
   stats_mean->write_average();
 
   if (standalone_ && AeTime::time() % exp_m_->output_m()->tree_step() == 0 && AeTime::time() > 0) {
-      exp_m_->output_m()->write_tree();
+      exp_m_->output_m()->write_tree(AeTime::time());
   }
 
 

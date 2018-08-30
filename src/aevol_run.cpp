@@ -101,6 +101,9 @@ int main(int argc, char* argv[])
   int64_t nb_steps = -1;
   int grain_size = 1;
 
+  static bool w_mrca = false;
+  static bool w_anc_stat = false;
+
   #ifndef __NO_X
     bool show_display_on_startup = true;
   #endif
@@ -159,6 +162,15 @@ int main(int argc, char* argv[])
         t_end = atol(optarg);
         break;
       }
+      case 'E' : {
+        if (nb_steps != -1 or t_end != -1) {
+          Utils::ExitWithUsrMsg("you cannot use -E with -e or -n");
+        }
+
+        t_end = atol(optarg);
+        w_mrca = true;
+        break;
+      }
       case 'n' : {
         if (t_end != -1)
           Utils::ExitWithUsrMsg("use either option -n or -e, not both");
@@ -168,6 +180,10 @@ int main(int argc, char* argv[])
       }
       case 'r' : {
         t0 = atol(optarg);
+        break;
+      }
+      case 'a' : {
+        w_anc_stat = true;
         break;
       }
       case 'v' : {
@@ -244,7 +260,13 @@ int main(int argc, char* argv[])
   exp_manager->load(t0, verbose, true);
   exp_manager->set_t_end(t_end);
 
+  if(!exp_manager->output_m()->record_light_tree() && w_mrca)
+    Utils::ExitWithUsrMsg("You must record the light tree to use option -E");
+  if(!exp_manager->output_m()->record_light_tree() && w_anc_stat)
+    Utils::ExitWithUsrMsg("You must record the light tree to use option -a");
 
+  exp_manager->set_with_mrca(w_mrca);
+  exp_manager->set_anc_stat(w_anc_stat);
 
   // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
   // TODO (?)

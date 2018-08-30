@@ -48,7 +48,7 @@
 #include "Tree.h"
 #include "Dump.h"
 #include "Logging.h"
-
+#include "LightTree.h"
 
 namespace aevol {
 
@@ -58,7 +58,14 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 
-
+#ifdef __OPENMP_TASK
+    enum dep_omp {
+  d_LT_LT  = 0,
+  d_B_B    = 1,
+  d_S_S    = 2,
+  nb_dep   = 3
+};
+#endif
 
 
 
@@ -90,11 +97,18 @@ class OutputManager {
   inline int64_t tree_step() const;
   inline Tree* tree() const;
 
+
+  // LightTree
+  inline bool record_light_tree() const;
+  inline int64_t mrca_time() const;
+  inline LightTree* light_tree() const;
+
   // Logs
   inline FILE* log(LogType log_type) const;
   inline bool is_logged(LogType log_type) const;
 
   // Stats
+  inline Stats* stats() const;
   inline bool compute_phen_contrib_by_GU() const;
 
   // =================================================================
@@ -103,6 +117,7 @@ class OutputManager {
   inline void set_backup_step(int64_t backup_step);
   inline void set_big_backup_step(int64_t big_backup_step);
   inline void init_tree(ExpManager* exp_m, int64_t tree_step_);
+  inline void init_light_tree(bool record_light_tree);
   inline void set_dump_step(int64_t dump_step);
   inline void set_compute_phen_contrib_by_GU(bool compute_phen_contrib_by_GU);
   inline void set_logs (int8_t logs);
@@ -116,15 +131,16 @@ class OutputManager {
   // =================================================================
   void InitStats();
   void WriteSetupFile(gzFile setup_file) const;
-  void WriteLastGenerFile(const std::string& input_dir = ".") const;
+  void WriteLastGenerFile(const std::string& input_dir = ".", int64_t gen = -1) const;
   void CopyStats(const std::string& outdir, int64_t time) const;
   void load(gzFile file, bool verbose, bool to_be_run);
   void write_current_generation_outputs() const;
-  inline void flush();
+  void flush();
 
   static int64_t last_gener();
 
-  void write_tree() const;
+    void write_tree(int64_t gen) const;
+    void write_light_tree(int64_t gen) const;
 
  protected :
   // =================================================================
@@ -149,6 +165,11 @@ class OutputManager {
   bool record_tree_;
   Tree* tree_;
 
+
+  //LightTree
+  bool record_light_tree_;
+  LightTree* light_tree_;
+
   // Dumps
   bool make_dumps_;
   int64_t dump_step_;
@@ -156,6 +177,11 @@ class OutputManager {
 
   // Logs
   Logging* logs_;
+
+#ifdef __OPENMP_TASK
+        //omp sychronization
+  static bool dep[nb_dep];
+#endif
 };
 
 
@@ -185,6 +211,19 @@ inline Tree *OutputManager::tree() const {
   return tree_;
 }
 
+//LightTree
+inline bool OutputManager::record_light_tree() const {
+  return record_light_tree_;
+}
+
+inline int64_t OutputManager::mrca_time() const {
+  return light_tree_->mrca_time();
+}
+
+inline LightTree *OutputManager::light_tree() const {
+  return light_tree_;
+}
+
 // Logs
 inline FILE* OutputManager::log(LogType log_type) const {
   return logs_->log(log_type);
@@ -195,6 +234,10 @@ inline bool  OutputManager::is_logged(LogType log_type) const {
 }
 
 // Stats
+inline Stats* OutputManager::stats() const {
+  return stats_;
+}
+
 inline bool OutputManager::compute_phen_contrib_by_GU() const {
   return compute_phen_contrib_by_GU_;
 }
@@ -214,6 +257,11 @@ void OutputManager::init_tree(ExpManager* exp_m, int64_t tree_step_) {
   record_tree_ = true;
   tree_ = new Tree(exp_m, tree_step_);
 }
+
+void OutputManager::init_light_tree(bool record_light_tree) {
+  record_light_tree_ = record_light_tree;
+}
+
 
 void OutputManager::set_dump_step(int64_t dump_step) {
   make_dumps_ = true;
@@ -236,9 +284,6 @@ void OutputManager::set_logs(int8_t logs) {
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void OutputManager::flush() {
-  stats_->flush();
-}
 
 } // namespace aevol
 

@@ -43,6 +43,7 @@
 
 #include "GridCell.h"
 
+#include "SaveWorld.h"
 
 namespace aevol {
 
@@ -142,6 +143,8 @@ class World
 
   void set_phen_target_prngs(std::shared_ptr<JumpingMT> var_prng,
                              std::shared_ptr<JumpingMT> noise_prng);
+
+  SaveWorld* make_save(std::list<Individual*> indivs);
 
  protected :
   // =================================================================

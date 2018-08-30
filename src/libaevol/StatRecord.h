@@ -111,27 +111,26 @@ class StatRecord
     StatRecord() = delete;
     StatRecord(ExpManager * exp_m);
     StatRecord(const StatRecord &model);
-    StatRecord(ExpManager * exp_m,
-                   Individual * indiv,
-                   chrom_or_gen_unit chrom_or_gu = CHROM,
-                   bool compute_non_coding = true);
     StatRecord(ExpSetup* exp_s,
                Individual * indiv,
                ReplicationReport* replic_report,
                chrom_or_gen_unit chrom_or_gu = CHROM,
                bool compute_non_coding = true);
-    StatRecord(ExpManager * exp_m,
-                   const std::list<Individual *> indivs,
-                   chrom_or_gen_unit chrom_or_gu = CHROM);
-    StatRecord(ExpManager * exp_m,
-                   const std::list<Individual *> indivs,
-                   const StatRecord * means,
-                   chrom_or_gen_unit chrom_or_gu = CHROM);
-    StatRecord(ExpManager * exp_m,
-                   const std::list<Individual *> indivs,
-                   const StatRecord * means,
-                   const StatRecord * stdevs,
-                   chrom_or_gen_unit chrom_or_gu = CHROM);
+    StatRecord(ExpSetup* exp_s,
+               std::list<std::pair<Individual*,
+                       ReplicationReport*>> annotated_indivs,
+               chrom_or_gen_unit chrom_or_gu = CHROM);
+    StatRecord(ExpSetup* exp_s,
+               std::list<std::pair<Individual*,
+                       ReplicationReport*>> annotated_indivs,
+               const StatRecord * means,
+               chrom_or_gen_unit chrom_or_gu = CHROM);
+    StatRecord(ExpSetup* exp_s,
+               std::list<std::pair<Individual*,
+                       ReplicationReport*>> annotated_indivs,
+               const StatRecord * means,
+               const StatRecord* stdevs,
+               chrom_or_gen_unit chrom_or_gu = CHROM);
 
     // =================================================================
     //                             Destructors
@@ -146,7 +145,7 @@ class StatRecord
     //                            Public Methods
     // =================================================================
     void initialize_data();
-    void write_to_file(FILE* stat_file, stats_type stat_type_to_print) const;
+    void write_to_file(int64_t time, FILE* stat_file, stats_type stat_type_to_print) const;
 
     void divide(double divisor);
     void divide_record(StatRecord const * means, double power);
@@ -176,62 +175,67 @@ class StatRecord
     //      compute averages over the population.
     indiv_or_pop record_type_;
 
-    int32_t pop_size_;
+    int32_t pop_size_ = 0.0;
 
-    double  fitness_;
+    double  fitness_ = 0.0;
 
-    double  metabolic_error_;
-    double  parent_metabolic_error_;
-    double  metabolic_fitness_;
+    double  metabolic_error_ = 0.0;
+    double  parent_metabolic_error_ = 0.0;
+    double  metabolic_fitness_ = 0.0;
 
-    double  secretion_error_;
-    double  parent_secretion_error_;
-    double  secretion_fitness_;
+    double  secretion_error_ = 0.0;
+    double  parent_secretion_error_ = 0.0;
+    double  secretion_fitness_ = 0.0;
 
-    double  compound_amount_;
+    double  compound_amount_ = 0.0;
 
-    int32_t  amount_of_dna_;
-    int32_t  nb_coding_rnas_;
-    int32_t  nb_non_coding_rnas_;
-    double  av_size_coding_rnas_;      // NOT including promoter but including terminator
-    double  av_size_non_coding_rnas_;  // NOT including promoter but including terminator
-    int32_t  nb_functional_genes_;
-    int32_t  nb_non_functional_genes_;
-    double  av_size_functional_gene_;     // NOT including START and STOP codons
-    double  av_size_non_functional_gene_; // NOT including START and STOP codons
+    int32_t  amount_of_dna_ = 0.0;
+    int32_t  nb_coding_rnas_ = 0.0;
+    int32_t  nb_non_coding_rnas_ = 0.0;
 
-    int32_t  nb_mut_;
-    int32_t  nb_rear_;
-    int32_t  nb_switch_;
-    int32_t  nb_indels_;
-    int32_t  nb_dupl_;
-    int32_t  nb_del_;
-    int32_t  nb_trans_;
-    int32_t  nb_inv_;
+    // NOT including promoter but including terminator
+    double  av_size_coding_rnas_ = 0.0;
+    double  av_size_non_coding_rnas_ = 0.0;
 
-    double  dupl_rate_;
-    double  del_rate_;
-    double  trans_rate_;
-    double  inv_rate_;
-    double  mean_align_score_;
+    int32_t  nb_functional_genes_ = 0.0;
+    int32_t  nb_non_functional_genes_ = 0.0;
 
-    int32_t  nb_bases_in_0_CDS_;
-    int32_t  nb_bases_in_0_functional_CDS_;
-    int32_t  nb_bases_in_0_non_functional_CDS_;
-    int32_t  nb_bases_in_0_RNA_;
-    int32_t  nb_bases_in_0_coding_RNA_;
-    int32_t  nb_bases_in_0_non_coding_RNA_;
+    // NOT including START and STOP codons
+    double  av_size_functional_gene_ = 0.0;
+    double  av_size_non_functional_gene_ = 0.0;
 
-    int32_t  nb_bases_non_essential_;
-    int32_t  nb_bases_non_essential_including_nf_genes_;
+    int32_t  nb_mut_ = 0.0;
+    int32_t  nb_rear_ = 0.0;
+    int32_t  nb_switch_ = 0.0;
+    int32_t  nb_indels_ = 0.0;
+    int32_t  nb_dupl_ = 0.0;
+    int32_t  nb_del_ = 0.0;
+    int32_t  nb_trans_ = 0.0;
+    int32_t  nb_inv_ = 0.0;
 
-    #ifdef __REGUL
-      int32_t  nb_influences_;
-      int32_t  nb_enhancing_influences_;
-      int32_t  nb_operating_influences_;
-      double  av_value_influences_;
-      double  av_value_enhancing_influences_;
-      double  av_value_operating_influences_;
+    double  dupl_rate_ = 0.0;
+    double  del_rate_ = 0.0;
+    double  trans_rate_ = 0.0;
+    double  inv_rate_ = 0.0;
+    double  mean_align_score_ = 0.0;
+
+    int32_t  nb_bases_in_0_CDS_ = 0.0;
+    int32_t  nb_bases_in_0_functional_CDS_ = 0.0;
+    int32_t  nb_bases_in_0_non_functional_CDS_ = 0.0;
+    int32_t  nb_bases_in_0_RNA_ = 0.0;
+    int32_t  nb_bases_in_0_coding_RNA_ = 0.0;
+    int32_t  nb_bases_in_0_non_coding_RNA_ = 0.0;
+
+    int32_t  nb_bases_non_essential_ = 0.0;
+    int32_t  nb_bases_non_essential_including_nf_genes_ = 0.0;
+
+#ifdef __REGUL
+        int32_t  nb_influences_ = 0.0;
+      int32_t  nb_enhancing_influences_ = 0.0;
+      int32_t  nb_operating_influences_ = 0.0;
+      double  av_value_influences_ = 0.0;
+      double  av_value_enhancing_influences_ = 0.0;
+      double  av_value_operating_influences_ = 0.0;
       double  nb_TF_;
       double  nb_pure_TF_;
 #endif

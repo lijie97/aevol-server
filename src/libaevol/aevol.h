@@ -81,5 +81,6 @@
 #include "VisAVis.h"
 #include "World.h"
 #include "X11Window.h"
+#include "LightTree.h"
 
 #endif // AEVOL_AEVOL_H_

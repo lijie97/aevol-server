@@ -238,6 +238,22 @@ void ExpManager::WriteDynamicFiles() const
   close_backup_files(sel_file, world_file);
 }
 
+    void ExpManager::WriteDynamicFiles(int64_t gen, SaveWorld* world) const
+    {
+      // Create missing directories
+      create_missing_directories();
+
+      // Open backup files
+      gzFile sel_file, world_file;
+      open_backup_files(sel_file, world_file, gen, "w");
+
+      // Save experiment
+      world->save(world_file);
+
+      // Close backup files
+      close_backup_files(sel_file, world_file);
+    }
+
 /*!
   \brief Saves a complete copy of the experiment at the provided location.
 
@@ -478,6 +494,30 @@ void ExpManager::load(gzFile& exp_s_file,
       }
   }
 
+  if (record_light_tree()){
+    if (SIMD_Individual::standalone_simd) {
+      simd_individual->addObserver(light_tree(), NEW_INDIV);
+      for (int16_t x = 0; x < grid_width(); x++) {
+        for (int16_t y = 0; y < grid_height(); y++) {
+          simd_individual->internal_simd_struct[x*grid_height()+y]->addObserver(
+                  light_tree(),
+                  END_REPLICATION);
+        }
+      }
+      simd_individual->addObserver(light_tree(), END_GENERATION);
+    } else {
+      sel()->addObserver(tree(), NEW_INDIV);
+      for (int16_t x = 0; x < grid_width(); x++) {
+        for (int16_t y = 0; y < grid_height(); y++) {
+          world_->indiv_at(x, y)->addObserver(
+                  light_tree(),
+                  END_REPLICATION);
+        }
+      }
+      sel()->addObserver(light_tree(), END_GENERATION);
+    }
+  }
+
   // --------------------------------------------------- Recompute unsaved data
   world_->evaluate_individuals();
 }
@@ -614,8 +654,12 @@ void ExpManager::run_evolution() {
 
   bool first_run = true;
 
+      //"Post Treatment"
+      if(anc_stat_) {
+        output_m_->light_tree()->setup_anc_stat();
+      }
 
-
+      output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
 
   simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
@@ -681,8 +725,13 @@ void ExpManager::run_evolution() {
 #ifdef __X11
     display();
 #endif
-
-    if (AeTime::time() >= t_end_ or quit_signal_received())
+    if (with_mrca_) {
+      if (AeTime::time() == t_end_) {
+        output_m_->light_tree()->keep_indivs(indivs());
+      }
+      if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
+        break;
+    } else if (AeTime::time() >= t_end_ or quit_signal_received())
       break;
 
 #ifdef __TRACING__
@@ -709,6 +758,11 @@ void ExpManager::run_evolution() {
 #endif
 
   output_m_->flush();
+  if(with_mrca_)
+    output_m_->light_tree()->save_mrca_indiv();
+  if(anc_stat_)
+    output_m_->light_tree()->close_anc_stat();
+
   printf("================================================================\n");
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");

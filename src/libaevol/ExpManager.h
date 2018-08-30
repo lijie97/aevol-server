@@ -43,7 +43,7 @@
 #include "World.h"
 #include "Observer.h"
 #include "ObservableEvent.h"
-
+#include "SaveWorld.h"
 
 namespace aevol {
 // =================================================================
@@ -117,8 +117,10 @@ class ExpManager : public Observer {
   int64_t	backup_step() const { return output_m()->backup_step(); }
   int64_t	end_step() const { return t_end_; }
   bool record_tree() const { return output_m()->record_tree(); }
+  bool record_light_tree() const { return output_m()->record_light_tree(); }
   int32_t tree_step() const { return static_cast<int32_t>(output_m()->tree_step()); }
   Tree* tree() const { return output_m()->tree(); }
+  LightTree* light_tree() const { return output_m()->light_tree(); }
 
   // =======================================================================
   //                          Accessors: setters
@@ -126,7 +128,8 @@ class ExpManager : public Observer {
   void set_t_end(int64_t t_end) { t_end_ = t_end; }
   void set_HT_ins_rate(double HT_ins_rate) { exp_s_->set_HT_ins_rate(HT_ins_rate); }
   void set_HT_repl_rate(double HT_repl_rate) { exp_s_->set_HT_repl_rate(HT_repl_rate); }
-
+  void set_with_mrca(bool w_mrca) { with_mrca_ = w_mrca; }
+  void set_anc_stat(bool w_anc_stat) { anc_stat_ = w_anc_stat; }
   // =======================================================================
   //                                 Operators
   // =======================================================================
@@ -144,6 +147,7 @@ class ExpManager : public Observer {
   void Save() const;
   void WriteSetupFiles() const;
   void WriteDynamicFiles() const;
+  void WriteDynamicFiles(int64_t gen, SaveWorld* world) const;
   void save_copy(char* dir, int64_t time = 0) const;
   void load(int64_t first_gener, bool verbose = false, bool to_be_run = true) { load(".", first_gener, verbose, to_be_run); }
   void load(const char* dir, int64_t t0,
@@ -218,6 +222,11 @@ class ExpManager : public Observer {
     bool first_gen = true;
 
 
+        //wether you stop the simulation based on the age of mrca or not
+        bool with_mrca_;
+
+        //do you record the stat of the lineage ?
+        bool anc_stat_;
 };
 
 // ===========================================================================

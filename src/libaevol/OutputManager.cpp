@@ -66,9 +66,11 @@ OutputManager::OutputManager(ExpManager * exp_m)
   exp_m_  = exp_m;
   stats_  = nullptr;
   tree_   = nullptr;
+  light_tree_ = nullptr;
   dump_   = nullptr;
   compute_phen_contrib_by_GU_ = false;
   record_tree_ = false;
+  record_light_tree_ = false;
   make_dumps_ = false;
   dump_step_ = 0;
   logs_  = new Logging();
@@ -81,6 +83,7 @@ OutputManager::~OutputManager()
 {
   delete stats_;
   delete tree_;
+  delete light_tree_;
   delete dump_;
   delete logs_;
 }
@@ -109,6 +112,10 @@ void OutputManager::WriteSetupFile(gzFile setup_file) const
     auto tmp_tree_step = tree_->tree_step();
     gzwrite(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
   }
+
+  // LightTree
+  int8_t record_light_tree = (int8_t) record_light_tree_;
+  gzwrite(setup_file, &record_light_tree, sizeof(record_light_tree));
 
   // Dumps
   int8_t make_dumps = make_dumps_;
@@ -151,6 +158,15 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
     tree_ = new Tree(exp_m_, tmp_tree_step);
   }
 
+  // LightTree
+  int8_t record_light_tree;
+  gzread(setup_file, &record_light_tree, sizeof(record_light_tree));
+  record_light_tree_ = record_light_tree;
+  if (record_light_tree_ && to_be_run) {
+    light_tree_ = new LightTree();
+    light_tree_->init_tree(AeTime::time(), exp_m_->indivs());
+  }
+
   // Dumps
   int8_t make_dumps;
   gzread(setup_file, &make_dumps, sizeof(make_dumps));
@@ -172,23 +188,78 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
 
 void OutputManager::write_current_generation_outputs() const
 {
-  // Write stats
-  stats_->write_current_generation_statistics();
 
-  // Manage tree
+  // we use the variable t because of the parallelisation.
+  int64_t t = AeTime::time();
+  std::list<Individual*> indivs = exp_m_->indivs();
+  stats_->add_indivs(AeTime::time(), indivs);
+  SaveWorld* backup_world;
+  JumpingMT* backup_prng;
+  if (t % backup_step_ == 0) {
+    backup_world = exp_m_->world()->make_save(indivs);
+  }
+
+#ifdef __OPENMP_TASK
+#pragma omp task depend(out: dep[d_LT_LT])
+#endif
+  // LightTree
+  if (record_light_tree_ && t > 0) {
+    light_tree_->update_tree(t);
+    if(t % backup_step_ == 0) {
+      // debug std::cout << "writing light tree for gen : " << t << '\n';
+      write_light_tree(t);
+    }
+  }
+
+#ifdef __OPENMP_TASK
+  #pragma omp task  depend(out: dep[d_S_S])
+{
+#endif
+  stats_->write_current_generation_statistics(t);
+
+#ifdef __OPENMP_TASK
+#pragma omp task
+#endif
   if (record_tree_ &&
-      AeTime::time() > 0 &&
-      (AeTime::time() % tree_->tree_step() == 0)) {
-    write_tree();
+      t > 0 &&
+      (t % tree_->tree_step() == 0)) {
+    // debug std::cout << "writing tree for gen : " << t << '\n';
+    write_tree(t);
   }
 
+  if(t > 0 && ((t-1) % backup_step_ != 0)) {
+    stats_->delete_indivs(t-1);
+  }
+#ifdef __OPENMP_TASK
+  }
+#endif
+
+#ifdef __OPENMP_TASK
+  #pragma omp task  depend(out: dep[d_B_B])
+{
+#endif
+  if ((t-1) % backup_step_ == 0)
+    stats_->delete_indivs(t-1);
   // Write backup
-  if (AeTime::time() % backup_step_ == 0) {
+  if (t % backup_step_ == 0) {
+    // debug std::cout << "writing backup for gen : " << t << '\n';
     stats_->flush();
-    exp_m_->WriteDynamicFiles();
+    //exp_m_->WriteDynamicFiles();
+    exp_m_->WriteDynamicFiles(t, backup_world);
 
-    WriteLastGenerFile();
+    WriteLastGenerFile(".", t);
+    delete backup_prng;
+    delete backup_world;
   }
+#ifdef __OPENMP_TASK
+  }
+#endif
+
+#ifdef __OPENMP_TASK
+  if(omp_get_num_threads() < 2) {
+  #pragma omp taskwait
+}
+#endif
 
   // Write dumps
   if (make_dumps_) {
@@ -199,17 +270,20 @@ void OutputManager::write_current_generation_outputs() const
 }
 
 // TODO <david.parsons@inria.fr> we need an output_dir attribute in this class !
-void OutputManager::WriteLastGenerFile(const string& output_dir) const {
-  std::ofstream last_gener_file(output_dir + "/" + LAST_GENER_FNAME,
-                                std::ofstream::out);
-  if (last_gener_file.fail()) {
-    Utils::ExitWithUsrMsg(string("could not open file ") + LAST_GENER_FNAME);
-  }
-  else {
-    last_gener_file << AeTime::time() << endl;
-    last_gener_file.close();
-  }
-}
+    void OutputManager::WriteLastGenerFile(const string& output_dir /* = "." */, int64_t gen /* = -1 */) const {
+      if(gen < 0) {
+        gen = AeTime::time();
+      }
+      std::ofstream last_gener_file(output_dir + "/" + LAST_GENER_FNAME,
+                                    std::ofstream::out);
+      if (last_gener_file.fail()) {
+        Utils::ExitWithUsrMsg(string("could not open file ") + LAST_GENER_FNAME);
+      }
+      else {
+        last_gener_file << gen << endl;
+        last_gener_file.close();
+      }
+    }
 
 // TODO <david.parsons@inria.fr> we need an input_dir attribute in this class !
 int64_t OutputManager::last_gener() {
@@ -224,31 +298,98 @@ int64_t OutputManager::last_gener() {
   }
   return time;
 }
+    void OutputManager::flush() {
+      stats_->flush();
+
+      // Tree
+      if (record_tree_ &&
+          AeTime::time() > 0 &&
+          (AeTime::time() % tree_->tree_step() != 0)) {
+        write_tree(AeTime::time());
+      }
+
+      // LightTree
+      if (record_light_tree_ &&
+          AeTime::time() > 0 &&
+          (AeTime::time() % backup_step_ != 0)) {
+        write_light_tree(AeTime::time());
+      }
+
+      // Write backup
+      if (AeTime::time() % backup_step_ != 0) {
+        stats_->flush();
+        exp_m_->WriteDynamicFiles();
+
+        WriteLastGenerFile();
+      }
+
+      // Write dumps
+      if (make_dumps_) {
+        if(AeTime::time() % dump_step_ != 0) {
+          dump_->write_current_generation_dump();
+        }
+      }
+    }
 
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void OutputManager::write_tree() const
-{
-  // Create the tree directory if it doesn't exist
-  int status;
-  status = mkdir(TREE_DIR, 0755);
-  if ((status == -1) && (errno != EEXIST))
-  {
-    err(EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR);
-  }
+    void OutputManager::write_tree(int64_t gen) const
+    {
+      // Create the tree directory if it doesn't exist
 
-  char tree_file_name[50];
+      // debug std::cout << "Writing regular tree file ...";
 
-  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::time());
+      int status;
+      status = mkdir(TREE_DIR, 0755);
+      if ((status == -1) && (errno != EEXIST))
+      {
+        err(EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR);
+      }
 
-  
-  gzFile tree_file = gzopen( tree_file_name, "w" );
-  // Write phylogenetic data (tree)
-  tree_->write_to_tree_file(tree_file);
+      char tree_file_name[50];
 
-  gzclose(tree_file);
-}
+      sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", gen);
+
+
+      gzFile tree_file = gzopen( tree_file_name, "w" );
+      // Write phylogenetic data (tree)
+      tree_->write_to_tree_file(gen, tree_file);
+
+      gzclose(tree_file);
+
+      // debug std::cout << "OK" << '\n';
+    }
+
+
+    void OutputManager::write_light_tree(int64_t gen) const
+    {
+      // debug std::cout << "Writing light tree file ...";
+
+      int status = mkdir(LIGHTTREE_DIR, 0755);
+      if ((status == -1) && (errno != EEXIST))
+      {
+        err(EXIT_FAILURE, "Impossible to create the directory %s", LIGHTTREE_DIR);
+      }
+
+      static char branches_file_name[50];
+      sprintf(branches_file_name, "lightTree/tree_branches.ae");
+
+      char trunc_file_name[50];
+      sprintf(trunc_file_name, "lightTree/tree_trunc" TIMESTEP_FORMAT ".ae", gen);
+
+      gzFile trunc_file = gzopen( trunc_file_name, "w" );
+      gzFile branches_file = gzopen( branches_file_name, "w" );
+      // Write phylogenetic data (tree)
+      light_tree_->write_to_tree_file(gen, trunc_file, branches_file);
+
+      gzclose(trunc_file);
+      gzclose(branches_file);
+
+      light_tree_->write_tree(gen);
+
+      // debug std::cout << "OK" << '\n';
+    }
 
 // =================================================================
 //                          Non inline accessors

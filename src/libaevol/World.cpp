@@ -416,6 +416,44 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
          sizeof(secretion_degradation_prop_));
 }
 
+
+    SaveWorld* World::make_save(std::list<Individual*> indivs) {
+      SaveWorld* backup = new SaveWorld();
+      //random generator
+      backup->prng_       = std::make_shared<JumpingMT>(*prng_);
+      backup->mut_prng_   = std::make_shared<JumpingMT>(*mut_prng_);
+      backup->stoch_prng_ = std::make_shared<JumpingMT>(*stoch_prng_);
+
+      //non Pointer
+      backup->width_  = width_;
+      backup->height_ = height_;
+      backup->x_best  = x_best;
+      backup->y_best  = y_best;
+      backup->is_well_mixed_ = is_well_mixed_;
+      backup->partial_mix_nb_permutations_ = partial_mix_nb_permutations_;
+      backup->secretion_degradation_prop_ = secretion_degradation_prop_;
+      backup->secretion_diffusion_prop_ = secretion_diffusion_prop_;
+
+      //pointers
+      backup->phenotypic_target_handler_ = phenotypic_target_handler_;
+
+      //the grid
+      backup->MallocGrid();
+      for (int16_t x = 0 ; x < width_ ; x++)
+        for (int16_t y = 0 ; y < height_ ; y++) {
+          Individual* indiv = indivs.front();
+          backup->grid_[x][y] = new SaveGridCell(x, y,
+                                                 std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+                                                 indiv,
+                                                 std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
+                                                 std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),
+                                                 std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_));
+          indivs.pop_front();
+        }
+
+      return backup;
+    }
+
 // =================================================================
 //                           Protected Methods
 // =================================================================

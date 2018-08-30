@@ -143,12 +143,12 @@ int main(int argc, char* argv[]) {
   auto prefix = "ancestor_stats/ancestor_stats";
   char postfix[255];
   snprintf(postfix, 255,
-      "-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32,
-      t0, t_end, final_indiv_index, final_indiv_rank);
+           "-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32,
+          t0, t_end, final_indiv_index, final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
-  Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix,
+  Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix, postfix,
                              addition_old_stats, delete_old_stats);
 
   // Optional additional outputs
@@ -381,7 +381,7 @@ int main(int argc, char* argv[]) {
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
-    mystats->write_statistics_of_this_indiv(indiv, rep);
+    mystats->write_statistics_of_this_indiv(time(),indiv, rep);
 
     // Additional outputs
     write_environment_stats(time(), phenotypicTargetHandler, env_output_file);

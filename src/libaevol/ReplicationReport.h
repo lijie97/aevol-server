@@ -51,7 +51,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class Tree;
-
+class LightTree;
 
 
 
@@ -117,12 +117,14 @@ class ReplicationReport : public Observer {
     //                            Public Methods
     // =================================================================
     void init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
+    void init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
     void signal_end_of_replication(Individual* indiv);
 
     void init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id, int parent_id);
+    void init(LightTree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id, int parent_id);
     void signal_end_of_replication(Internal_SIMD_Struct* indiv);
 
-    void signal_end_of_generation(int i);
+    void signal_end_of_generation();
     void write_to_tree_file(gzFile tree_file) const;
 
 

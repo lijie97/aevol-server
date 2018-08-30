@@ -723,7 +723,7 @@ int main(int argc, char* argv[])
     exp_manager->output_m()->init_tree(exp_manager, tree_step);
   }
 
-  if (take_care_of_the_tree)
+/*  if (take_care_of_the_tree)
   {
     printf("Save the modified replication reports into tree...\t");
 
@@ -736,7 +736,7 @@ int main(int argc, char* argv[])
     tree->write_to_tree_file(tree_file);
     gzclose(tree_file);
     printf("OK\n");
-  }
+  }*/
   printf("Save the modified experiment into backup...\t");
   exp_manager->WriteSetupFiles();
   exp_manager->WriteDynamicFiles();

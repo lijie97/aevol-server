@@ -232,6 +232,61 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
       simd_indiv_->addObserver(tree, END_REPLICATION);
 }
 
+    void ReplicationReport::init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
+    {
+
+        indiv_ = offspring;
+
+        id_ = indiv_id;
+        parent_id_ = parent_id;
+
+        genome_size_        = 0;
+        metabolic_error_    = 0.0;
+        nb_genes_activ_     = 0;
+        nb_genes_inhib_     = 0;
+        nb_non_fun_genes_   = 0;
+        nb_coding_RNAs_     = 0;
+        nb_non_coding_RNAs_ = 0;
+
+        parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
+        parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
+        parent_genome_size_     = parent->total_genome_size();
+        mean_align_score_       = 0.0;
+
+        // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
+        indiv_->addObserver(this, MUTATION);
+        indiv_->addObserver(tree, END_REPLICATION);
+    }
+
+    void ReplicationReport::init(LightTree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id,
+                                 int parent_id)
+    {
+
+        simd_indiv_ = offspring;
+
+        id_ = indiv_id;
+        parent_id_ = parent_id;
+
+        rank_ = 0;
+
+        genome_size_        = 0;
+        metabolic_error_    = 0.0;
+        nb_genes_activ_     = 0;
+        nb_genes_inhib_     = 0;
+        nb_non_fun_genes_   = 0;
+        nb_coding_RNAs_     = 0;
+        nb_non_coding_RNAs_ = 0;
+
+        parent_metabolic_error_ = parent->metaerror;
+        parent_secretion_error_ = 0.0;
+        parent_genome_size_     = parent->dna_->length();
+        mean_align_score_       = 0.0;
+
+        // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
+        simd_indiv_->addObserver(this, MUTATION);
+        simd_indiv_->addObserver(tree, END_REPLICATION);
+    }
+
 /**
  * Method called at the end of the replication of an individual.
  * Actions such as finalize the calculation of average values can be done here.
@@ -268,7 +323,7 @@ void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
  * Method called at the end of a generation.
  * Actions such as update the individuals' ranks can be done here.
  */
-void ReplicationReport::signal_end_of_generation(int i) {
+void ReplicationReport::signal_end_of_generation() {
     if (!SIMD_Individual::standalone_simd)
         rank_ = indiv_->rank();
 }
