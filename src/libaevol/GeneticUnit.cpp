@@ -1879,6 +1879,27 @@ void GeneticUnit::promoters_included_in(int32_t pos_1,
   assert(pos_1 >= 0 && pos_1 <= dna_->length() && pos_2 >= 0 &&
          pos_2 <= dna_->length());
 
+  if (pos_1 == pos_2) {
+    // Copy all the known promoters
+    promoters_list[LEADING] = rna_list_[LEADING];
+    promoters_list[LAGGING] = rna_list_[LAGGING];
+
+    // The first prom of the list must be the closer to pos_1. Order is important
+    // Let us rotate the lists accordingly !
+
+    auto n_first_leading = find_if(promoters_list[LEADING].begin(),
+                                   promoters_list[LEADING].end(),
+                                   [pos_1](Rna &p) { return p.promoter_pos() >= pos_1; });
+    rotate(promoters_list[LEADING].begin(), n_first_leading, promoters_list[LEADING].end());
+
+    auto n_first_lagging = find_if(promoters_list[LAGGING].begin(),
+                                   promoters_list[LAGGING].end(),
+                                   [pos_1](Rna &p) { return p.promoter_pos() < pos_1; });
+    rotate(promoters_list[LAGGING].begin(), n_first_lagging, promoters_list[LAGGING].end());
+
+    return;
+  }
+
   if (pos_1 < pos_2) {
     int32_t seg_length = pos_2 - pos_1;
 
