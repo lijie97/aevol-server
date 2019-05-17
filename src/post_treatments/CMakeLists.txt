@@ -28,7 +28,7 @@ add_executable(ancestor_stats ancestor_stats.cpp)
 target_link_libraries(ancestor_stats PUBLIC aevol)
 
 add_executable(ancestor_robustness ancestor_robustness.cpp IndivAnalysis.cpp)
-target_link_libraries(mutationalrobustness PUBLIC aevol)
+target_link_libraries(ancestor_robustness PUBLIC aevol)
 
 add_executable(lineage lineage.cpp)
 target_link_libraries(lineage PUBLIC aevol)

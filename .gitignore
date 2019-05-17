@@ -32,6 +32,9 @@ src/post_treatments/aevol_misc_view_generation
 # ignore build dir
 build/**
 
+# ignore cmake-build dir
+cmake-build*/
+
 # ignore .idea dir (clion config)
 .idea/**
 
