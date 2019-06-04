@@ -419,6 +419,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     if (strncmp(line->words[1], "true", 4) == 0)
     {
       record_light_tree_ = true;
+      record_tree_ = true;
     }
     else if (strncmp(line->words[1], "false", 5) == 0)
     {

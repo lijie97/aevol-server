@@ -42,7 +42,7 @@
 #include <zlib.h>
 
 #include "GridCell.h"
-
+#include "SIMD_Individual.h"
 
 namespace aevol {
 
@@ -54,11 +54,11 @@ namespace aevol {
 
 class SaveGridCell {
  public :
-  SaveGridCell(int16_t x, int16_t y,
+  SaveGridCell(ExpManager* exp_m, int16_t x, int16_t y,
               std::unique_ptr<Habitat>&& habitat,
               Individual * indiv, std::shared_ptr<JumpingMT> mut_prng,
               std::shared_ptr<JumpingMT> stoch_prng,
-              std::shared_ptr<JumpingMT> reprod_prng)
+              std::shared_ptr<JumpingMT> reprod_prng, std::shared_ptr<JumpingMT> reprod_prng_simd, double w_max)
   {
     x_ = x;
     y_ = y;
@@ -66,43 +66,59 @@ class SaveGridCell {
     mut_prng_ = mut_prng;
     stoch_prng_ = stoch_prng;
     reprod_prng_ = reprod_prng;
+    reprod_prng_simd_ = reprod_prng_simd;
 
     individual_ = indiv;
     habitat_ = std::move(habitat);
+
+    exp_m_ = exp_m;
+    w_max_ = w_max;
   };
 
-  virtual ~SaveGridCell() = default;
+    SaveGridCell(ExpManager* exp_m, int16_t x, int16_t y,
+                 std::unique_ptr<Habitat>&& habitat,
+                 Internal_SIMD_Struct * indiv, std::shared_ptr<JumpingMT> mut_prng,
+                 std::shared_ptr<JumpingMT> stoch_prng,
+                 std::shared_ptr<JumpingMT> reprod_prng, std::shared_ptr<JumpingMT> reprod_prng_simd, double w_max)
+    {
+      x_ = x;
+      y_ = y;
+
+      mut_prng_ = mut_prng;
+      stoch_prng_ = stoch_prng;
+      reprod_prng_ = reprod_prng;
+      reprod_prng_simd_ = reprod_prng_simd;
+
+      simd_individual_ = indiv;
+      habitat_ = std::move(habitat);
+
+      exp_m_ = exp_m;
+      w_max_ = w_max;
+    };
+
+
+    virtual ~SaveGridCell() = default;
 
   void save(gzFile backup_file,
-                          bool skip_phenotypic_target /*=false*/)
-  {
-    gzwrite(backup_file, &x_, sizeof(x_));
-    gzwrite(backup_file, &y_, sizeof(y_));
-
-    mut_prng_->save(backup_file);
-    stoch_prng_->save(backup_file);
-    reprod_prng_->save(backup_file);
-
-    #ifndef __REGUL
-    habitat_->save(backup_file, skip_phenotypic_target);
-    individual_->save(backup_file);
-    #else
-    (dynamic_cast<Habitat_R*> (habitat_.get()))->save(backup_file, skip_phenotypic_target);
-    (dynamic_cast<Individual_R*> (individual_))->save(backup_file);
-    #endif
-  };
+                          bool skip_phenotypic_target /*=false*/, bool create = false);
 
   int16_t x_;
   int16_t y_;
 
+  double w_max_;
+
   // Pointer to the individual in this cell
   Individual* individual_ = NULL;
+  Internal_SIMD_Struct* simd_individual_ = NULL;
 
   std::unique_ptr<Habitat> habitat_ = nullptr;
 
   std::shared_ptr<JumpingMT> mut_prng_ = nullptr;
   std::shared_ptr<JumpingMT> stoch_prng_ = nullptr;
   std::shared_ptr<JumpingMT> reprod_prng_ = nullptr;
+  std::shared_ptr<JumpingMT> reprod_prng_simd_ = nullptr;
+
+  ExpManager* exp_m_;
 };
 
 class SaveWorld
@@ -124,7 +140,7 @@ class SaveWorld
   // =================================================================
   //                            Public Methods
   // =================================================================
-  void save(gzFile backup_file);
+  void save(gzFile backup_file, bool create = false);
 
  protected :
   // =================================================================
@@ -158,6 +174,8 @@ class SaveWorld
 
   double  secretion_diffusion_prop_ = -1;
   double  secretion_degradation_prop_ = -1;
+
+
 };
 
 

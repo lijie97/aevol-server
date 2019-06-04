@@ -144,10 +144,10 @@ class ExpManager : public Observer {
                        std::shared_ptr<JumpingMT> stoch_prng,
                        Habitat& habitat,
                        bool share_phenotypic_target);
-  void Save() const;
+  void Save(bool create = false) const;
   void WriteSetupFiles() const;
   void WriteDynamicFiles() const;
-  void WriteDynamicFiles(int64_t gen, SaveWorld* world) const;
+  void WriteDynamicFiles(int64_t gen, SaveWorld* world, bool create = false) const;
   void save_copy(char* dir, int64_t time = 0) const;
   void load(int64_t first_gener, bool verbose = false, bool to_be_run = true) { load(".", first_gener, verbose, to_be_run); }
   void load(const char* dir, int64_t t0,

@@ -218,8 +218,10 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
       {
 #endif
         if (SIMD_Individual::standalone_simd) {
-            //printf("Update with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
-            replics_[AeTime::time()][ievent->indiv_id_] = new ReplicationReport();
+            //printf("Create RR with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
+            replics_[AeTime::time()][ievent->x *
+                                     ievent->simd_child->exp_m_->grid_height()
+                                     + ievent->y] = new ReplicationReport();
         } else {
             replics_[AeTime::time()][ievent->x *
                                      ievent->child->exp_m()->grid_height()
@@ -231,8 +233,10 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
 
       //replics_[AeTime::time()][new_indiv->id()]->init(new_indiv, parent);
       if (SIMD_Individual::standalone_simd) {
-        //printf("Update with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
-        replics_[AeTime::time()][ievent->indiv_id_]->
+        //printf("Update RR with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
+        replics_[AeTime::time()][ievent->x *
+                                 ievent->simd_child->exp_m_->grid_height()
+                                 + ievent->y]->
                 init(this, ievent->simd_child, ievent->simd_parent,ievent->indiv_id_,ievent->parent_id_);
       } else {
         replics_[AeTime::time()][ievent->x *
@@ -250,7 +254,10 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
     case END_REPLICATION : {
       auto ievent = reinterpret_cast<EndReplicationEvent*>(arg);
       if (SIMD_Individual::standalone_simd) {
-        replics_[AeTime::time()][ievent->simd_child->indiv_id]->signal_end_of_replication(
+          //printf("EoR %d : %p -- %p\n",ievent->simd_child->indiv_id,ievent->simd_child, replics_[AeTime::time()][ievent->simd_child->indiv_id]);
+        replics_[AeTime::time()][ievent->x *
+                                 ievent->simd_child->exp_m_->grid_height()
+                                 + ievent->y]->signal_end_of_replication(
                 ievent->simd_child);
       } else {
         replics_[AeTime::time()][ievent->x *

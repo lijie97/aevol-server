@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <math.h>
 #include <sys/stat.h>  // for the permission symbols used with mkdir
 #include <errno.h>
 #include <HybridFuzzy.h>

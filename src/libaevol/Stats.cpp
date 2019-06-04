@@ -614,6 +614,33 @@ void Stats::add_indivs(int64_t gen, const std::list<Individual*> indivs) {
   indivs_[gen] = indivs;
 }
 
+
+    void Stats::add_indivs(int64_t gen, Internal_SIMD_Struct** indivs) {
+      std::list<Individual*> gen_indivs;
+        //printf("NB Indivs %d\n",exp_m_->nb_indivs());
+      for (int i = 0; i < exp_m_->nb_indivs(); i++) {
+          int x = indivs[i]->indiv_id / exp_m_->world()->height();
+          int y = indivs[i]->indiv_id % exp_m_->world()->height();
+
+
+
+        Individual * indiv = new Individual(exp_m_,
+                                            exp_m_->world()->grid(x,y)->mut_prng(),
+                                            exp_m_->world()->grid(x,y)->stoch_prng(),
+                                            exp_m_->exp_s()->mut_params(),
+                                            indivs[i]->w_max_,
+                                            exp_m_->exp_s()->min_genome_length(),
+                                            exp_m_->exp_s()->max_genome_length(),
+                                            false,
+                                            indivs[i]->indiv_id,
+                                            "",
+                                            0);
+        gen_indivs.push_back(indiv);
+
+      }
+      indivs_[gen] = gen_indivs;
+    }
+
 // =================================================================
 //                           Protected Methods
 // =================================================================

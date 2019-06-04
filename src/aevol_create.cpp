@@ -218,11 +218,12 @@ int main(int argc, char* argv[])
   //~ exp_manager->display();
   //~ getchar();
 
+
   // 8) Save the experiment
   if (output_dir == NULL)
   {
     //printf("Debut de la sauvegarde\n");
-    exp_manager->Save();
+    exp_manager->Save(true);
   }
   else
   {

@@ -122,8 +122,8 @@ void AncestorStats::setup_anc_stat(int64_t t_mrca) {
   }
 }
 
-void AncestorStats::setup_anc_indiv(int32_t anc_id) {
-  indiv_ = exp_m_->indiv_by_id(anc_id);
+void AncestorStats::setup_anc_indiv(Individual* indiv) {
+  indiv_ = indiv;
   indiv_->Evaluate();
   indiv_->compute_statistical_data();
   indiv_->compute_non_coding();

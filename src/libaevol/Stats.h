@@ -122,6 +122,7 @@ class Stats
     void PromoteTmpFiles();
 
     void add_indivs(int64_t gen, const std::list<Individual*> indivs);
+    void add_indivs(int64_t gen, Internal_SIMD_Struct** indivs);
     void delete_indivs(int64_t gen);
 
 

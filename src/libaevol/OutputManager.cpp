@@ -163,7 +163,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   gzread(setup_file, &record_light_tree, sizeof(record_light_tree));
   record_light_tree_ = record_light_tree;
   if (record_light_tree_ && to_be_run) {
-    light_tree_ = new LightTree();
+    light_tree_ = new LightTree(exp_m_);
     light_tree_->init_tree(AeTime::time(), exp_m_->indivs());
   }
 
@@ -186,7 +186,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   }
 }
 
-void OutputManager::write_current_generation_outputs() const
+void OutputManager::write_current_generation_outputs(bool create) const
 {
 
   // we use the variable t because of the parallelisation.
@@ -196,7 +196,7 @@ void OutputManager::write_current_generation_outputs() const
   SaveWorld* backup_world;
   JumpingMT* backup_prng;
   if (t % backup_step_ == 0) {
-    backup_world = exp_m_->world()->make_save(indivs);
+    backup_world = exp_m_->world()->make_save(exp_m_, indivs);
   }
 
 #ifdef __OPENMP_TASK
@@ -204,7 +204,7 @@ void OutputManager::write_current_generation_outputs() const
 #endif
   // LightTree
   if (record_light_tree_ && t > 0) {
-    light_tree_->update_tree(t);
+    light_tree_->update_tree(t, nullptr);
     if(t % backup_step_ == 0) {
       // debug std::cout << "writing light tree for gen : " << t << '\n';
       write_light_tree(t);
@@ -245,7 +245,7 @@ void OutputManager::write_current_generation_outputs() const
     // debug std::cout << "writing backup for gen : " << t << '\n';
     stats_->flush();
     //exp_m_->WriteDynamicFiles();
-    exp_m_->WriteDynamicFiles(t, backup_world);
+    exp_m_->WriteDynamicFiles(t, backup_world, create);
 
     WriteLastGenerFile(".", t);
     delete backup_prng;

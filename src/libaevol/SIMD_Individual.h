@@ -15,6 +15,7 @@
 #include "Observable.h"
 #include "PhenotypicTargetHandler.h"
 #include "ae_enums.h"
+#include "Stats.h"
 
 namespace aevol {
 
@@ -106,7 +107,7 @@ class pProtein {
 
 class Internal_SIMD_Struct : public Observable {
  public:
-    Internal_SIMD_Struct(ExpManager* exp_m) { exp_m_ = exp_m;};
+    Internal_SIMD_Struct(ExpManager* exp_m, double w_max);
 
     Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone, bool copy_dna = true);
 
@@ -140,6 +141,7 @@ class Internal_SIMD_Struct : public Observable {
 
     int global_id = -1;
 
+    double w_max_;
 
     /** Variables for Tree mgmt **/
     int32_t  nb_genes_activ = 0;
@@ -149,6 +151,16 @@ class Internal_SIMD_Struct : public Observable {
     int32_t  nb_coding_RNAs = 0;
     int32_t  nb_non_coding_RNAs = 0;
     /** END of Variables for Tree Mgmt **/
+
+
+    void reset_stats() {
+        nb_genes_activ = 0;
+        nb_genes_inhib = 0;
+        nb_func_genes = 0;
+        nb_non_func_genes = 0;
+        nb_coding_RNAs = 0;
+        nb_non_coding_RNAs = 0;
+    }
 
     void rebuild_index();
 
@@ -277,6 +289,9 @@ class SIMD_Individual : public Observable{
 
     void build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler);
 
+
+    void set_stats(Stats* stats) { stats_ = stats; }
+
     Internal_SIMD_Struct** internal_simd_struct;
     Internal_SIMD_Struct** prev_internal_simd_struct;
     Internal_SIMD_Struct* best_indiv;
@@ -289,6 +304,7 @@ class SIMD_Individual : public Observable{
     static bool standalone_simd;//= true;
     int rna_grain_size = 32;
     int protein_grain_size = 32;
+
  private:
     ExpManager* exp_m_;
     int* dna_size;
@@ -297,6 +313,9 @@ class SIMD_Individual : public Observable{
 
     Stats_SIMD* stats_best = nullptr;
     Stats_SIMD* stats_mean = nullptr;
+
+
+    Stats* stats_;
 
     void selection();
 

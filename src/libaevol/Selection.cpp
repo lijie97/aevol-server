@@ -33,7 +33,7 @@
 #include "Selection.h"
 #include "Dna_SIMD.h"
 #include "DnaMutator.h"
-#include <math.h>
+//#include <math.h>
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU

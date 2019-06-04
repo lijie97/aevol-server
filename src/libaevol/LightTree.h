@@ -42,8 +42,6 @@
 #include "ReplicationReport.h"
 #include "Observer.h"
 #include "ObservableEvent.h"
-#include "Individual.h"
-
 
 namespace aevol {
 
@@ -52,6 +50,9 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class AncestorStats;
+class Individual;
+class Internal_SIMD_Struct;
+class ExpManager;
 
 class Node {
 public:
@@ -75,7 +76,7 @@ class LightTree : public Observer
     // =================================================================
     //                             Constructors
     // =================================================================
-    LightTree();
+    LightTree(ExpManager* exp_m);
 
     // =================================================================
     //                             Destructors
@@ -105,7 +106,7 @@ class LightTree : public Observer
     // by creating the link parent/children
     // it also prune the tree
     // if ask it perform ancestor_stat
-    void update_tree(int64_t gen);
+    void update_tree(int64_t gen, Internal_SIMD_Struct* simd_indiv = nullptr);
 
     // write the Newick format tree
     void write_tree(int64_t t = -1);
@@ -115,6 +116,8 @@ class LightTree : public Observer
     void read_from_tree_file();
 
     void keep_indivs(std::list<Individual*> indivs);
+
+    void keep_indivs(std::list<Internal_SIMD_Struct*> indivs);
 
     void save_mrca_indiv();
 
@@ -159,9 +162,12 @@ class LightTree : public Observer
 
     // list of all the Individual at the generation wented to stop the simulation
     std::unordered_map<int32_t, Individual*> saved_indivs_;
+    std::unordered_map<int32_t, Internal_SIMD_Struct*> saved_simd_indivs_;
     int64_t saved_indivs_time_;
 
     AncestorStats* anc_stat_;
+
+    ExpManager* exp_m_;
 };
 
 

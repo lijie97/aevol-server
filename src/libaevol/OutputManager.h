@@ -134,7 +134,7 @@ class OutputManager {
   void WriteLastGenerFile(const std::string& input_dir = ".", int64_t gen = -1) const;
   void CopyStats(const std::string& outdir, int64_t time) const;
   void load(gzFile file, bool verbose, bool to_be_run);
-  void write_current_generation_outputs() const;
+  void write_current_generation_outputs(bool create = false) const;
   void flush();
 
   static int64_t last_gener();

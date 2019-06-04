@@ -150,10 +150,10 @@ void ExpManager::InitializeWorld(int16_t grid_width,
 /*!
   \brief Save the experiment
 */
-void ExpManager::Save() const
+void ExpManager::Save(bool create) const
 {
   WriteSetupFiles();
-  output_m_->write_current_generation_outputs();
+  output_m_->write_current_generation_outputs(create);
 }
 
 /*!
@@ -238,7 +238,7 @@ void ExpManager::WriteDynamicFiles() const
   close_backup_files(sel_file, world_file);
 }
 
-    void ExpManager::WriteDynamicFiles(int64_t gen, SaveWorld* world) const
+    void ExpManager::WriteDynamicFiles(int64_t gen, SaveWorld* world, bool create) const
     {
       // Create missing directories
       create_missing_directories();
@@ -248,7 +248,7 @@ void ExpManager::WriteDynamicFiles() const
       open_backup_files(sel_file, world_file, gen, "w");
 
       // Save experiment
-      world->save(world_file);
+      world->save(world_file, create);
 
       // Close backup files
       close_backup_files(sel_file, world_file);
@@ -468,6 +468,7 @@ void ExpManager::load(gzFile& exp_s_file,
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
 
+  simd_individual->set_stats(output_m_->stats());
 
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {

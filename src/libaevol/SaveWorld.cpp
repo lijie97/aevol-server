@@ -40,6 +40,8 @@
 #include "raevol/Individual_R.h"
 #endif
 
+#include "ExpManager.h"
+#include "Dna_SIMD.h"
 
 namespace aevol {
 
@@ -85,7 +87,7 @@ void SaveWorld::MallocGrid()
     grid_[x] = new SaveGridCell * [height_];
 }
 
-void SaveWorld::save(gzFile backup_file)
+void SaveWorld::save(gzFile backup_file, bool create)
 {
   if (prng_ == nullptr)
   {
@@ -123,9 +125,10 @@ void SaveWorld::save(gzFile backup_file)
   gzwrite(backup_file, &width_,   sizeof(width_));
   gzwrite(backup_file, &height_,  sizeof(height_));
 
+
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      grid_[x][y]->save(backup_file, phenotypic_target_shared_);
+      grid_[x][y]->save(backup_file, phenotypic_target_shared_,create);
 
   gzwrite(backup_file, &x_best, sizeof(x_best));
   gzwrite(backup_file, &y_best, sizeof(y_best));
@@ -139,4 +142,93 @@ void SaveWorld::save(gzFile backup_file)
   gzwrite(backup_file, &secretion_degradation_prop_,
           sizeof(secretion_degradation_prop_));
 }
+
+
+void SaveGridCell::save(gzFile backup_file,
+              bool skip_phenotypic_target /*=false*/, bool create)
+    {
+      gzwrite(backup_file, &x_, sizeof(x_));
+      gzwrite(backup_file, &y_, sizeof(y_));
+
+      mut_prng_->save(backup_file);
+      stoch_prng_->save(backup_file);
+      reprod_prng_->save(backup_file);
+      reprod_prng_simd_->save(backup_file);
+
+#ifndef __REGUL
+      habitat_->save(backup_file, skip_phenotypic_target);
+      if (SIMD_Individual::standalone_simd && !create) {
+        Individual * indiv = new Individual(exp_m_,
+                                            exp_m_->world()->grid(x_,y_)->mut_prng(),
+                                            exp_m_->world()->grid(x_,y_)->stoch_prng(),
+                                            exp_m_->exp_s()->mut_params(),
+                                            simd_individual_->w_max_,
+                                            exp_m_->exp_s()->min_genome_length(),
+                                            exp_m_->exp_s()->max_genome_length(),
+                                            false,
+                                            simd_individual_->indiv_id,
+                                            "",
+                                            0);
+
+        int32_t nb_blocks_ = simd_individual_->dna_->length()/BLOCK_SIZE + 1;
+        char* dna_string = new char[nb_blocks_ * BLOCK_SIZE];
+        memset(dna_string,0,
+               (simd_individual_->dna_->length()+1) * sizeof(char));
+
+
+        char* to_copy = simd_individual_->dna_->to_char();
+
+
+        //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+        memcpy(dna_string, to_copy,
+               (simd_individual_->dna_->length()+1) * sizeof(char));
+
+
+        indiv->genetic_unit_list_.clear();
+        indiv->add_GU(dna_string, simd_individual_->dna_->length());
+        indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
+        indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
+        indiv->EvaluateInContext(exp_m_->world()->grid(x_,y_)->habitat());
+        indiv->compute_statistical_data();
+      } else {
+        individual_->save(backup_file);
+      }
+#else
+      (dynamic_cast<Habitat_R*> (habitat_.get()))->save(backup_file, skip_phenotypic_target);
+    if (SIMD_Individual::standalone_simd) {
+      Individual * indiv = new Individual(exp_m_,
+                                          exp_m_->world()->grid(x_,y_)->mut_prng(),
+                                          exp_m_->world()->grid(x_,y_)->stoch_prng(),
+                                          exp_m_->exp_s()->mut_params(),
+                                          w_max,
+                                          exp_m_->exp_s()->min_genome_length(),
+                                          exp_m_->exp_s()->max_genome_length(),
+                                          false,
+                                          simd_individual_->indiv_id,
+                                          "",
+                                          0);
+      int32_t nb_blocks_ = simd_individual_->dna_->length()/BLOCK_SIZE + 1;
+      char* dna_string = new char[nb_blocks_ * BLOCK_SIZE];
+      memset(dna_string,0,
+             (simd_individual_->dna_->length()+1) * sizeof(char));
+
+
+      char* to_copy = simd_individual_->dna_->to_char();
+
+
+      //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+      memcpy(dna_string, to_copy,
+             (simd_individual_->dna_->length()+1) * sizeof(char));
+
+
+      indiv->genetic_unit_list_.clear();
+      indiv->add_GU(dna_string, simd_individual_->dna_->length());
+      indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
+      indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
+      indiv->EvaluateInContext(exp_m_->world()->grid(x_,y_)->habitat());
+      indiv->compute_statistical_data();
+    } else
+      (dynamic_cast<Individual_R*> (individual_))->save(backup_file);
+#endif
+    }
 } // namespace aevol

@@ -39,16 +39,20 @@
 //                            Project Files
 // =================================================================
 #include "ExpManager.h"
-#include "Individual.h"
-#include "PhenotypicTargetHandler.h"
-#include "Stats.h"
-#include "ReplicationReport.h"
+//#include "Individual.h"
+//#include "PhenotypicTargetHandler.h"
+//#include "Stats.h"
+//#include "ReplicationReport.h"
 
 namespace aevol {
 
 // =================================================================
 //                          Class declarations
 // =================================================================
+class Individual;
+class PhenotypicTargetHandler;
+class ReplicationReport;
+
 
 enum types {
   ENVIRONMENT_STAT    = 0,
@@ -80,7 +84,7 @@ class AncestorStats {
 
   void setup_anc_stat(int64_t t_mrca);
 
-  void setup_anc_indiv(int32_t anc_id);
+  void setup_anc_indiv(Individual* indiv);
 
   void process_evolution(ReplicationReport* rep, int64_t t);
 

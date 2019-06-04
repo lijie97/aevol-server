@@ -308,7 +308,7 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
 
 void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
       // TODO <david.parsons@inria.fr> tmp patch
-      if (indiv_ == NULL) simd_indiv_ = indiv;
+      if (simd_indiv_ == NULL) simd_indiv_ = indiv;
 
       // Retrieve data from the individual
       genome_size_        = simd_indiv_->dna_->length();

@@ -41,10 +41,11 @@
 // =================================================================
 //                            Project Files
 // =================================================================
+#include "SIMD_Individual.h"
 #include "LightTree.h"
 #include "AeTime.h"
 #include "AncestorStats.h"
-#include "SIMD_Individual.h"
+#include "Dna_SIMD.h"
 
 namespace aevol {
 
@@ -63,9 +64,10 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-LightTree::LightTree() {
+LightTree::LightTree(ExpManager* exp_m) {
   anc_stat_          = nullptr;
   saved_indivs_time_ = -1;
+  exp_m_ = exp_m;
 }
 
 // =================================================================
@@ -81,6 +83,10 @@ LightTree::~LightTree() {
   }
 
   for(auto p_indiv : saved_indivs_) {
+    delete p_indiv.second;
+  }
+
+  for(auto p_indiv : saved_simd_indivs_) {
     delete p_indiv.second;
   }
 
@@ -107,7 +113,7 @@ void LightTree::init_tree(int64_t time, std::list<Individual*> root_indiv) {
   }
 }
 
-void LightTree::update_tree(int64_t gen){
+void LightTree::update_tree(int64_t gen, Internal_SIMD_Struct* simd_indiv){
   parentsNodes_.clear();
   // debug std::cout << "New generation : " << gen << '\n';
   std::unordered_map<int32_t, Node*> previous = allNodes_[gen-1];
@@ -122,13 +128,53 @@ void LightTree::update_tree(int64_t gen){
       prune(oldNode.second);
     }
   }
+
   int64_t prev_mrca = mrca_time_;
   update_mrca(gen);
   // debug std::cout << "Generation of the MRCA : " << mrca_time_ << '\n';
   if(anc_stat_ != nullptr) {
     if(prev_mrca != mrca_time_) {
       if(prev_mrca == 0) {
-        anc_stat_->setup_anc_indiv(allNodes_[0].begin()->second->id_);
+          Individual* to_set;
+          if (SIMD_Individual::standalone_simd) {
+              int x = simd_indiv->indiv_id / exp_m_->world()->height();
+              int y = simd_indiv->indiv_id % exp_m_->world()->height();
+
+            to_set = new Individual(exp_m_,
+                                    exp_m_->world()->grid(x,y)->mut_prng(),
+                                    exp_m_->world()->grid(x,y)->stoch_prng(),
+                                    exp_m_->exp_s()->mut_params(),
+                                    exp_m_->best_indiv()->w_max(),
+                                    exp_m_->exp_s()->min_genome_length(),
+                                    exp_m_->exp_s()->max_genome_length(),
+                                    false,
+                                    simd_indiv->indiv_id,
+                                    "",
+                                    0);
+              int32_t nb_blocks_ = simd_indiv->dna_->length()/BLOCK_SIZE + 1;
+              char* dna_string = new char[nb_blocks_ * BLOCK_SIZE];
+              memset(dna_string,0,
+                     (simd_indiv->dna_->length()+1) * sizeof(char));
+
+
+              char* to_copy = simd_indiv->dna_->to_char();
+
+
+              //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+              memcpy(dna_string, to_copy,
+                     (simd_indiv->dna_->length()+1) * sizeof(char));
+
+
+              to_set->genetic_unit_list_.clear();
+              to_set->add_GU(dna_string, simd_indiv->dna_->length());
+              to_set->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
+              to_set->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
+              to_set->EvaluateInContext(exp_m_->world()->grid(x,y)->habitat());
+              to_set->compute_statistical_data();
+          } else
+            to_set = exp_m_->indiv_by_id(allNodes_[0].begin()->second->id_);
+
+          anc_stat_->setup_anc_indiv(to_set);
       }
       for(int64_t t = prev_mrca+1 ; t <= mrca_time_ ; t++) {
         anc_stat_->process_evolution(allNodes_[t].begin()->second->replics_, t);
@@ -264,18 +310,79 @@ void LightTree::keep_indivs(std::list<Individual*> indivs) {
   #ifdef _OPENMP
   }
   #endif
-  saved_indivs_time_ = (*indivs.begin())->age();
+
+
+  saved_indivs_time_ = AeTime::time();//(*indivs.begin())->age();
+}
+
+void LightTree::keep_indivs(std::list<Internal_SIMD_Struct*> indivs) {
+#ifdef _OPENMP
+      #pragma omp taskgroup
+  {
+#endif
+      for(Internal_SIMD_Struct* indiv : indivs)
+#ifdef _OPENMP
+#pragma omp task firstprivate(indiv)
+#endif
+        saved_simd_indivs_[indiv->indiv_id] = new Internal_SIMD_Struct(exp_m_,indiv,false);
+#ifdef _OPENMP
+      }
+#endif
+      saved_indivs_time_ = AeTime::time();//(*indivs.begin())->age();
 }
 
 void LightTree::save_mrca_indiv() {
-  Individual* mrca = saved_indivs_.begin()->second;
-  printf("  Printing the mrca individual into " "mrca_dna.txt" "\n");
-  FILE* org_file = fopen("mrca_dna.txt", "w");
-  fputs(mrca->genetic_unit_sequence(0), org_file);
+    printf("  Printing the mrca individual into " "mrca_dna.txt" "\n");
+    FILE* org_file = fopen("mrca_dna.txt", "w");
+    gzFile indiv_file = gzopen("mrca_indiv.ae", "w");
+
+    if (SIMD_Individual::standalone_simd) {
+    Internal_SIMD_Struct *mrca = saved_simd_indivs_.begin()->second;
+      fputs(mrca->dna_->to_char(), org_file);
+
+      int x=0,y=0;
+
+
+      Individual * indiv = new Individual(exp_m_,
+                                          exp_m_->world()->grid(x,y)->mut_prng(),
+                                          exp_m_->world()->grid(x,y)->stoch_prng(),
+                                          exp_m_->exp_s()->mut_params(),
+                                          exp_m_->best_indiv()->w_max(),
+                                          exp_m_->exp_s()->min_genome_length(),
+                                          exp_m_->exp_s()->max_genome_length(),
+                                          false,
+                                          mrca->indiv_id,
+                                          "",
+                                          0);
+      int32_t nb_blocks_ = mrca->dna_->length()/BLOCK_SIZE + 1;
+      char* dna_string = new char[nb_blocks_ * BLOCK_SIZE];
+      memset(dna_string,0,
+             (mrca->dna_->length()+1) * sizeof(char));
+
+
+      char* to_copy = mrca->dna_->to_char();
+
+
+      //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+      memcpy(dna_string, to_copy,
+             (mrca->dna_->length()+1) * sizeof(char));
+
+
+      indiv->genetic_unit_list_.clear();
+      indiv->add_GU(dna_string, mrca->dna_->length());
+      indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
+      indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
+      indiv->EvaluateInContext(exp_m_->world()->grid(x,y)->habitat());
+      indiv->compute_statistical_data();
+
+      indiv->save(indiv_file);
+  } else {
+    Individual *mrca = saved_indivs_.begin()->second;
+      fputs(mrca->genetic_unit_sequence(0), org_file);
+        mrca->save(indiv_file);
+  }
   fclose(org_file);
 
-  gzFile indiv_file = gzopen("mrca_indiv.ae", "w");
-  mrca->save(indiv_file);
   gzclose(indiv_file);
 }
 
@@ -344,9 +451,16 @@ void LightTree::prune(Node * dead_node) {
   int64_t tid_dead = dead_node->tid_;
   int32_t id_dead = dead_node->id_;
   delete dead_node;
-  if(tid_dead == saved_indivs_time_ && saved_indivs_.size()>1) {
-    delete saved_indivs_[id_dead];
-    saved_indivs_.erase(id_dead);
+  if (SIMD_Individual::standalone_simd) {
+    if (tid_dead == saved_indivs_time_ && saved_simd_indivs_.size() > 1) {
+      delete saved_simd_indivs_[id_dead];
+      saved_simd_indivs_.erase(id_dead);
+    }
+  } else {
+    if (tid_dead == saved_indivs_time_ && saved_indivs_.size() > 1) {
+      delete saved_indivs_[id_dead];
+      saved_indivs_.erase(id_dead);
+    }
   }
   // debug std::cout << "Killing : " << id_dead << " from time : " << tid_dead << '\n';
   #ifdef __OPENMP_TASK

@@ -100,7 +100,7 @@ class Dna : public ae_string, public Observable {
   //                            Public Methods
   // =================================================================
   // Perform all the mutations (local mutations, rearrangements and transfer)
-  void perform_mutations(int32_t parent_id);
+  void perform_mutations(int parent_id);
 
   // Perform all the local mutations (point mutations and indels)
   void do_small_mutations();

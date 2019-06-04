@@ -89,7 +89,6 @@ int main(int argc, char* argv[])
   // 4) Check the consistancy of the command-line options
   // 5) Set file names according to options
   // =========================================================================
-
   // -------------------------------------------------------------------------
   // 1) Initialize command-line option variables with default values
   // -------------------------------------------------------------------------

@@ -144,7 +144,8 @@ class World
   void set_phen_target_prngs(std::shared_ptr<JumpingMT> var_prng,
                              std::shared_ptr<JumpingMT> noise_prng);
 
-  SaveWorld* make_save(std::list<Individual*> indivs);
+  SaveWorld* make_save(ExpManager* exp_m, std::list<Individual*> indivs);
+  SaveWorld* make_save(ExpManager* exp_m, Internal_SIMD_Struct** indivs, Internal_SIMD_Struct* best_indiv);
 
  protected :
   // =================================================================
