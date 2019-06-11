@@ -921,18 +921,26 @@ void Stats::MoveTmpFiles(const std::string& destdir) {
           i++;
       }*/
 
-        std::unordered_map<unsigned long long, Individual*> unique_individual;
+      if (!SIMD_Individual::standalone_simd) {
+          std::unordered_map<unsigned long long, Individual *> unique_individual;
 
-        for (auto indiv : indivs_[gen]) {
-            unique_individual[indiv->long_id()] = indiv;
-            indiv->number_of_clones_--;
-        }
+          for (auto indiv : indivs_[gen]) {
+              unique_individual[indiv->long_id()] = indiv;
+              indiv->number_of_clones_--;
+          }
 
-        for(auto indiv_it = unique_individual.begin() ; indiv_it != unique_individual.end() ; ++indiv_it) {
-                if ((indiv_it->second)->number_of_clones_ == 0) {
-                    delete indiv_it->second;
-                }
-        }
+          for (auto indiv_it = unique_individual.begin(); indiv_it != unique_individual.end(); ++indiv_it) {
+              if ((indiv_it->second)->number_of_clones_ == 0) {
+                  delete indiv_it->second;
+              }
+          }
+      } else {
+          for (auto indiv_it = indivs_[gen].begin(); indiv_it != indivs_[gen].end(); ++indiv_it) {
+
+              delete *indiv_it;
+          }
+      }
+
 
       indivs_.erase(gen);
     }

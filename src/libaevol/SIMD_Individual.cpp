@@ -188,7 +188,7 @@ void SIMD_Individual::selection() {
         int16_t   count             = 0;
         double    sum_local_fit     = 0.0;
 
-        int * indiv_index = new int[neighborhood_size];
+        //int * indiv_index = new int[neighborhood_size];
 
         int32_t x = indiv_id / grid_height;
         int32_t y = indiv_id % grid_height;
@@ -218,7 +218,7 @@ void SIMD_Individual::selection() {
                 sum_local_fit += local_fit_array[count];
 
 
-                indiv_index[count] = cur_x * grid_height + cur_y;
+                //indiv_index[count] = cur_x * grid_height + cur_y;
                 /*if (indiv_id == 0)
                     printf("SIMD Local SUM Fit %e -- Fitness %e (CPU %e)\n",sum_local_fit,local_fit_array[count],exp_m_->world()->grid(x,y)->local_fit_array[count]);*/
                 count++;
@@ -4704,14 +4704,14 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
 
     if (standalone_ && exp_m_->record_light_tree()) {
-        SaveWorld *backup_world;
-        stats_->add_indivs(AeTime::time(), prev_internal_simd_struct);
+        //SaveWorld *backup_world;
+        //stats_->add_indivs(AeTime::time(), prev_internal_simd_struct);
 
         if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
             AeTime::time() > 0) {
-            printf("Creating backup\n");
+            //printf("Creating backup\n");
 
-            backup_world = exp_m_->world()->make_save(exp_m_, prev_internal_simd_struct, best_indiv);
+            //backup_world = exp_m_->world()->make_save(exp_m_, prev_internal_simd_struct, best_indiv);
         }
 
         if (standalone_ && exp_m_->record_light_tree() && AeTime::time() > 0) {
@@ -4723,21 +4723,21 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             }
         }
 
-        if (standalone_ && AeTime::time() > 0 && ((AeTime::time() - 1) % exp_m_->backup_step() != 0)) {
-            stats_->delete_indivs(AeTime::time() - 1);
-        }
+        //if (standalone_ && AeTime::time() > 0 && ((AeTime::time() - 1) % exp_m_->backup_step() != 0)) {
+            //stats_->delete_indivs(AeTime::time() - 1);
+        //}
 
-        if (standalone_ && (AeTime::time() - 1) % exp_m_->backup_step() == 0)
-            stats_->delete_indivs(AeTime::time() - 1);
+        //if (standalone_ && (AeTime::time() - 1) % exp_m_->backup_step() == 0)
+          //  stats_->delete_indivs(AeTime::time() - 1);
 
         if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
-            AeTime::time() > 0) {
-            std::cout << "writing backup for gen : " << AeTime::time() << '\n';
-            stats_->flush();
-            exp_m_->WriteDynamicFiles(AeTime::time(), backup_world);
+                AeTime::time() > 0) {
+            //std::cout << "writing backup for gen : " << AeTime::time() << '\n';
+            //stats_->flush();
+            //exp_m_->WriteDynamicFiles(AeTime::time(), backup_world);
 
-            exp_m_->output_m()->WriteLastGenerFile(".", AeTime::time());
-            delete backup_world;
+            //exp_m_->output_m()->WriteLastGenerFile(".", AeTime::time());
+            //delete backup_world;
         }
 
     }
