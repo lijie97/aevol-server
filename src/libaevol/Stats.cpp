@@ -159,6 +159,21 @@ Stats::~Stats() {
 
   delete [] stat_files_names_;
   stat_files_names_ = NULL;
+
+  if (!SIMD_Individual::standalone_simd) {
+    std::map<long long int, Individual *> unique_individual;
+
+    for (auto g_indivs = indivs_.begin(); g_indivs != indivs_.end(); ++g_indivs) {
+      for (auto &indiv: g_indivs->second) {
+        unique_individual[indiv->long_id()] = indiv;
+        indiv->number_of_clones_--;
+      }
+    }
+
+    for (auto indiv_it = unique_individual.begin(); indiv_it != unique_individual.end(); ++indiv_it) {
+      delete indiv_it->second;
+    }
+  }
 }
 
 
@@ -617,7 +632,7 @@ void Stats::add_indivs(int64_t gen, const std::list<Individual*> indivs) {
 
     void Stats::add_indivs(int64_t gen, Internal_SIMD_Struct** indivs) {
       std::list<Individual*> gen_indivs;
-        //printf("NB Indivs %d\n",exp_m_->nb_indivs());
+      //printf("At gen %ld AddIndivs %d\n",gen,exp_m_->nb_indivs());
       for (int i = 0; i < exp_m_->nb_indivs(); i++) {
           int x = indivs[i]->indiv_id / exp_m_->world()->height();
           int y = indivs[i]->indiv_id % exp_m_->world()->height();
@@ -893,10 +908,32 @@ void Stats::MoveTmpFiles(const std::string& destdir) {
 
 
     void Stats::delete_indivs(int64_t gen) {
-      // debug std::cout << "Deleting gen : " << gen << '\n';
+      //std::cout << "Deleting gen : " << gen << '\n';
+      /*  int i = 0;
       for(auto indiv_it = indivs_[gen].begin() ; indiv_it != indivs_[gen].end() ; ++indiv_it) {
-        delete *indiv_it;
-      }
+          if ((*indiv_it) != nullptr) {
+              if ((*indiv_it)->number_of_clones_ == 0) {
+                  printf("Indiv %d is %d -- %p\n",i,(*indiv_it)->number_of_clones_,*indiv_it);
+                  delete *indiv_it;
+                  (*indiv_it) = nullptr;
+              }
+          }
+          i++;
+      }*/
+
+        std::unordered_map<unsigned long long, Individual*> unique_individual;
+
+        for (auto indiv : indivs_[gen]) {
+            unique_individual[indiv->long_id()] = indiv;
+            indiv->number_of_clones_--;
+        }
+
+        for(auto indiv_it = unique_individual.begin() ; indiv_it != unique_individual.end() ; ++indiv_it) {
+                if ((indiv_it->second)->number_of_clones_ == 0) {
+                    delete indiv_it->second;
+                }
+        }
+
       indivs_.erase(gen);
     }
 

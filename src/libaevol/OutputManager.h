@@ -117,7 +117,7 @@ class OutputManager {
   inline void set_backup_step(int64_t backup_step);
   inline void set_big_backup_step(int64_t big_backup_step);
   inline void init_tree(ExpManager* exp_m, int64_t tree_step_);
-  inline void init_light_tree(bool record_light_tree);
+  inline void init_light_tree(bool record_light_tree,ExpManager* exp_m, int64_t tree_step_);
   inline void set_dump_step(int64_t dump_step);
   inline void set_compute_phen_contrib_by_GU(bool compute_phen_contrib_by_GU);
   inline void set_logs (int8_t logs);
@@ -258,8 +258,9 @@ void OutputManager::init_tree(ExpManager* exp_m, int64_t tree_step_) {
   tree_ = new Tree(exp_m, tree_step_);
 }
 
-void OutputManager::init_light_tree(bool record_light_tree) {
+void OutputManager::init_light_tree(bool record_light_tree,ExpManager* exp_m, int64_t tree_step_) {
   record_light_tree_ = record_light_tree;
+  light_tree_ = new LightTree(exp_m_,tree_step_);
 }
 
 

@@ -107,17 +107,29 @@ void OutputManager::WriteSetupFile(gzFile setup_file) const
   // Tree
   int8_t record_tree = record_tree_;
   gzwrite(setup_file, &record_tree, sizeof(record_tree));
+
+
+    // LightTree
+    int8_t record_light_tree = (int8_t) record_light_tree_;
+
+    gzwrite(setup_file, &record_light_tree, sizeof(record_light_tree));
+
+    // Tree step
   if (record_tree_)
   {
-    auto tmp_tree_step = tree_->tree_step();
+      int64_t tmp_tree_step = tree_->tree_step();
     gzwrite(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
   }
 
-  // LightTree
-  int8_t record_light_tree = (int8_t) record_light_tree_;
-  gzwrite(setup_file, &record_light_tree, sizeof(record_light_tree));
+    if (record_light_tree)
+    {
+        int64_t tmp_tree_step = light_tree_->tree_step();
+        gzwrite(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
+    }
 
-  // Dumps
+    //printf("Save light tree %d %d %d %d\n",record_light_tree_,record_tree_,burp,burp2);
+
+    // Dumps
   int8_t make_dumps = make_dumps_;
   gzwrite(setup_file, &make_dumps,  sizeof(make_dumps));
   gzwrite(setup_file, &dump_step_,  sizeof(dump_step_));
@@ -150,20 +162,30 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   int8_t record_tree;
   gzread(setup_file, &record_tree, sizeof(record_tree));
   record_tree_ = record_tree;
-  if (record_tree_)
-  {
-    int32_t tmp_tree_step;
-    gzread(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
 
-    tree_ = new Tree(exp_m_, tmp_tree_step);
-  }
 
   // LightTree
   int8_t record_light_tree;
   gzread(setup_file, &record_light_tree, sizeof(record_light_tree));
   record_light_tree_ = record_light_tree;
+
+  // Tree step
+  if (record_tree_)
+  {
+    int64_t tmp_tree_step;
+    gzread(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
+
+    tree_ = new Tree(exp_m_, tmp_tree_step);
+  }
+
+
+  //printf("Load light tree %d %d %d %d\n",record_light_tree_,record_tree_,burp,burp2);
+
   if (record_light_tree_ && to_be_run) {
-    light_tree_ = new LightTree(exp_m_);
+    int64_t tmp_tree_step;
+    gzread(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
+
+    light_tree_ = new LightTree(exp_m_,tmp_tree_step);
     light_tree_->init_tree(AeTime::time(), exp_m_->indivs());
   }
 
@@ -192,7 +214,11 @@ void OutputManager::write_current_generation_outputs(bool create) const
   // we use the variable t because of the parallelisation.
   int64_t t = AeTime::time();
   std::list<Individual*> indivs = exp_m_->indivs();
+
+  //printf("Add indivs %d\n",indivs.size());
+
   stats_->add_indivs(AeTime::time(), indivs);
+
   SaveWorld* backup_world;
   JumpingMT* backup_prng;
   if (t % backup_step_ == 0) {
@@ -206,7 +232,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
   if (record_light_tree_ && t > 0) {
     light_tree_->update_tree(t, nullptr);
     if(t % backup_step_ == 0) {
-      // debug std::cout << "writing light tree for gen : " << t << '\n';
+      std::cout << "writing light tree for gen : " << t << '\n';
       write_light_tree(t);
     }
   }
@@ -223,7 +249,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
   if (record_tree_ &&
       t > 0 &&
       (t % tree_->tree_step() == 0)) {
-    // debug std::cout << "writing tree for gen : " << t << '\n';
+    std::cout << "writing tree for gen : " << t << '\n';
     write_tree(t);
   }
 
@@ -240,6 +266,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
 #endif
   if ((t-1) % backup_step_ == 0)
     stats_->delete_indivs(t-1);
+
   // Write backup
   if (t % backup_step_ == 0) {
     // debug std::cout << "writing backup for gen : " << t << '\n';

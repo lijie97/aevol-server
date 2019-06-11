@@ -461,8 +461,6 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
     SaveWorld* World::make_save(ExpManager* exp_m, Internal_SIMD_Struct** indivs, Internal_SIMD_Struct* best_indiv) {
       SaveWorld *backup = new SaveWorld();
       //random generator
-              printf("PRNG %p\n",prng_);
-
       backup->prng_ = std::make_shared<JumpingMT>(*prng_);
       backup->mut_prng_ = std::make_shared<JumpingMT>(*mut_prng_);
       backup->stoch_prng_ = std::make_shared<JumpingMT>(*stoch_prng_);
@@ -482,32 +480,35 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 
       //the grid
       backup->MallocGrid();
-      for (int i = 0; i < exp_m->nb_indivs(); i++) {
-        int x = indivs[i]->indiv_id / height_;
-        int y = indivs[i]->indiv_id % height_;
+        for (int16_t x = 0; x < width(); x++) {
+            for (int16_t y = 0; y < height(); y++) {
 
-        if (SIMD_Individual::standalone_simd) {
-            printf("Save grid %d %d\n",x,y);
-          backup->grid_[x][y] = new SaveGridCell(exp_m, x, y,
-                                                 std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
-                                                 exp_m->simd_individual->internal_simd_struct[i],
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_),
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_simd_),
-                                                 exp_m->simd_individual->internal_simd_struct[i]->w_max_);
-        } else {
-          backup->grid_[x][y] = new SaveGridCell(exp_m, x, y,
-                                                 std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
-                                                 indivs[i],
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_),
-                                                 std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_simd_),
-                                                 indivs[i]->w_max_);
+                if (SIMD_Individual::standalone_simd) {
+                    backup->grid_[x][y] = new SaveGridCell(exp_m, x, y,
+                                                           std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+                                                           indivs[x*height()+y],
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_),
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_simd_),
+                                                           indivs[x*height()+y]->w_max_);
+                } else {
+                    backup->grid_[x][y] = new SaveGridCell(exp_m, x, y,
+                                                           std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+                                                           indivs[x*height()+y],
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_),
+                                                           std::make_shared<JumpingMT>(*grid_[x][y]->reprod_prng_simd_),
+                                                           indivs[x*height()+y]->w_max_);
+                }
+            }
         }
-      }
 
+/*      printf("Backup pointer : %p\n",backup);
+        gzFile world_file = gzopen("toto.aex", "w");
+        backup->save(world_file);
+        gzclose(world_file);*/
       return backup;
     }
 

@@ -166,6 +166,8 @@ class Individual : public Observable {
 
     unsigned long long id() const;
 
+    unsigned long long long_id() const { return long_id_;};
+
   int32_t rank() const;
 
 
@@ -505,7 +507,7 @@ class Individual : public Observable {
 
     GridCell* grid_cell_ = NULL;
     std::list<Protein*> protein_list_;
-    int number_of_clones_ = 0;
+    int number_of_clones_ = 1;
     bool evaluated_;
 
 
@@ -543,6 +545,7 @@ class Individual : public Observable {
   //           as soon as they are created (the rank is only known when all the individuals have been evaluated).
   //           The rank will now be handled in a specific new attribute. (1 for the worst indiv, POP_SIZE for the best)
   unsigned long long id_;   // [0 ; POP_SIZE[
+  unsigned long long long_id_;   // [0 ; POP_SIZE[
 
   int32_t rank_; // [1 ; POP_SIZE]
 

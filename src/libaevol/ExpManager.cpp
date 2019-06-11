@@ -507,7 +507,7 @@ void ExpManager::load(gzFile& exp_s_file,
       }
       simd_individual->addObserver(light_tree(), END_GENERATION);
     } else {
-      sel()->addObserver(tree(), NEW_INDIV);
+      sel()->addObserver(light_tree(), NEW_INDIV);
       for (int16_t x = 0; x < grid_width(); x++) {
         for (int16_t y = 0; y < grid_height(); y++) {
           world_->indiv_at(x, y)->addObserver(
@@ -659,6 +659,8 @@ void ExpManager::run_evolution() {
       if(anc_stat_) {
         output_m_->light_tree()->setup_anc_stat();
       }
+
+      //printf("Add indivs at gen %d\n",AeTime::time());
 
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 

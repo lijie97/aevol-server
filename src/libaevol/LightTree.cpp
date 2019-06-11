@@ -64,10 +64,11 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-LightTree::LightTree(ExpManager* exp_m) {
+LightTree::LightTree(ExpManager* exp_m, int64_t tree_step) {
   anc_stat_          = nullptr;
   saved_indivs_time_ = -1;
   exp_m_ = exp_m;
+  tree_step_ = tree_step;
 }
 
 // =================================================================
@@ -423,6 +424,8 @@ void LightTree::update(Observable& o, ObservableEvent e, void* arg) {
     }
     case END_GENERATION :
       signal_end_of_generation();
+      break;
+    case END_REPLICATION :
       break;
     default :
       Utils::ExitWithDevMsg("Event not handled", __FILE__, __LINE__);

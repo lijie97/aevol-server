@@ -419,7 +419,6 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     if (strncmp(line->words[1], "true", 4) == 0)
     {
       record_light_tree_ = true;
-      record_tree_ = true;
     }
     else if (strncmp(line->words[1], "false", 5) == 0)
     {
@@ -1976,7 +1975,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     output_m->init_tree(exp_m, tree_step_);
   }
 
-  output_m->init_light_tree(record_light_tree_);
+  output_m->init_light_tree(record_light_tree_,exp_m, tree_step_);
 
   if (make_dumps_)
   {

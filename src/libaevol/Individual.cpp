@@ -190,6 +190,8 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file) {
 
   // Retrieve id and rank
   gzread(backup_file, &id_, sizeof(id_));
+
+      gzread(backup_file, &long_id_, sizeof(long_id_));
   gzread(backup_file, &rank_, sizeof(rank_));
 
   // Retrieve spatial coordinates
@@ -235,6 +237,7 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file) {
   // No more data to retrieve, the following are only structural
   // initializations (no data is set)
   // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 
   // Create empty fuzzy sets for activation and inhibition
   phenotype_activ_ = NULL;
@@ -278,6 +281,7 @@ Individual::Individual(const Individual& other) {
   age_ = other.age_;
 
   id_ = other.id_;
+  long_id_ = other.long_id_;
   rank_ = other.rank_;
 
   evaluated_ = other.evaluated_;
@@ -378,6 +382,7 @@ Individual::Individual(const Individual* parent, int32_t id,
   age_ = parent->age_ + 1;
 
   id_ = id;
+  long_id_ = id_+AeTime::time()*exp_m_->nb_indivs();
   parent_id_ = parent->id();
   rank_ = -1;
 
@@ -1684,6 +1689,7 @@ void Individual::save(gzFile backup_file) const {
 
   // Write id and rank
   gzwrite(backup_file, &id_, sizeof(id_));
+  gzwrite(backup_file, &long_id_, sizeof(long_id_));
   gzwrite(backup_file, &rank_, sizeof(rank_));
 
   // Write the position of the individual

@@ -183,7 +183,7 @@ void Selection::step_to_next_generation() {
   int8_t what;
   high_resolution_clock::time_point t1,t2;
 
-  std::unordered_map<unsigned long long, Individual*> unique_individual;
+  //std::unordered_map<unsigned long long, Individual*> unique_individual;
 
 #ifndef __TBB
   std::list<Individual*> new_generation;
@@ -300,8 +300,8 @@ void Selection::step_to_next_generation() {
 #ifdef __DETECT_CLONE
   mutator = 0;
   for (auto indiv : old_generation) {
-    indiv->number_of_clones_ = 0;
-    unique_individual[indiv->id()] = indiv;
+    //indiv->number_of_clones_ = 0;
+    //unique_individual[indiv->id()] = indiv;
     (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
   }
 #endif
@@ -355,8 +355,8 @@ void Selection::step_to_next_generation() {
     x = index / grid_height;
     y = index % grid_height;
 
-    /*if (index == 43 || index == 44)
-      printf("BEFORE -- Reproducer %d -> %d : %d\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
+    /*if (index == 43 || index == 44)*/
+      /*printf("BEFORE -- Reproducer %d -> %d : %ld\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
              reproducers[x][y]->genetic_unit(0).dna()->length());*/
 
     do_replication(reproducers[x][y],
@@ -462,7 +462,7 @@ void Selection::step_to_next_generation() {
   }
   delete[] reproducers;
 
-#ifndef __DETECT_CLONE
+/*#ifndef __DETECT_CLONE
 #ifdef __OPENMP_TASK
   #pragma omp parallel
   #pragma omp single
@@ -482,7 +482,7 @@ void Selection::step_to_next_generation() {
 #ifdef __OPENMP_TASK
   }
 #endif
-#endif
+#endif*/
 
     // Compute the rank of each individual
 #ifndef __TBB
@@ -514,7 +514,7 @@ void Selection::step_to_next_generation() {
     // Notify observers of the end of the generation
     notifyObservers(END_GENERATION);
 
-#ifdef __DETECT_CLONE
+/*#ifdef __DETECT_CLONE
 //    int number_of_clones = 0;
 #ifdef __OPENMP_TASK
   #pragma omp parallel
@@ -537,7 +537,7 @@ void Selection::step_to_next_generation() {
 #ifdef __OPENMP_TASK
   }
 #endif
-#endif
+#endif*/
 
 }
 

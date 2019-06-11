@@ -76,7 +76,7 @@ class LightTree : public Observer
     // =================================================================
     //                             Constructors
     // =================================================================
-    LightTree(ExpManager* exp_m);
+    LightTree(ExpManager* exp_m, int64_t tree_step);
 
     // =================================================================
     //                             Destructors
@@ -129,6 +129,10 @@ class LightTree : public Observer
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
 
+    inline int64_t  tree_step() const {
+        return tree_step_;
+    };
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -168,6 +172,9 @@ class LightTree : public Observer
     AncestorStats* anc_stat_;
 
     ExpManager* exp_m_;
+
+
+    int64_t tree_step_;
 };
 
 

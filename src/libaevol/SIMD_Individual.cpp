@@ -4702,16 +4702,14 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     stats_mean->write_average();
 
 
+
+    if (standalone_ && exp_m_->record_light_tree()) {
         SaveWorld *backup_world;
         stats_->add_indivs(AeTime::time(), prev_internal_simd_struct);
 
-        if (standalone_ && AeTime::time() % exp_m_->output_m()->tree_step() == 0 && exp_m_->record_tree() &&
+        if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
             AeTime::time() > 0) {
-            exp_m_->output_m()->write_tree(AeTime::time());
-        }
-
-        if (standalone_ && AeTime::time() % exp_m_->output_m()->tree_step() == 0 && exp_m_->record_light_tree() &&
-            AeTime::time() > 0) {
+            printf("Creating backup\n");
 
             backup_world = exp_m_->world()->make_save(exp_m_, prev_internal_simd_struct, best_indiv);
         }
@@ -4720,20 +4718,21 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             exp_m_->output_m()->light_tree()->update_tree(AeTime::time(), nullptr);
 
             if (AeTime::time() % exp_m_->backup_step() == 0) {
-                // debug std::cout << "writing light tree for gen : " << t << '\n';
+                std::cout << "writing light tree for gen : " << AeTime::time() << '\n';
                 exp_m_->output_m()->write_light_tree(AeTime::time());
             }
         }
 
-        if (standalone_ &&  AeTime::time() > 0 && ((AeTime::time() - 1) % exp_m_->backup_step() != 0)) {
+        if (standalone_ && AeTime::time() > 0 && ((AeTime::time() - 1) % exp_m_->backup_step() != 0)) {
             stats_->delete_indivs(AeTime::time() - 1);
         }
 
-        if (standalone_ &&  (AeTime::time() - 1) % exp_m_->backup_step() == 0)
+        if (standalone_ && (AeTime::time() - 1) % exp_m_->backup_step() == 0)
             stats_->delete_indivs(AeTime::time() - 1);
 
-        if (standalone_  && exp_m_->record_light_tree() &&  AeTime::time() % exp_m_->backup_step() == 0 && AeTime::time() > 0) {
-            // debug std::cout << "writing backup for gen : " << t << '\n';
+        if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+            AeTime::time() > 0) {
+            std::cout << "writing backup for gen : " << AeTime::time() << '\n';
             stats_->flush();
             exp_m_->WriteDynamicFiles(AeTime::time(), backup_world);
 
@@ -4741,8 +4740,16 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             delete backup_world;
         }
 
+    }
 
-  if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
+    if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
+        AeTime::time() > 0) {
+        printf("Tree SIMD backup\n");
+
+        exp_m_->output_m()->write_tree(AeTime::time());
+    }
+
+  if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0 && !exp_m_->record_light_tree()) {
 
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       int x = indiv_id / exp_m_->world()->height();
