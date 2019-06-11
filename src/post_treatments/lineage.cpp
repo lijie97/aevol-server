@@ -24,148 +24,67 @@
 //
 // ****************************************************************************
 
-// =================================================================
-//                              Libraries
-// =================================================================
-#include <errno.h>
-#include <inttypes.h>
-#include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+// ============================================================================
+//                                   Includes
+// ============================================================================
+#include <cerrno>
+#include <cinttypes>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <fstream>
+
 #include <zlib.h>
 #include <sys/stat.h>
+#include <getopt.h>
 
 #include <list>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "aevol.h"
 
 using namespace aevol;
 
-enum check_type
-{
-  FULL_CHECK  = 0,
-  LIGHT_CHECK = 1,
-  NO_CHECK    = 2
-};
-
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Helper functions
 void print_help(char* prog_path);
+void interpret_cmd_line_options(int argc, char* argv[]);
 
-int main(int argc, char** argv)
-{
-  // The output file (lineage.ae or lineage.rae) contains the following information:
+// Command-line option variables
+static bool full_check = false;
+static bool verbose = false;
+static int64_t t0 = 0;
+static int64_t t_end = -1;
+static int32_t final_indiv_index = -1;
+static int32_t final_indiv_rank  = -1;
+static char tree_file_name[255]; // TODO(dpa) remove magic number
+
+int main(int argc, char** argv) {
+  // The output file (lineage.ae) contains the following information:
+  // You may check that this information is up-to-date by searching
+  // "lineage_file" in this source file
   //
-  // - common data                                                (ae_common::write_to_backup)
-  // - begin gener                                                (int32_t)
-  // - end gener                                                  (int32_t)
-  // - final individual index                                     (int32_t)
-  // - initial genome size                                        (int32_t)
-  // - initial ancestor (nb genetic units + sequences)            (Individual::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+1 (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+2 (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+3 (ae_replic_report::write_to_backup)
+  // - t0
+  // - t_end
+  // - final individual index
+  // - final individual rank
+  // - initial_ancestor information (including its genome)
+  // - replication report of ancestor at generation t0+1
+  // - replication report of ancestor at generation t0+2
+  // - replication report of ancestor at generation t0+3
   // - ...
-  // - replication report of ancestor at generation end_gener     (ae_replic_report::write_to_backup)
+  // - replication report of ancestor at generation t_end
 
+  interpret_cmd_line_options(argc, argv);
 
-  printf("\n  WARNING : Parameters' change in the middle of a simulation is not managed.\n");
-
-
-  // =====================
-  //  Parse command line
-  // =====================
-
-  // Default values
-  check_type  check_genome      = LIGHT_CHECK;
-  bool verbose = false;
-  int64_t t0 = 0;
-  int64_t t_end = -1;
-  int32_t final_indiv_index = -1;
-  char tree_file_name[50];
-
-  const char * short_options = "hVvncb:i:r:e:";
-  static struct option long_options[] = {
-    {"help",      no_argument,       NULL,  'h'},
-    {"version",   no_argument,       NULL,  'V'},
-    {"verbose",   no_argument,       NULL,  'v'},
-    {"nocheck",   no_argument,       NULL,  'n'},
-    {"fullcheck", no_argument,       NULL,  'c'},
-    {"begin",     required_argument, NULL,  'b'},
-    {"index",     required_argument, NULL,  'i'},
-    {"end",       required_argument,  NULL, 'e' },
-    {0, 0, 0, 0}
-  };
-
-  int option;
-  while((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
-  {
-    switch(option)
-    {
-      case 'h' :
-      {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' :
-      {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'v' : verbose = true;                    break;
-      case 'n' : check_genome = NO_CHECK;           break;
-      case 'c' : check_genome = FULL_CHECK;         break;
-      case 'b' : t0  = atol(optarg);                break;
-      case 'i' : final_indiv_index  = atol(optarg); break;
-      case 'e' :
-      {
-        if (strcmp(optarg, "") == 0)
-        {
-          printf("%s: error: Option -e or --end : missing argument.\n", argv[0]);
-          exit(EXIT_FAILURE);
-        }
-
-        t_end = atol(optarg);
-
-        break;
-      }
-    }
-  }
-
-  // Set undefined command line parameters to default values
-  if (t_end == -1) {
-    // Set t_end to the content of the LAST_GENER file if it exists.
-    // If it doesn't, print help and exit
-    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
-    if (lg_file != NULL) {
-      if (fscanf(lg_file, "%" PRId64, &t_end) == EOF) {
-        printf("ERROR: failed to read last generation from file %s\n",
-               LAST_GENER_FNAME);
-        exit(EXIT_FAILURE);
-      }
-      fclose(lg_file);
-    }
-    else {
-      printf("%s: error: You must provide a generation number.\n", argv[0]);
-      exit(EXIT_FAILURE);
-    }
-  }
+  printf("\n  WARNING : Parameter change in the middle of a simulation is not managed.\n");
 
   // Load the simulation
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
-  exp_manager->exp_s()->set_fuzzy_flavor(1);
-  FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_manager->exp_s());
 
   // Check that the tree was recorded
   if (not exp_manager->record_tree()) {
     Utils::ExitWithUsrMsg("The phylogenetic tree wasn't recorded during "
-                              "evolution, could not reconstruct the lineage");
+                          "evolution, could not reconstruct the lineage");
   }
 
   int64_t tree_step = exp_manager->tree_step();
@@ -174,23 +93,23 @@ int main(int argc, char** argv)
 
 
   // The tree
-  Tree* tree = NULL;
+  Tree* tree = nullptr;
 
   // Indices, ranks and replication reports of the individuals in the lineage
   int32_t* indices = new int32_t[t_end - t0 + 1];
-  //~ int32_t *                 ranks   = new int32_t[end_gener - begin_gener + 1];
   ReplicationReport** reports = new ReplicationReport*[t_end - t0];
-  // NB: we do not need the report of the ancestor at generation begin_gener
-  // (it might be the generation 0, for which we have no reports)
-  // reports[0] = how ancestor at generation begin_gener + 1 was created
-  // reports[i] = how ancestor at generation begin_gener + i + 1 was created
-  // reports[end_gener - begin_gener - 1] = how the final individual was created
+  // NB: we do not need the report of the ancestor at time t0 since we have
+  // retrieved the individual itself from the initial backup
+  // (plus it might be the generation 0, for which we have no reports)
+  // reports[0] = how ancestor at t0 + 1 was created
+  // reports[i] = how ancestor at t0 + i + 1 was created
+  // reports[t_end - t0 - 1] = how the final individual was created
   //
-  //            -----------------------------------------------------------------------------------------
-  //  reports  | gener_0 => gener_1 | gener_1 => gener_2 | ... | gener_n-1 => gener_n | //////////////// |
-  //            -----------------------------------------------------------------------------------------
-  //  indices  |  index at gener_0  |  index at gener_1  | ... |  index at gener_n-1  | index at gener_n |
-  //            -----------------------------------------------------------------------------------------
+  //           ---------------------------------------------------------------
+  //  reports |  t0 => t1   |  t1 => t2   |...| t_n-1 => t_n   | XXXXXXXXXXXX |
+  //           ---------------------------------------------------------------
+  //  indices | index at t0 | index at t1 |...| index at t_n-1 | index at t_n |
+  //           ---------------------------------------------------------------
 
 
 
@@ -198,8 +117,7 @@ int main(int argc, char** argv)
   //  Load the last tree file
   // =========================
 
-  if (verbose)
-  {
+  if (verbose) {
     printf("\n\n");
     printf("====================================\n");
     printf(" Loading the last tree file ... ");
@@ -209,25 +127,21 @@ int main(int argc, char** argv)
 
   // Example for ae_common::rec_params->tree_step() == 100 :
   //
-  // tree_000100.ae ==>  generations   1 to 100.
-  // tree_000200.ae ==>  generations 101 to 200.
-  // tree_000300.ae ==>  generations 201 to 300.
+  // tree_000100.ae ==>  timesteps 1 to 100.
+  // tree_000200.ae ==>  timesteps 101 to 200.
+  // tree_000300.ae ==>  timesteps 201 to 300.
   // etc.
   //
-  // Thus, the information for generation end_gener are located
-  // in the file called (end_gener/ae_common::rec_params->tree_step() + 1) * ae_common::rec_params->tree_step(),
-  // except if end_gener%ae_common::rec_params->tree_step()==0.
 
   #ifdef __REGUL
-    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end);
+    sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", t_end);
   #else
-    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t_end);
+    sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t_end);
   #endif
 
   tree = new Tree(exp_manager, tree_file_name);
 
-  if (verbose)
-  {
+  if (verbose) {
     printf("OK\n");
     printf("====================================\n");
   }
@@ -236,51 +150,36 @@ int main(int argc, char** argv)
   // ============================================================================
   //  Find the index of the final individual and retrieve its replication report
   // ============================================================================
-  if (final_indiv_index != -1)
-  {
+  if (final_indiv_index != -1) {
     // The index was directly provided, get the replication report and update the indices and ranks tables
     reports[t_end - t0 - 1] =
         new ReplicationReport(*(tree->report_by_index(t_end,
-                                                          final_indiv_index)));
-    //final_indiv_rank = reports[t_end - t0 - 1]->rank();
+                                                      final_indiv_index)));
+    final_indiv_rank = reports[t_end - t0 - 1]->rank();
 
     indices[t_end - t0]  = final_indiv_index;
-  } else {
-      /*for (int i = 0; i < 1024; i++) {
-          printf("ID %p\n",tree->report_by_index(t_end-1,
-                                1020)->simd_indiv_);
-      }*/
-
-      reports[t_end - t0 - 1] =
-              new ReplicationReport(*(tree->report_by_index(t_end,
-                                                            1020)));
-
-      //final_indiv_rank = reports[t_end - t0 - 1]->rank();
-      final_indiv_index = reports[t_end - t0 - 1]->id();
-      /*printf("BEST %d ID is %d at %d : %d\n",exp_manager->best_indiv()->id(),reports[t_end - t0 - 1]->id(),t_end - t0 - 1,
-             tree->report_by_index(t_end,
-                                   1020)->id());*/
-      indices[t_end - t0]  = final_indiv_index;
   }
-/*  else
-  {
-    *//*if (final_indiv_rank == -1)
-    {
+  else {
+    if (final_indiv_rank == -1) {
       // No index nor rank was given in the command line.
       // By default, we construct the lineage of the best individual, the rank of which
       // is simply the number of individuals in the population.
       final_indiv_rank = exp_manager->nb_indivs();
-    }*//*
+    }
 
     // Retrieve the replication report of the individual of interest (at t_end)
-    reports[t_end - t0 - 1] = new ReplicationReport(*(tree->report_by_rank(t_end, final_indiv_rank)));
+    reports[t_end - t0 - 1] =
+        new ReplicationReport(*(tree->report_by_rank(t_end, final_indiv_rank)));
     final_indiv_index = reports[t_end - t0 - 1]->id();
 
     indices[t_end - t0]  = final_indiv_index;
     //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
-  }*/
+  }
 
-  if (verbose) printf("The final individual has the index %" PRId32 "\n", final_indiv_index);
+  if (verbose) {
+    printf("The final individual has index %" PRId32
+           " (rank %" PRId32 ")\n", final_indiv_index, final_indiv_rank);
+  }
 
 
   // =======================
@@ -290,19 +189,17 @@ int main(int argc, char** argv)
 
   #ifdef __REGUL
     snprintf(output_file_name, 100,
-        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 ".rae",
-        t0, t_end, final_indiv_index);
+        "lineage-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 ".rae",
+        t0, t_end, final_indiv_index, final_indiv_rank);
   #else
     snprintf(output_file_name, 100,
-        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 ".ae",
-        t0, t_end, final_indiv_index);
+        "lineage-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 ".ae",
+        t0, t_end, final_indiv_index, final_indiv_rank);
   #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
-
-  if (lineage_file == NULL)
-  {
-    fprintf(stderr, "File %s could not be created, exiting.\n", output_file_name);
+  if (lineage_file == nullptr) {
+    fprintf(stderr, "File %s could not be created.\n", output_file_name);
     fprintf(stderr, "Please check your permissions in this directory.\n");
     exit(EXIT_FAILURE);
   }
@@ -314,8 +211,7 @@ int main(int argc, char** argv)
   //  Retrieve the replication reports of the ancestors
   // ===================================================
 
-  if (verbose)
-  {
+  if (verbose) {
     printf("\n\n\n");
     printf("======================================================================\n");
     printf(" Parsing tree files to retrieve the ancestors' replication reports... \n");
@@ -328,8 +224,7 @@ int main(int argc, char** argv)
 
   // For each generation (going backwards), retrieve the index of the parent and
   // the corresponding replication report
-  for (int64_t i = t_end - t0 - 2 ; i >= 0 ; i--)
-  {
+  for (int64_t i = t_end - t0 - 2 ; i >= 0 ; i--) {
     int64_t t = t0 + i + 1;
 
     // We want to fill reports[i], that is to say, how the ancestor
@@ -338,23 +233,23 @@ int main(int argc, char** argv)
       printf("Getting the replication report for the ancestor at generation %" PRId64 "\n", t);
 
     // If we've exhausted the current tree file, load the next one
-    if (Utils::mod(t, tree_step) == 0)
-    {
+    if (Utils::mod(t, tree_step) == 0) {
       // Change the tree file
       delete tree;
 
       #ifdef __REGUL
-        sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t);
+        sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", t);
       #else
-        sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t);
+        sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t);
       #endif
-
+      AeTime::set_time(AeTime::time()-tree_step);
 
       tree = new Tree(exp_manager, tree_file_name);
     }
 
     // Copy the replication report of the ancestor
-    reports[i] = new ReplicationReport(*(tree->report_by_index(t, indices[i + 1])));
+    reports[i] =
+        new ReplicationReport(*(tree->report_by_index(t, indices[i + 1])));
 
     // Retreive the index and rank of the next ancestor from the report
     indices[i] = reports[i]->parent_id();
@@ -362,19 +257,18 @@ int main(int argc, char** argv)
   delete exp_manager;
 
 
-  if (verbose)  printf("OK\n");
+  if (verbose) printf("OK\n");
 
 
   // =============================================================================
   //  Get the initial genome from the backup file and write it in the output file
   // =============================================================================
 
-  if (verbose)
-  {
+  if (verbose) {
     printf("\n\n\n");
     printf("=============================================== \n");
     printf(" Getting the initial genome sequence... ");
-    fflush(NULL);
+    fflush(nullptr);
   }
 
   // Load the simulation
@@ -383,26 +277,18 @@ int main(int argc, char** argv)
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-    Individual* initial_ancestor = exp_manager->indiv_by_id(indices[0]);
+  const Individual& initial_ancestor = *(exp_manager->indiv_by_id(indices[0]));
 
-
-    gzwrite(lineage_file, &t0, sizeof(t0));
+  // Write file "header"
+  gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
+  gzwrite(lineage_file, &final_indiv_rank, sizeof(final_indiv_rank));
 
-  //printf("Value %d %d %d\n ",t0,t_end,final_indiv_index);
-
-  //printf("Size %d %d %d\n",initial_ancestor->grid_cell()->x(),initial_ancestor->grid_cell()->y(),indices[0]);
-
-    initial_ancestor->EvaluateInContext(initial_ancestor->grid_cell()->habitat());
-
-    initial_ancestor->save(lineage_file);
-
-    //gzclose(lineage_file);
+  initial_ancestor.grid_cell()->save(lineage_file);
 
 
-    if (verbose)
-  {
+  if (verbose) {
     printf("OK\n");
     printf("=============================================== \n");
   }
@@ -414,8 +300,7 @@ int main(int argc, char** argv)
   //  is available)
   // ===============================================================================
 
-  if (verbose)
-  {
+  if (verbose) {
     printf("\n\n\n");
     printf("============================================================ \n");
     printf(" Write the replication reports in the output file... \n");
@@ -427,35 +312,36 @@ int main(int argc, char** argv)
   Individual* stored_indiv = nullptr;
   std::list<GeneticUnit>::const_iterator stored_gen_unit;
 
-  ExpManager* exp_manager_backup = NULL;
+  ExpManager* exp_manager_backup = nullptr;
 
   // NB: I must keep the genome encapsulated inside an Individual, because
   // replaying the mutations has side effects on the list of promoters,
   // which is stored in the individual
   bool check_genome_now = false;
 
-  for (int64_t i = 0 ; i < t_end - t0 ; i++)
-  {
+  std::ofstream of;
+  of.open("lignée_old.txt");
+
+  for (int64_t i = 0 ; i < t_end - t0 ; i++) {
     // Where are we in time...
     int64_t t = t0 + i + 1;
 
     // Do we need to check the genome now?
-    check_genome_now = ((check_genome == FULL_CHECK &&
-        Utils::mod(t, exp_manager->backup_step()) == 0) ||
-        (check_genome == LIGHT_CHECK && t == t_end));
+    check_genome_now = t == t_end ||
+        (full_check && Utils::mod(t, exp_manager->backup_step()) == 0);
 
     // Write the replication report of the ancestor for current generation
-    if (verbose)
-    {
-      printf("Writing the replication report for t= %" PRId64 " (built from indiv %" PRId32 " at t= %" PRId64 " parent %" PRId32 " indiv %" PRId32 ")\n",
-             t, indices[i], t-1,reports[i]->parent_id(),reports[i]->id());
+    if (verbose) {
+      printf("Writing the replication report for t= %" PRId64
+             " (built from indiv %" PRId32 " at t= %" PRId64 ")\n",
+             t, indices[i], t-1);
     }
+    of << t << " : " << reports[i]->parent_id() << "  " << reports[i]->id() << std::endl;
     reports[i]->write_to_tree_file(lineage_file);
     if (verbose) printf(" OK\n");
 
 
-    if (check_genome_now)
-    {
+    if (check_genome_now) {
       // Load the simulation
       exp_manager_backup = new ExpManager();
       exp_manager_backup->load(t, true, false);
@@ -471,12 +357,7 @@ int main(int argc, char** argv)
 
     // Replay the mutations stored in the current replication report on the
     // current genome
-      /*printf("%d -- Mutation to do %d %d %d -- %d\n",t,reports[i]->dna_replic_report().HT().size(),
-             reports[i]->dna_replic_report().rearrangements().size(),
-             reports[i]->dna_replic_report().mutations().size(),initial_ancestor->genetic_unit_list().cbegin()->dna()->length());*/
-
-    unit = initial_ancestor->genetic_unit_list().cbegin();
-
+    unit = initial_ancestor.genetic_unit_list().cbegin();
     for (const auto& mut: reports[i]->dna_replic_report().HT()) {
       (unit->dna())->undergo_this_mutation(*mut);
     }
@@ -487,10 +368,8 @@ int main(int argc, char** argv)
       unit->dna()->undergo_this_mutation(*mut);
     }
 
-    if (check_genome_now)
-    {
-      if (verbose)
-      {
+    if (check_genome_now) {
+      if (verbose) {
         printf("Checking the sequence of the unit...");
         fflush(stdout);
       }
@@ -506,12 +385,10 @@ int main(int argc, char** argv)
              stored_gen_unit->dna()->length() * sizeof(char));
       str2[stored_gen_unit->dna()->length()] = '\0';
 
-      if (strncmp(str1, str2, stored_gen_unit->dna()->length()) == 0)
-      {
+      if (strncmp(str1, str2, stored_gen_unit->dna()->length()) == 0) {
         if (verbose) printf(" OK\n");
       }
-      else
-      {
+      else {
         if (verbose) printf(" ERROR !\n");
         fprintf(stderr, "Error: the rebuilt unit is not the same as \n");
         fprintf(stderr, "the one stored in backup file at %" PRId64 "\n", t);
@@ -519,11 +396,6 @@ int main(int argc, char** argv)
                 (int32_t)strlen(str1), str1);
         fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n",
                 (int32_t)strlen(str2), str2);
-
-        for (int pos = 0; pos < stored_gen_unit->dna()->length(); pos++)
-            if (str1[pos]!=str2[pos]) printf("Not the same at %d\n",pos);
-
-
         delete [] str1;
         delete [] str2;
         gzclose(lineage_file);
@@ -541,108 +413,139 @@ int main(int argc, char** argv)
     }
     ++unit;
 
-    assert(unit == initial_ancestor->genetic_unit_list().cend());
-    if (check_genome_now)
-    {
+    assert(unit == initial_ancestor.genetic_unit_list().cend());
+    if (check_genome_now) {
       assert(stored_gen_unit == stored_indiv->genetic_unit_list().cend());
       delete exp_manager_backup;
     }
   }
 
 
-
-    gzclose(lineage_file);
+  gzclose(lineage_file);
   delete [] reports;
   delete exp_manager;
 
   exit(EXIT_SUCCESS);
 }
 
-/*!
-  \brief
+/**
+ * \brief print help and exist
+ */
+void print_help(char* prog_path) {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
 
-*/
-void print_help(char* prog_path)
-{
-  // default values :
-  // begin_gener = 0
-  // indiv  = best individual at generation end_gener
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
+  printf("\n");
+  printf("%s:\n", prog_name);
+  printf("\tReconstruct the lineage of a given individual from the tree files\n");
+  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s [-b TIMESTEP] [-e TIMESTEP] [-I INDEX | -R RANK] [-F] [-v]\n",
+         prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -b, --begin TIMESTEP\n");
+  printf("\tspecify time t0 up to which to reconstruct the lineage\n");
+  printf("  -e, --end TIMESTEP\n");
+  printf("\tspecify time t_end of the indiv whose lineage is to be reconstructed\n");
+  printf("  -I, --index INDEX\n");
+  printf("\tspecify the index of the indiv whose lineage is to be reconstructed\n");
+  printf("  -R, --rank RANK\n");
+  printf("\tspecify the rank of the indiv whose lineage is to be reconstructed\n");
+  printf("  -F, --full-check\n");
+  printf("\tperform genome checks whenever possible\n");
+  printf("  -v, --verbose\n\tbe verbose\n");
+}
 
-  // there must be a genome backup file for begin_gener
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // Define allowed options
+  const char * short_options = "hVb:e:FI:R:v";
+  static struct option long_options[] = {
+      {"help",      no_argument,       nullptr, 'h'},
+      {"version",   no_argument,       nullptr, 'V'},
+      {"begin",     required_argument, nullptr, 'b'},
+      {"end",       required_argument, nullptr, 'e'},
+      {"fullcheck", no_argument,       nullptr, 'F'},
+      {"index",     required_argument, nullptr, 'I'},
+      {"rank",      required_argument, nullptr, 'R'},
+      {"verbose",   no_argument,       nullptr, 'v'},
+      {0, 0, 0, 0}
+  };
 
-  // not relevant if crossover
+  // Get actual values of the command-line options
+  int option;
+  while((option = getopt_long(argc, argv, short_options,
+                              long_options, nullptr)) != -1) {
+    switch(option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      }
+      case 'V' : {
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      }
+      case 'b' : {
+        if (strcmp(optarg, "") == 0) {
+          printf("%s: error: Option -b or --begin : missing argument.\n",
+                 argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        t0  = atol(optarg);
+        break;
+      }
+      case 'e' : {
+        if (strcmp(optarg, "") == 0) {
+          printf("%s: error: Option -e or --end : missing argument.\n",
+                 argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        t_end = atol(optarg);
+        break;
+      }
+      case 'F' : {
+        full_check = true;
+        break;
+      }
+      case 'I' : {
+        final_indiv_index  = atoi(optarg);
+        break;
+      }
+      case 'R' : {
+        final_indiv_rank  = atoi(optarg);
+        break;
+      }
+      case 'v' : {
+        verbose = true;
+        break;
+      }
+      default : {
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+      }
+    }
+  }
 
-  printf("\n");
-  printf("*********************** aevol - Artificial Evolution ******************* \n");
-  printf("*                                                                      * \n");
-  printf("*                      Lineage post-treatment program                  * \n");
-  printf("*                                                                      * \n");
-  printf("************************************************************************ \n");
-  printf("\n\n");
-  printf("This program is Free Software. No Warranty.\n");
-  printf("Copyright (C) 2009  LIRIS.\n");
-  printf("\n");
-#ifdef __REGUL
-  printf("Usage : rlineage -h\n");
-  printf("or :    rlineage [-vn] [-i index [-b gener1] -e end_gener \n");
-#else
-  printf("Usage : lineage -h\n");
-  printf("or :    lineage [-vn] [-i index [-b gener1] -e end_gener \n");
-#endif
-  printf("\n");
-#ifdef __REGUL
-  printf("This program retrieves the ancestral lineage of an individual and writes \n");
-  printf("it in an output file called lineage.rae. Specifically, it retrieves the \n");
-  printf("lineage of the individual of end_gener whose index is index, going \n");
-  printf("back in time up to gener1. This program requires at least one population backup\n");
-  printf("file (for the generation gener1), one environment backup file (for the generation gener1)\n");
-  printf("and all tree files for generations gener1 to end_gener.\n");
-#else
-  printf("This program retrieves the ancestral lineage of an individual and writes \n");
-  printf("it in an output file called lineage.ae. Specifically, it retrieves the \n");
-  printf("lineage of the individual of end_gener whose index is index, going \n");
-  printf("back in time up to gener1. This program requires at least one population backup\n");
-  printf("file (for the generation gener1), one environment backup file (for the generation gener1)\n");
-  printf("and all tree files for generations gener1 to end_gener.\n");
-#endif
-  printf("\n");
-  printf("WARNING: This program should not be used for simulations run with lateral\n");
-  printf("transfer. When an individual has more than one parent, the notion of lineage\n");
-  printf("used here is not relevant.\n");
-  printf("\n");
-  printf("\t-h or --help    : Display this help.\n");
-  printf("\n");
-  printf("\t-v or --verbose : Be verbose, listing generations as they are \n");
-  printf("\t                  treated.\n");
-  printf("\n");
-  printf("\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
-  printf("\t                       program faster, but it is not recommended. \n");
-  printf("\t                       It is better to let the program check that \n");
-  printf("\t                       when we rebuild the genomes of the ancestors\n");
-  printf("\t                       from the lineage file, we get the same sequences\n");
-  printf("\t                       as those stored in the backup files.\n");
-  printf("\n");
-  printf("\t-c or --fullcheck  : Will perform the genome checks every <BACKUP_STEP>\n");
-  printf("\t                       generations. Default behaviour is lighter as it\n");
-  printf("\t                       only performs these checks at the ending generation.\n");
-  printf("\n");
-  printf("\t-i index or --index index : \n");
-  printf("\t                  Retrieve the lineage of the individual whose\n");
-  printf("\t                  index is index. The index must be comprised \n");
-  printf("\t                  between 0 and N-1, with N the size of the \n");
-  printf("\t                  population at the ending generation. If neither\n");
-  printf("\t                  index nor rank are specified, the program computes \n");
-  printf("\t                  the lineage of the best individual of the ending \n");
-  printf("\t                  generation.\n");
-  printf("\n");
-  printf("\t-b gener1 or --begin gener1 : \n");
-  printf("\t                  Retrieve the lineage up to generation gener1.\n");
-  printf("\t                  There must be a genome backup file for this\n");
-  printf("\t                  generation. If not specified, the program \n");
-  printf("\t                  retrieves the lineage up to generation 0.\n");
-  printf("\n");
-  printf("\t-e end_gener or --end end_gener : \n");
-  printf("\t                  Retrieve the lineage of the individual of end_gener \n");
-  printf("\t                  (default: that contained in file last_gener.txt, if any)\n");
-  printf("\n");
+  // If t_end wasn't provided, use default
+  if (t_end < 0) {
+    t_end = OutputManager::last_gener();
+  }
 }
