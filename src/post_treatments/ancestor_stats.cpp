@@ -96,6 +96,7 @@ int main(int argc, char* argv[]) {
   gzread(lineage_file, &t0, sizeof(t0));
   gzread(lineage_file, &t_end, sizeof(t_end));
   gzread(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
+  gzread(lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank));
 
   if (verbose) {
     printf("\n\n""===============================================================================\n");
@@ -112,8 +113,6 @@ int main(int argc, char* argv[]) {
   // =============================
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t0, true, false);
-    exp_manager->exp_s()->set_fuzzy_flavor(1);
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_manager->exp_s());
 
   // The current version doesn't allow for phenotypic variation nor for
   // different phenotypic targets among the grid
@@ -143,8 +142,8 @@ int main(int argc, char* argv[]) {
   auto prefix = "ancestor_stats/ancestor_stats";
   char postfix[255];
   snprintf(postfix, 255,
-           "-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32,
-          t0, t_end, final_indiv_index, final_indiv_rank);
+      "-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32,
+      t0, t_end, final_indiv_index, final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
@@ -208,11 +207,13 @@ int main(int argc, char* argv[]) {
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-  Individual* indiv = new Individual(exp_manager, lineage_file);
-  //auto* indiv = grid_cell->individual();
-  indiv->EvaluateInContext(exp_manager->world()->grid(0,0)->habitat());
+  GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
+  auto* indiv = grid_cell->individual();
+  indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
+
+  mystats->write_statistics_of_this_indiv(t0,indiv, nullptr);
 
   // Additional outputs
   write_environment_stats(t0, phenotypicTargetHandler, env_output_file);
@@ -255,7 +256,7 @@ int main(int argc, char* argv[]) {
         printf("Rebuilding ancestor at generation %" PRId64
             " (index %" PRId32 ")...", time(), index);
 
-    indiv->ReevaluateInContext(exp_manager->world()->grid(0,0)->habitat());
+    indiv->Reevaluate();
 
     // 2) Replay replication (create current individual's child)
     GeneticUnit& gen_unit = indiv->genetic_unit_nonconst(0);
@@ -377,7 +378,7 @@ int main(int argc, char* argv[]) {
     }
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-      indiv->ReevaluateInContext(exp_manager->world()->grid(0,0)->habitat());
+    indiv->Reevaluate();
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
@@ -426,7 +427,7 @@ int main(int argc, char* argv[]) {
 
 FILE* open_environment_stat_file(const char* prefix, const char* postfix) {
   // Open file
-  char* env_output_file_name = new char[80];
+  char* env_output_file_name = new char[120];
   sprintf(env_output_file_name, "stats/%s_envir%s.out", prefix, postfix);
   FILE* env_output_file = fopen(env_output_file_name, "w");
   delete env_output_file_name;
@@ -458,7 +459,7 @@ void write_environment_stats(int64_t t, const PhenotypicTargetHandler* pth,
 
 
 FILE* open_terminators_stat_file(const char* prefix, const char* postfix) {
-  char* term_output_file_name = new char[80];
+  char* term_output_file_name = new char[120];
   sprintf(term_output_file_name, "stats/%s_nb_term%s.out", prefix, postfix);
   FILE* term_output_file = fopen(term_output_file_name, "w");
   delete [] term_output_file_name;
@@ -485,7 +486,7 @@ void write_terminators_stats(int64_t t,  Individual* indiv,
 
 FILE* open_zones_stat_file(const char* prefix, const char* postfix) {
   // Open file
-  char* zones_output_file_name = new char[80];
+  char* zones_output_file_name = new char[120];
   sprintf(zones_output_file_name, "stats/%s_zones%s.out", prefix, postfix);
   FILE* zones_output_file = fopen(zones_output_file_name, "w");
   delete [] zones_output_file_name;
@@ -606,7 +607,7 @@ void write_zones_stats(int64_t t,
 
 
 FILE* open_operons_stat_file(const char* prefix, const char* postfix) {
-  char* operons_output_file_name = new char[80];
+  char* operons_output_file_name = new char[120];
   sprintf(operons_output_file_name, "stats/%s_operons%s.out", prefix, postfix);
   FILE* operons_output_file = fopen(operons_output_file_name, "w");
   delete [] operons_output_file_name,

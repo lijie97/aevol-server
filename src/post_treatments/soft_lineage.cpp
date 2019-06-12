@@ -82,15 +82,27 @@ int main(int argc, char** argv) {
   printf("OK\n");
   printf("====================================\n");
 
-  //Find the best indiv
   int32_t best_id = 0;
   int32_t best_rank = 0;
+
+  // Specify the index of indiv
+  int final_indiv_index = 0;
+
   for(auto rep : replics[last_gen]) {
-    if(rep.second->rank() > best_rank) {
+    if (rep.first == final_indiv_index) {
       best_rank = rep.second->rank();
       best_id = rep.first;
     }
   }
+
+  //Find the best indiv
+
+  /*for(auto rep : replics[last_gen]) {
+    if(rep.second->rank() > best_rank) {
+      best_rank = rep.second->rank();
+      best_id = rep.first;
+    }
+  }*/
   //His rank have to be the number of indivs
   std::cout << "Best indiv is : " << best_id << " with rank : " << best_rank << '\n';
   int32_t anc_id = best_id;
@@ -115,12 +127,15 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
+  //printf("Luca is %d\n",luca_time);
   for(int64_t gen = 1 ; gen < luca_time ; ) {
+      //printf("Searching at gen %d\n",gen);
     c = gzgetc(trunc_file);
     if(c < 0) {
       gzclose(trunc_file);
       current_gen += backup_step;
       if(current_gen > last_gen) {
+          //printf("Current gen %d -- %d\n",current_gen,last_gen);
         break;
       }
       sprintf(input_file_name, "lightTree/tree_trunc" TIMESTEP_FORMAT ".ae", current_gen);
@@ -133,8 +148,8 @@ int main(int argc, char** argv) {
     }
     gzungetc(c, trunc_file);
     ReplicationReport* rep = new ReplicationReport(trunc_file, nullptr);
-    //printf("Getting the replication report for the ancestor at generation %" PRId64 "\n", gen);
     reports[gen] = rep;
+      //printf("Getting TRUNC the replication report for the ancestor at generation %" PRId64 " => %d (%d)\n", gen,rep->id(),rep->parent_id());
     gen++;
   }
   printf("OK\n");
@@ -157,6 +172,8 @@ int main(int argc, char** argv) {
     fprintf(stderr, "Please check your permissions in this directory.\n");
     exit(EXIT_FAILURE);
   }
+
+    printf("Loading individual %d\n",reports[1]->parent_id());
 
   const Individual& initial_ancestor = *(exp_manager->indiv_by_id(reports[1]->parent_id()));
 

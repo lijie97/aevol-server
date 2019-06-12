@@ -4749,7 +4749,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         exp_m_->output_m()->write_tree(AeTime::time());
     }
 
-  if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0 && !exp_m_->record_light_tree()) {
+  if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
 
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       int x = indiv_id / exp_m_->world()->height();
