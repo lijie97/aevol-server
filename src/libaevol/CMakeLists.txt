@@ -37,16 +37,18 @@ add_library(aevol
   ExpSetup.cpp
   ExpSetup.h
   Gaussian.h
-  GeneMutation.cpp
-  GeneMutation.h
-  GeneTree.cpp
-  GeneTree.h
-  GeneTreeNode.cpp
-  GeneTreeNode.h
+#  GeneMutation.cpp
+#  GeneMutation.h
+#  GeneTree.cpp
+#  GeneTree.h
+#  GeneTreeNode.cpp
+#  GeneTreeNode.h
   GeneticUnit.cpp
   GeneticUnit.h
   Habitat.cpp
   Habitat.h
+  HabitatFactory.cpp
+  HabitatFactory.h
   GridCell.cpp
   GridCell.h
   Individual.cpp
@@ -72,8 +74,8 @@ add_library(aevol
   Phenotype.h
   Protein.cpp
   Protein.h
-  MersenneTwister.cpp
-  MersenneTwister.h
+  #MersenneTwister.cpp
+  #MersenneTwister.h
   ReplicationReport.cpp
   ReplicationReport.h
   DnaReplicationReport.cpp

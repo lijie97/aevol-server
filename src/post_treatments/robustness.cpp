@@ -25,15 +25,17 @@
 // ****************************************************************************
 
 
+// ============================================================================
+//                                   Includes
+// ============================================================================
+#include <cerrno>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cinttypes>
+#include <cmath>
 
-
-// =================================================================
-//                              Libraries
-// =================================================================
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <getopt.h>
 #include <zlib.h>
 #include <inttypes.h>
 #include <getopt.h>
@@ -46,283 +48,130 @@
 //                            Project Files
 // =================================================================
 #include "aevol.h"
-
+#include "IndivAnalysis.h"
 
 using std::list;
 using namespace aevol;
 
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Helper functions
 void print_help(char* prog_path);
+void interpret_cmd_line_options(int argc, char* argv[]);
 
+// Command-line option variables
+static int32_t nb_children = 1000;
+static int32_t wanted_rank = -1;
+static int32_t wanted_index = -1;
+static int64_t timestep = -1;
 
-
-
-
-// =====================================================================
-//                         Main Function
-// =====================================================================
-
-
-int main(int argc, char* argv[])
-{
-  // ----------------------------------------
-  //     command-line option parsing
-  // ----------------------------------------
-  int32_t nb_children     = 1000;
-  int32_t wanted_rank     = -1;
-  int32_t wanted_index    = -1;
-  int64_t num_gener       = 0;
-
-  const char * options_list = "hVg:n:r:i:";
-  static struct option long_options_list[] = {
-    {"help",          no_argument,        NULL, 'h'},
-    {"version",       no_argument,        NULL, 'V'},
-    {"gener",         required_argument,  NULL, 'g'},
-    {"nb-children",   required_argument,  NULL, 'n'},
-    {"rank",          required_argument,  NULL, 'r'},
-    {"index",         required_argument,  NULL, 'i'},
-    {0, 0, 0, 0}
-  };
-
-  int option = -1;
-  bool rank_already_set = false;
-  bool index_already_set = false;
-  while((option=getopt_long(argc,argv,options_list,long_options_list,NULL))!=-1)
-    {
-      switch(option)
-        {
-        case 'h' :
-          {
-            print_help(argv[0]);
-            exit(EXIT_SUCCESS);
-          }
-        case 'V' :
-          {
-            Utils::PrintAevolVersion();
-            exit(EXIT_SUCCESS);
-          }
-        case 'g' :
-          {
-            if (strcmp(optarg, "") == 0)
-              {
-                printf("%s: error: Option -g or --gener : missing argument.\n", argv[0]);
-                exit(EXIT_FAILURE);
-              }
-
-            num_gener = atol(optarg);
-            break;
-          }
-        case 'n' :
-          nb_children = atol(optarg);
-          break;
-        case 'r' :
-          if (index_already_set)
-            {
-              fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
-              exit(EXIT_FAILURE);
-            }
-          wanted_rank = atol(optarg);
-          rank_already_set = true;
-          break;
-        case 'i' :
-          if (rank_already_set)
-            {
-              fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
-              fprintf(stderr, "           Use %s --help for more information.\n", argv[0]);
-              exit(EXIT_FAILURE);
-            }
-          wanted_index = atol(optarg);
-          index_already_set = true;
-          break;
-        }
+int main(int argc, char* argv[]) {
+  interpret_cmd_line_options(argc, argv);
+  
+  // ----------------------
+  //  Prepare the outputs
+  // ----------------------
+  char directory_name[255];
+  snprintf(directory_name, 255, "analysis-generation_" TIMESTEP_FORMAT,
+      timestep);
+  
+  // Check whether the directory already exists and is writable
+  if (access(directory_name, F_OK) == 0) {
+    if (access(directory_name, X_OK | W_OK) != 0) {
+      fprintf(stderr, "Error: cannot enter or write in directory %s.\n",
+              directory_name);
+      exit(EXIT_FAILURE);
     }
-
-
+  }
+  else {
+    // Create the directory with permissions : rwx r-x r-x
+    if (mkdir(directory_name,
+              S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
+      fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
+      exit(EXIT_FAILURE);
+    }
+  }
 
   // -----------------------------------------------------------------------------------
   //  Load the backup and get the individual for which detailed information is desired
   // -----------------------------------------------------------------------------------
+  ExpManager* exp_manager = new ExpManager();
+  exp_manager->load(timestep, true, false);
 
-  ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load(num_gener, true, false);
+  Individual* indiv_tmp = nullptr;
 
-  if ((wanted_rank == -1) && (wanted_index == -1))
-    {
-      wanted_rank = exp_manager->nb_indivs();  // the best one has rank N
-    }
+  // If neither a rank nor an index was provided, consider the best indiv
+  if ((wanted_rank == -1) && (wanted_index == -1)) {
+    indiv_tmp = exp_manager->best_indiv();
+  }
+  else if (wanted_index != -1) {
+    indiv_tmp = exp_manager->indiv_by_id(wanted_index);
+  }
+  else {
+    indiv_tmp = exp_manager->indiv_by_rank(wanted_rank);
+  }
+  // Update id and rank
+  wanted_index = indiv_tmp->id();
+  wanted_rank = indiv_tmp->rank();
 
-  // TODO: factor with duplicated code in mutagenesis.cpp
-  ae_individual* wanted_indiv = nullptr;
-  { // (local scope for `indivs` used as a shorthand)
-    bool found = false;
-    int32_t current_rank = -1;
-    int32_t current_index = -1;
-    std::list<ae_individual*> indivs = exp_manager->indivs();
-    for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
-      current_index = (*indiv)->id();
-      current_rank = (*indiv)->rank();
+  IndivAnalysis wanted_indiv(*indiv_tmp);
+  indiv_tmp = nullptr;
 
-      if (wanted_index != -1 and current_index == wanted_index) {
-        found = true;
-        wanted_indiv = *indiv;
-        wanted_rank = current_rank;
-      }
-      else if (current_rank == wanted_rank) {
-        // no index was specified, we use the desired rank
-        found = true;
-        wanted_indiv = *indiv;
-        wanted_index = current_index;
-      }
-    }
-    assert(found);
+  // Now that we have the index and rank of the indiv of interest, we can
+  // generate the output file name and hence open that file
+  char filename[255];
+  snprintf(filename, 255, "%s/robustness-summary-%" PRId64 "-i%" PRId32 "-r%" PRId32,
+      directory_name, timestep, wanted_index, wanted_rank);
+  FILE* output_summary = fopen(filename, "w");
+  if (output_summary == nullptr) {
+    Utils::ExitWithUsrMsg(std::string("Could not open file ") + filename);
+  }
+  snprintf(filename, 255, "%s/robustness-detailed-%" PRId64 "-i%" PRId32 "-r%" PRId32,
+      directory_name, timestep, wanted_index, wanted_rank);
+  FILE* output_detailed = fopen(filename, "w");
+  if (output_detailed == nullptr) {
+    Utils::ExitWithUsrMsg(std::string("Could not open file ") + filename);
   }
 
-  wanted_indiv->evaluate();
-  wanted_indiv->compute_statistical_data();
-  wanted_indiv->compute_non_coding();
+  fprintf(output_summary, "###############################################################################\n");
+  fprintf(output_summary, "#  Summary of the mutants generated from individual with rank %" PRId32
+  " and index %" PRId32 " at timestep %" PRId64 " \n",
+      wanted_rank, wanted_index, timestep);
+  fprintf(output_summary, "###############################################################################\n");
+  fprintf(output_summary, "#  1.  Timestep\n");
+  fprintf(output_summary, "#  2.  Proportion of mutants that are better than their parent\n");
+  fprintf(output_summary, "#  3.  Proportion of mutants that are as good as their parent was\n");
+  fprintf(output_summary, "#  4.  Proportion of mutants that are worse than their parent\n");
+  fprintf(output_summary, "#  5.  Average difference in metabolic error btw good mutants and their parent\n");
+  fprintf(output_summary, "#  6.  Average difference in metabolic error btw bad mutants and their parent\n");
+  fprintf(output_summary, "#  7.  Maximum gain in metabolic error among good mutants\n");
+  fprintf(output_summary, "#  8.  Maximum loss of metabolic error among bad mutants\n");
+  fprintf(output_summary, "###############################################################################\n");
 
+  fprintf(output_detailed, "###############################################################################\n");
+  fprintf(output_detailed, "#  Mutants generated from individual with rank %" PRId32
+  " and index %" PRId32 " at timestep %" PRId64 " \n",
+      wanted_rank, wanted_index, timestep);
+  fprintf(output_detailed, "###############################################################################\n");
+  fprintf(output_detailed, "#  1.  Parent id\n");
+  fprintf(output_detailed, "#  2.  Parent metabolic error\n");
+  fprintf(output_detailed, "#  3.  Parent secretion\n");
+  fprintf(output_detailed, "#  4.  Mutant metabolic error\n");
+  fprintf(output_detailed, "#  5.  Mutant secretion\n");
+  fprintf(output_detailed, "#  6.  Mutant genome size\n");
+  fprintf(output_detailed, "#  7.  Mutant number of functional genes\n");
+  fprintf(output_detailed, "###############################################################################\n");
 
+  wanted_indiv.Evaluate();
+  wanted_indiv.compute_statistical_data();
+  wanted_indiv.compute_non_coding();
 
-  // ----------------------
-  //  Prepare the outputs
-  // ----------------------
+  wanted_indiv.compute_experimental_f_nu(
+      nb_children,
+      std::make_shared<JumpingMT>(time(nullptr)),
+      output_summary,
+      output_detailed);
 
-  char directory_name[64];
-  sprintf(directory_name, "analysis-generation%06" PRId64, num_gener);
-
-  // Check whether the directory already exists and is writable
-  if (access(directory_name, F_OK) == 0)
-    {
-      if (access(directory_name, X_OK | W_OK) != 0)
-        {
-          fprintf(stderr, "Error: cannot enter or write in directory %s.\n", directory_name);
-          exit(EXIT_FAILURE);
-        }
-    }
-  else
-    {
-      // Create the directory with permissions : rwx r-x r-x
-      if (mkdir(directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
-        {
-          fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
-          exit(EXIT_FAILURE);
-        }
-    }
-
-
-  char filename[256];
-  snprintf(filename, 255, "%s/robustness-allindivs-g%06" PRId64 ".out", directory_name, num_gener);
-  FILE * outputfile_wholepop = fopen(filename, "w");
-
-  snprintf(filename, 255,
-           "%s/robustness-singleindiv-details-g%06" PRId64
-               "-i%" PRId32 "-r%" PRId32 ".out",
-           directory_name, num_gener, wanted_index, wanted_rank);
-  FILE * outputfile_details = fopen(filename, "w");
-
-
-  //  Write headers
-
-  fprintf(outputfile_wholepop, "# ######################################################################\n");
-  fprintf(outputfile_wholepop, "# Robustness data of individuals at generation %" PRId64 "\n",num_gener);
-  fprintf(outputfile_wholepop, "# ######################################################################\n");
-  fprintf(outputfile_wholepop, "#  1.  Rank\n");
-  fprintf(outputfile_wholepop, "#  2.  Index\n");
-  fprintf(outputfile_wholepop, "#  3.  Fitness\n");
-  fprintf(outputfile_wholepop, "#  4.  Metabolic error\n");
-  fprintf(outputfile_wholepop, "#  5.  Genome size\n");
-  fprintf(outputfile_wholepop, "#  6.  Functional gene number\n");
-  fprintf(outputfile_wholepop, "#  7.  Reproduction probability\n");
-  fprintf(outputfile_wholepop, "#  8.  Proportion of neutral offsprings\n");
-  fprintf(outputfile_wholepop, "#  9.  Proportion of beneficial offsprings\n");
-  fprintf(outputfile_wholepop, "#  10. Proportion of deleterious offsprings\n");
-  fprintf(outputfile_wholepop, "#  11. Theoretical proportion of neutral offsprings\n");
-  fprintf(outputfile_wholepop, "#  12. Fitness mean of offsprings\n");
-  fprintf(outputfile_wholepop, "#  13. Fitness variance of offsprings\n");
-  fprintf(outputfile_wholepop, "#  14. Genome size mean of offsprings\n");
-  fprintf(outputfile_wholepop, "#  15. Genome size variance of offsprings\n");
-  fprintf(outputfile_wholepop, "#  16. Functional gene number mean of offsprings\n");
-  fprintf(outputfile_wholepop, "#  17. Functional gene number variance of offsprings\n");
-  fprintf(outputfile_wholepop, "# ######################################################################\n");
-
-  fprintf(outputfile_details, "# #######################################################################################################\n");
-  fprintf(outputfile_details, "#  Offspring details of individual with rank %" PRId32 " and index %" PRId32 " at generation %" PRId64 " \n", \
-          wanted_rank, wanted_index, num_gener);
-  fprintf(outputfile_details, "# #######################################################################################################\n");
-  fprintf(outputfile_details, "#  1.  Fitness\n");
-  fprintf(outputfile_details, "#  2.  Metabolic error\n");
-  fprintf(outputfile_details, "#  3.  Genome size\n");
-  fprintf(outputfile_details, "#  4.  Functional gene number\n");
-  fprintf(outputfile_details, "#  5.  Number of coding bases\n");
-  fprintf(outputfile_details, "#  6.  Number of transcribed but not translated bases\n");
-  fprintf(outputfile_details, "#  7.  Number of non transcribed bases\n");
-  fprintf(outputfile_details, "# #######################################################################################################\n");
-
-
-
-  // ---------------------------------------------------------------------------
-  //  Force each individual of the population to produce nb_children offspring
-  // ---------------------------------------------------------------------------
-
-
-  double reproduction_statistics[3];
-  double offsprings_statistics[6];
-  double th_fv;
-
-  // exp_manager->exp_s()->sel()->compute_prob_reprod();
-  // double* tmp_reprod = exp_manager->exp_s()->sel()->prob_reprod();
-
-  { // (local scope for `indivs` used as a shorthand)
-    list<ae_individual*> indivs = exp_manager->indivs();
-    for (auto indiv : indivs)
-    {
-      int32_t current_index = indiv->id();
-      int32_t current_rank = indiv->rank();
-
-      // Compute Fv ----------------------------------------------------------------
-      th_fv = indiv->compute_theoritical_f_nu();
-
-      if (indiv == wanted_indiv)
-        indiv->compute_experimental_f_nu(nb_children,
-                                         reproduction_statistics,
-                                         offsprings_statistics,
-                                         outputfile_details);
-      else
-        indiv->compute_experimental_f_nu(nb_children,
-                                         reproduction_statistics,
-                                         offsprings_statistics);
-
-
-      // Write to file -------------------------------------------------------------
-      fprintf(outputfile_wholepop,
-              "%" PRId32 " %" PRId32 " %le %le %" PRId32 " %" PRId32
-              " %le %le %le %le %le %le %le %le %le %le\n",
-              current_rank,
-              current_index,
-              indiv->fitness(),
-              indiv->dist_to_target_by_feature(METABOLISM),
-              indiv->total_genome_size(),
-              indiv->nb_functional_genes(),
-              reproduction_statistics[0],
-              reproduction_statistics[1],
-              reproduction_statistics[2],
-              th_fv,
-              offsprings_statistics[0],
-              offsprings_statistics[1],
-              offsprings_statistics[2],
-              offsprings_statistics[3],
-              offsprings_statistics[4],
-              offsprings_statistics[5]
-);
-    }
-  }
-
-
-
-  fclose(outputfile_wholepop);
-  fclose(outputfile_details);
+  fclose(output_summary);
+  fclose(output_detailed);
   delete exp_manager;
 
 
@@ -330,64 +179,100 @@ int main(int argc, char* argv[])
 }
 
 
-
-
-/*!
-  \brief
-
-*/
-void print_help(char* prog_path)
-{
+/**
+ * \brief print help and exist
+ */
+void print_help(char* prog_path) {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
-  else prog_name = prog_path;
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
 
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
   printf("\n");
-  printf("*********************** aevol - Artificial Evolution ******************* \n");
-  printf("*                                                                      * \n");
-  printf("*                     Robustness post-treatment program                * \n");
-  printf("*                                                                      * \n");
-  printf("************************************************************************ \n");
-  printf("\n\n");
-  printf("This program is Free Software. No Warranty.\n");
+  printf("%s:\n", prog_name);
+  printf("\tComputes replication statistics of a given individual\n");
+  printf("\tThis is achieved by performing NB_MUTANTS replications\n");
+  printf("\tof the individual of interest and evaluating them\n");
   printf("\n");
-  printf("Usage : %s -h\n", prog_name);
+  printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s -g GENER [-n NBCHILDREN] [-r RANK | -i INDEX]\n", prog_name);
-  printf("\n");
-  printf("This program computes the replication statistics of all the individuals of a given generation,\n");
-  printf("like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating\n");
-  printf("NBCHILDREN replications for each individual, with its mutation, rearrangement and transfer rates.\n");
-  printf("Depending on those rates and genome size, there can be several events per replication.\n");
-  printf("Those statistics are written in analysis-generationGENER/robustness-allindivs-gGENER.out, with one \n");
-  printf("line per individual in the specified generation. \n\n");
-  printf("The program also outputs detailed statistics for one of the individuals (the best one by default). \n");
-  printf("The detailed statistics for this individual are written in the file called \n");
-  printf("analysis-generationGENER/robustness-singleindiv-details-gGENER-iINDEX-rRANK.out, with one line per simulated\n");
-  printf("child of this particular individual.\n");
-  printf("\n");
-  printf("\n");
-  printf("\t-h or --help    : Display this help, then exit\n");
-  printf("\n");
-  printf("\t-V or --version : Print version number, then exit\n");
-  printf("\n");
-  printf("\t-g GENER or --gener GENER : \n");
-  printf("\t                  Generation at which the statistics are computed\n");
-  printf("\n");
-  printf("\t-i INDEX or --index INDEX : \n");
-  printf("\t                  Index of individual of interest. Should be comprised between 0 and N-1, where\n");
-  printf("\t                  N is the size of the population.\n");
-  printf("\n");
-  printf("\t-r RANK or --rank RANK : \n");
-  printf("\t                  Rank of individual of interest. Should be comprised between 1 and N, where\n");
-  printf("\t                  N is the size of the population. Default = N (fittest individual).\n");
-  printf("\n");
-  printf("\t-n NBCHILDREN or --nb-children NBCHILDREN : \n");
-  printf("\t                  Perform NBCHILDREN replications per individual to compute its statistics. \n");
-  printf("\t                  Default = 1000.\n");
-  printf("\n");
+  printf("   or : %s [-t TIMESTEP] [-I INDEX | -R RANK] [-n NB_MUTANTS]\n",
+         prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -t, --timestep TIMESTEP\n");
+  printf("\tspecify timestep of the individual of interest\n");
+  printf("  -I, --index INDEX\n");
+  printf("\tspecify the index of the individual of interest\n");
+  printf("  -R, --rank RANK\n");
+  printf("\tspecify the rank of the individual of interest\n");
+  printf("  -n, --nb-mutants NB_MUTANTS\n");
+  printf("\tspecify the number of mutants to be generated\n");
+}
 
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  const char* options_list = "hVt:n:R:I:";
+  static struct option long_options_list[] = {
+      {"help",       no_argument,       NULL, 'h'},
+      {"version",    no_argument,       NULL, 'V'},
+      {"timestep",   required_argument, NULL, 't'},
+      {"nb-mutants", required_argument, NULL, 'n'},
+      {"rank",       required_argument, NULL, 'R'},
+      {"index",      required_argument, NULL, 'I'},
+      {0, 0, 0, 0}
+  };
 
-  printf("\n");
+  int option;
+  while ((option = getopt_long(argc, argv, options_list, long_options_list,
+                               NULL)) != -1) {
+    switch (option) {
+      case 'h' :
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'V' :
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      case 't' :
+        timestep = atol(optarg);
+        break;
+      case 'n' :
+        nb_children = atol(optarg);
+        break;
+      case 'R' :
+        if (wanted_index != -1) {
+          Utils::ExitWithUsrMsg("Options -R and -I are incompatible");
+        }
+        wanted_rank = atol(optarg);
+        break;
+      case 'I' :
+        if (wanted_rank != -1) {
+          Utils::ExitWithUsrMsg("Options -R and -I are incompatible");
+        }
+        wanted_index = atol(optarg);
+        break;
+      default :
+        // An error message is printed in getopt_long, we just need to exit
+        exit(EXIT_FAILURE);
+    }
+  }
+
+  // If timestep wasn't provided, use default
+  if (timestep < 0) {
+    timestep = OutputManager::last_gener();
+  }
 }

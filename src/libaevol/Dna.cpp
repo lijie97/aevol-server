@@ -200,28 +200,30 @@ char* Dna::subsequence(int32_t from, int32_t to, Strand strand) const {
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Dna::perform_mutations(int parent_id) {
-  if (indiv_->with_HT()) {
-    do_transfer(parent_id);
-  }
+/// Perform mutations and record how many of them occurred
+int32_t Dna::perform_mutations(int32_t parent_id) {
+  int32_t nb_events = 0;
 
-  if (indiv_->with_alignments()) {
-    do_rearrangements_with_align();
-  }
-  else {
-    do_rearrangements();
-  }
+  if (indiv_->with_HT())
+    nb_events += do_transfer(parent_id);
 
-  do_small_mutations();
+  if (indiv_->with_alignments())
+    nb_events += do_rearrangements_with_align();
+  else
+    nb_events += do_rearrangements();
+
+  nb_events += do_small_mutations();
+
+  return nb_events;
 }
 
-void Dna::do_small_mutations() {
+int32_t Dna::do_small_mutations() {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
   //
   // Given the rate p (by nucl.) of insertion - for instance -, the number of
-  // insertions we perform on the genome follows a binomial law B(n, p), with
+  // insertions we perform on the genome follows a binomial law B(n,p), with
   // n = genome length.
 
   int32_t nb_swi = indiv_->mut_prng_->
@@ -295,9 +297,11 @@ void Dna::do_small_mutations() {
       delete mut;
     }
   }
+
+  return nb_mut;
 }
 
-void Dna::do_rearrangements() {
+int32_t Dna::do_rearrangements() {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -379,9 +383,10 @@ void Dna::do_rearrangements() {
       delete mut;
     }
   }
+  return nb_rear;
 }
 
-void Dna::do_rearrangements_with_align() {
+int32_t Dna::do_rearrangements_with_align() {
   // Whether we look for a direct or indirect alignment
   bool direct_sense;
   // Determines the type of rearrangement that will be done if an alignment
@@ -398,6 +403,7 @@ void Dna::do_rearrangements_with_align() {
   int32_t nb_pairs;
   // Keep trace of the original length of the genome
   int32_t genome_size = length_;
+  int32_t nb_rearr = 0;
 
   Mutation* mut = nullptr;
   VisAVis* alignment = NULL;
@@ -525,13 +531,15 @@ void Dna::do_rearrangements_with_align() {
                                 alignment->i_2(),
                                 alignment->i_2(),
                                 segment_length, needed_score);
-
+	  nb_rearr++;
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
-                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DUPL),
+                    AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(DUPL),
                     segment_length, genome_size_before, needed_score);
           }
         }
@@ -555,7 +563,9 @@ void Dna::do_rearrangements_with_align() {
             fprintf(exp_m_->output_m()->log(LOG_BARRIER),
                     "%" PRId64 " %" PRId32 " DELETION %" PRId32 " %" PRId32
                         " %" PRId32 " %" PRId32 "\n",
-                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
+                    AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), segment_length, 0,
                     gu_size_before, genome_size_before);
           }
         }
@@ -567,13 +577,16 @@ void Dna::do_rearrangements_with_align() {
           mut = new Deletion(alignment->i_1(),
                              alignment->i_2(),
                              segment_length, needed_score);
+	  nb_rearr++;
 
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
-                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DEL),
+                    AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(DEL),
                     segment_length, genome_size_before, needed_score);
           }
         }
@@ -665,13 +678,16 @@ void Dna::do_rearrangements_with_align() {
                                   segment_length,
                                   (alignment_2->sense() == INDIRECT),
                                   needed_score, needed_score_2);
+	  nb_rearr++;
 
           // Write a line in rearrangement logfile
           if (exp_m_->output_m()->is_logged(LOG_REAR)) {
             fprintf(exp_m_->output_m()->log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
-                    AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
+                    AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(TRANS),
                     segment_length, length_, needed_score_2);
           }
           delete alignment_2;
@@ -727,13 +743,15 @@ void Dna::do_rearrangements_with_align() {
       mut = new Inversion(alignment->i_1(),
                           alignment->i_2(),
                           segment_length, needed_score);
-
+      nb_rearr++;
       // Write a line in rearrangement logfile
       if (exp_m_->output_m()->is_logged(LOG_REAR)) {
         fprintf(exp_m_->output_m()->log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                     " %" PRId16 "\n",
-                AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(INV),
+                AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(INV),
                 segment_length, length_, needed_score);
       }
 
@@ -763,15 +781,18 @@ void Dna::do_rearrangements_with_align() {
       delete mut;
     }
   }
+  return nb_rearr;
 }
 
-void Dna::do_transfer(int32_t parent_id) {
+int32_t Dna::do_transfer(int32_t parent_id) {
   Mutation* mut = nullptr;
+  int32_t nb_transfer = 0;
 
   if (indiv_->mut_prng()->random() < indiv_->HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
     if (mut != nullptr) {
       indiv_->notifyObservers(MUTATION, mut);
+      nb_transfer++;
       delete mut;
     }
   }
@@ -780,9 +801,11 @@ void Dna::do_transfer(int32_t parent_id) {
     mut = do_repl_HT(parent_id);
     if (mut != nullptr) {
       indiv_->notifyObservers(MUTATION, mut);
+      nb_transfer++;
       delete mut;
     }
   }
+  return nb_transfer;
 }
 
 PointMutation* Dna::do_switch() {
@@ -821,7 +844,9 @@ SmallInsertion* Dna::do_small_insertion() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " S_INS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), nb_insert, 0, length_,
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), nb_insert, 0, length_,
               indiv_->amount_of_dna());
     }
 
@@ -873,7 +898,9 @@ SmallDeletion* Dna::do_small_deletion() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " S_DEL %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), nb_del, 0, length_,
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), nb_del, 0, length_,
               indiv_->amount_of_dna());
     }
 
@@ -975,10 +1002,20 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
 
 Duplication* Dna::do_duplication() {
   Duplication* mut = nullptr;
-
+  if (length_ == 1)
+    {
+      printf("*** genome of size 1 ; duplication not done *** \n");
+      return mut;
+    }
   int32_t pos_1, pos_2, pos_3;
   pos_1 = indiv_->mut_prng_->random(length_);
   pos_2 = indiv_->mut_prng_->random(length_);
+
+  // TODO: why are complete duplications forbidden ?
+  while (pos_2 == pos_1)
+    {
+      pos_2 = indiv_->mut_prng_->random(length_);
+    }
   pos_3 = indiv_->mut_prng_->random(length_);
 
   // Remember the length of the segment to be duplicated and of the former
@@ -995,7 +1032,9 @@ Duplication* Dna::do_duplication() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " DUPLICATION %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), segment_length, 0,
               gu_size_before, genome_size_before);
     }
   }
@@ -1010,7 +1049,9 @@ Duplication* Dna::do_duplication() {
     if (exp_m_->output_m()->is_logged(LOG_REAR)) {
       fprintf(exp_m_->output_m()->log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DUPL),
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(DUPL),
               segment_length, genome_size_before);
     }
   }
@@ -1022,9 +1063,17 @@ Deletion* Dna::do_deletion() {
   Deletion* mut = nullptr;
 
   int32_t pos_1, pos_2;
+  if (length_ == 1)
+    {
+      printf("*** genome of size 1 ; deletion not done *** \n");
+      return mut;
+    }
   pos_1 = indiv_->mut_prng_->random(length_);
   pos_2 = indiv_->mut_prng_->random(length_);
-
+  while (pos_2 == pos_1)
+    {
+      pos_2 = indiv_->mut_prng_->random(length_);
+    }
   // Remember the length of the segment to be deleted and of the genome
   // before the deletion
   int32_t segment_length = Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
@@ -1033,6 +1082,12 @@ Deletion* Dna::do_deletion() {
   int32_t genome_size_before = indiv_->amount_of_dna();
   int32_t genome_size_after = genome_size_before - segment_length;
 
+  // TODO : please, never commit that again.
+//  if(genome_size_after < indiv_->min_genome_length())
+//    {
+//      printf("the shit hits the fan in Dna.cpp (%d %d)\n",genome_size_after,indiv_->min_genome_length());
+//      exit(0);
+//    }
 
   if ((gu_size_after < gen_unit_->min_gu_length()) ||
       (genome_size_after < indiv_->min_genome_length())) {
@@ -1041,7 +1096,9 @@ Deletion* Dna::do_deletion() {
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " DELETION %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), segment_length, 0,
               gu_size_before, genome_size_before);
     }
   }
@@ -1056,7 +1113,9 @@ Deletion* Dna::do_deletion() {
     if (exp_m_->output_m()->is_logged(LOG_REAR)) {
       fprintf(exp_m_->output_m()->log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(DEL), segment_length,
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(DEL), segment_length,
               genome_size_before);
     }
   }
@@ -1168,7 +1227,9 @@ Translocation* Dna::do_translocation() {
           fprintf(exp_m_->output_m()->log(LOG_REAR),
                   "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                       "\n",
-                  AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
+                  AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(TRANS),
                   segment_length, length_);
         }
       }
@@ -1185,7 +1246,9 @@ Translocation* Dna::do_translocation() {
           fprintf(exp_m_->output_m()->log(LOG_REAR),
                   "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                       "\n",
-                  AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
+                  AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(TRANS),
                   segment_length, length_);
         }
       }
@@ -1223,7 +1286,9 @@ Translocation* Dna::do_translocation() {
       if (exp_m_->output_m()->is_logged(LOG_REAR)) {
         fprintf(exp_m_->output_m()->log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
-                AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), int8_t(TRANS),
+                AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), int8_t(TRANS),
                 segment_length, length_);
       }
     }
@@ -1235,10 +1300,19 @@ Translocation* Dna::do_translocation() {
 Inversion* Dna::do_inversion() {
   Inversion* mut = nullptr;
 
-  int32_t pos_1, pos_2;
   int32_t segment_length;
+  int32_t pos_1, pos_2;
+  if (length_ == 1)
+    {
+      printf("*** genome of size 1 ; inversion not done *** \n");
+      return mut;
+    }
   pos_1 = indiv_->mut_prng_->random(length_);
   pos_2 = indiv_->mut_prng_->random(length_);
+  while (pos_2 == pos_1)
+    {
+      pos_2 = indiv_->mut_prng_->random(length_);
+    }
 
   if (pos_1 == pos_2) return NULL; // Invert everything <=> Invert nothing!
 
@@ -1724,7 +1798,9 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0, length_,
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), segment_length, 0, length_,
               indiv_->amount_of_dna());
     }
     return false;
@@ -1749,7 +1825,9 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
       fprintf(exp_m_->output_m()->log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
-              AeTime::time(), indiv_->grid_cell()->x() *                                     indiv_->exp_m()->grid_height()                                     + indiv_->grid_cell()->y(), segment_length, 0,
+              AeTime::time(), indiv_->grid_cell()->x() *
+                                    indiv_->exp_m()->grid_height()
+                                    + indiv_->grid_cell()->y(), segment_length, 0,
               dest_gu_size_before, indiv_->amount_of_dna());
     }
     return false;

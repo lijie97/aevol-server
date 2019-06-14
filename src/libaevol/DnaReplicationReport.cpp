@@ -48,13 +48,35 @@
 
 namespace aevol {
 
+DnaReplicationReport::~DnaReplicationReport() {
+/*  for (auto it = ht_.begin(); it < ht_.end(); it++) {
+    delete (*it);
+  }*/
+  ht_.clear();
+  rearrangements_.clear();
+  mutations_.clear();
+}
+
 DnaReplicationReport::DnaReplicationReport(const DnaReplicationReport& other) {
-  for (auto& ht : other.ht_)
-    add_HT(ht->Clone());
-  for (auto& rear : other.rearrangements_)
-    add_rear(rear->Clone());
-  for (auto& mut : other.mutations_)
-    add_local_mut(mut->Clone());
+  Mutation* mut = nullptr;
+
+  for (auto& ht : other.ht_) {
+      mut = ht->Clone();
+      add_HT(mut);
+      delete mut;
+  }
+
+  for (auto& rear : other.rearrangements_) {
+      mut = rear->Clone();
+      add_rear(mut);
+      delete mut;
+  }
+
+  for (auto& pmut : other.mutations_) {
+      mut = pmut->Clone();
+      add_local_mut(mut);
+      delete mut;
+  }
 }
 
 int32_t DnaReplicationReport::nb(MutationType t)  const {
@@ -311,17 +333,28 @@ void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
 
 void DnaReplicationReport::read_from_tree_file(gzFile tree_file) {
   int32_t nb_rears, nb_muts, nb_HT;
+    Mutation* mut = nullptr;
 
   gzread(tree_file, &nb_HT, sizeof(nb_HT));
-  for (int i = 0 ; i < nb_HT ; i++)
-    add_HT(Mutation::Load(tree_file));
+  for (int i = 0 ; i < nb_HT ; i++) {
+      mut = Mutation::Load(tree_file);
+      add_HT(mut);
+      delete mut;
+  }
+
 
   gzread(tree_file, &nb_rears, sizeof(nb_rears));
-  for (int i = 0 ; i < nb_rears ; i++)
-    add_rear(Mutation::Load(tree_file));
+  for (int i = 0 ; i < nb_rears ; i++) {
+      mut = Mutation::Load(tree_file);
+      add_rear(mut);
+      delete mut;
+  }
 
   gzread(tree_file, &nb_muts, sizeof(nb_muts));
-  for(int i = 0 ; i < nb_muts ; i++)
-    add_mut(Mutation::Load(tree_file));
+  for(int i = 0 ; i < nb_muts ; i++) {
+      mut = Mutation::Load(tree_file);
+      add_mut(mut);
+      delete mut;
+  }
 }
 } // namespace aevol

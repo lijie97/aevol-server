@@ -778,6 +778,9 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
     win_pos_[i][1]  = 0;
   }
 
+  // Set population window width
+  win_size_[0][0] = 400;
+
   // Set phenotype window width
   win_size_[1][0] = 600;
 
@@ -795,7 +798,7 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
     {
       win_pos_[0][0]  = 0;
       win_pos_[0][1]  = 0;
-      win_pos_[1][0]  = 300;
+      win_pos_[1][0]  = 400;
       win_pos_[1][1]  = 0;
       win_pos_[2][0]  = 0;
       win_pos_[2][1]  = 350;
@@ -809,7 +812,7 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
     {
       win_pos_[0][0]  = 0;
       win_pos_[0][1]  = 0;
-      win_pos_[1][0]  = 300;
+      win_pos_[1][0]  = 400;
       win_pos_[1][1]  = 0;
       win_pos_[2][0]  = 0;
       win_pos_[2][1]  = 350;
@@ -823,7 +826,7 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
     {
       win_pos_[0][0]  = 0;
       win_pos_[0][1]  = 0;
-      win_pos_[1][0]  = 300;
+      win_pos_[1][0]  = 400;
       win_pos_[1][1]  = 0;
       win_pos_[2][0]  = 0;
       win_pos_[2][1]  = 350;
@@ -837,12 +840,12 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
     {
       win_pos_[0][0]  = 0;
       win_pos_[0][1]  = 0;
-      win_pos_[1][0]  = 300;
+      win_pos_[1][0]  = 400;
       win_pos_[1][1]  = 0;
       win_pos_[2][0]  = 0;
-      win_pos_[2][1]  = 350;
+      win_pos_[2][1]  = 325;
       win_pos_[3][0]  = 300;
-      win_pos_[3][1]  = 350;
+      win_pos_[3][1]  = 325;
     }
   }
 

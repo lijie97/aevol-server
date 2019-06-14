@@ -135,7 +135,7 @@ void Individual_X11::display_cdss(X11Window * win)
   else canvas_width = win->width();
   int16_t canvas_height = win->height();
 
-  int16_t canvas_size = Utils::min(canvas_width, canvas_width);
+  int16_t canvas_size = Utils::min(canvas_width, canvas_height);
   int16_t diam        = round(canvas_size * log((double)genome_length) / 16);
 
   // Prevent diameter from getting greater than 2/3 of the window size

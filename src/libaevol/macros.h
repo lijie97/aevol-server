@@ -41,7 +41,7 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define TIMESTEP_FORMAT "%09" PRId64
 // Experimental Setup
 #define EXP_S_DIR                 "exp_setup"
-#define EXP_S_FNAME_BASE          "exp_setup_%06" PRId64
+#define EXP_S_FNAME_BASE          "exp_setup_" TIMESTEP_FORMAT
 #define EXP_S_FNAME_FORMAT        EXP_S_DIR "/" EXP_S_FNAME_BASE ".ae"
 #define EXP_S_CONST_FNAME_BASE        "exp_setup_const"
 #define EXP_S_CONST_FNAME_FORMAT      EXP_S_DIR "/" EXP_S_CONST_FNAME_BASE ".ae"
@@ -52,7 +52,7 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define OUT_P_CUR_FNAME           "output_profile.ae"
 // Spatial Structure
 #define WORLD_DIR             "world"
-#define WORLD_FNAME_BASE      "world_%06" PRId64
+#define WORLD_FNAME_BASE      "world_" TIMESTEP_FORMAT
 #define WORLD_FNAME_FORMAT    WORLD_DIR "/" WORLD_FNAME_BASE".ae"
 // Stats
 #define STATS_DIR   "stats"
@@ -62,7 +62,7 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 // LightTree file in newick format
 constexpr auto LIGHTTREE_FILE_NAME = "light_tree.txt";
 // Last gener file
-#define LAST_GENER_FNAME "last_gener.txt"
+constexpr auto LAST_GENER_FNAME = "last_gener.txt";
 // Best last organism file
 #define BEST_LAST_ORG_FNAME "best_last_org.txt"
 

@@ -24,15 +24,14 @@
 //
 // ****************************************************************************
 
-
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
+// ============================================================================
+//                                   Includes
+// ============================================================================
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <cerrno>
 #include <getopt.h>
 #include <sys/stat.h>  // for the permission symbols used with mkdir
 #include <errno.h>
@@ -53,128 +52,60 @@ using namespace aevol;
 //  * option --color ?
 //  * Raevol-specific output (EPS file with the network) ?
 
+// Command-line option variables
+static int64_t timestep = -1;
+static int32_t indiv_index = -1;
+static int32_t indiv_rank = -1;
 
-
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Helper functions
 void print_help(char* prog_path);
+void interpret_cmd_line_options(int argc, char* argv[]);
 
-
-// The height of each triangle is proportional to the product c*m, where c is the
-// concentration of the protein and m its intrinsic efficiency (depending on its
-// aminoacid sequence). In the case of Raevol, the concentration used here is the
-// final one, i.e. the one reached after all the time steps of the lifetime.
+// The height of each triangle is proportional to the product c*m,
+// where c is the concentration of the protein and m its intrinsic efficacy
+// (depending on its aminoacid sequence).
+// In the case of Raevol, the concentration used here is the final one,
+// i.e. the one reached after all the time steps of the lifetime.
 // If a coding sequence has several promoters, only one triangle is drawn.
-void draw_triangles(Individual* indiv, const PhenotypicTarget& target, char * directoryName);
-
+void draw_triangles(Individual* indiv, const PhenotypicTarget& target,
+                    char* directoryName);
 
 
 // In the case of Raevol, the profile is drawn using the final concentrations
-// of the proteins, i.e. the ones reached after all the time steps of the lifetime.
-void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, char * directoryName);
-
+// of the proteins, i.e. the ones reached after all the time steps of the
+// lifetime.
+void draw_pos_neg_profiles(Individual* indiv, const PhenotypicTarget& target,
+                           char* directoryName);
 
 
 // In the case of Raevol, the phenotype is drawn using the final concentrations
-// of the proteins, i.e. the ones reached after all the time steps of the lifetime.
-void draw_phenotype(Individual * indiv, const PhenotypicTarget& target, char * directoryName, int generation = -1);
+// of the proteins, i.e. the ones reached after all the time steps of the
+// lifetime.
+void draw_phenotype(Individual* indiv, const PhenotypicTarget& target,
+                    char* directoryName);
 
 
+// The chromosome is drawn as a circle. Coding sequences are represented by
+// arcs starting at the start codon and ending at the stop codon.
+// Coding sequences that are on the leading (resp. lagging) strand are
+// drawn outside (resp. inside) the circle. If a coding sequence has several
+// promoters, only one arc is drawn.
+void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char* directoryName);
 
 
-// The chromosome is drawn as a circle. Coding sequences are represented by arcs starting
-// at the start codon and ending at the stop codon. Coding sequences that are on the
-// leading (resp. lagging) strand are drawn outside (resp. inside) the circle. If a coding
-// sequence has several promoters, only one arc is drawn.
-void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName);
+// The chromosome is drawn as a circle. Transcribed sequences are represented
+// by arcs starting at the first transcribed position and ending at the last
+// transcribed position. mRNAs that are on the leading (resp. lagging) strand
+// are drawn outside (resp. inside) the circle.
+// mRNAs that include at least one coding sequence are black,
+// the others are gray.
+void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char* directoryName);
 
 
-// The chromosome is drawn as a circle. Transcribed sequences are represented by arcs starting
-// at the first trasncribed position codon and ending at the last transcribed position. mRNAs
-// that are on the leading (resp. lagging) strand are drawn outside (resp. inside) the circle.
-// mRNAs which include at least one coding sequence are black, the others are gray.
- void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName);
+int main(int argc, char* argv[]) {
+  interpret_cmd_line_options(argc, argv);
 
-
-int main(int argc, char* argv[])
-{
-  // =================================================================
-  //                      Get command-line options
-  // =================================================================
-  //
-  // 1) Initialize command-line option variables with default values
-
-  //~ bool  verbose           = false;
-  //~ char* backup_file_name  = NULL;
-  int64_t num_gener       = -1;
-  int32_t indiv_index     = -1;
-  int32_t indiv_rank      = -1;
-
-  // 2) Define allowed options
-  const char * options_list = "hVvi:r:g:";
-  static struct option long_options_list[] = {
-    {"help",      no_argument,       NULL, 'h'},
-    {"version",   no_argument,       NULL, 'V' },
-    {"index",     required_argument, NULL, 'i'},
-    {"rank",      required_argument, NULL, 'r'},
-    {"gener",     required_argument, NULL, 'g' },
-    { 0, 0, 0, 0 }
-  };
-
-  // 3) Get actual values of the command-line options
-  int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
-  {
-    switch (option)
-    {
-      case 'h' :
-      {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' :
-      {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'i' :
-        indiv_index  = atol(optarg);
-        break;
-      case 'r' :
-        indiv_rank  = atol(optarg);
-        break;
-      case 'g' :
-      {
-        if (strcmp(optarg, "") == 0)
-        {
-          printf("%s: error: Option -g or --gener : missing argument.\n", argv[0]);
-          exit(EXIT_FAILURE);
-        }
-
-        num_gener = atol(optarg);
-
-        break;
-      }
-    }
-  }
-
-  // Check mandatory arguments
-  if (num_gener == -1)
-  {
-    printf("%s: error: You must provide a generation number.\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
-  if (indiv_index != -1 && indiv_rank != -1)
-  {
-    printf("%s: error: You must provide either the index or the rank of the individual to plot.\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
-
-
-  printf("Creating eps files for generation %" PRId64 "...\n", num_gener);
+  printf("Creating eps files for generation %" PRId64 "...\n", timestep);
 
   // =================================================================
   //                       Read the backup file
@@ -183,14 +114,12 @@ int main(int argc, char* argv[])
 
   // Load the simulation
   ExpManager* exp_manager = new ExpManager();
-  exp_manager->load(num_gener, true, false);
+  exp_manager->load(timestep, true, false);
 
-  if (indiv_index == -1 && indiv_rank == -1)
-  {
+  if (indiv_index == -1 && indiv_rank == -1) {
     indiv = exp_manager->best_indiv();
   }
-  else
-  {
+  else {
     // TODO <david.parsons@inria.fr> tmp disabled
 //     if (indiv_rank != -1) {
 //       indiv = new Individual(*exp_manager->indiv_by_rank(indiv_rank), false);
@@ -218,27 +147,25 @@ int main(int argc, char* argv[])
   //                      Create the EPS files
   // =================================================================
   char directory_name[64];
-  snprintf(directory_name, 63, "analysis-generation%06" PRId64, num_gener);
+  snprintf(directory_name, 63, "analysis-generation_" TIMESTEP_FORMAT,
+           timestep);
 
   // Check whether the directory already exists and is writable
-  if (access(directory_name, F_OK) == 0)
-  {
+  if (access(directory_name, F_OK) == 0) {
 //       struct stat status;
 //       stat(directory_name, &status);
 //       if (status.st_mode & S_IFDIR) cout << "The directory exists." << endl;
 //       else cout << "This path is a file." << endl;
 
-    if (access(directory_name, X_OK | W_OK) != 0)
-    {
+    if (access(directory_name, X_OK | W_OK) != 0) {
       fprintf(stderr, "Error: cannot enter or write in directory %s.\n", directory_name);
       exit(EXIT_FAILURE);
     }
   }
-  else
-  {
+  else {
     // Create the directory with permissions : rwx r-x r-x
-    if (mkdir(directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
-    {
+    if (mkdir(directory_name,
+              S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
       fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
       exit(EXIT_FAILURE);
     }
@@ -321,71 +248,8 @@ int main(int argc, char* argv[])
 }
 
 
-
-
-
-
-
-/*!
-  \brief
-
-*/
-void print_help(char* prog_path)
-{
-  printf("\n");
-  printf("*********************** aevol - Artificial Evolution ******************* \n");
-  printf("*                                                                      * \n");
-  printf("*                      EPS creation post-treatment program             * \n");
-  printf("*                                                                      * \n");
-  printf("************************************************************************ \n");
-  printf("\n\n");
-  printf("This program is Free Software. No Warranty.\n");
-  printf("Copyright (C) 2009  LIRIS.\n");
-  printf("\n");
-#ifdef __REGUL
-  printf("Usage : rcreate_eps -h\n");
-  printf("or :    rcreate_eps [-i INDEX | -r RANK] -g GENER \n");
-#else
-  printf("Usage : create_eps -h\n");
-  printf("or :    create_eps  [-i INDEX | -r RANK] -g GENER \n");
-#endif
-  printf("\n");
-  printf("This program creates 5 EPS files with the triangles, the positive and negative \n");
-  printf("profiles, the phenotype, the CDS, the mRNAs of the chosen individual (the best by default)\n");
-  printf("of generation GENER. This program requires at least one population backup file and one\n");
-  printf("environment backup file at generation GENER. The EPS files are placed in a \n");
-  printf("subdirectory called analysis-generationGENER.\n");
-  printf("\n");
-  printf("\n");
-  printf("\t-h or --help    : Display this help.\n");
-  printf("\n");
-  printf("\t-i INDEX or --index INDEX : \n");
-  printf("\t                  Creates the EPS files for the individual whose\n");
-  printf("\t                  index is INDEX. The index must be comprised \n");
-  printf("\t                  between 0 and N-1, with N the size of the \n");
-  printf("\t                  population at the ending generation. If neither\n");
-  printf("\t                  index nor rank are specified, the program creates \n");
-  printf("\t                  the EPS files of the best individual. \n");
-  printf("\n");
-  printf("\t-r RANK or --rank RANK : \n");
-  printf("\t                  Creates the EPS files for the individual whose\n");
-  printf("\t                  rank is rank. The rank must be comprised \n");
-  printf("\t                  between 1 and N, with N the size of the \n");
-  printf("\t                  population at the ending generation. If neither\n");
-  printf("\t                  index nor rank are specified, the program creates \n");
-  printf("\t                  the EPS files of the best individual. \n");
-  printf("\n");
-  printf("\t-g GENER or --gener GENER : \n");
-  printf("\t                  Create the EPS files for the chosen individual of \n");
-  printf("\t                  generation GENER. \n");
-  printf("\n");
-}
-
-
-
-
-void draw_triangles(Individual* indiv, const PhenotypicTarget& target, char * directoryName)
-{
+void draw_triangles(Individual* indiv, const PhenotypicTarget& target,
+                    char* directoryName) {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
   double scalex = 0.8*(1 - 2*margin);
@@ -502,9 +366,8 @@ void draw_triangles(Individual* indiv, const PhenotypicTarget& target, char * di
 }
 
 
-
-void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, char * directoryName)
-{
+void draw_pos_neg_profiles(Individual* indiv, const PhenotypicTarget& target,
+                           char* directoryName) {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
   double scale = 0.8*(1 - 2*margin);
@@ -623,10 +486,8 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
 }
 
 
-
-
-void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* directoryName, int generation)
-{
+void draw_phenotype(Individual* indiv, const PhenotypicTarget& target,
+                    char* directoryName) {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
   double scale = 0.8*(1 - 2*margin);
@@ -768,13 +629,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
 }
 
 
-
-
-
-
-
-void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
-{
+void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char* directoryName) {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   int32_t gen_length = (gen_unit->dna())->length();
   double r = 0.35;
@@ -1053,10 +908,7 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 }
 
 
-
-
-void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
-{
+void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char* directoryName) {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   int32_t gen_length = (gen_unit->dna())->length();
   double r = 0.35;
@@ -1330,4 +1182,104 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
     delete occupied_sectors[LAGGING][layer];
   }
 
+}
+
+
+/**
+ * \brief print help and exist
+ */
+void print_help(char* prog_path) {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ((prog_name = strrchr(prog_path, '/'))) {
+    prog_name++;
+  }
+  else {
+    prog_name = prog_path;
+  }
+
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
+  printf("\n");
+  printf("%s:\n", prog_name);
+  printf("\tCreates EPS files with the triangles, the positive and negative\n");
+  printf("\tprofiles, the phenotype, the CDS and the mRNAs of the\n");
+  printf("\tindividual of interest.\n");
+  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s [-t TIMESTEP] [-I INDEX | -R RANK]\n",
+         prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -t, --timestep TIMESTEP\n");
+  printf("\tspecify timestep of the individual of interest\n");
+  printf("  -I, --index INDEX\n");
+  printf("\tspecify the index of the individual of interest\n");
+  printf("  -R, --rank RANK\n");
+  printf("\tspecify the rank of the individual of interest\n");
+}
+
+
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // Define allowed options
+  const char * options_list = "hVI:R:t:";
+  static struct option long_options_list[] = {
+      {"help",      no_argument,       NULL, 'h'},
+      {"version",   no_argument,       NULL, 'V' },
+      {"index",     required_argument, NULL, 'I'},
+      {"rank",      required_argument, NULL, 'R'},
+      {"timestep",  required_argument, NULL, 't' },
+      { 0, 0, 0, 0 }
+  };
+
+  // Get actual values of the command-line options
+  int option;
+  while ((option = getopt_long(argc, argv, options_list,
+                               long_options_list, NULL)) != -1) {
+    switch (option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      }
+      case 'V' : {
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      }
+      case 'I' : {
+        indiv_index  = atol(optarg);
+        break;
+      }
+      case 'R' : {
+        indiv_rank  = atol(optarg);
+        break;
+      }
+      case 't' : {
+        if (strcmp(optarg, "") == 0) {
+          printf("%s: error: Option -t or --timestep: missing argument.\n",
+                 argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        timestep = atol(optarg);
+        break;
+      }
+    }
+  }
+
+  // If timestep wasn't provided, use default
+  if (timestep < 0) {
+    timestep = OutputManager::last_gener();
+  }
+
+  // If neither the rank nor the index were provided, the individual of interest
+  // will be the best individual at the provided timestep
 }

@@ -24,16 +24,12 @@
 //
 // ****************************************************************************
 
-
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
+// ============================================================================
+//                                   Includes
+// ============================================================================
 #include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
+#include <cstdlib>
+#include <cstdio>
 
 
 // =================================================================
@@ -43,10 +39,16 @@
 
 using namespace aevol;
 
-// =================================================================
-//                         Function declarations
-// =================================================================
+// Command-line option variables
+static char* triangles_file_name  = nullptr;
+static char* sequence_file_name  = nullptr;
+static bool best_only = true;
+static int16_t gu = -1;
+static int32_t timestep = -1;
+
+// Helper functions
 void print_help(char* prog_path);
+void interpret_cmd_line_options(int argc, char* argv[]);
 
 void analyse_indiv(Individual* indiv, FILE* triangles_file, FILE* sequence_file,
                    int16_t gu, const PhenotypicTarget& phenotypicTarget);
@@ -56,82 +58,15 @@ void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
 
 
 
-int main(int argc, char* argv[])
-{
-  // Initialize command-line option variables with default values
-  char* pop_file_name  = NULL;
-  char* triangles_file_name  = NULL;
-  char* sequence_file_name  = NULL;
-  bool best_only = false;
-  int16_t gu = -1;
-  int32_t num_gener = -1;
-
-  // Define allowed options
-  const char * options_list = "hVr:t:s:bg:";
-  static struct option long_options_list[] = {
-      {"help",      no_argument,        NULL, 'h'},
-      {"version",   no_argument,        NULL, 'V'},
-      {"resume",    required_argument,  NULL, 'r'},
-      {"triangles", required_argument,  NULL, 't'},
-      {"sequence",  required_argument,  NULL, 's'},
-      {"best",      no_argument,        NULL, 'b'},
-      {"gu",        required_argument,  NULL, 'g'},
-      {0, 0, 0, 0}
-  };
-
-  // Get actual values of the command-line options
-  int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
-  {
-    switch (option)
-    {
-      case 'h' :
-      {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' :
-      {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'r':
-        num_gener = atol(optarg);
-        break;
-      case 't' :
-        triangles_file_name = new char[strlen(optarg) + 1];
-        sprintf(triangles_file_name, "%s", optarg);
-        break;
-      case 's' :
-        sequence_file_name = new char[strlen(optarg) + 1];
-        sprintf(sequence_file_name, "%s", optarg);
-        break;
-      case 'g' :
-        gu = atoi(optarg);
-        break;
-      case 'b' :
-        best_only = true;
-        break;
-    }
-  }
-
-  // If num_gener is not provided, assume last gener
-  if (num_gener == -1) {
-    num_gener = OutputManager::last_gener();
-  }
-
-  if (triangles_file_name == NULL && sequence_file_name == NULL) {
-    Utils::ExitWithDevMsg("Use option -s or -t (-h for more info)",
-                          __FILE__, __LINE__);
-  }
+int main(int argc, char* argv[]) {
+  interpret_cmd_line_options(argc, argv);
 
   // Open the files
-  FILE* triangles_file = NULL;
-  FILE* sequence_file = NULL;
+  FILE* triangles_file = nullptr;
+  FILE* sequence_file = nullptr;
 
-  if (triangles_file_name != NULL)
-  {
-    triangles_file = fopen(triangles_file_name,"w");
+  if (triangles_file_name != nullptr) {
+    triangles_file = fopen(triangles_file_name, "w");
 
     // Write file headers
     int key = 1;
@@ -151,23 +86,24 @@ int main(int argc, char* argv[])
     fprintf(triangles_file, "# %2.d RNA length (rna_len)\n", key++);
     fprintf(triangles_file, "# %2.d basal level (basal_level)\n", key++);
     fprintf(triangles_file, "\n");
-    fprintf(triangles_file, "id c_or_p strand pos len lpos sequence m w h c f prom_pos rna_len basal_level\n");
+    fprintf(triangles_file,
+            "id c_or_p strand pos len lpos sequence m w h c f "
+                "prom_pos rna_len basal_level\n");
   }
-  if (sequence_file_name != NULL)
-  {
+  if (sequence_file_name != nullptr) {
     sequence_file = fopen(sequence_file_name,"w");
   }
 
   auto exp_manager = new ExpManager();
-  exp_manager->load(num_gener, false, false);
+  exp_manager->load(timestep, false, false);
 
 
   // The best individual is already known because it is the last in the list
-  // Thus we do not need to know anything about the environment and to evaluate the individuals
+  // Thus we do not need to know anything about the environment and to evaluate
+  // the individuals
 
   // Parse the individuals
-  if (best_only)
-  {
+  if (best_only) {
     Individual* best = exp_manager->best_indiv();
     best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
     analyse_indiv(best, triangles_file, sequence_file, gu, best->habitat().phenotypic_target());
@@ -180,18 +116,15 @@ int main(int argc, char* argv[])
     }
   }
 
-  if (sequence_file_name != NULL)
-  {
+  if (sequence_file_name != nullptr) {
     fclose(sequence_file);
   }
-  if (triangles_file_name != NULL)
-  {
+  if (triangles_file_name != nullptr) {
     fclose(triangles_file);
   }
 
-  if (pop_file_name != NULL) {delete [] pop_file_name;}
-  if (triangles_file_name != NULL) {delete [] triangles_file_name;}
-  if (sequence_file_name != NULL) {delete [] sequence_file_name;}
+  delete [] triangles_file_name;
+  delete [] sequence_file_name;
 
   delete exp_manager;
 
@@ -201,57 +134,51 @@ int main(int argc, char* argv[])
 // Parsing an individual
 inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
                           FILE* sequence_file, int16_t gu,
-                          const PhenotypicTarget & phenotypicTarget)
-{
-  if (gu == -1) // We want to treat all genetic units
-  {
+                          const PhenotypicTarget & phenotypicTarget) {
+  if (gu == -1) { // We want to treat all genetic units
     int32_t gen_unit_number = 0;
     for (auto& gen_unit: indiv->genetic_unit_list_nonconst()) {
-      if (triangles_file != NULL)
-      {
-        analyse_gu(&gen_unit, gen_unit_number, triangles_file, phenotypicTarget); // We call the triangle parser for each GU successively
+      if (triangles_file != nullptr) {
+        analyse_gu(&gen_unit, gen_unit_number, triangles_file,
+                   phenotypicTarget);
       }
-      if (sequence_file != NULL)
-      {
+      if (sequence_file != nullptr) {
+        // The sequences of different GUs are separated by a space
+        if (gen_unit_number > 0) fprintf(sequence_file, " ");
+
         const char* dna = gen_unit.dna()->data();
         int32_t length = gen_unit.dna()->length();
-        fprintf(sequence_file,"%.*s ",length,dna); // We output the sequences of each GU separated by a space
+        fprintf(sequence_file, "%.*s", length, dna);
       }
 
       gen_unit_number++;
     }
   }
-  else // User specified a genetic unit
-  {
+  else { // User has specified a genetic unit
     GeneticUnit* gen_unit = &indiv->genetic_unit_nonconst(gu);
-    if (triangles_file != NULL)
-    {
-      analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget); // We call the triangle parser
+    if (triangles_file != nullptr) {
+      analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget);
     }
-    if (sequence_file != NULL)
-    {
+    if (sequence_file != nullptr) {
       const char* dna = gen_unit->dna()->data();
       int32_t length = gen_unit->dna()->length();
-      fprintf(sequence_file,"%.*s",length,dna); // We output the sequence
+      fprintf(sequence_file, "%.*s", length, dna);
     }
   }
 
   // We go to next line in each file
-  if (triangles_file != NULL)
-  {
-    fprintf(triangles_file,"\n");
+  if (triangles_file != nullptr) {
+    fprintf(triangles_file, "\n");
   }
-  if (sequence_file != NULL)
-  {
-    fprintf(sequence_file,"\n");
+  if (sequence_file != nullptr) {
+    fprintf(sequence_file, "\n");
   }
 }
 
 // Parsing a GU
 inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
                        FILE* triangles_file,
-                       const PhenotypicTarget& phenotypicTarget)
-{
+                       const PhenotypicTarget& phenotypicTarget) {
   // Construct the list of all rnas
   auto llrnas = gen_unit->rna_list();
   auto lrnas = llrnas[LEADING];
@@ -264,13 +191,15 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
       double mean = protein->mean();
 
       int nfeat = -1;
-
-      // Retrieving the feature of the protein also necessitates the an environment file.
-      for (size_t i = 0; i <= static_cast<size_t>(phenotypicTarget.nb_segments()) - 1; ++i)
-        if ((mean > phenotypicTarget.segments()[i]->start) and (mean < phenotypicTarget.segments()[i]->stop)) {
+      for (size_t i = 0 ;
+           i <= static_cast<size_t>(phenotypicTarget.nb_segments()) - 1 ;
+           ++i) {
+        if ((mean > phenotypicTarget.segments()[i]->start) and
+            (mean < phenotypicTarget.segments()[i]->stop)) {
           nfeat = phenotypicTarget.segments()[i]->feature;
           break;
         }
+      }
 
       char *dummy;
       fprintf(triangles_file,
@@ -300,8 +229,7 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
 }
 
 
-void print_help(char* prog_path)
-{
+void print_help(char* prog_path) {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
   if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
@@ -318,25 +246,29 @@ void print_help(char* prog_path)
   printf("*                                                                            *\n");
   printf("******************************************************************************\n");
   printf("\n");
-  printf("%s: extracts the genotype and/or data about the phenotype of individuals in the provided population and write them into text files easy to parse with e.g. matlab.\n", prog_name);
+  printf("%s:\n", prog_name);
+  printf("\tExtracts the genotype and/or data about the phenotype of individuals\n");
+  printf("\tin the provided population and write them into text files easy to parse\n");
+  printf("\twith e.g. matlab.\n");
   printf("\n");
   printf("Usage : %s -h\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or :    %s [-r GENER] [-t PHEN_FILE] [-s SEQ_FILE] [-g NUM_GU] [-b]\n", prog_name);
+  printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-U NUM_GU] [-a]\n",
+         prog_name);
   printf("\nOptions\n");
-  printf("  -h, --help\n\tprint this help, then exit\n\n");
-  printf("  -V, --version\n\tprint version number, then exit\n\n");
-  printf("  -r GENER  :\n");
-  printf("\tread generation GENER from a full aevol backup\n\t(default: reads from last_gener.txt)\n");
-  printf("  -t PHEN_FILE:\n");
-  printf("\textract and save some infos about the phenotypes of the individuals to file PHEN_FILE\n");
-  printf("  -s SEQ_FILE:\n");
-  printf("\textract and save the sequences of the individuals to file SEQ_FILE\n");
-  printf("  -g NUM_GU:\n");
-  printf("\tonly treat this genetic unit (by default: treat all genetic units)\n");
-  printf("  -b:\n");
-  printf("\tonly treat the best individual\n");
-  printf("\n\n");
+  printf("  -h, --help\n\tprint this help, then exit\n");
+  printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -t TIMESTEP\n");
+  printf("\tspecify timestep of the individual(s) of interest\n");
+  printf("  -S SEQ_FILE\n");
+  printf("\textract sequences into file SEQ_FILE\n");
+  printf("  -T TRIANGLE_FILE\n");
+  printf("\textract phenotypic data into file TRIANGLE_FILE\n");
+  printf("  -U NUM_GU\n");
+  printf("\tonly treat genetic unit #NUM_GU (default: treat all genetic units)\n");
+  printf("  -a\n");
+  printf("\ttreat all the individuals (default: treat only the best)\n");
+}
 
   printf("\n\
 This program extracts some data about the individuals and write\n\
@@ -381,4 +313,67 @@ seq_020000_best :\n\
    extract -b -r 20000 -s seq_020000_best\n\
 or extract -b -p populations/pop_020000.ae -s seq_020000_best\n");
 
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  // Define allowed options
+  const char * options_list = "hVt:aU:S:T:";
+  static struct option long_options_list[] = {
+      {"help",      no_argument,        nullptr, 'h'},
+      {"version",   no_argument,        nullptr, 'V'},
+      {"timestep",  required_argument,  nullptr, 't'},
+      {"all",       no_argument,        nullptr, 'a'},
+      {"gu",        required_argument,  nullptr, 'U'},
+      {"sequence",  required_argument,  nullptr, 'S'},
+      {"triangles", required_argument,  nullptr, 'T'},
+      {0, 0, 0, 0}
+  };
+
+  // Get actual values of the command-line options
+  int option;
+  while ((option = getopt_long(argc, argv, options_list,
+                               long_options_list, nullptr)) != -1) {
+    switch (option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      }
+      case 'V' : {
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      }
+      case 't' : {
+        timestep = atol(optarg);
+        break;
+      }
+      case 'a' : {
+        best_only = false;
+        break;
+      }
+      case 'U' : {
+        gu = atoi(optarg);
+        break;
+      }
+      case 'S' : {
+        sequence_file_name = new char[strlen(optarg) + 1];
+        sprintf(sequence_file_name, "%s", optarg);
+        break;
+      }
+      case 'T' : {
+        triangles_file_name = new char[strlen(optarg) + 1];
+        sprintf(triangles_file_name, "%s", optarg);
+        break;
+      }
+    }
+  }
+
+  // If timestep wasn't provided, use default
+  if (timestep < 0) {
+    timestep = OutputManager::last_gener();
+  }
+
+  // If neither the sequence_file_name nor the triangles_file_name was provided,
+  // we will output only the sequence in a default-named file
+  if (sequence_file_name == nullptr && triangles_file_name == nullptr) {
+    sequence_file_name = new char[255];
+    strcpy(sequence_file_name, "sequence");
+  }
 }

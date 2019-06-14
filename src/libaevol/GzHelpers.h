@@ -50,7 +50,7 @@ void gz(GzAction action, gzFile file) {
 /// Warning: as it is currently written, this template overrides any
 /// call to gzwrite, which causes writing the length of the field to the file.
 template<typename Field, typename... Args>
-void gz(GzAction action, gzFile file, Field& field, Args... fields_list) {
+void gz(GzAction action, gzFile file, Field& field, Args&&... fields_list) {
   // This switch is unfortunate especially since the alternatives are pretty much the same.
   // But there is a subtle difference that prevented me from a trivial factorization:
   // gzwrite takes a _const_ void pointer as second argument.

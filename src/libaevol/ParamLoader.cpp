@@ -93,6 +93,9 @@ static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
 #ifndef LOGIN_NAME_MAX
 #define LOGIN_NAME_MAX 256
 #endif
+
+const char kTabChar = 0x09;
+
 // =================================================================
 //                             Constructors
 // =================================================================
@@ -1214,18 +1217,22 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   }
   else if (strcmp(line->words[0], "LOG") == 0)
   {
+    printf("LOGGING ");
     for (int8_t i = 1 ; i < line->nb_words ; i++)
     {
       if (strcmp(line->words[i], "TRANSFER") == 0)
       {
+	printf("TRANSFER ");
         logs_ |= LOG_TRANSFER;
       }
       else if (strcmp(line->words[i], "REAR") == 0)
       {
+	printf("REAR ");
         logs_ |= LOG_REAR;
       }
       else if (strcmp(line->words[i], "BARRIER") == 0)
       {
+	printf("BARRIER ");
         logs_ |= LOG_BARRIER;
       }
         /*else if (strcmp(line->words[i], "LOADS") == 0)
@@ -1239,6 +1246,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
         exit(EXIT_FAILURE);
       }
     }
+    printf("(%d)\n",logs_);
   }
   else if (strcmp(line->words[0], "FUZZY_FLAVOR") == 0)
   {
@@ -1714,21 +1722,18 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
     indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
 
-    if (plasmid != NULL)
-    {
-      printf("Option -p is used: plasmid will be loaded from a text file\n");
-      if (! allow_plasmids_)
-      {
-        printf("ERROR: option -p requires ALLOW_PLASMIDS set to true\n");
+    if (plasmid != NULL) {
+      if (! allow_plasmids_) {
+        printf("ERROR: plasmid sequence provided but plasmids not allowed\n");
         exit(EXIT_FAILURE);
       }
       indiv->add_GU(plasmid, lplasmid);
       indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
       indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
     }
-    else if (allow_plasmids_)
-    {
-      printf("ERROR: if you use option -c and ALLOW_PLASMIDS is set to true, you must also use option -p. \n For now loading a genetic unit from text file and generating the other is not supported.\n");
+    else if (allow_plasmids_) {
+      printf("ERROR: please provide both the chromosome and plasmid sequences"
+                 "or none of them\n");
       exit(EXIT_FAILURE);
     }
 
@@ -1750,9 +1755,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       indivs.push_back(clone);
     }
   }
-  else if (plasmid != NULL)
-  {
-    printf("ERROR: option -p can only be used in combination with option -c for now\n");
+  else if (plasmid != NULL) {
+    printf("ERROR: please provide both the chromosome and plasmid sequences"
+               "or none of them\n");
     exit(EXIT_FAILURE);
   }
   else if (init_method_ & ONE_GOOD_GENE)
@@ -2007,7 +2012,7 @@ void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* l
     j = 0;
 
     // Flush white spaces and tabs
-    while (line[i] == ' ' || line[i] == 0x09) i++; // 0x09 is the ASCII code for TAB
+    while (line[i] == ' ' || line[i] == kTabChar) i++;
 
     // Check comments
     if (line[i] == '#') break;
@@ -2016,8 +2021,8 @@ void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* l
     *line_is_interpretable = true;
 
     // Parse word
-    while (line[i] != ' '  && line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
-    {
+    while (line[i] != ' ' && line[i] != kTabChar && line[i] != '\n' &&
+        line[i] != '\0' && line[i] != '\r') {
       formated_line->words[formated_line->nb_words][j++] = line[i++];
     }
 

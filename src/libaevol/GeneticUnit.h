@@ -563,6 +563,7 @@ class GeneticUnit {
   // computation (mainly in post-treaments)
   bool transcribed_;
   bool translated_;
+  bool phenotypic_contributions_computed_;
   bool non_coding_computed_;
   bool distance_to_target_computed_;
   bool fitness_computed_;

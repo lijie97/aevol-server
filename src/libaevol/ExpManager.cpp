@@ -383,6 +383,7 @@ auto     t1 = high_resolution_clock::now();
 /*  if (simd_first) {
     //simd_individual->check_result();
   } else {*/
+  if (simd_individual->standalone())
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
   //}
   auto tb = high_resolution_clock::now();
@@ -922,5 +923,23 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 Individual* ExpManager::indiv_by_id(int32_t id) const {
   return world_->indiv_by_id(id);
 }
+
+Individual* ExpManager::indiv_by_rank(int32_t rank) const {
+  return world_->indiv_by_id(rank);
+}
+
+/**
+ * Returns a list of all the individuals with their replication report
+ */
+std::list<std::pair<Individual*, ReplicationReport*>>
+    ExpManager::indivs_annotated() const {
+  std::list<std::pair<Individual*, ReplicationReport*>> annotated_list;
+  for (const auto& indiv : indivs()) {
+    annotated_list.emplace_back(indiv, tree() ?
+        tree()->report_by_index(AeTime::time(), indiv->id()) : nullptr);
+  }
+  return annotated_list;
+}
+
 
 } // namespace aevol

@@ -54,141 +54,22 @@ using std::list;
 using namespace aevol;
 
 // =================================================================
+//                     Command line option variables
+// =================================================================
+int32_t wanted_rank = -1;
+int32_t wanted_index = -1;
+int64_t num_gener = 0;
+int32_t mutation_type = 0;
+int32_t nb_mutants = -1;
+
+// =================================================================
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-
-
-
-
-
-// =====================================================================
-//                         Main Function
-// =====================================================================
-
-
-
+void interpret_cmd_line_options(int argc, char* argv[]);
 
 int main(int argc, char* argv[]) {
-  // ----------------------------------------
-  //     command-line option parsing
-  // ----------------------------------------
-  int32_t wanted_rank = -1;
-  int32_t wanted_index = -1;
-  int64_t num_gener = 0;
-  int32_t mutation_type = 0;
-  int32_t nb_mutants = -1;
-
-
-  const char* options_list = "hVg:r:i:m:n:";
-  static struct option long_options_list[] = {
-      {"help",          no_argument,       NULL, 'h'},
-      {"version",       no_argument,       NULL, 'V'},
-      {"gener",         required_argument, NULL, 'g'},
-      {"rank",          required_argument, NULL, 'r'},
-      {"index",         required_argument, NULL, 'i'},
-      {"mutation-type", required_argument, NULL, 'm'},
-      {"nb-mutants",    required_argument, NULL, 'n'},
-      {0, 0, 0,                                  0}
-  };
-
-  int option = -1;
-  bool rank_already_set = false;
-  bool index_already_set = false;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list,
-                               NULL)) != -1) {
-    switch (option) {
-      case 'h' : {
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      }
-      case 'V' : {
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      }
-      case 'g' : {
-        if (strcmp(optarg, "") == 0) {
-          fprintf(stderr,
-                  "%s: error: Option -g or --gener : missing argument.\n",
-                  argv[0]);
-          exit(EXIT_FAILURE);
-        }
-        num_gener = atol(optarg);
-        break;
-      }
-      case 'r' : {
-        if (index_already_set) {
-          fprintf(stderr,
-                  "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n",
-                  argv[0]);
-          exit(EXIT_FAILURE);
-        }
-        wanted_rank = atol(optarg);
-        rank_already_set = true;
-        break;
-      }
-      case 'i' : {
-        if (rank_already_set) {
-          fprintf(stderr,
-                  "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n",
-                  argv[0]);
-          fprintf(stderr, "           Use %s --help for more information.\n",
-                  argv[0]);
-          exit(EXIT_FAILURE);
-        }
-        wanted_index = atol(optarg);
-        index_already_set = true;
-        break;
-      }
-      case 'm' : {
-        mutation_type = (MutationType) atol(optarg);
-        if (mutation_type == SWITCH) {
-        }
-        else if ((mutation_type == S_INS) || (mutation_type == S_DEL) ||
-                 (mutation_type == DUPL) || (mutation_type == DEL) ||
-                 (mutation_type == TRANS) || (mutation_type == INV)) {
-        }
-        else {
-          fprintf(stderr,
-                  "%s: error: So far, mutagenesis is implemented only for "
-                      "point mutations, small insertions, \n"
-                      "           small deletions, duplications, deletions, "
-                      "translocations or inversions.\n"
-                      "           It is not available yet for lateral transfer.\n",
-                  argv[0]);
-          exit(EXIT_FAILURE);
-        }
-        break;
-      }
-      case 'n' : {
-        nb_mutants = atol(optarg);
-        if (nb_mutants <= 0) {
-          fprintf(stderr,
-                  "%s: error: The number of mutants (option -n) must be "
-                      "positive.\n",
-                  argv[0]);
-          exit(EXIT_FAILURE);
-        }
-        break;
-      }
-    }
-  }
-
-
-  if ((mutation_type == SWITCH) && (nb_mutants != -1)) {
-    printf("For point mutations, the mutagenesis will be exhaustive, "
-               "the number of \n"
-               "mutants will be ignored.\n");
-  }
-  else if ((mutation_type != SWITCH) && (nb_mutants == -1)) {
-    nb_mutants = 1000;
-    printf("Mutagenesis cannot be exhaustive in a reasonable time for "
-               "mutations \n");
-    printf("other than point mutations. A sample of %" PRId32 " mutants will "
-               "be generated.\n",
-           nb_mutants);
-  }
-
+  interpret_cmd_line_options(argc, argv);
 
   // ------------------------------------------------------
   //  Load the backup and get the individual to be mutated
@@ -289,7 +170,8 @@ int main(int argc, char* argv[]) {
   }
 
   char directory_name[64];
-  snprintf(directory_name, 63, "analysis-generation%06" PRId64, num_gener);
+  snprintf(directory_name, 63, "analysis-generation_" TIMESTEP_FORMAT,
+           num_gener);
 
   // Check whether the directory already exists and is writable
   if (access(directory_name, F_OK) == 0) {
@@ -311,7 +193,7 @@ int main(int argc, char* argv[]) {
 
   char output_file_name[256];
   snprintf(output_file_name, 255,
-           "%s/mutagenesis-g%06" PRId64 "-i%" PRId32 "-r%" PRId32 "-%s.out", \
+           "%s/mutagenesis-t" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 "-%s.out", \
             directory_name, num_gener, wanted_index, wanted_rank,
            mutation_type_name);
 
@@ -1116,6 +998,109 @@ int main(int argc, char* argv[]) {
   return EXIT_SUCCESS;
 }
 
+void interpret_cmd_line_options(int argc, char* argv[]) {
+  const char* options_list = "hVg:r:i:m:n:";
+  static struct option long_options_list[] = {
+      {"help",          no_argument,       NULL, 'h'},
+      {"version",       no_argument,       NULL, 'V'},
+      {"gener",         required_argument, NULL, 'g'},
+      {"rank",          required_argument, NULL, 'r'},
+      {"index",         required_argument, NULL, 'i'},
+      {"mutation-type", required_argument, NULL, 'm'},
+      {"nb-mutants",    required_argument, NULL, 'n'},
+      {0, 0, 0,                                  0}
+  };
+
+  int option = -1;
+  bool rank_already_set = false;
+  bool index_already_set = false;
+  while ((option = getopt_long(argc, argv, options_list, long_options_list,
+                               NULL)) != -1) {
+    switch (option) {
+      case 'h':
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'V':
+        Utils::PrintAevolVersion();
+        exit(EXIT_SUCCESS);
+      case 'g':
+        if (strcmp(optarg, "") == 0) {
+          fprintf(stderr,
+                  "%s: error: Option -g or --gener : missing argument.\n",
+                  argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        num_gener = atol(optarg);
+        break;
+      case 'r':
+        if (index_already_set) {
+          fprintf(stderr,
+                  "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n",
+                  argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        wanted_rank = atol(optarg);
+        rank_already_set = true;
+        break;
+      case 'i':
+        if (rank_already_set) {
+          fprintf(stderr,
+                  "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n",
+                  argv[0]);
+          fprintf(stderr, "           Use %s --help for more information.\n",
+                  argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        wanted_index = atol(optarg);
+        index_already_set = true;
+        break;
+      case 'm':
+        mutation_type = (MutationType) atol(optarg);
+        if (mutation_type == SWITCH) {
+        }
+        else if ((mutation_type == S_INS) || (mutation_type == S_DEL) ||
+                 (mutation_type == DUPL) || (mutation_type == DEL) ||
+                 (mutation_type == TRANS) || (mutation_type == INV)) {
+        }
+        else {
+          fprintf(stderr,
+                  "%s: error: So far, mutagenesis is implemented only for "
+                      "point mutations, small insertions, \n"
+                      "           small deletions, duplications, deletions, "
+                      "translocations or inversions.\n"
+                      "           It is not available yet for lateral transfer.\n",
+                  argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        break;
+      case 'n':
+        nb_mutants = atol(optarg);
+        if (nb_mutants <= 0) {
+          fprintf(stderr,
+                  "%s: error: The number of mutants (option -n) must be "
+                      "positive.\n",
+                  argv[0]);
+          exit(EXIT_FAILURE);
+        }
+        break;
+    }
+  }
+
+
+  if ((mutation_type == SWITCH) && (nb_mutants != -1)) {
+    printf("For point mutations, the mutagenesis will be exhaustive, "
+               "the number of \n"
+               "mutants will be ignored.\n");
+  }
+  else if ((mutation_type != SWITCH) && (nb_mutants == -1)) {
+    nb_mutants = 1000;
+    printf("Mutagenesis cannot be exhaustive in a reasonable time for "
+               "mutations \n");
+    printf("other than point mutations. A sample of %" PRId32 " mutants will "
+               "be generated.\n",
+           nb_mutants);
+  }
+}
 
 /*!
   \brief

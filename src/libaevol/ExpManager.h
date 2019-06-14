@@ -109,9 +109,12 @@ class ExpManager : public Observer {
 
   // Accessors to population stuff
   std::list<Individual*> indivs() const { return world()->indivs(); }
+  std::list<std::pair<Individual*, ReplicationReport*>> indivs_annotated()
+      const;
   int32_t nb_indivs() const { return world()->nb_indivs(); }
   Individual* best_indiv() const { return world()->best_indiv(); }
   Individual* indiv_by_id(int32_t id) const;
+  Individual* indiv_by_rank(int32_t rank) const;
 
   // Accessors to output manager stuff
   int64_t	backup_step() const { return output_m()->backup_step(); }
