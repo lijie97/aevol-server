@@ -1274,11 +1274,11 @@ void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
             ->add_triangle(prot.mean(),
                            prot.width(),
                            prot.height() * prot.concentration());
-
+/*
           if (indiv_id == 101)
           for (int i = 0; i <= 1; i++) {
             printf("CPU -- X[%d] = %f (%e %e %e)\n",i,((HybridFuzzy*)activ_contribution_)->points()[i],prot.mean(),prot.width(),prot.height());
-          }
+          }*/
       }
   // if (prot->height() > 0)
   //   activ_contribution_->add_triangle(prot->mean(),

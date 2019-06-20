@@ -69,7 +69,7 @@ constexpr auto LAST_GENER_FNAME = "last_gener.txt";
 #define FIXED_POPULATION_SIZE // Some calculation can be spared if we know that the size of the population is fixed
 
 constexpr int8_t PROM_SIZE = 22;
-constexpr const char* PROM_SEQ = "0101011001110010010110";
+constexpr auto PROM_SEQ = "0101011001110010010110";
 
 constexpr int8_t PROM_MAX_DIFF  = 4;
 constexpr int8_t TERM_STEM_SIZE = 4;

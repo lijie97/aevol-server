@@ -116,12 +116,16 @@ void World::InitGrid(int16_t width, int16_t height,
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
     {
+      int mut_seed = mut_prng_->random(1000000);
+      int stoch_seed = stoch_prng_->random(1000000);
+
+
       if (share_phenotypic_target)
         grid_[x][y] =
-            new GridCell(x, y,
-                HabitatFactory::create_unique_habitat(habitat,share_phenotypic_target),
-                             NULL,std::make_shared<JumpingMT>(mut_prng_->random(1000000)),
-                             std::make_shared<JumpingMT>(stoch_prng_->random(1000000)));
+                new GridCell(x, y,
+                             HabitatFactory::create_unique_habitat(habitat,share_phenotypic_target),
+                             NULL,std::make_shared<JumpingMT>(mut_seed),
+                             std::make_shared<JumpingMT>(stoch_seed));
     }
 }
 
@@ -143,6 +147,7 @@ void World::PlaceIndiv(Individual * indiv, int16_t x, int16_t y, bool set_prng) 
     indiv->set_mut_prng(grid_[x][y]->mut_prng());
     indiv->set_stoch_prng(grid_[x][y]->stoch_prng());
   }
+  indiv->set_id(x*height_+y);
 }
 
 void World::FillGridWithClones(Individual & dolly)
@@ -595,6 +600,15 @@ Individual* World::indiv_by_id(int32_t id) const {
   int32_t nb_indivs = width_ * height_;
   for (int32_t i = 0 ; i < nb_indivs ; i++) {
     if (grid_1d_[i]->individual()->id() == id)
+      return grid_1d_[i]->individual();
+  }
+  return nullptr;
+}
+
+Individual* World::indiv_by_rank(int32_t rank) const {
+  int32_t nb_indivs = width_ * height_;
+  for (int32_t i = 0 ; i < nb_indivs ; i++) {
+    if (grid_1d_[i]->individual()->rank() == rank)
       return grid_1d_[i]->individual();
   }
   return nullptr;

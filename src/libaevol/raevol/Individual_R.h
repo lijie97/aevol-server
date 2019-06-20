@@ -100,13 +100,16 @@ class Individual_R : public virtual Individual
       */
      virtual void EvaluateInContext(const Habitat_R& habitat, bool no_signal = true);
      virtual void EvaluateInContext(const Habitat& habitat);
+     virtual void EvaluateOneAfterAnother(const Habitat_R& habitat);
 
      virtual void init_indiv();
      virtual void init_indiv(const Habitat_R& habitat);
      virtual void one_step( void );
      virtual void eval_step(const Habitat_R& habitat, int16_t age);
+     virtual void eval_step_one_after_another( const Habitat_R& habitat, int16_t env_id );
      virtual void final_step(const Habitat_R& habitat, int16_t age);
-     //virtual void reevaluate();
+     virtual void final_step_one_after_another( const Habitat_R& habitat, int16_t env_id );
+        //virtual void reevaluate();
      //virtual void clear_everything_except_dna_and_promoters();
      //void do_transcription_translation_folding();
     // void do_transcription();
@@ -118,7 +121,7 @@ class Individual_R : public virtual Individual
      void update_phenotype( void );
 
     void create_csv(char* directory_name);
-
+    void draw_phenotype(const PhenotypicTarget& target, char* directoryName, int generation);
     void clear_dist_sum() { _dist_sum = 0; };
 
 
@@ -172,6 +175,8 @@ class Individual_R : public virtual Individual
     int _indiv_age;
     bool _networked;
     double _dist_sum;
+    double _global_dist_sum;
+    double* fitness_tab_;
 
 };
 

@@ -658,8 +658,8 @@ void write_gene_trees_to_files(std::list<ae_gene_tree>& gene_trees, int32_t end_
       else if (n.creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
       else fprintf(tree_statistics_file, "TRANSFER ");
       fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", n.begin_gener(), n.end_gener(), n.total_nb_nodes(), n.nb_internal_nodes(), n.nb_leaves(), n.nb_active_leaves());
-      sprintf(topol_file_name, "gene_trees/genetree%06" PRId32 "-topology.tre", tree_number);
-      sprintf(node_attr_file_name, "gene_trees/genetree%06" PRId32 "-nodeattr.txt", tree_number);
+      sprintf(topol_file_name, "gene_trees/genetree" TIMESTEP_FORMAT "-topology.tre", tree_number);
+      sprintf(node_attr_file_name, "gene_trees/genetree" TIMESTEP_FORMAT "-nodeattr.txt", tree_number);
       n.write_to_files(topol_file_name, node_attr_file_name, end_gener);
       n.write_nodes_in_tabular_file(tree_number, nodeattr_tabular_file);
       tree_number ++;

@@ -41,6 +41,12 @@
 #include <list>
 
 #include "aevol.h"
+enum check_type
+{
+    FULL_CHECK  = 0,
+    LIGHT_CHECK = 1,
+    NO_CHECK    = 2
+};
 
 using namespace aevol;
 
@@ -80,6 +86,8 @@ int main(int argc, char** argv) {
   // Load the simulation
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
+
+  FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_manager->exp_s());
 
   // Check that the tree was recorded
   if (not exp_manager->record_tree()) {

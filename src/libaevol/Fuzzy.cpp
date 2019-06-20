@@ -208,12 +208,17 @@ void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, 
   if (x2 <= X_MAX)  p2 = create_interpolated_point(x2, p1);
 
   // Update points with abscissas in (x0;x1)
-  for (list<Point>::iterator p = p0 ; p != p1 ; ++p)
-    p->y += (p->x - x0) / (x1 - x0) * height;
+          //printf("Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
+  for (list<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
+      p->y += (p->x - x0) / (x1 - x0) * height;
+      //printf("%f -> %f\n",p->x,p->y);
+  }
 
   // Update points with abscissas in (x0;x1)
-  for (list<Point>::iterator p = p1 ; p != p2 ; ++p)
-    p->y += height * (x2 - p->x) / (x2 - x1);
+  for (list<Point>::iterator p = std::next(p1) ; p != std::next(p2) ; ++p) {
+      p->y += height * (x2 - p->x) / (x2 - x1);
+      //printf("%f -> %f\n",p->x,p->y);
+  }
 
   // assert(invariant());
   return;

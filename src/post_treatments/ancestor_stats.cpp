@@ -43,6 +43,11 @@
 #include <list>
 #include <iostream>
 
+#include <cstdint>
+#include <fstream>
+#include <limits>
+#include <string>
+
 #include "aevol.h"
 
 using namespace aevol;
@@ -203,6 +208,12 @@ int main(int argc, char* argv[]) {
     fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n");
 
   }
+  
+  
+  
+    std::ofstream fitmeta;
+    fitmeta.open("ancestor_composed_fitness.csv",std::ofstream::trunc);
+    fitmeta<<"Generation,EnvID,Composed,Fitness"<<std::endl;
 
   // ==================================================
   //  Prepare the initial ancestor and write its stats
@@ -266,10 +277,14 @@ int main(int argc, char* argv[]) {
     if (check_now)
     {
       exp_manager_backup = new ExpManager();
-      exp_manager_backup->load(time(), true, false);
-      stored_indiv = new Individual(
-          *(Individual*) exp_manager_backup->indiv_by_id(index));
-      stored_gen_unit = &(stored_indiv->genetic_unit_nonconst(0));
+      exp_manager_backup->load(time(), true, true);
+        // Copy the ancestor from the backup
+
+        int l_x = index/exp_manager_backup->world()->height();
+        int l_y = index%exp_manager_backup->world()->height();
+        stored_indiv = exp_manager_backup->world()->indiv_at(l_x,l_y);
+
+        stored_gen_unit = stored_indiv->genetic_unit_list().cbegin();
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
@@ -378,6 +393,82 @@ int main(int argc, char* argv[]) {
     }
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
+    
+        indiv->evaluated_ = false;
+        indiv->Evaluate();
+
+    double ** fitness_sum_local_tab_;
+
+    FitnessFunction fitness_function_ = exp_manager->sel()->fitness_func();
+    int32_t fitness_function_scope_x_ = exp_manager->sel()->fitness_function_scope_x();
+    int32_t fitness_function_scope_y_ = exp_manager->sel()->fitness_function_scope_y();
+
+    double* fitness_sum_tab_;
+    int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (exp_manager->world()->grid(0,0)->habitat()).number_of_phenotypic_target_models();
+
+    if (fitness_function_ == FITNESS_GLOBAL_SUM) {
+        fitness_sum_tab_ = new double[number_of_phenotypic_target_models];
+        for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
+            fitness_sum_tab_[env_id] = 0;
+            for (int i = 0; i < exp_manager->world()->width(); i++)
+                for (int j = 0; j < exp_manager->world()->height(); j++) {
+                    fitness_sum_tab_[env_id] += dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(i, j))->fitness(env_id);
+                }
+        }
+    } else if (fitness_function_ == FITNESS_LOCAL_SUM) {
+        int16_t grid_width  = exp_manager->world()->width();
+        int16_t grid_height = exp_manager->world()->height();
+
+        int32_t selection_scope_x_ = exp_manager->sel()->selection_scope_x();
+        int32_t selection_scope_y_ = exp_manager->sel()->selection_scope_y();
+
+        fitness_sum_local_tab_ = new double*[fitness_function_scope_x_*fitness_function_scope_y_];
+        for (int tab_id = 0; tab_id < fitness_function_scope_x_*fitness_function_scope_y_; tab_id++)
+            fitness_sum_local_tab_[tab_id] = new double[number_of_phenotypic_target_models];
+
+        for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
+
+            int tab_id = 0;
+            fitness_sum_local_tab_[tab_id][env_id] = 0;
+
+                    int16_t cur_x = (xx +  grid_width) % grid_width;
+                    int16_t cur_y = (yy +  grid_height) % grid_height;
+
+                    int16_t new_x,new_y;
+                    for (int8_t ii = -1; ii < fitness_function_scope_x_ - 1; ii++) {
+                        for (int8_t jj = -1; jj < fitness_function_scope_y_ - 1; jj++) {
+                            new_x = (cur_x + ii + grid_width) % grid_width;
+                            new_y = (cur_y + jj + grid_height) % grid_height;
+
+                            fitness_sum_local_tab_[tab_id][env_id] +=  dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(new_x, new_y))->fitness(env_id);
+                        }
+                    }
+
+        }
+    }
+
+
+    int16_t cur_x = (xx  + grid_width)  % grid_width;
+    int16_t cur_y = (yy  + grid_height) % grid_height;
+
+    if (fitness_function_ == FITNESS_GLOBAL_SUM) {
+        double composed_fitness = 0;
+        for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
+            composed_fitness +=  dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_tab_[env_id];
+            fitmeta<<t0<<","<<env_id<<","<<"0"<<","<<dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_tab_[env_id]<<std::endl;
+        }
+        composed_fitness/=number_of_phenotypic_target_models;
+        fitmeta<<t0<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
+    } else if (fitness_function_ == FITNESS_LOCAL_SUM) {
+        double composed_fitness = 0;
+        for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
+            composed_fitness +=  dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_local_tab_[0][env_id];
+            fitmeta<<t0<<","<<env_id<<","<<"0"<<","<<dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_local_tab_[0][env_id]<<std::endl;
+        }
+        composed_fitness/=number_of_phenotypic_target_models;
+        fitmeta<<t0<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
+    }
+    
     indiv->Reevaluate();
     indiv->compute_statistical_data();
     indiv->compute_non_coding();

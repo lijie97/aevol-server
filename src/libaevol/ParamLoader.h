@@ -218,6 +218,10 @@ class ParamLoader {
   SelectionScope  selection_scope_;
   int32_t               selection_scope_x_;
   int32_t               selection_scope_y_;
+
+  FitnessFunction fitness_function_;
+  int32_t               fitness_function_x_;
+  int32_t               fitness_function_y_;
   // ------------------------------------------------------ Spatial structure
   int16_t grid_width_  = 32;
   int16_t grid_height_ = 32;

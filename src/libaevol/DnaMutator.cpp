@@ -307,19 +307,19 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
       nb_del_--;
 
       int32_t pos = mut_prng_->random(length_);
-      int16_t nb_del;
+      int16_t nb_pos_to_del;
       if (max_indel_size_ == 1) {
-        nb_del = 1;
+          nb_pos_to_del = 1;
       }
       else {
-        nb_del = 1 + mut_prng_->random(max_indel_size_);
+        nb_pos_to_del = 1 + mut_prng_->random(max_indel_size_);
       }
 
-      if (length_ - nb_del < min_genome_length_)
+      if (length_ - nb_pos_to_del < min_genome_length_)
         return nullptr;
 
       mevent = new MutationEvent();
-      mevent->small_deletion(pos,nb_del);
+      mevent->small_deletion(pos,nb_pos_to_del);
 
       mutation_list_.push_back(mevent);
 

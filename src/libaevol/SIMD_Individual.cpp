@@ -4109,26 +4109,23 @@ void SIMD_Individual::compute_phenotype() {
                                     internal_simd_struct[indiv_id]->proteins[protein_idx]->m +
                                     internal_simd_struct[indiv_id]->proteins[protein_idx]->w;
 
-                            int ix0 = (int) (x0 * 300);
-                            int ix1 = (int) (x1 * 300);
-                            int ix2 = (int) (x2 * 300);
+                            double height = (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
+                                             internal_simd_struct[indiv_id]->proteins[protein_idx]->e);
 
-                            if (ix0 < 0) ix0 = 0; else if (ix0 > (299)) ix0 = 299;
-                            if (ix1 < 0) ix1 = 0; else if (ix1 > (299)) ix1 = 299;
-                            if (ix2 < 0) ix2 = 0; else if (ix2 > (299)) ix2 = 299;
+                            int loop_A_start = (int) std::ceil(x0 * 299.0);
+                            loop_A_start = loop_A_start < 0 ? 0 : loop_A_start;
+                            loop_A_start = loop_A_start > 299 ? 299 : loop_A_start;
 
-/*                if (indiv_id == 894) {
-                  printf("Height %f %f %f %f -- %f\n",internal_simd_struct[indiv_id]->proteins[protein_idx]->m,
-                         internal_simd_struct[indiv_id]->proteins[protein_idx]->w,
-                         internal_simd_struct[indiv_id]->proteins[protein_idx]->h,
-                         internal_simd_struct[indiv_id]->proteins[protein_idx]->e,
-                         (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                         internal_simd_struct[indiv_id]->proteins[protein_idx]->e)
-                  );
+                            int loop_A_end = (int) std::ceil(x1 * 299.0);
+                            loop_A_end = loop_A_end < 0 ? 0 : loop_A_end;
+                            loop_A_end = loop_A_end > 299 ? 299 : loop_A_end;
 
-                  printf("X0-1-2 %d %d %d (%f %f %f)\n", ix0, ix1, ix2, x0, x1,
-                         x2);
-                }*/
+                            for (int i = loop_A_start; i < loop_A_end; i++) {
+                                if (internal_simd_struct[indiv_id]->proteins[protein_idx]->h > 0)
+                                    activ_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
+                                else
+                                    inhib_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
+                            }
 
                             /*if (indiv_id == 908 && AeTime::time() == 87) {
                               printf("Prot %d (%f %f %f) PHEN %d %d %d\n",protein_idx,internal_simd_struct[indiv_id]->proteins[protein_idx].m,
@@ -4137,70 +4134,30 @@ void SIMD_Individual::compute_phenotype() {
                               ix0,ix1,ix2);
                             }*/
 
-                            // Compute the first equation of the triangle
-                            double incY =
-                                    (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                     internal_simd_struct[indiv_id]->proteins[protein_idx]->e) /
-                                    (ix1 - ix0);
-                            int count = 1;
-                            // Updating value between x0 and x1
-
-                            /*if (indiv_id == 894)
-                              printf("incY first loop %f\n",incY);*/
-                            for (int i = ix0 + 1; i < ix1; i++) {
-//#pragma omp critical
-                                {
-                                    /*if (indiv_id == 268) printf("add to %d : %f (%f %f)\n",i,(incY * (count)));*/
-                                    if (internal_simd_struct[indiv_id]->proteins[protein_idx]->h > 0)
-                                        activ_phenotype[i] += (incY * (count++));
-                                    else
-                                        inhib_phenotype[i] += (incY * (count++));
-                                }
-                            }
-
-//#pragma omp critical
-                            {
-                               /* if (indiv_id == 268) printf("add to %d : %f\n",ix1,(internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                                                                    internal_simd_struct[indiv_id]->proteins[protein_idx]->e));*/
-
-                                if (internal_simd_struct[indiv_id]->proteins[protein_idx]->h > 0)
-                                    activ_phenotype[ix1] +=
-                                        (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                         internal_simd_struct[indiv_id]->proteins[protein_idx]->e);
-                                else
-                                    inhib_phenotype[ix1] +=
-                                            (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                             internal_simd_struct[indiv_id]->proteins[protein_idx]->e);
-                            }
-
                             // Compute the second equation of the triangle
-                            incY =
-                                    (internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                     internal_simd_struct[indiv_id]->proteins[protein_idx]->e) /
-                                    (ix2 - ix1);
-                            count = 1;
-
-/*                if (indiv_id == 894)
-                  printf("incY second loop %f\n",incY);*/
                             // Updating value between x1 and x2
-                            for (int i = ix1 + 1; i < ix2; i++) {
-//#pragma omp atomic
-                                {
-                                    /*if (indiv_id == 268) printf("add to %d : %f\n",i,((internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                                                                       internal_simd_struct[indiv_id]->proteins[protein_idx]->e) -
-                                                                                      (incY * (count))));*/
-                                    if (internal_simd_struct[indiv_id]->proteins[protein_idx]->h > 0)
-                                        activ_phenotype[i] +=
-                                            ((internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                              internal_simd_struct[indiv_id]->proteins[protein_idx]->e) -
-                                             (incY * (count++)));
-                                    else
-                                        inhib_phenotype[i] +=
-                                                ((internal_simd_struct[indiv_id]->proteins[protein_idx]->h *
-                                                  internal_simd_struct[indiv_id]->proteins[protein_idx]->e) -
-                                                 (incY * (count++)));
-                                }
+                            int loop_B_start = (int) std::ceil(x1 * 299.0);
+                            loop_B_start = loop_B_start < 0 ? 0 : loop_B_start;
+                            loop_B_start = loop_B_start > 299 ? 299 : loop_B_start;
+
+                            int loop_B_end = (int) std::ceil(x2 * 299.0);
+                            if (loop_B_end > 299) {
+                                if (internal_simd_struct[indiv_id]->proteins[protein_idx]->h > 0)
+                                    activ_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
+                                else
+                                    inhib_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
                             }
+
+                            loop_B_end = loop_B_end < 0 ? 0 : loop_B_end;
+                            loop_B_end = loop_B_end > 299 ? 299 : loop_B_end;
+
+                            for (int i = loop_B_start; i < loop_B_end; i++) {
+                                if (internal_simd_struct[indiv_id]->proteins[protein_idx]->h > 0)
+                                    activ_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
+                                else
+                                    inhib_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
+                            }
+
                         }
                     }
 /*

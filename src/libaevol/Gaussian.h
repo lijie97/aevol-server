@@ -72,7 +72,17 @@ class Gaussian {
   // =================================================================
   //                            Public Methods
   // =================================================================
-  double compute_y(double x) const { return height_ * std::exp(-(x- mean_)*(x- mean_) / (2* width_ * width_)); }
+#ifdef PHENOTYPIC_TARGET_TRIANGLE
+double compute_y(double x) const {
+    if (x < mean_ - width_) return 0;
+    if (x > mean_ + width_) return 0;
+    if (x >= mean_) return (height_ - (height_ * (x - mean_) / width_));
+    return (height_ - (height_ * (mean_ - x) / width_));
+  }
+#else
+    double compute_y(double x) const { return height_ * exp(-(x- mean_)*(x- mean_) / (2* width_ * width_)); }
+#endif
+
   void save(gzFile backup_file) const;
 
   // =================================================================

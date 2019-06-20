@@ -97,6 +97,13 @@ class PhenotypicTarget_R : public PhenotypicTarget
       signals_ = signals_list;
   }
 
+  void clear_signals() {
+    for (auto prot : signals_) {
+      delete prot;
+    }
+    signals_.clear();
+  }
+
  protected :
   // ==========================================================================
   //                            Protected Methods

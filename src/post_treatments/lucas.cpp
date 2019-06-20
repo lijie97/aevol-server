@@ -239,6 +239,8 @@ int main(int argc, char** argv)
                                                                               x * grid_height + y)));
 
       current.insert(rep->parent_id());
+
+      delete rep;
     }
 
   // =======================
@@ -265,7 +267,10 @@ int main(int argc, char** argv)
   {
 
     if (current.size() == 1) {
-      printf("LUCAS,%d\n", lucas);
+        std::ofstream myfile;
+        myfile.open ("lucas.csv");
+        myfile << lucas <<std::endl;
+        myfile.close();
       exit(1);
     } else
       lucas = t;
@@ -299,6 +304,8 @@ int main(int argc, char** argv)
         if ( foundFilter != previous.end() ) {
           current.insert(rep->parent_id());
         }
+
+        delete rep;
       }
   }
 

@@ -399,6 +399,8 @@ class Individual : public Observable {
 
   void set_double_probes(double* double_probes);
 
+  void set_fitness(double fitness) { fitness_ = fitness;}
+  void set_metaerror(double metaerror) { dist_to_target_by_feature_[METABOLISM] = metaerror; }
 
   // =================================================================
   //                            Public Methods
@@ -584,6 +586,7 @@ class Individual : public Observable {
   // When using structured population, this is the cell the individual is in
 
   // int16_t x, y;
+
 
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.

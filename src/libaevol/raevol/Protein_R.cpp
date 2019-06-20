@@ -187,6 +187,7 @@ Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
   double delta;
   gzread( backup_file, &delta,   	sizeof(delta) );
   _delta_concentration = (ProteinConcentration) delta;
+  _initial_concentration = concentration_;
 
   gzread( backup_file, &_inherited,   			sizeof(_inherited) );
   gzread( backup_file, &_signal,   			sizeof(_signal) );

@@ -12,6 +12,7 @@
 #include "macros.h"
 #include "Point.h"
 #include "AbstractFuzzy.h"
+#include "Fuzzy.h"
 
 namespace aevol {
 
@@ -43,6 +44,8 @@ class HybridFuzzy : public AbstractFuzzy
   void add_point(ProteinConcentration x, ProteinConcentration y);
 
   void clip(clipping_direction direction, ProteinConcentration bound);
+
+  bool compare(Fuzzy* fuzz);
 
   // ==========================================================================
   //                                 Getters

@@ -75,6 +75,10 @@ Individual_R::Individual_R(ExpManager* exp_m,
   _dist_sum = 0;
 
   _inherited_protein_list.resize(0);
+
+      fitness_tab_ = nullptr;
+
+
 }
 
 Individual_R::Individual_R(const Individual_R& other)
@@ -84,7 +88,7 @@ Individual_R::Individual_R(const Individual_R& other)
   _networked = false;
   _dist_sum = 0;
 
-
+  fitness_tab_ = nullptr;
   if (exp_m_->exp_s()->get_with_heredity()) {
     _inherited_protein_list.clear();
 
@@ -110,7 +114,7 @@ Individual_R::Individual_R( Individual_R* parent, int32_t id,
     _indiv_age = 0;
     _networked = false;
     _dist_sum = 0;
-
+  fitness_tab_ = nullptr;
   if (exp_m_->exp_s()->get_with_heredity()) {
     //_inherited_protein_list.resize(parent->protein_list_.size());
     //printf("%llu -- Parent protein size: %d\n",id, parent->protein_list_.size());
@@ -134,12 +138,14 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
 {
     _indiv_age = 0;
   _networked = false;
-
+  fitness_tab_ = nullptr;
   if( exp_m_->exp_s()->get_with_heredity() )
   {
     // Retreive inherited proteins
     int32_t nb_inherited_proteins = 0;
     gzread( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
+
+    printf("Nb prot %d\n",nb_inherited_proteins);
 
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
@@ -177,6 +183,8 @@ Individual_R::~Individual_R( void ) noexcept
   signal_list.clear();
 
   _rna_list_coding.clear();
+
+  delete [] fitness_tab_;
 }
 
 // =================================================================
@@ -193,12 +201,15 @@ void Individual_R::Evaluate(bool no_signal) {
 }
 
 void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
-
-    if (evaluated_ == true)
-      return; // Individual has already been evaluated, nothing to do.
-    for (const auto& prot : protein_list_) {
-      ((Protein_R*) prot)->reset_concentration();
-    }
+    if (habitat.phenotypic_target_handler().var_method() == ONE_AFTER_ANOTHER)
+        EvaluateOneAfterAnother(dynamic_cast<const Habitat_R&> (habitat));
+    else {
+        //printf("dist sum %d : %lf\n",id(),_dist_sum);
+        if (evaluated_ == true)
+            return; // Individual has already been evaluated, nothing to do.
+        for (const auto &prot : protein_list_) {
+            ((Protein_R *) prot)->reset_concentration();
+        }
 
     if (!_networked) {
       init_indiv(habitat);
@@ -208,6 +219,41 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
              ((Protein_R*)prot)->get_id(),prot->concentration());
     }*/
 
+    if (habitat.phenotypic_target_handler().var_method() == ONE_AFTER_ANOTHER) {
+    _dist_sum = 0;
+      exp_m_->exp_s()->set_nb_degradation_step(10);
+      exp_m_->exp_s()->set_nb_indiv_age(10);
+
+    //printf("Eval env %d for %d (%d)\n",env_i,exp_m_->exp_s()->get_nb_indiv_age(), exp_m_->exp_s()->get_nb_degradation_step());
+    for (int16_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+
+      for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
+        one_step();
+      }
+
+      // If we have to evaluate the individual at this age
+      if (eval->find(i) != eval->end()) {
+  //        printf("Eval !\n");
+        eval_step_one_after_another(habitat, env_i);
+      }
+    }
+
+
+    final_step_one_after_another(habitat, env_i);
+
+    fitness_sum += fitness();
+    fitness_tab_[env_i] = fitness();
+
+    //printf("%d -- %d : %e %e -- %e\n",id(),env_i,fitness(),fitness_sum,
+    //       habitat.phenotypic_target_model(env_i).area_by_feature(METABOLISM));
+  }
+
+
+  fitness_ = fitness_sum/((double)habitat.number_of_phenotypic_target_models());
+    dist_to_target_by_feature_[METABOLISM] = _global_dist_sum / ((double)habitat.number_of_phenotypic_target_models());
+    /*printf("%e %d : %e\n",_global_dist_sum,habitat.number_of_phenotypic_target_models(),dist_to_target_by_feature_[METABOLISM]);*/
+
+    } else {
     _dist_sum = 0;
 
     std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
@@ -242,6 +288,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
 
 
     final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
+    }
 
 //    protein_list_.clear();
 //    protein_list_ = _initial_protein_list;
@@ -253,7 +300,10 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
 }
 
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
-  EvaluateInContext(dynamic_cast<const Habitat_R&> (habitat));
+    if (habitat.phenotypic_target_handler().var_method() == ONE_AFTER_ANOTHER)
+        EvaluateOneAfterAnother(dynamic_cast<const Habitat_R&> (habitat));
+    else
+        EvaluateInContext(dynamic_cast<const Habitat_R&> (habitat));
 }
 
 void Individual_R::init_indiv() {
@@ -345,6 +395,23 @@ void Individual_R::eval_step( const Habitat_R& habitat, int16_t age ) {
            age, dist_to_target_by_feature_[METABOLISM],_dist_sum);*/
 }
 
+void Individual_R::eval_step_one_after_another( const Habitat_R& habitat, int16_t env_id ) {
+  update_phenotype();
+  distance_to_target_computed_ = false;
+  phenotype_computed_ = true;
+
+  for (int i = 0; i < NB_FEATURES; i++) {
+    dist_to_target_by_feature_[i] = 0;
+  }
+
+  compute_distance_to_target(habitat.phenotypic_target_model(env_id));
+
+
+  _dist_sum += dist_to_target_by_feature_[METABOLISM];
+/*
+  printf("Meta error %e (%e) out of %e\n",dist_to_target_by_feature_[METABOLISM],_dist_sum,habitat.phenotypic_target_model(env_id).area_by_feature(METABOLISM));
+*/
+}
 
 void Individual_R::final_step( const Habitat_R& habitat, int16_t age ) {
   dist_to_target_by_feature_[METABOLISM] = _dist_sum / (double) (exp_m_->exp_s()->get_list_eval_step()->size());
@@ -360,6 +427,21 @@ void Individual_R::final_step( const Habitat_R& habitat, int16_t age ) {
            dist_to_target_by_feature_[METABOLISM], fitness_, fitness_by_feature_[METABOLISM]);*/
 
   phenotype_computed_ = true;
+}
+
+void Individual_R::final_step_one_after_another( const Habitat_R& habitat, int16_t env_id ) {
+    dist_to_target_by_feature_[METABOLISM] = _dist_sum / (double) (exp_m_->exp_s()->get_list_eval_step()->size());
+    _global_dist_sum += dist_to_target_by_feature_[METABOLISM];
+    distance_to_target_computed_ = true;
+/*
+    printf("FINAL -> Meta error %e (%e) out of %e\n",dist_to_target_by_feature_[METABOLISM],_dist_sum,habitat.phenotypic_target_model(env_id).area_by_feature(METABOLISM));
+*/
+
+    fitness_computed_ = false;
+    // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
+    compute_fitness(habitat.phenotypic_target_model(env_id));
+
+    phenotype_computed_ = true;
 }
 
 void Individual_R::set_influences()
@@ -618,9 +700,14 @@ void Individual_R::create_csv(char *directory_name) {
 
   fprintf(drawingfile, "Generation,Protein,Concentration\n");
 
-
+  int16_t life_time =  exp_m_->exp_s()->get_nb_indiv_age();
+  //set the concentrations of proteins to their initial value
+  double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
+  //  int16_t prot_index = 0;
+  int i = 0;
   for (const auto& prot : protein_list_) {
-    printf("Protein List %d -> %f (signal: %d)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal() );
+    concentrations[i] = ((Protein_R*)prot)->concentration();
+    i++;
   }
 
 
@@ -642,39 +729,84 @@ void Individual_R::create_csv(char *directory_name) {
     }
     printf("\n");
 
-    for (auto prot : signal_list) {
-      printf("before %d prot %d : %f (%p)\n",i,prot.second->get_id(),prot.second->concentration(),prot.second);
-    }
+    for (int j = 0; j < exp_m()->exp_s()->get_nb_degradation_step(); j++)
+      update_concentrations();
 
-
+    //affichage des points n+1 dans la concentration
+    //prot_index = 0;
+    int proti = 0;
+    //printf("Age[%d] : ",i);
     for (const auto& prot : protein_list_) {
       if (((Protein_R*)prot)->is_signal()) printf("Protein List %d -> %f (signal: %d) (%p)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal(),prot);
+    
+
+      // morceau ajouté pour colorer les protéines en fonctions de leur paramètres
+      concentrations[proti]=((Protein_R*)prot)->concentration();
+      fprintf(drawingfile, "%d,%d,%lf\n",i,proti,prot->concentration());
+      proti++;
     }
 
-    for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
-      one_step();
-    }
-
+    update_phenotype();
 
     for (auto prot : signal_list) {
       printf("after %d prot %d : %f\n",i,prot.second->get_id(),prot.second->concentration());
     }
 
+    printf("Creating the EPS file with the phenotype of the chosen individual at step %d... ",i);
+    fflush(stdout);
+    draw_phenotype(dynamic_cast<const Habitat_R&>(habitat()).phenotypic_target( i ), directory_name,i);
+    printf("OK\n");
+    //printf("\n");
+  }
 
     for (const auto& prot : protein_list_) {
       if (((Protein_R*)prot)->is_signal()) printf("Protein List %d -> %f (signal: %d)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal() );
     }
 
-    int prot_idx = 0;
-    for (const auto& prot : protein_list_) {
-      if (((Protein_R*)prot)->is_signal()) printf("%d -- %d is signal %f\n",i,((Protein_R*)prot)->get_id(),prot->concentration());
-      fprintf(drawingfile, "%d,%d,%lf\n",i,prot_idx,prot->concentration());
-      prot_idx++;
-    }
+  delete[] concentrations;
+}
 
-    update_phenotype();
 
+void Individual_R::draw_phenotype(const PhenotypicTarget& target, char* directoryName, int generation)
+{
+  char filename[128];
+  snprintf(filename, 127, "%s/best_phenotype_%d.csv", directoryName,generation);
+  FILE * drawingfile = fopen(filename, "w");
+
+  if (drawingfile == NULL)
+  {
+    fprintf(stderr, "Error: could not create the file %s\n", filename);
+    return;
   }
+
+
+  fprintf(drawingfile, "Generation,IndividualOrPhenotype,X,Y\n");
+
+  if (exp_m()->exp_s()->get_fuzzy_flavor() == 0)
+    for (const auto& p: ((Fuzzy*)phenotype_activ())->points())
+      fprintf(drawingfile, "%d,0,%lf,%lf\n",generation,p.x,p.y);
+  else {
+    for (int i=0; i < ((HybridFuzzy*)phenotype())->get_pheno_size(); i++) {
+
+      float xi =  (i / (float)
+          ((HybridFuzzy*) phenotype())->get_pheno_size());
+      fprintf(drawingfile, "%d,0,%lf,%lf\n",generation,xi,((HybridFuzzy*) phenotype())->points()[i]);
+    }
+  }
+
+
+  // ------------------
+  //  draw environment
+  // ------------------
+  if (exp_m()->exp_s()->get_fuzzy_flavor() == 0)
+    for (const auto& p: ((Fuzzy*)target.fuzzy())->points())
+      fprintf(drawingfile, "%d,1,%lf,%lf\n", generation,p.x, p.y);
+  else
+    for (int i=0; i < ((HybridFuzzy*)target.fuzzy())->get_pheno_size(); i++) {
+      float xi =  (i / (float)
+          ((HybridFuzzy*)target.fuzzy())->get_pheno_size());
+      fprintf(drawingfile, "%d,1,%lf,%lf\n",generation,xi, ((HybridFuzzy*) target.fuzzy())->points()[i]);
+    }
 
   fclose(drawingfile);
 }

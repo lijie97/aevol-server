@@ -159,6 +159,7 @@ void PhenotypicTargetHandler::BuildPhenotypicTarget() {
           int dist = 1;
 
           while (fuz->points()[maxL] == 0.0) {
+              if (maxL+1 > PHENO_SIZE) break;
             maxL++;
             dist++;
           }

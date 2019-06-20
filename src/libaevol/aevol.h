@@ -41,6 +41,7 @@
 #include "ExpSetup.h"
 #include "ParameterLine.h"
 #include "Fuzzy.h"
+#include "HybridFuzzy.h"
 #include "Gaussian.h"
 #include "GeneticUnit.h"
 #include "GridCell.h"
@@ -80,7 +81,13 @@
 #include "Tree.h"
 #include "VisAVis.h"
 #include "World.h"
-#include "X11Window.h"
+
 #include "LightTree.h"
+
+#ifdef __X11
+  #include "ExpManager_X11.h"
+  #include "Individual_X11.h"
+  #include "X11Window.h"
+#endif
 
 #endif // AEVOL_AEVOL_H_

@@ -217,6 +217,10 @@ ParamLoader::ParamLoader(const char* file_name)
   selection_scope_   = SCOPE_LOCAL;
   selection_scope_x_ = 3;
   selection_scope_y_ = 3;
+
+  fitness_function_ = FITNESS_EXP;
+  fitness_function_x_ = 3;
+  fitness_function_y_ = 3;
   // -------------------------------------------------------------- Secretion
   with_secretion_               = false;
   secretion_contrib_to_fitness_ = 0;
@@ -1047,6 +1051,17 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       }
       env_var_method_ = SWITCH_IN_A_LIST;
       _env_switch_probability = atof(line->words[2]);
+    } else if (strcmp(line->words[1], "one_after_another") == 0)
+    {
+      if (line->nb_words != 2) {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+               param_file_name_, cur_line);
+        printf("usage: %s %s probability to switch between different environments\n",
+               line->words[0], line->words[1]);
+        exit(EXIT_FAILURE);
+      }
+      env_var_method_ = ONE_AFTER_ANOTHER;
     }
     #endif
     else
@@ -1532,6 +1547,10 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   sel->set_selection_scope(selection_scope_);
   sel->set_selection_scope_x(selection_scope_x_);
   sel->set_selection_scope_y(selection_scope_y_);
+
+  sel->set_fitness_function(fitness_function_);
+  sel->set_fitness_function_scope_x(fitness_function_x_);
+  sel->set_fitness_function_scope_y(fitness_function_y_);
   // ----------------------------------------------------------------- Transfer
   exp_s->set_with_HT(with_HT_);
   exp_s->set_repl_HT_with_close_points(repl_HT_with_close_points_);
@@ -1561,7 +1580,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_max_genome_length(max_genome_length_);
 
 #ifdef __REGUL
-  exp_s->set_with_heredity(_with_heredity);
+  if (env_var_method_ == ONE_AFTER_ANOTHER)
+    exp_s->set_with_heredity(false);
+  else
+    exp_s->set_with_heredity(_with_heredity);
+
   exp_s->set_degradation_rate(_degradation_rate);
   exp_s->set_nb_degradation_step(_nb_degradation_step);
   exp_s->set_nb_indiv_age(_nb_indiv_age);
@@ -1722,18 +1745,21 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
     indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
 
-    if (plasmid != NULL) {
-      if (! allow_plasmids_) {
-        printf("ERROR: plasmid sequence provided but plasmids not allowed\n");
+    if (plasmid != NULL)
+    {
+      printf("Option -p is used: plasmid will be loaded from a text file\n");
+      if (! allow_plasmids_)
+      {
+        printf("ERROR: option -p requires ALLOW_PLASMIDS set to true\n");
         exit(EXIT_FAILURE);
       }
       indiv->add_GU(plasmid, lplasmid);
       indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
       indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
     }
-    else if (allow_plasmids_) {
-      printf("ERROR: please provide both the chromosome and plasmid sequences"
-                 "or none of them\n");
+    else if (allow_plasmids_)
+    {
+      printf("ERROR: if you use option -c and ALLOW_PLASMIDS is set to true, you must also use option -p. \n For now loading a genetic unit from text file and generating the other is not supported.\n");
       exit(EXIT_FAILURE);
     }
 
@@ -1755,9 +1781,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       indivs.push_back(clone);
     }
   }
-  else if (plasmid != NULL) {
-    printf("ERROR: please provide both the chromosome and plasmid sequences"
-               "or none of them\n");
+  else if (plasmid != NULL)
+  {
+    printf("ERROR: option -p can only be used in combination with option -c for now\n");
     exit(EXIT_FAILURE);
   }
   else if (init_method_ & ONE_GOOD_GENE)

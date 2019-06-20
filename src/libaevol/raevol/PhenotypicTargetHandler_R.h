@@ -118,7 +118,12 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     return phenotypic_targets_.size();
   }
 
-    virtual double mean_environmental_area(ExpSetup* exp_s) const;
+
+  int16_t number_of_phenotypic_target_models() const {
+    return phenotypic_target_models_.size();
+  }
+
+  virtual double mean_environmental_area(ExpSetup* exp_s) const;
 
   const std::list<Protein_R*> signals() const {
     return signals_models_list_;
@@ -171,6 +176,8 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
     // For post_treatment evaluate_regulation
     void set_single_env(int16_t id);
     void set_two_env(int16_t id_1, int16_t id_2);
+
+    void ShuffleRandomlySignals();
 
  protected :
   // ==========================================================================

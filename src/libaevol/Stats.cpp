@@ -418,15 +418,15 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         delete [] stat_files_names_[chrom_or_GU][GLOB][BP_STATS];
         stat_files_names_[chrom_or_GU][GLOB][BP_STATS] = nullptr;
         fclose(stat_files_[chrom_or_GU][GLOB][BP_STATS]);
-        stat_files_[chrom_or_GU][GLOB][BP_STATS] = NULL;
+        stat_files_[chrom_or_GU][GLOB][BP_STATS] = nullptr;
       }
     }
 
     for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
     {
-      if (stat_files_names_[chrom_or_GU][best_or_glob][BP_STATS] != NULL)
+      if (stat_files_names_[chrom_or_GU][best_or_glob][BP_STATS] != nullptr)
       {
-        assert(stat_files_[chrom_or_GU][best_or_glob][BP_STATS] != NULL);
+        assert(stat_files_[chrom_or_GU][best_or_glob][BP_STATS] != nullptr);
         key = 1;
 
         write_header(stat_files_[chrom_or_GU][best_or_glob][BP_STATS], "Generation", key++);

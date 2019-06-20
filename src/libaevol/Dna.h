@@ -66,7 +66,7 @@ class Rna_R;
 class MutatePromoterEvent;
 class MutationEvent;
 
-class Dna : public ae_string {
+class Dna : public ae_string, public Observable {
  public :
   // =================================================================
   //                             Constructors

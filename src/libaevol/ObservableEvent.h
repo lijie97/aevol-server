@@ -77,6 +77,8 @@ class NewIndivEvent {
 
     int x;
     int y;
+    int parent_x;
+    int parent_y;
 
     int indiv_id_;
     int parent_id_;

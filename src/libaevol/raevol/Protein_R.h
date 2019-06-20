@@ -115,6 +115,7 @@ class Protein_R : public Protein
 
     int8_t*   _cod_tab;
     //bool _concentration_has_change = true;
+    ProteinConcentration    _initial_concentration = -1.0; // concentration at cell birth
   protected :
 
     // =================================================================
@@ -133,7 +134,7 @@ class Protein_R : public Protein
     ProteinConcentration    _delta_concentration;
     bool      _inherited;
     bool      _signal;
-    ProteinConcentration    _initial_concentration; // concentration at cell birth
+
     long      _id;
     int       _local_id;
     ExpManager* exp_m_;

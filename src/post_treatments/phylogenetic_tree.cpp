@@ -285,6 +285,8 @@ int main(int argc, char** argv)
 
       }
 
+      delete rep;
+
     }
 
   // =======================
@@ -388,6 +390,8 @@ int main(int argc, char** argv)
           }
         }
 
+        delete rep;
+
       }
 
   }
@@ -432,7 +436,7 @@ int main(int argc, char** argv)
 
           child->root = father;
 
-          //printf("Father child %ld BEFORE\n",father->next_nodes.size());
+          //printf("Father child %ld BEFORE\n",father->next_flushnodes.size());
           father->next_nodes[child->id] = child;
           //printf("Father child %ld DURING\n",father->next_nodes.size());
           father->next_nodes.erase(nodX.first);

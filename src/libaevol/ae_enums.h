@@ -53,7 +53,8 @@ enum PhenotypicTargetVariationMethod {
   AUTOREGRESSIVE_MEAN_VAR   = 1,
   AUTOREGRESSIVE_HEIGHT_VAR = 2,
   LOCAL_GAUSSIANS_VAR       = 3,
-  SWITCH_IN_A_LIST          = 4
+  SWITCH_IN_A_LIST          = 4,
+  ONE_AFTER_ANOTHER         = 5
 };
 
 enum PhenotypicTargetNoiseMethod {
@@ -83,6 +84,12 @@ enum SelectionScheme {
 enum SelectionScope {
     SCOPE_GLOBAL           = 0,
     SCOPE_LOCAL      = 1
+};
+
+enum FitnessFunction {
+    FITNESS_EXP                   = 0,
+    FITNESS_GLOBAL_SUM            = 1,
+    FITNESS_LOCAL_SUM             = 2
 };
 
 enum LogType {

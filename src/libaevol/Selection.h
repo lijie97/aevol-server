@@ -89,6 +89,10 @@ class Selection : public Observable
     inline int32_t               selection_scope_y() const;
     // inline std::unique_ptr<JumpingMT> prng() const;
 
+    inline FitnessFunction       fitness_func() const;
+    inline int32_t               fitness_function_scope_x() const;
+    inline int32_t               fitness_function_scope_y() const;
+
     // =================================================================
     //                        Accessors: setters
     // =================================================================
@@ -102,6 +106,10 @@ class Selection : public Observable
     inline void set_selection_scope(SelectionScope sel_scope);
     inline void set_selection_scope_x(int32_t sel_scope_x);
     inline void set_selection_scope_y(int32_t sel_scope_y);
+
+    inline void set_fitness_function(FitnessFunction fit_func) {fitness_function_ = fit_func; };
+    inline void set_fitness_function_scope_x(int32_t fit_scope_x) { fitness_function_scope_x_ = fit_scope_x; };
+    inline void set_fitness_function_scope_y(int32_t fit_scope_y) { fitness_function_scope_y_ = fit_scope_y; };
 
     // =================================================================
     //                              Operators
@@ -164,6 +172,12 @@ class Selection : public Observable
     SelectionScope selection_scope_;
     int32_t selection_scope_x_;
     int32_t selection_scope_y_;
+
+    FitnessFunction fitness_function_;
+    int32_t fitness_function_scope_x_;
+    int32_t fitness_function_scope_y_;
+
+    double* fitness_sum_tab_;
     // --------------------------- Probability of reproduction of each organism
 
 
@@ -204,6 +218,21 @@ inline int32_t Selection::selection_scope_y() const
 {
   return selection_scope_y_;
 }
+
+    inline FitnessFunction Selection::fitness_func() const
+    {
+        return fitness_function_;
+    }
+
+    inline int32_t Selection::fitness_function_scope_x() const
+    {
+        return fitness_function_scope_x_;
+    }
+
+    inline int32_t Selection::fitness_function_scope_y() const
+    {
+        return fitness_function_scope_y_;
+    }
 
 inline double*Selection::prob_reprod() const
 {

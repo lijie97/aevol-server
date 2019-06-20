@@ -101,6 +101,11 @@ Selection::Selection(ExpManager* exp_m) {
   selection_scheme_   = RANK_EXPONENTIAL;
   selection_pressure_ = 0.998;
 
+
+        fitness_function_ = FITNESS_EXP;
+        fitness_function_scope_x_ = 3;
+        fitness_function_scope_y_ = 3;
+
   // --------------------------- Probability of reproduction of each organism
   prob_reprod_ = NULL;
 
@@ -234,6 +239,19 @@ void Selection::step_to_next_generation() {
 
           world->grid(x, y)->old_one = Individual::CreateClone(world->indiv_at(x, y), 444444);
       }*/
+    if (fitness_function_ == FITNESS_GLOBAL_SUM) {
+
+        int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (world->grid(0,0)->habitat()).number_of_phenotypic_target_models();
+
+        fitness_sum_tab_ = new double[number_of_phenotypic_target_models];
+      for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
+        fitness_sum_tab_[env_id] = 0;
+        for (int i = 0; i < exp_m_->world()->width(); i++)
+          for (int j = 0; j < exp_m_->world()->height(); j++) {
+            fitness_sum_tab_[env_id] += dynamic_cast<Individual_R*>(world->indiv_at(i, j))->fitness(env_id);
+          }
+      }
+    }
 
     // Do local competitions
 #ifdef _OPENMP
@@ -638,6 +656,12 @@ void Selection::write_setup_file(gzFile exp_setup_file) const {
   gzwrite(exp_setup_file, &tmp_sel_scope,      sizeof(tmp_sel_scope));
   gzwrite(exp_setup_file, &selection_scope_x_, sizeof(selection_scope_x_));
   gzwrite(exp_setup_file, &selection_scope_y_, sizeof(selection_scope_y_));
+
+
+        int8_t tmp_fit_func= fitness_function_;
+        gzwrite(exp_setup_file, &tmp_fit_func,      sizeof(tmp_fit_func));
+        gzwrite(exp_setup_file, &fitness_function_scope_x_, sizeof(fitness_function_scope_x_));
+        gzwrite(exp_setup_file, &fitness_function_scope_y_, sizeof(fitness_function_scope_y_));
 }
 
 /*!
@@ -666,6 +690,13 @@ void Selection::load(gzFile& exp_setup_file,
   selection_scope_ = static_cast<SelectionScope>(tmp_sel_scope);
   gzread(exp_setup_file, &selection_scope_x_, sizeof(selection_scope_x_));
   gzread(exp_setup_file, &selection_scope_y_, sizeof(selection_scope_y_));
+
+
+    int8_t tmp_fit_func;
+    gzread(exp_setup_file, &tmp_fit_func, sizeof(tmp_fit_func));
+    fitness_function_ = (FitnessFunction) tmp_fit_func;
+    gzread(exp_setup_file, &fitness_function_scope_x_, sizeof(fitness_function_scope_x_));
+    gzread(exp_setup_file, &fitness_function_scope_y_, sizeof(fitness_function_scope_y_));
   // ----------------------------------------- Pseudo-random number generator
   /*
 #if __cplusplus == 201103L
@@ -1059,34 +1090,80 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   double    sum_local_fit     = 0.0;
   //double* loc_phenotype = new double[300];
 
-    //world->grid(x,y)->indiv_index  = new int[neighborhood_size];
+  double ** fitness_sum_local_tab_;
+  int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (world->grid(x,y)->habitat()).number_of_phenotypic_target_models();
 
+  if (fitness_function_ == FITNESS_LOCAL_SUM) {
+    fitness_sum_local_tab_ = new double*[fitness_function_scope_x_*fitness_function_scope_y_];
+    for (int tab_id = 0; tab_id < fitness_function_scope_x_*fitness_function_scope_y_; tab_id++)
+      fitness_sum_local_tab_[tab_id] = new double[number_of_phenotypic_target_models];
 
-  //printf("Selection scope %d (%d %d) :: %d %d\n",selection_scope_,x,y,neighborhood_size,selection_scope_x_,selection_scope_y_);
+    for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
 
+      int tab_id = 0;
+      fitness_sum_local_tab_[tab_id][env_id] = 0;
+
+      for (int8_t i = -1; i < selection_scope_x_ - 1; i++) {
+        for (int8_t j = -1; j < selection_scope_y_ - 1; j++) {
+          cur_x = (x + i + grid_width) % grid_width;
+          cur_y = (y + j + grid_height) % grid_height;
+
+            int16_t new_x,new_y;
+          for (int8_t ii = -1; ii < fitness_function_scope_x_ - 1; ii++) {
+            for (int8_t jj = -1; jj < fitness_function_scope_y_ - 1; jj++) {
+                //TODO: Check values HERE !
+
+              new_x = (cur_x + ii + grid_width) % grid_width;
+              new_y = (cur_y + jj + grid_height) % grid_height;
+
+              fitness_sum_local_tab_[tab_id][env_id] +=  dynamic_cast<Individual_R*>(world->indiv_at(new_x, new_y))->fitness(env_id);
+            }
+          }
+
+          tab_id++;
+        }
+      }
+    }
+  }
+
+  int tab_id = 0;
   for (int8_t i = -1 ; i < selection_scope_x_-1 ; i++) {
     for (int8_t j = -1 ; j < selection_scope_y_-1 ; j++) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
 
-    /*  if (count==0) {
-          for (int ip = 0; ip < 300; ip++)
-              loc_phenotype[ip] = ((HybridFuzzy *)  world->indiv_at(cur_x, cur_y)->phenotype())->points()[ip];
-      }*/
+      if (fitness_function_ == FITNESS_EXP)
+        local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
+      else if (fitness_function_ == FITNESS_GLOBAL_SUM) {
+        double composed_fitness = 0;
+        for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
+          composed_fitness +=  dynamic_cast<Individual_R*>(world->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_tab_[env_id];
+        }
+        composed_fitness/=number_of_phenotypic_target_models;
+        local_fit_array[count]  = composed_fitness;
+      } else if (fitness_function_ == FITNESS_LOCAL_SUM) {
+        double composed_fitness = 0;
+        for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
+          composed_fitness +=  dynamic_cast<Individual_R*>(world->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_local_tab_[tab_id][env_id];
+        }
+        composed_fitness/=number_of_phenotypic_target_models;
+        local_fit_array[count]  = composed_fitness;
+      }
 
       local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
       //local_meta_array[count]  = world->indiv_at(cur_x, cur_y)->dist_to_target_by_feature(METABOLISM);
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
-      //world->grid(x,y)->indiv_index[count] = cur_x * grid_height + cur_y;
-
-        //if (0 == x*grid_height+y) printf("%d %d : %e %d\n",cur_x,cur_y,world->indiv_at(cur_x, cur_y)->fitness(),count);
-
-/*        if (268 == x*grid_height+y)
-            printf("CPU Local SUM Fit %e -- Fitness %e\n",sum_local_fit,local_fit_array[count]);*/
-        count++;
+      count++;
+      tab_id++;
     }
+  }
+
+  if (fitness_function_ == FITNESS_LOCAL_SUM) {
+    for (int tab_id = 0; tab_id < fitness_function_scope_x_ * fitness_function_scope_y_; tab_id++)
+      delete[] fitness_sum_local_tab_[tab_id];
+    delete[] fitness_sum_local_tab_;
   }
   //printf("Competition 2\n");
   // Do the competitions between the individuals, based on one of the 4 methods:

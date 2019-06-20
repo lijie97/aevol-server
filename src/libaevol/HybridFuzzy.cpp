@@ -83,39 +83,45 @@ void HybridFuzzy::add_triangle( ProteinConcentration mean, ProteinConcentration 
   ProteinConcentration x1 = mean;
   ProteinConcentration x2 = mean + width;
 
-  int ix0 = (int) (x0 * _pheno_size);
-  int ix1 = (int) (x1 * _pheno_size);
-  int ix2 = (int) (x2 * _pheno_size);
-
-  if (ix0 < 0) ix0 = 0; else if (ix0 > (_pheno_size-1)) ix0 = _pheno_size-1;
-  if (ix1 < 0) ix1 = 0; else if (ix1 > (_pheno_size-1)) ix1 = _pheno_size-1;
-  if (ix2 < 0) ix2 = 0; else if (ix2 > (_pheno_size-1)) ix2 = _pheno_size-1;
-
   // Compute the first equation of the triangle
-  ProteinConcentration incY = height / (ix1 - ix0);
-  int count = 1;
   // Updating value between x0 and x1
-//  _points[ix0] = 0.0;
-  if (verbose)
-    printf("incY first loop %f\n",incY);
+  //printf("Update between %d (%f) and %d (%f) \n",(int) std::ceil(x0*299.0), x0, (int) std::ceil(x1*299.0),x1);
 
-  for (int i = ix0+1; i < ix1; i++) {
-    _points[i]+=incY*(count++);
-  }
+    int loop_A_start = (int) std::ceil(x0 * 299.0);
+    loop_A_start = loop_A_start < 0 ? 0 : loop_A_start;
+    loop_A_start = loop_A_start > 299 ? 299 : loop_A_start;
 
-  _points[ix1]+= height;
+    int loop_A_end = (int) std::ceil(x1 * 299.0);
+    loop_A_end = loop_A_end < 0 ? 0 : loop_A_end;
+    loop_A_end = loop_A_end > 299 ? 299 : loop_A_end;
+
+    for (int i = loop_A_start; i < loop_A_end; i++) {
+                  _points[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
+                  //printf("Update point %d : %f (%f %f %f)\n", i, (((i / 299.0) - x0) / (x1 - x0)) * height,
+                  //       ((i / 299.0) - x0), (x1 - x0), height);
+              }
+
 
   // Compute the second equation of the triangle
-  incY = height / (ix2 - ix1);
-  count = 1;
-
-  if (verbose)
-    printf("incY second loop %f\n",incY);
-
   // Updating value between x1 and x2
-  for (int i = ix1+1; i < ix2; i++) {
-    _points[i]+=(height-(incY*(count++)));
-  }
+          //printf("Update between %d (%f) and %d (%f)\n",(int) std::ceil(x1*299.0),x1, (int) std::ceil(x2*299.0),x2);
+
+    int loop_B_start = (int) std::ceil(x1 * 299.0);
+    loop_B_start = loop_B_start < 0 ? 0 : loop_B_start;
+    loop_B_start = loop_B_start > 299 ? 299 : loop_B_start;
+
+    int loop_B_end = (int) std::ceil(x2 * 299.0);
+    if (loop_B_end > 299) _points[299] += height * ((x2 - 1.0) / (x2 - x1));
+
+    loop_B_end = loop_B_end < 0 ? 0 : loop_B_end;
+    loop_B_end = loop_B_end > 299 ? 299 : loop_B_end;
+
+              for (int i = loop_B_start; i < loop_B_end; i++) {
+                  _points[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
+                  //printf("Update point %d : %f (%f %f %f)\n", i, height * ((x2 - (i / 299.0)) / (x2 - x1)),
+                  //       (x2 - (i / 299.0)), (x2 - x1), height);
+              }
+
 }
 
 void HybridFuzzy::add( const AbstractFuzzy& f )
@@ -244,5 +250,18 @@ void HybridFuzzy::print() const
   for (int i = 0; i < _pheno_size; i++)
     if (_points[i]!=0) printf("[%d : %f] ",i,_points[i]);
   printf("\n");
+}
+
+bool HybridFuzzy::compare(Fuzzy* fuzz) {
+    bool is_diff = false;
+  for (int i = 0; i < 300; i++) {
+      double hf = roundf(_points[i] * 10000);
+      double vf = roundf(fuzz->y(i/299.0) * 10000);
+    if (hf != vf) {
+      printf("FUZ[%d] (%f) -> HF %f VF %f\n",i,i/299.0,_points[i],fuzz->y(i/299.0));
+      is_diff = true;
+    }
+  }
+  return is_diff;
 }
 }

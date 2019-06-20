@@ -98,9 +98,17 @@ class Habitat_R : public virtual Habitat
     return (dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_))->phenotypic_target( age );
   }
 
+    const PhenotypicTarget_R& phenotypic_target_model(  int16_t env_id ) const {
+        return (dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_))->phenotypic_target_model( env_id );
+    }
+
   int16_t number_of_phenotypic_targets() const {
     return (dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_))->number_of_phenotypic_targets();
   }
+
+    int16_t number_of_phenotypic_target_models() const {
+      return (dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_))->number_of_phenotypic_target_models();
+    }
 
   virtual const PhenotypicTargetHandler_R& phenotypic_target_handler() const {
     return *(dynamic_cast<PhenotypicTargetHandler_R*> (phenotypic_target_handler_));

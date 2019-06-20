@@ -246,6 +246,8 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
 */
 
       break; }
+      case ONE_AFTER_ANOTHER:
+        break;
     default :
       Utils::ExitWithDevMsg("Unknown variation method", __FILE__, __LINE__);
       break;
@@ -525,6 +527,22 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int16_t id) {
   phenotypic_target->set_signals(signals_list);
 }
 
+void PhenotypicTargetHandler_R::ShuffleRandomlySignals() {
+  int16_t nb_models = phenotypic_target_models_.size();
+
+  for (int16_t i = 0; i < nb_models ; i++) {
+    PhenotypicTarget_R* phenotypic_target = phenotypic_target_models_.at(i);
+
+    std::list < Protein_R * > signals_list;
+    int32_t id = var_prng_->random(nb_models);
+
+    for (int16_t &signal_id : env_signals_list_.at(id)) {
+      signals_list.push_back(signals_models_.at(signal_id));
+    }
+    phenotypic_target->set_signals(signals_list);
+  }
+}
+
 void PhenotypicTargetHandler_R::ResetPhenotypicTargets() {
   PhenotypicTarget_R* last_env = phenotypic_targets_.back();
   int16_t size = phenotypic_targets_.size();
@@ -592,18 +610,29 @@ void PhenotypicTargetHandler_R::set_two_env(int16_t id_1, int16_t id_2) {
 
 double PhenotypicTargetHandler_R::mean_environmental_area(ExpSetup* exp_s) const {
   double total_dist = 0.0;
-  //printf("Size %d\n",phenotypic_targets_.size());
 
-  for(int16_t i = 0; i< (int16_t) phenotypic_targets_.size(); i++) {
-    //printf("area of %d\n",i);
-    //printf("id of %d\n",phenotypic_targets_.at(i)->get_id());
-
-    if (exp_s->get_list_eval_step()->find(i) != exp_s->get_list_eval_step()->end()) {
-      total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
+  if (var_method_ == ONE_AFTER_ANOTHER) {
+      for (int16_t env_id = 0; env_id < (int16_t) phenotypic_target_models_.size(); env_id++) {
+      double env_total_dist = 0.0;
+      for (int16_t i = 1; i <= exp_s->get_nb_indiv_age(); i++) {
+        if (exp_s->get_list_eval_step()->find(i) != exp_s->get_list_eval_step()->end()) {
+          env_total_dist += phenotypic_target_model(env_id).area_by_feature(METABOLISM);
+        }
+      }
+      total_dist+=env_total_dist/(double) exp_s->get_list_eval_step()->size();
     }
+
+    total_dist=total_dist/(double)number_of_phenotypic_target_models();
+  } else {
+    for (int16_t i = 0; i < (int16_t) phenotypic_targets_.size(); i++) {
+      if (exp_s->get_list_eval_step()->find(i) != exp_s->get_list_eval_step()->end()) {
+        total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
+      }
+    }
+    total_dist=total_dist/(double) exp_s->get_list_eval_step()->size();
   }
 
-  return total_dist/(double) exp_s->get_list_eval_step()->size();
+  return total_dist;
 }
 // ============================================================================
 //                            Non inline accessors
