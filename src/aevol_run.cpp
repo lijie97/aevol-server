@@ -73,6 +73,9 @@ static bool verbose = false;
 static int64_t t0 = -1;
 static int64_t t_end = -1;
 static int64_t nb_steps = -1;
+static int grain_size = 1;
+static bool w_mrca = false;
+
 #ifndef __NO_X
   static bool show_display_on_startup = true;
 #endif
@@ -108,10 +111,6 @@ int main(int argc, char* argv[]) {
   exp_manager->load(t0, verbose, true);
   exp_manager->set_t_end(t_end);
 
-  int64_t t0 = -1;
-  int64_t t_end = -1;
-  int64_t nb_steps = -1;
-  int grain_size = 1;
 
 
   // Make a numbered copy of each static input file

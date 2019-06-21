@@ -144,7 +144,23 @@ add_library(aevol
   InsertionHT.cpp
   InsertionHT.h
   ReplacementHT.cpp
-  ReplacementHT.h make_unique.h ae_logger.h)
+  ReplacementHT.h make_unique.h ae_logger.h
+  SIMD_Individual.h
+  SIMD_Individual.cpp
+  SaveWorld.h
+  SaveWorld.cpp
+  LightTree.h
+  LightTree.cpp
+  Dna_SIMD.h
+  Dna_SIMD.cpp
+  DnaMutator.h
+  DnaMutator.cpp
+  Stats_SIMD.h
+  Stats_SIMD.cpp
+  MutationEvent.h
+  MutationEvent.cpp
+  AncestorStats.h
+  AncestorStats.cpp)
 
 
 # ============================================================================

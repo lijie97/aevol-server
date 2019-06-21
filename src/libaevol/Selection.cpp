@@ -240,7 +240,7 @@ void Selection::step_to_next_generation() {
           world->grid(x, y)->old_one = Individual::CreateClone(world->indiv_at(x, y), 444444);
       }*/
     if (fitness_function_ == FITNESS_GLOBAL_SUM) {
-
+#ifdef __REGUL
         int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (world->grid(0,0)->habitat()).number_of_phenotypic_target_models();
 
         fitness_sum_tab_ = new double[number_of_phenotypic_target_models];
@@ -251,6 +251,10 @@ void Selection::step_to_next_generation() {
             fitness_sum_tab_[env_id] += dynamic_cast<Individual_R*>(world->indiv_at(i, j))->fitness(env_id);
           }
       }
+#else
+        printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+        exit(-1);
+#endif
     }
 
     // Do local competitions
@@ -1090,10 +1094,13 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   double    sum_local_fit     = 0.0;
   //double* loc_phenotype = new double[300];
 
+#ifdef __REGUL
   double ** fitness_sum_local_tab_;
   int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (world->grid(x,y)->habitat()).number_of_phenotypic_target_models();
+#endif
 
   if (fitness_function_ == FITNESS_LOCAL_SUM) {
+#ifdef __REGUL
     fitness_sum_local_tab_ = new double*[fitness_function_scope_x_*fitness_function_scope_y_];
     for (int tab_id = 0; tab_id < fitness_function_scope_x_*fitness_function_scope_y_; tab_id++)
       fitness_sum_local_tab_[tab_id] = new double[number_of_phenotypic_target_models];
@@ -1124,6 +1131,10 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
         }
       }
     }
+#else
+    printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+    exit(-1);
+#endif
   }
 
   int tab_id = 0;
@@ -1135,19 +1146,29 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
       if (fitness_function_ == FITNESS_EXP)
         local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
       else if (fitness_function_ == FITNESS_GLOBAL_SUM) {
+#ifdef __REGUL
         double composed_fitness = 0;
         for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
           composed_fitness +=  dynamic_cast<Individual_R*>(world->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_tab_[env_id];
         }
         composed_fitness/=number_of_phenotypic_target_models;
         local_fit_array[count]  = composed_fitness;
+#else
+          printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+          exit(-1);
+#endif
       } else if (fitness_function_ == FITNESS_LOCAL_SUM) {
+#ifdef __REGUL
         double composed_fitness = 0;
         for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
           composed_fitness +=  dynamic_cast<Individual_R*>(world->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_local_tab_[tab_id][env_id];
         }
         composed_fitness/=number_of_phenotypic_target_models;
         local_fit_array[count]  = composed_fitness;
+#else
+          printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+          exit(-1);
+#endif
       }
 
       local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
@@ -1161,9 +1182,14 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   }
 
   if (fitness_function_ == FITNESS_LOCAL_SUM) {
+#ifdef __REGUL
     for (int tab_id = 0; tab_id < fitness_function_scope_x_ * fitness_function_scope_y_; tab_id++)
       delete[] fitness_sum_local_tab_[tab_id];
     delete[] fitness_sum_local_tab_;
+#else
+      printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+      exit(-1);
+#endif
   }
   //printf("Competition 2\n");
   // Do the competitions between the individuals, based on one of the 4 methods:

@@ -120,6 +120,9 @@ class Individual_R : public virtual Individual
     //void update_phenotype();
      void update_phenotype( void );
 
+    double fitness(int env_id) { return fitness_tab_[env_id]; }
+    double fitness() { return Individual::fitness(); }
+
     void create_csv(char* directory_name);
     void draw_phenotype(const PhenotypicTarget& target, char* directoryName, int generation);
     void clear_dist_sum() { _dist_sum = 0; };

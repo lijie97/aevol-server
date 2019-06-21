@@ -230,47 +230,47 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
 
 
 void print_help(char* prog_path) {
-  // Get the program file-name in prog_name (strip prog_path of the path)
-  char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
-  else prog_name = prog_path;
+    // Get the program file-name in prog_name (strip prog_path of the path)
+    char *prog_name; // No new, it will point to somewhere inside prog_path
+    if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
+    else prog_name = prog_path;
 
-  printf("******************************************************************************\n");
-  printf("*                                                                            *\n");
-  printf("*                        aevol - Artificial Evolution                        *\n");
-  printf("*                                                                            *\n");
-  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
-  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
-  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
-  printf("* transcriptome.                                                             *\n");
-  printf("*                                                                            *\n");
-  printf("******************************************************************************\n");
-  printf("\n");
-  printf("%s:\n", prog_name);
-  printf("\tExtracts the genotype and/or data about the phenotype of individuals\n");
-  printf("\tin the provided population and write them into text files easy to parse\n");
-  printf("\twith e.g. matlab.\n");
-  printf("\n");
-  printf("Usage : %s -h\n", prog_name);
-  printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-U NUM_GU] [-a]\n",
-         prog_name);
-  printf("\nOptions\n");
-  printf("  -h, --help\n\tprint this help, then exit\n");
-  printf("  -V, --version\n\tprint version number, then exit\n");
-  printf("  -t TIMESTEP\n");
-  printf("\tspecify timestep of the individual(s) of interest\n");
-  printf("  -S SEQ_FILE\n");
-  printf("\textract sequences into file SEQ_FILE\n");
-  printf("  -T TRIANGLE_FILE\n");
-  printf("\textract phenotypic data into file TRIANGLE_FILE\n");
-  printf("  -U NUM_GU\n");
-  printf("\tonly treat genetic unit #NUM_GU (default: treat all genetic units)\n");
-  printf("  -a\n");
-  printf("\ttreat all the individuals (default: treat only the best)\n");
-}
+    printf("******************************************************************************\n");
+    printf("*                                                                            *\n");
+    printf("*                        aevol - Artificial Evolution                        *\n");
+    printf("*                                                                            *\n");
+    printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+    printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+    printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+    printf("* transcriptome.                                                             *\n");
+    printf("*                                                                            *\n");
+    printf("******************************************************************************\n");
+    printf("\n");
+    printf("%s:\n", prog_name);
+    printf("\tExtracts the genotype and/or data about the phenotype of individuals\n");
+    printf("\tin the provided population and write them into text files easy to parse\n");
+    printf("\twith e.g. matlab.\n");
+    printf("\n");
+    printf("Usage : %s -h\n", prog_name);
+    printf("   or : %s -V or --version\n", prog_name);
+    printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-U NUM_GU] [-a]\n",
+           prog_name);
+    printf("\nOptions\n");
+    printf("  -h, --help\n\tprint this help, then exit\n");
+    printf("  -V, --version\n\tprint version number, then exit\n");
+    printf("  -t TIMESTEP\n");
+    printf("\tspecify timestep of the individual(s) of interest\n");
+    printf("  -S SEQ_FILE\n");
+    printf("\textract sequences into file SEQ_FILE\n");
+    printf("  -T TRIANGLE_FILE\n");
+    printf("\textract phenotypic data into file TRIANGLE_FILE\n");
+    printf("  -U NUM_GU\n");
+    printf("\tonly treat genetic unit #NUM_GU (default: treat all genetic units)\n");
+    printf("  -a\n");
+    printf("\ttreat all the individuals (default: treat only the best)\n");
 
-  printf("\n\
+
+    printf("\n\
 This program extracts some data about the individuals and write\n\
 them into text files easy to parse with e.g. matlab.\n\
 \n\
@@ -312,6 +312,7 @@ seq_020000_best :\n\
 \n\
    extract -b -r 20000 -s seq_020000_best\n\
 or extract -b -p populations/pop_020000.ae -s seq_020000_best\n");
+}
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options

@@ -284,7 +284,7 @@ int main(int argc, char* argv[]) {
         int l_y = index%exp_manager_backup->world()->height();
         stored_indiv = exp_manager_backup->world()->indiv_at(l_x,l_y);
 
-        stored_gen_unit = stored_indiv->genetic_unit_list().cbegin();
+        stored_gen_unit = &(stored_indiv->genetic_unit_nonconst(0));
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
@@ -398,15 +398,20 @@ int main(int argc, char* argv[]) {
         indiv->Evaluate();
 
     double ** fitness_sum_local_tab_;
+    int16_t xx = indiv->grid_cell()->x(), yy = indiv->grid_cell()->y();
 
     FitnessFunction fitness_function_ = exp_manager->sel()->fitness_func();
+
+#ifdef __REGUL
     int32_t fitness_function_scope_x_ = exp_manager->sel()->fitness_function_scope_x();
     int32_t fitness_function_scope_y_ = exp_manager->sel()->fitness_function_scope_y();
 
     double* fitness_sum_tab_;
     int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (exp_manager->world()->grid(0,0)->habitat()).number_of_phenotypic_target_models();
+#endif
 
     if (fitness_function_ == FITNESS_GLOBAL_SUM) {
+#ifdef __REGUL
         fitness_sum_tab_ = new double[number_of_phenotypic_target_models];
         for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
             fitness_sum_tab_[env_id] = 0;
@@ -415,7 +420,12 @@ int main(int argc, char* argv[]) {
                     fitness_sum_tab_[env_id] += dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(i, j))->fitness(env_id);
                 }
         }
+#else
+      printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+      exit(-1);
+#endif
     } else if (fitness_function_ == FITNESS_LOCAL_SUM) {
+#ifdef __REGUL
         int16_t grid_width  = exp_manager->world()->width();
         int16_t grid_height = exp_manager->world()->height();
 
@@ -445,11 +455,15 @@ int main(int argc, char* argv[]) {
                     }
 
         }
+#else
+      printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+      exit(-1);
+#endif
     }
 
-
-    int16_t cur_x = (xx  + grid_width)  % grid_width;
-    int16_t cur_y = (yy  + grid_height) % grid_height;
+#ifdef __REGUL
+    int16_t cur_x = (xx  + exp_manager->world()->width())  % exp_manager->world()->width();
+    int16_t cur_y = (yy  + exp_manager->world()->height()) % exp_manager->world()->height();
 
     if (fitness_function_ == FITNESS_GLOBAL_SUM) {
         double composed_fitness = 0;
@@ -468,7 +482,11 @@ int main(int argc, char* argv[]) {
         composed_fitness/=number_of_phenotypic_target_models;
         fitmeta<<t0<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
     }
-    
+#else
+    printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+    exit(-1);
+#endif
+
     indiv->Reevaluate();
     indiv->compute_statistical_data();
     indiv->compute_non_coding();

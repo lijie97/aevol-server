@@ -501,14 +501,22 @@ int main(int argc, char* argv[]) {
       int32_t seed = atoi(line->words[1]);
       std::shared_ptr<JumpingMT> prng = std::make_shared<JumpingMT>(seed);
 
-      // Change prngs
-      #if __cplusplus == 201103L
-        sel->set_prng(make_unique<JumpingMT>(seed));
-        world->set_prng(make_unique<JumpingMT>(seed));
-      #else
-        sel->set_prng(std::make_unique<JumpingMT>(seed));
-        world->set_prng(std::make_unique<JumpingMT>(seed));
-      #endif
+      for (int16_t x = 0; x < world->width(); x++) {
+        for (int16_t y = 0; y < world->height(); y++) {
+          int32_t seed = prng->random(1000000);
+#if __cplusplus == 201103L
+          world->grid(x,y)->set_reprod_prng(make_unique<JumpingMT>(seed));
+          world->grid(x,y)->set_reprod_prng_simd(make_unique<JumpingMT>(seed));
+          world->grid(x,y)->set_mut_prng(std::make_shared<JumpingMT>(seed));
+          world->grid(x,y)->set_stoch_prng(std::make_shared<JumpingMT>(seed));
+#else
+          world->grid(x,y)->set_reprod_prng(std::make_unique<JumpingMT>(seed));
+          world->grid(x,y)->set_reprod_prng_simd(std::make_unique<JumpingMT>(seed));
+          world->grid(x,y)->set_mut_prng(std::make_shared<JumpingMT>(seed));
+          world->grid(x,y)->set_stoch_prng(std::make_shared<JumpingMT>(seed));
+#endif
+        }
+      }
 
       printf("\tChange of the seed to %d in selection and world \n",
              atoi(line->words[1]));
@@ -632,7 +640,7 @@ int main(int argc, char* argv[]) {
       sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", timestep);
     #endif
     gzFile tree_file = gzopen(tree_file_name, "w");
-    tree->write_to_tree_file(tree_file);
+    tree->write_to_tree_file(timestep,tree_file);
     gzclose(tree_file);
     printf("OK\n");
   }

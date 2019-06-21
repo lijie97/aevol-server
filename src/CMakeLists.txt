@@ -26,8 +26,20 @@ target_link_libraries(aevol_create PUBLIC aevol)
 add_executable(aevol_modify aevol_modify.cpp)
 target_link_libraries(aevol_modify PUBLIC aevol)
 
-add_executable(aevol_propagate aevol_propagate.cpp)
-target_link_libraries(aevol_propagate PUBLIC aevol)
+#######################
+## Searching for libs
+#######################
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.65.0 COMPONENTS filesystem)
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    add_executable(aevol_propagate aevol_propagate.cpp)
+    target_link_libraries(aevol_propagate PUBLIC aevol ${Boost_LIBRARIES})
+endif()
+
 
 add_executable(aevol_run aevol_run.cpp)
 target_link_libraries(aevol_run PUBLIC aevol)
