@@ -18,7 +18,7 @@ include_directories(".")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
-add_library(aevol
+set(aevol_sources 
   aevol.h
   Alignment.cpp
   Alignment.h
@@ -161,7 +161,26 @@ add_library(aevol
   MutationEvent.cpp
   AncestorStats.h
   AncestorStats.cpp)
+  
+if ( ${with-raevol} )
+    set(aevol_sources ${aevol_sources} 
+          raevol/Habitat_R.h
+          raevol/Habitat_R.cpp
+          raevol/Individual_R.h
+          raevol/Individual_R.cpp
+          raevol/Individual_R_X11.h
+          raevol/Individual_R_X11.cpp
+          raevol/PhenotypicTarget_R.h
+          raevol/PhenotypicTarget_R.cpp
+          raevol/PhenotypicTargetHandler_R.h
+          raevol/PhenotypicTargetHandler_R.cpp
+          raevol/Protein_R.h
+          raevol/Protein_R.cpp
+          raevol/Rna_R.h
+          raevol/Rna_R.cpp)
+endif ()
 
+add_library(aevol ${aevol_sources})
 
 # ============================================================================
 # Use GSL and zlib

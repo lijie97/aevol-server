@@ -22,6 +22,11 @@ set(enable-normalized-fitness OFF CACHE BOOL "With this option, the NORMALIZED_F
 set(enable-mtperiod 607 CACHE STRING "Period of the Mersen Twister. Autorized values are : 607 1279 2281 4253 11213 19937 44497 86243 132049 216091")
 set(enable-trivialjumps OFF CACHE STRING "When this option is set, a trivial jump algorithm will be used instead of the polynomial-based method")
 
+set(with-triangle OFF CACHE BOOL "Whether to enable triangle phenotypic target (else Gaussian)")
+set(with-raevol OFF CACHE BOOL "Whether to enable R-Aevol (Gene regulation) version")
+set(with-detectclone ON CACHE BOOL "Whether to enable clones and not recompute them")
+set(with-floatconcentration OFF CACHE BOOL "Whether to enable the encoding of concentration has float (and not double)")
+set(with-simd OFF CACHE BOOL "Whether to switch to the SIMD implementation of (R-)Aevol")
 
 if ( ${with-x} )
     FIND_PACKAGE(X11 REQUIRED)
@@ -75,6 +80,26 @@ if ( ${enable-trivialjumps} )
     else ()
         add_definitions(-DTRIVIAL_METHOD_JUMP_SIZE=1000)
     endif ()
+endif ()
+
+if ( ${with-triangle} )
+    add_definitions(-DPHENOTYPIC_TARGET_TRIANGLE)
+endif ()
+
+if ( ${with-raevol} )
+    add_definitions(-D__REGUL)
+endif ()
+
+if ( ${with-detectclone} )
+    add_definitions(-D__DETECT_CLONE)
+endif ()
+
+if ( ${with-floatconcentration} )
+    add_definitions(-D__FLOAT_CONCENTRATION)
+endif ()
+
+if ( ${with-simd} )
+    add_definitions(-DWITH_STANDALONE_SIMD)
 endif ()
 
 
