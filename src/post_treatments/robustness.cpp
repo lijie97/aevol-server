@@ -39,7 +39,6 @@
 #include <zlib.h>
 #include <inttypes.h>
 #include <getopt.h>
-#include <math.h>
 #include <sys/stat.h>
 
 #include <list>
