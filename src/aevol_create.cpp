@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
 
 
   // 8) Save the experiment
-  exp_manager->Save();
+  exp_manager->Save(true);
 
   delete exp_manager;
 }

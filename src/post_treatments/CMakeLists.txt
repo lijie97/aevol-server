@@ -45,6 +45,9 @@ target_link_libraries(aevol_misc_lineage PUBLIC aevol)
 add_executable(aevol_misc_mutagenesis mutagenesis.cpp)
 target_link_libraries(aevol_misc_mutagenesis PUBLIC aevol)
 
+add_executable(aevol_misc_soft_lineage soft_lineage.cpp)
+target_link_libraries(aevol_misc_soft_lineage PUBLIC aevol)
+
 add_executable(aevol_misc_robustness robustness.cpp IndivAnalysis.cpp)
 target_link_libraries(aevol_misc_robustness PUBLIC aevol)
 

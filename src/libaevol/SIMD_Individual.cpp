@@ -4672,7 +4672,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         }
 
         if (standalone_ && exp_m_->record_light_tree() && AeTime::time() > 0) {
-            exp_m_->output_m()->light_tree()->update_tree(AeTime::time(), nullptr);
+            exp_m_->output_m()->light_tree()->update_tree(AeTime::time(), prev_internal_simd_struct);
 
             if (AeTime::time() % exp_m_->backup_step() == 0) {
                 std::cout << "writing light tree for gen : " << AeTime::time() << '\n';
@@ -4806,7 +4806,7 @@ void SIMD_Individual::check_dna() {
       if (exp_m_->world()->grid(x, y)->individual()->genetic_unit(
           0).dna()->data()[dna_pos] != internal_simd_struct[i]->dna_->data_[dna_pos]) {
 
-        printf("Check DNA indiv %d %ld %ld --- NB Mutation %ld\n",i,dna_size[i],exp_m_->world()->grid(x, y)->individual()->genetic_unit(
+        printf("Check DNA indiv %d %d %d --- NB Mutation %ld\n",i,dna_size[i],exp_m_->world()->grid(x, y)->individual()->genetic_unit(
             0).dna()->length(),exp_m_->dna_mutator_array_[i]->mutation_list_.size());
 
         printf("Divergence between classic DNA and SIMD DNA %d %d at pos %d\n",

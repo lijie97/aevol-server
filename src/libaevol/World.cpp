@@ -72,7 +72,7 @@ namespace aevol {
 // =================================================================
 World::~World()
 {
-  for (int16_t x = 0 ; x < width_ ; x++)
+/*  for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
       for (int16_t x2 = x ; x2 < width_ ; x2++)
         for (int16_t y2 = 0 ; y2 < height_ ; y2++) {
@@ -80,7 +80,7 @@ World::~World()
           if (grid_[x][y]->individual_->id() == grid_[x2][y2]->individual_->id())
             grid_[x2][y2]->individual_ = nullptr;
     }
-  }
+  }*/
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)

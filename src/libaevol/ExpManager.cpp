@@ -321,10 +321,11 @@ void ExpManager::step_to_next_generation() {
 
   //if (AeTime::time() == 14) {
     // Create the corresponding new generation
-
+#ifdef __PERF_LOG__
 auto     t1 = high_resolution_clock::now();
 
   auto     s_t1 = high_resolution_clock::now();
+#endif
 
 #ifdef __CUDACC__
   if (first_gen) {
@@ -366,7 +367,9 @@ auto     t1 = high_resolution_clock::now();
   }*/
 
   //}
-  t1 = high_resolution_clock::now();
+#ifdef __PERF_LOG__
+    t1 = high_resolution_clock::now();
+#endif
 
   if (!simd_individual->standalone())
     exp_s_->step_to_next_generation();
@@ -375,12 +378,16 @@ auto     t1 = high_resolution_clock::now();
 #ifdef __CUDACC__
   t2 = high_resolution_clock::now();
 #else
+#ifdef __PERF_LOG__
   auto t2 = high_resolution_clock::now();
 #endif
+#endif
 
-  auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+#ifdef __PERF_LOG__
+    auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
   auto ta = high_resolution_clock::now();
+#endif
 
 /*  if (simd_first) {
     //simd_individual->check_result();
@@ -388,28 +395,26 @@ auto     t1 = high_resolution_clock::now();
   if (simd_individual->standalone())
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
   //}
+
+#ifdef __PERF_LOG__
   auto tb = high_resolution_clock::now();
-
-
-
   auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>( tb - ta ).count();
-
-
-
-
-
-
-
+#endif
 
   if (!simd_individual->standalone()) {
-    t1 = high_resolution_clock::now();
+#ifdef __PERF_LOG__
+      t1 = high_resolution_clock::now();
+#endif
     // Write statistical data and store phylogenetic data (tree)
 #pragma omp single
     {
       output_m_->write_current_generation_outputs();
     }
-    t2 = high_resolution_clock::now();
+
+#ifdef __PERF_LOG__
+      t2 = high_resolution_clock::now();
     duration_2 += std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+#endif
   }
 
 #ifdef __CUDACC__
@@ -420,7 +425,11 @@ auto     t1 = high_resolution_clock::now();
     first_gen = false;
   }
 #else
+
+#ifdef __PERF_LOG__
   std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration_simd<<std::endl;
+#endif
+
 #endif
 }
 

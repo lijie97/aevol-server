@@ -114,7 +114,7 @@ void LightTree::init_tree(int64_t time, std::list<Individual*> root_indiv) {
   }
 }
 
-void LightTree::update_tree(int64_t gen, Internal_SIMD_Struct* simd_indiv){
+void LightTree::update_tree(int64_t gen, Internal_SIMD_Struct** prev_internal_simd_struct){
   parentsNodes_.clear();
   // debug std::cout << "New generation : " << gen << '\n';
   std::unordered_map<int32_t, Node*> previous = allNodes_[gen-1];
@@ -138,6 +138,7 @@ void LightTree::update_tree(int64_t gen, Internal_SIMD_Struct* simd_indiv){
       if(prev_mrca == 0) {
           Individual* to_set;
           if (SIMD_Individual::standalone_simd) {
+            Internal_SIMD_Struct* simd_indiv = prev_internal_simd_struct[allNodes_[0].begin()->second->id_];
               int x = simd_indiv->indiv_id / exp_m_->world()->height();
               int y = simd_indiv->indiv_id % exp_m_->world()->height();
 

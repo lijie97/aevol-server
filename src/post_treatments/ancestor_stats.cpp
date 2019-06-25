@@ -482,9 +482,6 @@ int main(int argc, char* argv[]) {
         composed_fitness/=number_of_phenotypic_target_models;
         fitmeta<<t0<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
     }
-#else
-    printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
-    exit(-1);
 #endif
 
     indiv->Reevaluate();

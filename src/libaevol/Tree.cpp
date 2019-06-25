@@ -187,7 +187,7 @@ void Tree::signal_end_of_generation() {
 
     void Tree::write_to_tree_file(int64_t gen, gzFile tree_file) {
       // Write the tree in the backup
-      std::cout << "writing tree from : " << replics_.begin()->first << " to " << gen << '\n';
+      //std::cout << "writing tree from : " << replics_.begin()->first << " to " << gen << '\n';
       for (int64_t t = replics_.begin()->first ; t <= gen ; t++) {
         for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
           assert(replics_[t][indiv_i] != NULL);

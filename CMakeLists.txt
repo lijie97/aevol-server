@@ -13,11 +13,12 @@ add_definitions(-DVERSION="${PROJECT_VERSION}")
 set(AUTHORIZED_MTPERIOD 607 1279 2281 4253 11213 19937 44497 86243 132049 216091)
 
 
-set(with-x ON CACHE BOOL "Whether to enable graphical outputs")
+set(with-x OFF CACHE BOOL "Whether to enable graphical outputs")
 set(with-omp OFF CACHE BOOL "Whether to enable OpenMP parallelization")
 set(with-tbb OFF CACHE BOOL "Whether to enable TBB parallelization")
 set(enable-profiling OFF CACHE BOOL "Whether to enable profiling")
 set(with-tracing OFF CACHE BOOL "Whether to use tracing")
+set(enable-perflog OFF CACHE BOOL "Whether to active performance log")
 set(enable-normalized-fitness OFF CACHE BOOL "With this option, the NORMALIZED_FITNESS flag is defined, allowing a different fitness calculation")
 set(enable-mtperiod 607 CACHE STRING "Period of the Mersen Twister. Autorized values are : 607 1279 2281 4253 11213 19937 44497 86243 132049 216091")
 set(enable-trivialjumps OFF CACHE STRING "When this option is set, a trivial jump algorithm will be used instead of the polynomial-based method")
@@ -58,6 +59,12 @@ endif ()
 if ( ${with-tracing} )
     add_definitions(-D__TRACING__)
 endif ()
+
+if ( ${enable-perflog} )
+    add_definitions(-D__PERF_LOG__)
+endif ()
+
+
 
 if ( ${enable-normalized-fitness} )
     add_definitions(-DNORMALIZED_FITNESS)

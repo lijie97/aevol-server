@@ -220,7 +220,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
   stats_->add_indivs(AeTime::time(), indivs);
 
   SaveWorld* backup_world;
-  JumpingMT* backup_prng;
+  //JumpingMT* backup_prng;
   if (t % backup_step_ == 0) {
     backup_world = exp_m_->world()->make_save(exp_m_, indivs);
   }
@@ -232,7 +232,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
   if (record_light_tree_ && t > 0) {
     light_tree_->update_tree(t, nullptr);
     if(t % backup_step_ == 0) {
-      std::cout << "writing light tree for gen : " << t << '\n';
+      //std::cout << "writing light tree for gen : " << t << '\n';
       write_light_tree(t);
     }
   }
@@ -249,7 +249,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
   if (record_tree_ &&
       t > 0 &&
       (t % tree_->tree_step() == 0)) {
-    std::cout << "writing tree for gen : " << t << '\n';
+    //std::cout << "writing tree for gen : " << t << '\n';
     write_tree(t);
   }
 
@@ -275,7 +275,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
     exp_m_->WriteDynamicFiles(t, backup_world, create);
 
     WriteLastGenerFile(".", t);
-    delete backup_prng;
+    //delete backup_prng;
     delete backup_world;
   }
 #ifdef __OPENMP_TASK

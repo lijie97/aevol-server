@@ -106,7 +106,7 @@ class LightTree : public Observer
     // by creating the link parent/children
     // it also prune the tree
     // if ask it perform ancestor_stat
-    void update_tree(int64_t gen, Internal_SIMD_Struct* simd_indiv = nullptr);
+    void update_tree(int64_t gen, Internal_SIMD_Struct** prev_internal_simd_struct = nullptr);
 
     // write the Newick format tree
     void write_tree(int64_t t = -1);

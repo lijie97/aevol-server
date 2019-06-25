@@ -218,7 +218,7 @@ void Dump::write_individual_probes()
   {
     for(int16_t y = 0 ; y < exp_m_->grid_height() ; y++)
     {
-      fprintf(current_file, "%" PRId32,
+      fprintf(current_file, "%llu",
           exp_m_->world()->indiv_at(x,y)->id());
       int32_t* int_probes =
           exp_m_->world()->indiv_at(x,y)->int_probes();
