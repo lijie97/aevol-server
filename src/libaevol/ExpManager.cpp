@@ -668,7 +668,7 @@ void ExpManager::run_evolution() {
   bool first_run = true;
 
       //"Post Treatment"
-      if(anc_stat_) {
+      if(anc_stat_ && record_light_tree()) {
         output_m_->light_tree()->setup_anc_stat();
       }
 
@@ -677,7 +677,8 @@ void ExpManager::run_evolution() {
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
 
-  simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
+      if (SIMD_Individual::standalone_simd)
+        simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
 
         // For each generation
@@ -740,7 +741,7 @@ void ExpManager::run_evolution() {
 #ifdef __X11
     display();
 #endif
-    if (with_mrca_) {
+    if (with_mrca_ && record_light_tree()) {
       if (AeTime::time() == t_end_) {
         output_m_->light_tree()->keep_indivs(indivs());
       }
@@ -773,9 +774,9 @@ void ExpManager::run_evolution() {
 #endif
 
   output_m_->flush();
-  if(with_mrca_)
+  if(with_mrca_ && record_light_tree())
     output_m_->light_tree()->save_mrca_indiv();
-  if(anc_stat_)
+  if(anc_stat_ && record_light_tree())
     output_m_->light_tree()->close_anc_stat();
 
   printf("================================================================\n");
