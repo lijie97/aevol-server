@@ -374,7 +374,10 @@ void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
   switch (e) {
     case MUTATION :
         //printf("Receive mutation events\n");
-      dna_replic_report_.add_mut(reinterpret_cast<Mutation*>(arg));
+//#pragma omp critical
+      //{
+          dna_replic_report_.add_mut(reinterpret_cast<Mutation *>(arg));
+      //}
       break;
     default :
       Utils::ExitWithDevMsg("Event not handled", __FILE__, __LINE__);
