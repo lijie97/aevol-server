@@ -4305,13 +4305,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 //#pragma omp single nowait
     {
         nb_clones_ = 0;
-#ifndef WITH_L1TASK
-#pragma omp taskloop
-#endif
+#pragma omp parallel for schedule(dynamic)
         for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
-#ifdef WITH_L1TASK
-#pragma omp task firstprivate(indiv_id)
-#endif
             {
 
                 //printf("Manage %d\n",indiv_id);

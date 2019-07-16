@@ -697,9 +697,11 @@ Phenotype* Individual::phenotype() const {
   return phenotype_;
 }
 
+#ifndef __REGUL
 const PhenotypicTarget& Individual::phenotypic_target() const {
   return grid_cell_->phenotypic_target();
 }
+#endif
 
 /// TODO
 const std::list<Protein*>& Individual::protein_list() const {

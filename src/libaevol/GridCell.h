@@ -75,7 +75,11 @@ class GridCell
   GridCell() = delete;
   GridCell(const GridCell &) = delete;
   GridCell(int16_t x, int16_t y,
-               std::unique_ptr<Habitat>&& habitat,
+#ifdef __REGUL
+               std::unique_ptr<Habitat_R>&& habitat,
+#else
+          std::unique_ptr<Habitat>&& habitat,
+#endif
                Individual * indiv, std::shared_ptr<JumpingMT> mut_prng,
               std::shared_ptr<JumpingMT> stoch_prng);
   GridCell(gzFile backup_file,
@@ -100,17 +104,34 @@ class GridCell
   inline double metabolic_fitness() const;
   inline double total_fitness() const;
 
+#ifdef __REGUL
+        const Habitat_R& habitat() const {
+            return *habitat_;
+        }
+#else
   const Habitat& habitat() const {
     return *habitat_;
   }
+#endif
 
+#ifdef __REGUL
+        Habitat_R& habitat_non_const() {
+            return *habitat_;
+        }
+#else
+    Habitat& habitat_non_const() {
+      return *habitat_;
+    }
+#endif
     Habitat* habitat_ptr() {
       return habitat_.get();
     }
 
+#ifndef __REGUL
   const PhenotypicTarget& phenotypic_target() const {
     return habitat_->phenotypic_target();
   }
+#endif
 
 
   std::shared_ptr<JumpingMT> mut_prng() const;
@@ -158,7 +179,12 @@ class GridCell
   // Pointer to the individual in this cell
   Individual* individual_ = NULL;
 
-  std::unique_ptr<Habitat> habitat_ = nullptr;
+#ifdef __REGUL
+        std::unique_ptr<Habitat_R> habitat_ = nullptr;
+#else
+        std::unique_ptr<Habitat> habitat_ = nullptr;
+#endif
+
 
   std::shared_ptr<JumpingMT> mut_prng_ = nullptr;
   std::shared_ptr<JumpingMT> stoch_prng_ = nullptr;

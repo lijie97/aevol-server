@@ -1013,6 +1013,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       // Blacken all the window except the colour bar
       cur_win->fill_rectangle(0, 0, cur_win->width(), cur_win->height() * 19 / 20, BLACK);
 
+#ifndef __REGUL
       // Get phenotypic target shorthand
       const PhenotypicTarget& phenotypic_target = best_indiv()->phenotypic_target();
 
@@ -1039,6 +1040,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
           }
         }
       }
+#endif
 
       // Display all the phenotypes (blue)
       for (const auto& indiv: indivs())

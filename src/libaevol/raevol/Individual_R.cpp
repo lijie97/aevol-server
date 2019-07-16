@@ -37,6 +37,7 @@
 // =================================================================
 #include "Individual_R.h"
 #include "../ExpManager.h"
+#include "../HybridFuzzy.h"
 
 namespace aevol {
 
@@ -200,9 +201,78 @@ void Individual_R::Evaluate(bool no_signal) {
 		EvaluateInContext(dynamic_cast<const Habitat_R&> (habitat()), no_signal);
 }
 
+
+
+void Individual_R::EvaluateOneAfterAnother(const Habitat_R& habitat) {
+    if (evaluated_ == true)
+        return; // Individual has already been evaluated, nothing to do.
+
+    for (const auto &prot : protein_list_) {
+        ((Protein_R *) prot)->reset_concentration();
+    }
+
+    if (!_networked) {
+        init_indiv(habitat);
+    }
+
+    _global_dist_sum = 0;
+
+    double fitness_sum = 0;
+    std::set<int> *eval = exp_m_->exp_s()->get_list_eval_step();
+
+    fitness_tab_ = new double[habitat.number_of_phenotypic_target_models()];
+
+    // i is thus the age of the individual
+    for (int16_t env_i = 0; env_i < habitat.number_of_phenotypic_target_models(); env_i++) {
+
+        //Set the concentration of signals for this age
+        for (auto prot1 : signal_list) {
+            prot1.second->set_concentration(0.0);
+        }
+
+        for (Protein_R *prot2 : habitat.phenotypic_target_model(env_i).signals()) {
+            signal_list[prot2->get_id()]->set_concentration(0.9);
+        }
+
+        _dist_sum = 0;
+        exp_m_->exp_s()->set_nb_degradation_step(10);
+        exp_m_->exp_s()->set_nb_indiv_age(10);
+
+        //printf("Eval env %d for %d (%d)\n",env_i,exp_m_->exp_s()->get_nb_indiv_age(), exp_m_->exp_s()->get_nb_degradation_step());
+        for (int16_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
+
+            for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
+                one_step();
+            }
+
+            // If we have to evaluate the individual at this age
+            if (eval->find(i) != eval->end()) {
+                //        printf("Eval !\n");
+                eval_step_one_after_another(habitat, env_i);
+            }
+        }
+
+
+        final_step_one_after_another(habitat, env_i);
+
+        fitness_sum += fitness();
+        fitness_tab_[env_i] = fitness();
+
+        //printf("%d -- %d : %e %e -- %e\n",id(),env_i,fitness(),fitness_sum,
+        //       habitat.phenotypic_target_model(env_i).area_by_feature(METABOLISM));
+    }
+
+
+    fitness_ = fitness_sum / ((double) habitat.number_of_phenotypic_target_models());
+    dist_to_target_by_feature_[METABOLISM] =
+            _global_dist_sum / ((double) habitat.number_of_phenotypic_target_models());
+    /*printf("%e %d : %e\n",_global_dist_sum,habitat.number_of_phenotypic_target_models(),dist_to_target_by_feature_[METABOLISM]);*/
+}
+
+
 void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
     if (habitat.phenotypic_target_handler().var_method() == ONE_AFTER_ANOTHER)
-        EvaluateOneAfterAnother(dynamic_cast<const Habitat_R&> (habitat));
+        EvaluateOneAfterAnother(dynamic_cast<const Habitat_R &> (habitat));
     else {
         //printf("dist sum %d : %lf\n",id(),_dist_sum);
         if (evaluated_ == true)
@@ -210,16 +280,17 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
         for (const auto &prot : protein_list_) {
             ((Protein_R *) prot)->reset_concentration();
         }
+    }
 
     if (!_networked) {
-      init_indiv(habitat);
+        init_indiv(habitat);
     }
     /*for (const auto& prot : protein_list_) {
       printf("AT INIT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
              ((Protein_R*)prot)->get_id(),prot->concentration());
     }*/
 
-    if (habitat.phenotypic_target_handler().var_method() == ONE_AFTER_ANOTHER) {
+    /*if (habitat.phenotypic_target_handler().var_method() == ONE_AFTER_ANOTHER) {
     _dist_sum = 0;
       exp_m_->exp_s()->set_nb_degradation_step(10);
       exp_m_->exp_s()->set_nb_indiv_age(10);
@@ -251,53 +322,53 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
 
   fitness_ = fitness_sum/((double)habitat.number_of_phenotypic_target_models());
     dist_to_target_by_feature_[METABOLISM] = _global_dist_sum / ((double)habitat.number_of_phenotypic_target_models());
-    /*printf("%e %d : %e\n",_global_dist_sum,habitat.number_of_phenotypic_target_models(),dist_to_target_by_feature_[METABOLISM]);*/
+    *//*printf("%e %d : %e\n",_global_dist_sum,habitat.number_of_phenotypic_target_models(),dist_to_target_by_feature_[METABOLISM]);*//*
 
-    } else {
+    } else {*/
     _dist_sum = 0;
 
-    std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
+    std::set<int> *eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
+           // printf("Evaluate for %d\n",exp_m_->exp_s()->get_nb_indiv_age());
     for (int16_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
-      //Set the concentration of signals for this age
-      for (auto prot1 : signal_list) {
-        prot1.second->set_concentration(0.0);
-      }
-      if (no_signal)
-        for (Protein_R* prot2 : habitat.phenotypic_target(i).signals()) {
-          signal_list[prot2->get_id()]->set_concentration(0.9);
+        //Set the concentration of signals for this age
+        for (auto prot1 : signal_list) {
+            prot1.second->set_concentration(0.0);
+        }
+        if (no_signal)
+            for (Protein_R *prot2 : habitat.phenotypic_target(i).signals()) {
+                signal_list[prot2->get_id()]->set_concentration(0.9);
+            }
+
+
+        for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
+            one_step();
         }
 
 
-      for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
-        one_step();
-      }
+        /*for (const auto& prot : protein_list_) {
+          printf("AT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
+                 ((Protein_R*)prot)->get_id(),prot->concentration());
+        }*/
 
-
-      /*for (const auto& prot : protein_list_) {
-        printf("AT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
-               ((Protein_R*)prot)->get_id(),prot->concentration());
-      }*/
-
-      // If we have to evaluate the individual at this age
-      if (eval->find(i) != eval->end()) {
-        //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
-        eval_step(habitat, i);
-      }
+        // If we have to evaluate the individual at this age
+        if (eval->find(i) != eval->end()) {
+            //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
+            eval_step(habitat, i);
+        }
     }
 
 
     final_step(habitat, exp_m_->exp_s()->get_nb_indiv_age());
-    }
+}
 
 //    protein_list_.clear();
 //    protein_list_ = _initial_protein_list;
 
 
-
     //initialized = false;
 
-}
+//}
 
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
     if (habitat.phenotypic_target_handler().var_method() == ONE_AFTER_ANOTHER)
@@ -385,9 +456,9 @@ void Individual_R::eval_step( const Habitat_R& habitat, int16_t age ) {
 
   compute_distance_to_target( habitat.phenotypic_target( age ) );
 
-  /*printf("AT %d ID %d at %d dist is %lf on %d\n",AeTime::time(),id(),age,dist_to_target_by_feature_[METABOLISM],
-         habitat.phenotypic_target( age ).get_id());*/
-
+  /*printf("At %d dist is %lf on %d -- %lf\n",age,dist_to_target_by_feature_[METABOLISM],
+         habitat.phenotypic_target( age ).get_id(), habitat.phenotypic_target( age ).area_by_feature(METABOLISM));
+*/
   _dist_sum += dist_to_target_by_feature_[METABOLISM];
 
   /*if (id_ % 1024 == 1)
@@ -717,14 +788,14 @@ void Individual_R::create_csv(char *directory_name) {
     //Set the concentration of signals for this age
     printf("Prot id from signal_list is ");
     for (auto prot1 : signal_list) {
-      printf("%d ",prot1.second->get_id());
+      printf("%ld ",prot1.second->get_id());
       prot1.second->set_concentration(0.0);
     }
     printf("\n");
 
     printf("Prot id from phenotypic target is ");
     for (Protein_R* prot2 : dynamic_cast<const Habitat_R&>(habitat()).phenotypic_target(i).signals()) {
-      printf("%d ",prot2->get_id());
+      printf("%ld ",prot2->get_id());
       signal_list[prot2->get_id()]->set_concentration(0.9);
     }
     printf("\n");
@@ -737,7 +808,7 @@ void Individual_R::create_csv(char *directory_name) {
     int proti = 0;
     //printf("Age[%d] : ",i);
     for (const auto& prot : protein_list_) {
-      if (((Protein_R*)prot)->is_signal()) printf("Protein List %d -> %f (signal: %d) (%p)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal(),prot);
+      if (((Protein_R*)prot)->is_signal()) printf("Protein List %ld -> %f (signal: %ld) (%p)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal(),prot);
     
 
       // morceau ajouté pour colorer les protéines en fonctions de leur paramètres
@@ -749,7 +820,7 @@ void Individual_R::create_csv(char *directory_name) {
     update_phenotype();
 
     for (auto prot : signal_list) {
-      printf("after %d prot %d : %f\n",i,prot.second->get_id(),prot.second->concentration());
+      printf("after %ld prot %ld : %f\n",i,prot.second->get_id(),prot.second->concentration());
     }
 
     printf("Creating the EPS file with the phenotype of the chosen individual at step %d... ",i);

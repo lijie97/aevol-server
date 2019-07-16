@@ -222,7 +222,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
   SaveWorld* backup_world;
   //JumpingMT* backup_prng;
   if (t % backup_step_ == 0) {
-    backup_world = exp_m_->world()->make_save(exp_m_, indivs);
+    backup_world = exp_m_->world()->make_save(exp_m_, indivs,exp_m_->world()->phenotypic_target_shared());
   }
 
 #ifdef __OPENMP_TASK

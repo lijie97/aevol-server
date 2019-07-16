@@ -624,9 +624,9 @@ double PhenotypicTargetHandler_R::mean_environmental_area(ExpSetup* exp_s) const
 
     total_dist=total_dist/(double)number_of_phenotypic_target_models();
   } else {
-    for (int16_t i = 0; i < (int16_t) phenotypic_targets_.size(); i++) {
+    for (int16_t i = 1; i <= (int16_t) phenotypic_targets_.size(); i++) {
       if (exp_s->get_list_eval_step()->find(i) != exp_s->get_list_eval_step()->end()) {
-        total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
+        total_dist += phenotypic_targets_.at(i-1)->area_by_feature(METABOLISM);
       }
     }
     total_dist=total_dist/(double) exp_s->get_list_eval_step()->size();

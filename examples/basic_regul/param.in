@@ -4,7 +4,7 @@
 
 ##### 1. Initial setup ############ 725099
 STRAIN_NAME             basic_example
-SEED                    751514564
+SEED                    751485116664
 INIT_POP_SIZE           1024
 WORLD_SIZE              32 32
 INIT_METHOD             ONE_GOOD_GENE CLONE

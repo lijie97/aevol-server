@@ -123,7 +123,7 @@ void World::InitGrid(int16_t width, int16_t height,
       if (share_phenotypic_target)
         grid_[x][y] =
                 new GridCell(x, y,
-                             HabitatFactory::create_unique_habitat(habitat,share_phenotypic_target),
+                             HabitatFactory::create_unique_habitat(dynamic_cast<Habitat_R&>(habitat),share_phenotypic_target),
                              NULL,std::make_shared<JumpingMT>(mut_seed),
                              std::make_shared<JumpingMT>(stoch_seed));
     }
@@ -424,7 +424,7 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 }
 
 
-    SaveWorld* World::make_save(ExpManager* exp_m, std::list<Individual*> indivs) {
+    SaveWorld* World::make_save(ExpManager* exp_m, std::list<Individual*> indivs, bool share_phenotypic_target) {
       SaveWorld* backup = new SaveWorld();
       //random generator
       backup->prng_       = std::make_shared<JumpingMT>(*prng_);
@@ -450,7 +450,11 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
         for (int16_t y = 0 ; y < height_ ; y++) {
           Individual* indiv = indivs.front();
           backup->grid_[x][y] = new SaveGridCell(exp_m,x, y,
-                                                 std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+#ifdef __REGUL
+                                                 std::make_unique<Habitat_R>(grid_[x][y]->habitat(), true),
+#else
+                  std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+#endif
                                                  indiv,
                                                  std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
                                                  std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),
@@ -490,7 +494,11 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 
                 if (SIMD_Individual::standalone_simd) {
                     backup->grid_[x][y] = new SaveGridCell(exp_m, x, y,
+#ifdef __REGUL
+                                                           std::make_unique<Habitat_R>(grid_[x][y]->habitat(), true),
+#else
                                                            std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+#endif
                                                            indivs[x*height()+y],
                                                            std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
                                                            std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),
@@ -499,7 +507,11 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
                                                            indivs[x*height()+y]->w_max_);
                 } else {
                     backup->grid_[x][y] = new SaveGridCell(exp_m, x, y,
-                                                           std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+#ifdef __REGUL
+                                                           std::make_unique<Habitat_R>(grid_[x][y]->habitat(), true),
+#else
+                            std::make_unique<Habitat>(grid_[x][y]->habitat(), true),
+#endif
                                                            indivs[x*height()+y],
                                                            std::make_shared<JumpingMT>(*grid_[x][y]->mut_prng()),
                                                            std::make_shared<JumpingMT>(*grid_[x][y]->stoch_prng()),

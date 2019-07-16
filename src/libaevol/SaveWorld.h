@@ -54,8 +54,13 @@ namespace aevol {
 
 class SaveGridCell {
  public :
+
   SaveGridCell(ExpManager* exp_m, int16_t x, int16_t y,
+#ifdef __REGUL
+               std::unique_ptr<Habitat_R>&& habitat,
+#else
               std::unique_ptr<Habitat>&& habitat,
+#endif
               Individual * indiv, std::shared_ptr<JumpingMT> mut_prng,
               std::shared_ptr<JumpingMT> stoch_prng,
               std::shared_ptr<JumpingMT> reprod_prng, std::shared_ptr<JumpingMT> reprod_prng_simd, double w_max)
@@ -76,7 +81,11 @@ class SaveGridCell {
   };
 
     SaveGridCell(ExpManager* exp_m, int16_t x, int16_t y,
-                 std::unique_ptr<Habitat>&& habitat,
+#ifdef __REGUL
+                 std::unique_ptr<Habitat_R>&& habitat,
+#else
+            std::unique_ptr<Habitat>&& habitat,
+#endif
                  Internal_SIMD_Struct * indiv, std::shared_ptr<JumpingMT> mut_prng,
                  std::shared_ptr<JumpingMT> stoch_prng,
                  std::shared_ptr<JumpingMT> reprod_prng, std::shared_ptr<JumpingMT> reprod_prng_simd, double w_max)
@@ -110,9 +119,11 @@ class SaveGridCell {
   // Pointer to the individual in this cell
   Individual* individual_ = NULL;
   Internal_SIMD_Struct* simd_individual_ = NULL;
-
+#ifdef __REGUL
+        std::unique_ptr<Habitat_R> habitat_ = nullptr;
+#else
   std::unique_ptr<Habitat> habitat_ = nullptr;
-
+#endif
   std::shared_ptr<JumpingMT> mut_prng_ = nullptr;
   std::shared_ptr<JumpingMT> stoch_prng_ = nullptr;
   std::shared_ptr<JumpingMT> reprod_prng_ = nullptr;

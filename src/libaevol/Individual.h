@@ -176,7 +176,9 @@ class Individual : public Observable {
   AbstractFuzzy* phenotype_activ() const;
   AbstractFuzzy* phenotype_inhib() const;
 
+#ifndef __REGUL
   const PhenotypicTarget& phenotypic_target() const;
+#endif
 
   double* dist_to_target_by_segment() const;
 

@@ -116,6 +116,7 @@ Individual* IndividualFactory::create_random_individual(
   double env_metabolic_area;
   if (better_than_flat) {
 #ifdef __REGUL
+      dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->ApplyVariation();
     env_metabolic_area = dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->phenotypic_target_handler().
       mean_environmental_area(exp_m->exp_s());
 #else
@@ -131,6 +132,7 @@ Individual* IndividualFactory::create_random_individual(
     // indiv->dist_to_target_by_feature(METABOLISM) >= env_metabolic_area
     while (r_compare >= 0.0) {
 #ifdef __REGUL
+        indiv->evaluated_ = false;
       indiv->set_networked(false);
 #endif
 
@@ -140,8 +142,9 @@ Individual* IndividualFactory::create_random_individual(
       indiv->add_GU(indiv, chromosome_initial_length, local_prng);
       indiv->EvaluateInContext(habitat);
       //debug :
-     // printf("Dist to target du nouveau clone : %f\n", indiv->dist_to_target_by_feature(METABOLISM));
+
       r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+      //printf("Dist to target (%lf) du nouveau clone : %lf (%lf) --> %lu\n", env_metabolic_area, indiv->dist_to_target_by_feature(METABOLISM),r_compare,indiv->protein_list().size());
     }
   }
   if (allow_plasmids) // We create a plasmid

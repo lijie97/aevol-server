@@ -179,6 +179,7 @@ int main(int argc, char* argv[]) {
 
   GeneticUnit*  indiv_main_genome = &indiv->genetic_unit_nonconst(0);
 
+#ifndef __REGUL
   printf("Creating the EPS file with the triangles of the chosen individual... ");
   fflush(stdout);
   draw_triangles(indiv, indiv->phenotypic_target(), directory_name);
@@ -189,7 +190,6 @@ int main(int argc, char* argv[]) {
   draw_pos_neg_profiles(indiv, indiv->phenotypic_target(), directory_name);
   printf("OK\n");
 
-#ifndef __REGUL
   printf("Creating the EPS file with the phenotype of the chosen individual... ");
   fflush(stdout);
   draw_phenotype(indiv, indiv->phenotypic_target(), directory_name);
@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
 
     printf("Creating the EPS file with the phenotype of the chosen individual at step %d... ",i);
     fflush(stdout);
-    draw_phenotype(indiv, dynamic_cast<const Habitat_R&>(rindiv->habitat()).phenotypic_target( i ), directory_name,i);
+    draw_phenotype(indiv, dynamic_cast<const Habitat_R&>(rindiv->habitat()).phenotypic_target( i ), directory_name);
     printf("OK\n");
 
   }
@@ -497,7 +497,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target,
 #ifndef __REGUL
   snprintf(filename, 127, "%s/best_phenotype.eps", directoryName);
 #else
-  snprintf(filename, 127, "%s/best_phenotype_%d.eps", directoryName,generation);
+  snprintf(filename, 127, "%s/best_phenotype.eps", directoryName);
 #endif
   FILE * drawingfile = fopen(filename, "w");
 
