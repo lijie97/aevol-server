@@ -83,7 +83,10 @@ Protein::Protein(GeneticUnit* gen_unit, const Protein &model)
   // Copy the list of amino-acids
 
   // TODO vld: check if deep copy needed (at least, in case of heritage yes)
-  AA_list_ = model.AA_list_;
+  //AA_list_ = model.AA_list_;
+          for (auto aa_c : model.AA_list_) {
+            AA_list_.push_back(new Codon(aa_c->value()));
+          }
 
   // Copy triangle parameters
   mean_   = model.mean_;

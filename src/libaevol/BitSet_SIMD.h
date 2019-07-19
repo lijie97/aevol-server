@@ -430,17 +430,21 @@ class BitSet_SIMD {
     char* to_char() {
 #ifdef _DYNAMIC_CUSTOM_BITSET
       char* ret = new char[length_+1];
+
       for (int32_t i = 0; i < length_; i++) {
         if (get(i))
           ret[i] = '1';
         else
           ret[i] = '0';
       }
+
       ret[length_] = '\0';
       return ret;
 #elif _STATIC_BITSET
       char *ret = (char*)data_.to_string().c_str();
       return ret;
+#else
+      return nullptr;
 #endif
     }
 

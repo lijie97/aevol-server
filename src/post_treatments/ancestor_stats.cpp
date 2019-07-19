@@ -126,9 +126,9 @@ int main(int argc, char* argv[]) {
                               "for per grid-cell phenotypic target");
   auto phenotypicTargetHandler =
       exp_manager->world()->phenotypic_target_handler();
-  if (not (phenotypicTargetHandler->var_method() == NO_VAR))
-    Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
-                              "for variable phenotypic targets");
+    /*if (not (phenotypicTargetHandler->var_method() == NO_VAR))
+      Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
+                                "for variable phenotypic targets");*/
 
   int64_t backup_step = exp_manager->backup_step();
 
@@ -211,22 +211,96 @@ int main(int argc, char* argv[]) {
   
   
   
-    std::ofstream fitmeta;
-    fitmeta.open("ancestor_composed_fitness.csv",std::ofstream::trunc);
-    fitmeta<<"Generation,EnvID,Composed,Fitness"<<std::endl;
+
 
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
   GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
   auto* indiv = grid_cell->individual();
+#ifdef __REGUL
+    std::ofstream fitmeta;
+    fitmeta.open("ancestor_composed_fitness.csv",std::ofstream::trunc);
+    fitmeta<<"Generation,EnvID,Composed,Fitness"<<std::endl;
+
+    Individual_R *best = dynamic_cast<Individual_R *>(indiv);
+    best->clear_everything_except_dna_and_promoters();
+    //best->do_transcription_translation_folding();
+    //printf("---------> stoch env at %d\n",t);
+    exp_manager->world()->ApplyHabitatVariation();
+
+    //printf("---------> Evaluate indiv at %d\n",t);
+    //best->evaluated_ = false;
+    best->Evaluate();
+    best->compute_statistical_data();
+    printf("Initial fitness     = %e\n", best->fitness());
+    printf("Initial genome size = %" PRId32 "\n", best->total_genome_size());
+
+    double base_metaerror = 0;
+    double base_fitness = 0;
+    int nb_iteration = 100;
+
+    for (int i = 0; i < nb_iteration; i++) {
+        exp_manager->world()->ApplyHabitatVariation();
+        Individual_R* cloned = new Individual_R(*best);
+        cloned->set_grid_cell(exp_manager->world()->grid(0,0));
+
+        cloned->clear_everything_except_dna_and_promoters();
+        cloned->Evaluate();
+
+#pragma omp atomic
+        base_metaerror += cloned->dist_to_target_by_feature(METABOLISM);
+
+#pragma omp atomic
+        base_fitness += cloned->fitness();
+
+#pragma omp critical
+        fitmeta << t0 << ",RANDOM," << i << "," << cloned->dist_to_target_by_feature(METABOLISM) << ","
+                << cloned->fitness() << std::endl;
+
+        //printf("Iteration RANDOM at %d : %d/%d : %lf %e\n", t, i, nb_iteration,
+        //       cloned->dist_to_target_by_feature(METABOLISM), cloned->fitness());
+        delete cloned;
+    }
+
+    best->set_fitness(base_fitness / (double) nb_iteration);
+    best->set_metaerror(base_metaerror / (double) nb_iteration);
+
+    best->compute_statistical_data();
+    best->compute_non_coding();
+    mystats->write_statistics_of_this_indiv(t0,best,nullptr);
+
+    int nb_phenotypic_target_models = (int) dynamic_cast<PhenotypicTargetHandler_R *>(exp_manager->world()->
+            phenotypic_target_handler())->phenotypic_target_models_.size();
+
+    for (int target_id = 0; target_id < nb_phenotypic_target_models; target_id++) {
+        dynamic_cast<PhenotypicTargetHandler_R *>(exp_manager->world()->phenotypic_target_handler())->set_single_env(
+                target_id);
+
+        Individual_R* cloned = new Individual_R(*best);
+        cloned->set_grid_cell(exp_manager->world()->grid(0,0));
+
+        cloned->clear_everything_except_dna_and_promoters();
+        cloned->Evaluate();
+
+        fitmeta << t0 << ",TARGET," << target_id << "," << cloned->dist_to_target_by_feature(METABOLISM) << ","
+                << cloned->fitness() << std::endl;
+
+        //printf("PhenotypicTarget at %d : %d/%d : %lf %e\n", t, target_id, nb_phenotypic_target_models,
+        //       cloned->dist_to_target_by_feature(METABOLISM), cloned->fitness());
+
+        delete cloned;
+    }
+#else
   indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
 
   mystats->write_statistics_of_this_indiv(t0,indiv, nullptr);
+#endif
 
   // Additional outputs
+#ifndef __REGUL
   write_environment_stats(t0, phenotypicTargetHandler, env_output_file);
   write_terminators_stats(t0, indiv, term_output_file);
   if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
@@ -234,6 +308,7 @@ int main(int argc, char* argv[]) {
     write_zones_stats(t0, indiv, phenotypicTargetHandler, zones_output_file);
   }
   write_operons_stats(t0, indiv, operons_output_file);
+#endif
 
   if (verbose) {
     printf("Initial fitness     = %f\n", indiv->fitness());
@@ -393,7 +468,7 @@ int main(int argc, char* argv[]) {
     }
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-    
+
         indiv->evaluated_ = false;
         indiv->Evaluate();
 
@@ -429,8 +504,6 @@ int main(int argc, char* argv[]) {
         int16_t grid_width  = exp_manager->world()->width();
         int16_t grid_height = exp_manager->world()->height();
 
-        int32_t selection_scope_x_ = exp_manager->sel()->selection_scope_x();
-        int32_t selection_scope_y_ = exp_manager->sel()->selection_scope_y();
 
         fitness_sum_local_tab_ = new double*[fitness_function_scope_x_*fitness_function_scope_y_];
         for (int tab_id = 0; tab_id < fitness_function_scope_x_*fitness_function_scope_y_; tab_id++)
@@ -469,28 +542,100 @@ int main(int argc, char* argv[]) {
         double composed_fitness = 0;
         for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
             composed_fitness +=  dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_tab_[env_id];
-            fitmeta<<t0<<","<<env_id<<","<<"0"<<","<<dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_tab_[env_id]<<std::endl;
+            fitmeta<<time()<<","<<env_id<<","<<"0"<<","<<dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_tab_[env_id]<<std::endl;
         }
         composed_fitness/=number_of_phenotypic_target_models;
-        fitmeta<<t0<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
+        fitmeta<<time()<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
     } else if (fitness_function_ == FITNESS_LOCAL_SUM) {
         double composed_fitness = 0;
         for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
             composed_fitness +=  dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_local_tab_[0][env_id];
-            fitmeta<<t0<<","<<env_id<<","<<"0"<<","<<dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_local_tab_[0][env_id]<<std::endl;
+            fitmeta<<time()<<","<<env_id<<","<<"0"<<","<<dynamic_cast<Individual_R*>(exp_manager->world()->indiv_at(cur_x, cur_y))->fitness(env_id) / fitness_sum_local_tab_[0][env_id]<<std::endl;
         }
         composed_fitness/=number_of_phenotypic_target_models;
-        fitmeta<<t0<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
+        fitmeta<<time()<<","<<"-1"<<","<<"1"<<","<<composed_fitness<<std::endl;
     }
 #endif
 
+#ifdef __REGUL
+    if (fitness_function_ == FITNESS_EXP) {
+        Individual_R *best = dynamic_cast<Individual_R *>(indiv);
+        best->clear_everything_except_dna_and_promoters();
+        //best->do_transcription_translation_folding();
+        //printf("---------> stoch env at %d\n",t);
+        exp_manager->world()->ApplyHabitatVariation();
+
+        //printf("---------> Evaluate indiv at %d\n",t);
+        //best->evaluated_ = false;
+        best->Evaluate();
+        best->compute_statistical_data();
+
+        double base_metaerror = 0;
+        double base_fitness = 0;
+        int nb_iteration = 100;
+
+        for (int i = 0; i < nb_iteration; i++) {
+            exp_manager->world()->ApplyHabitatVariation();
+            Individual_R* cloned = new Individual_R(*best);
+            cloned->set_grid_cell(exp_manager->world()->grid(0,0));
+
+            cloned->clear_everything_except_dna_and_promoters();
+            cloned->Evaluate();
+
+#pragma omp atomic
+            base_metaerror += cloned->dist_to_target_by_feature(METABOLISM);
+
+#pragma omp atomic
+            base_fitness += cloned->fitness();
+
+#pragma omp critical
+            fitmeta << time() << ",RANDOM," << i << "," << cloned->dist_to_target_by_feature(METABOLISM) << ","
+                    << cloned->fitness() << std::endl;
+
+            //printf("Iteration RANDOM at %d : %d/%d : %lf %e\n", t, i, nb_iteration,
+            //       cloned->dist_to_target_by_feature(METABOLISM), cloned->fitness());
+            delete cloned;
+        }
+
+        best->set_fitness(base_fitness / (double) nb_iteration);
+        best->set_metaerror(base_metaerror / (double) nb_iteration);
+
+        best->compute_statistical_data();
+        best->compute_non_coding();
+        mystats->write_statistics_of_this_indiv(time(),best,rep);
+
+        int nb_phenotypic_target_models = (int) dynamic_cast<PhenotypicTargetHandler_R *>(exp_manager->world()->
+                phenotypic_target_handler())->phenotypic_target_models_.size();
+
+        for (int target_id = 0; target_id < nb_phenotypic_target_models; target_id++) {
+            dynamic_cast<PhenotypicTargetHandler_R *>(exp_manager->world()->phenotypic_target_handler())->set_single_env(
+                    target_id);
+
+            Individual_R* cloned = new Individual_R(*best);
+            cloned->set_grid_cell(exp_manager->world()->grid(0,0));
+
+            cloned->clear_everything_except_dna_and_promoters();
+            cloned->Evaluate();
+
+            fitmeta << time() << ",TARGET," << target_id << "," << cloned->dist_to_target_by_feature(METABOLISM) << ","
+                    << cloned->fitness() << std::endl;
+
+            //printf("PhenotypicTarget at %d : %d/%d : %lf %e\n", t, target_id, nb_phenotypic_target_models,
+            //       cloned->dist_to_target_by_feature(METABOLISM), cloned->fitness());
+
+            delete cloned;
+        }
+    }
+
+#else
     indiv->Reevaluate();
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
     mystats->write_statistics_of_this_indiv(time(),indiv, rep);
-
+#endif
     // Additional outputs
+#ifndef __REGUL
     write_environment_stats(time(), phenotypicTargetHandler, env_output_file);
     write_terminators_stats(time(), indiv, term_output_file);
     if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1) {
@@ -498,6 +643,7 @@ int main(int argc, char* argv[]) {
                         zones_output_file);
     }
     write_operons_stats(time(), indiv, operons_output_file);
+#endif
 
     if (verbose) printf(" OK\n");
 

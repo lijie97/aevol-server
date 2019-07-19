@@ -951,7 +951,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     #ifdef __REGUL
       // le premier chiffre est l'indice d'environment en convention humaine ( le premier a 1)
       // On vérifie que cet indice n'est pas trop élevé ni négatif pour éviter les crash
-      if ( atoi(line->words[1]) - 1 < _env_gaussians_list.size() && atoi(line->words[1]) > 0)
+      if ( atoi(line->words[1]) - 1 < (int)_env_gaussians_list.size() && atoi(line->words[1]) > 0)
       {
         (_env_gaussians_list.at( atoi(line->words[1]) - 1)).push_back
         ( Gaussian(  atof( line->words[2] ), atof( line->words[3] ), atof( line->words[4] ) ) );
@@ -1416,7 +1416,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       // le premier chiffre est l'indice d'environment en convention humaine ( le premier a 1)
       // On vérifie que cet indice n'est pas trop élevé ni négatif pour éviter les crash
-      if ( atoi(line->words[1]) - 1 < _env_signals_list.size() && atoi(line->words[1]) > 0)
+      if ( atoi(line->words[1]) - 1 < (int)_env_signals_list.size() && atoi(line->words[1]) > 0)
       {
         (_env_signals_list.at( atoi(line->words[1]) - 1)).push_back(atoi(line->words[2]) - 1);
       }

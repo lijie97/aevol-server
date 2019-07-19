@@ -177,7 +177,9 @@ if ( ${with-raevol} )
           raevol/Protein_R.h
           raevol/Protein_R.cpp
           raevol/Rna_R.h
-          raevol/Rna_R.cpp)
+          raevol/Rna_R.cpp 
+	  #"SIMD_Abstract Metadata.cpp" "SIMD_Abstract Metadata.h" SIMD_Map_Metadata.cpp SIMD_Map_Metadata.h
+	  )
 endif ()
 
 add_library(aevol ${aevol_sources})

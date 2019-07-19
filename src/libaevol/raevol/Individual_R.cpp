@@ -146,7 +146,7 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
     int32_t nb_inherited_proteins = 0;
     gzread( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
 
-    printf("Nb prot %d\n",nb_inherited_proteins);
+    //printf("Nb prot %d\n",nb_inherited_proteins);
 
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
@@ -665,11 +665,11 @@ void Individual_R::make_rna_list( void )
 
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
   for (const auto& gen_unit: genetic_unit_list_) {
-    GeneticUnit* genu = const_cast<GeneticUnit*>(&gen_unit);
+    //GeneticUnit* genu = const_cast<GeneticUnit*>(&gen_unit);
     // Create proxies
     const auto& rna_list = gen_unit.rna_list();
-    const auto& lead = rna_list[LEADING];
-    const auto& lagg = rna_list[LAGGING];
+    //const auto& lead = rna_list[LEADING];
+    //const auto& lagg = rna_list[LAGGING];
 
     // append pointers to rna material to local _rna_list
     for (auto& strand: {LEADING, LAGGING})
@@ -771,7 +771,7 @@ void Individual_R::create_csv(char *directory_name) {
 
   fprintf(drawingfile, "Generation,Protein,Concentration\n");
 
-  int16_t life_time =  exp_m_->exp_s()->get_nb_indiv_age();
+  //int16_t life_time =  exp_m_->exp_s()->get_nb_indiv_age();
   //set the concentrations of proteins to their initial value
   double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
   //  int16_t prot_index = 0;
@@ -782,7 +782,7 @@ void Individual_R::create_csv(char *directory_name) {
   }
 
 
-  std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
+  //std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
   // i is thus the age of the individual
   for (int16_t i = 1; i <= exp_m_->exp_s()->get_nb_indiv_age(); i++) {
     //Set the concentration of signals for this age
@@ -808,7 +808,8 @@ void Individual_R::create_csv(char *directory_name) {
     int proti = 0;
     //printf("Age[%d] : ",i);
     for (const auto& prot : protein_list_) {
-      if (((Protein_R*)prot)->is_signal()) printf("Protein List %ld -> %f (signal: %ld) (%p)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal(),prot);
+      if (((Protein_R*)prot)->is_signal()) printf("Protein List %ld -> %f (signal: %d) (%p)\n",
+                                                  ((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal(),prot);
     
 
       // morceau ajouté pour colorer les protéines en fonctions de leur paramètres
@@ -820,7 +821,7 @@ void Individual_R::create_csv(char *directory_name) {
     update_phenotype();
 
     for (auto prot : signal_list) {
-      printf("after %ld prot %ld : %f\n",i,prot.second->get_id(),prot.second->concentration());
+      printf("after %d prot %ld : %f\n",i,prot.second->get_id(),prot.second->concentration());
     }
 
     printf("Creating the EPS file with the phenotype of the chosen individual at step %d... ",i);
@@ -831,7 +832,7 @@ void Individual_R::create_csv(char *directory_name) {
   }
 
     for (const auto& prot : protein_list_) {
-      if (((Protein_R*)prot)->is_signal()) printf("Protein List %d -> %f (signal: %d)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal() );
+      if (((Protein_R*)prot)->is_signal()) printf("Protein List %ld -> %f (signal: %d)\n",((Protein_R*)prot)->get_id(),prot->concentration(),((Protein_R*)prot)->is_signal() );
     }
 
   delete[] concentrations;

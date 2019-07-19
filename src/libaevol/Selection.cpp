@@ -419,7 +419,7 @@ void Selection::step_to_next_generation() {
 #pragma omp target teams distribute parallel for schedule(static,1)
 #endif
 #endif
-  for (int i = 0; i < to_evaluate.size(); i++) {
+  for (int i = 0; i < (int) to_evaluate.size(); i++) {
 #ifdef __REGUL
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
         phenotypic_target_handler_nonconst())->hasChanged()) ||

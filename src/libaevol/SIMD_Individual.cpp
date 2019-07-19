@@ -54,10 +54,10 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
   }
 
   dna_size = new int[exp_m_->nb_indivs()];
-  int x, y;
+  //int x, y;
   for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
-    x = indiv_id / exp_m_->world()->height();
-    y = indiv_id % exp_m_->world()->height();
+    //x = indiv_id / exp_m_->world()->height();
+    //y = indiv_id % exp_m_->world()->height();
 
 
     dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
@@ -970,7 +970,7 @@ void SIMD_Individual::start_stop_RNA() {
   //int x, y;
 
   //
-  ExpManager* exp_m = exp_m_;
+  //ExpManager* exp_m = exp_m_;
 
   //#pragma omp parallel for collapse(2) default(shared)
 //#pragma omp parallel for
@@ -1000,8 +1000,8 @@ void SIMD_Individual::start_stop_RNA() {
         bool is_terminator_lag = internal_simd_struct[indiv_id]->dna_->bitset_->is_terminator(
             false, dna_pos);
 #else
-      int x = indiv_id / exp_m->world()->height();
-      int y = indiv_id % exp_m->world()->height();
+      //int x = indiv_id / exp_m->world()->height();
+      //int y = indiv_id % exp_m->world()->height();
 
       int len = dna_size[indiv_id];
       if (len >= PROM_SIZE) {
@@ -1207,11 +1207,11 @@ void SIMD_Individual::start_stop_RNA() {
 
 
     void SIMD_Individual::start_stop_RNA(int indiv_id) {
-        int nb_indiv = exp_m_->nb_indivs();
+        //int nb_indiv = exp_m_->nb_indivs();
         //int x, y;
 
         //
-        ExpManager* exp_m = exp_m_;
+        //ExpManager* exp_m = exp_m_;
 
         //#pragma omp parallel for collapse(2) default(shared)
 //#pragma omp parallel for
@@ -1240,8 +1240,8 @@ void SIMD_Individual::start_stop_RNA() {
         bool is_terminator_lag = internal_simd_struct[indiv_id]->dna_->bitset_->is_terminator(
             false, dna_pos);
 #else
-                int x = indiv_id / exp_m->world()->height();
-                int y = indiv_id % exp_m->world()->height();
+                //int x = indiv_id / exp_m->world()->height();
+                //int y = indiv_id % exp_m->world()->height();
 
                 int len = dna_size[indiv_id];
                 if (len >= PROM_SIZE) {
@@ -1738,7 +1738,7 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 
     void SIMD_Individual::opt_prom_compute_RNA(int indiv_id) {
 
-        int nb_indiv = exp_m_->nb_indivs();
+        //int nb_indiv = exp_m_->nb_indivs();
 
 
             if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
@@ -1769,7 +1769,7 @@ void SIMD_Individual::opt_prom_compute_RNA() {
 #ifdef WITH_FINETASKLOOP
 #pragma omp taskloop grainsize(rna_grain_size)
 #endif
-                for (int prom_idx = 0; prom_idx< internal_simd_struct[indiv_id]->promoters.size(); prom_idx++) {
+                for (int prom_idx = 0; prom_idx<(int) internal_simd_struct[indiv_id]->promoters.size(); prom_idx++) {
 
                     if (internal_simd_struct[indiv_id]->promoters[prom_idx] != nullptr) {
                         int rna_idx = prom_idx;
@@ -2427,8 +2427,8 @@ void SIMD_Individual::compute_RNA() {
 //#pragma omp task firstprivate(indiv_id, rna_idx) depend(out: internal_simd_struct[indiv_id])
             {
                 if (internal_simd_struct[indiv_id]->rnas[rna_idx]->is_init_) {
-                    int x = indiv_id / exp_m_->world()->height();
-                    int y = indiv_id % exp_m_->world()->height();
+                    //int x = indiv_id / exp_m_->world()->height();
+                    //int y = indiv_id % exp_m_->world()->height();
 
                     int c_pos = internal_simd_struct[indiv_id]->rnas[rna_idx]->begin;
 
@@ -2562,8 +2562,8 @@ void SIMD_Individual::start_protein() {
 //#pragma omp task firstprivate(indiv_id, rna_idx) depend(inout: internal_simd_struct[indiv_id])
           {
             if (internal_simd_struct[indiv_id]->rnas[rna_idx]->is_init_) {
-              int x = indiv_id / exp_m_->world()->height();
-              int y = indiv_id % exp_m_->world()->height();
+              //int x = indiv_id / exp_m_->world()->height();
+              //int y = indiv_id % exp_m_->world()->height();
 
               int c_pos = internal_simd_struct[indiv_id]->rnas[rna_idx]->begin;
 
@@ -2713,8 +2713,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                      rnas[rna_idx]->start_prot.size(); protein_idx++) {
 //#pragma omp task firstprivate(indiv_id, rna_idx, protein_idx) depend(inout: internal_simd_struct[indiv_id])
                             {
-                                int x = indiv_id / exp_m_->world()->height();
-                                int y = indiv_id % exp_m_->world()->height();
+                                //int x = indiv_id / exp_m_->world()->height();
+                                //int y = indiv_id % exp_m_->world()->height();
 
                                 int start_protein_pos = internal_simd_struct[indiv_id]->
                                         rnas[rna_idx]->leading_lagging == 0 ?
@@ -3055,8 +3055,8 @@ void SIMD_Individual::compute_protein() {
                      rnas[rna_idx]->start_prot.size(); protein_idx++) {
 //#pragma omp task firstprivate(indiv_id, rna_idx, protein_idx) depend(in: internal_simd_struct[indiv_id])
               {
-                int x = indiv_id / exp_m_->world()->height();
-                int y = indiv_id % exp_m_->world()->height();
+                //int x = indiv_id / exp_m_->world()->height();
+                //int y = indiv_id % exp_m_->world()->height();
 
                 int start_protein_pos = internal_simd_struct[indiv_id]->
                     rnas[rna_idx]->leading_lagging == 0 ?
@@ -3384,8 +3384,8 @@ void SIMD_Individual::translate_protein(double w_max) {
 //#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
           {
             if (internal_simd_struct[indiv_id]->proteins[protein_idx]->is_init_) {
-              int x = indiv_id / exp_m_->world()->height();
-              int y = indiv_id % exp_m_->world()->height();
+              //int x = indiv_id / exp_m_->world()->height();
+              //int y = indiv_id % exp_m_->world()->height();
 
               int c_pos = internal_simd_struct[indiv_id]->proteins[protein_idx]->protein_start, t_pos;
               int end_pos = internal_simd_struct[indiv_id]->proteins[protein_idx]->protein_end;
@@ -3650,8 +3650,8 @@ void SIMD_Individual::translate_protein(double w_max) {
 //#pragma omp task firstprivate(indiv_id, protein_idx) depend(inout: internal_simd_struct[indiv_id])
             {
                 if (internal_simd_struct[indiv_id]->proteins[protein_idx]->is_init_) {
-                    int x = indiv_id / exp_m_->world()->height();
-                    int y = indiv_id % exp_m_->world()->height();
+                    //int x = indiv_id / exp_m_->world()->height();
+                    //int y = indiv_id % exp_m_->world()->height();
 
                     int c_pos = internal_simd_struct[indiv_id]->proteins[protein_idx]->protein_start, t_pos;
                     int end_pos = internal_simd_struct[indiv_id]->proteins[protein_idx]->protein_end;
@@ -4544,7 +4544,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
             //if (indiv_id == 0)
             //    printf("%d -- usage %d -- \n", indiv_id, internal_simd_struct[indiv_id]->usage_count_);
-            int usage_cpt = 0;
+            //int usage_cpt = 0;
 
 #pragma omp critical
             {
@@ -4574,7 +4574,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 //#pragma omp single
 //#pragma omp taskloop
         for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            int usage_cpt = 0;
+            //int usage_cpt = 0;
 
 #pragma omp critical
             {
@@ -4866,7 +4866,7 @@ void SIMD_Individual::check_individual(int i, int x, int y) {
         }
     }
 
-    int prot_cpt_a=0,prot_cpt_b=0;
+    int prot_cpt_b=0;
     idx = 0;
     for (auto prot : exp_m_->world()->grid(x, y)->old_one->protein_list()) {
         bool found = false;
@@ -4943,14 +4943,8 @@ void SIMD_Individual::check_result() {
     float i_fit_2 = roundf(fit_2 * 100);
 
 
-    int prot_size = 0;
+    int prot_size = (int) exp_m_->world()->grid(x, y)->individual()->protein_list().size();
 
-
-    for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
-
-        prot_size++;
-      //}
-    }
 
     if (i_fit_1 != i_fit_2 && dna_size[i] > 300)
     //if (i == 268) {
@@ -4998,7 +4992,7 @@ void SIMD_Individual::check_result() {
 */
 
       idx = 0;
-        int prot_cpt_a=0,prot_cpt_b=0;
+        int prot_cpt_b=0;
 
       for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
           bool found = false;
@@ -5183,7 +5177,7 @@ Internal_SIMD_Struct::~Internal_SIMD_Struct() {
  * We need some index for the promoter optimization
  */
 void Internal_SIMD_Struct::rebuild_index() {
-  if (count_prom > promoters.size()/2) {
+  if (count_prom > (int)promoters.size()/2) {
     /**
      * Do the reindexation process
      */
@@ -5276,7 +5270,7 @@ void Internal_SIMD_Struct::insert_promoters_at(std::vector<std::list<promoterStr
 
     // Insert the promoters in the individual's RNA list
     for (auto& to_insert: promoters_to_insert[strand]) {
-        int prev_pos = to_insert->pos;
+//        int prev_pos = to_insert->pos;
       // Update promoter position
       to_insert->pos = Utils::mod(to_insert->pos + pos, dna_->length());
       if (strand == LEADING) {

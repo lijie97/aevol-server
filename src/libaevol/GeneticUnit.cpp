@@ -1494,24 +1494,24 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   const char* genome = dna_->data();
   int32_t len = dna_->length();
 
-  float dist_a[22] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int8_t dist_a[22] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int32_t pos_a[22];
   if (strand == LEADING) {
     //~ printf("LEADING\n");
     if (pos + PROM_SIZE < len) {
-#pragma vector always
+//#pragma vector always
       for (int32_t i  = 0; i < PROM_SIZE; i++)
         pos_a[i] = pos + i;
     } else {
-#pragma vector always
+//#pragma vector always
       for (int32_t i  = 0; i < PROM_SIZE; i++)
         pos_a[i] = (pos + i) % len;
 
     }
 
-    #pragma vector always
+//    #pragma vector always
     for (int16_t i = 0; i < PROM_SIZE; i++) {
-      dist_a[i] = genome[pos_a[i]] != PROM_SEQ[i] ? 1 : 0;
+      dist_a[i] = genome[pos_a[i]] != PROM_SEQ[i] ? (int8_t ) 1 : (int8_t ) 0;
     }
   }
   else // (strand == LAGGING)
@@ -1529,9 +1529,9 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
       pos_a[i] = (pos - i) >= 0 ? (pos - i) % len : (len - abs_i) % len;
     }
 
-    #pragma vector always
+  //  #pragma vector always
     for (int16_t i = 0; i < PROM_SIZE; i++) {
-      dist_a[i] = genome[pos_a[i]] == PROM_SEQ[i] ? 1 : 0;
+      dist_a[i] = genome[pos_a[i]] == PROM_SEQ[i] ? (int8_t ) 1 : (int8_t )  0;
     }
   }
 

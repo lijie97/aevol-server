@@ -154,7 +154,7 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
 
 //      printf("Nb env targers %d\n",nb_old_env);
 
-      for (int i = 0; i < phenotypic_targets_.size(); i++) {
+      for (int i = 0; i < (int) phenotypic_targets_.size(); i++) {
 
 //        printf("Target at %d is %d\n",i,phenotypic_targets_[i]->get_id());
         list_of_old_target_id[i] = phenotypic_targets_[i]->get_id();
@@ -221,7 +221,7 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
 
       //printf("Computing env changed or not\n");
 
-      if (nb_old_env == phenotypic_targets_.size()) {
+      if (nb_old_env == (int) phenotypic_targets_.size()) {
         i=0;
         for (PhenotypicTarget_R* target : phenotypic_targets_) {
           if (list_of_old_target_id[i] != target->get_id()) {
@@ -268,7 +268,7 @@ void PhenotypicTargetHandler_R::print_geometric_areas() {
   }
   printf("\n");
 
-  for (int16_t i = 0; i < phenotypic_target_models_.size() ; i++) {
+  for (int16_t i = 0; i < (int) phenotypic_target_models_.size() ; i++) {
     area = phenotypic_target_models_.at(i)->fuzzy()->get_geometric_area();
     printf("Entire geometric area of the phenotypic target %d: %f\n", i, area);
     printf("Signal of env %d is ",i);
@@ -414,7 +414,7 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   int16_t nb_env = 0;
   gzread(backup_file, &nb_env, sizeof(nb_env));
   id = 0;
-  PhenotypicTarget_R* env_to_add = NULL;
+  //PhenotypicTarget_R* env_to_add = NULL;
 
   phenotypic_targets_.resize(nb_env);
 
@@ -514,7 +514,7 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int16_t id) {
 
   // Compute areas (total and by feature)
   phenotypic_target->ComputeArea();
-  double area = phenotypic_target->fuzzy()->get_geometric_area();
+  //double area = phenotypic_target->fuzzy()->get_geometric_area();
     //printf("Entire geometric area of the phenotypic target %d: %f\n", id, area);
 
   //Add its signals to the env
@@ -557,7 +557,7 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargets(int16_t nb_indiv_age) {
   phenotypic_targets_.clear();
   //printf("Taille de l'habitat après le clear dans initialize... : %d\n", phenotypic_targets_.size());
   //phenotypic_targets_.resize(nb_indiv_age);
-  PhenotypicTarget_R* env_to_add;
+  //PhenotypicTarget_R* env_to_add;
   phenotypic_targets_.resize(nb_indiv_age);
 
   for (int i = 0; i < nb_indiv_age; ++i) {
@@ -572,12 +572,12 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargets(int16_t nb_indiv_age) {
 }
 
 void PhenotypicTargetHandler_R::addEnv( int time, int16_t env_id ) {
-  assert(env_id >= 0 && env_id <= phenotypic_target_models_.size());
+  assert(env_id >= 0 && env_id <= (int) phenotypic_target_models_.size());
   phenotypic_targets_[time] = phenotypic_target_models_.at(env_id);
 }
 
 void PhenotypicTargetHandler_R::changeEnv( int16_t ind, int16_t env_id ) {
-  assert(env_id >= 0 && env_id <= phenotypic_target_models_.size());
+  assert(env_id >= 0 && env_id <= (int) phenotypic_target_models_.size());
   phenotypic_targets_.at(ind) = phenotypic_target_models_.at(env_id);
 }
 

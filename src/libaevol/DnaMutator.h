@@ -44,7 +44,7 @@ class DnaMutator {
 
     bool hasMutate() {return hasMutate_;}
 
-    bool setMutate(bool mutate) {hasMutate_ = mutate;}
+    void setMutate(bool mutate) {hasMutate_ = mutate;}
 
     int x_,y_;
 

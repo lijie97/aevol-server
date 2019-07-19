@@ -123,7 +123,11 @@ void World::InitGrid(int16_t width, int16_t height,
       if (share_phenotypic_target)
         grid_[x][y] =
                 new GridCell(x, y,
+#ifdef __REGUL
                              HabitatFactory::create_unique_habitat(dynamic_cast<Habitat_R&>(habitat),share_phenotypic_target),
+#else
+                             HabitatFactory::create_unique_habitat(habitat,share_phenotypic_target),
+#endif
                              NULL,std::make_shared<JumpingMT>(mut_seed),
                              std::make_shared<JumpingMT>(stoch_seed));
     }
@@ -606,12 +610,12 @@ Individual* World::indiv_by_id(int32_t id) const {
   Individual* indiv = grid_1d_[id]->individual();
   // When the population isn't mixed at all, the individual with id n is in
   // grid_1d_[n]. Try this first...
-  if (indiv->id() == id)
+  if ((int32_t)indiv->id() == id)
     return indiv;
   // ... If it isn't, do a basic search
   int32_t nb_indivs = width_ * height_;
   for (int32_t i = 0 ; i < nb_indivs ; i++) {
-    if (grid_1d_[i]->individual()->id() == id)
+    if ((int32_t ) grid_1d_[i]->individual()->id() == id)
       return grid_1d_[i]->individual();
   }
   return nullptr;

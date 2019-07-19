@@ -324,7 +324,7 @@ void ExpManager::step_to_next_generation() {
 #ifdef __PERF_LOG__
 auto     t1 = high_resolution_clock::now();
 
-  auto     s_t1 = high_resolution_clock::now();
+  //auto     s_t1 = high_resolution_clock::now();
 #endif
 
 #ifdef __CUDACC__

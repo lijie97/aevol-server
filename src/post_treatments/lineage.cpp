@@ -141,11 +141,7 @@ int main(int argc, char** argv) {
   // etc.
   //
 
-  #ifdef __REGUL
-    sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", t_end);
-  #else
     sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t_end);
-  #endif
 
   tree = new Tree(exp_manager, tree_file_name);
 
@@ -172,12 +168,15 @@ int main(int argc, char** argv) {
       // No index nor rank was given in the command line.
       // By default, we construct the lineage of the best individual, the rank of which
       // is simply the number of individuals in the population.
-      final_indiv_rank = exp_manager->nb_indivs();
+        reports[t_end - t0 - 1] =
+                new ReplicationReport(*(tree->report_by_index(t_end, exp_manager->world()->indiv_at(0,0)->id())));
+    } else {
+        reports[t_end - t0 - 1] =
+                new ReplicationReport(*(tree->report_by_rank(t_end, final_indiv_rank)));
     }
 
     // Retrieve the replication report of the individual of interest (at t_end)
-    reports[t_end - t0 - 1] =
-        new ReplicationReport(*(tree->report_by_rank(t_end, final_indiv_rank)));
+    final_indiv_rank = reports[t_end - t0 - 1]->rank();
     final_indiv_index = reports[t_end - t0 - 1]->id();
 
     indices[t_end - t0]  = final_indiv_index;
@@ -195,15 +194,9 @@ int main(int argc, char** argv) {
   // =======================
   char output_file_name[101];
 
-  #ifdef __REGUL
-    snprintf(output_file_name, 100,
-        "lineage-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 ".rae",
-        t0, t_end, final_indiv_index, final_indiv_rank);
-  #else
     snprintf(output_file_name, 100,
         "lineage-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 ".ae",
         t0, t_end, final_indiv_index, final_indiv_rank);
-  #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
   if (lineage_file == nullptr) {
@@ -245,11 +238,7 @@ int main(int argc, char** argv) {
       // Change the tree file
       delete tree;
 
-      #ifdef __REGUL
-        sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".rae", t);
-      #else
         sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t);
-      #endif
       AeTime::set_time(AeTime::time()-tree_step);
 
       tree = new Tree(exp_manager, tree_file_name);
@@ -341,8 +330,8 @@ int main(int argc, char** argv) {
     // Write the replication report of the ancestor for current generation
     if (verbose) {
       printf("Writing the replication report for t= %" PRId64
-             " (built from indiv %" PRId32 " at t= %" PRId64 ")\n",
-             t, indices[i], t-1);
+             " (built from indiv %" PRId32 " %" PRId32" at t= %" PRId64 ")\n",
+             t, indices[i], indices[i+1], t-1);
     }
     of << t << " : " << reports[i]->parent_id() << "  " << reports[i]->id() << std::endl;
     reports[i]->write_to_tree_file(lineage_file);

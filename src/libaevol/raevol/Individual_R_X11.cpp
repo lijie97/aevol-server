@@ -359,8 +359,8 @@ void Individual_R_X11::display_regulation( X11Window* win )
   // NB : As we want OriC to be at the "top" of the circle and the orientation
   //      to be clockwise, the drawing angle (theta) will be given as
   //      (90 - alpha), alpha being the "classical" trigonometric angle
-  int16_t alpha_rna_first,alpha_prot_first; // Angles of first and last transcribed bases from OriC (degrees)
-  int16_t theta_rna_first, theta_prot_first; // Transposed angles on the trigonometric circle (degrees)
+  //int16_t alpha_rna_first,alpha_prot_first; // Angles of first and last transcribed bases from OriC (degrees)
+  //int16_t theta_rna_first, theta_prot_first; // Transposed angles on the trigonometric circle (degrees)
   // Same as above with precision = 1/64 degree
   int16_t alpha_rna_first_64,alpha_prot_first_64;
   int16_t theta_rna_first_64,theta_prot_first_64;
@@ -374,7 +374,7 @@ void Individual_R_X11::display_regulation( X11Window* win )
     //  Draw each regulation link
     // ---------------
 
-    for (unsigned int i = 0; i < rna->nb_influences(); i++) {
+    for (int i = 0; i < rna->nb_influences(); i++) {
       //if (rna->_protein_list[i] != nullptr) {
         //compute the activity
         if (rna->_enhancing_coef_list[i] > 0) {
@@ -416,7 +416,7 @@ void Individual_R_X11::display_regulation( X11Window* win )
               max_merged_activator_activity)
             max_merged_activator_activity = merged_activity;
           if (merged_activity <
-              min_activator_activity)
+                  min_merged_activator_activity)
             min_merged_activator_activity = merged_activity;
         }
         if (merged_activity < 0) {
@@ -446,52 +446,52 @@ void Individual_R_X11::display_regulation( X11Window* win )
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_rna_first = (int16_t) round(
-        360 * ((double) rna->first_transcribed_pos() / (double) genome_length));
-    theta_rna_first = std::fmod(90 - alpha_rna_first, 360);
+    //alpha_rna_first = (int16_t) round(
+    //    360 * ((double) rna->first_transcribed_pos() / (double) genome_length));
+    //theta_rna_first = std::fmod(90 - alpha_rna_first, 360);
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_rna_first_64 = (int16_t) round(64 * 360 *
                                          ((double) rna->first_transcribed_pos() /
                                           (double) genome_length));
-    theta_rna_first_64 = std::fmod(64 * 90 - alpha_rna_first_64, 64 * 360);
+    theta_rna_first_64 = (int16_t ) std::fmod(64 * 90 - alpha_rna_first_64, 64 * 360);
 
-    pos_rna_x = (win->width() / 2.0) +
-                (cos((theta_rna_first_64 / (64 * 180.0) * M_PI)) * diam / 2.0);
-    pos_rna_y = (win->height() / 2.0) -
-                (sin((theta_rna_first_64 / (64 * 180.0) * M_PI)) * diam / 2.0);
+    pos_rna_x = (int16_t ) ((win->width() / 2.0) +
+                (cos((theta_rna_first_64 / (64 * 180.0) * M_PI)) * diam / 2.0));
+    pos_rna_y = (int16_t ) ((win->height() / 2.0) -
+                (sin((theta_rna_first_64 / (64 * 180.0) * M_PI)) * diam / 2.0));
 
     // ---------------
     //  Draw each regulation link
     // ---------------
-    for (unsigned int i = 0; i < rna->_nb_influences; i++) {
+    for (int i = 0; i < rna->_nb_influences; i++) {
       Protein_R* prot = rna->_protein_list[i];
 
       if (!(prot->is_signal())) {
-        alpha_prot_first = (int16_t) round(360 *
-                                           ((double) prot->first_translated_pos() /
-                                            (double) genome_length));
-        theta_prot_first = std::fmod(90 - alpha_prot_first, 360);
+        //alpha_prot_first = (int16_t) round(360 *
+        //                                   ((double) prot->first_translated_pos() /
+        //                                    (double) genome_length));
+        //theta_prot_first = std::fmod(90 - alpha_prot_first, 360);
 
         alpha_prot_first_64 = (int16_t) round(64 * 360 *
                                               ((double) prot->first_translated_pos() /
                                                (double) genome_length));
-        theta_prot_first_64 = std::fmod(64 * 90 - alpha_prot_first_64,
+        theta_prot_first_64 = (int16_t ) std::fmod(64 * 90 - alpha_prot_first_64,
                                         64 * 360);
 
-        pos_prot_x = (win->width() / 2.0) +
+        pos_prot_x = (int16_t ) ((win->width() / 2.0) +
                      (cos((theta_prot_first_64 / (64 * 180.0) * M_PI)) *
                       diam /
-                      2.0);
-        pos_prot_y = (win->height() / 2.0) -
+                      2.0));
+        pos_prot_y = (int16_t ) ((win->height() / 2.0) -
                      (sin((theta_prot_first_64 / (64 * 180.0) * M_PI)) *
                       diam /
-                      2.0);
+                      2.0));
       }
       else {
         nb_signals += 1;
-        pos_prot_x = (win->width() / 10.0) * (((Protein_R*)prot)->get_id()+1);
-        pos_prot_y = (win->height() * 0.9);
+        pos_prot_x = (int16_t ) ((win->width() / 10.0) * (((Protein_R*)prot)->get_id()+1));
+        pos_prot_y = (int16_t ) (win->height() * 0.9);
       }
 
       // compute the color of the link
@@ -501,21 +501,19 @@ void Individual_R_X11::display_regulation( X11Window* win )
       //printf("Merged influence of RNA %ld with prot %ld is %f (%f %f)\n",rna->get_id(),rna->_protein_list[i]->get_id(),
       //       merged_influence,rna->_enhancing_coef_list[i],rna->_operating_coef_list[i]);
       if (merged_influence > 0) {
-            //printf("ONE %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
-            //printf("COLOR : #%02x%02x%02x\n", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
-            sprintf(color, "#%02x%02x%02x", 0,
-                    (int) ((255 * merged_influence) /
-                           max_merged_activator_activity), 0);
+        //printf("ONE %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
+        //printf("COLOR : #%02x%02x%02x\n", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
+        sprintf(color, "#%02x%02x%02x", 0,
+                (int) ((255 * merged_influence) /
+                       max_merged_activator_activity), 0);
+      } else {
+        //printf("TWO %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
+        //printf("COLOR : #%02x%02x%02x\n", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
+        sprintf(color, "#%02x%02x%02x", (int) ((255 * merged_influence) /
+                                               max_merged_operator_activity),
+                0, 0);
 
-        }
-        else {
-            //printf("TWO %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
-            //printf("COLOR : #%02x%02x%02x\n", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
-            sprintf(color, "#%02x%02x%02x", (int) ((255 * merged_influence) /
-                                                   max_merged_operator_activity),
-                    0, 0);
-
-        }
+      }
 
       /*if (rna->_protein_list[i]->is_signal())
         printf("is influenced by signal %ld : %f %f %f %s\n",rna->_protein_list[i]->get_id(),
@@ -574,14 +572,14 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
 
   double dist_temp = 0;
   char* color = new char[8];
-  char* color2 = NULL;
+  //char* color2 = NULL;
   int nb_eval = 0;
   strcpy( color, "#FFFFFF" );
 
   //variable qui sert à stocker du texte à afficher
   char display_string[40];
-  int16_t nb_prot = 0;
-  int16_t life_time = exp_m()->exp_s()->get_nb_indiv_age();
+  //int16_t nb_prot = 0;
+  int16_t life_time = (int16_t ) exp_m()->exp_s()->get_nb_indiv_age();
 
   //set the concentrations of proteins to their initial value
   /*double* concentrations = new double[protein_list_.size()]; // initialise le tableau de concentrations.
@@ -591,8 +589,8 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   }*/
 
   // compute steps
-  double x_step = 0.8 * win->width() / (double)(life_time * exp_m()->exp_s()->get_nb_degradation_step());
-  double y_step = 0.7 * win->height();
+  //double x_step = 0.8 * win->width() / (double)(life_time * exp_m()->exp_s()->get_nb_degradation_step());
+  //double y_step = 0.7 * win->height();
 
   // Go from an evaluation date to the next
   //int8_t compteur_env   = 0;
@@ -696,7 +694,7 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
   //Draw the evaluation result
   sprintf( display_string, "Mean dist_to_target =  %lf",dist_temp/(double)nb_eval);
 
-  printf("AT %d ID %d Mean dist %lf\n",AeTime::time(),id(),dist_temp/(double)nb_eval);
+  //printf("AT %d ID %d Mean dist %lf\n",AeTime::time(),id(),dist_temp/(double)nb_eval);
   for(Protein_R* prot1 : habitat.signals()) {
     prot1->set_concentration(0.0);
   }

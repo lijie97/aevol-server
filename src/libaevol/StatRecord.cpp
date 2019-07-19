@@ -164,7 +164,7 @@ StatRecord::StatRecord(const StatRecord &model)
   Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
 
   for (auto& rna: indiv_r->get_rna_list_coding()) {
-    for (unsigned int i = 0; i < ((Rna_R*)rna)->nb_influences(); i++) {
+    for (int i = 0; i < ((Rna_R*)rna)->nb_influences(); i++) {
       //compute the activity
       if (((Rna_R*)rna)->_enhancing_coef_list[i] > 0)
       {
