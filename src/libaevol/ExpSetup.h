@@ -68,6 +68,7 @@ class ExpSetup {
   //                         Accessors: getters
   // =======================================================================
   inline int get_fuzzy_flavor( void ) const;
+  inline int get_simd_metadata_flavor( void ) const;
 
   // ----------------------------------------------------- Selection context
   Selection * sel() const { return sel_; }
@@ -114,6 +115,7 @@ class ExpSetup {
   //                         Accessors: setters
   // =======================================================================
   inline void set_fuzzy_flavor( int fuzzy_flavor );
+    inline void set_simd_metadata_flavor(int metadata_flavor );
   // --------------------------------------------------------------- Transfer
   void set_with_HT(bool with_HT) { with_HT_ = with_HT; }
   void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { repl_HT_with_close_points_ = repl_HT_with_close_points; }
@@ -198,6 +200,7 @@ class ExpSetup {
   ExpManager* exp_m_;
 
   int fuzzy_flavor_;
+  int simd_metadata_flavor_;
   // ----------------------------------------------------- Selection context
   Selection* sel_;
 
@@ -260,6 +263,11 @@ inline int ExpSetup::get_fuzzy_flavor( void ) const
   return fuzzy_flavor_;
 }
 
+inline int ExpSetup::get_simd_metadata_flavor( void ) const
+{
+   return simd_metadata_flavor_;
+}
+
 #ifdef __REGUL
 inline bool ExpSetup::get_with_heredity( void ) const
 {
@@ -310,6 +318,11 @@ inline int ExpSetup::get_nb_indiv_age( void ) const
 inline void ExpSetup::set_fuzzy_flavor( int fuzzy_flavor )
 {
   fuzzy_flavor_ = fuzzy_flavor;
+}
+
+inline void ExpSetup::set_simd_metadata_flavor(int metadata_flavor)
+{
+  simd_metadata_flavor_ = metadata_flavor;
 }
 
 #ifdef __REGUL

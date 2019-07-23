@@ -160,7 +160,11 @@ set(aevol_sources
   MutationEvent.h
   MutationEvent.cpp
   AncestorStats.h
-  AncestorStats.cpp)
+  AncestorStats.cpp 
+  SIMD_Abstract_Metadata.cpp 
+  SIMD_Abstract_Metadata.h 
+  SIMD_Map_Metadata.cpp 
+  SIMD_Map_Metadata.h)
   
 if ( ${with-raevol} )
     set(aevol_sources ${aevol_sources} 
@@ -178,7 +182,7 @@ if ( ${with-raevol} )
           raevol/Protein_R.cpp
           raevol/Rna_R.h
           raevol/Rna_R.cpp 
-	  #"SIMD_Abstract Metadata.cpp" "SIMD_Abstract Metadata.h" SIMD_Map_Metadata.cpp SIMD_Map_Metadata.h
+	  #"
 	  )
 endif ()
 

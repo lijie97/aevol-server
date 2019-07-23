@@ -275,6 +275,8 @@ ParamLoader::ParamLoader(const char* file_name)
 
   _fuzzy_flavor = 0;
 
+  simd_metadata_flavor_ = SIMDMetadataFlavor::STD_MAP;
+
 #ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
     _binding_zeros_percentage = 75;
@@ -1266,6 +1268,9 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   else if (strcmp(line->words[0], "FUZZY_FLAVOR") == 0)
   {
     _fuzzy_flavor = atoi(line->words[1]);
+  }  else if (strcmp(line->words[0], "SIMD_METADATA_FLAVOR") == 0)
+  {
+    simd_metadata_flavor_ = atoi(line->words[1]);
   }
 
 #ifdef __REGUL
@@ -1574,6 +1579,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_secretion_cost(secretion_cost_);
 
   exp_s->set_fuzzy_flavor(_fuzzy_flavor);
+  exp_s->set_simd_metadata_flavor(simd_metadata_flavor_);
+
 
   //------------------------------------------------------------------ Parameter for SIMD
   exp_s->set_min_genome_length(min_genome_length_);
