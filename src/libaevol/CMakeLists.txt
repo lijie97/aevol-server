@@ -164,7 +164,9 @@ set(aevol_sources
   SIMD_Abstract_Metadata.cpp 
   SIMD_Abstract_Metadata.h 
   SIMD_Map_Metadata.cpp 
-  SIMD_Map_Metadata.h)
+  SIMD_Map_Metadata.h
+  SIMD_DynTab_Metadata.cpp
+  SIMD_DynTab_Metadata.h)
   
 if ( ${with-raevol} )
     set(aevol_sources ${aevol_sources} 

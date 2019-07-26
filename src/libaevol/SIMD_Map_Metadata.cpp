@@ -103,6 +103,7 @@ namespace aevol {
             if (lorl == LEADING) {
                 auto tmp_it = leading_prom_pos_.lower_bound(pos2);
                 if (tmp_it!=leading_prom_pos_.end()) it_end = tmp_it;
+                if (tmp_it!=leading_prom_pos_.end()) it_end = tmp_it;
             } else {
                 auto tmp_it = lagging_prom_pos_.lower_bound(pos2);
                 it_begin = tmp_it;
@@ -205,6 +206,21 @@ namespace aevol {
                                                                        {}};
 
         promoters_included_in(pos_1, pos_2, retrieved_promoters);
+
+        printf("RETRIEVED PROMs LEAD : ");
+        for (auto prom :retrieved_promoters[LEADING]) {
+            if (prom != nullptr)
+                if (prom->leading_or_lagging)
+                    printf("%d ",prom->pos);
+        }
+        printf("\n");
+        printf("RETRIEVED PROMs LAG : ");
+        for (auto prom :retrieved_promoters[LAGGING]) {
+            if (prom != nullptr)
+                if (!prom->leading_or_lagging)
+                    printf("%d ",prom->pos);
+        }
+        printf("\n");
 
         // 2) Set RNAs' position as their position on the duplicated segment
         for (auto& strand: {LEADING, LAGGING}) {
@@ -485,8 +501,12 @@ namespace aevol {
             int32_t new_pos = Utils::mod(it->first + delta_pos, length());
             int32_t prom_idx = it->second;
 
+/*            printf("LEAD -- Moving %d to %d (%d)\n",promoters_[it->second]->pos,
+                   Utils::mod(promoters_[it->second]->pos + delta_pos, length()),length());*/
+
             promoters_[it->second]->pos = new_pos;
             nextit = next(it);
+
 
             if (tmp_prom.find(new_pos) == tmp_prom.end()) {
                 tmp_prom[new_pos] = prom_idx;
@@ -514,9 +534,11 @@ namespace aevol {
             int32_t new_pos = Utils::mod(it->first + delta_pos, length());
             int32_t prom_idx = it->second;
 
+/*            printf("LAG -- Moving %d to %d (%d)\n",promoters_[it->second]->pos,
+                   Utils::mod(promoters_[it->second]->pos + delta_pos, length()),length());*/
+
             promoters_[it->second]->pos = new_pos;
             nextit = next(it);
-
 
             if (tmp_prom.find(new_pos) == tmp_prom.end()) {
                 tmp_prom[new_pos] = prom_idx;

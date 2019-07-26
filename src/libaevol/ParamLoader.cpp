@@ -1270,7 +1270,14 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     _fuzzy_flavor = atoi(line->words[1]);
   }  else if (strcmp(line->words[0], "SIMD_METADATA_FLAVOR") == 0)
   {
-    simd_metadata_flavor_ = atoi(line->words[1]);
+    if (strncmp(line->words[1], "stdmap", 6) == 0)
+    {
+      simd_metadata_flavor_ = STD_MAP;
+    }
+    else if (strncmp(line->words[1], "dyntab", 6) == 0)
+    {
+      simd_metadata_flavor_ = DYN_TAB;
+    }
   }
 
 #ifdef __REGUL

@@ -10,6 +10,7 @@
 #include "ExpManager.h"
 //#include "SIMD_Abstract_Metadata.h"
 #include "SIMD_Map_Metadata.h"
+#include "SIMD_DynTab_Metadata.h"
 
 
 #include <omp.h>
@@ -3173,6 +3174,8 @@ void SIMD_Individual::check_result() {
 
         if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
             metadata_ = new SIMD_Map_Metadata(this);
+        else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+            metadata_ = new SIMD_DynTab_Metadata(this);
     }
 
 
@@ -3184,10 +3187,12 @@ Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Stru
   usage_count_ = 1;
   dna_ = new Dna_SIMD(clone->dna_,this,copy_dna);
 
+
   //promoters.resize(clone->promoters.size());
   if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
       metadata_ = new SIMD_Map_Metadata(this,dynamic_cast<SIMD_Map_Metadata*>(clone->metadata_));
-
+  else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+      metadata_ = new SIMD_DynTab_Metadata(this,dynamic_cast<SIMD_DynTab_Metadata*>(clone->metadata_));
 
 
   fitness = clone->fitness;

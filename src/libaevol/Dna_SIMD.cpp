@@ -397,7 +397,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
                                              duplicated_promoters);
 
 
-    //printf("Duplicate %d %d\n",duplicated_promoters[0].size(),duplicated_promoters[1].size());
+   printf("Duplicate %d %d %d -- %d %d\n",pos_1,pos_2,pos_3,duplicated_promoters[0].size(),duplicated_promoters[1].size());
 
  /* if (indiv_->indiv_id == 433) {
     printf("DUPLICATE : Leading promoters lists : ");
@@ -436,13 +436,28 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
         printf("Error unsynchronized cache !\n");
     }
   }*/
-    //printf("%d -- %d -- DUP-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-    //       indiv_->metadata_->promoter_count());
+    printf("Prom list LEAD : ");
+    for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+        if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+            if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+    }
+    printf("\n");
+    printf("Prom list LAG : ");
+    for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+        if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+            if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+    }
+    printf("\n");
+
+  printf("%d -- %d -- DUP-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+           indiv_->metadata_->promoter_count());
 
     indiv_->metadata_->remove_promoters_around(pos_3);
 
-    //printf("%d -- %d -- DUP-2 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-    //       indiv_->metadata_->promoter_count());
+    printf("%d -- %d -- DUP-2 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+           indiv_->metadata_->promoter_count());
 
 /*  if (indiv_->indiv_id == 433) {
     printf("REMOVE : Leading promoters lists : ");
@@ -482,50 +497,75 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
         indiv_->metadata_->locate_promoters();
     }
     else {
+        printf("Prom list LEAD : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+        printf("Prom list LAG : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+
         indiv_->metadata_->move_all_promoters_after(pos_3, seg_length);
-      /*if (indiv_->indiv_id == 433) {
-        printf("MOVE : Leading promoters lists : ");
-        for (auto it : indiv_->leading_prom_pos) {
-          printf("%d (%d) || ", it.first, it.second);
+        printf("Prom list LEAD : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
         }
         printf("\n");
-        printf("MOVE : Lagging promoters lists : ");
-        for (auto it : indiv_->lagging_prom_pos) {
-          printf("%d (%d) || ", it.first, it.second);
+        printf("Prom list LAG : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
         }
         printf("\n");
-        printf("MOVE : Leading promoters lists (promoters): ");
-        for (auto it : indiv_->promoters) {
-          printf("%d (%d) -- ", it.second->pos, it.first);
-        }
 
+
+        printf("Duplicated PROMs LEAD : ");
+        for (auto prom :duplicated_promoters[LEADING]) {
+            if (prom != nullptr)
+                if (prom->leading_or_lagging)
+                    printf("%d ",prom->pos);
+        }
+        printf("\n");
+        printf("Duplicated PROMs LAG : ");
+        for (auto prom :duplicated_promoters[LAGGING]) {
+            if (prom != nullptr)
+                if (!prom->leading_or_lagging)
+                    printf("%d ",prom->pos);
+        }
         printf("\n");
 
-          printf("MOVE : Leading duplicated promoters lists : ");
-          for (auto it : duplicated_promoters[LEADING]) {
-            printf("%d || ", it->pos);
-          }
-          printf("\n");
 
-          printf("MOVE : Lagging duplicated promoters lists (promoters): ");
-          for (auto it : duplicated_promoters[LAGGING]) {
-            printf("%d -- ", it->pos);
-          }
-
-          printf("\n");
-          if (indiv_->promoters.size() != indiv_->leading_prom_pos.size() + indiv_->lagging_prom_pos.size()) {
-              printf("Error unsynchronized cache !\n");
-          }
-      }*/
-
-        //printf("%d -- %d -- DUP-3 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-        //       indiv_->metadata_->promoter_count());
+        printf("%d -- %d -- DUP-3 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+               indiv_->metadata_->promoter_count());
 
         indiv_->metadata_->insert_promoters_at(duplicated_promoters, pos_3);
 
-        //printf("%d -- %d -- DUP-4 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-        //       indiv_->metadata_->promoter_count());
-
+        printf("%d -- %d -- DUP-4 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+               indiv_->metadata_->promoter_count());
+        printf("Prom list LEAD : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+        printf("Prom list LAG : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
         /*if (indiv_->indiv_id == 433) {
           printf("INSERT : Leading promoters lists : ");
           for (auto it : indiv_->leading_prom_pos) {
@@ -550,21 +590,36 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
             }
         }*/
 
-        //printf("%d -- %d -- DUP-5 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-        //       indiv_->metadata_->promoter_count());
+        printf("%d -- %d -- DUP-5 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+               indiv_->metadata_->promoter_count());
 
         indiv_->metadata_->look_for_new_promoters_around(pos_3);
 
 
-        //printf("%d -- %d -- DUP-6 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-        //       indiv_->metadata_->promoter_count());
+        printf("%d -- %d -- DUP-6 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+               indiv_->metadata_->promoter_count());
 
 
         indiv_->metadata_->look_for_new_promoters_around(pos_3 + seg_length);
 
 
-        //printf("%d -- %d -- DUP-7 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-        //       indiv_->metadata_->promoter_count());
+        printf("%d -- %d -- DUP-7 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+               indiv_->metadata_->promoter_count());
+
+        printf("Prom list LEAD : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+        printf("Prom list LAG : ");
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
 
     }
   }
@@ -1063,12 +1118,27 @@ void Dna_SIMD::apply_mutations_standalone() {
   MutationEvent* repl;
     //printf("%d -- %d -- AMS-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
     //       indiv_->metadata_->promoter_count());
+    printf("%d -- %d -- BM -- Prom list LEAD : ",time(),indiv_->indiv_id);
+    for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+        if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+            if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+    }
+    printf("\n");
+    printf("%d -- %d -- BM -- Prom list LAG : ",time(),indiv_->indiv_id);
+    for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+        if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+            if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+    }
+    printf("\n");
+
   do {
       repl = indiv_->exp_m_->
               dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length());
 
       if (repl != nullptr) {
-          //printf("Mutation type %d\n", repl->type());
+          printf("%d -- %d -- Mutation type %d\n", time(), indiv_->indiv_id, repl->type());
 
           switch (repl->type()) {
               case DO_SWITCH:
@@ -1130,8 +1200,20 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
           }
 
-          //printf("%d -- %d -- AMS-2 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-          //       indiv_->metadata_->promoter_count());
+          printf("%d -- %d -- Prom list LEAD : ",time(),indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
+          printf("%d -- %d -- Prom list LAG : ",time(),indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
       }
 
   } while (indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_available() > 0);
