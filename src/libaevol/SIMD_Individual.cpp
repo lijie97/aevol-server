@@ -376,6 +376,28 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 //      printf("\n");
 //    }
 //  }
+
+
+//        if (indiv_id == 17 || indiv_id == 50 || indiv_id == 51 || indiv_id == 18) {
+//            int parent_id = next_generation_reproducer_[indiv_id];
+//
+//            printf("FROM MUTATE -- %d -- %d -- Parent %d \n",time(),indiv_id,next_generation_reproducer_[indiv_id]);
+//            printf("FROM MUTATE -- %d -- %d -- BEFORE -- Prom list LEAD : ",time(),next_generation_reproducer_[indiv_id]);
+//            for (int prom_idx = 0; prom_idx < prev_internal_simd_struct[parent_id]->metadata_->promoter_count(); prom_idx++) {
+//                if (prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx) != nullptr)
+//                    if (prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                        printf("%d ",prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->pos);
+//            }
+//            printf("\n");
+//            printf("FROM MUTATE -- %d -- %d -- BEFORE -- Prom list LAG : ",time(),next_generation_reproducer_[indiv_id]);
+//            for (int prom_idx = 0; prom_idx < prev_internal_simd_struct[parent_id]->metadata_->promoter_count(); prom_idx++) {
+//                if (prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx) != nullptr)
+//                    if (!prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                        printf("%d ",prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->pos);
+//            }
+//            printf("\n");
+//        }
+
         if (standalone_) {
 
                 int x = indiv_id / exp_m_->world()->height();
@@ -491,6 +513,53 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 
             }
 
+//        if (indiv_id == 17 || indiv_id == 50 || indiv_id == 51 || indiv_id == 18) {
+//            printf("FROM MUTATE -- %d -- %d -- Parent %d (Mutate %d)\n",time(),indiv_id,internal_simd_struct[indiv_id]->parent_id,
+//                   exp_m_->dna_mutator_array_[indiv_id]->hasMutate());
+//            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LEAD : ",time(),internal_simd_struct[indiv_id]->indiv_id);
+//            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
+//                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
+//                    if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                        printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
+//            }
+//            printf("\n");
+//            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LAG : ",time(),internal_simd_struct[indiv_id]->indiv_id);
+//            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
+//                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
+//                    if (!internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                        printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
+//            }
+//            printf("\n");
+//        }
+
+        std::set<int> leading;
+            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_id);
+            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
+                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
+                    if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
+                        leading.insert(internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
+            }
+            for (auto lead : leading) {
+                printf("%d ",lead);
+            }
+
+
+            printf("\n");
+
+        std::set<int> lagging;
+            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LAG : ",time(),indiv_id);
+            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
+                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
+                    if (!internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
+                        lagging.insert(internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
+            }
+
+        for (auto lag : lagging) {
+            printf("%d ",lag);
+        }
+            printf("\n");
+
+            //printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
 /*
     if (indiv_id == 49) {
       printf("Size after mutation %d\n",internal_simd_struct[indiv_id]->dna_->length());
@@ -2687,14 +2756,71 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
         prev_internal_simd_struct[indiv_id]->reset_stats();
+        /*if (indiv_id == 17) {
+            printf("%d -- %d -- RNA Count %d : %d + %d :: %d\n",AeTime::time(),indiv_id,prev_internal_simd_struct[indiv_id]->metadata_->rna_count(),
+                   prev_internal_simd_struct[indiv_id]->nb_coding_RNAs,
+                   prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs,
+                   prev_internal_simd_struct[indiv_id]->metadata_->promoter_count());
+
+            printf("%d -- %d -- RNA List : \n",AeTime::time(),indiv_id);
+
+            printf(" LEADING : ");
+            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
+                if (prev_internal_simd_struct[indiv_id]->metadata_->rnas(i) != nullptr) {
+                    if (prev_internal_simd_struct[indiv_id]->metadata_->rnas(i)->leading_lagging) {
+                        printf("%d ", prev_internal_simd_struct[indiv_id]->metadata_->rnas(i)->begin);
+                    }
+                }
+            }
+            printf("\n");
+
+
+            printf(" LAGGING : ");
+            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
+                if (prev_internal_simd_struct[indiv_id]->metadata_->rnas(i) != nullptr) {
+                    if (!prev_internal_simd_struct[indiv_id]->metadata_->rnas(i)->leading_lagging) {
+                        printf("%d ", prev_internal_simd_struct[indiv_id]->metadata_->rnas(i)->begin);
+                    }
+                }
+            }
+            printf("\n");
+
+            printf("%d -- Promoter List (LEADING) : \n",indiv_id);
+
+            printf(" LEADING : ");
+            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->promoter_count(); i++) {
+                if (prev_internal_simd_struct[indiv_id]->metadata_->promoters(i) != nullptr) {
+                    if (prev_internal_simd_struct[indiv_id]->metadata_->promoters(i)->leading_or_lagging) {
+                        printf("%d ", prev_internal_simd_struct[indiv_id]->metadata_->promoters(i)->pos);
+                    }
+                }
+            }
+            printf("\n");
+
+            printf("%d -- Promoter List (LAGGING) : \n",indiv_id);
+
+            printf(" LAGGING : ");
+            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->promoter_count(); i++) {
+                if (prev_internal_simd_struct[indiv_id]->metadata_->promoters(i) != nullptr) {
+                    if (!prev_internal_simd_struct[indiv_id]->metadata_->promoters(i)->leading_or_lagging) {
+                        printf("%d ", prev_internal_simd_struct[indiv_id]->metadata_->promoters(i)->pos);
+                    }
+                }
+            }
+            printf("\n");
+
+        }*/
         for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
             if (prev_internal_simd_struct[indiv_id]->metadata_->rnas(i) != nullptr) {
+//                printf("%d ",prev_internal_simd_struct[indiv_id]->metadata_->rnas(i)->begin);
+
                 if (prev_internal_simd_struct[indiv_id]->metadata_->rnas(i)->is_coding_)
                     prev_internal_simd_struct[indiv_id]->nb_coding_RNAs++;
                 else
                     prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs++;
             }
         }
+
 
         for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->proteins_count(); i++) {
             if (prev_internal_simd_struct[indiv_id]->metadata_->proteins(i) != nullptr) {
@@ -2986,6 +3112,12 @@ void SIMD_Individual::check_individual(int i, int x, int y) {
         }
     }
 
+}
+
+void SIMD_Individual::check_struct() {
+    for (int i = 0; i < (int) exp_m_->nb_indivs(); i++) {
+
+    }
 }
 
 void SIMD_Individual::check_result() {

@@ -186,6 +186,7 @@ class SIMD_Individual : public Observable{
 
     void check_result();
     void check_dna();
+    void check_struct();
     void check_individual(int indiv_id, int x, int y);
     bool standalone() const { return standalone_; }
 

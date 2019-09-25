@@ -95,45 +95,45 @@ namespace aevol {
                     //  begin -> pos_2
                     if (promoters_[prom_idx]->leading_or_lagging && lorl == LEADING) {
                         if (promoters_[prom_idx]->pos < pos2) {
-                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n",lorl,promoters_[prom_idx]->leading_or_lagging,
-                                   before_after_btw,pos1,pos2,promoters_[prom_idx]->pos);
+//                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n",lorl,promoters_[prom_idx]->leading_or_lagging,
+//                                   before_after_btw,pos1,pos2,promoters_[prom_idx]->pos);
                             motif_list.push_back(promoters_[prom_idx]);
                         }
                     } else if (!promoters_[prom_idx]->leading_or_lagging && lorl == LAGGING)
                         if (promoters_[prom_idx]->pos >= pos2) {
-                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n", lorl,
-                                   promoters_[prom_idx]->leading_or_lagging,
-                                   before_after_btw, pos1, pos2, promoters_[prom_idx]->pos);
+//                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n", lorl,
+//                                   promoters_[prom_idx]->leading_or_lagging,
+//                                   before_after_btw, pos1, pos2, promoters_[prom_idx]->pos);
                             motif_list.push_back(promoters_[prom_idx]);
                         }
                 } else if (before_after_btw == AFTER) {
                     // pos_1 -> end
                     if (promoters_[prom_idx]->leading_or_lagging && lorl == LEADING) {
                         if (promoters_[prom_idx]->pos >= pos1) {
-                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n",lorl,promoters_[prom_idx]->leading_or_lagging,
-                                   before_after_btw,pos1,pos2,promoters_[prom_idx]->pos);
+//                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n",lorl,promoters_[prom_idx]->leading_or_lagging,
+//                                   before_after_btw,pos1,pos2,promoters_[prom_idx]->pos);
                             motif_list.push_back(promoters_[prom_idx]);
                         }
                     } else if (!promoters_[prom_idx]->leading_or_lagging && lorl == LAGGING)
                         if (promoters_[prom_idx]->pos < pos1) {
-                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n", lorl,
-                                   promoters_[prom_idx]->leading_or_lagging,
-                                   before_after_btw, pos1, pos2, promoters_[prom_idx]->pos);
+//                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n", lorl,
+//                                   promoters_[prom_idx]->leading_or_lagging,
+//                                   before_after_btw, pos1, pos2, promoters_[prom_idx]->pos);
                             motif_list.push_back(promoters_[prom_idx]);
                         }
                 } else {
                     // pos_1 -> pos_2
                     if (promoters_[prom_idx]->leading_or_lagging && lorl == LEADING) {
                         if ((promoters_[prom_idx]->pos >= pos1) && (promoters_[prom_idx]->pos < pos2)) {
-                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n",lorl,promoters_[prom_idx]->leading_or_lagging,
-                                   before_after_btw,pos1,pos2,promoters_[prom_idx]->pos);
+//                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n",lorl,promoters_[prom_idx]->leading_or_lagging,
+//                                   before_after_btw,pos1,pos2,promoters_[prom_idx]->pos);
                             motif_list.push_back(promoters_[prom_idx]);
                         }
                     } else if (!promoters_[prom_idx]->leading_or_lagging && lorl == LAGGING)
                         if ((promoters_[prom_idx]->pos < pos1) && (promoters_[prom_idx]->pos >= pos2)) {
-                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n", lorl,
-                                   promoters_[prom_idx]->leading_or_lagging,
-                                   before_after_btw, pos1, pos2, promoters_[prom_idx]->pos);
+//                            printf("Adding -- Looking on %d (%d) for %d in %d %d : %d\n", lorl,
+//                                   promoters_[prom_idx]->leading_or_lagging,
+//                                   before_after_btw, pos1, pos2, promoters_[prom_idx]->pos);
                             motif_list.push_back(promoters_[prom_idx]);
                         }
                 }
@@ -158,9 +158,15 @@ namespace aevol {
 
     void SIMD_DynTab_Metadata::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
         if (Utils::mod(pos_1 - pos_2, length()) >= PROM_SIZE) {
+//            printf("Remove LEADING between %d %d\n",Utils::mod(pos_1 - PROM_SIZE + 1,
+//                                                               length()),
+//                   pos_2);
             remove_leading_promoters_starting_between(Utils::mod(pos_1 - PROM_SIZE + 1,
                                                                  length()),
                                                       pos_2);
+//            printf("Remove LAGGING between %d %d\n",pos_1,
+//                   Utils::mod(pos_2 + PROM_SIZE - 1,
+//                              length()));
             remove_lagging_promoters_starting_between(pos_1,
                                                       Utils::mod(pos_2 + PROM_SIZE - 1,
                                                                  length()));
@@ -226,20 +232,20 @@ namespace aevol {
 
         promoters_included_in(pos_1, pos_2, retrieved_promoters);
 
-        printf("RETRIEVED PROMs LEAD : ");
-        for (auto prom :retrieved_promoters[LEADING]) {
-            if (prom != nullptr)
-                if (prom->leading_or_lagging)
-                    printf("%d ",prom->pos);
-        }
-        printf("\n");
-        printf("RETRIEVED PROMs LAG : ");
-        for (auto prom :retrieved_promoters[LAGGING]) {
-            if (prom != nullptr)
-                if (!prom->leading_or_lagging)
-                    printf("%d ",prom->pos);
-        }
-        printf("\n");
+//        printf("RETRIEVED PROMs LEAD : ");
+//        for (auto prom :retrieved_promoters[LEADING]) {
+//            if (prom != nullptr)
+//                if (prom->leading_or_lagging)
+//                    printf("%d ",prom->pos);
+//        }
+//        printf("\n");
+//        printf("RETRIEVED PROMs LAG : ");
+//        for (auto prom :retrieved_promoters[LAGGING]) {
+//            if (prom != nullptr)
+//                if (!prom->leading_or_lagging)
+//                    printf("%d ",prom->pos);
+//        }
+//        printf("\n");
 
         // 2) Set RNAs' position as their position on the duplicated segment
         for (auto& strand: {LEADING, LAGGING}) {
@@ -268,6 +274,9 @@ namespace aevol {
     }
 
     void SIMD_DynTab_Metadata::insert_promoters(std::vector<std::list<promoterStruct *>> &promoters_to_insert) {
+        if (count_promoters_ + promoters_to_insert[LEADING].size() + promoters_to_insert[LAGGING].size() >= dyntab_size_)
+            reallocate_promoters();
+
         for (auto strand: {LEADING, LAGGING}) {
             if (promoters_to_insert[strand].empty()) {
                 continue;
@@ -280,7 +289,7 @@ namespace aevol {
                     for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
                         if (promoters_[prom_idx] != nullptr) {
                             if ((promoters_[prom_idx]->pos == to_insert->pos) &&
-                                (promoters_[prom_idx]->leading_or_lagging == LEADING)) {
+                                (promoters_[prom_idx]->leading_or_lagging == to_insert->leading_or_lagging)) {
                                 to_add = false;
                                 break;
                             }
@@ -290,7 +299,7 @@ namespace aevol {
                     for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
                         if (promoters_[prom_idx] != nullptr) {
                             if ((promoters_[prom_idx]->pos == to_insert->pos) &&
-                                (promoters_[prom_idx]->leading_or_lagging == LAGGING)) {
+                                (promoters_[prom_idx]->leading_or_lagging == to_insert->leading_or_lagging)) {
                                 to_add = false;
                                 break;
                             }
@@ -304,6 +313,7 @@ namespace aevol {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
                     }
+                    //printf("%d -- Adding a promoters %d (ouf of %d) --> %ld \n",AeTime::time(),prom_idx,dyntab_size_,indiv_->dna_->length());
                     promoters_[prom_idx] = to_insert;
                 }
 
@@ -313,6 +323,9 @@ namespace aevol {
 
     void SIMD_DynTab_Metadata::insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
                              int32_t pos) {
+        if (count_promoters_ + promoters_to_insert[LEADING].size() + promoters_to_insert[LAGGING].size() >= dyntab_size_)
+            reallocate_promoters();
+
         for (auto strand: {LEADING, LAGGING}) {
             if (promoters_to_insert[strand].size() <= 0) {
                 continue;
@@ -327,7 +340,7 @@ namespace aevol {
                     for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
                         if (promoters_[prom_idx] != nullptr) {
                             if ((promoters_[prom_idx]->pos == to_insert->pos) &&
-                                (promoters_[prom_idx]->leading_or_lagging == LEADING)) {
+                                (promoters_[prom_idx]->leading_or_lagging == to_insert->leading_or_lagging)) {
                                 to_add = false;
                                 break;
                             }
@@ -337,7 +350,7 @@ namespace aevol {
                     for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
                         if (promoters_[prom_idx] != nullptr) {
                             if ((promoters_[prom_idx]->pos == to_insert->pos) &&
-                                (promoters_[prom_idx]->leading_or_lagging == LAGGING)) {
+                                (promoters_[prom_idx]->leading_or_lagging == to_insert->leading_or_lagging)) {
                                 to_add = false;
                                 break;
                             }
@@ -487,7 +500,7 @@ namespace aevol {
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
                 if (!promoters_[prom_idx]->leading_or_lagging)
-                    if (promoters_[prom_idx]->pos <= pos) {
+                    if (promoters_[prom_idx]->pos < pos) {
                         delete promoters_[prom_idx];
                         promoters_[prom_idx] = nullptr;
                     }
@@ -526,12 +539,19 @@ namespace aevol {
         // As positions  0 and dna_->length() are equivalent, it's preferable to
         // keep 0 for pos_1 and dna_->length() for pos_2.
 
+
         if (pos_1 >= pos_2) {
+            if (count_promoters_ + (pos_1 + (length() - pos_2))/PROM_SIZE >= dyntab_size_)
+                reallocate_promoters();
+
             look_for_new_leading_promoters_starting_after(pos_1);
             look_for_new_leading_promoters_starting_before(pos_2);
             return;
         }
         // Hamming distance of the sequence from the promoter consensus
+
+        if (count_promoters_ + (pos_2 - pos_1) / PROM_SIZE >= dyntab_size_)
+            reallocate_promoters();
 
         for (int32_t i = pos_1; i < pos_2; i++) {
 #ifdef WITH_BITSET
@@ -570,6 +590,9 @@ namespace aevol {
         // Hamming distance of the sequence from the promoter consensus
         //int8_t dist = 8;
 
+        if (count_promoters_ + (length() - pos)/PROM_SIZE >= dyntab_size_)
+            reallocate_promoters();
+
         for (int32_t i = pos; i < length(); i++) {
 #ifdef WITH_BITSET
             int8_t dist = dna_->bitset_->is_promoter(true,i);
@@ -603,6 +626,8 @@ namespace aevol {
 
     void SIMD_DynTab_Metadata::look_for_new_leading_promoters_starting_before(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
+        if (count_promoters_ + (pos)/PROM_SIZE >= dyntab_size_)
+            reallocate_promoters();
 
         for (int32_t i = 0; i < pos; i++) {
 #ifdef WITH_BITSET
@@ -641,10 +666,16 @@ namespace aevol {
         // keep 0 for pos_1 and dna_->length() for pos_2.
 
         if (pos_1 >= pos_2) {
+            if (count_promoters_ + (pos_1 + (length() - pos_2))/PROM_SIZE >= dyntab_size_)
+                reallocate_promoters();
+
             look_for_new_lagging_promoters_starting_after(pos_1);
             look_for_new_lagging_promoters_starting_before(pos_2);
             return;
         }
+
+        if (count_promoters_ + (pos_2 - pos_1) / PROM_SIZE >= dyntab_size_)
+            reallocate_promoters();
 
         // Hamming distance of the sequence from the promoter consensus
         for (int32_t i = pos_2 - 1; i >= pos_1; i--) {
@@ -680,6 +711,8 @@ namespace aevol {
 
     void SIMD_DynTab_Metadata::look_for_new_lagging_promoters_starting_after(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
+        if (count_promoters_ + (length() - pos)/PROM_SIZE >= dyntab_size_)
+            reallocate_promoters();
 
         for (int32_t i = length() - 1; i >= pos; i--) {
 #ifdef WITH_BITSET
@@ -714,6 +747,8 @@ namespace aevol {
 
     void SIMD_DynTab_Metadata::look_for_new_lagging_promoters_starting_before(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
+        if (count_promoters_ + (pos)/PROM_SIZE >= dyntab_size_)
+            reallocate_promoters();
 
         for (int32_t i = pos - 1; i >= 0; i--) {
 #ifdef WITH_BITSET
@@ -750,50 +785,50 @@ namespace aevol {
                                int32_t pos_2,
                                std::vector<std::list<promoterStruct*>>& promoters_list) {
         if (pos_1 < pos_2) {
-            printf("promoters << included in %d and %d\n",pos_1,pos_2);
+//            printf("promoters << included in %d and %d\n",pos_1,pos_2);
             int32_t seg_length = pos_2 - pos_1;
 
             if (seg_length >= PROM_SIZE) {
-                printf("LOOKING FOR PROM in %d -> %d\n", pos_1, pos_2 - PROM_SIZE + 1);
+//                printf("LOOKING FOR PROM in %d -> %d\n", pos_1, pos_2 - PROM_SIZE + 1);
                 lst_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1,
                               promoters_list[LEADING]);
-                printf("PROM INCL IN PROMs LEAD : ");
-                for (auto prom :promoters_list[LEADING]) {
-                    if (prom != nullptr)
-                        printf("%d ",prom->pos);
-                }
-                printf("\n");
-
-                printf("LOOKING FOR PROM in %d -> %d\n",pos_2, pos_1 + PROM_SIZE - 1);
+//                printf("PROM INCL IN PROMs LEAD : ");
+//                for (auto prom :promoters_list[LEADING]) {
+//                    if (prom != nullptr)
+//                        printf("%d ",prom->pos);
+//                }
+//                printf("\n");
+//
+//                printf("LOOKING FOR PROM in %d -> %d\n",pos_2, pos_1 + PROM_SIZE - 1);
                 lst_promoters(LAGGING, BETWEEN, pos_2, pos_1 + PROM_SIZE - 1,
                               promoters_list[LAGGING]);
 
-                printf("PROM INCL IN PROMs LAG : ");
-                for (auto prom :promoters_list[LAGGING]) {
-                    if (prom != nullptr)
-                        printf("%d ",prom->pos);
-                }
-                printf("\n");
+//                printf("PROM INCL IN PROMs LAG : ");
+//                for (auto prom :promoters_list[LAGGING]) {
+//                    if (prom != nullptr)
+//                        printf("%d ",prom->pos);
+//                }
+//                printf("\n");
             }
         }
         else {
             int32_t seg_length = length() + pos_2 - pos_1;
 
-            printf("promoters included in %d and %d\n",pos_1,pos_2);
+//            printf("promoters included in %d and %d\n",pos_1,pos_2);
 
             if (seg_length >= PROM_SIZE) {
                 bool is_near_end_of_genome = (pos_1 + PROM_SIZE > length());
                 bool is_near_beginning_of_genome = (pos_2 - PROM_SIZE < 0);
 
                 if (!is_near_end_of_genome && !is_near_beginning_of_genome) {
-                    printf("-----------------> leading promoters after %d (till end)\n",pos_1);
+//                    printf("-----------------> leading promoters after %d (till end)\n",pos_1);
                     lst_promoters(LEADING, AFTER, pos_1, -1, promoters_list[LEADING]);
-                    printf("-----------------> leading promoters before %d (till end)\n",pos_2 - PROM_SIZE + 1);
+//                    printf("-----------------> leading promoters before %d (till end)\n",pos_2 - PROM_SIZE + 1);
                     lst_promoters(LEADING, BEFORE, -1, pos_2 - PROM_SIZE + 1,
                                   promoters_list[LEADING]);
-                    printf("-----------------> lagging promoters after %d (till end)\n",pos_2);
+//                    printf("-----------------> lagging promoters after %d (till end)\n",pos_2);
                     lst_promoters(LAGGING, AFTER, pos_2, -1, promoters_list[LAGGING]);
-                    printf("-----------------> lagging promoters before %d (till end)\n",pos_1 + PROM_SIZE - 1);
+//                    printf("-----------------> lagging promoters before %d (till end)\n",pos_1 + PROM_SIZE - 1);
                     lst_promoters(LAGGING, BEFORE, -1, pos_1 + PROM_SIZE - 1,
                                   promoters_list[LAGGING]);
                 }

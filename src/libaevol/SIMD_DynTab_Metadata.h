@@ -13,17 +13,34 @@
 
 
 namespace aevol {
+    constexpr int32_t DYNTAB_BLOCK_SIZE = 1000;
+    constexpr int32_t DYNTAB_BLOCK_MUL = 2;
+
     class SIMD_DynTab_Metadata : public SIMD_Abstract_Metadata {
     public:
         SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv) {
             indiv_ = indiv;
             count_promoters_ = 0;
+
+            if (indiv_->metadata_ == nullptr)
+                nb_block_dyntab_ = 2;
+            else
+                nb_block_dyntab_ = ((indiv_->metadata_->promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
+
+            dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
+
             promoters_ = new promoterStruct*[dyntab_size_];
         };
 
         SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv, SIMD_DynTab_Metadata* metadata) {
             indiv_ = indiv;
             count_promoters_ = 0;
+
+            nb_block_dyntab_ = ((metadata->promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
+            dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
+
+//            printf("Nb block %d (past %d) for a dyntab size of %d (past %d) -- Genome size %d -- Nb promoters %d\n",nb_block_dyntab_,metadata->nb_block_dyntab_,
+//                                                dyntab_size_,metadata->dyntab_size_,indiv->dna_->length(),metadata->count_promoters_);
             promoters_ = new promoterStruct*[dyntab_size_];
 
             for (int prom_idx = 0; prom_idx < metadata->count_promoters_; prom_idx++) {
@@ -205,6 +222,34 @@ namespace aevol {
 
         }
 
+        void reallocate_promoters() {
+            int old_dyntab_size_ = dyntab_size_;
+            int old_nb_block_dyntab_ = nb_block_dyntab_;
+
+            nb_block_dyntab_ = ((promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
+            dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
+
+//            printf("Nb block %d (past %d) for a dyntab size of %d (past %d) -- Genome size %d -- Nb promoters %d\n",
+//                   nb_block_dyntab_,old_nb_block_dyntab_,
+//                   dyntab_size_,old_dyntab_size_,indiv_->dna_->length(),count_promoters_);
+
+            promoterStruct** old_promoters_ = promoters_;
+            promoters_ = new promoterStruct*[dyntab_size_];
+
+            int old_count_promoters_ = count_promoters_;
+            count_promoters_ = 0;
+
+            for (int prom_idx = 0; prom_idx < old_count_promoters_; prom_idx++) {
+                if (old_promoters_[prom_idx] != nullptr) {
+                    promoters_[count_promoters_] = old_promoters_[prom_idx];
+
+                    count_promoters_++;
+                }
+
+            }
+
+        }
+
     protected:
         promoterStruct** promoters_;
 
@@ -219,7 +264,8 @@ namespace aevol {
 
         Internal_SIMD_Struct* indiv_;
 
-        const int32_t dyntab_size_ = 5000;
+        int32_t dyntab_size_ = 5000;
+        int32_t nb_block_dyntab_ = 5;
     };
 }
 

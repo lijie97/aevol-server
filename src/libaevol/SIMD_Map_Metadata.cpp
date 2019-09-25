@@ -131,9 +131,15 @@ namespace aevol {
 
     void SIMD_Map_Metadata::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
         if (Utils::mod(pos_1 - pos_2, length()) >= PROM_SIZE) {
+//            printf("Remove LEADING between %d %d\n",Utils::mod(pos_1 - PROM_SIZE + 1,
+//                                                               length()),
+//                   pos_2);
             remove_leading_promoters_starting_between(Utils::mod(pos_1 - PROM_SIZE + 1,
                                                                  length()),
                                                       pos_2);
+//            printf("Remove LAGGING between %d %d\n",pos_1,
+//                   Utils::mod(pos_2 + PROM_SIZE - 1,
+//                              length()));
             remove_lagging_promoters_starting_between(pos_1,
                                                       Utils::mod(pos_2 + PROM_SIZE - 1,
                                                                  length()));
@@ -207,20 +213,20 @@ namespace aevol {
 
         promoters_included_in(pos_1, pos_2, retrieved_promoters);
 
-        printf("RETRIEVED PROMs LEAD : ");
-        for (auto prom :retrieved_promoters[LEADING]) {
-            if (prom != nullptr)
-                if (prom->leading_or_lagging)
-                    printf("%d ",prom->pos);
-        }
-        printf("\n");
-        printf("RETRIEVED PROMs LAG : ");
-        for (auto prom :retrieved_promoters[LAGGING]) {
-            if (prom != nullptr)
-                if (!prom->leading_or_lagging)
-                    printf("%d ",prom->pos);
-        }
-        printf("\n");
+//        printf("RETRIEVED PROMs LEAD : ");
+//        for (auto prom :retrieved_promoters[LEADING]) {
+//            if (prom != nullptr)
+//                if (prom->leading_or_lagging)
+//                    printf("%d ",prom->pos);
+//        }
+//        printf("\n");
+//        printf("RETRIEVED PROMs LAG : ");
+//        for (auto prom :retrieved_promoters[LAGGING]) {
+//            if (prom != nullptr)
+//                if (!prom->leading_or_lagging)
+//                    printf("%d ",prom->pos);
+//        }
+//        printf("\n");
 
         // 2) Set RNAs' position as their position on the duplicated segment
         for (auto& strand: {LEADING, LAGGING}) {
@@ -479,7 +485,9 @@ namespace aevol {
         auto init_loop = lagging_prom_pos_.lower_bound(pos);
         if (init_loop == lagging_prom_pos_.begin())
             return;
-
+  /*      if (indiv_->indiv_id == 797 && time() == 9) {
+            printf("Deleting from start to %d (%d)\n", pos, init_loop->first);
+        }*/
         for (auto it = lagging_prom_pos_.begin(),
                      nextit = it;
              it != init_loop;
@@ -488,6 +496,9 @@ namespace aevol {
             promoters_.erase(it->second);
             nextit = next(it);
             lagging_prom_pos_.erase(it);
+/*            if (indiv_->indiv_id == 797 && time() == 9) {
+                printf("Delete %d\n", it->first);
+            }*/
         }
     }
 
