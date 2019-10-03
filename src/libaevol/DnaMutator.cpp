@@ -128,10 +128,23 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
 
       nb_large_dupl_--;  // Updating the urn (no replacement!)...
 
+        if (length_ == 1)
+        {
+            printf("*** genome of size 1 ; duplication not done *** \n");
+            return nullptr;
+        }
+
       int32_t pos_1, pos_2, pos_3;
       pos_1 = mut_prng_->random(length_);
       pos_2 = mut_prng_->random(length_);
-      pos_3 = mut_prng_->random(length_);
+        // TODO: why are complete duplications forbidden ?
+        while (pos_2 == pos_1)
+        {
+            pos_2 = mut_prng_->random(length_);
+        }
+
+
+        pos_3 = mut_prng_->random(length_);
 
       int32_t genome_size_after = length_ + Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
         //printf("Large Dupli %d %d %d -- %d (%d)\n",pos_1,pos_2,pos_3,genome_size_after,max_genome_length_);
@@ -149,10 +162,19 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
     else if (random_value < nb_large_dupl_ + nb_large_del_) {
       nb_large_del_--;
 
+        if (length_ == 1)
+        {
+            printf("*** genome of size 1 ; deletion not done *** \n");
+            return nullptr;
+        }
+
       int32_t pos_1, pos_2;
       pos_1 = mut_prng_->random(length_);
       pos_2 = mut_prng_->random(length_);
-
+        while (pos_2 == pos_1)
+        {
+            pos_2 = mut_prng_->random(length_);
+        }
 
       int32_t genome_size_after = length_ - Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
 
@@ -168,13 +190,24 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
     else if (random_value < nb_large_dupl_ + nb_large_del_ + nb_large_trans_) {
       nb_large_trans_--;
 
+        if (length_ == 1)
+        {
+            printf("*** genome of size 1 ; translocation not done *** \n");
+            return nullptr;
+        }
+
       int32_t pos_1, pos_2, pos_3, pos_4;
       int32_t segment_length;
       bool invert;
 
       pos_1 = mut_prng_->random(length_);
       pos_2 = mut_prng_->random(length_);
-      if (pos_1 == pos_2) return nullptr;
+        while (pos_2 == pos_1)
+        {
+            pos_2 = mut_prng_->random(length_);
+        }
+
+      //if (pos_1 == pos_2) return nullptr;
 
       // As it is commented in do_translocation(int32_t pos_1, int32_t pos_2,
       // int32_t pos_3, int32_t pos_4, bool invert), translocating segment
@@ -202,12 +235,23 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
     }
     else {
       nb_large_inv_--;
+        if (length_ == 1)
+        {
+            printf("*** genome of size 1 ; inversion not done *** \n");
+            return nullptr;
+        }
 
       int32_t pos_1, pos_2;
       pos_1 = mut_prng_->random(length_);
       pos_2 = mut_prng_->random(length_);
 
-      if (pos_1 == pos_2) return nullptr; // Invert everything <=> Invert nothing!
+
+        while (pos_2 == pos_1)
+        {
+            pos_2 = mut_prng_->random(length_);
+        }
+
+      // if (pos_1 == pos_2) return nullptr; // Invert everything <=> Invert nothing!
 
       // Invert the segment that don't contain OriC
       if (pos_1 > pos_2) Utils::exchange(pos_1, pos_2);
