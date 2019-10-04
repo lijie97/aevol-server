@@ -29,6 +29,10 @@ set(with-detectclone ON CACHE BOOL "Whether to enable clones and not recompute t
 set(with-floatconcentration OFF CACHE BOOL "Whether to enable the encoding of concentration has float (and not double)")
 set(with-simd OFF CACHE BOOL "Whether to switch to the SIMD implementation of (R-)Aevol")
 
+if(APPLE)
+   include_directories(AFTER "/opt/X11/include")
+endif()
+
 if ( ${with-x} )
     FIND_PACKAGE(X11 REQUIRED)
     if ( X11_FOUND )
@@ -42,12 +46,36 @@ else ()
     message("graphical output disable")
 endif ()
 
+
+if(APPLE)
+  if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR    
+       CMAKE_C_COMPILER_ID STREQUAL "AppleClang") 
+        set(OpenMP_C "${CMAKE_C_COMPILER}")                                   
+        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -Wno-unused-command-line-argument")       
+        set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")                  
+        set(OpenMP_libomp_LIBRARY ${OpenMP_C_LIB_NAMES})                       
+        set(OpenMP_libgomp_LIBRARY ${OpenMP_C_LIB_NAMES})                      
+        set(OpenMP_libiomp5_LIBRARY ${OpenMP_C_LIB_NAMES})                     
+    endif()                                               
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR          
+       CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")       
+      set(OpenMP_CXX "${CMAKE_CXX_COMPILER}")      
+      set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -Wno-unused-command-line-argument")       
+      set(OpenMP_CXX_LIB_NAMES "libomp" "libgomp" "libiomp5")                  
+      set(OpenMP_libomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})                       
+      set(OpenMP_libgomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})                      
+      set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})   
+                                                          
+    endif()                                               
+endif() 
+
 if ( ${with-omp} )
     find_package(OpenMP REQUIRED)
+
     if ( OPENMP_FOUND )
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS} /usr/local/lib/libomp.dylib")
     endif ()
 endif ()
 
