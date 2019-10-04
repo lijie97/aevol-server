@@ -1044,6 +1044,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 void Selection::run_life(Individual* new_indiv) {
   // Evaluate new individual
+  
   new_indiv->Evaluate();
 
   // Compute statistics
