@@ -137,7 +137,7 @@ PhenotypicTargetHandler::~PhenotypicTargetHandler() {
 // ============================================================================
 void PhenotypicTargetHandler::BuildPhenotypicTarget() {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
-  phenotypic_target_->fuzzy()->reset();
+  phenotypic_target_->fuzzy()->clear();
 
   // Generate sample points from gaussians
   if (not current_gaussians_.empty()) {

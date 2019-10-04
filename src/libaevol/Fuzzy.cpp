@@ -489,7 +489,7 @@ void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
 void Fuzzy::print() const
 {
   for (const Point& p : points_)
-    printf("[%f : %f] ",p.x,p.y);
+    printf("[%f : %f] \n",p.x,p.y);
   printf("\n");
 }
 } // namespace aevol

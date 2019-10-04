@@ -684,7 +684,7 @@ void ExpManager::run_evolution() {
         // For each generation
   while (true) { // termination condition is into the loop
 
-    if (AeTime::time() % 100 == 0) {
+    if (AeTime::time() % 1 == 0) {
       printf(
               "============================== %" PRId64 " ==============================\n",
               AeTime::time());
