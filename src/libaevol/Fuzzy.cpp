@@ -107,8 +107,6 @@ ProteinConcentration Fuzzy::x(const Point& p1, const Point& p2, ProteinConcentra
   assert(p1.y != p2.y);
   ProteinConcentration x = p1.x + (y - p1.y) * (p2.x - p1.x) /
                                  (p2.y - p1.y);
-  assert((p2.x <= x and x <= p1.x) or
-         (p1.x <= x and x <= p2.x));
   return x;
 }
 
@@ -360,9 +358,14 @@ void Fuzzy::clip(clipping_direction direction, ProteinConcentration bound) {
          (p->y > bound and bound > next(p)->y))) { // ie if p and next(p) are across bound
       // insert interpolated point
       //           *after* p
-      points_.insert(next(p), Point(x(*p, *next(p), bound),
-                                   bound));
-      // could now fast forward over created point... TODO?
+
+        Point pt = Point(x(*p, *next(p), bound),bound);
+      if ((round(pt.x*FUZZY_ROUNDING)!=round((*next(p)).x*FUZZY_ROUNDING)) &&
+              (round(pt.x*FUZZY_ROUNDING)!=round((*p).x*FUZZY_ROUNDING))) {
+            points_.insert(next(p), pt);
+            // could now fast forward over created point... TODO?
+      }
+
     }
     if ((direction == clipping_direction::min and p->y < bound) or
         (direction == clipping_direction::max and p->y > bound))
