@@ -9,8 +9,12 @@
 #include "Stats_SIMD.h"
 #include "ExpManager.h"
 
-
+#ifdef _OPENMP
+#ifndef __OPENMP_GPU
 #include <omp.h>
+#endif
+#endif
+
 namespace aevol {
 
 #ifndef WITH_STANDALONE_SIMD
