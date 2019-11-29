@@ -115,6 +115,8 @@ Individual* IndividualFactory::create_random_individual(
   // satisfied
   double env_metabolic_area;
   if (better_than_flat) {
+      //printf("ONE GOOD GENE\n");
+
 #ifdef __REGUL
       dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->ApplyVariation();
     env_metabolic_area = dynamic_cast<Habitat_R*>(const_cast<Habitat*>(&habitat))->phenotypic_target_handler().
@@ -127,7 +129,8 @@ Individual* IndividualFactory::create_random_individual(
     //TESTING
     //exit(EXIT_FAILURE);
 
-    double r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+    double r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E6) / 1E6;
+      //printf("Dist to target (%lf) du nouveau clone : %e (%e) --> %lu\n", env_metabolic_area, indiv->dist_to_target_by_feature(METABOLISM),r_compare,indiv->protein_list().size());
 
     // indiv->dist_to_target_by_feature(METABOLISM) >= env_metabolic_area
     while (r_compare >= 0.0) {
@@ -143,7 +146,7 @@ Individual* IndividualFactory::create_random_individual(
       indiv->EvaluateInContext(habitat);
       //debug :
 
-      r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+      r_compare = round((indiv->dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E6) / 1E6;
       //printf("Dist to target (%lf) du nouveau clone : %lf (%lf) --> %lu\n", env_metabolic_area, indiv->dist_to_target_by_feature(METABOLISM),r_compare,indiv->protein_list().size());
     }
   }
