@@ -552,6 +552,20 @@ int main(int argc, char* argv[]) {
       }
       printf("\tChange of the seed to %d in individuals' stochasticity \n",
              atoi(line->words[1]));
+    }else if (strcmp(line->words[0], "SIMD_METADATA_FLAVOR") == 0)
+    {
+      if (strncmp(line->words[1], "stdmap", 6) == 0)
+      {
+        exp_manager->exp_s()->set_simd_metadata_flavor(STD_MAP);
+      }
+      else if (strncmp(line->words[1], "dyntab", 6) == 0)
+      {
+        exp_manager->exp_s()->set_simd_metadata_flavor(DYN_TAB);
+      }
+      else if (strncmp(line->words[1], "list", 6) == 0)
+      {
+        exp_manager->exp_s()->set_simd_metadata_flavor(STD_LIST);
+      }
     }
     else if (strcmp(line->words[0], "CLONE_BEST") == 0) {
       exp_manager->FillGridWithClones(*(exp_manager->best_indiv()));

@@ -1278,6 +1278,10 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       simd_metadata_flavor_ = DYN_TAB;
     }
+    else if (strncmp(line->words[1], "list", 6) == 0)
+    {
+      simd_metadata_flavor_ = STD_LIST;
+    }
   }
 
 #ifdef __REGUL

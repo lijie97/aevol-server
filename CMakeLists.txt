@@ -28,6 +28,8 @@ set(with-raevol OFF CACHE BOOL "Whether to enable R-Aevol (Gene regulation) vers
 set(with-detectclone ON CACHE BOOL "Whether to enable clones and not recompute them")
 set(with-floatconcentration OFF CACHE BOOL "Whether to enable the encoding of concentration has float (and not double)")
 set(with-simd OFF CACHE BOOL "Whether to switch to the SIMD implementation of (R-)Aevol")
+set(with-perf-traces OFF CACHE BOOL "Whether to activate performance traces of (R-)Aevol")
+set(search-type "vanilla" CACHE STRING "Which SIMD pattern search version of (R-)Aevol")
 
 if ( ${with-x} )
     FIND_PACKAGE(X11 REQUIRED)
@@ -64,6 +66,14 @@ if ( ${enable-perflog} )
     add_definitions(-D__PERF_LOG__)
 endif ()
 
+if ( ${search-type} STREQUAL "vanilla")
+    add_definitions(-DVANILLA_SEARCH)
+elseif ( ${search-type} STREQUAL "cmod")
+    add_definitions(-DCMOD_SEARCH)
+elseif ( ${search-type} STREQUAL "amod")
+    add_definitions(-DAMOD_SEARCH)
+endif()
+message("Search type is set to ${search-type}")
 
 
 if ( ${enable-normalized-fitness} )
@@ -107,9 +117,12 @@ endif ()
 
 if ( ${with-simd} )
     add_definitions(-DWITH_STANDALONE_SIMD)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3")
 endif ()
 
-
+if ( ${with-perf-traces} )
+    add_definitions(-DWITH_PERF_TRACES)
+endif ()
 # ============================================================================
 # Get GNU standard installation directories (GNUInstallDirs module)
 # ============================================================================
@@ -135,11 +148,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}
 # ============================================================================
 # Set build type specific compilation flags
 # ============================================================================
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -DDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -Wall -DDEBUG")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0 -Wall -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -Wall -DDEBUG")
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math -pipe -fexpensive-optimizations")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -pipe -fexpensive-optimizations")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -pipe -fexpensive-optimizations")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -AVX2 -O3 -ffast-math -pipe -fexpensive-optimizations")
 
 
 # ============================================================================
@@ -147,6 +160,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -pipe -fexpe
 # ============================================================================
 add_subdirectory(src)
 
+if(APPLE)
+   include_directories(AFTER "/opt/X11/include")
+endif()
 
 # ============================================================================
 # Adds the 'dist' target (that will use CPack)

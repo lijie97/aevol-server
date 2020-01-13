@@ -13,13 +13,12 @@
 
 
 namespace aevol {
-    constexpr int32_t DYNTAB_BLOCK_SIZE = 1000;
+    constexpr int32_t DYNTAB_BLOCK_SIZE = 2000;
     constexpr int32_t DYNTAB_BLOCK_MUL = 2;
 
     class SIMD_DynTab_Metadata : public SIMD_Abstract_Metadata {
     public:
-        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv) {
-            indiv_ = indiv;
+        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) {
             count_promoters_ = 0;
 
             if (indiv_->metadata_ == nullptr)
@@ -32,8 +31,7 @@ namespace aevol {
             promoters_ = new promoterStruct*[dyntab_size_];
         };
 
-        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv, SIMD_DynTab_Metadata* metadata) {
-            indiv_ = indiv;
+        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv, SIMD_DynTab_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
             count_promoters_ = 0;
 
             nb_block_dyntab_ = ((metadata->promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
@@ -88,7 +86,7 @@ namespace aevol {
 
         /*** Terminators ***/
         int terminator_count(int LoL) override;
-        int terminator_add(int LoL, int dna_pos) override;
+        void terminator_add(int LoL, int dna_pos) override;
 
         int next_terminator(int LoL, int dna_pos) override;
 
@@ -115,8 +113,6 @@ namespace aevol {
         void proteins_clear() override;
 
         /*** Promoters ***/
-        int8_t is_promoter_leading(int pos) override;
-        int8_t is_promoter_lagging(int pos) override;
         void lst_promoters(bool lorl,
                                    Position before_after_btw, // with regard to the strand's reading direction
                                    int32_t pos1,
@@ -216,8 +212,6 @@ namespace aevol {
                                                                 std::list<promoterStruct*>& extracted_promoters) override;
 
 
-        int32_t length() override { indiv_->dna_->length(); };
-
         void rebuild_index() {
 
         }
@@ -260,9 +254,7 @@ namespace aevol {
 
         int32_t count_promoters_;
         int32_t protein_count_ = 0;
-        int32_t rna_count_ = 0;
 
-        Internal_SIMD_Struct* indiv_;
 
         int32_t dyntab_size_ = 5000;
         int32_t nb_block_dyntab_ = 5;

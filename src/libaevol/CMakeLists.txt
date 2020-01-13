@@ -166,7 +166,10 @@ set(aevol_sources
   SIMD_Map_Metadata.cpp 
   SIMD_Map_Metadata.h
   SIMD_DynTab_Metadata.cpp
-  SIMD_DynTab_Metadata.h)
+  SIMD_DynTab_Metadata.h
+  SIMD_List_Metadata.cpp
+  SIMD_List_Metadata.h)
+
   
 if ( ${with-raevol} )
     set(aevol_sources ${aevol_sources} 
@@ -183,9 +186,7 @@ if ( ${with-raevol} )
           raevol/Protein_R.h
           raevol/Protein_R.cpp
           raevol/Rna_R.h
-          raevol/Rna_R.cpp 
-	  #"
-	  )
+          raevol/Rna_R.cpp) 
 endif ()
 
 add_library(aevol ${aevol_sources})

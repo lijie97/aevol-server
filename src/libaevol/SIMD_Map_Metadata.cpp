@@ -6,75 +6,6 @@
 #include "AeTime.h"
 
 namespace aevol {
-    int8_t SIMD_Map_Metadata::is_promoter_leading(int pos) {
-        int8_t prom_dist_leading[26];
-        int len = indiv_->dna_->length();
-
-        for (int motif_id = 0; motif_id < 22; motif_id++) {
-            prom_dist_leading[motif_id] =
-                    PROM_SEQ_LEAD[motif_id] ==
-                            indiv_->dna_->data_[pos + motif_id >= len ? pos + motif_id - len : pos + motif_id]
-                    ? 0 : 1;
-        }
-
-        return prom_dist_leading[0] +
-               prom_dist_leading[1] +
-               prom_dist_leading[2] +
-               prom_dist_leading[3] +
-               prom_dist_leading[4] +
-               prom_dist_leading[5] +
-               prom_dist_leading[6] +
-               prom_dist_leading[7] +
-               prom_dist_leading[8] +
-               prom_dist_leading[9] +
-               prom_dist_leading[10] +
-               prom_dist_leading[11] +
-               prom_dist_leading[12] +
-               prom_dist_leading[13] +
-               prom_dist_leading[14] +
-               prom_dist_leading[15] +
-               prom_dist_leading[16] +
-               prom_dist_leading[17] +
-               prom_dist_leading[18] +
-               prom_dist_leading[19] +
-               prom_dist_leading[20] +
-               prom_dist_leading[21];
-    }
-
-    int8_t SIMD_Map_Metadata::is_promoter_lagging(int pos) {
-        int8_t prom_dist[26];
-        int len = indiv_->dna_->length();
-
-        for (int motif_id = 0; motif_id < 22; motif_id++) {
-            prom_dist[motif_id] =
-                    PROM_SEQ_LAG[motif_id] ==
-                            indiv_->dna_->data_[pos - motif_id < 0 ? len + pos - motif_id : pos - motif_id]
-                    ? 0 : 1;
-        }
-
-        return prom_dist[0] +
-               prom_dist[1] +
-               prom_dist[2] +
-               prom_dist[3] +
-               prom_dist[4] +
-               prom_dist[5] +
-               prom_dist[6] +
-               prom_dist[7] +
-               prom_dist[8] +
-               prom_dist[9] +
-               prom_dist[10] +
-               prom_dist[11] +
-               prom_dist[12] +
-               prom_dist[13] +
-               prom_dist[14] +
-               prom_dist[15] +
-               prom_dist[16] +
-               prom_dist[17] +
-               prom_dist[18] +
-               prom_dist[19] +
-               prom_dist[20] +
-               prom_dist[21];
-    }
 
     void SIMD_Map_Metadata::lst_promoters(bool lorl, Position before_after_btw, int32_t pos1, int32_t pos2,
                                           std::list<promoterStruct*>& motif_list) {
@@ -974,7 +905,7 @@ namespace aevol {
             return (int) terminator_lag_.size();
     }
 
-    int SIMD_Map_Metadata::terminator_add(int LoL, int dna_pos) {
+    void SIMD_Map_Metadata::terminator_add(int LoL, int dna_pos) {
         if (LoL == LEADING)
             terminator_lead_.insert(dna_pos);
         else

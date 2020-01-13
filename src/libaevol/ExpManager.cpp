@@ -295,6 +295,7 @@ void ExpManager::save_copy(char* dir, int64_t time) const
   exp_s_->write_setup_file(exp_s_file);
   output_m_->WriteSetupFile(out_p_file);
 
+
   // Write the state of selection and world into the backups
   sel()->save(sel_file);
   world_->save(world_file);

@@ -6,23 +6,277 @@
 #define AEVOL_SIMD_METADATA_H
 
 #include <cstdint>
+
 #include <vector>
 #include <list>
 #include "ae_enums.h"
 #include "SIMD_Individual.h"
+#include "Dna_SIMD.h"
 
 namespace aevol {
     class promoterStruct;
 
     class SIMD_Abstract_Metadata {
     public:
-        //SIMD_Abstract_Metadata(SIMD_Abstract_Metadata* metadata);
-        //SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv);
+        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata) { indiv_ = indiv; }
+        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv) { indiv_ = indiv; }
         virtual ~SIMD_Abstract_Metadata() {};
         /** Getter **/
         /*** Promoters ***/
-        virtual int8_t is_promoter_leading(int pos) = 0;
-        virtual int8_t is_promoter_lagging(int pos) = 0;
+        inline int8_t is_promoter_leading(int pos) {
+#ifdef VANILLA_SEARCH
+                int8_t prom_dist_leading[26];
+                int len = indiv_->dna_->length();
+
+                for (int motif_id = 0; motif_id < 22; motif_id++) {
+                        prom_dist_leading[motif_id] =
+                                PROM_SEQ_LEAD[motif_id] ==
+                                indiv_->dna_->data_[pos + motif_id >= len ? pos + motif_id - len : pos + motif_id]
+                                ? 0 : 1;
+                }
+
+                return prom_dist_leading[0] +
+                       prom_dist_leading[1] +
+                       prom_dist_leading[2] +
+                       prom_dist_leading[3] +
+                       prom_dist_leading[4] +
+                       prom_dist_leading[5] +
+                       prom_dist_leading[6] +
+                       prom_dist_leading[7] +
+                       prom_dist_leading[8] +
+                       prom_dist_leading[9] +
+                       prom_dist_leading[10] +
+                       prom_dist_leading[11] +
+                       prom_dist_leading[12] +
+                       prom_dist_leading[13] +
+                       prom_dist_leading[14] +
+                       prom_dist_leading[15] +
+                       prom_dist_leading[16] +
+                       prom_dist_leading[17] +
+                       prom_dist_leading[18] +
+                       prom_dist_leading[19] +
+                       prom_dist_leading[20] +
+                       prom_dist_leading[21];
+#elif CMOD_SEARCH
+            int8_t prom_dist_leading[26];
+                int len = indiv_->dna_->length();
+
+                for (int motif_id = 0; motif_id < 22; motif_id++) {
+                        prom_dist_leading[motif_id] =
+                                PROM_SEQ_LEAD[motif_id] ==
+                                indiv_->dna_->data_[Utils::mod(pos + motif_id, len)]
+                                ? 0 : 1;
+                }
+
+                return prom_dist_leading[0] +
+                       prom_dist_leading[1] +
+                       prom_dist_leading[2] +
+                       prom_dist_leading[3] +
+                       prom_dist_leading[4] +
+                       prom_dist_leading[5] +
+                       prom_dist_leading[6] +
+                       prom_dist_leading[7] +
+                       prom_dist_leading[8] +
+                       prom_dist_leading[9] +
+                       prom_dist_leading[10] +
+                       prom_dist_leading[11] +
+                       prom_dist_leading[12] +
+                       prom_dist_leading[13] +
+                       prom_dist_leading[14] +
+                       prom_dist_leading[15] +
+                       prom_dist_leading[16] +
+                       prom_dist_leading[17] +
+                       prom_dist_leading[18] +
+                       prom_dist_leading[19] +
+                       prom_dist_leading[20] +
+                       prom_dist_leading[21];
+
+#elif AMOD_SEARCH
+            int8_t prom_dist_leading[26];
+                int len = indiv_->dna_->length();
+
+                if (pos+22 >= len) {
+                    for (int motif_id = 0; motif_id < 22; motif_id++) {
+                            prom_dist_leading[motif_id] =
+                                    PROM_SEQ_LEAD[motif_id] ==
+                                    indiv_->dna_->data_[Utils::mod(pos + motif_id, len)]
+                                    ? 0 : 1;
+                    }
+                } else {
+                    for (int motif_id = 0; motif_id < 22; motif_id++) {
+                            prom_dist_leading[motif_id] =
+                                    PROM_SEQ_LEAD[motif_id] ==
+                                    indiv_->dna_->data_[pos + motif_id]
+                                    ? 0 : 1;
+                    }
+                }
+
+                return prom_dist_leading[0] +
+                       prom_dist_leading[1] +
+                       prom_dist_leading[2] +
+                       prom_dist_leading[3] +
+                       prom_dist_leading[4] +
+                       prom_dist_leading[5] +
+                       prom_dist_leading[6] +
+                       prom_dist_leading[7] +
+                       prom_dist_leading[8] +
+                       prom_dist_leading[9] +
+                       prom_dist_leading[10] +
+                       prom_dist_leading[11] +
+                       prom_dist_leading[12] +
+                       prom_dist_leading[13] +
+                       prom_dist_leading[14] +
+                       prom_dist_leading[15] +
+                       prom_dist_leading[16] +
+                       prom_dist_leading[17] +
+                       prom_dist_leading[18] +
+                       prom_dist_leading[19] +
+                       prom_dist_leading[20] +
+                       prom_dist_leading[21];
+#else // OLD_SEARCH
+            int8_t prom_dist_leading = 0;
+            int len = indiv_->dna_->length();
+
+            for (int motif_id = 0; motif_id < 22; motif_id++) {
+                prom_dist_leading +=
+                        PROM_SEQ_LEAD[motif_id] ==
+                        indiv_->dna_->data_[pos + motif_id >= len ? pos + motif_id - len : pos + motif_id]
+                        ? 0 : 1;
+                if (prom_dist_leading>PROM_MAX_DIFF)
+                    break;
+            }
+
+            return prom_dist_leading;
+#endif
+        }
+
+        inline int8_t is_promoter_lagging(int pos) {
+#ifdef VANILLA_SEARCH
+            int8_t prom_dist[26];
+                int len = indiv_->dna_->length();
+
+                for (int motif_id = 0; motif_id < 22; motif_id++) {
+                        prom_dist[motif_id] =
+                                PROM_SEQ_LAG[motif_id] ==
+                                indiv_->dna_->data_[pos - motif_id < 0 ? len + pos - motif_id : pos - motif_id]
+                                ? 0 : 1;
+                }
+
+                return prom_dist[0] +
+                       prom_dist[1] +
+                       prom_dist[2] +
+                       prom_dist[3] +
+                       prom_dist[4] +
+                       prom_dist[5] +
+                       prom_dist[6] +
+                       prom_dist[7] +
+                       prom_dist[8] +
+                       prom_dist[9] +
+                       prom_dist[10] +
+                       prom_dist[11] +
+                       prom_dist[12] +
+                       prom_dist[13] +
+                       prom_dist[14] +
+                       prom_dist[15] +
+                       prom_dist[16] +
+                       prom_dist[17] +
+                       prom_dist[18] +
+                       prom_dist[19] +
+                       prom_dist[20] +
+                       prom_dist[21];
+#elif CMOD_SEARCH
+            int8_t prom_dist[26];
+            int len = indiv_->dna_->length();
+
+            for (int motif_id = 0; motif_id < 22; motif_id++) {
+                prom_dist[motif_id] =
+                        PROM_SEQ_LAG[motif_id] ==
+                        indiv_->dna_->data_[Utils::mod(pos - motif_id,len)]
+                        ? 0 : 1;
+            }
+
+            return prom_dist[0] +
+                   prom_dist[1] +
+                   prom_dist[2] +
+                   prom_dist[3] +
+                   prom_dist[4] +
+                   prom_dist[5] +
+                   prom_dist[6] +
+                   prom_dist[7] +
+                   prom_dist[8] +
+                   prom_dist[9] +
+                   prom_dist[10] +
+                   prom_dist[11] +
+                   prom_dist[12] +
+                   prom_dist[13] +
+                   prom_dist[14] +
+                   prom_dist[15] +
+                   prom_dist[16] +
+                   prom_dist[17] +
+                   prom_dist[18] +
+                   prom_dist[19] +
+                   prom_dist[20] +
+                   prom_dist[21];
+#elif AMOD_SEARCH
+            int8_t prom_dist[26];
+            int len = indiv_->dna_->length();
+
+            if (pos-22 < 0) {
+
+                for (int motif_id = 0; motif_id < 22; motif_id++) {
+                    prom_dist[motif_id] =
+                            PROM_SEQ_LAG[motif_id] ==
+                            indiv_->dna_->data_[Utils::mod(pos - motif_id,len)]
+                            ? 0 : 1;
+                }
+            } else {
+                for (int motif_id = 0; motif_id < 22; motif_id++) {
+                    prom_dist[motif_id] =
+                            PROM_SEQ_LAG[motif_id] ==
+                            indiv_->dna_->data_[pos - motif_id]
+                            ? 0 : 1;
+                }
+            }
+
+            return prom_dist[0] +
+                   prom_dist[1] +
+                   prom_dist[2] +
+                   prom_dist[3] +
+                   prom_dist[4] +
+                   prom_dist[5] +
+                   prom_dist[6] +
+                   prom_dist[7] +
+                   prom_dist[8] +
+                   prom_dist[9] +
+                   prom_dist[10] +
+                   prom_dist[11] +
+                   prom_dist[12] +
+                   prom_dist[13] +
+                   prom_dist[14] +
+                   prom_dist[15] +
+                   prom_dist[16] +
+                   prom_dist[17] +
+                   prom_dist[18] +
+                   prom_dist[19] +
+                   prom_dist[20] +
+                   prom_dist[21];
+#else
+            int8_t prom_dist = 0;
+            int len = indiv_->dna_->length();
+
+            for (int motif_id = 0; motif_id < 22; motif_id++) {
+                prom_dist+=
+                        PROM_SEQ_LAG[motif_id] ==
+                        indiv_->dna_->data_[Utils::mod(pos - motif_id,len)]
+                        ? 0 : 1;
+                if (prom_dist>PROM_MAX_DIFF)
+                    break;
+            }
+
+            return prom_dist;
+#endif
+            }
+
         virtual void lst_promoters(bool lorl,
                            Position before_after_btw, // with regard to the strand's reading direction
                            int32_t pos1,
@@ -66,7 +320,7 @@ namespace aevol {
 
         /*** Terminators ***/
         virtual int terminator_count(int LoL) = 0;
-        virtual int terminator_add(int LoL, int dna_pos) = 0;
+        virtual void terminator_add(int LoL, int dna_pos) = 0;
 
         virtual int next_terminator(int LoL, int dna_pos) = 0;
 
@@ -158,7 +412,13 @@ namespace aevol {
                                                         std::list<promoterStruct*>& extracted_promoters) = 0;
 
 
-        virtual int32_t length() = 0;
+        int32_t length() { return indiv_->dna_->length(); };
+
+
+        int32_t rna_count_ = 0;
+    protected:
+
+        Internal_SIMD_Struct* indiv_;
     };
 }
 

@@ -109,6 +109,12 @@ Selection::Selection(ExpManager* exp_m) {
   // --------------------------- Probability of reproduction of each organism
   prob_reprod_ = NULL;
 
+#ifdef WITH_PERF_TRACES
+        std::ofstream perf_traces_file_;
+        perf_traces_file_.open("vanilla_perf_traces.csv",std::ofstream::trunc);
+        perf_traces_file_<<"Generation,Indiv_ID,Runtime"<<std::endl;
+        perf_traces_file_.close();
+#endif
 
 }
 
@@ -475,6 +481,8 @@ void Selection::step_to_next_generation() {
 
 #endif
 
+
+
   // delete the temporary grid and the parental generation
   for (int16_t x = 0; x < grid_width; x++) {
     for (int16_t y = 0; y < grid_height; y++) {
@@ -536,6 +544,15 @@ void Selection::step_to_next_generation() {
     // Notify observers of the end of the generation
     notifyObservers(END_GENERATION);
 
+
+#ifdef WITH_PERF_TRACES
+        std::ofstream perf_traces_file_;
+        perf_traces_file_.open("vanilla_perf_traces.csv",std::ofstream::app);
+        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+            perf_traces_file_<<AeTime::time()<<","<<indiv_id<<","<<apply_mutation[indiv_id]<<std::endl;
+        }
+        perf_traces_file_.close();
+#endif
 /*#ifdef __DETECT_CLONE
 //    int number_of_clones = 0;
 #ifdef __OPENMP_TASK
@@ -992,6 +1009,9 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
       // Notify observers that a new individual was created from <parent>
       exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
+#ifdef WITH_PERF_TRACES
+        apply_mutation[index] = -1;
+#endif
     } else {
 #endif
     {
@@ -999,8 +1019,15 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       notifyObservers(NEW_INDIV, eindiv);
       delete eindiv;
     }
-
+#ifdef WITH_PERF_TRACES
+      auto t_start = std::chrono::steady_clock::now();
+#endif
     chromosome->dna()->apply_mutations();
+#ifdef WITH_PERF_TRACES
+      auto t_end = std::chrono::steady_clock::now();
+      apply_mutation[index] = t_end.time_since_epoch().count() - t_start.time_since_epoch().count();
+#endif
+
 #ifdef __DETECT_CLONE
     }
 #endif

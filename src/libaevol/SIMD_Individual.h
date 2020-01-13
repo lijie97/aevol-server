@@ -218,6 +218,8 @@ class SIMD_Individual : public Observable{
     Stats_SIMD* stats_best = nullptr;
     Stats_SIMD* stats_mean = nullptr;
 
+    long apply_mutation[1024];
+
 
     Stats* stats_;
 

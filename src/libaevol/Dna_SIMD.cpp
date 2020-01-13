@@ -11,7 +11,7 @@
 #include "Individual.h"
 #include "SIMD_Map_Metadata.h"
 #include "SIMD_DynTab_Metadata.h"
-
+#include "SIMD_List_Metadata.h"
 
 namespace aevol {
 Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {
@@ -648,37 +648,37 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
   if (not invert) {
     if (pos_min == pos_1) {
-      if (indiv_->indiv_id==799) printf("A\n");
+      //if (indiv_->indiv_id==799) printf("A\n");
       ABCDE_to_ADCBE(pos_1, pos_3, pos_2, pos_4);
     }
     else if (pos_min == pos_2) {
-        if (indiv_->indiv_id==799) printf("B\n");
+        //if (indiv_->indiv_id==799) printf("B\n");
       ABCDE_to_ADCBE(pos_2, pos_4, pos_1, pos_3);
     }
     else if (pos_min == pos_3) {
-        if (indiv_->indiv_id==799) printf("C\n");
+       // if (indiv_->indiv_id==799) printf("C\n");
       ABCDE_to_ADCBE(pos_3, pos_2, pos_4, pos_1);
     }
     else { // if (pos_min == pos_4)
-        if (indiv_->indiv_id==799) printf("D\n");
+        //if (indiv_->indiv_id==799) printf("D\n");
       ABCDE_to_ADCBE(pos_4, pos_1, pos_3, pos_2);
     }
   }
   else { // invert
     if (pos_min == pos_1) {
-        if (indiv_->indiv_id==799) printf("E\n");
+        //if (indiv_->indiv_id==799) printf("E\n");
       ABCDE_to_ADBpCpE(pos_1, pos_3, pos_2, pos_4);
     }
     else if (pos_min == pos_2) {
-        if (indiv_->indiv_id==799) printf("F\n");
+        //if (indiv_->indiv_id==799) printf("F\n");
       ABCDE_to_ADBpCpE(pos_2, pos_4, pos_1, pos_3);
     }
     else if (pos_min == pos_3) {
-        if (indiv_->indiv_id==799) printf("G\n");
+        //if (indiv_->indiv_id==799) printf("G\n");
       ABCDE_to_ACpDpBE(pos_3, pos_2, pos_4, pos_1);
     }
     else { // if (pos_min == pos_4)
-        if (indiv_->indiv_id==799) printf("H\n");
+        //if (indiv_->indiv_id==799) printf("H\n");
       ABCDE_to_ACpDpBE(pos_4, pos_1, pos_3, pos_2);
     }
   }
@@ -773,58 +773,111 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   inverted_segment[seg_length] = '\0';
 #endif
 
-//        printf("Before remove 1\n");
-//        printf("%d -- %d -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
-//        printf("%d -- %d -- Prom list LAG : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
+        /*if (indiv_->indiv_id == 37) {
+            printf("Before remove %d\n",pos_1,pos_2);
+            printf("%d -- %d -- TOKEEP -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                    if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                        printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- TOKEEP -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                    if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                        printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+            }
+            printf("\n");
+
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+        }*/
 
   // Remove promoters that included a breakpoint
         indiv_->metadata_->remove_promoters_around(pos_1);
 
-//        printf("Before remove 2\n");
-//        printf("%d -- %d -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
-//        printf("%d -- %d -- Prom list LAG : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
+       /* if (indiv_->indiv_id == 37) {
+
+            printf("Before remove 2\n");
+        printf("%d -- %d -- TOKEEP -- Prom list LEAD : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+        printf("%d -- %d -- TOKEEP -- Prom list LAG : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+
+        printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            std::advance(it, prom_idx);
+            printf("%d ", (*it).pos);
+        }
+        printf("\n");
+        printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            std::advance(it, prom_idx);
+            printf("%d ", (*it).pos);
+        }
+        printf("\n");
+    }*/
+
 
         indiv_->metadata_->remove_promoters_around(pos_2);
+        /*if (indiv_->indiv_id == 37) {
 
-//        printf("Before invert\n");
-//        printf("%d -- %d -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
-//        printf("%d -- %d -- Prom list LAG : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
+            printf("Before remove 3\n");
+            printf("%d -- %d -- TOKEEP -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                    if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                        printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- TOKEEP -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                    if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                        printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+            }
+            printf("\n");
+
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+        }*/
   // Invert the sequence
 #ifdef WITH_BITSET
   bitset_->replace(inverted_segment,pos_1);
@@ -836,41 +889,77 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   if (length() >= PROM_SIZE) {
       indiv_->metadata_->invert_promoters_included_in(pos_1, pos_2);
 
+      /*if (indiv_->indiv_id == 37) {
 
-//      printf("Before look for 1+2\n");
-//      printf("%d -- %d -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//      for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//          if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//              if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                  printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//      }
-//      printf("\n");
-//      printf("%d -- %d -- Prom list LAG : ",time(),indiv_->indiv_id);
-//      for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//          if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//              if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                  printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//      }
-//      printf("\n");
+      printf("Before look for 1+2\n");
+
+          printf("%d -- %d -- TOKEEP -- Prom list LEAD : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
+          printf("%d -- %d -- TOKEEP -- Prom list LAG : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
+
+          printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+              std::advance(it, prom_idx);
+              printf("%d ", (*it).pos);
+          }
+          printf("\n");
+          printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+              std::advance(it, prom_idx);
+              printf("%d ", (*it).pos);
+          }
+          printf("\n");
+      }*/
 
       indiv_->metadata_->look_for_new_promoters_around(pos_1);
       indiv_->metadata_->look_for_new_promoters_around(pos_2);
+      /*if (indiv_->indiv_id == 37) {
 
-//      printf("Finish\n");
-//      printf("%d -- %d -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//      for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//          if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//              if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                  printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//      }
-//      printf("\n");
-//      printf("%d -- %d -- Prom list LAG : ",time(),indiv_->indiv_id);
-//      for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//          if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//              if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                  printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//      }
-//      printf("\n");
+      printf("Finish\n");
+
+          printf("%d -- %d -- TOKEEP -- Prom list LEAD : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
+          printf("%d -- %d -- TOKEEP -- Prom list LAG : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
+
+          printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+              std::advance(it, prom_idx);
+              printf("%d ", (*it).pos);
+          }
+          printf("\n");
+          printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+              std::advance(it, prom_idx);
+              printf("%d ", (*it).pos);
+          }
+          printf("\n");
+      }*/
   }
 
 #ifdef WITH_BITSET
@@ -890,7 +979,7 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
 
 
 bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
-    //printf("DO DELETION is %d %d -- %d\n",pos_1,pos_2,length());
+    //if (indiv_->indiv_id==30) printf("DO DELETION is %d %d -- %d\n",pos_1,pos_2,length());
   // Delete segment going from pos_1 (included) to pos_2 (excluded)
   if (pos_1 < pos_2) {
     //
@@ -905,44 +994,44 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     int32_t segment_length = pos_2 - pos_1;
 
-//    if (indiv_->indiv_id == 797 && time() == 9) {
-//      printf("Before remove\n");
-//      printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//      for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//          if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//              if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                  printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//      }
-//      printf("\n");
-//      printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//      for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//          if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//              if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                  printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//      }
-//      printf("\n");
-//    }
+    /*if (indiv_->indiv_id == 30) {
+      printf("Before remove %d %d\n",pos_1,pos_2);
+        printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            std::advance(it, prom_idx);
+            printf("%d ", (*it).pos);
+        }
+        printf("\n");
+        printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            std::advance(it, prom_idx);
+            printf("%d ", (*it).pos);
+        }
+        printf("\n");
+    }*/
     // Remove promoters containing at least one nucleotide from the sequence
     // to delete
       indiv_->metadata_->remove_promoters_around(pos_1, pos_2);
 
-//      if (indiv_->indiv_id == 797 && time() == 9) {
-//          printf("After remove\n");
-//          printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//          printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//      }
+      /*if (indiv_->indiv_id == 30)  {
+          printf("After remove\n");
+          printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+              std::advance(it, prom_idx);
+              printf("%d ", (*it).pos);
+          }
+          printf("\n");
+          printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+              std::advance(it, prom_idx);
+              printf("%d ", (*it).pos);
+          }
+          printf("\n");
+      }*/
 
     // Delete the sequence between pos_1 and pos_2
 #ifdef WITH_BITSET
@@ -955,41 +1044,41 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
     // Update promoter list
     if (length() >= PROM_SIZE) {
         indiv_->metadata_->move_all_promoters_after(pos_1, -segment_length);
-//        if (indiv_->indiv_id == 797 && time() == 9) {
-//            printf("After move %d %d\n",pos_1, -segment_length);
-//            printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//            printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//        }
+        /*if (indiv_->indiv_id == 30) {
+            printf("After move %d %d\n",pos_1, -segment_length);
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+        }*/
         indiv_->metadata_->look_for_new_promoters_around(pos_1);
-//        if (indiv_->indiv_id == 797 && time() == 9) {
-//            printf("After look\n");
-//            printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//            printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//        }
+        /*if (indiv_->indiv_id == 30) {
+            printf("After look\n");
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+        }*/
     }
 
 
@@ -1012,42 +1101,42 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     // Remove promoters containing at least one nucleotide from the sequence
     // to delete
-//      if (indiv_->indiv_id == 797 && time() == 9) {
-//          printf("Before remove %d %d\n",pos_1,pos_2);
-//          printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//          printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//      }
+     /*if (indiv_->indiv_id == 30) {
+          printf("Before remove %d %d\n",pos_1,pos_2);
+         printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+         for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+             auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+             std::advance(it, prom_idx);
+             printf("%d ", (*it).pos);
+         }
+         printf("\n");
+         printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+         for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+             auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+             std::advance(it, prom_idx);
+             printf("%d ", (*it).pos);
+         }
+         printf("\n");
+      }*/
       indiv_->metadata_->remove_promoters_around(pos_1, pos_2);
 
-//      if (indiv_->indiv_id == 797 && time() == 9) {
-//          printf("After remove\n");
-//          printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//          printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//      }
+         /*if (indiv_->indiv_id == 30) {
+          printf("After remove\n");
+             printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+             for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                 auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+                 std::advance(it, prom_idx);
+                 printf("%d ", (*it).pos);
+             }
+             printf("\n");
+             printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+             for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                 auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+                 std::advance(it, prom_idx);
+                 printf("%d ", (*it).pos);
+             }
+             printf("\n");
+      }*/
 
     // Delete the sequence between pos_1 and pos_2
 #ifdef WITH_BITSET
@@ -1060,59 +1149,42 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
     // Update promoter list
     if (length() >= PROM_SIZE) {
-//        if (indiv_->indiv_id == 799 && time() == 52) {
-//            printf("Before move XA %d %d\n",0,-pos_2);
-//            printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//            printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//        }
+        /*if (indiv_->indiv_id == 30) {
+            printf("Before move XA %d %d\n",0,-pos_2);
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+        }*/
         indiv_->metadata_->move_all_promoters_after(0, -pos_2);
-//        if (indiv_->indiv_id == 799 && time() == 52) {
-//            printf("After move XA %d %d\n",0,-pos_2);
-//            printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//            printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//        }
+        /*if (indiv_->indiv_id == 30) {
+            printf("After move XA %d %d\n",0,-pos_2);
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+            printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+                std::advance(it, prom_idx);
+                printf("%d ", (*it).pos);
+            }
+            printf("\n");
+        }*/
 
-//        if (indiv_->indiv_id == 799 && time() == 52) {
-//            printf("Before look\n");
-//            printf("%d -- %d -- TOKEEP -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//            printf("%d -- %d -- TOKEEP -- Prom list LAG : ",time(),indiv_->indiv_id);
-//            for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//                if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                    if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//        }
         indiv_->metadata_->look_for_new_promoters_around(0);
     }
   }
@@ -1161,29 +1233,63 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        }
 //        printf("\n");
 //    }
+//
+    /*
+    if (AeTime::time() > 182) {
+        //printf("Parent ID %d\n",indiv_->parent_id);
+        /*printf("Promoter size %ld %ld %ld\n", indiv_->metadata_->promoter_count(),
+               ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(),
+                       ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size());*/
+/*
+        std::set<int> leading;
+        printf("FROM_MUTATE -- %d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    leading.insert(indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        for (auto lead : leading) {
+            printf("%d ",lead);
+        }
 
-//    if (indiv_->indiv_id == 799 && time() == 52) {
-//        printf("%d -- %d -- TOKEEP -- Prom list LEAD : ", time(), indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
-//        printf("%d -- %d -- TOKEEP -- Prom list LAG : ", time(), indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
-//    }
+
+        printf("\n");
+
+        std::set<int> lagging;
+        printf("FROM_MUTATE -- %d -- %d -- AFTER -- Prom list LAG : ",time(),indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    lagging.insert(indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+
+        for (auto lag : lagging) {
+            printf("%d ",lag);
+        }
+        printf("\n");
+*/
+/*        printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            std::advance(it, prom_idx);
+            printf("%d ", (*it).pos);
+        }
+        printf("\n");
+        printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            std::advance(it, prom_idx);
+            printf("%d ",(*it).pos);
+        }
+        printf("\n");*/
+    //}
   do {
       repl = indiv_->exp_m_->
               dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length());
 
       if (repl != nullptr) {
-          printf("%d -- %d -- Mutation type %d\n", time(), indiv_->indiv_id, repl->type());
+          //if (indiv_->indiv_id == 30 || indiv_->indiv_id==61 || indiv_->indiv_id==62)
+          //printf("%d -- %d -- Mutation type %d\n", time(), indiv_->indiv_id, repl->type());
 
           switch (repl->type()) {
               case DO_SWITCH:
@@ -1281,6 +1387,40 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        }
 //        printf("\n");
 //    }
+
+
+    //if (indiv_->indiv_id==30 || indiv_->indiv_id==61 || indiv_->indiv_id==62) {
+//
+//        printf("%d -- %d -- AFTER -- TOKEEP -- Prom list LEAD : ", time(), indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                    printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+//        }
+//        printf("\n");
+//        printf("%d -- %d -- AFTER -- TOKEEP -- Prom list LAG : ", time(), indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                    printf("%d ", indiv_->metadata_->promoters(prom_idx)->pos);
+//        }
+//        printf("\n");
+//
+//        printf("%d -- %d -- AFTER -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+//            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+//            std::advance(it, prom_idx);
+//            printf("%d ", (*it).pos);
+//        }
+//        printf("\n");
+//        printf("%d -- %d -- AFTER -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+//            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+//            std::advance(it, prom_idx);
+//            printf("%d ", (*it).pos);
+//        }
+//        printf("\n");
+    //}
 }
 
 
@@ -1584,7 +1724,9 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
                 SIMD_DynTab_Metadata::shift_promoters(promoters_B, len_D + len_C,
                                                    length());
-
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+            SIMD_List_Metadata::shift_promoters(promoters_B, len_D + len_C,
+                                                  length());
 //        if (indiv_->indiv_id == 799 && time() == 52) {
 //            printf("After shift Extracted promoters\n");
 //            printf("%d -- %d -- TOKEEP -- Prom list B LEAD : ",time(),indiv_->indiv_id);
@@ -1628,7 +1770,9 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
             SIMD_DynTab_Metadata::shift_promoters(promoters_C, len_D - len_B,
                                                length());
-
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+            SIMD_List_Metadata::shift_promoters(promoters_C, len_D - len_B,
+                                                  length());
 //        if (indiv_->indiv_id == 799 && time() == 52) {
 //            printf("After shift extracted promoters\n");
 //            printf("%d -- %d -- TOKEEP -- Prom list C LEAD : ",time(),indiv_->indiv_id);
@@ -1670,6 +1814,9 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
             SIMD_DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                length());
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+            SIMD_List_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+                                                  length());
 
 //        if (indiv_->indiv_id == 799 && time() == 52) {
 //            printf("After shift extracted promoters\n");
@@ -2075,6 +2222,10 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
           SIMD_DynTab_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
 
           SIMD_DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+      } else  if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+          SIMD_List_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
+
+          SIMD_List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
       }
 
 //      if (indiv_->indiv_id == 18) {
@@ -2140,6 +2291,15 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
           SIMD_DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                              length());
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+          SIMD_List_Metadata::shift_promoters(promoters_B, len_D,
+                                                length());
+
+          SIMD_List_Metadata::shift_promoters(promoters_C, len_D,
+                                                length());
+
+          SIMD_List_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+                                                length());
       }
 
 //      if (indiv_->indiv_id == 18) {
@@ -2468,6 +2628,10 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
           SIMD_DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
 
           SIMD_DynTab_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+          SIMD_List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+
+          SIMD_List_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
       }
 
 //      if (indiv_->indiv_id == 17) {
@@ -2532,6 +2696,15 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
           SIMD_DynTab_Metadata::shift_promoters(promoters_D, -len_B,
                                              length());
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+          SIMD_List_Metadata::shift_promoters(promoters_B, len_C + len_D,
+                                                length());
+
+          SIMD_List_Metadata::shift_promoters(promoters_C, -len_B,
+                                                length());
+
+          SIMD_List_Metadata::shift_promoters(promoters_D, -len_B,
+                                                length());
       }
 
 //      if (indiv_->indiv_id == 17) {

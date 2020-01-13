@@ -2410,7 +2410,7 @@ void GeneticUnit::extract_leading_promoters_starting_between(int32_t pos_1,
 #endif
   // Extract the promoters (remove them from the individual's list and put them in extracted_promoters)
   extracted_promoters.insert(extracted_promoters.end(), first, end);
-  strand.erase(first, end);
+  strand.erase(first, end);  // Find the first promoters in the interval
 }
 
 void GeneticUnit::extract_lagging_promoters_starting_between(int32_t pos_1,
