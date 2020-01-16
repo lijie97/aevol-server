@@ -476,12 +476,14 @@ void Fuzzy::clear() {
 
 void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
 {
+  // Don't add a new point if there's already a point at the same x.
   list<Point>::iterator p =
 #ifndef __OPENMP_GPU
       find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
 #else
       algorithm_cuda::find_if_point_5(points_.begin(), points_.end(), x);
 #endif
+
   if (prev(p)->x == x) {
     prev(p)->y += y;
   } else {
