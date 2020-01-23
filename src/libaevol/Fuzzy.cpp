@@ -470,8 +470,10 @@ void Fuzzy::reset() {
   // assert(invariant());
 }
 
+/// Reset the fuzzy set to its original state, two points at
+/// (X_MIN, 0.0) and (X_MAX, 0.0).
 void Fuzzy::clear() {
-  points_.clear();
+  points_ = {Point(X_MIN, 0.0), Point(X_MAX, 0.0)};
 }
 
 void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
