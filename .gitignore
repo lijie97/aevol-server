@@ -11,6 +11,7 @@ config.log
 config.status
 configure
 .deps/
+build/*
 src/aevol_create
 src/aevol_modify
 src/aevol_propagate
@@ -18,6 +19,8 @@ src/aevol_run
 src/libaevol/SFMT-src-1.4/jump/.dirstamp
 *.a
 src/post_treatments/aevol_misc_ancstats
+src/post_treatments/aevol_misc_ancestor_robustness
+src/post_treatments/aevol_misc_ancestor_stats
 src/post_treatments/aevol_misc_compute_pop_stats
 src/post_treatments/aevol_misc_create_eps
 src/post_treatments/aevol_misc_extract
@@ -28,6 +31,7 @@ src/post_treatments/aevol_misc_robustness
 src/post_treatments/aevol_misc_mutagenesis
 src/post_treatments/aevol_misc_template
 src/post_treatments/aevol_misc_view_generation
+src/post_treatments/aevol_misc_view
 *.o
 
 

@@ -470,18 +470,34 @@ void Fuzzy::reset() {
   // assert(invariant());
 }
 
+/// Reset the fuzzy set to its original state, two points at
+/// (X_MIN, 0.0) and (X_MAX, 0.0).
 void Fuzzy::clear() {
-  points_.clear();
+  points_ = {Point(X_MIN, 0.0), Point(X_MAX, 0.0)};
 }
 
 void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
 {
+  // points_ must always contain at least two elements, at X_MIN and X_MAX.
+  assert(points_.size() >= 2);
+  assert(points_.begin()->x == X_MIN);
+  assert(points_.rbegin()->x == X_MAX);
+
+  // We don't want to add a new point if there's already a point at the same x.
+  // To find out if there is such a point, we find the first point with
+  // larger x and then look at its predecessor.
   list<Point>::iterator p =
 #ifndef __OPENMP_GPU
       find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
 #else
       algorithm_cuda::find_if_point_5(points_.begin(), points_.end(), x);
 #endif
+
+  // Since there is always a point at x = X_MAX, we always find such a point,
+  // and since there is always a point at x = X_MIN (which does not
+  // match the condition), that point always has a predecessor.
+  // p should therefore never be points_.begin().
+  assert(p != points_.begin());
   if (prev(p)->x == x) {
     prev(p)->y += y;
   } else {
