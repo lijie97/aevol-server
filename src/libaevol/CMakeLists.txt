@@ -3,7 +3,6 @@
 # ============================================================================
 add_subdirectory(SFMT-src-1.4)
 
-
 # ============================================================================
 # Find packages
 # ============================================================================
@@ -14,11 +13,12 @@ find_package(ZLIB REQUIRED)
 # Add PWD to include directories
 # ============================================================================
 include_directories(".")
+include_directories("./mutation")
 
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
-set(aevol_sources 
+set(aevol_sources
   aevol.h
   Alignment.cpp
   Alignment.h
@@ -37,8 +37,8 @@ set(aevol_sources
   ExpSetup.cpp
   ExpSetup.h
   Gaussian.h
-#  GeneMutation.cpp
-#  GeneMutation.h
+#  mutation/GeneMutation.cpp
+#  mutation/GeneMutation.h
 #  GeneTree.cpp
 #  GeneTree.h
 #  GeneTreeNode.cpp
@@ -62,15 +62,15 @@ set(aevol_sources
   JumpPoly.h
   Logging.cpp
   Logging.h
-  Mutation.cpp
-  Mutation.h
+  mutation/Mutation.cpp
+  mutation/Mutation.h
   Observable.cpp
   Observable.h
   Observer.h
   OutputManager.cpp
   OutputManager.h
-  MutationParams.cpp
-  MutationParams.h
+  mutation/MutationParams.cpp
+  mutation/MutationParams.h
   Phenotype.h
   Protein.cpp
   Protein.h
@@ -124,27 +124,27 @@ set(aevol_sources
   AbstractFuzzy.cpp
   HybridFuzzy.h
   HybridFuzzy.cpp
-  PointMutation.cpp
-  PointMutation.h
-  SmallInsertion.cpp
-  SmallInsertion.h
-  SmallDeletion.cpp
-  SmallDeletion.h
-  LocalMutation.h
-  Rearrangement.h
-  Duplication.cpp
-  Duplication.h
-  Deletion.cpp
-  Deletion.h
-  Translocation.cpp
-  Translocation.h
-  Inversion.cpp
-  Inversion.h
-  HorizontalTransfer.h
-  InsertionHT.cpp
-  InsertionHT.h
-  ReplacementHT.cpp
-  ReplacementHT.h make_unique.h ae_logger.h
+  mutation/PointMutation.cpp
+  mutation/PointMutation.h
+  mutation/SmallInsertion.cpp
+  mutation/SmallInsertion.h
+  mutation/SmallDeletion.cpp
+  mutation/SmallDeletion.h
+  mutation/LocalMutation.h
+  mutation/Rearrangement.h
+  mutation/Duplication.cpp
+  mutation/Duplication.h
+  mutation/Deletion.cpp
+  mutation/Deletion.h
+  mutation/Translocation.cpp
+  mutation/Translocation.h
+  mutation/Inversion.cpp
+  mutation/Inversion.h
+  mutation/HorizontalTransfer.h
+  mutation/InsertionHT.cpp
+  mutation/InsertionHT.h
+  mutation/ReplacementHT.cpp
+  mutation/ReplacementHT.h make_unique.h ae_logger.h
   SIMD_Individual.h
   SIMD_Individual.cpp
   SaveWorld.h
@@ -153,12 +153,12 @@ set(aevol_sources
   LightTree.cpp
   Dna_SIMD.h
   Dna_SIMD.cpp
-  DnaMutator.h
-  DnaMutator.cpp
+  mutation/DnaMutator.h
+  mutation/DnaMutator.cpp
   Stats_SIMD.h
   Stats_SIMD.cpp
-  MutationEvent.h
-  MutationEvent.cpp
+  mutation/MutationEvent.h
+  mutation/MutationEvent.cpp
   AncestorStats.h
   AncestorStats.cpp)
   
