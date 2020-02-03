@@ -17,6 +17,7 @@ include_directories("./mutation")
 include_directories("./phenotype")
 include_directories("./biochemistry")
 include_directories("./rng")
+include_directories("./world")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -32,12 +33,12 @@ set(aevol_sources
   Dump.h
   ae_enums.h
   phenotype/PhenotypicSegment.h
-  ExpManager.cpp
-  ExpManager.h
-  ExpManager_X11.cpp
-  ExpManager_X11.h
-  ExpSetup.cpp
-  ExpSetup.h
+  world/ExpManager.cpp
+  world/ExpManager.h
+  world/ExpManager_X11.cpp
+  world/ExpManager_X11.h
+  world/ExpSetup.cpp
+  world/ExpSetup.h
   phenotype/Gaussian.h
 #  mutation/GeneMutation.cpp
 #  mutation/GeneMutation.h
@@ -47,12 +48,12 @@ set(aevol_sources
 #  GeneTreeNode.h
   biochemistry/GeneticUnit.cpp
   biochemistry/GeneticUnit.h
-  Habitat.cpp
-  Habitat.h
-  HabitatFactory.cpp
-  HabitatFactory.h
-  GridCell.cpp
-  GridCell.h
+  world/Habitat.cpp
+  world/Habitat.h
+  world/HabitatFactory.cpp
+  world/HabitatFactory.h
+  world/GridCell.cpp
+  world/GridCell.h
   Individual.cpp
   Individual.h
   Individual_X11.cpp
@@ -117,8 +118,8 @@ set(aevol_sources
   phenotype/Point.h
   AeTime.cpp
   AeTime.h
-  World.cpp
-  World.h
+  world/World.cpp
+  world/World.h
   ObservableEvent.h
   phenotype/FuzzyFactory.h
   phenotype/FuzzyFactory.cpp
@@ -149,8 +150,8 @@ set(aevol_sources
   mutation/ReplacementHT.h make_unique.h ae_logger.h
   SIMD_Individual.h
   SIMD_Individual.cpp
-  SaveWorld.h
-  SaveWorld.cpp
+  world/SaveWorld.h
+  world/SaveWorld.cpp
   LightTree.h
   LightTree.cpp
   biochemistry/Dna_SIMD.h
