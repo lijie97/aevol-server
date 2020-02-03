@@ -22,6 +22,7 @@ include_directories("libaevol/biochemistry")
 include_directories("libaevol/rng")
 include_directories("libaevol/world")
 include_directories("libaevol/population")
+include_directories("libaevol/stats")
 
 # ============================================================================
 # Add targets add their dependencies

@@ -19,7 +19,7 @@ include_directories("./biochemistry")
 include_directories("./rng")
 include_directories("./world")
 include_directories("./population")
-
+include_directories("./stats")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -89,12 +89,12 @@ set(aevol_sources
   biochemistry/Rna.h
   population/Selection.cpp
   population/Selection.h
-  StatRecord.cpp
-  StatRecord.h
-  Stats.cpp
-  Stats.h
   biochemistry/ae_string.cpp
   biochemistry/ae_string.h
+  stats/StatRecord.cpp
+  stats/StatRecord.h
+  stats/Stats.cpp
+  stats/Stats.h
   Tree.cpp
   Tree.h
   Utils.cpp
@@ -107,9 +107,9 @@ set(aevol_sources
   ParameterLine.h
   phenotype/Fuzzy.cpp
   phenotype/Fuzzy.h
-  Metrics.h
+  stats/Metrics.h
   macros.h
-  NonCodingMetrics.h
+  stats/NonCodingMetrics.h
   ParamLoader.cpp
   ParamLoader.h
   phenotype/PhenotypicTargetHandler.cpp
@@ -160,12 +160,12 @@ set(aevol_sources
   biochemistry/Dna_SIMD.cpp
   mutation/DnaMutator.h
   mutation/DnaMutator.cpp
-  Stats_SIMD.h
-  Stats_SIMD.cpp
+  stats/Stats_SIMD.h
+  stats/Stats_SIMD.cpp
   mutation/MutationEvent.h
   mutation/MutationEvent.cpp
-  AncestorStats.h
-  AncestorStats.cpp)
+  stats/AncestorStats.h
+  stats/AncestorStats.cpp)
   
 if ( ${with-raevol} )
     set(aevol_sources ${aevol_sources} 
