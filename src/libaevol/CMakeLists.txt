@@ -18,6 +18,8 @@ include_directories("./phenotype")
 include_directories("./biochemistry")
 include_directories("./rng")
 include_directories("./world")
+include_directories("./population")
+
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -54,15 +56,15 @@ set(aevol_sources
   world/HabitatFactory.h
   world/GridCell.cpp
   world/GridCell.h
-  Individual.cpp
-  Individual.h
-  Individual_X11.cpp
-  Individual_X11.h
-  IndividualFactory.cpp
-  IndividualFactory.h
   rng/JumpingMT.cpp
   rng/JumpingMT.h
   rng/JumpPoly.h
+  population/Individual.cpp
+  population/Individual.h
+  population/Individual_X11.cpp
+  population/Individual_X11.h
+  population/IndividualFactory.cpp
+  population/IndividualFactory.h
   Logging.cpp
   Logging.h
   mutation/Mutation.cpp
@@ -79,14 +81,14 @@ set(aevol_sources
   biochemistry/Protein.h
   #rng/MersenneTwister.cpp
   #rng/MersenneTwister.h
-  ReplicationReport.cpp
-  ReplicationReport.h
+  population/ReplicationReport.cpp
+  population/ReplicationReport.h
   biochemistry/DnaReplicationReport.cpp
   biochemistry/DnaReplicationReport.h
   biochemistry/Rna.cpp
   biochemistry/Rna.h
-  Selection.cpp
-  Selection.h
+  population/Selection.cpp
+  population/Selection.h
   StatRecord.cpp
   StatRecord.h
   Stats.cpp
@@ -148,8 +150,8 @@ set(aevol_sources
   mutation/InsertionHT.h
   mutation/ReplacementHT.cpp
   mutation/ReplacementHT.h make_unique.h ae_logger.h
-  SIMD_Individual.h
-  SIMD_Individual.cpp
+  population/SIMD_Individual.h
+  population/SIMD_Individual.cpp
   world/SaveWorld.h
   world/SaveWorld.cpp
   LightTree.h
