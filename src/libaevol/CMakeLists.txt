@@ -15,17 +15,18 @@ find_package(ZLIB REQUIRED)
 include_directories(".")
 include_directories("./mutation")
 include_directories("./phenotype")
+include_directories("./biochemistry")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
 set(aevol_sources
   aevol.h
-  Alignment.cpp
-  Alignment.h
-  Codon.cpp
-  Codon.h
-  Dna.cpp
-  Dna.h
+  biochemistry/Alignment.cpp
+  biochemistry/Alignment.h
+  biochemistry/Codon.cpp
+  biochemistry/Codon.h
+  biochemistry/Dna.cpp
+  biochemistry/Dna.h
   Dump.cpp
   Dump.h
   ae_enums.h
@@ -43,8 +44,8 @@ set(aevol_sources
 #  GeneTree.h
 #  GeneTreeNode.cpp
 #  GeneTreeNode.h
-  GeneticUnit.cpp
-  GeneticUnit.h
+  biochemistry/GeneticUnit.cpp
+  biochemistry/GeneticUnit.h
   Habitat.cpp
   Habitat.h
   HabitatFactory.cpp
@@ -72,30 +73,30 @@ set(aevol_sources
   mutation/MutationParams.cpp
   mutation/MutationParams.h
   phenotype/Phenotype.h
-  Protein.cpp
-  Protein.h
+  biochemistry/Protein.cpp
+  biochemistry/Protein.h
   #MersenneTwister.cpp
   #MersenneTwister.h
   ReplicationReport.cpp
   ReplicationReport.h
-  DnaReplicationReport.cpp
-  DnaReplicationReport.h
-  Rna.cpp
-  Rna.h
+  biochemistry/DnaReplicationReport.cpp
+  biochemistry/DnaReplicationReport.h
+  biochemistry/Rna.cpp
+  biochemistry/Rna.h
   Selection.cpp
   Selection.h
   StatRecord.cpp
   StatRecord.h
   Stats.cpp
   Stats.h
-  ae_string.cpp
-  ae_string.h
+  biochemistry/ae_string.cpp
+  biochemistry/ae_string.h
   Tree.cpp
   Tree.h
   Utils.cpp
   Utils.h
-  VisAVis.cpp
-  VisAVis.h
+  biochemistry/VisAVis.cpp
+  biochemistry/VisAVis.h
   X11Window.cpp
   X11Window.h
   ParameterLine.cpp
@@ -151,8 +152,8 @@ set(aevol_sources
   SaveWorld.cpp
   LightTree.h
   LightTree.cpp
-  Dna_SIMD.h
-  Dna_SIMD.cpp
+  biochemistry/Dna_SIMD.h
+  biochemistry/Dna_SIMD.cpp
   mutation/DnaMutator.h
   mutation/DnaMutator.cpp
   Stats_SIMD.h
