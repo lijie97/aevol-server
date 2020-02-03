@@ -15,6 +15,7 @@ find_package(ZLIB REQUIRED)
 include_directories(".")
 include_directories("../libaevol")
 include_directories("../libaevol/mutation")
+include_directories("../libaevol/phenotype")
 
 # ============================================================================
 # Add targets add their dependencies

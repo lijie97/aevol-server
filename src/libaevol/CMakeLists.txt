@@ -14,7 +14,7 @@ find_package(ZLIB REQUIRED)
 # ============================================================================
 include_directories(".")
 include_directories("./mutation")
-
+include_directories("./phenotype")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -29,14 +29,14 @@ set(aevol_sources
   Dump.cpp
   Dump.h
   ae_enums.h
-  PhenotypicSegment.h
+  phenotype/PhenotypicSegment.h
   ExpManager.cpp
   ExpManager.h
   ExpManager_X11.cpp
   ExpManager_X11.h
   ExpSetup.cpp
   ExpSetup.h
-  Gaussian.h
+  phenotype/Gaussian.h
 #  mutation/GeneMutation.cpp
 #  mutation/GeneMutation.h
 #  GeneTree.cpp
@@ -71,7 +71,7 @@ set(aevol_sources
   OutputManager.h
   mutation/MutationParams.cpp
   mutation/MutationParams.h
-  Phenotype.h
+  phenotype/Phenotype.h
   Protein.cpp
   Protein.h
   #MersenneTwister.cpp
@@ -100,30 +100,30 @@ set(aevol_sources
   X11Window.h
   ParameterLine.cpp
   ParameterLine.h
-  Fuzzy.cpp
-  Fuzzy.h
+  phenotype/Fuzzy.cpp
+  phenotype/Fuzzy.h
   Metrics.h
   macros.h
   NonCodingMetrics.h
   ParamLoader.cpp
   ParamLoader.h
-  PhenotypicTargetHandler.cpp
-  PhenotypicTargetHandler.h
-  PhenotypicTarget.cpp
-  PhenotypicTarget.h
-  Point.cpp
-  Point.h
+  phenotype/PhenotypicTargetHandler.cpp
+  phenotype/PhenotypicTargetHandler.h
+  phenotype/PhenotypicTarget.cpp
+  phenotype/PhenotypicTarget.h
+  phenotype/Point.cpp
+  phenotype/Point.h
   AeTime.cpp
   AeTime.h
   World.cpp
   World.h
   ObservableEvent.h
-  FuzzyFactory.h
-  FuzzyFactory.cpp
-  AbstractFuzzy.h
-  AbstractFuzzy.cpp
-  HybridFuzzy.h
-  HybridFuzzy.cpp
+  phenotype/FuzzyFactory.h
+  phenotype/FuzzyFactory.cpp
+  phenotype/AbstractFuzzy.h
+  phenotype/AbstractFuzzy.cpp
+  phenotype/HybridFuzzy.h
+  phenotype/HybridFuzzy.cpp
   mutation/PointMutation.cpp
   mutation/PointMutation.h
   mutation/SmallInsertion.cpp
