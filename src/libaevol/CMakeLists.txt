@@ -16,6 +16,7 @@ include_directories(".")
 include_directories("./mutation")
 include_directories("./phenotype")
 include_directories("./biochemistry")
+include_directories("./rng")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -58,9 +59,9 @@ set(aevol_sources
   Individual_X11.h
   IndividualFactory.cpp
   IndividualFactory.h
-  JumpingMT.cpp
-  JumpingMT.h
-  JumpPoly.h
+  rng/JumpingMT.cpp
+  rng/JumpingMT.h
+  rng/JumpPoly.h
   Logging.cpp
   Logging.h
   mutation/Mutation.cpp
@@ -75,8 +76,8 @@ set(aevol_sources
   phenotype/Phenotype.h
   biochemistry/Protein.cpp
   biochemistry/Protein.h
-  #MersenneTwister.cpp
-  #MersenneTwister.h
+  #rng/MersenneTwister.cpp
+  #rng/MersenneTwister.h
   ReplicationReport.cpp
   ReplicationReport.h
   biochemistry/DnaReplicationReport.cpp

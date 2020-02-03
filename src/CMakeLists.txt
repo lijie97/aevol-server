@@ -19,6 +19,7 @@ include_directories("libaevol")
 include_directories("libaevol/mutation")
 include_directories("libaevol/phenotype")
 include_directories("libaevol/biochemistry")
+include_directories("libaevol/rng")
 
 # ============================================================================
 # Add targets add their dependencies
