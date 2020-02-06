@@ -21,6 +21,7 @@ include_directories("./world")
 include_directories("./population")
 include_directories("./stats")
 include_directories("./cuda")
+include_directories("./io")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -32,8 +33,8 @@ set(aevol_sources
   biochemistry/Codon.h
   biochemistry/Dna.cpp
   biochemistry/Dna.h
-  Dump.cpp
-  Dump.h
+  io/Dump.cpp
+  io/Dump.h
   ae_enums.h
   phenotype/PhenotypicSegment.h
   world/ExpManager.cpp
@@ -45,10 +46,10 @@ set(aevol_sources
   phenotype/Gaussian.h
 #  mutation/GeneMutation.cpp
 #  mutation/GeneMutation.h
-#  GeneTree.cpp
-#  GeneTree.h
-#  GeneTreeNode.cpp
-#  GeneTreeNode.h
+#  io/GeneTree.cpp
+#  io/GeneTree.h
+#  io/GeneTreeNode.cpp
+#  io/GeneTreeNode.h
   biochemistry/GeneticUnit.cpp
   biochemistry/GeneticUnit.h
   world/Habitat.cpp
@@ -66,8 +67,8 @@ set(aevol_sources
   population/Individual_X11.h
   population/IndividualFactory.cpp
   population/IndividualFactory.h
-  Logging.cpp
-  Logging.h
+  io/Logging.cpp
+  io/Logging.h
   mutation/Mutation.cpp
   mutation/Mutation.h
   Observable.cpp
@@ -96,23 +97,23 @@ set(aevol_sources
   stats/StatRecord.h
   stats/Stats.cpp
   stats/Stats.h
-  Tree.cpp
-  Tree.h
+  io/Tree.cpp
+  io/Tree.h
   Utils.cpp
   Utils.h
   biochemistry/VisAVis.cpp
   biochemistry/VisAVis.h
   X11Window.cpp
   X11Window.h
-  ParameterLine.cpp
-  ParameterLine.h
+  io/ParameterLine.cpp
+  io/ParameterLine.h
   phenotype/Fuzzy.cpp
   phenotype/Fuzzy.h
   stats/Metrics.h
   macros.h
   stats/NonCodingMetrics.h
-  ParamLoader.cpp
-  ParamLoader.h
+  io/ParamLoader.cpp
+  io/ParamLoader.h
   phenotype/PhenotypicTargetHandler.cpp
   phenotype/PhenotypicTargetHandler.h
   phenotype/PhenotypicTarget.cpp
@@ -150,13 +151,15 @@ set(aevol_sources
   mutation/InsertionHT.cpp
   mutation/InsertionHT.h
   mutation/ReplacementHT.cpp
-  mutation/ReplacementHT.h make_unique.h ae_logger.h
+  mutation/ReplacementHT.h
+  make_unique.h
+  ae_logger.h
   population/SIMD_Individual.h
   population/SIMD_Individual.cpp
   world/SaveWorld.h
   world/SaveWorld.cpp
-  LightTree.h
-  LightTree.cpp
+  io/LightTree.h
+  io/LightTree.cpp
   biochemistry/Dna_SIMD.h
   biochemistry/Dna_SIMD.cpp
   mutation/DnaMutator.h
