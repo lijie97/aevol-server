@@ -22,6 +22,7 @@ include_directories("./population")
 include_directories("./stats")
 include_directories("./cuda")
 include_directories("./io")
+include_directories("./gui")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -103,10 +104,10 @@ set(aevol_sources
   Utils.h
   biochemistry/VisAVis.cpp
   biochemistry/VisAVis.h
-  X11Window.cpp
-  X11Window.h
   io/ParameterLine.cpp
   io/ParameterLine.h
+  gui/X11Window.cpp
+  gui/X11Window.h
   phenotype/Fuzzy.cpp
   phenotype/Fuzzy.h
   stats/Metrics.h

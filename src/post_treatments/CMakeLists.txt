@@ -23,6 +23,7 @@ include_directories("../libaevol/population")
 include_directories("../libaevol/stats")
 include_directories("../libaevol/cuda")
 include_directories("../libaevol/io")
+include_directories("../libaevol/gui")
 
 # ============================================================================
 # Add targets add their dependencies
