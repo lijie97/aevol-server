@@ -48,8 +48,8 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
   #include "ExpManager_X11.h"
 #else
   #include "ExpManager.h"
-  #include "libaevol/ParameterLine.h"
-  #include "libaevol/JumpingMT.h"
+  #include "ParameterLine.h"
+  #include "JumpingMT.h"
 #endif
 
 using namespace aevol;
