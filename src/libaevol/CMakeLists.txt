@@ -20,6 +20,7 @@ include_directories("./rng")
 include_directories("./world")
 include_directories("./population")
 include_directories("./stats")
+include_directories("./cuda")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
