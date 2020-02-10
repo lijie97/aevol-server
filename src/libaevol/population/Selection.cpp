@@ -179,7 +179,7 @@ void Selection::step_to_next_generation() {
 
   int16_t x, y;
   int8_t what;
-  high_resolution_clock::time_point t1,t2;
+  high_resolution_clock::time_point t1, t2;
 
   //std::unordered_map<unsigned long long, Individual*> unique_individual;
 
@@ -224,12 +224,6 @@ void Selection::step_to_next_generation() {
       i++;
     }
   } else {
-/*      for (int32_t index = 0; index < grid_width * grid_height; index++) {
-          x = index / grid_height;
-          y = index % grid_height;
-
-          world->grid(x, y)->old_one = Individual::CreateClone(world->indiv_at(x, y), 444444);
-      }*/
     if (fitness_function_ == FITNESS_GLOBAL_SUM) {
 #ifdef __REGUL
         int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (world->grid(0,0)->habitat()).number_of_phenotypic_target_models();
@@ -269,25 +263,6 @@ void Selection::step_to_next_generation() {
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->parent_id =
           reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y();*/
 
-/*      if ( x*exp_m_->world()->height()+y == 80) {
-        printf("80 -- DNA Size %d (parent %d) -- reproducer %d (%d)\n",
-               exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->dna_->length_,
-               exp_m_->simd_individual->prev_internal_simd_struct
-               [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()]->dna_->length_,
-               reproducers[x][y]->genetic_unit(0).dna()->length(),
-               reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()
-        );
-      }*/
-
-      /*if ( x*exp_m_->world()->height()+y == 49) {
-        printf("49 -- DNA Size %d (parent %d) -- reproducer %d (%d)\n",
-               exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->dna_->length_,
-               exp_m_->simd_individual->prev_internal_simd_struct
-               [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()]->dna_->length_,
-               reproducers[x][y]->genetic_unit(0).dna()->length(),
-               reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()
-        );
-      }*/
     }
   }
 
@@ -320,96 +295,61 @@ void Selection::step_to_next_generation() {
 #endif
 
   std::vector<Individual*> to_evaluate;
-#ifndef __TBB
-
-
-/*  printf("Start to next gen -- FROM SELECTION.CPP\n");
-  for (int32_t index = 0; index < exp_m_->world()->width() * exp_m_->world()->height(); index++) {
-    int32_t x = index / exp_m_->world()->height();
-    int32_t y = index % exp_m_->world()->height();
-    auto indiv = exp_m_->world()->grid(x,y)->individual();
-
-    if (indiv->genetic_unit(0).dna()->length() == 8099)
-      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
-             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
-             indiv->grid_cell()->x()*exp_m_->world()->
-                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
-
-    if (x*exp_m_->world()->height()+y==43)
-      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
-             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
-             indiv->grid_cell()->x()*exp_m_->world()->
-                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
-
-    if (x*exp_m_->world()->height()+y==44)
-      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
-             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
-             indiv->grid_cell()->x()*exp_m_->world()->
-                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
-
-  }
-  printf("\n");*/
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-  #pragma omp parallel
+#pragma omp parallel
   {
-#endif
-#endif
+#endif  // __OPENMP_GPU
+#endif  // _OPENMP
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic) private(x,y,what)
-#else
+#else  // __OPENMP_GPU
 #pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
-#endif
-#endif
+#endif  // __OPENMP_GPU
+#endif  // _OPENMP
+
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
     y = index % grid_height;
 
-    /*if (index == 43 || index == 44)*/
-      /*printf("BEFORE -- Reproducer %d -> %d : %ld\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
-             reproducers[x][y]->genetic_unit(0).dna()->length());*/
-
     do_replication(reproducers[x][y],
                    x * grid_height + y, what, x, y);
 
-/*    if (index == 43 || index == 44)
-      printf("AFTER -- Reproducer %d -> %d : %d\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
-             reproducers[x][y]->genetic_unit(0).dna()->length());*/
-
 #ifdef __DETECT_CLONE
     if (what == 1 || what == 2) {
-#endif
+#endif  // __DETECT_CLONE
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
 #pragma omp critical(updateindiv)
-#endif
-#endif
+#endif // __OPENMP_GPU
+#endif // _OPENMP
       {
         to_evaluate.push_back(pop_grid[x][y]->individual());
       }
 #ifdef __DETECT_CLONE
     }
-#endif
+#endif // __DETECT_CLONE
 
   }
 #ifdef _OPENMP
-  #ifndef __OPENMP_GPU
+#ifndef __OPENMP_GPU
 #pragma omp barrier
-  #endif
-#endif
+#endif // __OPENMP_GPU
+#endif // _OPENMP
+
   t1 = high_resolution_clock::now();
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic)
-#else
+#else // __OPENMP_GPU
 #pragma omp target teams distribute parallel for schedule(static,1)
-#endif
-#endif
+#endif // __OPENMP_GPU
+#endif // _OPENMP
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
 #ifdef __REGUL
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
@@ -417,16 +357,16 @@ void Selection::step_to_next_generation() {
         !to_evaluate[i]->evaluated_) {
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
     }
-#else
+#else  // __REGUL
     run_life(to_evaluate[i]);
-#endif
+#endif // __REGUL
   }
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
   }
-#endif
-#endif
+#endif // __OPENMP_GPU
+#endif // _OPENMP
 
 
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
