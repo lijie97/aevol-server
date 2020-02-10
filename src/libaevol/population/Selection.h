@@ -132,12 +132,6 @@ class Selection : public Observable
                                int16_t x = -1,
                                int16_t y = -1);
 
-    #ifdef __TBB
-    Individual* do_replication_tbb(Individual* parent,
-                               int32_t index,
-                               int16_t x = -1,
-                               int16_t y = -1);
-    #endif
     // =================================================================
     //                           Public Attributes
     // =================================================================

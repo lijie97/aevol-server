@@ -41,11 +41,6 @@
 #endif
 #endif
 
-#ifdef __TBB
-#include <tbb/task_group.h>
-#include <tbb/parallel_sort.h>
-#endif
-
 #if __cplusplus == 201103L
 #include "make_unique.h"
 #endif
@@ -127,8 +122,6 @@ int mutator = 0;
 // =================================================================
 void Selection::step_to_next_generation() {
 
-
-
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic
@@ -190,9 +183,7 @@ void Selection::step_to_next_generation() {
 
   //std::unordered_map<unsigned long long, Individual*> unique_individual;
 
-#ifndef __TBB
   std::list<Individual*> new_generation;
-#endif
 
   if (selection_scope_ == SCOPE_GLOBAL) {
     delete[] prob_reprod_;
@@ -460,20 +451,6 @@ void Selection::step_to_next_generation() {
     for (int16_t x = 0; x < grid_width; x++)
       for (int16_t y = 0; y < grid_height; y++)
         new_generation.push_back(pop_grid[x][y]->individual());
-#else
-    std::vector<Individual*> new_generation;
-    tbb::task_group tgroup;
-
-    for (int16_t x = 0 ; x < grid_width ; x++)
-      for (int16_t y = 0 ; y < grid_height ; y++)
-        tgroup.run([=] {do_replication(reproducers[x][y], x * grid_height + y, x, y);});
-    tgroup.wait();
-
-    for (int16_t x = 0 ; x < grid_width ; x++)
-      for (int16_t y = 0 ; y < grid_height ; y++)
-        new_generation.push_back(pop_grid[x][y]->get_individual());
-
-#endif
 
   // delete the temporary grid and the parental generation
   for (int16_t x = 0; x < grid_width; x++) {
@@ -507,17 +484,10 @@ void Selection::step_to_next_generation() {
 #endif*/
 
     // Compute the rank of each individual
-#ifndef __TBB
-
 
     new_generation.sort([](Individual* lhs, Individual* rhs) {
         return lhs->fitness() < rhs->fitness();
     });
-#else
-    tbb::parallel_sort(new_generation.begin(),new_generation.end(), [](Individual* lhs, Individual* rhs) {
-        return lhs->get_fitness() < rhs->get_fitness();
-    });
-#endif
 
     int rank = 1;
 
@@ -1284,76 +1254,6 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);
 }
-
-#ifdef __TBB
-Individual* Selection::do_replication_tbb(Individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
-{
-  // ===========================================================================
-  //  1) Copy parent
-  // ===========================================================================
-#ifdef __NO_X
-    #ifndef __REGUL
-      Individual* new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
-    #else
-      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
-    #endif
-  #elif defined __X11
-#ifndef __REGUL
-      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
-    #else
-  Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
-#endif
-#endif
-
-  // Notify observers that a new individual was created from <parent>
-  {
-    Individual* msg[2] = {new_indiv, parent};
-    notifyObservers(NEW_INDIV, msg);
-  }
-
-  // Set the new individual's location on the grid
-  _exp_m->world()->PlaceIndiv(new_indiv, x, y);
-
-  // Perform transfer, rearrangements and mutations
-  if (not new_indiv->get_allow_plasmids())
-  {
-    const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list().front();
-
-    chromosome->get_dna()->perform_mutations(parent->get_id());
-  }
-  else
-  { // For each GU, apply mutations
-    // Randomly determine the order in which the GUs will undergo mutations
-    bool inverse_order = (new_indiv->get_mut_prng()->random((int32_t) 2) < 0.5);
-
-    if (not inverse_order) { // Apply mutations in normal GU order
-      for (const auto& gen_unit: new_indiv->get_genetic_unit_list()) {
-        gen_unit.get_dna()->perform_mutations(parent->get_id() );
-      }
-    }
-    else { // Apply mutations in inverse GU order
-      const auto& gul = new_indiv->get_genetic_unit_list();
-      for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
-        gen_unit->get_dna()->perform_mutations(parent->get_id());
-      }
-    }
-  }
-
-  // Evaluate new individual
-  new_indiv->Evaluate();
-
-  // Compute statistics
-  new_indiv->compute_statistical_data();
-
-  #pragma omp critical
-//  {
-  // Tell observers the replication is finished
-  new_indiv->notifyObservers(END_REPLICATION, nullptr);
-}
-
-  return new_indiv;
-}
-#endif
 
 // =================================================================
 //                          Non inline accessors

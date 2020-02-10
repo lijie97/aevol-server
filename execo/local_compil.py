@@ -68,9 +68,6 @@ class compil_aevol(Engine):
     
 	    configure_option = "--with-tracing --without-x"
 	    
-	    if comb['parallel'] == 'tbb':
-	      configure_option += " --with-tbb"
-	      
 	    if comb['blas'] == 'openblas':
 	      configure_option += " --with-blas"
 	    elif comb['blas'] == 'mkl':
