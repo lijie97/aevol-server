@@ -23,6 +23,7 @@ include_directories("./stats")
 include_directories("./cuda")
 include_directories("./io")
 include_directories("./gui")
+include_directories("./utils")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -72,9 +73,9 @@ set(aevol_sources
   io/Logging.h
   mutation/Mutation.cpp
   mutation/Mutation.h
-  Observable.cpp
-  Observable.h
-  Observer.h
+  utils/Observable.cpp
+  utils/Observable.h
+  utils/Observer.h
   OutputManager.cpp
   OutputManager.h
   mutation/MutationParams.cpp
@@ -100,8 +101,8 @@ set(aevol_sources
   stats/Stats.h
   io/Tree.cpp
   io/Tree.h
-  Utils.cpp
-  Utils.h
+  utils/Utils.cpp
+  utils/Utils.h
   biochemistry/VisAVis.cpp
   biochemistry/VisAVis.h
   io/ParameterLine.cpp
@@ -125,7 +126,7 @@ set(aevol_sources
   AeTime.h
   world/World.cpp
   world/World.h
-  ObservableEvent.h
+  utils//ObservableEvent.h
   phenotype/FuzzyFactory.h
   phenotype/FuzzyFactory.cpp
   phenotype/AbstractFuzzy.h
@@ -153,7 +154,7 @@ set(aevol_sources
   mutation/InsertionHT.h
   mutation/ReplacementHT.cpp
   mutation/ReplacementHT.h
-  make_unique.h
+  utils/make_unique.h
   ae_logger.h
   population/SIMD_Individual.h
   population/SIMD_Individual.cpp
