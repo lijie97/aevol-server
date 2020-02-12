@@ -28,150 +28,160 @@ include_directories("./utils")
 # Add targets add their dependencies
 # ============================================================================
 set(aevol_sources
+  ae_enums.h
+  ae_logger.h
+  AeTime.cpp
+  AeTime.h
   aevol.h
+  macros.h
+
+  biochemistry/ae_string.cpp
+  biochemistry/ae_string.h
   biochemistry/Alignment.cpp
   biochemistry/Alignment.h
   biochemistry/Codon.cpp
   biochemistry/Codon.h
+  biochemistry/Dna_SIMD.cpp
+  biochemistry/Dna_SIMD.h
   biochemistry/Dna.cpp
   biochemistry/Dna.h
+  biochemistry/DnaReplicationReport.cpp
+  biochemistry/DnaReplicationReport.h
+  biochemistry/GeneticUnit.cpp
+  biochemistry/GeneticUnit.h
+  biochemistry/Protein.cpp
+  biochemistry/Protein.h
+  biochemistry/Rna.cpp
+  biochemistry/Rna.h
+  biochemistry/VisAVis.cpp
+  biochemistry/VisAVis.h
+
+  gui/X11Window.cpp
+  gui/X11Window.h
+
   io/Dump.cpp
   io/Dump.h
-  ae_enums.h
-  phenotype/PhenotypicSegment.h
-  world/ExpManager.cpp
-  world/ExpManager.h
-  world/ExpManager_X11.cpp
-  world/ExpManager_X11.h
-  world/ExpSetup.cpp
-  world/ExpSetup.h
-  phenotype/Gaussian.h
-#  mutation/GeneMutation.cpp
-#  mutation/GeneMutation.h
+  io/LightTree.cpp
+  io/LightTree.h
+  io/Logging.cpp
+  io/Logging.h
+  io/OutputManager.cpp
+  io/OutputManager.h
+  io/ParameterLine.cpp
+  io/ParameterLine.h
+  io/ParamLoader.cpp
+  io/ParamLoader.h
+  io/Tree.cpp
+  io/Tree.h
 #  io/GeneTree.cpp
 #  io/GeneTree.h
 #  io/GeneTreeNode.cpp
 #  io/GeneTreeNode.h
-  biochemistry/GeneticUnit.cpp
-  biochemistry/GeneticUnit.h
+  
+  mutation/Deletion.cpp
+  mutation/Deletion.h
+  mutation/DnaMutator.cpp
+  mutation/DnaMutator.h
+  mutation/Duplication.cpp
+  mutation/Duplication.h
+  mutation/HorizontalTransfer.h
+  mutation/InsertionHT.cpp
+  mutation/InsertionHT.h
+  mutation/Inversion.cpp
+  mutation/Inversion.h
+  mutation/LocalMutation.h
+  mutation/Mutation.cpp
+  mutation/Mutation.h
+  mutation/MutationEvent.cpp
+  mutation/MutationEvent.h
+  mutation/MutationParams.cpp
+  mutation/MutationParams.h
+  mutation/PointMutation.cpp
+  mutation/PointMutation.h
+  mutation/Rearrangement.h
+  mutation/ReplacementHT.cpp
+  mutation/ReplacementHT.h
+  mutation/SmallDeletion.cpp
+  mutation/SmallDeletion.h
+  mutation/SmallInsertion.cpp
+  mutation/SmallInsertion.h
+  mutation/Translocation.cpp
+  mutation/Translocation.h
+#  mutation/GeneMutation.cpp
+#  mutation/GeneMutation.h
+
+  phenotype/AbstractFuzzy.cpp
+  phenotype/AbstractFuzzy.h
+  phenotype/Fuzzy.cpp
+  phenotype/Fuzzy.h
+  phenotype/FuzzyFactory.cpp
+  phenotype/FuzzyFactory.h
+  phenotype/Gaussian.h
+  phenotype/HybridFuzzy.cpp
+  phenotype/HybridFuzzy.h
+  phenotype/Phenotype.h
+  phenotype/PhenotypicSegment.h
+  phenotype/PhenotypicTarget.cpp
+  phenotype/PhenotypicTarget.h
+  phenotype/PhenotypicTargetHandler.cpp
+  phenotype/PhenotypicTargetHandler.h
+  phenotype/Point.cpp
+  phenotype/Point.h
+
+  population/Individual_X11.cpp
+  population/Individual_X11.h
+  population/Individual.cpp
+  population/Individual.h
+  population/IndividualFactory.cpp
+  population/IndividualFactory.h
+  population/ReplicationReport.cpp
+  population/ReplicationReport.h
+  population/Selection.cpp
+  population/Selection.h
+  population/SIMD_Individual.cpp
+  population/SIMD_Individual.h
+
+  rng/JumpingMT.cpp
+  rng/JumpingMT.h
+  rng/JumpPoly.h
+  #rng/MersenneTwister.cpp
+  #rng/MersenneTwister.h
+
+  stats/AncestorStats.cpp
+  stats/AncestorStats.h
+  stats/Metrics.h
+  stats/NonCodingMetrics.h
+  stats/StatRecord.cpp
+  stats/StatRecord.h
+  stats/Stats_SIMD.cpp
+  stats/Stats_SIMD.h
+  stats/Stats.cpp
+  stats/Stats.h
+  utils//ObservableEvent.h
+  utils/make_unique.h
+  utils/Observable.cpp
+  utils/Observable.h
+  utils/Observer.h
+  utils/Utils.cpp
+  utils/Utils.h
+
+  world/ExpManager_X11.cpp
+  world/ExpManager_X11.h
+  world/ExpManager.cpp
+  world/ExpManager.h
+  world/ExpSetup.cpp
+  world/ExpSetup.h
+  world/GridCell.cpp
+  world/GridCell.h
   world/Habitat.cpp
   world/Habitat.h
   world/HabitatFactory.cpp
   world/HabitatFactory.h
-  world/GridCell.cpp
-  world/GridCell.h
-  rng/JumpingMT.cpp
-  rng/JumpingMT.h
-  rng/JumpPoly.h
-  population/Individual.cpp
-  population/Individual.h
-  population/Individual_X11.cpp
-  population/Individual_X11.h
-  population/IndividualFactory.cpp
-  population/IndividualFactory.h
-  io/Logging.cpp
-  io/Logging.h
-  mutation/Mutation.cpp
-  mutation/Mutation.h
-  utils/Observable.cpp
-  utils/Observable.h
-  utils/Observer.h
-  OutputManager.cpp
-  OutputManager.h
-  mutation/MutationParams.cpp
-  mutation/MutationParams.h
-  phenotype/Phenotype.h
-  biochemistry/Protein.cpp
-  biochemistry/Protein.h
-  #rng/MersenneTwister.cpp
-  #rng/MersenneTwister.h
-  population/ReplicationReport.cpp
-  population/ReplicationReport.h
-  biochemistry/DnaReplicationReport.cpp
-  biochemistry/DnaReplicationReport.h
-  biochemistry/Rna.cpp
-  biochemistry/Rna.h
-  population/Selection.cpp
-  population/Selection.h
-  biochemistry/ae_string.cpp
-  biochemistry/ae_string.h
-  stats/StatRecord.cpp
-  stats/StatRecord.h
-  stats/Stats.cpp
-  stats/Stats.h
-  io/Tree.cpp
-  io/Tree.h
-  utils/Utils.cpp
-  utils/Utils.h
-  biochemistry/VisAVis.cpp
-  biochemistry/VisAVis.h
-  io/ParameterLine.cpp
-  io/ParameterLine.h
-  gui/X11Window.cpp
-  gui/X11Window.h
-  phenotype/Fuzzy.cpp
-  phenotype/Fuzzy.h
-  stats/Metrics.h
-  macros.h
-  stats/NonCodingMetrics.h
-  io/ParamLoader.cpp
-  io/ParamLoader.h
-  phenotype/PhenotypicTargetHandler.cpp
-  phenotype/PhenotypicTargetHandler.h
-  phenotype/PhenotypicTarget.cpp
-  phenotype/PhenotypicTarget.h
-  phenotype/Point.cpp
-  phenotype/Point.h
-  AeTime.cpp
-  AeTime.h
+  world/SaveWorld.cpp
+  world/SaveWorld.h
   world/World.cpp
   world/World.h
-  utils//ObservableEvent.h
-  phenotype/FuzzyFactory.h
-  phenotype/FuzzyFactory.cpp
-  phenotype/AbstractFuzzy.h
-  phenotype/AbstractFuzzy.cpp
-  phenotype/HybridFuzzy.h
-  phenotype/HybridFuzzy.cpp
-  mutation/PointMutation.cpp
-  mutation/PointMutation.h
-  mutation/SmallInsertion.cpp
-  mutation/SmallInsertion.h
-  mutation/SmallDeletion.cpp
-  mutation/SmallDeletion.h
-  mutation/LocalMutation.h
-  mutation/Rearrangement.h
-  mutation/Duplication.cpp
-  mutation/Duplication.h
-  mutation/Deletion.cpp
-  mutation/Deletion.h
-  mutation/Translocation.cpp
-  mutation/Translocation.h
-  mutation/Inversion.cpp
-  mutation/Inversion.h
-  mutation/HorizontalTransfer.h
-  mutation/InsertionHT.cpp
-  mutation/InsertionHT.h
-  mutation/ReplacementHT.cpp
-  mutation/ReplacementHT.h
-  utils/make_unique.h
-  ae_logger.h
-  population/SIMD_Individual.h
-  population/SIMD_Individual.cpp
-  world/SaveWorld.h
-  world/SaveWorld.cpp
-  io/LightTree.h
-  io/LightTree.cpp
-  biochemistry/Dna_SIMD.h
-  biochemistry/Dna_SIMD.cpp
-  mutation/DnaMutator.h
-  mutation/DnaMutator.cpp
-  stats/Stats_SIMD.h
-  stats/Stats_SIMD.cpp
-  mutation/MutationEvent.h
-  mutation/MutationEvent.cpp
-  stats/AncestorStats.h
-  stats/AncestorStats.cpp)
+  )
   
 if ( ${with-raevol} )
     set(aevol_sources ${aevol_sources} 
