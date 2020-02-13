@@ -37,7 +37,7 @@
 #include <cstdlib>
 #include <cassert>
 
-#include "../PhenotypicTarget.h"
+#include "PhenotypicTarget.h"
 #include "Protein_R.h"
 
 

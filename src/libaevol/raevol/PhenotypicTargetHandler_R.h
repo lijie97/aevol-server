@@ -41,9 +41,9 @@
 //#include <list>
 #include <vector>
 
-#include "../PhenotypicTargetHandler.h"
+#include "PhenotypicTargetHandler.h"
 #include "PhenotypicTarget_R.h"
-#include "../Utils.h"
+#include "Utils.h"
 //#include "Habitat_R.h"
 
 //using std::list;

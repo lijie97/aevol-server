@@ -34,8 +34,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "../Codon.h"
-#include "../Protein.h"
+#include "Codon.h"
+#include "Protein.h"
 #include "Rna_R.h"
 
 namespace aevol {

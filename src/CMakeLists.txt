@@ -16,6 +16,17 @@ find_package(ZLIB REQUIRED)
 # ============================================================================
 include_directories(".")
 include_directories("libaevol")
+include_directories("libaevol/mutation")
+include_directories("libaevol/phenotype")
+include_directories("libaevol/biochemistry")
+include_directories("libaevol/rng")
+include_directories("libaevol/world")
+include_directories("libaevol/population")
+include_directories("libaevol/stats")
+include_directories("libaevol/cuda")
+include_directories("libaevol/io")
+include_directories("libaevol/gui")
+include_directories("libaevol/utils")
 
 # ============================================================================
 # Add targets add their dependencies

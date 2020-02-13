@@ -37,9 +37,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "../Rna.h"
+#include "Rna.h"
 #include "Protein_R.h"
-#include "../macros.h"
+#include "macros.h"
 
 namespace aevol {
 
