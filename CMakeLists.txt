@@ -15,7 +15,6 @@ set(AUTHORIZED_MTPERIOD 607 1279 2281 4253 11213 19937 44497 86243 132049 216091
 
 set(with-x OFF CACHE BOOL "Whether to enable graphical outputs")
 set(with-omp OFF CACHE BOOL "Whether to enable OpenMP parallelization")
-set(with-tbb OFF CACHE BOOL "Whether to enable TBB parallelization")
 set(enable-profiling OFF CACHE BOOL "Whether to enable profiling")
 set(with-tracing OFF CACHE BOOL "Whether to use tracing")
 set(enable-perflog OFF CACHE BOOL "Whether to active performance log")
@@ -45,7 +44,6 @@ else ()
     add_definitions(-D__NO_X)
     message("graphical output disable")
 endif ()
-
 
 if(APPLE)
   if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR    
