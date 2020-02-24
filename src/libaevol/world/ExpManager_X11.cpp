@@ -577,11 +577,6 @@ void ExpManager_X11::display_3D(X11Window * win,
       win->draw_line(cur_x + x0, cur_y + y0, next_x + x0, next_y + y0, color);
     }
   } else {
-    //  ae_list_node* node        = _points->get_first();
-    //  ae_point_2d*  cur_point   = NULL;
-    //  ae_point_2d*  next_point  = NULL;
-
-
     double hi;
     double hi1;
     const HybridFuzzy fuzzy = (HybridFuzzy&)(fuzz);
