@@ -392,8 +392,38 @@ void ExpManager_X11::handle_events()
           // in a clean way, which is much better if we want to run other
           // X applications afterwards!
         }
-
-        break;
+          else
+          {
+              if (event.xkey.keycode == key_codes_[KEY_A])
+                  exp_s()->mut_params()->set_point_mutation_rate(exp_s()->mut_params()->point_mutation_rate()*2);
+              if (event.xkey.keycode == key_codes_[KEY_Q])
+                  exp_s()->mut_params()->set_point_mutation_rate(exp_s()->mut_params()->point_mutation_rate()*0.5);
+              if (event.xkey.keycode == key_codes_[KEY_Z])
+                  exp_s()->mut_params()->set_small_insertion_rate(exp_s()->mut_params()->small_insertion_rate()*2);
+              if (event.xkey.keycode == key_codes_[KEY_S])
+                  exp_s()->mut_params()->set_small_insertion_rate(exp_s()->mut_params()->small_insertion_rate()*0.5);
+              if (event.xkey.keycode == key_codes_[KEY_E])
+                  exp_s()->mut_params()->set_small_deletion_rate(exp_s()->mut_params()->small_deletion_rate()*2);
+              if (event.xkey.keycode == key_codes_[KEY_D])
+                  exp_s()->mut_params()->set_small_deletion_rate(exp_s()->mut_params()->small_deletion_rate()*0.5);
+              if (event.xkey.keycode == key_codes_[KEY_R])
+                  exp_s()->mut_params()->set_duplication_rate(exp_s()->mut_params()->duplication_rate()*2);
+              if (event.xkey.keycode == key_codes_[KEY_F])
+                  exp_s()->mut_params()->set_duplication_rate(exp_s()->mut_params()->duplication_rate()*0.5);
+              if (event.xkey.keycode == key_codes_[KEY_T])
+                  exp_s()->mut_params()->set_deletion_rate(exp_s()->mut_params()->deletion_rate()*2);
+              if (event.xkey.keycode == key_codes_[KEY_G])
+                  exp_s()->mut_params()->set_deletion_rate(exp_s()->mut_params()->deletion_rate()*0.5);
+              if (event.xkey.keycode == key_codes_[KEY_Y])
+                  exp_s()->mut_params()->set_translocation_rate(exp_s()->mut_params()->translocation_rate()*2);
+              if (event.xkey.keycode == key_codes_[KEY_H])
+                  exp_s()->mut_params()->set_translocation_rate(exp_s()->mut_params()->translocation_rate()*0.5);
+              if (event.xkey.keycode == key_codes_[KEY_U])
+                  exp_s()->mut_params()->set_inversion_rate(exp_s()->mut_params()->inversion_rate()*2);
+              if (event.xkey.keycode == key_codes_[KEY_J])
+                  exp_s()->mut_params()->set_inversion_rate(exp_s()->mut_params()->inversion_rate()*0.5);
+          }
+          break;
       }
       default :
       {
@@ -686,8 +716,50 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   sprintf(t, "Generation = %" PRId64, AeTime::time());
   win->draw_string(15, 15, t);
 
+    sprintf( t, "Point mutation rate:   %.1le (A+/Q-)",exp_s()->mut_params()->point_mutation_rate());
+    win->draw_string( 15, 300, t );
+    win->fill_rectangle(15,305, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->point_mutation_rate() - 1e-5)/1e-5)),305,5,8,col_map_[49]);
+    win->draw_line(165,304,165,314,col_map_[40]);
 
-  const int grid_width_ = grid_width();
+    sprintf( t, "Small insertion rate:  %.1le (Z+/S-)",exp_s()->mut_params()->small_insertion_rate());
+    win->draw_string( 15, 330, t );
+    win->fill_rectangle(15,335, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->small_insertion_rate() - 1e-5)/1e-5)),335,5,8,col_map_[49]);
+    win->draw_line(165,334,165,344,col_map_[40]);
+
+    sprintf( t, "Small deletion rate:   %.1le (E+/D-)",exp_s()->mut_params()->small_deletion_rate());
+    win->draw_string( 15, 360, t );
+    win->fill_rectangle(15,365, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->small_deletion_rate() - 1e-5)/1e-5)),365,5,8,col_map_[49]);
+    win->draw_line(165,364,165,374,col_map_[40]);
+
+    sprintf( t, "Duplication rate:      %.1le (R+/F-)",exp_s()->mut_params()->duplication_rate());
+    win->draw_string( 15, 390, t );
+    win->fill_rectangle(15,395, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->duplication_rate() - 1e-5)/1e-5)),395,5,8,col_map_[49]);
+    win->draw_line(165,394,165,404,col_map_[40]);
+
+    sprintf( t, "Deletion rate:         %.1le (T+/G-)",exp_s()->mut_params()->deletion_rate());
+    win->draw_string( 15, 420, t );
+    win->fill_rectangle(15,425, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->deletion_rate() - 1e-5)/1e-5)),425,5,8,col_map_[49]);
+    win->draw_line(165,424,165,434,col_map_[40]);
+
+    sprintf( t, "Translocation rate:    %.1le (Y+/H-)",exp_s()->mut_params()->translocation_rate());
+    win->draw_string( 15, 450, t );
+    win->fill_rectangle(15,455, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->translocation_rate() - 1e-5)/1e-5)),455,5,8,col_map_[49]);
+    win->draw_line(165,454,165,464,col_map_[40]);
+
+    sprintf( t, "Inversion rate:        %.1le (U+/J-)",exp_s()->mut_params()->inversion_rate());
+    win->draw_string( 15, 480, t );
+    win->fill_rectangle(15,485, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->inversion_rate() - 1e-5)/1e-5)),485,5,8,col_map_[49]);
+    win->draw_line(165,484,165,494,col_map_[40]);
+
+
+    const int grid_width_ = grid_width();
   const int grid_height_ = grid_height();
 
   int nb_slots_in_a_row = (int) grid_height_;
@@ -777,7 +849,8 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
   win_size_[0][0] = 400;
 
   // Set phenotype window width
-  win_size_[1][0] = 600;
+    win_size_[1][0] = 600;
+    win_size_[0][1] = 600;
 
   // Set CDS and RNA window width
   if (with_plasmids)
@@ -794,53 +867,53 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
       win_pos_[0][0]  = 0;
       win_pos_[0][1]  = 0;
       win_pos_[1][0]  = 400;
-      win_pos_[1][1]  = 0;
-      win_pos_[2][0]  = 0;
-      win_pos_[2][1]  = 350;
-      win_pos_[3][0]  = 0;
-      win_pos_[3][1]  = 700;
+      win_pos_[1][1]  = 300;
+      win_pos_[2][0]  = 700;
+      win_pos_[2][1]  = 0;
+      win_pos_[3][0]  = 400;
+      win_pos_[3][1]  = 0;
     }
   }
   else if (with_plasmids)
   {
     //if (XDisplayWidth(display_, screen_) >= 900 && XDisplayHeight(display_, screen_) >= 650)
     {
-      win_pos_[0][0]  = 0;
-      win_pos_[0][1]  = 0;
-      win_pos_[1][0]  = 400;
-      win_pos_[1][1]  = 0;
-      win_pos_[2][0]  = 0;
-      win_pos_[2][1]  = 350;
-      win_pos_[3][0]  = 0;
-      win_pos_[3][1]  = 700;
+        win_pos_[0][0]  = 0;
+        win_pos_[0][1]  = 0;
+        win_pos_[1][0]  = 400;
+        win_pos_[1][1]  = 300;
+        win_pos_[2][0]  = 700;
+        win_pos_[2][1]  = 0;
+        win_pos_[3][0]  = 400;
+        win_pos_[3][1]  = 0;
     }
   }
   else if (with_grid)
   {
     //if (XDisplayWidth(display_, screen_) >= 900 && XDisplayHeight(display_, screen_) >= 650)
     {
-      win_pos_[0][0]  = 0;
-      win_pos_[0][1]  = 0;
-      win_pos_[1][0]  = 400;
-      win_pos_[1][1]  = 0;
-      win_pos_[2][0]  = 0;
-      win_pos_[2][1]  = 350;
-      win_pos_[3][0]  = 300;
-      win_pos_[3][1]  = 350;
+        win_pos_[0][0]  = 0;
+        win_pos_[0][1]  = 0;
+        win_pos_[1][0]  = 400;
+        win_pos_[1][1]  = 300;
+        win_pos_[2][0]  = 700;
+        win_pos_[2][1]  = 0;
+        win_pos_[3][0]  = 400;
+        win_pos_[3][1]  = 0;
     }
   }
   else // (! with_plasmids && ! with_grid)
   {
     //if (XDisplayWidth(display_, screen_) >= 900 && XDisplayHeight(display_, screen_) >= 650)
     {
-      win_pos_[0][0]  = 0;
-      win_pos_[0][1]  = 0;
-      win_pos_[1][0]  = 400;
-      win_pos_[1][1]  = 0;
-      win_pos_[2][0]  = 0;
-      win_pos_[2][1]  = 325;
-      win_pos_[3][0]  = 300;
-      win_pos_[3][1]  = 325;
+        win_pos_[0][0]  = 0;
+        win_pos_[0][1]  = 0;
+        win_pos_[1][0]  = 400;
+        win_pos_[1][1]  = 300;
+        win_pos_[2][0]  = 700;
+        win_pos_[2][1]  = 0;
+        win_pos_[3][0]  = 400;
+        win_pos_[3][1]  = 0;
     }
   }
 
@@ -1193,7 +1266,7 @@ void ExpManager_X11::set_codes() {
   key_codes_[KEY_8]       = XKeysymToKeycode(display_, XK_8);
   key_codes_[KEY_9]       = XKeysymToKeycode(display_, XK_9);
 }
-
+/*
 void ExpManager_X11::compute_colormap() {
   col_map_ = {
     (char*)"RGBi:1.0/0.0/0.0",
@@ -1251,6 +1324,67 @@ void ExpManager_X11::compute_colormap() {
     (char*)"RGBi:0.9/0.0/1.0",
     (char*)"RGBi:1.0/0.0/1.0",
   };
+*/
+
+    void ExpManager_X11::compute_colormap() {
+        col_map_ = {
+                (char *) "RGBi:0.0/0.0/1.0",
+                (char *) "RGBi:0.0/0.025/1.0",
+                (char *) "RGBi:0.0/0.05/1.0",
+                (char *) "RGBi:0.0/0.10/1.0",
+                (char *) "RGBi:0.0/0.15/1.0",
+                (char *) "RGBi:0.0/0.2/1.0",
+                (char *) "RGBi:0.0/0.25/1.0",
+                (char *) "RGBi:0.0/0.3/1.0",
+                (char *) "RGBi:0.0/0.35/1.0",
+                (char *) "RGBi:0.0/0.4/1.0",
+
+                (char *) "RGBi:0.0/0.45/1.0",
+                (char *) "RGBi:0.0/0.5/1.0",
+                (char *) "RGBi:0.0/0.55/1.0",
+                (char *) "RGBi:0.0/0.6/1.0",
+                (char *) "RGBi:0.0/0.65/1.0",
+                (char *) "RGBi:0.0/0.7/1.0",
+                (char *) "RGBi:0.0/0.75/1.0",
+                (char *) "RGBi:0.0/0.8/1.0",
+                (char *) "RGBi:0.0/0.85/1.0",
+                (char *) "RGBi:0.0/0.9/1.0",
+
+
+                (char *) "RGBi:0.0/1.0/1.0",
+                (char *) "RGBi:0.0/1.0/0.9",
+                (char *) "RGBi:0.0/1.0/0.8",
+                (char *) "RGBi:0.0/1.0/0.7",
+                (char *) "RGBi:0.0/1.0/0.6",
+                (char *) "RGBi:0.0/1.0/0.5",
+                (char *) "RGBi:0.0/1.0/0.4",
+                (char *) "RGBi:0.0/1.0/0.3",
+                (char *) "RGBi:0.0/1.0/0.2",
+                (char *) "RGBi:0.0/1.0/0.1",
+
+
+                (char *) "RGBi:0.0/1.0/0.0",
+                (char *) "RGBi:0.1/1.0/0.0",
+                (char *) "RGBi:0.2/1.0/0.0",
+                (char *) "RGBi:0.3/1.0/0.0",
+                (char *) "RGBi:0.4/1.0/0.0",
+                (char *) "RGBi:0.5/1.0/0.0",
+                (char *) "RGBi:0.6/1.0/0.0",
+                (char *) "RGBi:0.7/1.0/0.0",
+                (char *) "RGBi:0.8/1.0/0.0",
+                (char *) "RGBi:0.9/1.0/0.0",
+
+                (char *) "RGBi:1.0/0.9/0.0",
+                (char *) "RGBi:1.0/0.8/0.0",
+                (char *) "RGBi:1.0/0.7/0.0",
+                (char *) "RGBi:1.0/0.6/0.0",
+                (char *) "RGBi:1.0/0.5/0.0",
+                (char *) "RGBi:1.0/0.4/0.0",
+                (char *) "RGBi:1.0/0.3/0.0",
+                (char *) "RGBi:1.0/0.2/0.0",
+                (char *) "RGBi:1.0/0.1/0.0",
+                (char *) "RGBi:1.0/0.0/0.0",
+        };
 
 }
 } // namespace aevol
