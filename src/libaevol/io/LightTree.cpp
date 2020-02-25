@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <stdio.h>
 
 // =================================================================
 //                            Project Files
@@ -496,6 +497,9 @@ void LightTree::update_mrca(int64_t gen) {
   for(int64_t i = mrca_time_ ; i < gen ; i++) {
     if(allNodes_[i].size() > 1) {
       mrca_time_ = std::max(i-1, (int64_t)0);
+      FILE * mrca_file = fopen("stats/stat_mrca.out","a");
+      fprintf(mrca_file,"%lld %lld\n",gen,mrca_time_); //GB
+      fclose(mrca_file);
       break;
     }
   }
