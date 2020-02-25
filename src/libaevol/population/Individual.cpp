@@ -1667,7 +1667,7 @@ void Individual::compute_statistical_data() {
 
   if (not phenotype_computed_)
     compute_phenotype();
-  
+
   for (const auto& gen_unit : genetic_unit_list_) {
     metrics_->Accumulate(gen_unit);
   }
@@ -1945,7 +1945,6 @@ void Individual::remove_non_coding_bases() {
   nc_metrics_ = NULL;
 
 #ifdef DEBUG
-  printf("compute_stat 1\n");
   compute_statistical_data();
   compute_non_coding();
   assert(nb_bases_in_0_coding_RNA() == 0);
@@ -1970,7 +1969,6 @@ void Individual::double_non_coding_bases() {
   nc_metrics_ = NULL;
 
 #ifdef DEBUG
-  printf("compute stats 2\n");
   compute_statistical_data();
   compute_non_coding();
   assert(nb_bases_in_0_coding_RNA() == 2 * initial_non_coding_base_nb);
