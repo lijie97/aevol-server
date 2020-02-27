@@ -1047,6 +1047,7 @@ void StatRecord::initialize_data()
                     parent_secretion_error_,
                     secretion_fitness_,
                     compound_amount_);
+            fflush (stat_file);
 #ifdef __REGUL
             fprintf(stat_file,
           " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
