@@ -1,29 +1,49 @@
-# ============================================================================
-# Tell cmake about subdirectories to look into
-# ============================================================================
+# Google Test headers
+add_subdirectory(googletest)
+include_directories("${gtest_SOURCE_DIR}/include")
 
-
-# ============================================================================
-# Find packages
-# ============================================================================
+# We need zlib
 find_package(ZLIB REQUIRED)
 
+# Libraries to link unit tests against
+set(test_libs
+  aevol
+  gtest_main
+)
 
-# ============================================================================
-# Add PWD to include directories
-# ============================================================================
-include_directories(".")
+# List of all the tests
+set(TESTS
+  SampleTest
+  IndividualTest
+  TranscriptionTranslationTest
+)
 
-# ============================================================================
-# Add targets add their dependencies
-# ============================================================================
-add_executable(TranscriptionTranslationTest TranscriptionTranslationTest.cpp)
-target_link_libraries(TranscriptionTranslationTest PUBLIC aevol)
+# Create a runner for each unit test. Generates a list named TEST_RUNNERS
+foreach (TEST IN LISTS TESTS)
 
-add_executable(IndividualTest IndividualTest.cpp)
-target_link_libraries(IndividualTest PUBLIC aevol)
+  set(TEST_RUNNER run_${TEST})
+  set(TEST_RUNNERS ${TEST_RUNNERS} ${TEST_RUNNER})
 
+  add_executable(${TEST} ${TEST}.cpp)
 
-# ============================================================================
-# Set behaviour on make install
-# ============================================================================
+  set_target_properties(${TEST}
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
+  )
+
+  target_link_libraries(${TEST} ${test_libs})
+
+  add_custom_target(${TEST_RUNNER}
+    COMMENT "Running test ${TEST}..."
+    COMMAND ${CMAKE_BINARY_DIR}/test/${TEST}
+    DEPENDS ${TEST}
+  )
+
+  set_target_properties(${TEST_RUNNER}
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
+  )
+endforeach(TEST)
+
+# Add target check (main target for tests)
+add_custom_target(check DEPENDS ${TEST_RUNNERS})
