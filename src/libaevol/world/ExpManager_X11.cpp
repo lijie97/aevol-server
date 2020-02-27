@@ -422,6 +422,14 @@ void ExpManager_X11::handle_events()
                   exp_s()->mut_params()->set_inversion_rate(exp_s()->mut_params()->inversion_rate()*2);
               if (event.xkey.keycode == key_codes_[KEY_J])
                   exp_s()->mut_params()->set_inversion_rate(exp_s()->mut_params()->inversion_rate()*0.5);
+              if (event.xkey.keycode == key_codes_[KEY_I]) {
+                  if (exp_s()->sel()->selection_pressure()<2500)
+                      exp_s()->sel()->set_selection_pressure(exp_s()->sel()->selection_pressure() + 100);
+              }
+              if (event.xkey.keycode == key_codes_[KEY_K]) {
+                  if (exp_s()->sel()->selection_pressure()>100)
+                      exp_s()->sel()->set_selection_pressure(exp_s()->sel()->selection_pressure() - 100);
+              }
           }
           break;
       }
@@ -757,6 +765,12 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
     win->fill_rectangle(15,485, 300,8,col_map_[0]);
     win->fill_rectangle((163 + 20*log(1 + (exp_s()->mut_params()->inversion_rate() - 1e-5)/1e-5)),485,5,8,col_map_[49]);
     win->draw_line(165,484,165,494,col_map_[40]);
+
+    sprintf( t, "Selection Strength:    %3.1le (I+/K-)",exp_s()->sel()->selection_pressure());
+    win->draw_string( 15, 540, t );
+    win->fill_rectangle(15,545, 300,8,col_map_[0]);
+    win->fill_rectangle((163 + (exp_s()->sel()->selection_pressure() - 1000)/10.0),545,5,8,col_map_[49]);
+    win->draw_line(165,544,165,554,col_map_[40]);
 
 
     const int grid_width_ = grid_width();
