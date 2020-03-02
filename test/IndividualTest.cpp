@@ -115,6 +115,12 @@ void IndividualTest::SetUp(void)
   sprintf(genome, "%s%s%s%s%s%s%s%s%s", as[0], prom[0], as[1], gene, as[2],
            term, as[3], prom[1], as[4]);
 
+
+  // Initialize the experimental setup and fuzzy set factory.
+  // These are needed in the GeneticUnit constructors.
+  ExpSetup* exp_s = new ExpSetup(nullptr);
+  FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
+
   // Build indiv1
   MutationParams params_mut;
   indiv1 = new Individual(nullptr, nullptr, nullptr, std::make_shared<MutationParams>(params_mut), 1.0, 10, 1000, false, 1, "anon-strain-1", 0);
@@ -192,7 +198,6 @@ void IndividualTest::SetUp(void)
   //           protein_node->get_obj()->concentration(),
   //           protein_node->get_obj()->rna_list()->size());
 
-  ExpSetup* exp_s = new ExpSetup(nullptr);
   for (int i = 0; i <= 1; i++) {
     exp_s->set_fuzzy_flavor(i);
 
