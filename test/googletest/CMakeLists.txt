@@ -22,8 +22,14 @@ include(CMakeDependentOption)
 include(GNUInstallDirs)
 
 #Note that googlemock target already builds googletest
-option(BUILD_GMOCK "Builds the googlemock subproject" ON)
-option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" ON)
+option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
+option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" OFF)
+
+# Don't show these in aevol, we won't need to use them
+mark_as_advanced(
+  BUILD_GMOCK
+  INSTALL_GTEST
+)
 
 if(BUILD_GMOCK)
   add_subdirectory( googlemock )
