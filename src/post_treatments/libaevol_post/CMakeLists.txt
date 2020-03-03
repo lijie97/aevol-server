@@ -3,6 +3,4 @@
 # post-treatments
 # ============================================================================
 
-include_directories(".")
-
 add_library(libaevol-post IndivAnalysis.cpp)

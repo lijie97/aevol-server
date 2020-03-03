@@ -199,6 +199,24 @@ if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fexpensive-optimizations")
 endif ()
 
+# ============================================================================
+# Directories containing aevol headers
+# ============================================================================
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/mutation")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/phenotype")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/biochemistry")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/rng")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/world")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/population")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/stats")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/cuda")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/io")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/gui")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/utils")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/7")
+include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/SFMT-src-1.4")
+
 
 # ============================================================================
 # Tell cmake about subdirectories to look into
