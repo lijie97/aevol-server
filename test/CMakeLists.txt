@@ -45,5 +45,14 @@ foreach (TEST IN LISTS TESTS)
   )
 endforeach(TEST)
 
+# Copy data files for TranscriptionTranslationTest
+add_custom_command(TARGET TranscriptionTranslationTest
+  PRE_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/test/TranscriptionTranslationTest_files
+    ${CMAKE_BINARY_DIR}/test/TranscriptionTranslationTest_files
+)
+
+
 # Add target check (main target for tests)
 add_custom_target(check DEPENDS ${TEST_RUNNERS})
