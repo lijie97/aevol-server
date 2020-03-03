@@ -50,11 +50,6 @@
 
 using namespace aevol;
 
-using std::list;
-
-
-
-
 //############################################################################
 //                                                                           #
 //                         Class IndividualTest                              #
@@ -254,7 +249,7 @@ TEST_F(IndividualTest, TestIndiv1)
     EXPECT_EQ(109, indiv1->genetic_unit_seq_length(0));
 
     // Check RNA list
-    list<const Rna*> rna_list = indiv1->rna_list();
+    std::list<const Rna*> rna_list = indiv1->rna_list();
     EXPECT_EQ(2, rna_list.size());
     const Rna* rna = rna_list.front();
     EXPECT_EQ(LEADING, rna->strand());
@@ -268,7 +263,7 @@ TEST_F(IndividualTest, TestIndiv1)
     EXPECT_EQ(82, rna->transcript_length());
 
     // Check protein list
-    list<Protein*> prot_list = indiv1->protein_list();
+    std::list<Protein*> prot_list = indiv1->protein_list();
     EXPECT_EQ(1, prot_list.size());
     Protein* prot = prot_list.front();
     EXPECT_EQ(LEADING, prot->strand());
@@ -289,7 +284,7 @@ TEST_F(IndividualTest, TestIndiv2)
     EXPECT_EQ(109, indiv2->genetic_unit_seq_length(0));
 
     // Check RNA list
-    list<const Rna*> rna_list = indiv2->rna_list();
+    std::list<const Rna*> rna_list = indiv2->rna_list();
     EXPECT_EQ(2, rna_list.size());
     const Rna* rna = rna_list.front();
     EXPECT_EQ(LAGGING, rna->strand());
@@ -303,7 +298,7 @@ TEST_F(IndividualTest, TestIndiv2)
     EXPECT_EQ(82, rna->transcript_length());
 
     // Check protein list
-    list<Protein*> prot_list = indiv2->protein_list();
+    std::list<Protein*> prot_list = indiv2->protein_list();
     EXPECT_EQ(1, prot_list.size());
     Protein* prot = prot_list.front();
     EXPECT_EQ(LAGGING, prot->strand());
@@ -323,7 +318,7 @@ TEST_F(IndividualTest, TestIndiv3)
     EXPECT_EQ(81, indiv3->genetic_unit_seq_length(0));
 
     // Check RNA list
-    list<const Rna*> rna_list = indiv3->rna_list();
+    std::list<const Rna*> rna_list = indiv3->rna_list();
     EXPECT_EQ(1, rna_list.size());
     const Rna* rna = rna_list.front();
     EXPECT_EQ(LEADING, rna->strand());
@@ -332,7 +327,7 @@ TEST_F(IndividualTest, TestIndiv3)
     EXPECT_EQ(42, rna->transcript_length());
 
     // Check protein list
-    list<Protein*> prot_list = indiv3->protein_list();
+    std::list<Protein*> prot_list = indiv3->protein_list();
     EXPECT_EQ(1, prot_list.size());
     Protein* prot = prot_list.front();
     EXPECT_EQ(LEADING, prot->strand());
@@ -352,7 +347,7 @@ TEST_F(IndividualTest, TestIndiv4)
     EXPECT_EQ(81, indiv4->genetic_unit_seq_length(0));
 
     // Check RNA list
-    list<const Rna*> rna_list = indiv4->rna_list();
+    std::list<const Rna*> rna_list = indiv4->rna_list();
     EXPECT_EQ(1, rna_list.size());
     const Rna* rna = rna_list.front();
     EXPECT_EQ(LAGGING, rna->strand());
@@ -361,7 +356,7 @@ TEST_F(IndividualTest, TestIndiv4)
     EXPECT_EQ(42, rna->transcript_length());
 
     // Check protein list
-    list<Protein*> prot_list = indiv4->protein_list();
+    std::list<Protein*> prot_list = indiv4->protein_list();
     EXPECT_EQ(1, prot_list.size());
     Protein* prot = prot_list.front();
     EXPECT_EQ(LAGGING, prot->strand());
