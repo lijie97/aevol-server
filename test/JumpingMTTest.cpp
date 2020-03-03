@@ -36,24 +36,35 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "Test_JumpingMT.h"
 
-namespace aevol {
+#include <cstdio>
+#include <cstdlib>
+
+#include "gtest/gtest.h"
+
+#include "JumpingMT.h"
+
 
 // ===========================================================================
 //                             Declare Used Namespaces
 // ===========================================================================
 
-
+using namespace aevol;
 
 
 //############################################################################
 //                                                                           #
-//                         Class Test_JumpingMT                          #
+//                         Class JumpingMTTest                          #
 //                                                                           #
 //############################################################################
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_JumpingMT);
+class JumpingMTTest : public testing::Test {
+ protected:
+  virtual void SetUp(void);
+  virtual void TearDown(void);
 
+  JumpingMT* obj1;
+  JumpingMT* obj2;
+};
 // ===========================================================================
 //                               Static attributes
 // ===========================================================================
@@ -61,16 +72,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(Test_JumpingMT);
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
-Test_JumpingMT::Test_JumpingMT(void)
-{
-}
 
 // ===========================================================================
 //                                  Destructors
 // ===========================================================================
-Test_JumpingMT::~Test_JumpingMT(void)
-{
-}
 
 // ===========================================================================
 //                                   Operators
@@ -79,19 +84,19 @@ Test_JumpingMT::~Test_JumpingMT(void)
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
-void Test_JumpingMT::setUp(void)
+void JumpingMTTest::SetUp(void)
 {
   obj1 = new JumpingMT(56873);
   obj2 = new JumpingMT(*obj1);
 }
 
-void Test_JumpingMT::tearDown(void)
+void JumpingMTTest::TearDown(void)
 {
   delete obj1;
   delete obj2;
 }
 
-void Test_JumpingMT::test1(void)
+TEST_F(JumpingMTTest, test1)
 {
   for (int i = 0 ; i < 10 ; i++)
   {
@@ -99,18 +104,18 @@ void Test_JumpingMT::test1(void)
     obj2->random();
   }
 
-  CPPUNIT_ASSERT(obj1->random() == obj2->random());
-  CPPUNIT_ASSERT(obj1->random((int8_t) INT8_MAX) == obj2->random((int8_t) INT8_MAX));
-  CPPUNIT_ASSERT(obj1->random((int16_t) INT16_MAX) == obj2->random((int16_t) INT16_MAX));
-  CPPUNIT_ASSERT(obj1->random((int32_t) INT32_MAX) == obj2->random((int32_t) INT32_MAX));
-  CPPUNIT_ASSERT(obj1->random((int64_t) INT64_MAX) == obj2->random((int64_t) INT64_MAX));
-  CPPUNIT_ASSERT(obj1->binomial_random(435, 0.5) == obj2->binomial_random(435, 0.5));
-  CPPUNIT_ASSERT(obj1->gaussian_random() == obj2->gaussian_random());
+  EXPECT_TRUE(obj1->random() == obj2->random());
+  EXPECT_TRUE(obj1->random((int8_t) INT8_MAX) == obj2->random((int8_t) INT8_MAX));
+  EXPECT_TRUE(obj1->random((int16_t) INT16_MAX) == obj2->random((int16_t) INT16_MAX));
+  EXPECT_TRUE(obj1->random((int32_t) INT32_MAX) == obj2->random((int32_t) INT32_MAX));
+  EXPECT_TRUE(obj1->random((int64_t) INT64_MAX) == obj2->random((int64_t) INT64_MAX));
+  EXPECT_TRUE(obj1->binomial_random(435, 0.5) == obj2->binomial_random(435, 0.5));
+  EXPECT_TRUE(obj1->gaussian_random() == obj2->gaussian_random());
 }
 
-void Test_JumpingMT::test2(void)
+TEST_F(JumpingMTTest, test2)
 {
-  CPPUNIT_ASSERT(true);
+  EXPECT_TRUE(true);
 }
 
 // ===========================================================================
@@ -120,4 +125,3 @@ void Test_JumpingMT::test2(void)
 // ===========================================================================
 //                              Non inline accessors
 // ===========================================================================
-} // namespace aevol

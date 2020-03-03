@@ -15,6 +15,7 @@ set(test_libs
 set(TESTS
   SampleTest
   IndividualTest
+  JumpingMTTest
   TranscriptionTranslationTest
 )
 
