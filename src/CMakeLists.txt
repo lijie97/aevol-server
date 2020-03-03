@@ -66,9 +66,3 @@ install(TARGETS aevol_create DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_create)
 install(TARGETS aevol_modify DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_modify)
 install(TARGETS aevol_propagate DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_propagate)
 install(TARGETS aevol_run DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_run)
-
-
-# ============================================================================
-# Include tests
-# ============================================================================
-add_subdirectory(tests EXCLUDE_FROM_ALL)

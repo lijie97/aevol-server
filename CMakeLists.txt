@@ -189,6 +189,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -pipe -fexpe
 # ============================================================================
 add_subdirectory(src)
 
+# ============================================================================
+# Include tests
+# ============================================================================
+add_subdirectory(test EXCLUDE_FROM_ALL)
+
 
 # ============================================================================
 # Adds the 'dist' target (that will use CPack)
