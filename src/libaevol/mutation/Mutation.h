@@ -86,7 +86,7 @@ class Mutation {
   // =================================================================
   Mutation() = default;
   Mutation(const Mutation& model) = default;
-  Mutation(Mutation&& model) = default;
+  Mutation(Mutation&& model) = delete;
 
   virtual Mutation* Clone() const = 0;
   static Mutation* Load(gzFile backup);

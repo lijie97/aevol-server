@@ -48,7 +48,7 @@ class SmallDeletion : public LocalMutation {
   // ==========================================================================
   SmallDeletion() = default; //< Default ctor
   SmallDeletion(const SmallDeletion&) = default; //< Copy ctor
-  SmallDeletion(SmallDeletion&&) = default; //< Move ctor
+  SmallDeletion(SmallDeletion&&) = delete; //< Move ctor
   SmallDeletion(int32_t pos, int16_t length);
 
   virtual Mutation* Clone() const override { return new SmallDeletion(*this); };
@@ -62,7 +62,7 @@ class SmallDeletion : public LocalMutation {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  SmallDeletion& operator=(const SmallDeletion& other) = default;
+  SmallDeletion& operator=(const SmallDeletion& other) = delete;
 
   /// Move assignment
   SmallDeletion& operator=(SmallDeletion&& other) = delete;

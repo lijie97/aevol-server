@@ -62,7 +62,7 @@ class SmallInsertion : public LocalMutation {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  SmallInsertion& operator=(const SmallInsertion& other);
+  SmallInsertion& operator=(const SmallInsertion& other) = delete;
 
   /// Move assignment
   SmallInsertion& operator=(SmallInsertion&& other) = delete;

@@ -66,15 +66,7 @@ SmallInsertion::~SmallInsertion() noexcept {
 // ============================================================================
 //                                 Operators
 // ============================================================================
-/// Copy assignment
-SmallInsertion& SmallInsertion::operator=(const SmallInsertion& other) {
-  pos_ = other.pos_;
-  length_ = other.length_;
-  seq_ = new char[length_ + 1];
-  memcpy(seq_, other.seq_, length_ + 1);
 
-  return *this;
-}
 
 // ============================================================================
 //                                   Methods

@@ -62,7 +62,7 @@ class PointMutation : public LocalMutation {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  PointMutation& operator=(const PointMutation& other) = default;
+  PointMutation& operator=(const PointMutation& other) = delete;
   /// Move assignment
   PointMutation& operator=(PointMutation&& other) = delete;
 

@@ -65,7 +65,7 @@ class Translocation : public Rearrangement {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  Translocation& operator=(const Translocation& other) = default;
+  Translocation& operator=(const Translocation& other) = delete;
 
   /// Move assignment
   Translocation& operator=(Translocation&& other) = delete;

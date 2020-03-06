@@ -62,7 +62,7 @@ class Inversion : public Rearrangement{
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  Inversion& operator=(const Inversion& other) = default;
+  Inversion& operator=(const Inversion& other) = delete;
 
   /// Move assignment
   Inversion& operator=(Inversion&& other) = delete;

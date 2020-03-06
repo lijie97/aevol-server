@@ -61,7 +61,7 @@ class Duplication : public Rearrangement {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  Duplication& operator=(const Duplication& other) = default;
+  Duplication& operator=(const Duplication& other) = delete;
 
   /// Move assignment
   Duplication& operator=(Duplication&& other) = delete;

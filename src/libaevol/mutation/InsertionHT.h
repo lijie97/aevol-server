@@ -63,7 +63,7 @@ class InsertionHT : public HorizontalTransfer {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  InsertionHT& operator=(const InsertionHT& other) = default;
+  InsertionHT& operator=(const InsertionHT& other) = delete;
 
   /// Move assignment
   InsertionHT& operator=(InsertionHT&& other) = delete;

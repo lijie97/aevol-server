@@ -59,7 +59,7 @@ class Deletion : public Rearrangement {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  Deletion& operator=(const Deletion& other) = default;
+  Deletion& operator=(const Deletion& other) = delete;
 
   /// Move assignment
   Deletion& operator=(Deletion&& other) = delete;

@@ -64,7 +64,7 @@ class ReplacementHT : public HorizontalTransfer {
   //                                Operators
   // ==========================================================================
   /// Copy assignment
-  ReplacementHT& operator=(const ReplacementHT& other) = default;
+  ReplacementHT& operator=(const ReplacementHT& other) = delete;
 
   /// Move assignment
   ReplacementHT& operator=(ReplacementHT&& other) = delete;
