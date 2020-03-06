@@ -2,7 +2,10 @@
 # Tell cmake about subdirectories to look into
 # ============================================================================
 add_subdirectory(libaevol)
-add_subdirectory(post_treatments)
+
+if (with-post-treatments)
+  add_subdirectory(post_treatments)
+endif()
 
 
 # ============================================================================

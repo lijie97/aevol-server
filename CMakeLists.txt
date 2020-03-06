@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(AUTHORIZED_MTPERIOD 607 1279 2281 4253 11213 19937 44497 86243 132049 216091)
 
+set(with-post-treatments ON CACHE BOOL "Whether to build post-treatments")
 
 set(with-x OFF CACHE BOOL "Whether to enable graphical outputs")
 set(with-omp OFF CACHE BOOL "Whether to enable OpenMP parallelization")
