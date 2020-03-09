@@ -110,7 +110,8 @@ set(aevol_sources
 #  mutation/GeneMutation.cpp
 #  mutation/GeneMutation.h
 
-  phenotype/AbstractFuzzy.cpp
+  # The following file does not need compiling as it currently has no methods
+  # phenotype/AbstractFuzzy.cpp
   phenotype/AbstractFuzzy.h
   phenotype/Fuzzy.cpp
   phenotype/Fuzzy.h
