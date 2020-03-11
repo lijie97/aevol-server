@@ -47,7 +47,7 @@ target_compile_definitions(sfmt
   PUBLIC __STDC_FORMAT_MACROS
   PUBLIC __STDC_CONSTANT_MACROS)
 
-
 # ============================================================================
-# Use C++11
+# Silence -Wunused-const-variable warning
 # ============================================================================
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-unused-const-variable")
