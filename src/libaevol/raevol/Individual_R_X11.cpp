@@ -35,8 +35,8 @@
 //                            Project Files
 // =================================================================
 #include "Individual_R_X11.h"
-#include "../ExpManager.h"
-#include "../ExpManager_X11.h"
+#include "ExpManager.h"
+#include "ExpManager_X11.h"
 
 namespace aevol {
 
