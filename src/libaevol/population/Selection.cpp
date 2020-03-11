@@ -179,7 +179,6 @@ void Selection::step_to_next_generation() {
 
   int16_t x, y;
   int8_t what;
-  high_resolution_clock::time_point t1, t2;
 
   //std::unordered_map<unsigned long long, Individual*> unique_individual;
 
@@ -341,8 +340,6 @@ void Selection::step_to_next_generation() {
 #endif // __OPENMP_GPU
 #endif // _OPENMP
 
-  t1 = high_resolution_clock::now();
-
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic)
@@ -382,11 +379,6 @@ void Selection::step_to_next_generation() {
             delete eindiv;
         }
     }
-   /* t2 = high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        t2 - t1).count();
-    cout << "TIMER," << AeTime::time() << ",OLD," << duration << endl;
-*/
 
     for (int16_t x = 0; x < grid_width; x++)
       for (int16_t y = 0; y < grid_height; y++)
