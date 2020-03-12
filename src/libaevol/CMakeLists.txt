@@ -218,9 +218,3 @@ target_link_libraries(aevol PUBLIC sfmt)
 target_compile_definitions(aevol
   PUBLIC __STDC_FORMAT_MACROS
   PUBLIC __STDC_CONSTANT_MACROS)
-
-
-# ============================================================================
-# Use C++11
-# ============================================================================
-target_compile_options(aevol PUBLIC "-std=c++14")
