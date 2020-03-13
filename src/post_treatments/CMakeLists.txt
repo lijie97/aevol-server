@@ -29,38 +29,38 @@ include_directories("../libaevol/utils")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
-add_executable(aevol_misc_create_eps create_eps.cpp)
-target_link_libraries(aevol_misc_create_eps PUBLIC aevol)
+add_executable(aevol_post_create_eps create_eps.cpp)
+target_link_libraries(aevol_post_create_eps PUBLIC aevol)
 
-add_executable(aevol_misc_extract extract.cpp)
-target_link_libraries(aevol_misc_extract PUBLIC aevol)
+add_executable(aevol_post_extract extract.cpp)
+target_link_libraries(aevol_post_extract PUBLIC aevol)
 
-add_executable(aevol_misc_ancestor_stats ancestor_stats.cpp)
-target_link_libraries(aevol_misc_ancestor_stats PUBLIC aevol)
+add_executable(aevol_post_ancestor_stats ancestor_stats.cpp)
+target_link_libraries(aevol_post_ancestor_stats PUBLIC aevol)
 
-add_executable(aevol_misc_ancestor_mutagenesis ancestor_mutagenesis.cpp IndivAnalysis.cpp)
-target_link_libraries(aevol_misc_ancestor_mutagenesis PUBLIC aevol)
+add_executable(aevol_post_ancestor_mutagenesis ancestor_mutagenesis.cpp IndivAnalysis.cpp)
+target_link_libraries(aevol_post_ancestor_mutagenesis PUBLIC aevol)
 
-add_executable(aevol_misc_coalescence coalescence.cpp)
-target_link_libraries(aevol_misc_coalescence PUBLIC aevol)
+add_executable(aevol_post_coalescence coalescence.cpp)
+target_link_libraries(aevol_post_coalescence PUBLIC aevol)
 
-add_executable(aevol_misc_protein_map protein_map.cpp)
-target_link_libraries(aevol_misc_protein_map PUBLIC aevol)
+add_executable(aevol_post_protein_map protein_map.cpp)
+target_link_libraries(aevol_post_protein_map PUBLIC aevol)
 
-add_executable(aevol_misc_ancestor_robustness ancestor_robustness.cpp IndivAnalysis.cpp)
-target_link_libraries(aevol_misc_ancestor_robustness PUBLIC aevol)
+add_executable(aevol_post_ancestor_robustness ancestor_robustness.cpp IndivAnalysis.cpp)
+target_link_libraries(aevol_post_ancestor_robustness PUBLIC aevol)
 
-add_executable(aevol_misc_lineage lineage.cpp)
-target_link_libraries(aevol_misc_lineage PUBLIC aevol)
+add_executable(aevol_post_lineage lineage.cpp)
+target_link_libraries(aevol_post_lineage PUBLIC aevol)
 
-add_executable(aevol_misc_mutagenesis mutagenesis.cpp)
-target_link_libraries(aevol_misc_mutagenesis PUBLIC aevol)
+add_executable(aevol_post_mutagenesis mutagenesis.cpp)
+target_link_libraries(aevol_post_mutagenesis PUBLIC aevol)
 
-add_executable(aevol_misc_soft_lineage soft_lineage.cpp)
-target_link_libraries(aevol_misc_soft_lineage PUBLIC aevol)
+add_executable(aevol_post_soft_lineage soft_lineage.cpp)
+target_link_libraries(aevol_post_soft_lineage PUBLIC aevol)
 
-add_executable(aevol_misc_robustness robustness.cpp IndivAnalysis.cpp)
-target_link_libraries(aevol_misc_robustness PUBLIC aevol)
+add_executable(aevol_post_robustness robustness.cpp IndivAnalysis.cpp)
+target_link_libraries(aevol_post_robustness PUBLIC aevol)
 
 
 # ============================================================================
