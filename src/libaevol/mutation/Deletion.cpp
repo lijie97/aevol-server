@@ -69,10 +69,10 @@ void Deletion::load(gzFile backup_file) {
 
 void Deletion::generic_description_string(char* str) const {
   // TODO <david.parsons@inria.fr> Use snprintf to avoid buffer overflow
-  sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
+  sprintf(str, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
-          mut_type(), pos1(), pos2(), -1, -1, -1,
-          align_score(), -1, length_, -1);
+          mut_type(), pos1(), pos2(), -1, -1, (int8_t) -1,
+          align_score(), (int16_t) -1, length_, -1);
   }
 
 // ============================================================================

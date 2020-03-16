@@ -78,10 +78,10 @@ void Translocation::load(gzFile backup_file) {
 }
 
 void Translocation::generic_description_string(char* str) const {
-  sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
+  sprintf(str, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
           mut_type(), pos1(), pos2(), pos3(), pos4(),
-          invert_ ? 1 : 0, align_score_1(), align_score_2(), length_, -1);
+          (int8_t) invert_, align_score_1(), align_score_2(), length_, -1);
 }
 
 // ============================================================================
