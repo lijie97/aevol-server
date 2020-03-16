@@ -314,7 +314,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
 
 // TODO <david.parsons@inria.fr> we need an input_dir attribute in this class !
 int64_t OutputManager::last_gener() {
-  int64_t time;
+  int64_t time = 0;
   FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
   if (lg_file != NULL) {
     if (fscanf(lg_file, "%" PRId64 "\n", &time) == EOF) {
