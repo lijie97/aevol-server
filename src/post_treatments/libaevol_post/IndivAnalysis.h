@@ -21,16 +21,16 @@ class IndivAnalysis : public Individual {
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  IndivAnalysis() = default; //< Default ctor
+  // base constructor deleted in mother class
   IndivAnalysis(const IndivAnalysis&) = delete; //< Copy ctor
   IndivAnalysis(IndivAnalysis&&) = delete; //< Move ctor
 
-  IndivAnalysis(const Individual&);
+  explicit IndivAnalysis(const Individual&);
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~IndivAnalysis() = default; //< Destructor
+  ~IndivAnalysis() override = default; //< Destructor
 
   // ==========================================================================
   //                                Operators
