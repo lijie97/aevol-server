@@ -34,10 +34,6 @@ set(with-detectclone ON CACHE BOOL "Whether to enable clones and not recompute t
 set(with-floatconcentration OFF CACHE BOOL "Whether to enable the encoding of concentration has float (and not double)")
 set(with-simd OFF CACHE BOOL "Whether to switch to the SIMD implementation of (R-)Aevol")
 
-if(APPLE)
-   include_directories(AFTER "/opt/X11/include")
-endif()
-
 if ( ${with-x} )
     FIND_PACKAGE(X11 REQUIRED)
     if ( X11_FOUND )
@@ -52,27 +48,38 @@ else ()
 endif ()
 
 if(APPLE)
-  if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR    
-       CMAKE_C_COMPILER_ID STREQUAL "AppleClang") 
-        set(OpenMP_C "${CMAKE_C_COMPILER}")                                   
-        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -Wno-unused-command-line-argument")       
-        set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")                  
-        set(OpenMP_libomp_LIBRARY ${OpenMP_C_LIB_NAMES})                       
-        set(OpenMP_libgomp_LIBRARY ${OpenMP_C_LIB_NAMES})                      
-        set(OpenMP_libiomp5_LIBRARY ${OpenMP_C_LIB_NAMES})                     
-    endif()                                               
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR          
-       CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")       
-      set(OpenMP_CXX "${CMAKE_CXX_COMPILER}")      
-	  set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -Wno-unused-command-line-argument -I /usr/local/opt/libomp/include")
-	  message("\nFLAGS: ${OpenMP_CXX_FLAGS}")
-      set(OpenMP_CXX_LIB_NAMES "libomp" "libgomp" "libiomp5")                  
-      set(OpenMP_libomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})                       
-      set(OpenMP_libgomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})                      
-      set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})   
-                                                          
-    endif()                                               
-endif() 
+    # X11 headers
+    include_directories(AFTER "/opt/X11/include")
+
+    # OpenMP stuff for Clang
+    if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+       CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+        # C configuration
+        set(OpenMP_C "${CMAKE_C_COMPILER}")
+        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp \
+            -Wno-unused-command-line-argument")
+        set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")
+        # C++ configuration
+        set(OpenMP_CXX "${CMAKE_CXX_COMPILER}")
+        set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp \
+        -Wno-unused-command-line-argument -I /usr/local/opt/libomp/include")
+        set(OpenMP_CXX_LIB_NAMES "libomp" "libgomp" "libiomp5")
+        set(OpenMP_libomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
+        set(OpenMP_libgomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
+        set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})
+    endif()
+
+    # Hide advanced macOS configuration variables
+    mark_as_advanced(
+        CMAKE_EXECUTABLE_FORMAT
+        CMAKE_INSTALL_PREFIX
+        CMAKE_OSX_ARCHITECTURES
+        CMAKE_OSX_DEPLOYMENT_TARGET
+        CMAKE_OSX_SYSROOT
+        Boost_FILESYSTEM_LIBRARY_RELEASE
+        Boost_INCLUDE_DIR
+    )
+endif()
 
 if ( ${with-omp} )
     find_package(OpenMP REQUIRED)
