@@ -48,7 +48,7 @@ class ReplacementHT : public HorizontalTransfer {
   // ==========================================================================
   ReplacementHT() = default; //< Default ctor
   ReplacementHT(const ReplacementHT&) = default; //< Copy ctor
-  ReplacementHT(ReplacementHT&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
   ReplacementHT(const VisAVis& align1, const VisAVis& align2,
                 int32_t length, int32_t replaced_seq_length,
                 char* seq, int32_t donor_id);
@@ -63,11 +63,7 @@ class ReplacementHT : public HorizontalTransfer {
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  ReplacementHT& operator=(const ReplacementHT& other) = delete;
-
-  /// Move assignment
-  ReplacementHT& operator=(ReplacementHT&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods

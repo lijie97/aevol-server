@@ -47,7 +47,7 @@ class Inversion : public Rearrangement{
   // ==========================================================================
   Inversion() = default; //< Default ctor
   Inversion(const Inversion&) = default; //< Copy ctor
-  Inversion(Inversion&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
   Inversion(int32_t pos1, int32_t pos2,
             int32_t length, int16_t align_score = -1);
 
@@ -61,11 +61,7 @@ class Inversion : public Rearrangement{
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  Inversion& operator=(const Inversion& other) = delete;
-
-  /// Move assignment
-  Inversion& operator=(Inversion&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods

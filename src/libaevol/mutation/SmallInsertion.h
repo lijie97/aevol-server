@@ -48,7 +48,7 @@ class SmallInsertion : public LocalMutation {
   // ==========================================================================
   SmallInsertion() = default; //< Default ctor
   SmallInsertion(const SmallInsertion&); //< Copy ctor
-  SmallInsertion(SmallInsertion&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
   SmallInsertion(int32_t pos, int32_t length, const char* seq);
 
   virtual Mutation* Clone() const override { return new SmallInsertion(*this); };
@@ -61,11 +61,7 @@ class SmallInsertion : public LocalMutation {
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  SmallInsertion& operator=(const SmallInsertion& other) = delete;
-
-  /// Move assignment
-  SmallInsertion& operator=(SmallInsertion&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods

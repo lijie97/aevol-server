@@ -47,7 +47,7 @@ class Translocation : public Rearrangement {
   // ==========================================================================
   Translocation() = default; //< Default ctor
   Translocation(const Translocation&) = default; //< Copy ctor
-  Translocation(Translocation&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
 
   Translocation(int32_t pos1, int32_t pos2, int32_t pos3, int32_t pos4,
                 int32_t length,
@@ -64,11 +64,7 @@ class Translocation : public Rearrangement {
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  Translocation& operator=(const Translocation& other) = delete;
-
-  /// Move assignment
-  Translocation& operator=(Translocation&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods

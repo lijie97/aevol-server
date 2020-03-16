@@ -44,7 +44,7 @@ class Deletion : public Rearrangement {
   // ==========================================================================
   Deletion() = default; //< Default ctor
   Deletion(const Deletion&) = default; //< Copy ctor
-  Deletion(Deletion&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
   Deletion(int32_t pos1, int32_t pos2,
            int32_t length, int16_t align_score = -1);
 
@@ -58,11 +58,7 @@ class Deletion : public Rearrangement {
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  Deletion& operator=(const Deletion& other) = delete;
-
-  /// Move assignment
-  Deletion& operator=(Deletion&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods

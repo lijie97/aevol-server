@@ -48,7 +48,7 @@ class InsertionHT : public HorizontalTransfer {
   // ==========================================================================
   InsertionHT() = default; //< Default ctor
   InsertionHT(const InsertionHT&) = default; //< Copy ctor
-  InsertionHT(InsertionHT&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
   InsertionHT(VisAVis& donor_donor_align, VisAVis& exo_recv_align,
               int32_t length, char* seq, int32_t donor_id);
 
@@ -62,11 +62,7 @@ class InsertionHT : public HorizontalTransfer {
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  InsertionHT& operator=(const InsertionHT& other) = delete;
-
-  /// Move assignment
-  InsertionHT& operator=(InsertionHT&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods
