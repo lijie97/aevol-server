@@ -48,7 +48,10 @@ else ()
 endif ()
 
 if(APPLE)
+    # X11 headers
     include_directories(AFTER "/opt/X11/include")
+
+    # OpenMP stuff for Clang
     if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
        CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
         # C configuration
@@ -65,6 +68,17 @@ if(APPLE)
         set(OpenMP_libgomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
         set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})
     endif()
+
+    # Hide advanced macOS configuration variables
+    mark_as_advanced(
+        CMAKE_EXECUTABLE_FORMAT
+        CMAKE_INSTALL_PREFIX
+        CMAKE_OSX_ARCHITECTURES
+        CMAKE_OSX_DEPLOYMENT_TARGET
+        CMAKE_OSX_SYSROOT
+        Boost_FILESYSTEM_LIBRARY_RELEASE
+        Boost_INCLUDE_DIR
+    )
 endif()
 
 if ( ${with-omp} )
