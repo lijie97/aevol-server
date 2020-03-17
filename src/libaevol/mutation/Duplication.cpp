@@ -65,10 +65,10 @@ void Duplication::load(gzFile backup_file) {
 }
 
 void Duplication::generic_description_string(char* str) const {
-  sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
+  sprintf(str, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
-          mut_type(), pos1(), pos2(), pos3(), -1, -1,
-          align_score(), -1, length_, -1);
+          mut_type(), pos1(), pos2(), pos3(), -1, (int8_t) -1,
+          align_score(), (int16_t) -1, length_, -1);
 }
 
 // ============================================================================

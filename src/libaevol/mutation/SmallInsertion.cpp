@@ -66,15 +66,7 @@ SmallInsertion::~SmallInsertion() noexcept {
 // ============================================================================
 //                                 Operators
 // ============================================================================
-/// Copy assignment
-SmallInsertion& SmallInsertion::operator=(const SmallInsertion& other) {
-  pos_ = other.pos_;
-  length_ = other.length_;
-  seq_ = new char[length_ + 1];
-  memcpy(seq_, other.seq_, length_ + 1);
 
-  return *this;
-}
 
 // ============================================================================
 //                                   Methods
@@ -95,9 +87,10 @@ void SmallInsertion::load(gzFile backup_file) {
 }
 
 void SmallInsertion::generic_description_string(char* str) const {
-  sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
+  sprintf(str, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
-          mut_type(), pos_, -1, -1, -1, -1, -1, -1, length_, -1);
+          mut_type(), pos_, -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1,
+          length_, -1);
 }
 
 // ============================================================================

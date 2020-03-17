@@ -46,7 +46,7 @@ class Duplication : public Rearrangement {
   // ==========================================================================
   Duplication() = default; //< Default ctor
   Duplication(const Duplication&) = default; //< Copy ctor
-  Duplication(Duplication&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
   Duplication(int32_t pos1, int32_t pos2, int32_t pos3, int32_t length, int16_t align_score = -1) :
                pos1_{pos1},  pos2_{pos2},  pos3_{pos3},length_{length}, align_score_{align_score} {}
 
@@ -60,11 +60,7 @@ class Duplication : public Rearrangement {
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  Duplication& operator=(const Duplication& other) = default;
-
-  /// Move assignment
-  Duplication& operator=(Duplication&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods

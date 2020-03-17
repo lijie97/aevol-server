@@ -79,7 +79,10 @@ static bool w_mrca = false;
 #ifndef __NO_X
   static bool show_display_on_startup = true;
 #endif
+
+#ifdef _OPENMP
 static bool run_in_parallel = false;
+#endif
 
 // Other file-scope variables
 static ExpManager* exp_manager = nullptr;
@@ -122,8 +125,6 @@ int main(int argc, char* argv[]) {
       ((ExpManager_X11*) exp_manager)->toggle_display_on_off();
     }
   #endif
-
-  bool run_in_parallel = false;
 
   // =================================================================
   //                         Run the simulation

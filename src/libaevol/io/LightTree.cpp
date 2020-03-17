@@ -75,7 +75,7 @@ LightTree::LightTree(ExpManager* exp_m, int64_t tree_step) {
 //                             Destructors
 // =================================================================
 
-LightTree::~LightTree() {
+LightTree::~LightTree() noexcept {
   for(auto node_time : allNodes_) {
     for(auto node : node_time.second) {
       allNodes_[node_time.first].erase(node.first);

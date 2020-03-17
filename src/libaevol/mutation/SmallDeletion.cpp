@@ -63,9 +63,10 @@ void SmallDeletion::load(gzFile backup_file) {
 }
 
 void SmallDeletion::generic_description_string(char* str) const {
-  sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
+  sprintf(str, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
-          mut_type(), pos_, -1, -1, -1, -1, -1, -1, length_, -1);
+          mut_type(), pos_, -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1,
+          length_, -1);
 }
 
 // ============================================================================

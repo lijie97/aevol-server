@@ -6,24 +6,29 @@
 
 namespace aevol {
 
+#ifndef __REGUL
 
 std::unique_ptr<Habitat> HabitatFactory::create_unique_habitat(Habitat& habitat,
                                                       bool share_phenotypic_target) {
-
-#ifndef __REGUL
 #if __cplusplus == 201103L
   return make_unique<Habitat> (habitat, share_phenotypic_target);
 #else
   return std::make_unique<Habitat> (habitat, share_phenotypic_target);
 #endif
+}
+
 #else
+
+std::unique_ptr<Habitat_R> HabitatFactory::create_unique_habitat(Habitat_R& habitat,
+                                                      bool share_phenotypic_target) {
 #if __cplusplus == 201103L
   return make_unique<Habitat_R> (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target);
 #else
   return std::make_unique<Habitat_R> (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target);
 #endif
-#endif
 }
+
+#endif
 
 #ifdef __REGUL
 std::unique_ptr<Habitat_R>
@@ -48,22 +53,5 @@ HabitatFactory::create_unique_habitat(gzFile backup_file,
  #endif
 
 }
-
-    std::unique_ptr<Habitat_R> HabitatFactory::create_unique_habitat(Habitat_R& habitat,
-                                                                   bool share_phenotypic_target) {
-
-#ifndef __REGUL
-
-#else
-#if __cplusplus == 201103L
-        return make_unique<Habitat_R> (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target);
-#else
-        return std::make_unique<Habitat_R> (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target);
-#endif
-#endif
-    }
-
-
-
 
 }

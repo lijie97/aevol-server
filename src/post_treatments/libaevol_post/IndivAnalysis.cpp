@@ -243,9 +243,8 @@ void IndivAnalysis::compute_experimental_mutagenesis(
   double max_fitness_neg = 0;
   double nb_neutral_genetic = 0;
   double nb_neutral_phenotypic = 0;
-  int32_t nb_events = 0;
 
-  double parent_metabolic_error = dist_to_target_by_feature(METABOLISM);
+    double parent_metabolic_error = dist_to_target_by_feature(METABOLISM);
   double parent_fitness = fitness();
 
     fprintf(output_summary,
@@ -256,8 +255,7 @@ void IndivAnalysis::compute_experimental_mutagenesis(
     // Perform one mutation of the specified type
     if (not mutant.allow_plasmids()) {
       const GeneticUnit* chromosome = &(mutant.genetic_unit_list().front());
-      int taille_pre = chromosome->seq_length();
-      switch (mutation_type)
+        switch (mutation_type)
 	{
 	case SWITCH:{
 	  chromosome->dna()->do_switch();
@@ -293,9 +291,7 @@ void IndivAnalysis::compute_experimental_mutagenesis(
 	  break;
 	}
       }
-      int taille_pos = chromosome->seq_length();
 
-     
       
         mutant.EvaluateInContext(habitat());
     double new_metabolic_error = mutant.dist_to_target_by_feature(

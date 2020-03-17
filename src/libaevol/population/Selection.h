@@ -46,7 +46,10 @@
 // =================================================================
 #include "World.h"
 #include "Observable.h"
+
+#ifdef __REGUL
 #include "raevol/Individual_R.h"
+#endif
 
 namespace aevol {
 
@@ -123,8 +126,11 @@ class Selection : public Observable
     void write_setup_file(gzFile setup_file) const;
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
-    void run_life(Individual_R* new_indiv);
+#ifndef __REGUL
     void run_life(Individual* new_indiv);
+#else
+    void run_life(Individual_R* new_indiv);
+#endif
 
     Individual* do_replication(Individual* parent,
                                unsigned long long index,

@@ -179,7 +179,6 @@ void Selection::step_to_next_generation() {
 
   int16_t x, y;
   int8_t what;
-  high_resolution_clock::time_point t1, t2;
 
   //std::unordered_map<unsigned long long, Individual*> unique_individual;
 
@@ -341,8 +340,6 @@ void Selection::step_to_next_generation() {
 #endif // __OPENMP_GPU
 #endif // _OPENMP
 
-  t1 = high_resolution_clock::now();
-
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
 #pragma omp for schedule(dynamic)
@@ -382,11 +379,6 @@ void Selection::step_to_next_generation() {
             delete eindiv;
         }
     }
-   /* t2 = high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-        t2 - t1).count();
-    cout << "TIMER," << AeTime::time() << ",OLD," << duration << endl;
-*/
 
     for (int16_t x = 0; x < grid_width; x++)
       for (int16_t y = 0; y < grid_height; y++)
@@ -952,6 +944,8 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   return new_indiv;
 }
 
+#ifndef __REGUL
+
 void Selection::run_life(Individual* new_indiv) {
   // Evaluate new individual
   
@@ -962,14 +956,14 @@ void Selection::run_life(Individual* new_indiv) {
 
 }
 
+#else
+
 void Selection::run_life(Individual_R* new_indiv) {
 
-#ifdef __REGUL
     if (dynamic_cast<PhenotypicTargetHandler_R*>(&new_indiv->grid_cell()->habitat().
         phenotypic_target_handler_nonconst())->hasChanged()) {
       new_indiv->evaluated_ = false;
     }
-#endif
 
     // Evaluate new individual
     new_indiv->Evaluate();
@@ -978,6 +972,8 @@ void Selection::run_life(Individual_R* new_indiv) {
     new_indiv->compute_statistical_data();
 
 }
+
+#endif
 
 Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   // This function uses the array prob_reprod_ when selection scheme is

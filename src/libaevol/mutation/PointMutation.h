@@ -48,7 +48,7 @@ class PointMutation : public LocalMutation {
   // ==========================================================================
   PointMutation() = default; //< Default ctor
   PointMutation(const PointMutation&) = default; //< Copy ctor
-  PointMutation(PointMutation&&) = delete; //< Move ctor
+  // The move constructor is implicitly deleted.
   PointMutation(int32_t pos);
 
   virtual Mutation* Clone() const override { return new PointMutation(*this); };
@@ -61,10 +61,7 @@ class PointMutation : public LocalMutation {
   // ==========================================================================
   //                                Operators
   // ==========================================================================
-  /// Copy assignment
-  PointMutation& operator=(const PointMutation& other) = default;
-  /// Move assignment
-  PointMutation& operator=(PointMutation&& other) = delete;
+  // The copy and move operators are implicitly deleted.
 
   // ==========================================================================
   //                              Public Methods

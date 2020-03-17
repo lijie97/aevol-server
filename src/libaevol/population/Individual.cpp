@@ -483,7 +483,7 @@ Individual* Individual::CreateClone(const Individual* dolly, int32_t id) {
 // =================================================================
 //                             Destructor
 // =================================================================
-Individual::~Individual() {
+Individual::~Individual() noexcept {
   delete[] strain_name_;
 
   // Proteins and RNAs are recycled, don't delete them.

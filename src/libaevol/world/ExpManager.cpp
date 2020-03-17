@@ -44,20 +44,20 @@
 #include "Dna_SIMD.h"
 #include "SIMD_Individual.h"
 
-#include "raevol/cuda_struct.h"
-
 #ifdef __CUDACC__
 #include "CUDA_Individual.h"
 #include<cuda_profiler_api.h>
 #endif
 
 #ifdef __REGUL
+#include "raevol/cuda_struct.h"
 #include "raevol/Individual_R.h"
 #endif
-#include<chrono>
 
+#include <chrono>
 #include <iostream>
 #include <unordered_map>
+
 using namespace std;
 using namespace std::chrono;
 
