@@ -1,6 +1,5 @@
 # Google Test headers
 add_subdirectory(googletest)
-include_directories("${gtest_SOURCE_DIR}/include")
 
 # We need zlib
 find_package(ZLIB REQUIRED)
@@ -26,6 +25,23 @@ foreach (TEST IN LISTS TESTS)
   set(TEST_RUNNERS ${TEST_RUNNERS} ${TEST_RUNNER})
 
   add_executable(${TEST} ${TEST}.cpp)
+
+  # We need the Aevol headers
+  target_include_directories(${TEST}
+    PRIVATE # these are executables so we don't need to share the includes
+    "${CMAKE_SOURCE_DIR}/src/libaevol"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/mutation"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/phenotype"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/biochemistry"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/rng"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/world"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/population"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/stats"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/cuda"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/io"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/gui"
+    "${CMAKE_SOURCE_DIR}/src/libaevol/utils"
+  )
 
   set_target_properties(${TEST}
     PROPERTIES
