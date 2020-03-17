@@ -134,7 +134,7 @@ namespace aevol {
                        prom_dist_leading[20] +
                        prom_dist_leading[21];
 
-#elif B1MOD
+#elif B1MOD_SEARCH
             int8_t prom_dist_leading[26];
                 int32_t len = indiv_->dna_->length();
 
@@ -167,7 +167,7 @@ namespace aevol {
                        prom_dist_leading[19] +
                        prom_dist_leading[20] +
                        prom_dist_leading[21];
-#elif B2MOD
+#elif B2MOD_SEARCH
             int8_t prom_dist_leading[26];
                 int32_t len = indiv_->dna_->length();
 

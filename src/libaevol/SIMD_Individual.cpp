@@ -13,6 +13,7 @@
 #include "SIMD_DynTab_Metadata.h"
 #include "SIMD_List_Metadata.h"
 #include "../../../../../../../../../usr/include/stdio.h"
+#include "../../../../../../../../../usr/include/stdint.h"
 
 
 #include <omp.h>
@@ -1180,19 +1181,9 @@ SIMD_Individual::~SIMD_Individual() {
                                     //#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_:64)
                                     for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++)
                                         term_dist_leading +=
-                                                internal_simd_struct[indiv_id]->dna_->data_[
-                                                        cur_pos + t_motif_id >= dna_size[indiv_id] ?
-                                                        cur_pos +
-                                                        t_motif_id -
-                                                        dna_size[indiv_id] :
-                                                        cur_pos + t_motif_id] !=
-                                                internal_simd_struct[indiv_id]->dna_->data_[
-                                                        cur_pos - t_motif_id + 10 >= dna_size[indiv_id] ?
-                                                        cur_pos - t_motif_id + 10 - dna_size[indiv_id] :
-                                                        cur_pos -
-                                                        t_motif_id +
-                                                        10] ? 1
-                                                            : 0;
+                                                internal_simd_struct[indiv_id]->dna_->get_lead(cur_pos + t_motif_id) !=
+                                                internal_simd_struct[indiv_id]->dna_->get_lead(cur_pos - t_motif_id + 10)
+                                                ? 1 : 0;
 
                                     if (term_dist_leading == 4)
 #endif
@@ -1281,21 +1272,11 @@ SIMD_Individual::~SIMD_Individual() {
                       if (is_term)
 #else
                                     //#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_:64)
-                                    for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
+                                    for (int32_t t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
                                         term_dist_lagging +=
-                                                internal_simd_struct[indiv_id]->dna_->data_[
-                                                        cur_pos - t_motif_id < 0 ? cur_pos -
-                                                                                   t_motif_id +
-                                                                                   dna_size[indiv_id]
-                                                                                 : cur_pos -
-                                                                                   t_motif_id] !=
-                                                internal_simd_struct[indiv_id]->dna_->data_[
-                                                        cur_pos + t_motif_id - 10 < 0 ? cur_pos +
-                                                                                        t_motif_id -
-                                                                                        10 +
-                                                                                        dna_size[indiv_id]
-                                                                                      :
-                                                        cur_pos + t_motif_id - 10] ? 1 : 0;
+                                                internal_simd_struct[indiv_id]->dna_->get_lag(cur_pos - t_motif_id) !=
+                                                internal_simd_struct[indiv_id]->dna_->get_lag(cur_pos + t_motif_id - 10)
+                                                ? 1 : 0;
                                     }
 
                                     if (term_dist_lagging == 4)
@@ -1586,12 +1567,9 @@ SIMD_Individual::~SIMD_Individual() {
 //#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_, SHINE_DAL_SEQ_LEAD:64)
                                 for (int k = 0; k < 9; k++) {
                                     k_t = k >= 6 ? k + 4 : k;
-                                    t_pos = c_pos + k_t >= dna_size[indiv_id] ? c_pos + k_t -
-                                                                                dna_size[indiv_id]
-                                                                              :
-                                            c_pos + k_t;
+                                    t_pos = c_pos + k_t;
 
-                                    if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] ==
+                                    if (internal_simd_struct[indiv_id]->dna_->get_lead(t_pos) ==
                                         SHINE_DAL_SEQ_LEAD[k]) {
                                         start = true;
                                     } else {
@@ -1610,11 +1588,9 @@ SIMD_Individual::~SIMD_Individual() {
 //#pragma omp simd aligned(internal_simd_struct[indiv_id]->dna_->data_, SHINE_DAL_SEQ_LAG:64)
                                 for (int k = 0; k < 9; k++) {
                                     k_t = k >= 6 ? k + 4 : k;
-                                    t_pos =
-                                            c_pos - k_t < 0 ? dna_size[indiv_id] + (c_pos - k_t) :
-                                            c_pos - k_t;
+                                    t_pos = c_pos - k_t;
 
-                                    if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] ==
+                                    if (internal_simd_struct[indiv_id]->dna_->get_lag(t_pos) ==
                                         SHINE_DAL_SEQ_LAG[k]) {
                                         start = true;
                                     } else {
@@ -1848,11 +1824,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                         is_protein = false;
 
                                         for (int k = 0; k < 3; k++) {
-                                            t_k = start_protein_pos + k >= dna_size[indiv_id] ?
-                                                  start_protein_pos - dna_size[indiv_id] + k :
-                                                  start_protein_pos + k;
+                                            t_k = start_protein_pos + k;
 
-                                            if (internal_simd_struct[indiv_id]->dna_->data_[t_k] ==
+                                            if (internal_simd_struct[indiv_id]->dna_->get_lead(t_k) ==
                                                 PROTEIN_END_LEAD[k]) {
                                                 is_protein = true;
                                             } else {
@@ -1933,11 +1907,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 #else
                                         is_protein = false;
                                         for (int k = 0; k < 3; k++) {
-                                            t_k = start_protein_pos - k < 0 ?
-                                                  dna_size[indiv_id] + (start_protein_pos - k) :
-                                                  start_protein_pos - k;
+                                            t_k = start_protein_pos - k;
 
-                                            if (internal_simd_struct[indiv_id]->dna_->data_[t_k] ==
+                                            if (internal_simd_struct[indiv_id]->dna_->get_lag(t_k) ==
                                                 PROTEIN_END_LAG[k]) {
                                                 is_protein = true;
                                             } else {
@@ -2061,11 +2033,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 #else
                             value = 0;
                             for (int8_t i = 0; i < 3; i++) {
-                                t_pos =
-                                        c_pos + i >= dna_size[indiv_id] ? c_pos + i -
-                                                                          dna_size[indiv_id]
-                                                                        : c_pos + i;
-                                if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] ==
+                                t_pos = c_pos + i;
+                                if (internal_simd_struct[indiv_id]->dna_->get_lead(t_pos) ==
                                     '1')
                                     value += 1 << (CODON_SIZE - i - 1);
                             }
@@ -2091,11 +2060,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 #else
                             value = 0;
                             for (int8_t i = 0; i < 3; i++) {
-                                t_pos =
-                                        c_pos - i < 0 ? dna_size[indiv_id] + (c_pos - i) :
-                                        c_pos -
-                                        i;
-                                if (internal_simd_struct[indiv_id]->dna_->data_[t_pos] !=
+                                t_pos = c_pos - i;
+                                if (internal_simd_struct[indiv_id]->dna_->get_lag(t_pos) !=
                                     '1')
                                     value += 1 << (CODON_SIZE - i - 1);
                             }
