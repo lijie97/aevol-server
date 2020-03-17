@@ -471,20 +471,29 @@ void Fuzzy::clear() {
   points_.clear();
 }
 
-void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
-{
+void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y) {
   list<Point>::iterator p =
 #ifndef __OPENMP_GPU
-      find_if(points_.begin(), points_.end(), [x](Point& q){return q.x > x;});
+          find_if(points_.begin(), points_.end(), [x](Point &q) { return q.x > x; });
 #else
-      algorithm_cuda::find_if_point_5(points_.begin(), points_.end(), x);
+  algorithm_cuda::find_if_point_5(points_.begin(), points_.end(), x);
 #endif
-  if (prev(p)->x == x) {
-    prev(p)->y += y;
+
+  if ((points_.size() != 1)) {
+    if (points_.begin() != p) {
+      if (prev(p)->x == x) {
+        prev(p)->y += y;
+      } else {
+        points_.insert(p, Point(x, y));
+      }
+    } else {
+      points_.insert(p, Point(x, y));
+    }
   } else {
-    points_.insert(p,Point(x,y));
+    points_.insert(p, Point(x, y));
   }
 }
+
 
 void Fuzzy::print() const
 {

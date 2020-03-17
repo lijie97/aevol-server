@@ -66,13 +66,20 @@ class pRNA {
       length = t_length;
       is_coding_ = false;
       is_init_ = true;
+      start_prot_count_ = 0;
+      start_prot = new int32_t[length];
+    }
+
+    ~pRNA() {
+        delete [] start_prot;
     }
 
     int32_t begin;
     int32_t end;
     int8_t leading_lagging; // 0 = leading, 1 = lagging
     double e;
-    std::vector<int32_t> start_prot;
+    int32_t* start_prot;
+    int32_t start_prot_count_;
     int32_t length;
     bool is_coding_;
 

@@ -315,51 +315,61 @@ void ExpManager::save_copy(char* dir, int64_t time) const
 
 void ExpManager::step_to_next_generation() {
   // TODO <david.parsons@inria.fr> Apply phenotypic target variation and noise
-  world_->ApplyHabitatVariation();
-
-  // Take a step in time
-  AeTime::plusplus();
-
-  //if (AeTime::time() == 14) {
-    // Create the corresponding new generation
 #ifdef __PERF_LOG__
-auto     t1 = high_resolution_clock::now();
+    auto t1 = high_resolution_clock::now();
+    auto t2 = high_resolution_clock::now();
+    auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-  //auto     s_t1 = high_resolution_clock::now();
+    auto ta = high_resolution_clock::now();
+#endif
+
+#pragma omp single
+    {
+        world_->ApplyHabitatVariation();
+
+        // Take a step in time
+        AeTime::plusplus();
+
+        //if (AeTime::time() == 14) {
+        // Create the corresponding new generation
+#ifdef __PERF_LOG__
+        auto t1 = high_resolution_clock::now();
+
+        //auto     s_t1 = high_resolution_clock::now();
 #endif
 
 #ifdef __CUDACC__
-  if (first_gen) {
-    cudaProfilerStop();
-  }
-  transfer_in(this, first_gen);
+        if (first_gen) {
+          cudaProfilerStop();
+        }
+        transfer_in(this, first_gen);
 
 
-  auto t2 = high_resolution_clock::now();
-  auto duration_A = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        auto t2 = high_resolution_clock::now();
+        auto duration_A = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
-  t1 = high_resolution_clock::now();
+        t1 = high_resolution_clock::now();
 
-  run_a_step(nb_indivs(), (float) best_indiv()->w_max(),
-               selection_pressure(),first_gen);
+        run_a_step(nb_indivs(), (float) best_indiv()->w_max(),
+                     selection_pressure(),first_gen);
 
-  t2 = high_resolution_clock::now();
-  auto duration_B = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        t2 = high_resolution_clock::now();
+        auto duration_B = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
-    /** Debug START **/
-   // print_debug_promoters_start(this);
-//    print_debug_rna(this);
-//    print_debug_protein(this);
-//    print_debug_phenotype(this);
-    //print_debug_fitness(this);
-    /** Debug END **/
+          /** Debug START **/
+         // print_debug_promoters_start(this);
+      //    print_debug_rna(this);
+      //    print_debug_protein(this);
+      //    print_debug_phenotype(this);
+          //print_debug_fitness(this);
+          /** Debug END **/
 
-  t1 = high_resolution_clock::now();
-    // Transfer data out of the GPU
-  transfer_out(this,false);
-  t2 = high_resolution_clock::now();
-  auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
+        t1 = high_resolution_clock::now();
+          // Transfer data out of the GPU
+        transfer_out(this,false);
+        t2 = high_resolution_clock::now();
+        auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
 #endif
 
 /*  bool simd_first = false;
@@ -367,71 +377,73 @@ auto     t1 = high_resolution_clock::now();
     simd_first = true;
   }*/
 
-  //}
+        //}
 #ifdef __PERF_LOG__
-    t1 = high_resolution_clock::now();
+        t1 = high_resolution_clock::now();
 #endif
 
-  if (!simd_individual->standalone())
-    exp_s_->step_to_next_generation();
+        //if (!simd_individual->standalone())
+        //  exp_s_->step_to_next_generation();
 
 
 #ifdef __CUDACC__
-  t2 = high_resolution_clock::now();
+        t2 = high_resolution_clock::now();
 #else
 #ifdef __PERF_LOG__
-  auto t2 = high_resolution_clock::now();
+        auto t2 = high_resolution_clock::now();
 #endif
 #endif
 
 #ifdef __PERF_LOG__
-    auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-  auto ta = high_resolution_clock::now();
+        auto ta = high_resolution_clock::now();
 #endif
 
 /*  if (simd_first) {
     //simd_individual->check_result();
   } else {*/
+    }
   if (simd_individual->standalone())
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
   //}
-
-#ifdef __PERF_LOG__
-  auto tb = high_resolution_clock::now();
-  auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>( tb - ta ).count();
-#endif
-
-  if (!simd_individual->standalone()) {
-#ifdef __PERF_LOG__
-      t1 = high_resolution_clock::now();
-#endif
-    // Write statistical data and store phylogenetic data (tree)
 #pragma omp single
     {
-      output_m_->write_current_generation_outputs();
-    }
+#ifdef __PERF_LOG__
+        auto tb = high_resolution_clock::now();
+        auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
+#endif
+
+        if (!simd_individual->standalone()) {
+#ifdef __PERF_LOG__
+            t1 = high_resolution_clock::now();
+#endif
+            // Write statistical data and store phylogenetic data (tree)
+            {
+                output_m_->write_current_generation_outputs();
+            }
 
 #ifdef __PERF_LOG__
-      t2 = high_resolution_clock::now();
-    duration_2 += std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+            t2 = high_resolution_clock::now();
+            duration_2 += std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 #endif
-  }
+        }
 
 #ifdef __CUDACC__
-  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
+        std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
 
-  if (first_gen) {
-    cudaProfilerStart();
-    first_gen = false;
-  }
+        if (first_gen) {
+          cudaProfilerStart();
+          first_gen = false;
+        }
 #else
 
 #ifdef __PERF_LOG__
-  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration_simd<<std::endl;
+        std::cout << "PERFLOG," << AeTime::time() << "," << duration_2 << "," << duration_simd << std::endl;
 #endif
 
 #endif
+    }
 }
 
 /*!
@@ -682,33 +694,37 @@ void ExpManager::run_evolution() {
         simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
 
+      bool finished=false;
         // For each generation
-  while (true) { // termination condition is into the loop
+#pragma omp parallel
+  while (!finished) { // termination condition is into the loop
 
-    if (AeTime::time() % 100 == 0) {
-      printf(
-              "============================== %" PRId64 " ==============================\n",
-              AeTime::time());
-      if (!first_run) {
-        if (SIMD_Individual::standalone_simd) {
-          printf(
-                  "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
-                  //simd_individual->best_indiv->indiv_id,
-                  simd_individual->best_indiv->metaerror,
-                  simd_individual->nb_clones_);
-        } else {
-          printf("  Best individual's distance to target (metabolic) : %f\n",
-                 //best_indiv()->id(),
-                 best_indiv()->dist_to_target_by_feature(METABOLISM));
-        }
-      } else {
-        printf("  Best individual's distance to target (metabolic) : %f\n",
-               //best_indiv()->id(),
-               best_indiv()->dist_to_target_by_feature(METABOLISM));
-      }
-    }
+#pragma omp single
+      {
+          if (AeTime::time() % 100 == 0) {
+              printf(
+                      "============================== %" PRId64 " ==============================\n",
+                      AeTime::time());
+              if (!first_run) {
+                  if (SIMD_Individual::standalone_simd) {
+                      printf(
+                              "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
+                              //simd_individual->best_indiv->indiv_id,
+                              simd_individual->best_indiv->metaerror,
+                              simd_individual->nb_clones_);
+                  } else {
+                      printf("  Best individual's distance to target (metabolic) : %f\n",
+                              //best_indiv()->id(),
+                             best_indiv()->dist_to_target_by_feature(METABOLISM));
+                  }
+              } else {
+                  printf("  Best individual's distance to target (metabolic) : %f\n",
+                          //best_indiv()->id(),
+                         best_indiv()->dist_to_target_by_feature(METABOLISM));
+              }
+          }
 
-    first_run = false;
+          first_run = false;
 
 /*
     int16_t nb_activators = 0;
@@ -740,28 +756,32 @@ void ExpManager::run_evolution() {
 
 
 #ifdef __X11
-    display();
+          display();
 #endif
-    if (with_mrca_ && record_light_tree()) {
-      if (AeTime::time() == t_end_) {
-        output_m_->light_tree()->keep_indivs(indivs());
-      }
-      if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
-        break;
-    } else if (AeTime::time() >= t_end_ or quit_signal_received())
-      break;
+          if (with_mrca_ && record_light_tree()) {
+              if (AeTime::time() == t_end_) {
+                  output_m_->light_tree()->keep_indivs(indivs());
+              }
+              if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
+                  finished=true;
+          } else if (AeTime::time() >= t_end_ or quit_signal_received())
+              finished=true;
 
 #ifdef __TRACING__
-    t1 = high_resolution_clock::now();
+          t1 = high_resolution_clock::now();
 #endif
+      }
     // Take one step in the evolutionary loop
     step_to_next_generation();
+#pragma omp single
+      {
 #ifdef __TRACING__
-    t2 = high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-        ae_logger::addLog(SELECTION,duration);
-        ae_logger::flush(AeTime::time());
+          t2 = high_resolution_clock::now();
+              auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+              ae_logger::addLog(SELECTION,duration);
+              ae_logger::flush(AeTime::time());
 #endif
+      }
   }
 #ifdef __TRACING__
   t_t2 = high_resolution_clock::now();

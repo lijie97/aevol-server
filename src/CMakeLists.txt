@@ -40,6 +40,11 @@ if(Boost_FOUND)
     target_link_libraries(aevol_propagate PUBLIC aevol ${Boost_LIBRARIES})
 endif()
 
+if ( ${with-simd} )
+    add_definitions(-DWITH_STANDALONE_SIMD)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3 -AVX512")
+endif ()
+
 
 add_executable(aevol_run aevol_run.cpp)
 target_link_libraries(aevol_run PUBLIC aevol)

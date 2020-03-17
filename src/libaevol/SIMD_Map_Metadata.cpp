@@ -196,7 +196,7 @@ namespace aevol {
                     if (leading_prom_pos_.find(to_insert->pos) == leading_prom_pos_.end()) {
 
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -208,7 +208,7 @@ namespace aevol {
                 } else {
                     if (lagging_prom_pos_.find(to_insert->pos) == lagging_prom_pos_.end()) {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -238,7 +238,7 @@ namespace aevol {
                     if (leading_prom_pos_.find(to_insert->pos) == leading_prom_pos_.end()) {
 
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -252,7 +252,7 @@ namespace aevol {
                 } else {
                     if (lagging_prom_pos_.find(to_insert->pos) == lagging_prom_pos_.end()) {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -524,7 +524,7 @@ namespace aevol {
                     promoterStruct* nprom = new promoterStruct(i, dist, true);
                     {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -553,7 +553,7 @@ namespace aevol {
                     promoterStruct* nprom = new promoterStruct(i, dist, true);
                     {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -581,7 +581,7 @@ namespace aevol {
                     promoterStruct* nprom = new promoterStruct(i, dist, true);
                     {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -618,7 +618,7 @@ namespace aevol {
                     promoterStruct* nprom = new promoterStruct(i, dist, false);
                     {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -646,7 +646,7 @@ namespace aevol {
                     promoterStruct* nprom = new promoterStruct(i, dist, false);
                     {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;
@@ -674,7 +674,7 @@ namespace aevol {
                     promoterStruct* nprom = new promoterStruct(i, dist, false);
                     {
                         int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                         {
                             prom_idx = count_promoters_;
                             count_promoters_ = count_promoters_ + 1;

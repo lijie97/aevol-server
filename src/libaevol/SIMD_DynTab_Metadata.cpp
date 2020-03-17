@@ -242,7 +242,7 @@ namespace aevol {
                 }
                 if (to_add) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
@@ -293,7 +293,7 @@ namespace aevol {
                 }
                 if (to_add) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
@@ -507,7 +507,7 @@ namespace aevol {
 
                 if (notFound) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
@@ -546,7 +546,7 @@ namespace aevol {
 
                 if (notFound) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
@@ -582,7 +582,7 @@ namespace aevol {
 
                 if (notFound) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
@@ -631,7 +631,7 @@ namespace aevol {
 
                 if (notFound) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
@@ -667,7 +667,7 @@ namespace aevol {
 
                 if (notFound) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;
@@ -703,7 +703,7 @@ namespace aevol {
 
                 if (notFound) {
                     int prom_idx;
-#pragma omp atomic capture
+//#pragma omp atomic capture
                     {
                         prom_idx = count_promoters_;
                         count_promoters_ = count_promoters_ + 1;

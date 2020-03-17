@@ -210,3 +210,10 @@ target_compile_definitions(aevol
 # Use C++11
 # ============================================================================
 target_compile_options(aevol PUBLIC "-std=c++14")
+
+if ( ${with-simd} )
+    add_definitions(-DWITH_STANDALONE_SIMD)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3 -AVX512")
+endif ()
+
+

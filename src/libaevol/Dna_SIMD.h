@@ -26,6 +26,9 @@ class Dna_SIMD {
     Dna_SIMD(Dna* dna);
     ~Dna_SIMD();
 
+    inline char get_lead(int32_t pos) { return data_[pos - ((unsigned int32_t)(pos - length_) >> 31) * length_];};
+    inline char get_lag(int32_t pos) { return data_[pos + ((unsigned int32_t)(pos) >> 31) * length_];};
+
     void apply_mutations();
 
     void apply_mutations_standalone();
