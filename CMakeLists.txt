@@ -152,6 +152,12 @@ if ( ${with-simd} )
 endif ()
 
 
+# ===========================================================================
+# Tell CMake to export compile commands for IDE integration
+# ===========================================================================
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
 # ============================================================================
 # Get GNU standard installation directories (GNUInstallDirs module)
 # ============================================================================
