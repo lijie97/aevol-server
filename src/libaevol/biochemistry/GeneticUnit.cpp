@@ -551,6 +551,50 @@ void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
 // =================================================================
 //                             Constructors
 // =================================================================
+
+/*!
+  \brief Delegate constructor.
+
+  Does the brunt of the initializing work, so that other constructors
+  can call it and focus on their own specific work.
+*/
+
+GeneticUnit::GeneticUnit(Individual* indiv) {
+  indiv_ = indiv;
+#ifdef __REGUL
+  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
+#endif
+  exp_m_ = indiv->exp_m();
+
+  transcribed_                       = false;
+  translated_                        = false;
+  phenotypic_contributions_computed_ = false;
+  non_coding_computed_               = false;
+  distance_to_target_computed_       = false;
+  fitness_computed_                  = false;
+
+  min_gu_length_ = -1;
+  max_gu_length_ = -1;
+
+  // Create empty fuzzy sets for the phenotypic contributions
+  activ_contribution_      = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_      = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  phenotypic_contribution_ = NULL;
+  // NB : phenotypic_contribution_ is only an indicative value,
+  //      it is not used for the whole phenotype computation
+
+  // dist_to_target_per_segment_ depends on the segmentation of the environment
+  // and will hence be newed at evaluation time
+  dist_to_target_per_segment_ = NULL;
+  dist_to_target_by_feature_  = new double[NB_FEATURES];
+  fitness_by_feature_         = new double[NB_FEATURES];
+
+  for (int8_t feat = 0; feat < NB_FEATURES; ++feat) {
+    dist_to_target_by_feature_[feat] = 0.0;
+    fitness_by_feature_[feat]        = 0.0;
+  }
+}
+
 /*!
   \brief Create a new genetic unit for indiv with a random DNA sequence of length length
 

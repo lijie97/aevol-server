@@ -68,6 +68,9 @@ class GeneticUnit {
   // =================================================================
   //                             Constructors
   // =================================================================
+
+  GeneticUnit(Individual* indiv);
+
   GeneticUnit(Individual* indiv,
               int32_t length,
               std::shared_ptr<JumpingMT> prng);
