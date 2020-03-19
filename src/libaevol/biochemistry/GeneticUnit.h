@@ -354,8 +354,6 @@ class GeneticUnit {
                                     int& nb_genes_in_segment,
                                     int& nb_genes_in_replaced_segment);
 
-  void copy_parent(const GeneticUnit* parent, bool env_has_changed);
-
   // =================================================================
   //                           Public Attributes
   // =================================================================
