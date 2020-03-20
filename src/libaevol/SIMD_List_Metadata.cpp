@@ -798,6 +798,23 @@ namespace aevol {
         }
     }
 
+    promoterStruct *SIMD_List_Metadata::promoter_next() {
+        promoterStruct* prom = &*(it_promoter_);
+        it_promoter_++;
+        if (it_promoter_ == promoters_list_[LEADING].end())
+            it_promoter_ = promoters_list_[LAGGING].begin();
+        return prom;
+    }
+
+    void SIMD_List_Metadata::promoter_begin() {
+        it_promoter_ = promoters_list_[LEADING].begin();
+    }
+
+    bool SIMD_List_Metadata::promoter_end() {
+        return it_promoter_ == promoters_list_[LAGGING].end();
+    }
+
+
     int SIMD_List_Metadata::promoter_count() {
         return promoters_list_[LEADING].size()+ promoters_list_[LAGGING].size();
     }
@@ -851,23 +868,42 @@ namespace aevol {
     }
 
     pRNA *SIMD_List_Metadata::rnas(int idx) {
-        return rnas_[idx];
+        auto it = rnas_.begin();
+        std::advance(it, idx);
+        return *(it);
     }
 
     void SIMD_List_Metadata::rna_add(int idx, pRNA *rna) {
-        rnas_[idx] = rna;
+        rnas_.push_front(rna);
+        it_rna_ = rnas_.begin();
+    }
+
+
+    pRNA *SIMD_List_Metadata::rna_next() {
+        pRNA* rna = *(it_rna_);
+        it_rna_++;
+        cmp_rna++;
+        return rna;
+    }
+
+    void SIMD_List_Metadata::rna_begin() {
+        it_rna_ = rnas_.begin();
+    }
+
+    bool SIMD_List_Metadata::rna_end() {
+        return it_rna_ == rnas_.end();
     }
 
     int SIMD_List_Metadata::rna_count() {
-        return rna_count_;
+        return rnas_.size();
     }
 
     void SIMD_List_Metadata::set_rna_count(int rcount) {
-        rna_count_ = rcount;
+        //rna_count_ = rcount;
     }
 
     void SIMD_List_Metadata::rnas_resize(int resize) {
-        rnas_.resize(resize);
+        //rnas_.resize(resize);
     }
 
     void SIMD_List_Metadata::rnas_clear() {
@@ -875,23 +911,40 @@ namespace aevol {
     }
 
     pProtein *SIMD_List_Metadata::proteins(int idx) {
-        return proteins_[idx];
+        auto it = proteins_.begin();
+        std::advance(it, idx);
+        return *(it);
     }
 
     void SIMD_List_Metadata::protein_add(int idx, pProtein *prot) {
-        proteins_[idx] = prot;
+        proteins_.push_front(prot);
+    }
+
+
+    pProtein *SIMD_List_Metadata::protein_next() {
+        pProtein* prot = *(it_protein_);
+        it_protein_++;
+        return prot;
+    }
+
+    void SIMD_List_Metadata::protein_begin() {
+        it_protein_ = proteins_.begin();
+    }
+
+    bool SIMD_List_Metadata::protein_end() {
+        return it_protein_ == proteins_.end();
     }
 
     int SIMD_List_Metadata::proteins_count() {
-        return protein_count_;
+        return proteins_.size();
     }
 
     void SIMD_List_Metadata::set_proteins_count(int pcount) {
-        protein_count_ = pcount;
+        //protein_count_ = pcount;
     }
 
     void SIMD_List_Metadata::proteins_resize(int resize) {
-        proteins_.resize(resize);
+        //proteins_.resize(resize);
     }
 
     void SIMD_List_Metadata::proteins_clear() {

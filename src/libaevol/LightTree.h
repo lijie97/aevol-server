@@ -42,6 +42,7 @@
 #include "ReplicationReport.h"
 #include "Observer.h"
 #include "ObservableEvent.h"
+#include "SIMD_DnaFactory.h"
 
 namespace aevol {
 
@@ -117,7 +118,7 @@ class LightTree : public Observer
 
     void keep_indivs(std::list<Individual*> indivs);
 
-    void keep_indivs(std::list<Internal_SIMD_Struct*> indivs);
+    void keep_indivs(std::list<Internal_SIMD_Struct*> indivs, SIMD_DnaFactory* dna_factory);
 
     void save_mrca_indiv();
 

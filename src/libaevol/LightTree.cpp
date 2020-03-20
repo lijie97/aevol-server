@@ -317,7 +317,7 @@ void LightTree::keep_indivs(std::list<Individual*> indivs) {
   saved_indivs_time_ = AeTime::time();//(*indivs.begin())->age();
 }
 
-void LightTree::keep_indivs(std::list<Internal_SIMD_Struct*> indivs) {
+void LightTree::keep_indivs(std::list<Internal_SIMD_Struct*> indivs, SIMD_DnaFactory* dna_factory) {
 #ifdef _OPENMP
       #pragma omp taskgroup
   {
@@ -326,7 +326,7 @@ void LightTree::keep_indivs(std::list<Internal_SIMD_Struct*> indivs) {
 #ifdef _OPENMP
 #pragma omp task firstprivate(indiv)
 #endif
-        saved_simd_indivs_[indiv->indiv_id] = new Internal_SIMD_Struct(exp_m_,indiv,false);
+        saved_simd_indivs_[indiv->indiv_id] = new Internal_SIMD_Struct(exp_m_,indiv,dna_factory);
 #ifdef _OPENMP
       }
 #endif

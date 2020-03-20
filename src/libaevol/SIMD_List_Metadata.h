@@ -19,7 +19,7 @@ namespace aevol {
 
     class SIMD_List_Metadata  : public SIMD_Abstract_Metadata {
     public:
-        SIMD_List_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) { };
+        SIMD_List_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) { set_iterators(); };
 
         SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
 
@@ -29,17 +29,39 @@ namespace aevol {
 
                 }
             }
+
+            set_iterators();
         };
+
 
         ~SIMD_List_Metadata() override {
            promoters_list_.clear();
+
+           for (std::list<pRNA*>::iterator it_rna = rnas_.begin(); it_rna != rnas_.end(); it_rna++) {
+               delete (*(it_rna));
+           }
+
+
+            for (std::list<pProtein*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.begin(); it_protein++) {
+                delete (*(it_protein));
+            }
         };
 
         /** Getter **/
 
+        void set_iterators() {
+            it_promoter_ = promoters_list_[LEADING].begin();
+            it_rna_ = rnas_.begin();
+            it_protein_ = proteins_.begin();
+        };
+
         /*** Promoters ***/
         promoterStruct* promoters(int idx) override;
         void promoter_add(int idx, promoterStruct* prom) override;
+
+        promoterStruct* promoter_next() override ;
+        void promoter_begin() override ;
+        bool promoter_end() override ;
 
         int promoter_count() override;
         void set_promoters_count(int pcount) override;
@@ -56,6 +78,10 @@ namespace aevol {
         pRNA* rnas(int idx) override;
         void rna_add(int idx, pRNA* rna) override;
 
+        pRNA* rna_next() override ;
+        void rna_begin() override ;
+        bool rna_end() override ;
+
         int rna_count() override;
         void set_rna_count(int rcount) override;
 
@@ -65,6 +91,10 @@ namespace aevol {
         /*** Proteins ***/
         pProtein* proteins(int idx) override;
         void protein_add(int idx, pProtein* prot) override;
+
+        pProtein* protein_next() override ;
+        void protein_begin() override ;
+        bool protein_end() override ;
 
         int proteins_count() override;
         void set_proteins_count(int pcount) override;
@@ -175,15 +205,20 @@ namespace aevol {
         SIMD_Promoters2Strands promoters_list_ = {{},
                                                   {}};
     protected:
+        SIMD_Promoters1Strand::iterator it_promoter_;
+        int it_promoter_pos_;
 
-
+        std::list<pRNA*>::iterator it_rna_;
+        std::list<pProtein*>::iterator it_protein_;
 
         std::set<int> terminator_lag_;
         std::set<int> terminator_lead_;
-        std::vector<pRNA*> rnas_;
-        std::vector<pProtein*> proteins_;
+        std::list<pRNA*> rnas_;
+        std::list<pProtein*> proteins_;
 
         int32_t protein_count_ = 0;
+
+        int cmp_rna = 0;
 
         Internal_SIMD_Struct* indiv_;
     };

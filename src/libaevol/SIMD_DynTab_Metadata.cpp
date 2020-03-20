@@ -838,6 +838,21 @@ namespace aevol {
         promoters_[idx] = prom;
     }
 
+    promoterStruct* SIMD_DynTab_Metadata::promoter_next() {
+        promoterStruct* prom = promoters_[it_promoter_];
+        it_promoter_++;
+        return prom;
+    }
+
+    void SIMD_DynTab_Metadata::promoter_begin() {
+        it_promoter_ = 0;
+    }
+
+    bool SIMD_DynTab_Metadata::promoter_end() {
+        return it_promoter_ == promoter_count();
+    }
+
+
     int SIMD_DynTab_Metadata::promoter_count() {
         return count_promoters_;
     }
@@ -897,6 +912,20 @@ namespace aevol {
         rnas_[idx] = rna;
     }
 
+    pRNA* SIMD_DynTab_Metadata::rna_next() {
+        pRNA* rna = rnas_[it_rna_];
+        it_rna_++;
+        return rna;
+    }
+
+    void SIMD_DynTab_Metadata::rna_begin() {
+        it_rna_ = 0;
+    }
+
+    bool SIMD_DynTab_Metadata::rna_end() {
+        return it_rna_ == rna_count();
+    }
+
     int SIMD_DynTab_Metadata::rna_count() {
         return rna_count_;
     }
@@ -919,6 +948,20 @@ namespace aevol {
 
     void SIMD_DynTab_Metadata::protein_add(int idx, pProtein *prot) {
         proteins_[idx] = prot;
+    }
+
+    pProtein* SIMD_DynTab_Metadata::protein_next() {
+        pProtein* prot = proteins_[it_protein_];
+        it_protein_++;
+        return prot;
+    }
+
+    void SIMD_DynTab_Metadata::protein_begin() {
+        it_promoter_ = 0;
+    }
+
+    bool SIMD_DynTab_Metadata::protein_end() {
+        return it_protein_ == proteins_count();
     }
 
     int SIMD_DynTab_Metadata::proteins_count() {

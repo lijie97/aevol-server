@@ -81,6 +81,10 @@ namespace aevol {
         promoterStruct* promoters(int idx) override;
         void promoter_add(int idx, promoterStruct* prom) override;
 
+        promoterStruct* promoter_next() override ;
+        void promoter_begin() override ;
+        bool promoter_end() override ;
+
         int promoter_count() override;
         void set_promoters_count(int pcount) override;
 
@@ -96,6 +100,10 @@ namespace aevol {
         pRNA* rnas(int idx) override;
         void rna_add(int idx, pRNA* rna) override;
 
+        pRNA* rna_next() override ;
+        void rna_begin() override ;
+        bool rna_end() override ;
+
         int rna_count() override;
         void set_rna_count(int rcount) override;
 
@@ -105,6 +113,10 @@ namespace aevol {
         /*** Proteins ***/
         pProtein* proteins(int idx) override;
         void protein_add(int idx, pProtein* prot) override;
+
+        pProtein* protein_next() override ;
+        void protein_begin() override ;
+        bool protein_end() override ;
 
         int proteins_count() override;
         void set_proteins_count(int pcount) override;
@@ -251,6 +263,10 @@ namespace aevol {
         std::set<int> terminator_lead_;
         std::vector<pRNA*> rnas_;
         std::vector<pProtein*> proteins_;
+
+        int it_promoter_ = 0;
+        int it_rna_ = 0;
+        int it_protein_ = 0;
 
         int32_t count_promoters_;
         int32_t protein_count_ = 0;

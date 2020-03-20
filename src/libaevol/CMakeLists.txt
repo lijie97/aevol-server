@@ -168,7 +168,9 @@ set(aevol_sources
   SIMD_DynTab_Metadata.cpp
   SIMD_DynTab_Metadata.h
   SIMD_List_Metadata.cpp
-  SIMD_List_Metadata.h)
+  SIMD_List_Metadata.h
+  SIMD_DnaFactory.cpp
+  SIMD_DnaFactory.h)
 
   
 if ( ${with-raevol} )
@@ -186,7 +188,7 @@ if ( ${with-raevol} )
           raevol/Protein_R.h
           raevol/Protein_R.cpp
           raevol/Rna_R.h
-          raevol/Rna_R.cpp) 
+          raevol/Rna_R.cpp SIMD_DnaFactory.cpp SIMD_DnaFactory.h)
 endif ()
 
 add_library(aevol ${aevol_sources})
@@ -213,7 +215,7 @@ target_compile_options(aevol PUBLIC "-std=c++14")
 
 if ( ${with-simd} )
     add_definitions(-DWITH_STANDALONE_SIMD)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3 -AVX512")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3")
 endif ()
 
 

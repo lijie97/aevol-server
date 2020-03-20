@@ -701,7 +701,7 @@ void ExpManager::run_evolution() {
 
 #pragma omp single
       {
-          if (AeTime::time() % 100 == 0) {
+          if (AeTime::time() % 1 == 0) {
               printf(
                       "============================== %" PRId64 " ==============================\n",
                       AeTime::time());
@@ -726,42 +726,14 @@ void ExpManager::run_evolution() {
 
           first_run = false;
 
-/*
-    int16_t nb_activators = 0;
-    int16_t nb_operators = 0;
-
-    Individual_R* test = dynamic_cast<Individual_R*>(best_indiv());
-
-    //test->init_indiv(dynamic_cast<const Habitat_R&>(test->habitat()));
-
-    int nb_protein = 0;
-    for (const auto& rnax: test->_rna_list_coding) {
-      Rna_R* rna = (Rna_R*) rnax;
-      for (unsigned int i = 0; i < rna->nb_influences(); i++) {
-        nb_protein++;
-        if (rna->_enhancing_coef_list[i] > 0) {
-          nb_activators++;
-        }
-
-        if (rna->_operating_coef_list[i] > 0) {
-          nb_operators++;
-        }
-      }
-    }
-
-    printf("  Proteins %ld (%d) - RNA %ld - Link A %d - I %d\n",test->protein_list().size(),nb_protein,
-           test->_rna_list_coding.size(),
-           nb_activators,nb_operators);
-*/
-
 
 #ifdef __X11
           display();
 #endif
           if (with_mrca_ && record_light_tree()) {
-              if (AeTime::time() == t_end_) {
+              /*if (AeTime::time() == t_end_) {
                   output_m_->light_tree()->keep_indivs(indivs());
-              }
+              }*/
               if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
                   finished=true;
           } else if (AeTime::time() >= t_end_ or quit_signal_received())
@@ -770,6 +742,7 @@ void ExpManager::run_evolution() {
 #ifdef __TRACING__
           t1 = high_resolution_clock::now();
 #endif
+
       }
     // Take one step in the evolutionary loop
     step_to_next_generation();

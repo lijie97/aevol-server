@@ -13,8 +13,10 @@
 #include "SIMD_DynTab_Metadata.h"
 #include "SIMD_List_Metadata.h"
 
+#define REDUCTION_FACTOR 16
+
 namespace aevol {
-Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {
+Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory) {
 #ifdef WITH_BITSET
   //printf("Building BitSet\n");
   bitset_ = new BitSet_SIMD(dna->data(),dna->length());
@@ -29,10 +31,33 @@ Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv) {
 #endif
   parent_length_ = dna->length();
   indiv_ = indiv;
+  dna_factory_ = dna_factory;
 }
 
+Dna_SIMD::Dna_SIMD(Dna* dna, SIMD_DnaFactory* dna_factory) {
+#ifdef WITH_BITSET
+        // printf("Building BitSet\n");
+  bitset_ = new BitSet_SIMD(dna->data(),dna->length());
+  //printf("BitSet is BUILT\n");
+  //int a=1;
+  //printf("BitSet is BUILT...\n");
+#else
+        length_ = dna->length();
 
-Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, bool copy_dna) {
+        nb_blocks_ = nb_blocks(length_);
+        posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
+        memset(data_,0,(length_+1) * sizeof(char));
+        memcpy(data_, dna->data(), (length_+1) * sizeof(char));
+#endif
+
+        //printf("Calling LENGTH\n");
+        parent_length_ = dna->length();
+        //printf("Dna_SIMD out of constructor\n");
+    dna_factory_ = dna_factory;
+
+}
+
+Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory) {
 #ifdef WITH_BITSET
   if (copy_dna)
     bitset_ = new BitSet_SIMD(dna->bitset_);
@@ -50,28 +75,93 @@ Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, bool copy_dna) {
   parent_length_ = dna->length_;
 #endif
   indiv_ = indiv;
+    dna_factory_ = dna_factory;
+
 }
 
-Dna_SIMD::Dna_SIMD(Dna* dna) {
-#ifdef WITH_BITSET
- // printf("Building BitSet\n");
-  bitset_ = new BitSet_SIMD(dna->data(),dna->length());
-  //printf("BitSet is BUILT\n");
-  //int a=1;
-  //printf("BitSet is BUILT...\n");
-#else
-  length_ = dna->length();
 
-  nb_blocks_ = nb_blocks(length_);
-  posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
-  memset(data_,0,(length_+1) * sizeof(char));
-  memcpy(data_, dna->data(), (length_+1) * sizeof(char));
-#endif
 
-  //printf("Calling LENGTH\n");
-  parent_length_ = dna->length();
-  //printf("Dna_SIMD out of constructor\n");
+Dna_SIMD::Dna_SIMD(int length, SIMD_DnaFactory* dna_factory) {
+    length_ = length;
+
+    nb_blocks_ = nb_blocks(length_);
+    posix_memalign((void **) &data_, 64, nb_blocks_ * BLOCK_SIZE * sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
+    memset(data_, 0, (length_ + 1) * sizeof(char));
+    dna_factory_ = dna_factory;
+
 }
+
+void Dna_SIMD::set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
+    int new_nb_blocks = nb_blocks(dna->length_);
+
+    //printf("Length %d %d (%d %d)\n",length_,dna->length(),nb_blocks_,dna->nb_blocks_);
+    length_ = dna->length();
+    if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks<nb_blocks_/ REDUCTION_FACTOR)) {
+        //printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
+        nb_blocks_ = new_nb_blocks;
+        if (data_ != nullptr) { free(data_); data_=nullptr;}
+
+        posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));
+        memset(data_,0,(length_+1) * sizeof(char));
+    }
+
+
+    memcpy(data_, dna->data_, (length_+1) * sizeof(char));
+
+    parent_length_ = dna->length_;
+    indiv_ = indiv;
+    dna_factory_ = indiv->dna_factory_;
+
+
+}
+
+void Dna_SIMD::set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory) {
+    int new_nb_blocks = nb_blocks(dna->length());
+
+    length_ = dna->length();
+
+    if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks<nb_blocks_/REDUCTION_FACTOR)) {
+//        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
+        nb_blocks_ = new_nb_blocks;
+        if (data_ != nullptr) { free(data_); data_=nullptr;}
+
+        posix_memalign((void **)&data_ ,64, nb_blocks_ * BLOCK_SIZE* sizeof(char));
+        memset(data_,0,(length_+1) * sizeof(char));
+    }
+
+    memcpy(data_, dna->data(), (length_+1) * sizeof(char));
+
+    parent_length_ = dna->length();
+
+    indiv_ = nullptr;
+
+    dna_factory_ = dna_factory;
+
+}
+
+void Dna_SIMD::set_indiv(int req_length, int parent_length, Internal_SIMD_Struct* indiv) {
+    int new_nb_blocks = nb_blocks(req_length);
+    length_ = req_length;
+
+    if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks < nb_blocks_ / REDUCTION_FACTOR)) {
+        //printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n", nb_blocks_, new_nb_blocks, length());
+        nb_blocks_ = new_nb_blocks;
+        if (data_ != nullptr) {
+            free(data_);
+            data_ = nullptr;
+        }
+
+        posix_memalign((void **) &data_, 64, nb_blocks_ * BLOCK_SIZE * sizeof(char));
+        memset(data_, 0, (length_ + 1) * sizeof(char));
+    }
+
+    parent_length_ = parent_length;
+    indiv_ = indiv;
+    dna_factory_ = indiv->dna_factory_;
+
+}
+
+
 
 Dna_SIMD::~Dna_SIMD() {
 #ifdef WITH_BITSET
@@ -97,29 +187,34 @@ void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
 
   // Compute size of new genome
   int32_t new_length    = length_ - (pos_2 - pos_1);
-  int32_t new_nb_blocks = nb_blocks(new_length);
 
 //  printf("POS 1 %d POS 2 %d  LENGTH %d NEW Length %d Nb Block %d\n",
 //         pos_1,pos_2,length(),new_length,new_nb_blocks);
 
-  char*   new_genome;
-  posix_memalign((void **)&new_genome,64,nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[new_nb_blocks * BLOCK_SIZE];
-
-  memset(new_genome,0,(new_length) * sizeof(char));
+  Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(new_length);
+  //printf("Dna_SIMD -- REMOVE -- Start\n");
+    new_genome->set_indiv(new_length,parent_length_,indiv_);
 
   // Copy the remaining of the genome in tmp (preceeding and following parts)
-  memcpy(new_genome, data_, pos_1 * sizeof(char));
-  memcpy(&new_genome[pos_1], &data_[pos_2],
+  memcpy(new_genome->data_, data_, pos_1 * sizeof(char));
+  memcpy(&(new_genome->data_[pos_1]), &data_[pos_2],
          (new_length - pos_1) * sizeof(char));
-  new_genome[new_length] = '\0';
+  new_genome->data_[new_length] = '\0';
 
   // Replace previous genome with the new one
-  free(data_);
-  data_ = new_genome;
+  char* old_data = data_;
+    int new_nb_block = new_genome->nb_blocks_;
+    new_genome->nb_blocks_ = nb_blocks_;
+    data_ = new_genome->data_;
+  new_genome->data_ = old_data;
+  new_genome->length_ = length();
+
+  indiv_->dna_factory_->give_back(new_genome);
+   // printf("Dna_SIMD -- REMOVE -- End\n");
 
   // Update length data
   length_ = new_length;
-  nb_blocks_ = new_nb_blocks;
+  nb_blocks_ = new_nb_block;
 }
 
 void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
@@ -133,26 +228,35 @@ void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
 
   // Compute size of new genome
   int32_t new_length    = length_ + seq_length;
-  int32_t new_nb_blocks = nb_blocks(new_length);
-  char*   new_genome;
-  posix_memalign((void **)&new_genome ,64, new_nb_blocks * BLOCK_SIZE* sizeof(char));//new char[new_nb_blocks * BLOCK_SIZE * sizeof(char)];
 
-  memset(new_genome,0,(new_length) * sizeof(char));
+  Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(new_length);
+    //printf("Dna_SIMD -- INSERT -- Start\n");
+
+    new_genome->set_indiv(new_length,parent_length_,indiv_);
 
   // Build new genome from previous genome and sequence to insert
-  memcpy(new_genome, data_, pos * sizeof(char));
-  memcpy(&new_genome[pos], seq, seq_length * sizeof(char));
-  memcpy(&new_genome[pos+seq_length], &data_[pos],
+  memcpy(new_genome->data_, data_, pos * sizeof(char));
+  memcpy(&(new_genome->data_[pos]), seq, seq_length * sizeof(char));
+  memcpy(&(new_genome->data_[pos+seq_length]), &data_[pos],
          (length_ - pos) * sizeof(char));
-  new_genome[new_length] = '\0';
+  new_genome->data_[new_length] = '\0';
 
   // Replace the previous genome with the new one
-  free(data_);
-  data_ = new_genome;
+    char* old_data = data_;
+    data_ = new_genome->data_;
+    int new_nb_block = new_genome->nb_blocks_;
+    new_genome->data_ = old_data;
+    new_genome->nb_blocks_ = nb_blocks_;
+    new_genome->length_ = length();
 
-  // Update length-related data
+    indiv_->dna_factory_->give_back(new_genome);
+
+    //printf("Dna_SIMD -- INSERT -- End\n");
+
+
+    // Update length-related data
   length_ = new_length;
-  nb_blocks_ = new_nb_blocks;
+  nb_blocks_ = new_nb_block;
 }
 
 void Dna_SIMD::replace(int32_t pos, char* seq, int32_t seq_length) {
@@ -1370,7 +1474,7 @@ void Dna_SIMD::apply_mutations_standalone() {
       }
 
   } while (indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_available() > 0);
-
+   // printf("End mutation for %d\n",indiv_->indiv_id);
 //    if (indiv_->indiv_id == 17 || indiv_->indiv_id == 50 || indiv_->indiv_id == 18) {
 //        printf("%d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);
 //        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
@@ -1601,23 +1705,32 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   delete bitset_;
   bitset_ = bitset;
 #else
-  char* new_genome;
-  posix_memalign((void **)&new_genome,64,nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
+    Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(length_);
+    //printf("BEFORE :: DNA %d || New DNA %d || Block %d || New Block %d\n",length_,new_genome->length_,nb_blocks_,new_genome->nb_blocks_);
 
-  memset(new_genome,0,(length_) * sizeof(char));
-
-  memcpy(new_genome, data_, len_A * sizeof(char));
-  memcpy(&new_genome[len_A], &data_[pos_D], len_D * sizeof(char));
-  memcpy(&new_genome[len_AD], &data_[pos_C], len_C * sizeof(char));
-  memcpy(&new_genome[len_ADC], &data_[pos_B], len_B * sizeof(char));
-  memcpy(&new_genome[len_ADCB], &data_[pos_E], len_E * sizeof(char));
-  new_genome[length_] = '\0';
+    new_genome->set_indiv(length_,parent_length_,indiv_);
+    //printf("DNA %d || New DNA %d || Block %d || New Block %d\n",length_,new_genome->length_,nb_blocks_,new_genome->nb_blocks_);
+    //printf("LEN %d %d %d\n",len_A,len_D,pos_D);
+  memcpy(new_genome->data_, data_, len_A * sizeof(char));
+  memcpy(&(new_genome->data_[len_A]), &data_[pos_D], len_D * sizeof(char));
+  memcpy(&(new_genome->data_[len_AD]), &data_[pos_C], len_C * sizeof(char));
+  memcpy(&(new_genome->data_[len_ADC]), &data_[pos_B], len_B * sizeof(char));
+  memcpy(&(new_genome->data_[len_ADCB]), &data_[pos_E], len_E * sizeof(char));
+  new_genome->data_[length_] = '\0';
 
   // Replace sequence
   // NB : The size of the genome doesn't change. Therefore, we don't nee
   // to update length_ and nb_blocks_
-  free(data_);
-  data_ = new_genome;
+    char* old_data = data_;
+    data_ = new_genome->data_;
+    int new_nb_block = new_genome->nb_blocks_;
+    new_genome->nb_blocks_ = nb_blocks_;
+
+    new_genome->data_ = old_data;
+    new_genome->length_ = length();
+
+    nb_blocks_ = new_nb_block;
+    indiv_->dna_factory_->give_back(new_genome);
 #endif
 
 
@@ -2048,13 +2161,12 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   bitset_ = bitset;
 #else
   // Create new sequence
-  char* new_genome;
-  posix_memalign((void **)&new_genome,64,nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
-  memset(new_genome,0,(length_) * sizeof(char));
+    Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(length_);
+    new_genome->set_indiv(length_,parent_length_,indiv_);
 
   // Copy segments A and D
-  memcpy(new_genome, data_, len_A * sizeof(char));
-  memcpy(&new_genome[len_A], &data_[pos_D], len_D * sizeof(char));
+  memcpy(new_genome->data_, data_, len_A * sizeof(char));
+  memcpy(&(new_genome->data_[len_A]), &data_[pos_D], len_D * sizeof(char));
 
 
   // Build Bp and put it in the new genome
@@ -2072,7 +2184,7 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   }
   inverted_segment[len_B] = '\0';
 
-  memcpy(&new_genome[len_AD], inverted_segment, len_B * sizeof(char));
+  memcpy(&(new_genome->data_[len_AD]), inverted_segment, len_B * sizeof(char));
 
   free(inverted_segment);
 
@@ -2091,18 +2203,27 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   }
   inverted_segment[len_C] = '\0';
 
-  memcpy(&new_genome[len_ADB], inverted_segment, len_C * sizeof(char));
+  memcpy(&(new_genome->data_[len_ADB]), inverted_segment, len_C * sizeof(char));
 
   free(inverted_segment);
 
   // Copy segment E into the new genome
-  memcpy(&new_genome[len_ADBC], &data_[pos_E], len_E * sizeof(char));
-  new_genome[length_] = '\0';
+  memcpy(&(new_genome->data_[len_ADBC]), &data_[pos_E], len_E * sizeof(char));
+  new_genome->data_[length_] = '\0';
 
 
   // Replace sequence
-  free(data_);
-  data_ = new_genome;
+    char* old_data = data_;
+    data_ = new_genome->data_;
+    int new_nb_block = new_genome->nb_blocks_;
+    new_genome->nb_blocks_ = nb_blocks_;
+
+    new_genome->data_ = old_data;
+    new_genome->length_ = length();
+
+    nb_blocks_ = new_nb_block;
+
+    indiv_->dna_factory_->give_back(new_genome);
 #endif
 
   // ========== Update promoter list ==========
@@ -2448,12 +2569,11 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   bitset_ = bitset;
 #else
   // Create new sequence
-  char* new_genome;
-  posix_memalign((void **)&new_genome,64,nb_blocks_ * BLOCK_SIZE* sizeof(char));//new char[nb_blocks_ * BLOCK_SIZE];
-  memset(new_genome,0,(length_) * sizeof(char));
+    Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(length_);
+    new_genome->set_indiv(length_,parent_length_,indiv_);
 
   // Copy segment A
-  memcpy(new_genome, data_, len_A * sizeof(char));
+  memcpy(new_genome->data_, data_, len_A * sizeof(char));
 
 
   // Build Cp and put it in the new genome
@@ -2470,7 +2590,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   }
   inverted_segment[len_C] = '\0';
 
-  memcpy(&new_genome[len_A], inverted_segment, len_C * sizeof(char));
+  memcpy(&(new_genome->data_[len_A]), inverted_segment, len_C * sizeof(char));
 
   free(inverted_segment);
 
@@ -2488,19 +2608,28 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   }
   inverted_segment[len_D] = '\0';
 
-  memcpy(&new_genome[len_AC], inverted_segment, len_D * sizeof(char));
+  memcpy(&(new_genome->data_[len_AC]), inverted_segment, len_D * sizeof(char));
 
   free(inverted_segment);
 
   // Copy segments B and E
-  memcpy(&new_genome[len_ACD], &data_[pos_B], len_B * sizeof(char));
-  memcpy(&new_genome[len_ACDB], &data_[pos_E], len_E * sizeof(char));
-  new_genome[length_] = '\0';
+  memcpy(&(new_genome->data_[len_ACD]), &data_[pos_B], len_B * sizeof(char));
+  memcpy(&(new_genome->data_[len_ACDB]), &data_[pos_E], len_E * sizeof(char));
+    new_genome->data_[length_] = '\0';
 
 
   // Replace sequence
-  free(data_);
-  data_ = new_genome;
+    char* old_data = data_;
+    data_ = new_genome->data_;
+
+    int new_nb_block = new_genome->nb_blocks_;
+    new_genome->nb_blocks_ = nb_blocks_;
+
+    new_genome->data_ = old_data;
+    new_genome->length_ = length();
+
+    nb_blocks_ = new_nb_block;
+    indiv_->dna_factory_->give_back(new_genome);
 #endif
 
 

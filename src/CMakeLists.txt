@@ -42,7 +42,7 @@ endif()
 
 if ( ${with-simd} )
     add_definitions(-DWITH_STANDALONE_SIMD)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3 -AVX512")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3")
 endif ()
 
 

@@ -18,8 +18,15 @@ namespace aevol {
 
     class SIMD_Abstract_Metadata {
     public:
-        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata) { indiv_ = indiv; }
-        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv) { indiv_ = indiv; }
+        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata) {
+            indiv_ = indiv;
+        }
+
+        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv) {
+            indiv_ = indiv;
+        }
+
+
         virtual ~SIMD_Abstract_Metadata() {};
         /** Getter **/
         /*** Promoters ***/
@@ -174,7 +181,7 @@ namespace aevol {
                 for (int motif_id = 0; motif_id < 22; motif_id++) {
                         prom_dist_leading[motif_id] =
                                 PROM_SEQ_LEAD[motif_id] ==
-                                indiv_->dna_->data_[(pos + motif_id) - (((unsigned int32_t)((pos + motif_id) - len)) >> 31) * len]
+                                indiv_->dna_->data_[(pos + motif_id) + ((((unsigned int32_t)((pos + motif_id) - len)) >> 31) -1 )* len]
                                 ? 0 : 1;
                 }
 
@@ -452,6 +459,10 @@ namespace aevol {
         virtual int promoter_count() = 0;
         virtual void set_promoters_count(int rcount) = 0;
 
+        virtual promoterStruct* promoter_next() = 0;
+        virtual void promoter_begin() = 0;
+        virtual bool promoter_end() = 0;
+
         /*** Terminators ***/
         virtual int terminator_count(int LoL) = 0;
         virtual void terminator_add(int LoL, int dna_pos) = 0;
@@ -470,6 +481,10 @@ namespace aevol {
         virtual void rnas_resize(int resize) = 0;
         virtual void rnas_clear() = 0;
 
+        virtual pRNA* rna_next() = 0;
+        virtual void rna_begin() = 0;
+        virtual bool rna_end() = 0;
+
         /*** Proteins ***/
         virtual pProtein* proteins(int idx) = 0;
         virtual void protein_add(int idx, pProtein* prot) = 0;
@@ -480,6 +495,10 @@ namespace aevol {
         virtual void proteins_resize(int resize) = 0;
         virtual void proteins_clear() = 0;
 
+
+        virtual pProtein* protein_next() = 0;
+        virtual void protein_begin() = 0;
+        virtual bool protein_end() = 0;
         /** Search and update **/
         virtual void remove_promoters_around(int32_t pos_1) = 0;
         virtual void remove_promoters_around(int32_t pos_1, int32_t pos_2) = 0;

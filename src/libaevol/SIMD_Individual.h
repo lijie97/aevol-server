@@ -16,6 +16,7 @@
 #include "PhenotypicTargetHandler.h"
 #include "ae_enums.h"
 #include "Stats.h"
+#include "SIMD_DnaFactory.h"
 
 namespace aevol {
 
@@ -116,9 +117,9 @@ class pProtein {
 
 class Internal_SIMD_Struct : public Observable {
  public:
-    Internal_SIMD_Struct(ExpManager* exp_m, double w_max);
+    Internal_SIMD_Struct(ExpManager* exp_m, double w_max, SIMD_DnaFactory* dna_factory);
 
-    Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone, bool copy_dna = true);
+    Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone, SIMD_DnaFactory* dna_factory);
 
     ~Internal_SIMD_Struct();
 
@@ -135,6 +136,7 @@ class Internal_SIMD_Struct : public Observable {
     int32_t usage_count_ = 1;
 
     ExpManager* exp_m_;
+    SIMD_DnaFactory* dna_factory_;
 
     int global_id = -1;
 
@@ -216,6 +218,7 @@ class SIMD_Individual : public Observable{
     int rna_grain_size = 32;
     int protein_grain_size = 32;
 
+
  private:
     ExpManager* exp_m_;
     int* dna_size;
@@ -225,8 +228,11 @@ class SIMD_Individual : public Observable{
     Stats_SIMD* stats_best = nullptr;
     Stats_SIMD* stats_mean = nullptr;
 
+
+
     long apply_mutation[1024];
 
+    SIMD_DnaFactory* dna_factory_;
 
     Stats* stats_;
 

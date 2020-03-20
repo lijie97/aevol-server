@@ -890,6 +890,21 @@ namespace aevol {
             lagging_prom_pos_[prom->pos] = idx;
     }
 
+
+    promoterStruct* SIMD_Map_Metadata::promoter_next() {
+        promoterStruct* prom = promoters_[it_promoter_];
+        it_promoter_++;
+        return prom;
+    }
+
+    void SIMD_Map_Metadata::promoter_begin() {
+        it_promoter_ = 0;
+    }
+
+    bool SIMD_Map_Metadata::promoter_end() {
+        return it_promoter_ == promoter_count();
+    }
+
     int SIMD_Map_Metadata::promoter_count() {
         return count_promoters_;
     }
@@ -949,6 +964,20 @@ namespace aevol {
         rnas_[idx] = rna;
     }
 
+    pRNA* SIMD_Map_Metadata::rna_next() {
+        pRNA* rna = rnas_[it_rna_];
+        it_rna_++;
+        return rna;
+    }
+
+    void SIMD_Map_Metadata::rna_begin() {
+        it_rna_ = 0;
+    }
+
+    bool SIMD_Map_Metadata::rna_end() {
+        return it_rna_ == rna_count();
+    }
+
     int SIMD_Map_Metadata::rna_count() {
         return rna_count_;
     }
@@ -971,6 +1000,20 @@ namespace aevol {
 
     void SIMD_Map_Metadata::protein_add(int idx, pProtein *prot) {
         proteins_[idx] = prot;
+    }
+
+    pProtein* SIMD_Map_Metadata::protein_next() {
+        pProtein* prot = proteins_[it_protein_];
+        it_protein_++;
+        return prot;
+    }
+
+    void SIMD_Map_Metadata::protein_begin() {
+        it_protein_ = 0;
+    }
+
+    bool SIMD_Map_Metadata::protein_end() {
+        return it_protein_ == proteins_count();
     }
 
     int SIMD_Map_Metadata::proteins_count() {
