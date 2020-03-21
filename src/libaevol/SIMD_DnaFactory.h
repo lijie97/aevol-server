@@ -8,6 +8,7 @@
 #include "Dna_SIMD.h"
 namespace aevol {
     enum DnaFactory_Policy {
+        FIRST = 0,
         FIRSTFIT = 1,
         BESTFIT = 2
     };

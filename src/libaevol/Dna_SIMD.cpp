@@ -97,7 +97,7 @@ void Dna_SIMD::set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
     //printf("Length %d %d (%d %d)\n",length_,dna->length(),nb_blocks_,dna->nb_blocks_);
     length_ = dna->length();
     if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks<nb_blocks_/ REDUCTION_FACTOR)) {
-        //printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
+        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
         nb_blocks_ = new_nb_blocks;
         if (data_ != nullptr) { free(data_); data_=nullptr;}
 
@@ -121,7 +121,7 @@ void Dna_SIMD::set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory) {
     length_ = dna->length();
 
     if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks<nb_blocks_/REDUCTION_FACTOR)) {
-//        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
+        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
         nb_blocks_ = new_nb_blocks;
         if (data_ != nullptr) { free(data_); data_=nullptr;}
 
@@ -144,7 +144,7 @@ void Dna_SIMD::set_indiv(int req_length, int parent_length, Internal_SIMD_Struct
     length_ = req_length;
 
     if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks < nb_blocks_ / REDUCTION_FACTOR)) {
-        //printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n", nb_blocks_, new_nb_blocks, length());
+        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n", nb_blocks_, new_nb_blocks, length());
         nb_blocks_ = new_nb_blocks;
         if (data_ != nullptr) {
             free(data_);

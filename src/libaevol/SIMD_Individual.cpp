@@ -1481,10 +1481,9 @@ SIMD_Individual::~SIMD_Individual() {
                             }
 
                             if (start) {
-                                int start_prot_idx = -1;
-                                start_prot_idx = rna->start_prot_count_++;
+                                rna->start_prot_count_++;
 
-                                rna->start_prot[start_prot_idx] = c_pos;
+                                rna->start_prot.push_back(c_pos);
                             }
 
                             if (rna->leading_lagging ==
@@ -1530,10 +1529,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
         pRNA* rna = internal_simd_struct[indiv_id]->metadata_->rna_next();
 
         if (rna->is_init_) {
-            for (int protein_idx = 0;
-                 protein_idx < (int) rna->start_prot_count_; protein_idx++) {
+            for (auto it_start_pos = rna->start_prot.begin(); it_start_pos != rna->start_prot.end(); it_start_pos++) {
 
-                int start_prot = rna->start_prot[protein_idx];
+                int start_prot = *it_start_pos;
                 int start_protein_pos = rna->leading_lagging == 0 ?
                                         start_prot +
                                         13 :
@@ -1564,9 +1562,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                                               : start_protein_pos;
 
                     if (start_prot > rna->end) {
-                        length = rna->start_prot[protein_idx] - rna->end;
+                        length = (*it_start_pos) - rna->end;
                     } else {
-                        length = rna->start_prot[protein_idx] +
+                        length = *it_start_pos +
                                  dna_length -
                                  rna->end;
                     }
@@ -2179,9 +2177,9 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     nb_clones_ = 0;
 //
 #pragma omp for schedule(dynamic)
-    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id+=1) {
+    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id+=16) {
         {
-            for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
+            for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
                 //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
                 if (standalone_ && optim_prom) {
                     selection(indiv_id);
