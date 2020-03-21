@@ -2333,49 +2333,52 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         perf_traces_file_.close();
 #endif
 
-        // Stats
-        if (!optim_prom) {
-            stats_best = new Stats_SIMD(this, AeTime::time(), true);
-            stats_mean = new Stats_SIMD(this, AeTime::time(), false);
-        } else {
-            stats_best->reinit(AeTime::time());
-            stats_mean->reinit(AeTime::time());
-        }
+        bool without_stats = true;
+        if (!without_stats) {
+            // Stats
+            if (!optim_prom) {
+                stats_best = new Stats_SIMD(this, AeTime::time(), true);
+                stats_mean = new Stats_SIMD(this, AeTime::time(), false);
+            } else {
+                stats_best->reinit(AeTime::time());
+                stats_mean->reinit(AeTime::time());
+            }
 
-        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            prev_internal_simd_struct[indiv_id]->reset_stats();
-            prev_internal_simd_struct[indiv_id]->metadata_->rna_begin();
-            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
-                pRNA* rna = prev_internal_simd_struct[indiv_id]->metadata_->rna_next();
-                if (rna != nullptr) {
-                    if (rna->is_coding_)
-                        prev_internal_simd_struct[indiv_id]->nb_coding_RNAs++;
-                    else
-                        prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs++;
+            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                prev_internal_simd_struct[indiv_id]->reset_stats();
+                prev_internal_simd_struct[indiv_id]->metadata_->rna_begin();
+                for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
+                    pRNA *rna = prev_internal_simd_struct[indiv_id]->metadata_->rna_next();
+                    if (rna != nullptr) {
+                        if (rna->is_coding_)
+                            prev_internal_simd_struct[indiv_id]->nb_coding_RNAs++;
+                        else
+                            prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs++;
+                    }
+                }
+
+
+                for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->proteins_count(); i++) {
+                    pProtein *prot = prev_internal_simd_struct[indiv_id]->metadata_->proteins(i);
+                    if (prot != nullptr) {
+                        if (prot->is_functional) {
+                            prev_internal_simd_struct[indiv_id]->nb_func_genes++;
+                        } else {
+                            prev_internal_simd_struct[indiv_id]->nb_non_func_genes++;
+                        }
+                        if (prot->h > 0) {
+                            prev_internal_simd_struct[indiv_id]->nb_genes_activ++;
+                        } else {
+                            prev_internal_simd_struct[indiv_id]->nb_genes_inhib++;
+                        }
+                    }
                 }
             }
 
 
-            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->proteins_count(); i++) {
-                pProtein* prot = prev_internal_simd_struct[indiv_id]->metadata_->proteins(i);
-                if (prot != nullptr) {
-                    if (prot->is_functional) {
-                        prev_internal_simd_struct[indiv_id]->nb_func_genes++;
-                    } else {
-                        prev_internal_simd_struct[indiv_id]->nb_non_func_genes++;
-                    }
-                    if (prot->h > 0) {
-                        prev_internal_simd_struct[indiv_id]->nb_genes_activ++;
-                    } else {
-                        prev_internal_simd_struct[indiv_id]->nb_genes_inhib++;
-                    }
-                }
-            }
+            stats_best->write_best();
+            stats_mean->write_average();
         }
-
-
-        stats_best->write_best();
-        stats_mean->write_average();
 
 
         if (standalone_ && exp_m_->record_light_tree()) {
