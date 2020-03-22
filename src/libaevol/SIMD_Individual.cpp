@@ -2177,9 +2177,9 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     nb_clones_ = 0;
 //
 #pragma omp for schedule(dynamic)
-    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id+=16) {
+    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id+=1) {
         {
-            for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
+            for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
                 //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
                 if (standalone_ && optim_prom) {
                     selection(indiv_id);

@@ -345,9 +345,10 @@ int64_t OutputManager::last_gener() {
       // Write backup
       if (AeTime::time() % backup_step_ != 0) {
         stats_->flush();
-        exp_m_->WriteDynamicFiles();
-
-        WriteLastGenerFile();
+        if (!SIMD_Individual::standalone_simd) {
+            exp_m_->WriteDynamicFiles();
+            WriteLastGenerFile();
+        }
       }
 
       // Write dumps
