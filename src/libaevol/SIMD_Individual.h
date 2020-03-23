@@ -222,6 +222,7 @@ class SIMD_Individual : public Observable{
     int* dna_size;
     double* target;
     bool standalone_;
+    bool first_gener_ = true;
 
     Stats_SIMD* stats_best = nullptr;
     Stats_SIMD* stats_mean = nullptr;

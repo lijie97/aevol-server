@@ -219,14 +219,14 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
 #endif
         if (SIMD_Individual::standalone_simd) {
             //printf("Create RR with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
-#pragma omp critical
+//#pragma omp critical
             {
                 replics_[AeTime::time()][ievent->x *
                                          ievent->simd_child->exp_m_->grid_height()
                                          + ievent->y] = new ReplicationReport();
             }
         } else {
-#pragma omp critical
+//#pragma omp critical
             {
                 replics_[AeTime::time()][ievent->x *
                                          ievent->child->exp_m()->grid_height()

@@ -42,7 +42,7 @@ namespace aevol {
            }
 
 
-            for (std::list<pProtein*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.begin(); it_protein++) {
+            for (std::list<pProtein*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
                 delete (*(it_protein));
             }
         };

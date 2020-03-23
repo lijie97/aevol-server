@@ -788,18 +788,18 @@ SIMD_Individual::~SIMD_Individual() {
 
 
   if (standalone_) {
-      /*for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+      for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
           int x = indiv_id / exp_m_->world()->height();
           int y = indiv_id % exp_m_->world()->height();
 
           if (exp_m_->world()->grid(x, y)->individual()!= nullptr) {
               if (exp_m_->world()->grid(x, y)->individual()->transcribed()) {
-                  exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-                  exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-                  delete exp_m_->world()->grid(x, y)->individual();
+                  //exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+                  //exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+                  //delete exp_m_->world()->grid(x, y)->individual();
               }
           }
-      }*/
+      }
   }
 }
 
@@ -2177,9 +2177,9 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     nb_clones_ = 0;
 //
 #pragma omp for schedule(dynamic)
-    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id+=1) {
+    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id+=16) {
         {
-            for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
+            for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
                 //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
                 if (standalone_ && optim_prom) {
                     selection(indiv_id);
@@ -2378,91 +2378,80 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
             stats_best->write_best();
             stats_mean->write_average();
-        }
-
-
-        if (standalone_ && exp_m_->record_light_tree()) {
-            if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
-                AeTime::time() > 0) {
+        } else {
+            // ONLY BEST
+            // Stats
+            if (!optim_prom) {
+                stats_best = new Stats_SIMD(this, AeTime::time(), true);
+            } else {
+                stats_best->reinit(AeTime::time());
             }
 
-            if (standalone_ && exp_m_->record_light_tree() && AeTime::time() > 0) {
-                exp_m_->output_m()->light_tree()->update_tree(AeTime::time(), prev_internal_simd_struct);
-
-                if (AeTime::time() % exp_m_->backup_step() == 0) {
-                    std::cout << "writing light tree for gen : " << AeTime::time() << '\n';
-                    exp_m_->output_m()->write_light_tree(AeTime::time());
+            best_indiv->reset_stats();
+            best_indiv->metadata_->rna_begin();
+            for (int i = 0; i < best_indiv->metadata_->rna_count(); i++) {
+                pRNA *rna = best_indiv->metadata_->rna_next();
+                if (rna != nullptr) {
+                    if (rna->is_coding_)
+                        best_indiv->nb_coding_RNAs++;
+                    else
+                        best_indiv->nb_non_coding_RNAs++;
                 }
             }
 
-            if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+
+            for (int i = 0; i < best_indiv->metadata_->proteins_count(); i++) {
+                pProtein *prot = best_indiv->metadata_->proteins(i);
+                if (prot != nullptr) {
+                    if (prot->is_functional) {
+                        best_indiv->nb_func_genes++;
+                    } else {
+                        best_indiv->nb_non_func_genes++;
+                    }
+                    if (prot->h > 0) {
+                        best_indiv->nb_genes_activ++;
+                    } else {
+                        best_indiv->nb_genes_inhib++;
+                    }
+                }
+            }
+
+
+            stats_best->write_best();
+        }
+
+
+        if (!first_gener_) {
+            if (standalone_ && exp_m_->record_light_tree()) {
+                if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+                    AeTime::time() > 0) {
+                }
+
+                if (standalone_ && exp_m_->record_light_tree() && AeTime::time() > 0) {
+                    exp_m_->output_m()->light_tree()->update_tree(AeTime::time(), prev_internal_simd_struct);
+
+                    if (AeTime::time() % exp_m_->backup_step() == 0) {
+                        std::cout << "writing light tree for gen : " << AeTime::time() << '\n';
+                        exp_m_->output_m()->write_light_tree(AeTime::time());
+                    }
+                }
+
+                if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+                    AeTime::time() > 0) {
+                }
+
+            }
+
+
+            if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
                 AeTime::time() > 0) {
+                printf("Tree SIMD backup\n");
+
+                exp_m_->output_m()->write_tree(AeTime::time());
             }
 
-        }
-
-
-        if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
-            AeTime::time() > 0) {
-            printf("Tree SIMD backup\n");
-
-            exp_m_->output_m()->write_tree(AeTime::time());
-        }
-
-        if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
-            printf("Backup... OK\n");
-            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-                int x = indiv_id / exp_m_->world()->height();
-                int y = indiv_id % exp_m_->world()->height();
-
-                exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-                exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-                delete exp_m_->world()->grid(x, y)->individual();
-
-                Individual *indiv = new Individual(exp_m_,
-                                                   exp_m_->world()->grid(x, y)->mut_prng(),
-                                                   exp_m_->world()->grid(x, y)->stoch_prng(),
-                                                   exp_m_->exp_s()->mut_params(),
-                                                   w_max,
-                                                   exp_m_->exp_s()->min_genome_length(),
-                                                   exp_m_->exp_s()->max_genome_length(),
-                                                   false,
-                                                   indiv_id,
-                                                   "",
-                                                   0);
-                int32_t nb_blocks_ = prev_internal_simd_struct[indiv_id]->dna_->length() / BLOCK_SIZE + 1;
-                char *dna_string = new char[nb_blocks_ * BLOCK_SIZE];
-                memset(dna_string, 0,
-                       (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
-
-
-                char *to_copy = prev_internal_simd_struct[indiv_id]->dna_->to_char();
-
-
-                memcpy(dna_string, to_copy,
-                       (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
-
-
-                indiv->genetic_unit_list_.clear();
-                indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
-                indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
-                indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
-                indiv->EvaluateInContext(exp_m_->world()->grid(x, y)->habitat());
-                indiv->compute_statistical_data();
-
-                exp_m_->world()->grid(x, y)->set_individual(indiv);
-            }
-
-            // Create missing directories
-            exp_m_->WriteDynamicFiles();
-
-            std::ofstream last_gener_file(LAST_GENER_FNAME,
-                                          std::ofstream::out);
-
-            last_gener_file << AeTime::time() << std::endl;
-            last_gener_file.close();
-
-            if (AeTime::time() == exp_m_->end_step()) {
+            if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
+                printf("Backup... OK\n");
                 for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
                     int x = indiv_id / exp_m_->world()->height();
                     int y = indiv_id % exp_m_->world()->height();
@@ -2470,9 +2459,63 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                     exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
                     exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
                     delete exp_m_->world()->grid(x, y)->individual();
+
+                    Individual *indiv = new Individual(exp_m_,
+                                                       exp_m_->world()->grid(x, y)->mut_prng(),
+                                                       exp_m_->world()->grid(x, y)->stoch_prng(),
+                                                       exp_m_->exp_s()->mut_params(),
+                                                       w_max,
+                                                       exp_m_->exp_s()->min_genome_length(),
+                                                       exp_m_->exp_s()->max_genome_length(),
+                                                       false,
+                                                       indiv_id,
+                                                       "",
+                                                       0);
+                    int32_t nb_blocks_ = prev_internal_simd_struct[indiv_id]->dna_->length() / BLOCK_SIZE + 1;
+                    char *dna_string = new char[nb_blocks_ * BLOCK_SIZE];
+                    memset(dna_string, 0,
+                           (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
+
+
+                    char *to_copy = prev_internal_simd_struct[indiv_id]->dna_->to_char();
+
+
+                    memcpy(dna_string, to_copy,
+                           (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
+
+
+                    indiv->genetic_unit_list_.clear();
+                    indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
+                    indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
+                    indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
+                    indiv->EvaluateInContext(exp_m_->world()->grid(x, y)->habitat());
+                    indiv->compute_statistical_data();
+
+                    exp_m_->world()->grid(x, y)->set_individual(indiv);
+                }
+
+                // Create missing directories
+                exp_m_->WriteDynamicFiles();
+
+                std::ofstream last_gener_file(LAST_GENER_FNAME,
+                                              std::ofstream::out);
+
+                last_gener_file << AeTime::time() << std::endl;
+                last_gener_file.close();
+
+                if (AeTime::time() == exp_m_->end_step()) {
+                    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                        int x = indiv_id / exp_m_->world()->height();
+                        int y = indiv_id % exp_m_->world()->height();
+
+                        exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+                        exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+                        delete exp_m_->world()->grid(x, y)->individual();
+                    }
                 }
             }
         }
+        first_gener_ = false;
     }
 }
 
