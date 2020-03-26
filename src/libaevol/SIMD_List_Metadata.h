@@ -102,6 +102,8 @@ namespace aevol {
         void proteins_resize(int resize) override;
         void proteins_clear() override;
 
+        void proteins_print();
+
         /*** Promoters ***/
         void lst_promoters(bool lorl,
                            Position before_after_btw, // with regard to the strand's reading direction
@@ -204,6 +206,8 @@ namespace aevol {
 
         SIMD_Promoters2Strands promoters_list_ = {{},
                                                   {}};
+
+        std::list<pProtein*> proteins_;
     protected:
         SIMD_Promoters1Strand::iterator it_promoter_;
         int it_promoter_pos_;
@@ -214,7 +218,6 @@ namespace aevol {
         std::set<int> terminator_lag_;
         std::set<int> terminator_lead_;
         std::list<pRNA*> rnas_;
-        std::list<pProtein*> proteins_;
 
         int32_t protein_count_ = 0;
 

@@ -920,6 +920,13 @@ namespace aevol {
         proteins_.push_front(prot);
     }
 
+    void SIMD_List_Metadata::proteins_print() {
+        int prot_idx=0;
+        for (auto prot : proteins_) {
+            printf("Protein %d : %p\n",prot_idx,prot);
+            prot_idx++;
+        }
+    }
 
     pProtein *SIMD_List_Metadata::protein_next() {
         pProtein* prot = *(it_protein_);

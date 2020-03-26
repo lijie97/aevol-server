@@ -361,7 +361,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 
 
     void SIMD_Individual::do_mutation(int indiv_id) {
-    //printf("DO MUTATION for %d -- Begin\n",indiv_id);
+        //  printf("DO MUTATION for %d -- Begin\n",indiv_id);
 
 //  for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
 //    if (internal_simd_struct[indiv_id]->indiv_id == 212) {
@@ -450,6 +450,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                 if (standalone_) {
 #pragma omp critical
                     {
+                        // printf("NEW_INDIV %d\n",indiv_id);
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
                         NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
@@ -507,6 +508,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                 if (standalone_) {
 #pragma omp critical
                     {
+                        // printf("NEW_INDIV %d\n",indiv_id);
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
                         NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
@@ -1982,11 +1984,15 @@ void SIMD_Individual::compute_protein(int indiv_id) {
         std::map<int32_t, pProtein *> lookup;
 
         internal_simd_struct[indiv_id]->metadata_->protein_begin();
+        //((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->proteins_print();
+
         for (int protein_idx = 0; protein_idx <
                                   (int) internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
             {
-                pProtein* prot  = internal_simd_struct[indiv_id]->metadata_->protein_next();
+                //internal_simd_struct[indiv_id]->metadata_->protein_begin();
 
+                pProtein* prot  = internal_simd_struct[indiv_id]->metadata_->protein_next();
+                //printf("Protein %d Indiv %d : %p %p\n",protein_idx,indiv_id,prot,internal_simd_struct[indiv_id]->metadata_->proteins(protein_idx));
                 if (prot->is_init_) {
                     if (lookup.find(prot->protein_start) ==
                         lookup.end()) {
@@ -2445,7 +2451,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
             if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
                 AeTime::time() > 0) {
-                printf("Tree SIMD backup\n");
+                printf("Tree SIMD backup: %d\n",AeTime::time());
 
                 exp_m_->output_m()->write_tree(AeTime::time());
             }
