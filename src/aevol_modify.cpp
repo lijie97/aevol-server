@@ -654,7 +654,7 @@ int main(int argc, char* argv[]) {
       sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", timestep);
     #endif
     gzFile tree_file = gzopen(tree_file_name, "w");
-    tree->write_to_tree_file(timestep,tree_file);
+    tree->write_to_tree_file(tree_file);
     gzclose(tree_file);
     printf("OK\n");
   }

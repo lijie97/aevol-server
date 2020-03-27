@@ -448,8 +448,6 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
    //                    internal_simd_struct[indiv_id]->metadata_->promoter_count());
 
                 if (standalone_) {
-#pragma omp critical
-                    {
                         // printf("NEW_INDIV %d\n",indiv_id);
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
@@ -458,7 +456,6 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                                                                   x, y,indiv_id,next_generation_reproducer_[indiv_id]);
                         notifyObservers(NEW_INDIV, eindiv);
                         delete eindiv;
-                    }
                 }
 
 #ifdef WITH_BITSET
@@ -506,8 +503,6 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                 internal_simd_struct[indiv_id] = prev_internal_simd_struct[parent_id];
 
                 if (standalone_) {
-#pragma omp critical
-                    {
                         // printf("NEW_INDIV %d\n",indiv_id);
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
@@ -516,7 +511,6 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                                                                   x, y,indiv_id,next_generation_reproducer_[indiv_id]);
                         notifyObservers(NEW_INDIV, eindiv);
                         delete eindiv;
-                    }
                 }
 
                 #pragma omp atomic
@@ -2251,8 +2245,6 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                 }
 
                 if (standalone_ && optim_prom) {
-#pragma omp critical
-                    {
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
 
@@ -2261,7 +2253,6 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                         // Tell observers the replication is finished
                         internal_simd_struct[indiv_id]->notifyObservers(END_REPLICATION, eindiv);
                         delete eindiv;
-                    }
                 }
                 //printf("COMPUTE INDIV %d -- End\n",indiv_id);
             }

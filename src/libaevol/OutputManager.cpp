@@ -382,7 +382,7 @@ int64_t OutputManager::last_gener() {
 
       gzFile tree_file = gzopen( tree_file_name, "w" );
       // Write phylogenetic data (tree)
-      tree_->write_to_tree_file(gen, tree_file);
+      tree_->write_to_tree_file(tree_file);
 
       gzclose(tree_file);
 
