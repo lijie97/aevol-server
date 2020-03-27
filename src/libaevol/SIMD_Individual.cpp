@@ -454,7 +454,8 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                         NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
                                                                   prev_internal_simd_struct[next_generation_reproducer_[indiv_id]],
                                                                   x, y,indiv_id,next_generation_reproducer_[indiv_id]);
-                        notifyObservers(NEW_INDIV, eindiv);
+
+                        exp_m_->tree()->update_new_indiv(eindiv);
                         delete eindiv;
                 }
 
@@ -509,7 +510,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                         NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
                                                                   prev_internal_simd_struct[next_generation_reproducer_[indiv_id]],
                                                                   x, y,indiv_id,next_generation_reproducer_[indiv_id]);
-                        notifyObservers(NEW_INDIV, eindiv);
+                        exp_m_->tree()->update_new_indiv(eindiv);
                         delete eindiv;
                 }
 
@@ -2177,7 +2178,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
     nb_clones_ = 0;
 //
 #pragma omp for schedule(dynamic)
-    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id+=16) {
+    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 16) {
         {
             for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
                 //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
@@ -2245,69 +2246,84 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                 }
 
                 if (standalone_ && optim_prom) {
-                        int x = indiv_id / exp_m_->world()->height();
-                        int y = indiv_id % exp_m_->world()->height();
+                    int x = indiv_id / exp_m_->world()->height();
+                    int y = indiv_id % exp_m_->world()->height();
 
-                        EndReplicationEvent *eindiv = new EndReplicationEvent(
-                                internal_simd_struct[indiv_id], x, y);
-                        // Tell observers the replication is finished
-                        internal_simd_struct[indiv_id]->notifyObservers(END_REPLICATION, eindiv);
-                        delete eindiv;
+                    EndReplicationEvent *eindiv = new EndReplicationEvent(
+                            internal_simd_struct[indiv_id], x, y);
+                    // Tell observers the replication is finished
+                    exp_m_->tree()->update_end_replication(eindiv);
+                    delete eindiv;
                 }
                 //printf("COMPUTE INDIV %d -- End\n",indiv_id);
             }
         }
     }
 
+
 #pragma omp single
     {
         if (optim_prom)
-            notifyObservers(END_GENERATION);
+            exp_m_->tree()->update_end_generation();
+    }
 
-        if (optim_prom) {
-            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-                {
+    if (optim_prom) {
+#pragma omp for schedule(dynamic)
+        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+            bool toDelete = false;
 
+#pragma omp critical(indiv_list)
+            {
+                if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
+                    prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
+                    toDelete = true;
+                } else
+                    prev_internal_simd_struct[indiv_id]->usage_count_--;
+            }
+
+            if (toDelete) {
+                delete prev_internal_simd_struct[indiv_id];
+            }
+
+            prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+            internal_simd_struct[indiv_id] = nullptr;
+        }
+    } else if (standalone_ && (!optim_prom)) {
+
+    } else {
+#pragma omp for schedule(dynamic)
+        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+            bool toDelete = false;
+
+#pragma omp critical(indiv_list)
+            {
+                if (prev_internal_simd_struct[indiv_id] != internal_simd_struct[indiv_id]) {
                     if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
                         prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
-                        //printf("DESTRUCTOR SIMD INDIV -- Main Factory %p\n",dna_factory_);
-                        //printf("DESTRUCTOR SIMD INDIV -- DNA Factory %p",
-                        //       prev_internal_simd_struct[indiv_id]->dna_factory_);
-
-                        //printf(" --- DNA %p\n",
-                        //       prev_internal_simd_struct[indiv_id]->dna_);
-
-                        delete prev_internal_simd_struct[indiv_id];
+                        toDelete = true;
                     } else
                         prev_internal_simd_struct[indiv_id]->usage_count_--;
                 }
-
-                prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-                internal_simd_struct[indiv_id] = nullptr;
             }
-        } else if (standalone_ && (!optim_prom)) {
 
-        } else {
-            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-                {
-                    if (prev_internal_simd_struct[indiv_id] != internal_simd_struct[indiv_id]) {
-                        if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
-                            prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
-
-                            delete prev_internal_simd_struct[indiv_id];
-                        } else
-                            prev_internal_simd_struct[indiv_id]->usage_count_--;
-                        //usage_cpt = prev_internal_simd_struct[indiv_id]->usage_count_;
-                    }
-
-                }
-
-                prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-                prev_internal_simd_struct[indiv_id]->clearAllObserver();
-                internal_simd_struct[indiv_id] = nullptr;
+            if (toDelete) {
+                delete prev_internal_simd_struct[indiv_id];
             }
+
+            prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+            //prev_internal_simd_struct[indiv_id]->clearAllObserver();
+            internal_simd_struct[indiv_id] = nullptr;
         }
 
+#pragma omp single
+        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+            prev_internal_simd_struct[indiv_id]->clearAllObserver();
+        }
+    }
+
+
+#pragma omp single
+    {
         // Search for the best
         double best_fitness = prev_internal_simd_struct[0]->fitness;
         int idx_best = 0;
@@ -2320,6 +2336,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
         best_indiv = prev_internal_simd_struct[idx_best];
 
+
         // Traces
 #ifdef WITH_PERF_TRACES
         std::ofstream perf_traces_file_;
@@ -2329,9 +2346,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         }
         perf_traces_file_.close();
 #endif
+    }
 
-        bool without_stats = true;
-        if (!without_stats) {
+
+    bool without_stats = true;
+    if (!without_stats) {
+#pragma omp single
+        {
             // Stats
             if (!optim_prom) {
                 stats_best = new Stats_SIMD(this, AeTime::time(), true);
@@ -2340,44 +2361,51 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                 stats_best->reinit(AeTime::time());
                 stats_mean->reinit(AeTime::time());
             }
+        }
 
-            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-                prev_internal_simd_struct[indiv_id]->reset_stats();
-                prev_internal_simd_struct[indiv_id]->metadata_->rna_begin();
-                for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
-                    pRNA *rna = prev_internal_simd_struct[indiv_id]->metadata_->rna_next();
-                    if (rna != nullptr) {
-                        if (rna->is_coding_)
-                            prev_internal_simd_struct[indiv_id]->nb_coding_RNAs++;
-                        else
-                            prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs++;
-                    }
-                }
-
-
-                for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->proteins_count(); i++) {
-                    pProtein *prot = prev_internal_simd_struct[indiv_id]->metadata_->proteins(i);
-                    if (prot != nullptr) {
-                        if (prot->is_functional) {
-                            prev_internal_simd_struct[indiv_id]->nb_func_genes++;
-                        } else {
-                            prev_internal_simd_struct[indiv_id]->nb_non_func_genes++;
-                        }
-                        if (prot->h > 0) {
-                            prev_internal_simd_struct[indiv_id]->nb_genes_activ++;
-                        } else {
-                            prev_internal_simd_struct[indiv_id]->nb_genes_inhib++;
-                        }
-                    }
+#pragma omp for schedule(static)
+        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+            prev_internal_simd_struct[indiv_id]->reset_stats();
+            prev_internal_simd_struct[indiv_id]->metadata_->rna_begin();
+            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
+                pRNA *rna = prev_internal_simd_struct[indiv_id]->metadata_->rna_next();
+                if (rna != nullptr) {
+                    if (rna->is_coding_)
+                        prev_internal_simd_struct[indiv_id]->nb_coding_RNAs++;
+                    else
+                        prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs++;
                 }
             }
 
 
+            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->proteins_count(); i++) {
+                pProtein *prot = prev_internal_simd_struct[indiv_id]->metadata_->proteins(i);
+                if (prot != nullptr) {
+                    if (prot->is_functional) {
+                        prev_internal_simd_struct[indiv_id]->nb_func_genes++;
+                    } else {
+                        prev_internal_simd_struct[indiv_id]->nb_non_func_genes++;
+                    }
+                    if (prot->h > 0) {
+                        prev_internal_simd_struct[indiv_id]->nb_genes_activ++;
+                    } else {
+                        prev_internal_simd_struct[indiv_id]->nb_genes_inhib++;
+                    }
+                }
+            }
+        }
+
+
+#pragma omp single
+        {
             stats_best->write_best();
             stats_mean->write_average();
-        } else {
-            // ONLY BEST
-            // Stats
+        }
+    } else {
+        // ONLY BEST
+        // Stats
+#pragma omp single
+        {
             if (!optim_prom) {
                 stats_best = new Stats_SIMD(this, AeTime::time(), true);
             } else {
@@ -2416,9 +2444,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
             stats_best->write_best();
         }
+    }
 
 
-        if (!first_gener_) {
+    if (!first_gener_) {
+#pragma omp single
+        {
+
             if (standalone_ && exp_m_->record_light_tree()) {
                 if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
                     AeTime::time() > 0) {
@@ -2442,13 +2474,17 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
             if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
                 AeTime::time() > 0) {
-                printf("Tree SIMD backup: %d\n",AeTime::time());
+                printf("Tree SIMD backup: %d\n", AeTime::time());
 
                 exp_m_->output_m()->write_tree(AeTime::time());
             }
+        }
+
+
 
             if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
                 printf("Backup... OK\n");
+#pragma omp for schedule(dynamic)
                 for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
                     int x = indiv_id / exp_m_->world()->height();
                     int y = indiv_id % exp_m_->world()->height();
@@ -2491,28 +2527,34 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                     exp_m_->world()->grid(x, y)->set_individual(indiv);
                 }
 
-                // Create missing directories
-                exp_m_->WriteDynamicFiles();
+#pragma omp single
+                {
+                    // Create missing directories
+                    exp_m_->WriteDynamicFiles();
 
-                std::ofstream last_gener_file(LAST_GENER_FNAME,
-                                              std::ofstream::out);
+                    std::ofstream last_gener_file(LAST_GENER_FNAME,
+                                                  std::ofstream::out);
 
-                last_gener_file << AeTime::time() << std::endl;
-                last_gener_file.close();
+                    last_gener_file << AeTime::time() << std::endl;
+                    last_gener_file.close();
 
-                if (AeTime::time() == exp_m_->end_step()) {
-                    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-                        int x = indiv_id / exp_m_->world()->height();
-                        int y = indiv_id % exp_m_->world()->height();
+                    if (AeTime::time() == exp_m_->end_step()) {
+                        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                            int x = indiv_id / exp_m_->world()->height();
+                            int y = indiv_id % exp_m_->world()->height();
 
-                        exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-                        exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-                        delete exp_m_->world()->grid(x, y)->individual();
+                            exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+                            exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+                            delete exp_m_->world()->grid(x, y)->individual();
+                        }
                     }
                 }
             }
-        }
+
+#pragma omp single
+    {
         first_gener_ = false;
+    }
     }
 }
 

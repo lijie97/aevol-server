@@ -103,6 +103,11 @@ class Tree : public Observer
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
 
+    void update_new_indiv(NewIndivEvent* evt);
+
+    void update_end_replication(EndReplicationEvent* evt);
+
+    void update_end_generation();
 
     // =================================================================
     //                           Public Attributes

@@ -183,6 +183,23 @@ Tree::~Tree() {
             }
     }
 
+void Tree::update_new_indiv(NewIndivEvent* evt) {
+    report_by_index(AeTime::time(), evt->x *
+                                            evt->simd_child->exp_m_->grid_height()
+                                    + evt->y)->
+            init(this, evt->simd_child, evt->simd_parent, evt->indiv_id_, evt->parent_id_);
+}
+
+void Tree::update_end_replication(EndReplicationEvent* evt) {
+    report_by_index(AeTime::time(), evt->x *
+                                            evt->simd_child->exp_m_->grid_height()
+                                    + evt->y)->signal_end_of_replication(evt->simd_child);
+}
+
+
+void Tree::update_end_generation() {
+    signal_end_of_generation();
+}
 
 void Tree::update(Observable& o, ObservableEvent e, void* arg) {
 

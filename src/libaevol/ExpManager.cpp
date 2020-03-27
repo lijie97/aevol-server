@@ -420,6 +420,7 @@ void ExpManager::step_to_next_generation() {
 #endif
             // Write statistical data and store phylogenetic data (tree)
             {
+                printf("----------------> Must not be here\n");
                 output_m_->write_current_generation_outputs();
             }
 
