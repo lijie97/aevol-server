@@ -3838,6 +3838,7 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
   }
 }
 
+
 void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
   // Check points' order and range
   assert((pos_B >= 0 && pos_C >= pos_B) && (pos_E >= 0));
@@ -3853,7 +3854,6 @@ void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
   inter_GU_ABCDE_to_ACDBE(len_B, (len_B + len_C), len_DA);
 }
 
-
 void Dna::apply_mutations() {
   int32_t segment_length;
   Mutation* mut = nullptr;
@@ -3861,95 +3861,73 @@ void Dna::apply_mutations() {
   MutationEvent* repl = nullptr;
 
   do {
-
-    //if (indiv()->id()==93) {
-    //  printf("Mutation for ? %d\n",indiv()->id()%(1024*AeTime::time()));
-    //}
-
-
-    repl = exp_m_->
-        dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
-        ->generate_next_mutation(length_);
-
-/*    if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==93) {
-      printf("Mutation is %p\n",repl);
-    }*/
+    repl = exp_m_
+               ->dna_mutator_array_[indiv_->grid_cell()->x() *
+                                        exp_m_->world()->height() +
+                                    indiv_->grid_cell()->y()]
+               ->generate_next_mutation(length_);
 
     if (repl != nullptr) {
 
       switch (repl->type()) {
-        case DO_SWITCH:
-          //printf("%d -- Switch at %d\n",indiv()->id(),repl->pos_1());
-          mut = new PointMutation(repl->pos_1());
-          do_switch(repl->pos_1());
-          break;
-        case SMALL_INSERTION:
-          //printf("%d -- Insertion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
+      case DO_SWITCH:
+        //printf("%d -- Switch at %d\n",indiv()->id(),repl->pos_1());
+        mut = new PointMutation(repl->pos_1());
+        do_switch(repl->pos_1());
+        break;
+      case SMALL_INSERTION:
+        //printf("%d -- Insertion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
 #ifdef WITH_BITSET
-          char* seqchar = repl->seq()->to_char();
-                    mut = new SmallInsertion(repl->pos_1(), repl->number(), seqchar);
-          do_small_insertion(repl->pos_1(), repl->number(), seqchar);
+        char* seqchar = repl->seq()->to_char();
+        mut = new SmallInsertion(repl->pos_1(), repl->number(), seqchar);
+        do_small_insertion(repl->pos_1(), repl->number(), seqchar);
 
-          delete seqchar;
+        delete seqchar;
 #else
-              mut = new SmallInsertion(repl->pos_1(), repl->number(), repl->seq());
-              do_small_insertion(repl->pos_1(), repl->number(), repl->seq());
+        mut = new SmallInsertion(repl->pos_1(), repl->number(), repl->seq());
+        do_small_insertion(repl->pos_1(), repl->number(), repl->seq());
 #endif
 
-          break;
-        case SMALL_DELETION:
-          //printf("%d -- Deletion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
-          mut = new SmallDeletion(repl->pos_1(), repl->number());
-          do_small_deletion(repl->pos_1(), repl->number());
-          break;
-        case DUPLICATION:
-          segment_length =
-              Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
+        break;
+      case SMALL_DELETION:
+        //printf("%d -- Deletion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
+        mut = new SmallDeletion(repl->pos_1(), repl->number());
+        do_small_deletion(repl->pos_1(), repl->number());
+        break;
+      case DUPLICATION:
+        segment_length =
+            Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
 
-/*          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
-            printf(
-                "%d -- Duplication pos_1 %d pos_2 %d pos_3 %d seg_lengh %d\n",
-                indiv()->id(), repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                segment_length);
-            printf("Size before %d\n",length_);
-          }*/
-
-          mut = new Duplication(repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                                segment_length);
-          do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
-
-
-/*          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
-            printf("Size after %d\n",length_);
-          }*/
-          break;
-        case TRANSLOCATION:
-          segment_length = repl->pos_2() - repl->pos_1();
-          /*printf("%d -- Translocation pos_1 %d pos_2 %d pos_3 %d pos_4 %d seg_lengh %d\n",
+        mut = new Duplication(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                              segment_length);
+        do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
+        break;
+      case TRANSLOCATION:
+        segment_length = repl->pos_2() - repl->pos_1();
+        /*printf("%d -- Translocation pos_1 %d pos_2 %d pos_3 %d pos_4 %d seg_lengh %d\n",
                  indiv()->id(),repl->pos_1(),repl->pos_2(),repl->pos_3(),
                  repl->pos_4(),segment_length);*/
 
-          mut = new Translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                                  repl->pos_4(), segment_length,
-                                  repl->invert());
-          do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                           repl->pos_4(), repl->invert());
-          break;
-        case INVERSION:
-          segment_length = repl->pos_2() - repl->pos_1();
-          /*printf("%d -- Inversion pos_1 %d pos_2 %d seg_lengh %d\n",
+        mut = new Translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                                repl->pos_4(), segment_length, repl->invert());
+        do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                         repl->pos_4(), repl->invert());
+        break;
+      case INVERSION:
+        segment_length = repl->pos_2() - repl->pos_1();
+        /*printf("%d -- Inversion pos_1 %d pos_2 %d seg_lengh %d\n",
                  indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);*/
-          mut = new Inversion(repl->pos_1(), repl->pos_2(), segment_length);
-          do_inversion(repl->pos_1(), repl->pos_2());
-          break;
-        case DELETION:
-          segment_length =
-              Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
-          /*printf("%d -- Deletion pos_1 %d pos_2 %d seg_lengh %d\n",
+        mut = new Inversion(repl->pos_1(), repl->pos_2(), segment_length);
+        do_inversion(repl->pos_1(), repl->pos_2());
+        break;
+      case DELETION:
+        segment_length =
+            Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
+        /*printf("%d -- Deletion pos_1 %d pos_2 %d seg_lengh %d\n",
                  indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);*/
-          mut = new Deletion(repl->pos_1(), repl->pos_2(), segment_length);
-          do_deletion(repl->pos_1(), repl->pos_2());
-          break;
+        mut = new Deletion(repl->pos_1(), repl->pos_2(), segment_length);
+        do_deletion(repl->pos_1(), repl->pos_2());
+        break;
       }
       if (mut != nullptr) {
         indiv_->notifyObservers(MUTATION, mut);
@@ -3957,12 +3935,11 @@ void Dna::apply_mutations() {
       }
     }
 
-
-
-  } while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
-                        ->mutation_available() > 0);
+  } while (exp_m_
+               ->dna_mutator_array_[indiv_->grid_cell()->x() *
+                                        exp_m_->world()->height() +
+                                    indiv_->grid_cell()->y()]
+               ->mutation_available() > 0);
 }
-
-
 
 }// namespace aevol
