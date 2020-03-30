@@ -21,6 +21,13 @@ namespace aevol {
             init(init_size);
         }
 
+        ~SIMD_DnaFactory() {
+            for (std::list<Dna_SIMD*>::iterator it_dna = list_unused_dna_.begin();
+                 it_dna != list_unused_dna_.end(); it_dna++) {
+                delete (*(it_dna));
+            }
+        }
+
         void init(int init_size);
 
         Dna_SIMD *get_dna(int request_size);

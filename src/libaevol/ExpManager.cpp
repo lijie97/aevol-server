@@ -702,7 +702,7 @@ void ExpManager::run_evolution() {
 
 #pragma omp single
       {
-          if (AeTime::time() % 1 == 0) {
+          if (AeTime::time() % 100 == 0) {
               printf(
                       "============================== %" PRId64 " ==============================\n",
                       AeTime::time());

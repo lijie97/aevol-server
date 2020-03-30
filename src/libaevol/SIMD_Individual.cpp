@@ -2445,8 +2445,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             stats_best->write_best();
         }
     }
-
-
+    
     if (!first_gener_) {
 #pragma omp single
         {
@@ -2482,8 +2481,10 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
 
 
+
             if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
                 printf("Backup... OK\n");
+
 #pragma omp for schedule(dynamic)
                 for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
                     int x = indiv_id / exp_m_->world()->height();
@@ -2551,10 +2552,11 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                 }
             }
 
+    } else {
 #pragma omp single
-    {
-        first_gener_ = false;
-    }
+        {
+            first_gener_ = false;
+        }
     }
 }
 

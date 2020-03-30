@@ -165,8 +165,12 @@ namespace aevol {
 
                 // Set RNA's position as it's position on the duplicated segment
                 duplicated_promoters[strand].back()->pos = Utils::mod(duplicated_promoters[strand].back()->pos -pos_1, length());
+
+                //delete (rna);
             }
         }
+
+
     }
 
     void SIMD_List_Metadata::extract_promoters_included_in(int32_t pos_1,
@@ -306,6 +310,17 @@ namespace aevol {
 
         // 3) Reinsert the inverted promoters
         insert_promoters(inverted_promoters);
+
+        for (std::list<promoterStruct*>::iterator it_prom = inverted_promoters[LEADING].begin();
+             it_prom != inverted_promoters[LEADING].end(); it_prom++) {
+            delete (*(it_prom));
+        }
+        inverted_promoters[LEADING].clear();
+        for (std::list<promoterStruct*>::iterator it_prom = inverted_promoters[LAGGING].begin();
+             it_prom != inverted_promoters[LAGGING].end(); it_prom++) {
+            delete (*(it_prom));
+        }
+        inverted_promoters[LAGGING].clear();
     }
 
 
