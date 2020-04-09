@@ -698,65 +698,66 @@ void ExpManager::run_evolution() {
       bool finished=false;
         // For each generation
 #pragma omp parallel
-  while (!finished) { // termination condition is into the loop
-
+                while (!finished) {
 #pragma omp single
-      {
-          if (AeTime::time() % 100 == 0) {
-              printf(
-                      "============================== %" PRId64 " ==============================\n",
-                      AeTime::time());
-              if (!first_run) {
-                  if (SIMD_Individual::standalone_simd) {
-                      printf(
-                              "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
-                              //simd_individual->best_indiv->indiv_id,
-                              simd_individual->best_indiv->metaerror,
-                              simd_individual->nb_clones_);
-                  } else {
-                      printf("  Best individual's distance to target (metabolic) : %f\n",
-                              //best_indiv()->id(),
-                             best_indiv()->dist_to_target_by_feature(METABOLISM));
-                  }
-              } else {
-                  printf("  Best individual's distance to target (metabolic) : %f\n",
-                          //best_indiv()->id(),
-                         best_indiv()->dist_to_target_by_feature(METABOLISM));
-              }
-          }
+                        {
+                            if (AeTime::time() % 100 == 0) {
+                                printf(
+                                        "============================== %" PRId64 " ==============================\n",
+                                        AeTime::time());
+                                if (!first_run) {
+                                    if (SIMD_Individual::standalone_simd) {
+                                        simd_individual->dna_factory_->stats();
+                                        printf(
+                                                "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
+                                                //simd_individual->best_indiv->indiv_id,
+                                                simd_individual->best_indiv->metaerror,
+                                                simd_individual->nb_clones_);
+                                    } else {
+                                        printf("  Best individual's distance to target (metabolic) : %f\n",
+                                                //best_indiv()->id(),
+                                               best_indiv()->dist_to_target_by_feature(METABOLISM));
+                                    }
+                                } else {
+                                    printf("  Best individual's distance to target (metabolic) : %f\n",
+                                            //best_indiv()->id(),
+                                           best_indiv()->dist_to_target_by_feature(METABOLISM));
+                                }
+                            }
 
-          first_run = false;
+                            first_run = false;
 
 
 #ifdef __X11
-          display();
+                            display();
 #endif
-          if (with_mrca_ && record_light_tree()) {
-              /*if (AeTime::time() == t_end_) {
-                  output_m_->light_tree()->keep_indivs(indivs());
-              }*/
-              if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
-                  finished=true;
-          } else if (AeTime::time() >= t_end_ or quit_signal_received())
-              finished=true;
+                            if (with_mrca_ && record_light_tree()) {
+                                /*if (AeTime::time() == t_end_) {
+                                    output_m_->light_tree()->keep_indivs(indivs());
+                                }*/
+                                if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
+                                    finished = true;
+                            } else if (AeTime::time() >= t_end_ or quit_signal_received())
+                                finished = true;
 
 #ifdef __TRACING__
-          t1 = high_resolution_clock::now();
+                            t1 = high_resolution_clock::now();
 #endif
 
-      }
-    // Take one step in the evolutionary loop
-    step_to_next_generation();
+                        }
+                        // Take one step in the evolutionary loop
+                        step_to_next_generation();
 #pragma omp single
-      {
+                        {
 #ifdef __TRACING__
-          t2 = high_resolution_clock::now();
-              auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-              ae_logger::addLog(SELECTION,duration);
-              ae_logger::flush(AeTime::time());
+                            t2 = high_resolution_clock::now();
+                                auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+                                ae_logger::addLog(SELECTION,duration);
+                                ae_logger::flush(AeTime::time());
 #endif
-      }
-  }
+                        }
+
+                }
 #ifdef __TRACING__
   t_t2 = high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
