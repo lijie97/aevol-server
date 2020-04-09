@@ -433,9 +433,43 @@ namespace aevol {
                            std::list<promoterStruct*>& promoters_list);
 */
         /*** Shine Dal + Start Codon ***/
-/*        virtual int8_t is_shine_dal_start_prot_leading(int pos);
-        virtual int8_t is_shine_dal_start_prot_lagging(int pos);
-        virtual void lst_shine_dal_start_prot(bool lorl,
+        inline int8_t is_shine_dal_start_prot_leading(int pos) {
+            int32_t len = indiv_->dna_->length();
+            int8_t start[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+            for (int k = 0; k < 9; k++) {
+                int k_t = k >= 6 ? k + 4 : k;
+
+                if (indiv_->dna_->data_[(pos + k_t) + ((((unsigned int32_t)((pos + k_t) - len)) >> 31) -1 )* len] ==
+                    SHINE_DAL_SEQ_LEAD[k]) {
+                    start[k] = true;
+                } else {
+                    start[k] = false;
+                    break;
+                }
+            }
+
+            return start[0] + start[1] + start[2] + start[3] + start[4] + start[5] + start[6]
+                   + start[7] + start[8];
+        }
+
+        inline int8_t is_shine_dal_start_prot_lagging(int pos) {
+            int32_t len = indiv_->dna_->length();
+            int8_t start = false;
+
+            for (int k = 0; k < 9; k++) {
+                int k_t = k >= 6 ? k + 4 : k;
+
+                if (indiv_->dna_->data_[(pos - k_t) + (((unsigned int32_t)((pos - k_t))) >> 31) * len] ==
+                    SHINE_DAL_SEQ_LAG[k]) {
+                    start = true;
+                } else {
+                    start = false;
+                    break;
+                }
+            }
+        }
+/*        virtual void lst_shine_dal_start_prot(bool lorl,
                            Position before_after_btw, // with regard to the strand's reading direction
                            int32_t pos1,
                            int32_t pos2,
