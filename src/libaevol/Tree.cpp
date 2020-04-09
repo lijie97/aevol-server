@@ -183,22 +183,18 @@ Tree::~Tree() {
 
 
         // Reinitialize the tree
-        for (int32_t time = 0 ; time < tree_step_ ; time++) {
+/*        for (int32_t time = 0 ; time < tree_step_ ; time++) {
             for (int32_t num_indiv = 0 ;
                  num_indiv < exp_m_->nb_indivs() ;
                  num_indiv++) {
                 delete replics_[time][num_indiv];
                 replics_[time][num_indiv] = nullptr;
             }
-        }
+        }*/
 
     }
 
 void Tree::update_new_indiv(NewIndivEvent* evt) {
-
-    replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
-                                    evt->simd_child->exp_m_->grid_height()
-                                    + evt->y] = new ReplicationReport();
     replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
                                                          evt->simd_child->exp_m_->grid_height()
                                                          + evt->y]->
