@@ -62,7 +62,7 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                             Constructors
     // =================================================================
-    ReplicationReport() = default;
+    ReplicationReport();
     ReplicationReport(Individual* indiv,
                       const Individual* parent,
                       Individual* donor = NULL);
@@ -75,7 +75,9 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ReplicationReport() = default;
+    virtual ~ReplicationReport() {
+
+    }
 
     // =================================================================
     //                              Accessors
@@ -144,8 +146,8 @@ class ReplicationReport : public Observer {
     // =================================================================
     Individual* indiv_ = nullptr;
 
-    unsigned long long id_ = -1;
-    unsigned long long parent_id_ = -1;
+    unsigned long long id_ = 0;
+    unsigned long long parent_id_ = 0;
 
     int32_t rank_ = -1;
 
