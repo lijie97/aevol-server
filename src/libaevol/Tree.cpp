@@ -171,7 +171,6 @@ Tree::~Tree() {
 
     void Tree::write_to_tree_file(char* tree_file_name) {
         gzFile tree_file = gzopen( tree_file_name, "w" );
-        printf("Tree Write %d : \n",time());//,t,indiv_i);
         // Write the tree in the backup
         for (int64_t t = 0 ; t < tree_step_ ; t++)
             for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
