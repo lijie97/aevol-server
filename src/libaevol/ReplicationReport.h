@@ -62,7 +62,7 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                             Constructors
     // =================================================================
-    ReplicationReport();
+    ReplicationReport() = default;
     ReplicationReport(Individual* indiv,
                       const Individual* parent,
                       Individual* donor = NULL);

@@ -63,35 +63,6 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ReplicationReport::ReplicationReport() {
-        indiv_ = nullptr;
-        simd_indiv_ = nullptr;
-
-        id_ = 0;
-        rank_ = -1;
-
-        parent_id_ = 0;
-        // donor_id_ is set further down
-
-        genome_size_ = 0;
-        metabolic_error_ = 0.0;
-        nb_genes_activ_ = 0;
-        nb_genes_inhib_ = 0;
-        nb_non_fun_genes_ = 0;
-        nb_coding_RNAs_ = 0;
-        nb_non_coding_RNAs_ = 0;
-
-        parent_metabolic_error_ = -1;
-        parent_secretion_error_ = -1;
-        parent_genome_size_ = -1;
-        mean_align_score_ = 0.0;
-
-            donor_id_ = -1;
-            donor_metabolic_error_ = 0.0;
-            donor_secretion_error_ = 0.0;
-            donor_genome_size_ = 0;
-
-}
 
 ReplicationReport::ReplicationReport(Individual* indiv,
                                      const Individual* parent,
