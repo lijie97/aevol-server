@@ -293,10 +293,11 @@ bool Dna_SIMD::do_switch(int32_t pos) {
   if (length() >= PROM_SIZE)
       indiv_->metadata_->look_for_new_promoters_around(pos, Utils::mod(pos + 1, length()));
 
-  if (SIMD_Individual::standalone_simd) {
+  if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
       PointMutation *mut = new PointMutation(pos);
 /*      printf("SEND MUTATION EVENT (%ld)\n",indiv_->observers_[MUTATION].size());*/
-      indiv_->notifyObservers(MUTATION, mut);
+      //indiv_->notifyObservers(MUTATION, mut);
+      indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
       delete mut;
   }
 
@@ -359,9 +360,10 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
     }
   }
 
-    if (SIMD_Individual::standalone_simd) {
+    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
         SmallInsertion *mut = new SmallInsertion(pos, nb_insert, seq);
-        indiv_->notifyObservers(MUTATION, mut);
+        //indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
         delete mut;
     }
 
@@ -411,9 +413,10 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
     }
   }
 
-    if (SIMD_Individual::standalone_simd) {
+    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
         SmallDeletion *mut = new SmallDeletion(pos, nb_del);
-        indiv_->notifyObservers(MUTATION, mut);
+        //indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
         delete mut;
     }
 
@@ -756,10 +759,10 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   free(duplicate_segment);
 #endif
 
-    if (SIMD_Individual::standalone_simd) {
+    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
         Duplication *mut = new Duplication(pos_1, pos_2, pos_3, seg_length);
-
-        indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
+        //indiv_->notifyObservers(MUTATION, mut);
         delete mut;
     }
   return true;
@@ -809,10 +812,11 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
   int32_t segment_length = pos_2 - pos_1;
 
-    if (SIMD_Individual::standalone_simd) {
+    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
         Translocation *mut = new Translocation(pos_1, pos_2, pos_3, pos_4,
                                                segment_length, invert);
-        indiv_->notifyObservers(MUTATION, mut);
+        //indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
         delete mut;
     }
 
@@ -1092,9 +1096,10 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   free(inverted_segment);
 #endif
 
-  if (SIMD_Individual::standalone_simd) {
+  if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
       Inversion *mut = new Inversion(pos_1, pos_2, seg_length);
-      indiv_->notifyObservers(MUTATION, mut);
+      //indiv_->notifyObservers(MUTATION, mut);
+      indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
       delete mut;
   }
 
@@ -1312,10 +1317,10 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
         indiv_->metadata_->look_for_new_promoters_around(0);
     }
   }
-    if (SIMD_Individual::standalone_simd) {
+    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
         int32_t segment_length = Utils::mod(pos_2 - pos_1 - 1, length()) + 1;
         Deletion *mut = new Deletion(pos_1, pos_2, segment_length);
-        indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);//notifyObservers(MUTATION, mut);
         delete mut;
     }
 
