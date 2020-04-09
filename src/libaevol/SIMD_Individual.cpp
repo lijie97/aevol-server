@@ -68,6 +68,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
         internal_simd_struct[indiv_id]->parent_id = indiv_id;
         prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
         internal_simd_struct[indiv_id]->global_id = AeTime::time() * 1024 + indiv_id;
+        next_generation_reproducer_[indiv_id] = indiv_id;
     }
 
     dna_size = new int[exp_m_->nb_indivs()];
@@ -361,47 +362,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 
 
     void SIMD_Individual::do_mutation(int indiv_id) {
-        //  printf("DO MUTATION for %d -- Begin\n",indiv_id);
-
-//  for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++) {
-//    if (internal_simd_struct[indiv_id]->indiv_id == 212) {
-//      printf("APPLY_MUTATION : Leading promoters lists : ");
-//      for (auto it : internal_simd_struct[indiv_id]->leading_prom_pos) {
-//        printf("%d (%d) || ", it.first, it.second);
-//      }
-//      printf("\n");
-//
-//      printf("APPLY_MUTATION : Leading promoters lists (promoters): ");
-//      for (auto it : internal_simd_struct[indiv_id]->promoters) {
-//        printf("%d (%d) -- ", it.second->pos, it.first);
-//      }
-//
-//      printf("\n");
-//    }
-//  }
-
-
-//        if (indiv_id == 17 || indiv_id == 50 || indiv_id == 51 || indiv_id == 18) {
-//            int parent_id = next_generation_reproducer_[indiv_id];
-//
-//            printf("FROM MUTATE -- %d -- %d -- Parent %d \n",time(),indiv_id,next_generation_reproducer_[indiv_id]);
-//            printf("FROM MUTATE -- %d -- %d -- BEFORE -- Prom list LEAD : ",time(),next_generation_reproducer_[indiv_id]);
-//            for (int prom_idx = 0; prom_idx < prev_internal_simd_struct[parent_id]->metadata_->promoter_count(); prom_idx++) {
-//                if (prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx) != nullptr)
-//                    if (prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//            printf("FROM MUTATE -- %d -- %d -- BEFORE -- Prom list LAG : ",time(),next_generation_reproducer_[indiv_id]);
-//            for (int prom_idx = 0; prom_idx < prev_internal_simd_struct[parent_id]->metadata_->promoter_count(); prom_idx++) {
-//                if (prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx) != nullptr)
-//                    if (!prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",prev_internal_simd_struct[parent_id]->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//        }
-
-        if (standalone_) {
+         if (standalone_) {
 
                 int x = indiv_id / exp_m_->world()->height();
                 int y = indiv_id % exp_m_->world()->height();
@@ -425,16 +386,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                 //printf("%d - has mutate or not %d\n",indiv_id,exp_m_->dna_mutator_array_[indiv_id]->hasMutate());
         }
 
-//    dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
-//    if (indiv_id == 43)
-//      printf("DNA BEFORE SIZE of %d is %d (%d)\n",indiv_id,dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length());
-
             if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
-/*             if (internal_simd_struct[indiv_id] != nullptr) {
-                printf("Warning will replace something that is not null !!!\n");
-
-             }*/
-
              internal_simd_struct[indiv_id] =
                         new Internal_SIMD_Struct(exp_m_,prev_internal_simd_struct
                         [next_generation_reproducer_[indiv_id]],dna_factory_);
@@ -443,11 +395,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                 internal_simd_struct[indiv_id]->indiv_id = indiv_id;
                 internal_simd_struct[indiv_id]->parent_id =
                         next_generation_reproducer_[indiv_id];
-
-  //              printf("%d -- %d -- A -- Number of RNAs %d (%d)\n",time(),indiv_id,internal_simd_struct[indiv_id]->metadata_->rna_count(),
-   //                    internal_simd_struct[indiv_id]->metadata_->promoter_count());
-
-                if (standalone_) {
+                if (standalone_ && exp_m_->record_tree()) {
                         // printf("NEW_INDIV %d\n",indiv_id);
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
@@ -465,15 +413,6 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
               [internal_simd_struct[indiv_id]->parent_id]->dna_->bitset_);
 #endif
 
-                //       int x = indiv_id / exp_m_->world()->height();
-                //       int y = indiv_id % exp_m_->world()->height();
-//        printf("Before mutation %d (%d %d)-- %d %d %d\n",indiv_id,x,y,
-//               internal_simd_struct[indiv_id]->dna_->length(),dna_size[indiv_id],
-//               exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).seq_length());
-
-                /*if (indiv_id == 49) {
-                  printf("Size before mutation %d\n",internal_simd_struct[indiv_id]->dna_->length());
-                }*/
 #ifdef WITH_PERF_TRACES
                 auto t_start = std::chrono::steady_clock::now();
 #endif
@@ -485,8 +424,6 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                 auto t_end = std::chrono::steady_clock::now();
                 apply_mutation[indiv_id] = t_end.time_since_epoch().count() - t_start.time_since_epoch().count();
 #endif
-//                printf("%d -- %d -- B -- Number of RNAs %d (%d)\n",time(),indiv_id,internal_simd_struct[indiv_id]->metadata_->rna_count(),
-//                       internal_simd_struct[indiv_id]->metadata_->promoter_count());
             } else {
 
 
@@ -500,11 +437,9 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                 else
                     parent_id = next_generation_reproducer_[indiv_id];
 
-                //delete internal_simd_struct[indiv_id];
                 internal_simd_struct[indiv_id] = prev_internal_simd_struct[parent_id];
 
-                if (standalone_) {
-                        // printf("NEW_INDIV %d\n",indiv_id);
+                if (standalone_ && exp_m_->record_tree()) {
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
                         NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
@@ -521,145 +456,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 #endif
             }
 
-//        if (indiv_id == 17 || indiv_id == 50 || indiv_id == 51 || indiv_id == 18) {
-//            printf("FROM MUTATE -- %d -- %d -- Parent %d (Mutate %d)\n",time(),indiv_id,internal_simd_struct[indiv_id]->parent_id,
-//                   exp_m_->dna_mutator_array_[indiv_id]->hasMutate());
-//            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LEAD : ",time(),internal_simd_struct[indiv_id]->indiv_id);
-//            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-//                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-//                    if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LAG : ",time(),internal_simd_struct[indiv_id]->indiv_id);
-//            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-//                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-//                    if (!internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                        printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-//            }
-//            printf("\n");
-//        }
-/*
-        std::set<int> leading;
-            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_id);
-            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-                    if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-                        leading.insert(internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-            }
-            for (auto lead : leading) {
-                printf("%d ",lead);
-            }
-
-
-            printf("\n");
-
-        std::set<int> lagging;
-            printf("FROM MUTATE -- %d -- %d -- AFTER -- Prom list LAG : ",time(),indiv_id);
-            for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-                if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-                    if (!internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-                        lagging.insert(internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-            }
-
-        for (auto lag : lagging) {
-            printf("%d ",lag);
-        }
-            printf("\n");
-*/
-            //printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-/*
-    if (indiv_id == 49) {
-      printf("Size after mutation %d\n",internal_simd_struct[indiv_id]->dna_->length());
-    }
-*/
-//    if (indiv_id == 43)
-//      printf("DNA AFTER SIZE of %d is %d (%d)\n",indiv_id,dna_size[indiv_id],internal_simd_struct[indiv_id]->dna_->length());
-
-/*
-      if (internal_simd_struct[indiv_id]->dna_->mutation_list.size() > 0) {
-        int x = indiv_id / exp_m_->world()->height();
-        int y = indiv_id % exp_m_->world()->height();
-
-        bool same = true;
-        if (internal_simd_struct[indiv_id]->dna_->length() !=
-              exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).seq_length())
-          same=false;
-
-        if (same)
-          for (int i = 0; i < internal_simd_struct[indiv_id]->dna_->length(); i++) {
-            if (internal_simd_struct[indiv_id]->dna_->data_[i] != exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).dna()->data()[i]) {
-              same = false;
-              break;
-            }
-          }
-
-        // TODO Add promoters verification
-        for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
-          bool found = false;
-          if (rna->strand() == LEADING) {
-            for (auto it : internal_simd_struct[indiv_id]->leading_prom_pos) {
-              if (it.first == rna->promoter_pos()) {
-                found = true;
-                break;
-              }
-            }
-          } else {
-            for (auto it : internal_simd_struct[indiv_id]->lagging_prom_pos) {
-              if (it.first == rna->promoter_pos()) {
-                found = true;
-                break;
-              }
-            }
-          }
-
-          if (!found) {
-            printf("Indiv %d -- Promoter at position %d not found\n",indiv_id,rna->promoter_pos());
-            same = false;
-            break;
-          }
-        }
-
-        if (!same) {
-          printf("Incorrect mutations replay %d (%d %d)\n",indiv_id,x,y);
-          //printf("Aevol (%d) %s\n",exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).dna()->length(),
-          //       exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).dna()->data());
-          //printf("SIMD (%d) %s\n",internal_simd_struct[indiv_id]->dna_->length(),
-          //       internal_simd_struct[indiv_id]->dna_->data_);
-
-          printf("Leading promoters lists : ");
-          for (auto it : internal_simd_struct[indiv_id]->leading_prom_pos) {
-            printf("%d (%d) || ", it.first, it.second);
-          }
-          printf("\n");
-
-          printf("Lagging promoters lists : ");
-          for (auto it : internal_simd_struct[indiv_id]->lagging_prom_pos) {
-            printf("%d (%d) || ", it.first, it.second);
-          }
-          printf("\n");
-
-          printf("Promoters lists (promoters): ");
-          for (auto it : internal_simd_struct[indiv_id]->promoters) {
-            printf("%d (%d) -- ", it.second->pos, it.first);
-          }
-          printf("\n");
-
-          printf("RNA Promoters lists : ");
-          for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
-            printf("%d ",rna->promoter_pos());
-          }
-
-          printf("\n");
-
-          exit(40);
-        }
-
-      }*/
-
-        //printf("DO MUTATION for %d -- End\n",indiv_id);
             dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
-        //exit(12);
     }
 
 
@@ -945,7 +742,7 @@ SIMD_Individual::~SIMD_Individual() {
                                                                    true);
 
 //#pragma omp critical(add_to_promoters)
-                        {
+
                             int prom_idx;
 
                             prom_idx = internal_simd_struct[indiv_id]->metadata_->promoter_count();
@@ -956,7 +753,6 @@ SIMD_Individual::~SIMD_Individual() {
                 printf("Adding promoters LEADING %d at %d\n",dna_pos,prom_idx);*/
 
                             internal_simd_struct[indiv_id]->metadata_->promoter_add(prom_idx, nprom);
-                        }
                     }
 
 #ifndef WITH_BITSET
@@ -1005,7 +801,7 @@ SIMD_Individual::~SIMD_Individual() {
                         promoterStruct* nprom = new promoterStruct(dna_pos, dist_lag,
                                                                    false);
 //#pragma omp critical(add_to_promoters)
-                        {
+
                             int prom_idx;
                             prom_idx = internal_simd_struct[indiv_id]->metadata_->promoter_count();
                             internal_simd_struct[indiv_id]->metadata_->set_promoters_count(
@@ -1017,7 +813,7 @@ SIMD_Individual::~SIMD_Individual() {
 
 
                             internal_simd_struct[indiv_id]->metadata_->promoter_add(prom_idx, nprom);
-                        }
+
                     }
 
 #ifndef WITH_BITSET
@@ -1444,37 +1240,14 @@ SIMD_Individual::~SIMD_Individual() {
                         while (c_pos !=
                                rna->end) {
                             bool start = false;
-                            int t_pos, k_t;
 
                             if (rna->leading_lagging ==
                                 0) {
                                 // Search for Shine Dalgarro + START codon on LEADING
-                                for (int k = 0; k < 9; k++) {
-                                    k_t = k >= 6 ? k + 4 : k;
-                                    t_pos = c_pos + k_t;
-
-                                    if (internal_simd_struct[indiv_id]->dna_->get_lead(t_pos) ==
-                                        SHINE_DAL_SEQ_LEAD[k]) {
-                                        start = true;
-                                    } else {
-                                        start = false;
-                                        break;
-                                    }
-                                }
+                                start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_leading(c_pos);
                             } else {
                                 // Search for Shine Dalgarro + START codon on LAGGING
-                                for (int k = 0; k < 9; k++) {
-                                    k_t = k >= 6 ? k + 4 : k;
-                                    t_pos = c_pos - k_t;
-
-                                    if (internal_simd_struct[indiv_id]->dna_->get_lag(t_pos) ==
-                                        SHINE_DAL_SEQ_LAG[k]) {
-                                        start = true;
-                                    } else {
-                                        start = false;
-                                        break;
-                                    }
-                                }
+                                start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_lagging(c_pos);
                             }
 
                             if (start) {
@@ -2175,361 +1948,360 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
 
 void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool optim_prom) {
 #pragma omp single
-    nb_clones_ = 0;
-//
+    {
+        nb_clones_ = 0;
+    }
+//#pragma omp parallel
+//    {
 #pragma omp for schedule(dynamic)
-    for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 16) {
-        {
-            for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
-                //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
-                if (standalone_ && optim_prom) {
-                    selection(indiv_id);
+        for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 16) {
+            {
+                for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
+                    //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
+                    if (standalone_ && optim_prom) {
+                        selection(indiv_id);
+                    }
+
+                    if (optim_prom) {
+                        do_mutation(indiv_id);
+                        opt_prom_compute_RNA(indiv_id);
+                    } else {
+                        int x = indiv_id / exp_m_->world()->height();
+                        int y = indiv_id % exp_m_->world()->height();
+                        delete exp_m_->dna_mutator_array_[indiv_id];
+
+                        exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
+                                exp_m_->world()->grid(x, y)->mut_prng(),
+                                prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
+                                exp_m_->exp_s()->mut_params()->duplication_rate(),
+                                exp_m_->exp_s()->mut_params()->deletion_rate(),
+                                exp_m_->exp_s()->mut_params()->translocation_rate(),
+                                exp_m_->exp_s()->mut_params()->inversion_rate(),
+                                exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+                                exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+                                exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+                                exp_m_->exp_s()->mut_params()->max_indel_size(),
+                                exp_m_->exp_s()->min_genome_length(),
+                                exp_m_->exp_s()->max_genome_length(), indiv_id, x, y);
+                        exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
+
+                        start_stop_RNA(indiv_id);
+                        compute_RNA(indiv_id);
+                    }
+
+                    if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
+                        start_protein(indiv_id);
+                        compute_protein(indiv_id);
+                        translate_protein(indiv_id, w_max);
+                        compute_phenotype(indiv_id);
+                        compute_fitness(indiv_id, selection_pressure);
+                    }
+
+                    if (standalone_ && optim_prom && exp_m_->record_tree()) {
+                        int x = indiv_id / exp_m_->world()->height();
+                        int y = indiv_id % exp_m_->world()->height();
+
+                        EndReplicationEvent *eindiv = new EndReplicationEvent(
+                                internal_simd_struct[indiv_id], x, y);
+                        // Tell observers the replication is finished
+                        exp_m_->tree()->update_end_replication(eindiv);
+                        delete eindiv;
+                    }
+                    //printf("COMPUTE INDIV %d -- End\n",indiv_id);
                 }
-
-                if (standalone_ && optim_prom) {
-                    do_mutation(indiv_id);
-                } else if (standalone_ && (!optim_prom)) {
-                    int x = indiv_id / exp_m_->world()->height();
-                    int y = indiv_id % exp_m_->world()->height();
-                    delete exp_m_->dna_mutator_array_[indiv_id];
-
-                    exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
-                            exp_m_->world()->grid(x, y)->mut_prng(),
-                            prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
-                            exp_m_->exp_s()->mut_params()->duplication_rate(),
-                            exp_m_->exp_s()->mut_params()->deletion_rate(),
-                            exp_m_->exp_s()->mut_params()->translocation_rate(),
-                            exp_m_->exp_s()->mut_params()->inversion_rate(),
-                            exp_m_->exp_s()->mut_params()->point_mutation_rate(),
-                            exp_m_->exp_s()->mut_params()->small_insertion_rate(),
-                            exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-                            exp_m_->exp_s()->mut_params()->max_indel_size(),
-                            exp_m_->exp_s()->min_genome_length(),
-                            exp_m_->exp_s()->max_genome_length(), indiv_id, x, y);
-                    exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
-                } else if (!standalone_ && optim_prom) {
-                    do_mutation(indiv_id);
-                }
-
-                if (optim_prom) {
-                    opt_prom_compute_RNA(indiv_id);
-                } else {
-                    int x = indiv_id / exp_m_->world()->height();
-                    int y = indiv_id % exp_m_->world()->height();
-                    delete exp_m_->dna_mutator_array_[indiv_id];
-
-                    exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
-                            exp_m_->world()->grid(x, y)->mut_prng(),
-                            prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
-                            exp_m_->exp_s()->mut_params()->duplication_rate(),
-                            exp_m_->exp_s()->mut_params()->deletion_rate(),
-                            exp_m_->exp_s()->mut_params()->translocation_rate(),
-                            exp_m_->exp_s()->mut_params()->inversion_rate(),
-                            exp_m_->exp_s()->mut_params()->point_mutation_rate(),
-                            exp_m_->exp_s()->mut_params()->small_insertion_rate(),
-                            exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-                            exp_m_->exp_s()->mut_params()->max_indel_size(),
-                            exp_m_->exp_s()->min_genome_length(),
-                            exp_m_->exp_s()->max_genome_length(), indiv_id, x, y);
-                    exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
-
-                    start_stop_RNA(indiv_id);
-                    compute_RNA(indiv_id);
-                }
-
-                if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
-                    start_protein(indiv_id);
-                    compute_protein(indiv_id);
-                    translate_protein(indiv_id, w_max);
-                    compute_phenotype(indiv_id);
-                    compute_fitness(indiv_id, selection_pressure);
-                }
-
-                if (standalone_ && optim_prom) {
-                    int x = indiv_id / exp_m_->world()->height();
-                    int y = indiv_id % exp_m_->world()->height();
-
-                    EndReplicationEvent *eindiv = new EndReplicationEvent(
-                            internal_simd_struct[indiv_id], x, y);
-                    // Tell observers the replication is finished
-                    exp_m_->tree()->update_end_replication(eindiv);
-                    delete eindiv;
-                }
-                //printf("COMPUTE INDIV %d -- End\n",indiv_id);
             }
         }
-    }
 
 
 #pragma omp single
-    {
-        if (optim_prom)
-            exp_m_->tree()->update_end_generation();
-    }
-
-    if (optim_prom) {
-#pragma omp for schedule(dynamic)
-        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            bool toDelete = false;
-
-#pragma omp critical(indiv_list)
-            {
-                if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
-                    prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
-                    toDelete = true;
-                } else
-                    prev_internal_simd_struct[indiv_id]->usage_count_--;
-            }
-
-            if (toDelete) {
-                delete prev_internal_simd_struct[indiv_id];
-            }
-
-            prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-            internal_simd_struct[indiv_id] = nullptr;
+        {
+            if (optim_prom && exp_m_->record_tree())
+                exp_m_->tree()->update_end_generation();
         }
-    } else if (standalone_ && (!optim_prom)) {
 
-    } else {
+//#pragma omp barrier
+
+        if (optim_prom) {
 #pragma omp for schedule(dynamic)
-        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            bool toDelete = false;
+            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                bool toDelete = false;
 
 #pragma omp critical(indiv_list)
-            {
-                if (prev_internal_simd_struct[indiv_id] != internal_simd_struct[indiv_id]) {
+                {
                     if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
                         prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
                         toDelete = true;
                     } else
                         prev_internal_simd_struct[indiv_id]->usage_count_--;
                 }
+
+                if (toDelete) {
+                    delete prev_internal_simd_struct[indiv_id];
+                }
+
+                prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+                internal_simd_struct[indiv_id] = nullptr;
+            }
+        } else if (standalone_ && (!optim_prom)) {
+
+        } else {
+#pragma omp for schedule(dynamic)
+            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                bool toDelete = false;
+
+#pragma omp critical(indiv_list)
+                {
+                    if (prev_internal_simd_struct[indiv_id] != internal_simd_struct[indiv_id]) {
+                        if (prev_internal_simd_struct[indiv_id]->usage_count_ == 1) {
+                            prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
+                            toDelete = true;
+                        } else
+                            prev_internal_simd_struct[indiv_id]->usage_count_--;
+                    }
+                }
+
+                if (toDelete) {
+                    prev_internal_simd_struct[indiv_id]->clearAllObserver();
+                    delete prev_internal_simd_struct[indiv_id];
+                }
+
+                prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
+                //internal_simd_struct[indiv_id]->clearAllObserver();
+                internal_simd_struct[indiv_id] = nullptr;
             }
 
-            if (toDelete) {
-                delete prev_internal_simd_struct[indiv_id];
-            }
-
-            prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-            //prev_internal_simd_struct[indiv_id]->clearAllObserver();
-            internal_simd_struct[indiv_id] = nullptr;
-        }
-
+//#pragma omp barrier
 #pragma omp single
-        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            prev_internal_simd_struct[indiv_id]->clearAllObserver();
-        }
-    }
-
-
-#pragma omp single
-    {
-        // Search for the best
-        double best_fitness = prev_internal_simd_struct[0]->fitness;
-        int idx_best = 0;
-        for (int indiv_id = 1; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            if (prev_internal_simd_struct[indiv_id]->fitness > best_fitness) {
-                idx_best = indiv_id;
-                best_fitness = prev_internal_simd_struct[indiv_id]->fitness;
+            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                prev_internal_simd_struct[indiv_id]->clearAllObserver();
             }
         }
 
-        best_indiv = prev_internal_simd_struct[idx_best];
-
-
-        // Traces
-#ifdef WITH_PERF_TRACES
-        std::ofstream perf_traces_file_;
-        perf_traces_file_.open("simd_perf_traces.csv", std::ofstream::app);
-        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            perf_traces_file_ << AeTime::time() << "," << indiv_id << "," << apply_mutation[indiv_id] << std::endl;
-        }
-        perf_traces_file_.close();
-#endif
-    }
-
-
-    bool without_stats = true;
-    if (!without_stats) {
+//#pragma omp barrier
 #pragma omp single
         {
-            // Stats
-            if (!optim_prom) {
-                stats_best = new Stats_SIMD(this, AeTime::time(), true);
-                stats_mean = new Stats_SIMD(this, AeTime::time(), false);
-            } else {
-                stats_best->reinit(AeTime::time());
-                stats_mean->reinit(AeTime::time());
+            // Search for the best
+            double best_fitness = prev_internal_simd_struct[0]->fitness;
+            int idx_best = 0;
+            for (int indiv_id = 1; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                if (prev_internal_simd_struct[indiv_id]->fitness > best_fitness) {
+                    idx_best = indiv_id;
+                    best_fitness = prev_internal_simd_struct[indiv_id]->fitness;
+                }
             }
+
+            best_indiv = prev_internal_simd_struct[idx_best];
+
+
+            // Traces
+#ifdef WITH_PERF_TRACES
+            std::ofstream perf_traces_file_;
+            perf_traces_file_.open("simd_perf_traces.csv", std::ofstream::app);
+            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                perf_traces_file_ << AeTime::time() << "," << indiv_id << "," << apply_mutation[indiv_id] << std::endl;
+            }
+            perf_traces_file_.close();
+#endif
         }
+
+//#pragma omp barrier
+        bool without_stats = true;
+        if (!without_stats) {
+#pragma omp single
+            {
+                // Stats
+                if (!optim_prom) {
+                    stats_best = new Stats_SIMD(this, AeTime::time(), true);
+                    stats_mean = new Stats_SIMD(this, AeTime::time(), false);
+                } else {
+                    stats_best->reinit(AeTime::time());
+                    stats_mean->reinit(AeTime::time());
+                }
+            }
 
 #pragma omp for schedule(static)
-        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            prev_internal_simd_struct[indiv_id]->reset_stats();
-            prev_internal_simd_struct[indiv_id]->metadata_->rna_begin();
-            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
-                pRNA *rna = prev_internal_simd_struct[indiv_id]->metadata_->rna_next();
-                if (rna != nullptr) {
-                    if (rna->is_coding_)
-                        prev_internal_simd_struct[indiv_id]->nb_coding_RNAs++;
-                    else
-                        prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs++;
+            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                prev_internal_simd_struct[indiv_id]->reset_stats();
+                prev_internal_simd_struct[indiv_id]->metadata_->rna_begin();
+                for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
+                    pRNA *rna = prev_internal_simd_struct[indiv_id]->metadata_->rna_next();
+                    if (rna != nullptr) {
+                        if (rna->is_coding_)
+                            prev_internal_simd_struct[indiv_id]->nb_coding_RNAs++;
+                        else
+                            prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs++;
+                    }
+                }
+
+
+                for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->proteins_count(); i++) {
+                    pProtein *prot = prev_internal_simd_struct[indiv_id]->metadata_->proteins(i);
+                    if (prot != nullptr) {
+                        if (prot->is_functional) {
+                            prev_internal_simd_struct[indiv_id]->nb_func_genes++;
+                        } else {
+                            prev_internal_simd_struct[indiv_id]->nb_non_func_genes++;
+                        }
+                        if (prot->h > 0) {
+                            prev_internal_simd_struct[indiv_id]->nb_genes_activ++;
+                        } else {
+                            prev_internal_simd_struct[indiv_id]->nb_genes_inhib++;
+                        }
+                    }
                 }
             }
 
 
-            for (int i = 0; i < prev_internal_simd_struct[indiv_id]->metadata_->proteins_count(); i++) {
-                pProtein *prot = prev_internal_simd_struct[indiv_id]->metadata_->proteins(i);
-                if (prot != nullptr) {
-                    if (prot->is_functional) {
-                        prev_internal_simd_struct[indiv_id]->nb_func_genes++;
-                    } else {
-                        prev_internal_simd_struct[indiv_id]->nb_non_func_genes++;
-                    }
-                    if (prot->h > 0) {
-                        prev_internal_simd_struct[indiv_id]->nb_genes_activ++;
-                    } else {
-                        prev_internal_simd_struct[indiv_id]->nb_genes_inhib++;
+#pragma omp single
+            {
+                stats_best->write_best();
+                stats_mean->write_average();
+            }
+        } else {
+            // ONLY BEST
+            // Stats
+#pragma omp single
+            {
+                if (!optim_prom) {
+                    stats_best = new Stats_SIMD(this, AeTime::time(), true);
+                } else {
+                    stats_best->reinit(AeTime::time());
+                }
+
+                best_indiv->reset_stats();
+                best_indiv->metadata_->rna_begin();
+                for (int i = 0; i < best_indiv->metadata_->rna_count(); i++) {
+                    pRNA *rna = best_indiv->metadata_->rna_next();
+                    if (rna != nullptr) {
+                        if (rna->is_coding_)
+                            best_indiv->nb_coding_RNAs++;
+                        else
+                            best_indiv->nb_non_coding_RNAs++;
                     }
                 }
+
+
+                for (int i = 0; i < best_indiv->metadata_->proteins_count(); i++) {
+                    pProtein *prot = best_indiv->metadata_->proteins(i);
+                    if (prot != nullptr) {
+                        if (prot->is_functional) {
+                            best_indiv->nb_func_genes++;
+                        } else {
+                            best_indiv->nb_non_func_genes++;
+                        }
+                        if (prot->h > 0) {
+                            best_indiv->nb_genes_activ++;
+                        } else {
+                            best_indiv->nb_genes_inhib++;
+                        }
+                    }
+                }
+
+
+                stats_best->write_best();
             }
         }
 
 
+
+//#pragma omp barrier
+        if (!first_gener_) {
 #pragma omp single
-        {
-            stats_best->write_best();
-            stats_mean->write_average();
-        }
-    } else {
-        // ONLY BEST
-        // Stats
-#pragma omp single
-        {
-            if (!optim_prom) {
-                stats_best = new Stats_SIMD(this, AeTime::time(), true);
-            } else {
-                stats_best->reinit(AeTime::time());
-            }
+            {
 
-            best_indiv->reset_stats();
-            best_indiv->metadata_->rna_begin();
-            for (int i = 0; i < best_indiv->metadata_->rna_count(); i++) {
-                pRNA *rna = best_indiv->metadata_->rna_next();
-                if (rna != nullptr) {
-                    if (rna->is_coding_)
-                        best_indiv->nb_coding_RNAs++;
-                    else
-                        best_indiv->nb_non_coding_RNAs++;
-                }
-            }
-
-
-            for (int i = 0; i < best_indiv->metadata_->proteins_count(); i++) {
-                pProtein *prot = best_indiv->metadata_->proteins(i);
-                if (prot != nullptr) {
-                    if (prot->is_functional) {
-                        best_indiv->nb_func_genes++;
-                    } else {
-                        best_indiv->nb_non_func_genes++;
+                if (standalone_ && exp_m_->record_light_tree()) {
+                    if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+                        AeTime::time() > 0) {
                     }
-                    if (prot->h > 0) {
-                        best_indiv->nb_genes_activ++;
-                    } else {
-                        best_indiv->nb_genes_inhib++;
+
+                    if (standalone_ && exp_m_->record_light_tree() && AeTime::time() > 0) {
+                        exp_m_->output_m()->light_tree()->update_tree(AeTime::time(), prev_internal_simd_struct);
+
+                        if (AeTime::time() % exp_m_->backup_step() == 0) {
+                            std::cout << "writing light tree for gen : " << AeTime::time() << '\n';
+                            exp_m_->output_m()->write_light_tree(AeTime::time());
+                        }
                     }
+
+                    if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+                        AeTime::time() > 0) {
+                    }
+
                 }
-            }
 
 
-            stats_best->write_best();
-        }
-    }
-    
-    if (!first_gener_) {
-#pragma omp single
-        {
-
-            if (standalone_ && exp_m_->record_light_tree()) {
-                if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+                if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
                     AeTime::time() > 0) {
+                    printf("Tree SIMD backup: %d\n", AeTime::time());
+                    char tree_file_name[50];
+
+                    sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", AeTime::time());
+                    exp_m_->output_m()->tree()->write_to_tree_file(tree_file_name);
                 }
 
-                if (standalone_ && exp_m_->record_light_tree() && AeTime::time() > 0) {
-                    exp_m_->output_m()->light_tree()->update_tree(AeTime::time(), prev_internal_simd_struct);
 
-                    if (AeTime::time() % exp_m_->backup_step() == 0) {
-                        std::cout << "writing light tree for gen : " << AeTime::time() << '\n';
-                        exp_m_->output_m()->write_light_tree(AeTime::time());
-                    }
-                }
-
-                if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
-                    AeTime::time() > 0) {
-                }
-
-            }
+//#pragma omp barrier
 
 
-            if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
-                AeTime::time() > 0) {
-                printf("Tree SIMD backup: %d\n", AeTime::time());
-
-                exp_m_->output_m()->write_tree(AeTime::time());
             }
         }
 
 
-
-
-            if (standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
-                printf("Backup... OK\n");
-
-#pragma omp for schedule(dynamic)
-                for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-                    int x = indiv_id / exp_m_->world()->height();
-                    int y = indiv_id % exp_m_->world()->height();
-
-                    exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-                    exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-                    delete exp_m_->world()->grid(x, y)->individual();
-
-                    Individual *indiv = new Individual(exp_m_,
-                                                       exp_m_->world()->grid(x, y)->mut_prng(),
-                                                       exp_m_->world()->grid(x, y)->stoch_prng(),
-                                                       exp_m_->exp_s()->mut_params(),
-                                                       w_max,
-                                                       exp_m_->exp_s()->min_genome_length(),
-                                                       exp_m_->exp_s()->max_genome_length(),
-                                                       false,
-                                                       indiv_id,
-                                                       "",
-                                                       0);
-                    int32_t nb_blocks_ = prev_internal_simd_struct[indiv_id]->dna_->length() / BLOCK_SIZE + 1;
-                    char *dna_string = new char[nb_blocks_ * BLOCK_SIZE];
-                    memset(dna_string, 0,
-                           (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
-
-
-                    char *to_copy = prev_internal_simd_struct[indiv_id]->dna_->to_char();
-
-
-                    memcpy(dna_string, to_copy,
-                           (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
-
-
-                    indiv->genetic_unit_list_.clear();
-                    indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
-                    indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
-                    indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
-                    indiv->EvaluateInContext(exp_m_->world()->grid(x, y)->habitat());
-                    indiv->compute_statistical_data();
-
-                    exp_m_->world()->grid(x, y)->set_individual(indiv);
-                }
-
+            if (!first_gener_ && standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
 #pragma omp single
                 {
+
+                    printf("Backup... OK\n");
+
+
+
+
+                    //#pragma omp for schedule(dynamic)
+                    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                        int x = indiv_id / exp_m_->world()->height();
+                        int y = indiv_id % exp_m_->world()->height();
+
+                        exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+                        exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+                        delete exp_m_->world()->grid(x, y)->individual();
+                        //exp_m_->world()->grid(x, y)->set_individual(nullptr);
+
+                        Individual *indiv = new Individual(exp_m_,
+                                                           exp_m_->world()->grid(x, y)->mut_prng(),
+                                                           exp_m_->world()->grid(x, y)->stoch_prng(),
+                                                           exp_m_->exp_s()->mut_params(),
+                                                           w_max,
+                                                           exp_m_->exp_s()->min_genome_length(),
+                                                           exp_m_->exp_s()->max_genome_length(),
+                                                           false,
+                                                           indiv_id,
+                                                           "",
+                                                           0);
+                        int32_t nb_blocks_ = prev_internal_simd_struct[indiv_id]->dna_->length() / BLOCK_SIZE + 1;
+                        char *dna_string = new char[nb_blocks_ * BLOCK_SIZE];
+                        memset(dna_string, 0,
+                               (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
+
+
+                        char *to_copy = prev_internal_simd_struct[indiv_id]->dna_->to_char();
+
+
+                        memcpy(dna_string, to_copy,
+                               (prev_internal_simd_struct[indiv_id]->dna_->length() + 1) * sizeof(char));
+
+
+                        indiv->genetic_unit_list_.clear();
+                        indiv->add_GU(dna_string, prev_internal_simd_struct[indiv_id]->dna_->length());
+                        indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
+                        indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
+                        indiv->EvaluateInContext(exp_m_->world()->grid(x, y)->habitat());
+                        indiv->compute_statistical_data();
+
+                        exp_m_->world()->grid(x, y)->set_individual(indiv);
+                    }
+
+
+                    printf("Write FILES\n");
                     // Create missing directories
                     exp_m_->WriteDynamicFiles();
 
@@ -2538,26 +2310,28 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
                     last_gener_file << AeTime::time() << std::endl;
                     last_gener_file.close();
-
-                    if (AeTime::time() == exp_m_->end_step()) {
-                        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-                            int x = indiv_id / exp_m_->world()->height();
-                            int y = indiv_id % exp_m_->world()->height();
-
-                            exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-                            exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-                            delete exp_m_->world()->grid(x, y)->individual();
-                        }
-                    }
                 }
-            }
-
-    } else {
+        } else {
 #pragma omp single
-        {
-            first_gener_ = false;
+            {
+                first_gener_ = false;
+            }
         }
-    }
+
+        if (AeTime::time() == exp_m_->end_step()) {
+#pragma omp for schedule(static)
+            for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+                int x = indiv_id / exp_m_->world()->height();
+                int y = indiv_id % exp_m_->world()->height();
+
+                exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
+                exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+                delete exp_m_->world()->grid(x, y)->individual();
+            }
+        }
+
+
+
 }
 
 
@@ -2932,6 +2706,8 @@ Internal_SIMD_Struct::~Internal_SIMD_Struct() {
   dna_factory_->give_back(dna_);
 
   delete metadata_;
+
+  clearAllObserver();
 }
 
 /**

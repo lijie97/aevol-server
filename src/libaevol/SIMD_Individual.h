@@ -216,6 +216,7 @@ class SIMD_Individual : public Observable{
     int rna_grain_size = 32;
     int protein_grain_size = 32;
 
+    SIMD_DnaFactory* dna_factory_;
 
  private:
     ExpManager* exp_m_;
@@ -231,7 +232,6 @@ class SIMD_Individual : public Observable{
 
     long apply_mutation[1024];
 
-    SIMD_DnaFactory* dna_factory_;
 
     Stats* stats_;
 
