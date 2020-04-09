@@ -63,6 +63,36 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
+ReplicationReport::ReplicationReport() {
+        indiv_ = nullptr;
+        simd_indiv_ = nullptr;
+
+        id_ = 0;
+        rank_ = -1;
+
+        parent_id_ = 0;
+        // donor_id_ is set further down
+
+        genome_size_ = 0;
+        metabolic_error_ = 0.0;
+        nb_genes_activ_ = 0;
+        nb_genes_inhib_ = 0;
+        nb_non_fun_genes_ = 0;
+        nb_coding_RNAs_ = 0;
+        nb_non_coding_RNAs_ = 0;
+
+        parent_metabolic_error_ = -1;
+        parent_secretion_error_ = -1;
+        parent_genome_size_ = -1;
+        mean_align_score_ = 0.0;
+
+            donor_id_ = -1;
+            donor_metabolic_error_ = 0.0;
+            donor_secretion_error_ = 0.0;
+            donor_genome_size_ = 0;
+
+}
+
 ReplicationReport::ReplicationReport(Individual* indiv,
                                      const Individual* parent,
                                      Individual* donor /*= NULL*/)
@@ -106,8 +136,8 @@ ReplicationReport::ReplicationReport(Individual* indiv,
 
 
 // Creates an independent copy of the original report
-ReplicationReport::ReplicationReport(const ReplicationReport& other) :
-    dna_replic_report_(other.dna_replic_report_)
+ReplicationReport::ReplicationReport(const ReplicationReport& other) //:
+    //dna_replic_report_(other.dna_replic_report_)
 {
   parent_id_  = other.parent_id_;
   donor_id_   = other.donor_id_;
@@ -150,9 +180,9 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
   gzread(tree_file, &nb_coding_RNAs_,      sizeof(nb_coding_RNAs_));
   gzread(tree_file, &nb_non_coding_RNAs_,  sizeof(nb_non_coding_RNAs_));
 
-  dna_replic_report_.read_from_tree_file(tree_file);
+  //dna_replic_report_.read_from_tree_file(tree_file);
 
-  dna_replic_report_.compute_stats();
+  //dna_replic_report_.compute_stats();
 
   parent_metabolic_error_ = -1;
   parent_secretion_error_ = -1;
@@ -209,8 +239,8 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
 
       simd_indiv_ = offspring;
 
-      id_ = indiv_id;
-      parent_id_ = parent_id;
+      id_ = (unsigned long long) indiv_id;
+      parent_id_ = (unsigned long long) parent_id;
 
       rank_ = 0;
 
@@ -228,8 +258,8 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
       mean_align_score_       = 0.0;
 
       // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
-      simd_indiv_->addObserver(this, MUTATION);
-      simd_indiv_->addObserver(tree, END_REPLICATION);
+      //simd_indiv_->addObserver(this, MUTATION);
+      //simd_indiv_->addObserver(tree, END_REPLICATION);
 }
 
     void ReplicationReport::init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
@@ -264,8 +294,8 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
 
         simd_indiv_ = offspring;
 
-        id_ = indiv_id;
-        parent_id_ = parent_id;
+        id_ = (unsigned long long) indiv_id;
+        parent_id_ = (unsigned long long) parent_id;
 
         rank_ = 0;
 
@@ -331,8 +361,8 @@ void ReplicationReport::signal_end_of_generation() {
 void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
+/*
   gzwrite(tree_file, &id_,         sizeof(id_));
-  //printf("ID %d\n",id_);
 
     int32_t rankx = -1;
   if (SIMD_Individual::standalone_simd) {
@@ -353,8 +383,9 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
   gzwrite(tree_file, &nb_non_fun_genes_,    sizeof(nb_non_fun_genes_));
   gzwrite(tree_file, &nb_coding_RNAs_,      sizeof(nb_coding_RNAs_));
   gzwrite(tree_file, &nb_non_coding_RNAs_,  sizeof(nb_non_coding_RNAs_));
+*/
 
-  dna_replic_report_.write_to_tree_file(tree_file);
+  //dna_replic_report_.write_to_tree_file(tree_file);
 }
 
 
@@ -370,13 +401,13 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 //                          Non inline accessors
 // =================================================================
 void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
-        //printf("Receive ??? events\n");
+        printf("Receive ??? events\n");
   switch (e) {
     case MUTATION :
         //printf("Receive mutation events\n");
 //#pragma omp critical
       //{
-          dna_replic_report_.add_mut(reinterpret_cast<Mutation *>(arg));
+          //dna_replic_report_.add_mut(reinterpret_cast<Mutation *>(arg));
       //}
       break;
     default :

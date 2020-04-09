@@ -47,7 +47,7 @@ class DnaReplicationReport {
   // =================================================================
   //                             Constructors
   // =================================================================
-  DnaReplicationReport() = default;
+  DnaReplicationReport() {};
   DnaReplicationReport(const DnaReplicationReport&);
   DnaReplicationReport(DnaReplicationReport&&) = delete;
 
