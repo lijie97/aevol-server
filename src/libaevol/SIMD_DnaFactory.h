@@ -30,6 +30,16 @@ namespace aevol {
 
         void init(int init_size);
 
+        void stats() {
+            int total_length_ = 0;
+            for (std::list<Dna_SIMD*>::iterator it_dna = list_unused_dna_.begin();
+                 it_dna != list_unused_dna_.end(); it_dna++) {
+                total_length_ += (*it_dna)->nb_block()*BLOCK_SIZE* sizeof(char);
+            }
+            total_length_/=1000000;
+            printf("DNA_FACTORY_STATS -- Number of DNAs %ld - Combined size %d Mb\n",list_unused_dna_.size(),total_length_);
+        }
+
         Dna_SIMD *get_dna(int request_size);
 
         void give_back(Dna_SIMD *dna);
