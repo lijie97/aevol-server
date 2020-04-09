@@ -66,6 +66,7 @@ const int32_t Tree::NO_PARENT = -1;
 Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
   exp_m_ = exp_m;
   tree_step_ = tree_step;
+
   replics_ = new ReplicationReport** [tree_step_];
 
   for (int32_t time = 0 ; time < tree_step ; time++) {
@@ -73,7 +74,7 @@ Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
     for (int32_t num_indiv = 0 ;
          num_indiv < exp_m->nb_indivs() ;
          num_indiv++) {
-      replics_[time][num_indiv] = new ReplicationReport();
+      replics_[time][num_indiv] = nullptr;
     }
   }
 }
@@ -92,6 +93,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
     exit(EXIT_FAILURE);
   }
 
+        printf("---- ] Allocate tree %ld\n",tree_step_);
   replics_ = new ReplicationReport** [tree_step_];
   //for (int64_t t = AeTime::time()-tree_step_+1 ; t <= AeTime::time() ; t++) {
   for (int64_t t = 0 ; t < tree_step_ ; t++) {
@@ -167,33 +169,47 @@ Tree::~Tree() {
         }
     }
 
-    void Tree::write_to_tree_file(gzFile tree_file) {
+    void Tree::write_to_tree_file(char* tree_file_name) {
+        gzFile tree_file = gzopen( tree_file_name, "w" );
+        printf("Tree Write %d : \n",time());//,t,indiv_i);
         // Write the tree in the backup
         for (int64_t t = 0 ; t < tree_step_ ; t++)
             for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
+
                 assert(replics_[t][indiv_i] != NULL);
                 replics_[t][indiv_i]->write_to_tree_file(tree_file);
             }
 
+        gzclose(tree_file);
+
+
         // Reinitialize the tree
-        for (int32_t t = 0 ; t < tree_step_ ; t++)
-            for (int32_t indiv_i = 0 ; indiv_i < exp_m_->nb_indivs() ; indiv_i++) {
-                delete replics_[t][indiv_i];
-                replics_[t][indiv_i] = new ReplicationReport();
+        for (int32_t time = 0 ; time < tree_step_ ; time++) {
+            for (int32_t num_indiv = 0 ;
+                 num_indiv < exp_m_->nb_indivs() ;
+                 num_indiv++) {
+                delete replics_[time][num_indiv];
+                replics_[time][num_indiv] = nullptr;
             }
+        }
+
     }
 
 void Tree::update_new_indiv(NewIndivEvent* evt) {
-    report_by_index(AeTime::time(), evt->x *
-                                            evt->simd_child->exp_m_->grid_height()
-                                    + evt->y)->
+
+    replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+                                    evt->simd_child->exp_m_->grid_height()
+                                    + evt->y] = new ReplicationReport();
+    replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+                                                         evt->simd_child->exp_m_->grid_height()
+                                                         + evt->y]->
             init(this, evt->simd_child, evt->simd_parent, evt->indiv_id_, evt->parent_id_);
 }
 
 void Tree::update_end_replication(EndReplicationEvent* evt) {
-    report_by_index(AeTime::time(), evt->x *
-                                            evt->simd_child->exp_m_->grid_height()
-                                    + evt->y)->signal_end_of_replication(evt->simd_child);
+    replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+                                                         evt->simd_child->exp_m_->grid_height()
+                                                         + evt->y]->signal_end_of_replication(evt->simd_child);
 }
 
 
@@ -209,18 +225,16 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
 
       auto ievent = reinterpret_cast<NewIndivEvent*>(arg);
        if (SIMD_Individual::standalone_simd) {
-              report_by_index(AeTime::time(), ievent->x *
+           replics_[Utils::mod(AeTime::time() - 1, tree_step_)][ievent->x *
                                               ievent->simd_child->exp_m_->grid_height()
-                                              + ievent->y)->
+                                              + ievent->y]->
                       init(this, ievent->simd_child, ievent->simd_parent, ievent->indiv_id_, ievent->parent_id_);
           } else {
-              report_by_index(AeTime::time(), ievent->x *
+           replics_[Utils::mod(AeTime::time() - 1, tree_step_)][ievent->x *
                                               ievent->child->exp_m()->grid_height()
-                                              + ievent->y)->
+                                              + ievent->y]->
                       init(this, ievent->child, ievent->parent, ievent->indiv_id_, ievent->parent_id_);
           }
-
-
 
       break;
     }
@@ -233,14 +247,14 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
 
             if (SIMD_Individual::standalone_simd) {
                 //printf("EoR %d : %p -- %p\n",ievent->simd_child->indiv_id,ievent->simd_child, replics_[AeTime::time()][ievent->simd_child->indiv_id]);
-                report_by_index(AeTime::time(), ievent->x *
+                replics_[Utils::mod(AeTime::time() - 1, tree_step_)][ievent->x *
                                                 ievent->simd_child->exp_m_->grid_height()
-                                                + ievent->y)->signal_end_of_replication(
+                                                + ievent->y]->signal_end_of_replication(
                         ievent->simd_child);
             } else {
-                report_by_index(AeTime::time(), ievent->x *
+                replics_[Utils::mod(AeTime::time() - 1, tree_step_)][ievent->x *
                                                 ievent->child->exp_m()->grid_height()
-                                                + ievent->y)->signal_end_of_replication(
+                                                + ievent->y]->signal_end_of_replication(
                         ievent->child);
             }
 

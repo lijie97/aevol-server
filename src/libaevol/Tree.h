@@ -54,6 +54,14 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 
+class RepTree
+{
+public:
+    RepTree() { a = 1; }
+    ~RepTree() = default;
+
+    int a = -1;
+};
 
 class Tree : public Observer
 {
@@ -99,7 +107,7 @@ class Tree : public Observer
     //                            Public Methods
     // =================================================================
     void signal_end_of_generation();
-    void write_to_tree_file(gzFile tree_file);
+    void write_to_tree_file(char* tree_file_name);
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
 
@@ -130,7 +138,6 @@ class Tree : public Observer
 
     int64_t tree_step_;
 
-    //ReplicationReport*** replics_;
     ReplicationReport*** replics_;
     // Two-dimensional table of ReplicationReport*
     //    dimension 1 (lines)   : generation
