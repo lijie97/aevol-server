@@ -332,7 +332,9 @@ int64_t OutputManager::last_gener() {
       if (record_tree_ &&
           AeTime::time() > 0 &&
           (AeTime::time() % tree_->tree_step() != 0)) {
-        write_tree(AeTime::time());
+          if (!SIMD_Individual::standalone_simd) {
+              write_tree(AeTime::time());
+          }
       }
 
       // LightTree
@@ -382,7 +384,7 @@ int64_t OutputManager::last_gener() {
 
       gzFile tree_file = gzopen( tree_file_name, "w" );
       // Write phylogenetic data (tree)
-      tree_->write_to_tree_file(tree_file);
+      tree_->write_to_tree_file(tree_file_name);
 
       gzclose(tree_file);
 
