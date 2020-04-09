@@ -74,7 +74,7 @@ Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
     for (int32_t num_indiv = 0 ;
          num_indiv < exp_m->nb_indivs() ;
          num_indiv++) {
-      replics_[time][num_indiv] = nullptr;
+      replics_[time][num_indiv] = new ReplicationReport();
     }
   }
 }

@@ -228,6 +228,13 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
       parent_genome_size_     = parent->dna_->length();
       mean_align_score_       = 0.0;
 
+      donor_id_ = -1;
+      donor_metabolic_error_ = -1;
+      donor_secretion_error_ = -1;
+      donor_genome_size_ = -1;
+
+      dna_replic_report_.clear();
+
       // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
       //simd_indiv_->addObserver(this, MUTATION);
       //simd_indiv_->addObserver(tree, END_REPLICATION);
