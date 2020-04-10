@@ -1240,14 +1240,44 @@ SIMD_Individual::~SIMD_Individual() {
                         while (c_pos !=
                                rna->end) {
                             bool start = false;
+                            int t_pos, k_t;
 
                             if (rna->leading_lagging ==
                                 0) {
                                 // Search for Shine Dalgarro + START codon on LEADING
-                                start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_leading(c_pos);
+                                for (int k = 0; k < 9; k++) {
+                                    k_t = k >= 6 ? k + 4 : k;
+                                    t_pos = c_pos + k_t;
+
+                                    if (internal_simd_struct[indiv_id]->dna_->data_[(c_pos + k_t) +
+                                          ((((unsigned int32_t)((c_pos + k_t) - dna_length)) >> 31) -1 )* dna_length] ==
+                                            SHINE_DAL_SEQ_LEAD[k]) {
+                                        start = true;
+                                    } else {
+                                        start = false;
+                                        break;
+                                    }
+
+                                }
+                                //start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_leading(c_pos);
                             } else {
                                 // Search for Shine Dalgarro + START codon on LAGGING
-                                start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_lagging(c_pos);
+                                for (int k = 0; k < 9; k++) {
+                                    k_t = k >= 6 ? k + 4 : k;
+                                    //t_pos = c_pos - k_t;
+
+                                    if (internal_simd_struct[indiv_id]->dna_->data_[(c_pos - k_t) +
+                                              (((unsigned int32_t)((c_pos - k_t))) >> 31) * dna_length] ==
+                                    SHINE_DAL_SEQ_LAG[k]) {
+                                    //if (internal_simd_struct[indiv_id]->dna_->get_lag(t_pos) ==
+                                    //    SHINE_DAL_SEQ_LAG[k]) {
+                                        start = true;
+                                    } else {
+                                        start = false;
+                                        break;
+                                    }
+                                }
+                                //start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_lagging(c_pos);
                             }
 
                             if (start) {
@@ -2022,7 +2052,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 //#pragma omp barrier
 
         if (optim_prom) {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(static)
             for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
                 bool toDelete = false;
 
@@ -2045,7 +2075,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         } else if (standalone_ && (!optim_prom)) {
 
         } else {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(static)
             for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
                 bool toDelete = false;
 
