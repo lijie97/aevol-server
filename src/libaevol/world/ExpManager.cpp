@@ -786,6 +786,7 @@ void ExpManager::run_evolution() {
   if (!simd_individual->standalone()) {
     FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
     fputs(best_indiv()->genetic_unit_sequence(0), org_file);
+    fputs("\n", org_file);
     fclose(org_file);
   }
 }
