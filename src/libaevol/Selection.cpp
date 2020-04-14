@@ -973,6 +973,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       printf("Indiv 93 has mutate %d\n",exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate());
     }*/
 
+//printf("%d -- Indiv %d has mutate ? %d\n",time(),x*exp_m_->world()->height()+y,exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate());
 #ifdef __DETECT_CLONE
     if (! exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate()) {
 

@@ -32,8 +32,9 @@ class Dna_SIMD {
     void set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory);
     void set_indiv(int length, int parent_length, Internal_SIMD_Struct* indiv);
 
-    inline char get_lead(int32_t pos) {return data_[pos + (((unsigned int32_t)(pos - length_) >> 31) -1) * length_];};
-    inline char get_lag(int32_t pos) { return data_[pos + ((unsigned int32_t)(pos) >> 31) * length_];};
+    inline char get_lead(int32_t pos) { return data_[pos  >= length_ ? pos - length_ : pos]; }
+//return data_[pos + (((unsigned int32_t)(pos - length_) >> 31) -1) * length_];};
+    inline char get_lag(int32_t pos) { return data_[pos < 0 ? length_ + pos: pos]; } //return data_[pos + ((unsigned int32_t)(pos) >> 31) * length_];};
 
     inline int nb_block() { return nb_blocks_; }
 

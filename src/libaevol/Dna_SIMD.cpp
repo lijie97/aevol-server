@@ -97,7 +97,7 @@ void Dna_SIMD::set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
     //printf("Length %d %d (%d %d)\n",length_,dna->length(),nb_blocks_,dna->nb_blocks_);
     length_ = dna->length();
     if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks<nb_blocks_/ REDUCTION_FACTOR)) {
-        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
+        //printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
         nb_blocks_ = new_nb_blocks;
         if (data_ != nullptr) { free(data_); data_=nullptr;}
 
@@ -121,7 +121,7 @@ void Dna_SIMD::set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory) {
     length_ = dna->length();
 
     if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks<nb_blocks_/REDUCTION_FACTOR)) {
-        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
+        //printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n",nb_blocks_,new_nb_blocks,length());
         nb_blocks_ = new_nb_blocks;
         if (data_ != nullptr) { free(data_); data_=nullptr;}
 
@@ -144,7 +144,7 @@ void Dna_SIMD::set_indiv(int req_length, int parent_length, Internal_SIMD_Struct
     length_ = req_length;
 
     if ((new_nb_blocks > nb_blocks_) || (new_nb_blocks < nb_blocks_ / REDUCTION_FACTOR)) {
-        printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n", nb_blocks_, new_nb_blocks, length());
+        //printf("REALLOCATE DNA -- Old Block %d, New Block %d, Length %d\n", nb_blocks_, new_nb_blocks, length());
         nb_blocks_ = new_nb_blocks;
         if (data_ != nullptr) {
             free(data_);
@@ -664,12 +664,12 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 //               indiv_->metadata_->promoter_count());
 
         indiv_->metadata_->insert_promoters_at(duplicated_promoters, pos_3);
-        for (auto strand: {LEADING, LAGGING}) {
+        /*for (auto strand: {LEADING, LAGGING}) {
             for (std::list<promoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
                  it_rna != duplicated_promoters[strand].end(); it_rna++) {
                 delete (*(it_rna));
             }
-        }
+        }*/
 
 //        printf("%d -- %d -- DUP-4 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
 //               indiv_->metadata_->promoter_count());
@@ -2017,28 +2017,28 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 //    }
     // Reinsert the shifted promoters
       indiv_->metadata_->insert_promoters(promoters_B);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_B[strand].begin();
                it_rna != promoters_B[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
       indiv_->metadata_->insert_promoters(promoters_C);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_C[strand].begin();
                it_rna != promoters_C[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
       indiv_->metadata_->insert_promoters(promoters_D);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_D[strand].begin();
                it_rna != promoters_D[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
 //      if (indiv_->indiv_id == 799 && time() == 52) {
 //          printf("After insert\n");
@@ -2512,28 +2512,28 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     // 4) Reinsert the shifted promoters
       indiv_->metadata_->insert_promoters(promoters_C);
-      for (auto strand: {LEADING, LAGGING}) {
+/*      for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_C[strand].begin();
                it_rna != promoters_C[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
       indiv_->metadata_->insert_promoters(promoters_B);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_B[strand].begin();
                it_rna != promoters_B[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
       indiv_->metadata_->insert_promoters(promoters_D);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_D[strand].begin();
                it_rna != promoters_D[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
     /*if (indiv_->indiv_id == 12) {
       printf("AFTER_INSERT : Leading promoters lists : ");
       for (auto it : indiv_->leading_prom_pos) {
@@ -2941,28 +2941,28 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     // 4) Reinsert the shifted promoters
       indiv_->metadata_->insert_promoters(promoters_B);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_B[strand].begin();
                it_rna != promoters_B[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
       indiv_->metadata_->insert_promoters(promoters_D);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_D[strand].begin();
                it_rna != promoters_D[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
       indiv_->metadata_->insert_promoters(promoters_C);
-      for (auto strand: {LEADING, LAGGING}) {
+      /*for (auto strand: {LEADING, LAGGING}) {
           for (std::list<promoterStruct *>::iterator it_rna = promoters_C[strand].begin();
                it_rna != promoters_C[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
-      }
+      }*/
 
 //      if (indiv_->indiv_id == 17) {
 //          printf("AFTER Insert\n");

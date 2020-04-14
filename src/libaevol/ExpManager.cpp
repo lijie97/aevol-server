@@ -382,8 +382,8 @@ void ExpManager::step_to_next_generation() {
         t1 = high_resolution_clock::now();
 #endif
 
-        //if (!simd_individual->standalone())
-        //  exp_s_->step_to_next_generation();
+        if (!simd_individual->standalone())
+          exp_s_->step_to_next_generation();
 
 
 #ifdef __CUDACC__
@@ -401,11 +401,13 @@ void ExpManager::step_to_next_generation() {
 #endif
 
 /*  if (simd_first) {
-    //simd_individual->check_result();
+    simd_individual->check_result();
   } else {*/
     }
-  if (simd_individual->standalone())
+  //if (simd_individual->standalone())
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
+
+    simd_individual->check_result();
   //}
 #pragma omp single
     {
@@ -420,7 +422,7 @@ void ExpManager::step_to_next_generation() {
 #endif
             // Write statistical data and store phylogenetic data (tree)
             {
-                printf("----------------> Must not be here\n");
+                //printf("----------------> Must not be here\n");
                 output_m_->write_current_generation_outputs();
             }
 
@@ -691,7 +693,7 @@ void ExpManager::run_evolution() {
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
 
-      if (SIMD_Individual::standalone_simd)
+      //if (SIMD_Individual::standalone_simd)
         simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
 
