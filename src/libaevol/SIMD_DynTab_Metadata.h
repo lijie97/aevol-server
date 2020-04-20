@@ -29,6 +29,8 @@ namespace aevol {
             dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
 
             promoters_ = new promoterStruct*[dyntab_size_];
+            for (int prom_idx = 0; prom_idx < dyntab_size_; prom_idx++)
+                promoters_[prom_idx] = nullptr;
         };
 
         SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv, SIMD_DynTab_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
@@ -40,6 +42,9 @@ namespace aevol {
 //            printf("Nb block %d (past %d) for a dyntab size of %d (past %d) -- Genome size %d -- Nb promoters %d\n",nb_block_dyntab_,metadata->nb_block_dyntab_,
 //                                                dyntab_size_,metadata->dyntab_size_,indiv->dna_->length(),metadata->count_promoters_);
             promoters_ = new promoterStruct*[dyntab_size_];
+
+            for (int prom_idx = 0; prom_idx < dyntab_size_; prom_idx++)
+                promoters_[prom_idx] = nullptr;
 
             for (int prom_idx = 0; prom_idx < metadata->count_promoters_; prom_idx++) {
                 if (metadata->promoters_[prom_idx] != nullptr) {
@@ -55,11 +60,10 @@ namespace aevol {
         };
 
         ~SIMD_DynTab_Metadata() override {
-            if (count_promoters_ > 0) {
-                for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
+            for (int prom_idx = 0; prom_idx < dyntab_size_; prom_idx++) {
                     delete promoters_[prom_idx];
                 }
-            }
+
 
             delete [] promoters_;
 
@@ -241,6 +245,8 @@ namespace aevol {
 
             promoterStruct** old_promoters_ = promoters_;
             promoters_ = new promoterStruct*[dyntab_size_];
+            for (int prom_idx = 0; prom_idx < dyntab_size_; prom_idx++)
+                promoters_[prom_idx] = nullptr;
 
             int old_count_promoters_ = count_promoters_;
             count_promoters_ = 0;
@@ -254,10 +260,12 @@ namespace aevol {
 
             }
 
+            delete [] old_promoters_;
+
         }
 
-    protected:
-        promoterStruct** promoters_;
+    //protected:
+        promoterStruct** promoters_ = nullptr;
 
         std::set<int> terminator_lag_;
         std::set<int> terminator_lead_;
@@ -265,10 +273,12 @@ namespace aevol {
         std::vector<pProtein*> proteins_;
 
         int it_promoter_ = 0;
-        int it_rna_ = 0;
-        int it_protein_ = 0;
+        int it_promoter_count_ = 0;
+        std::vector<pRNA*>::iterator it_rna_ = rnas_.begin();
+        std::vector<pProtein*>::iterator it_protein_ = proteins_.begin();
 
-        int32_t count_promoters_;
+        int32_t count_promoters_ = 0;
+
         int32_t protein_count_ = 0;
 
 

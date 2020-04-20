@@ -1354,6 +1354,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
     internal_simd_struct[indiv_id]->
             metadata_->proteins_resize(resize_to);
 
+    //printf("Resize Proteins %d\n",resize_to);
+
     Dna_SIMD* dna = internal_simd_struct[indiv_id]->dna_;
     int32_t dna_length = dna->length();
 
@@ -2792,7 +2794,7 @@ Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Stru
 }
 
 Internal_SIMD_Struct::~Internal_SIMD_Struct() {
-        //printf("DESTRUCTOR SIMD INDIV -- DNA Factory %p --- DNA %p\n",dna_factory_,dna_);
+  //printf("DESTRUCTOR SIMD INDIV -- Metadata %p\n",metadata_);
 
   dna_factory_->give_back(dna_);
 

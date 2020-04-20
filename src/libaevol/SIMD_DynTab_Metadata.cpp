@@ -114,6 +114,7 @@ namespace aevol {
 
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             delete promoters_[prom_idx];
+            promoters_[prom_idx] = nullptr;
         }
 
         count_promoters_ = 0;
@@ -839,17 +840,20 @@ namespace aevol {
     }
 
     promoterStruct* SIMD_DynTab_Metadata::promoter_next() {
+
         promoterStruct* prom = promoters_[it_promoter_];
         it_promoter_++;
+
         return prom;
     }
 
     void SIMD_DynTab_Metadata::promoter_begin() {
         it_promoter_ = 0;
+        it_promoter_count_ = 0;
     }
 
     bool SIMD_DynTab_Metadata::promoter_end() {
-        return it_promoter_ == promoter_count();
+        return it_promoter_count_ == promoter_count();
     }
 
 
@@ -913,17 +917,17 @@ namespace aevol {
     }
 
     pRNA* SIMD_DynTab_Metadata::rna_next() {
-        pRNA* rna = rnas_[it_rna_];
+        pRNA* rna = *it_rna_;
         it_rna_++;
         return rna;
     }
 
     void SIMD_DynTab_Metadata::rna_begin() {
-        it_rna_ = 0;
+        it_rna_ = rnas_.begin();
     }
 
     bool SIMD_DynTab_Metadata::rna_end() {
-        return it_rna_ == rna_count();
+        return it_rna_ == rnas_.end();
     }
 
     int SIMD_DynTab_Metadata::rna_count() {
@@ -947,21 +951,23 @@ namespace aevol {
     }
 
     void SIMD_DynTab_Metadata::protein_add(int idx, pProtein *prot) {
+        //printf("Add proteins at %d\n",idx);
         proteins_[idx] = prot;
+        protein_count_++;
     }
 
     pProtein* SIMD_DynTab_Metadata::protein_next() {
-        pProtein* prot = proteins_[it_protein_];
+        pProtein* prot = *it_protein_;
         it_protein_++;
         return prot;
     }
 
     void SIMD_DynTab_Metadata::protein_begin() {
-        it_promoter_ = 0;
+        it_protein_ = proteins_.begin();
     }
 
     bool SIMD_DynTab_Metadata::protein_end() {
-        return it_protein_ == proteins_count();
+        return it_protein_ == proteins_.end();
     }
 
     int SIMD_DynTab_Metadata::proteins_count() {
@@ -969,7 +975,7 @@ namespace aevol {
     }
 
     void SIMD_DynTab_Metadata::set_proteins_count(int pcount) {
-        protein_count_ = pcount;
+        //protein_count_ = pcount;
     }
 
     void SIMD_DynTab_Metadata::proteins_resize(int resize) {
