@@ -21,10 +21,7 @@ namespace aevol {
         SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) {
             count_promoters_ = 0;
 
-            if (indiv_->metadata_ == nullptr)
-                nb_block_dyntab_ = 2;
-            else
-                nb_block_dyntab_ = ((indiv_->metadata_->promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
+            nb_block_dyntab_ = 2;
 
             dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
 
