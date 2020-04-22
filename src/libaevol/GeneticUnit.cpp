@@ -957,7 +957,7 @@ void GeneticUnit::do_transcription() {
       rna->set_transcript_length(-1);
 
 
-      /*if (indiv()->grid_cell_->x() == 23 && indiv()->grid_cell_->y() == 1) {
+     /* if ((indiv()->grid_cell_->x() == 19 && indiv()->grid_cell_->y() == 24)) {
         printf("Checking for a terminator starting at %d\n",transcript_start);
       }*/
 
@@ -986,8 +986,7 @@ void GeneticUnit::do_transcription() {
           rna->set_transcript_length(i + TERM_SIZE);
 
 
-          /*if ((indiv()->grid_cell_->x() == 30 && indiv()->grid_cell_->y() == 9 && AeTime::time()==136)||
-              (indiv()->grid_cell_->x() == 27 && indiv()->grid_cell_->y() == 13 && AeTime::time()==27)) {
+          /*if ((indiv()->grid_cell_->x() == 19 && indiv()->grid_cell_->y() == 24)) {
             printf("Found a terminator at %d (SIZE %d START %d TRSTART %d)\n",
                    transcript_start + (strand_id == LEADING ? i : -i),
                    i+TERM_SIZE,rna->promoter_pos(),rna->first_transcribed_pos());
@@ -1051,8 +1050,8 @@ void GeneticUnit::do_translation() {
       transcript_length = rna.transcript_length();
 
 
-      /*if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 20)
-      {
+/*        if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 24)
+        {
         printf("Start computing RNA starting at %d -- %d with length %d\n",transcript_start,rna.promoter_pos(),transcript_length);
       }*/
 
@@ -1063,7 +1062,7 @@ void GeneticUnit::do_translation() {
            transcript_length - i >= DO_TRANSLATION_LOOP;
            ++i) {
 
-        /*if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 20)
+        /*if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 24)
         {
           printf("Searching for start prot at %d starting at %d -- LENGTH %d (min length %d) -- %d SD %d S %d\n",
                  Utils::mod(transcript_start

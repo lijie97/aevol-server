@@ -407,7 +407,8 @@ void ExpManager::step_to_next_generation() {
   //if (simd_individual->standalone())
     simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
 
-    simd_individual->check_result();
+    if (check_simd_)
+        simd_individual->check_result();
   //}
 #pragma omp single
     {
@@ -703,7 +704,7 @@ void ExpManager::run_evolution() {
                 while (!finished) {
 #pragma omp single
                         {
-                            if (AeTime::time() % 100 == 0) {
+                            if (AeTime::time() % 1 == 0) {
                                 printf(
                                         "============================== %" PRId64 " ==============================\n",
                                         AeTime::time());

@@ -1570,27 +1570,27 @@ void Dna_SIMD::apply_mutations() {
 //    printf("\n");
 //  }
 
-//    if (indiv_->indiv_id == 17) {
-//          printf("%d -- %d -- BEFORE -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//          printf("%d -- %d -- BEFORE -- Prom list LAG : ",time(),indiv_->indiv_id);
-//          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//          }
-//          printf("\n");
-//    }
+/*    if (indiv_->indiv_id == 632) {
+          printf("%d -- %d -- BEFORE -- Prom list LEAD : ",time(),indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
+          printf("%d -- %d -- BEFORE -- Prom list LAG : ",time(),indiv_->indiv_id);
+          for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+              if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                  if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                      printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+          }
+          printf("\n");
+    }*/
 
   for (auto repl : indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_list_) {
-/*    if (indiv_->indiv_id == 49) {
-      printf("Mutation type %d\n",repl->type());
-    }*/
+//    if (indiv_->indiv_id == 179) {
+//      printf("Mutation type %d\n",repl->type());
+//    }
       //printf("Mutation type %d\n",repl->type());
 
     switch(repl->type()) {
@@ -1643,8 +1643,8 @@ void Dna_SIMD::apply_mutations() {
 //        printf("End invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
             break;
         case DELETION:
-            //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-            //printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+//            if (indiv_->indiv_id == 179)
+//                printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
             do_deletion(repl->pos_1(), repl->pos_2());
             nb_large_del_++;
             nb_rear_++;
@@ -1669,22 +1669,22 @@ void Dna_SIMD::apply_mutations() {
 
   }
 
-//    if (indiv_->indiv_id == 17) {
-//        printf("%d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
-//        printf("%d -- %d -- AFTER -- Prom list LAG : ",time(),indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
-//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
-//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
-//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
-//        }
-//        printf("\n");
-//    }
+/*    if (indiv_->indiv_id == 632) {
+        printf("%d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+        printf("%d -- %d -- AFTER -- Prom list LAG : ",time(),indiv_->indiv_id);
+        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+        }
+        printf("\n");
+    }*/
 
 }
 

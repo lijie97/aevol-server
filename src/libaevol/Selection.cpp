@@ -1293,20 +1293,22 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   int16_t y_offset = (found_org % selection_scope_y_) - 1;
 
 
-  delete [] local_fit_array;
+  //delete [] local_fit_array;
   delete [] sort_fit_array;
   delete [] initial_location;
-  delete [] probs;
+  //delete [] probs;
 
 
-/*    world->grid(x,y)->probs = probs;
+  world->grid(x,y)->probs = probs;
     world->grid(x,y)->local_fit_array = local_fit_array;
     world->grid(x,y)->sum_local_fit = sum_local_fit;
-    world->grid(x,y)->local_meta_array = local_meta_array;
-    world->grid(x,y)->loc_phenotype = loc_phenotype;*/
+    /*     world->grid(x,y)->local_meta_array = local_meta_array;
+       world->grid(x,y)->loc_phenotype = loc_phenotype;*/
 
     exp_m_->simd_individual->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                             ((y+y_offset+grid_height) % grid_height);
+
+    //printf("At %d -- GridCell %d -> Parent %d\n",AeTime::time(),x*grid_height+y,exp_m_->simd_individual->next_generation_reproducer_[x*grid_height+y]);
 
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);

@@ -814,15 +814,21 @@ namespace aevol {
     }
 
     promoterStruct *SIMD_List_Metadata::promoter_next() {
+
         promoterStruct* prom = &*(it_promoter_);
         it_promoter_++;
-        if (it_promoter_ == promoters_list_[LEADING].end())
+
+        if (it_promoter_ == promoters_list_[LEADING].end()) {
             it_promoter_ = promoters_list_[LAGGING].begin();
+        }
+
         return prom;
     }
 
     void SIMD_List_Metadata::promoter_begin() {
         it_promoter_ = promoters_list_[LEADING].begin();
+
+        if (promoters_list_[LEADING].size() == 0) it_promoter_ = promoters_list_[LAGGING].begin();
     }
 
     bool SIMD_List_Metadata::promoter_end() {

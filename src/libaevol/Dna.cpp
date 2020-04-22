@@ -3862,6 +3862,19 @@ void Dna::apply_mutations() {
 
   do {
 
+/*    if (indiv_->id() == 632) {
+      printf("%d -- %d -- CPU_BEFORE -- Prom list LEAD : ",time(),indiv_->id());
+      for (auto prom : indiv_->genetic_unit(0).rna_list()[LEADING]) {
+        printf("%d ", prom.promoter_pos());
+      }
+      printf("\n");
+      printf("%d -- %d -- CPU_BEFORE -- Prom list LAG : ",time(),indiv_->id());
+        for (auto prom : indiv_->genetic_unit(0).rna_list()[LAGGING]) {
+            printf("%d ", prom.promoter_pos());
+        }
+      printf("\n");
+    }*/
+
     //if (indiv()->id()==93) {
     //  printf("Mutation for ? %d\n",indiv()->id()%(1024*AeTime::time()));
     //}
@@ -3957,7 +3970,18 @@ void Dna::apply_mutations() {
       }
     }
 
-
+/*      if (indiv_->id() == 632) {
+          printf("%d -- %d -- CPU_AFTER -- Prom list LEAD : ",time(),indiv_->id());
+          for (auto prom : indiv_->genetic_unit(0).rna_list()[LEADING]) {
+              printf("%d ", prom.promoter_pos());
+          }
+          printf("\n");
+          printf("%d -- %d -- CPU_AFTER -- Prom list LAG : ",time(),indiv_->id());
+          for (auto prom : indiv_->genetic_unit(0).rna_list()[LAGGING]) {
+              printf("%d ", prom.promoter_pos());
+          }
+          printf("\n");
+      }*/
 
   } while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
                         ->mutation_available() > 0);
