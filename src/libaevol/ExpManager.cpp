@@ -697,6 +697,7 @@ void ExpManager::run_evolution() {
       //if (SIMD_Individual::standalone_simd)
         simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
+        simd_individual->check_result();
 
       bool finished=false;
         // For each generation
@@ -704,7 +705,7 @@ void ExpManager::run_evolution() {
                 while (!finished) {
 #pragma omp single
                         {
-                            if (AeTime::time() % 1 == 0) {
+                            if (AeTime::time() % 100 == 0) {
                                 printf(
                                         "============================== %" PRId64 " ==============================\n",
                                         AeTime::time());
