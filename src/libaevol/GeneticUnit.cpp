@@ -1186,7 +1186,23 @@ void GeneticUnit::do_translation() {
                   protein_strand.emplace_back(this, codon_list, strand,
                                               shine_dal_pos, &rna,
                                               indiv()->w_max());
+
+
+
                   auto& protein = protein_strand.back();
+
+//                    if (indiv()->grid_cell()->x()==1&&indiv()->grid_cell()->y()==1) {
+//                        printf("%d -- CPU  --  Adding protein start %d (%d) end %d (%d) length %d leading/lagging %d\n",
+//                               AeTime::time(),
+//                               shine_dal_pos,
+//                               protein.first_translated_pos(),
+//                               protein.last_translated_pos(),
+//                               protein.last_STOP_base_pos(),
+//                               protein.length() * CODON_SIZE,
+//                               (strand == LEADING));
+//
+//                    }
+
                   codon_list.clear(); // has been copied into `protein`
                   rna.add_transcribed_protein(&protein);
 
@@ -1238,6 +1254,11 @@ void GeneticUnit::do_translation() {
       }
     }
   }
+
+   for (auto & strand : protein_list_) {
+       strand.sort();
+   }
+
 }
 
 void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
