@@ -791,6 +791,649 @@ namespace aevol {
         strand.erase(first, end);
     }
 
+    void SIMD_List_Metadata::update_metadata_before_new_generation() {
+        // Set to_delete, to_recompute, to_translate, to_compute (Protein/Rna) to false and to_compute to false for promoters
+        for (auto &strand: promoters_list_)
+            for (auto &prom: strand) {
+                prom.to_compute = false;
+                prom.to_delete = false;
+            }
+
+        for (auto rna : rnas_) {
+            rna->to_recompute = false;
+            rna->to_delete = false;
+        }
+
+        for (auto prot : proteins_) {
+            prot->to_recompute = false;
+            prot->to_retranslate = false;
+            prot->to_delete = false;
+
+        }
+    }
+
+    void SIMD_List_Metadata::remove_range(int32_t pos) {
+        remove_range(pos,pos);
+    }
+
+    void SIMD_List_Metadata::remove_range(int32_t pos_1, int32_t pos_2) {
+        // 0. Remove RNA with promoter
+        // LEAD : within [pos_1-21,pos_2]
+        for (int32_t cpos = pos_1-21; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto prom : promoters_list_[LEADING]) {
+                if (prom.pos == rcpos) {
+                    prom.to_delete = true;
+                }
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+21]
+        for (int32_t cpos = pos_1; cpos <= pos_2+21; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto prom : promoters_list_[LAGGING]) {
+                if (prom.pos == rcpos) {
+                    prom.to_delete = true;
+                }
+            }
+        }
+
+        // 1. Remove RNA with promoter
+        // LEAD : within [pos_1-21,pos_2]
+        for (int32_t cpos = pos_1-21; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto rna : rnas_) {
+                if (rna->leading_lagging) {
+                    if (rna->begin == rcpos) {
+                        rna->to_delete = true;
+                    }
+                }
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+21]
+        for (int32_t cpos = pos_1; cpos <= pos_2+21; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto rna : rnas_) {
+                if (!rna->leading_lagging) {
+                    if (rna->begin == rcpos) {
+                        rna->to_delete = true;
+                    }
+                }
+            }
+        }
+
+        // 2. Recompute RNA with terminator
+        // LEAD : within [pos_1-10,pos_2]
+        for (int32_t cpos = pos_1-10; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto rna : rnas_) {
+                if (rna->leading_lagging) {
+                    if (rna->end == rcpos) {
+                        rna->to_recompute = true;
+                    }
+                }
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+10]
+        for (int32_t cpos = pos_1; cpos <= pos_2+10; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto rna : rnas_) {
+                if (!rna->leading_lagging) {
+                    if (rna->end == rcpos) {
+                        rna->to_recompute = true;
+                    }
+                }
+            }
+        }
+
+        // 3. Remove Protein with ShineDal+Start
+        // LEAD : within [pos_1-12,pos_2]
+        for (int32_t cpos = pos_1-12; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto prot : proteins_) {
+                if (prot->leading_lagging) {
+                    if (prot->protein_start == rcpos) {
+                        prot->to_delete = true;
+                    }
+                }
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+12]
+        for (int32_t cpos = pos_1; cpos <= pos_2+12; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto prot : proteins_) {
+                if (!prot->leading_lagging) {
+                    if (prot->protein_start == rcpos) {
+                        prot->to_delete = true;
+                    }
+                }
+            }
+        }
+
+        // 4. Recompute Protein with Stop
+        // LEAD : within [pos_1-3,pos_2]
+        for (int32_t cpos = pos_1-3; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto prot : proteins_) {
+                if (prot->leading_lagging) {
+                    if (prot->protein_end == rcpos) {
+                        prot->to_recompute = true;
+                    }
+                }
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+3]
+        for (int32_t cpos = pos_1; cpos <= pos_2+3; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            for (auto prot : proteins_) {
+                if (!prot->leading_lagging) {
+                    if (prot->protein_end == rcpos) {
+                        prot->to_delete = true;
+                    }
+                }
+            }
+        }
+    }
+
+    void SIMD_List_Metadata::update_range(int32_t pos) {
+        update_range(pos,pos);
+    }
+
+    void SIMD_List_Metadata::update_range(int32_t pos_1, int32_t pos_2) {
+        // 1. Search promoter + mark as to compute
+        // LEAD : within [pos_1-21,pos_2]
+        for (int32_t cpos = pos_1-21; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            int8_t dist = is_promoter_leading(rcpos);
+            if (dist <= 4) {// dist takes the hamming distance of the sequence from the consensus
+                auto &strand = promoters_list_[LEADING];
+                auto first = find_if(strand.begin(),
+                                     strand.end(),
+                                     [rcpos](promoterStruct &r) {
+                                         return r.pos >= rcpos;
+                                     });
+
+                if (first == strand.end() or first->pos != rcpos) {
+                    promoters_list_[LEADING].emplace(first, rcpos, dist, true);
+                }
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+21]
+        for (int32_t cpos = pos_1; cpos < pos_2+21; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            int8_t dist = is_promoter_lagging(rcpos);
+            if (dist <= 4) {
+                auto& strand = promoters_list_[LAGGING];
+
+                auto first = find_if(strand.begin(),
+                                     strand.end(),
+                                     [rcpos](promoterStruct& r) { return r.pos <= rcpos; });
+
+                if (first == strand.end() or first->pos != rcpos) {
+                    promoters_list_[LAGGING].emplace(first, rcpos, dist, false);
+                }
+            }
+        }
+
+        // 2. Within RNA, search terminator + update terminator position + delete all Protein on RNA
+        // LEAD : within [pos_1-10,pos_2]
+        Dna_SIMD* dna = indiv_->dna_;
+        for (int32_t cpos = pos_1-10; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            int8_t term_dist_leading = 0;
+
+            for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
+
+                term_dist_leading +=
+                        dna->get_lead(rcpos + t_motif_id) !=
+                        dna->get_lead(rcpos - t_motif_id + 10)
+                        ? 1 : 0;
+            }
+
+            if (term_dist_leading == 4) {
+                for (auto rna : rnas_) {
+                    if (rna->begin < rna->end) {
+                        if (rna->begin + 22 < rcpos && rna->end > rcpos) {
+                            rna->end = rcpos;
+
+                            rna->length = rna->end - rna->begin - 11;
+
+                            rna->to_recompute = true;
+                        }
+                    } else {
+                        if ((rna->begin + 22  < rcpos) || (rna->end > rcpos)) {
+                            rna->end = rcpos;
+
+                            rna->length = dna->length() - rna->begin + rna->end;
+
+                            rna->to_recompute = true;
+                        }
+                    }
+
+                    // TODO: Delete all prot on RNA if to_recompute + add RNA list for each protein
+                }
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+10]
+        for (int32_t cpos = pos_1-10; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            int8_t term_dist_lagging = 0;
+
+            for (int32_t t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
+                term_dist_lagging +=
+                        dna->get_lag(rcpos - t_motif_id) !=
+                        dna->get_lag(rcpos + t_motif_id - 10)
+                        ? 1 : 0;
+            }
+
+            if (term_dist_lagging == 4) {
+                for (auto rna : rnas_) {
+                    if (rna->begin > rna->end) {
+                        if (rna->begin - 22 > rcpos && rna->end < rcpos) {
+                            rna->end = rcpos;
+
+                            rna->length =  rna->begin - rna->end - 21;
+
+                            rna->to_recompute = true;
+                        }
+                    } else {
+                        if ((rna->begin - 22  > rcpos) || (rna->end < rcpos)) {
+                            rna->end = rcpos;
+
+                            rna->length = dna->length() + rna->begin - rna->end;
+
+                            rna->to_recompute = true;
+                        }
+                    }
+
+                    // TODO: Delete all prot on RNA if to_recompute + add RNA list for each protein
+                }
+            }
+        }
+
+        // 3. Within RNA, search for ShineDal+START codon + add Protein to recompute
+        // LEAD : within [pos_1-12,pos_2]
+        for (int32_t cpos = pos_1-12; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            bool start = false;
+            int32_t k_t;
+
+            for (int32_t k = 0; k < 9; k++) {
+                k_t = k >= 6 ? k + 4 : k;
+
+                if (dna->get_lead(rcpos + k_t) == SHINE_DAL_SEQ_LEAD[k]) {
+                    start = true;
+                } else {
+                    start = false;
+                    break;
+                }
+            }
+
+            if (start) {
+                int32_t glob_prot_idx = -1;
+                for (auto rna : rnas_) {
+                    if (rna->begin < rna->end) {
+                        if (rna->begin + 22 < rcpos && rna->end > rcpos) {
+                            glob_prot_idx = proteins_count();
+                            set_proteins_count(proteins_count() + 1);
+
+                            protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
+                                                                    rna->leading_lagging,
+                                                                    rna->e
+                            ));
+                        }
+                    } else {
+                        if (rna->begin + 22 < rcpos || rna->end > rcpos) {
+                            glob_prot_idx = proteins_count();
+                            set_proteins_count(proteins_count() + 1);
+
+                            protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
+                                                                    rna->leading_lagging,
+                                                                    rna->e
+                            ));
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+12]
+        for (int32_t cpos = pos_1; cpos <= pos_2+12; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            bool start = false;
+            int32_t k_t;
+
+            for (int k = 0; k < 9; k++) {
+                k_t = k >= 6 ? k + 4 : k;
+
+                if (dna->get_lag(rcpos - k_t) == SHINE_DAL_SEQ_LAG[k]) {
+                    start = true;
+                } else {
+                    start = false;
+                    break;
+                }
+            }
+
+            if (start) {
+                int32_t glob_prot_idx = -1;
+                for (auto rna : rnas_) {
+                    if (rna->begin > rna->end) {
+                        if (rna->begin - 22 > rcpos && rna->end < rcpos) {
+                            glob_prot_idx = proteins_count();
+                            set_proteins_count(proteins_count() + 1);
+
+                            protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
+                                                                    rna->leading_lagging,
+                                                                    rna->e
+                            ));
+                        }
+                    } else {
+                        if ((rna->begin - 22  > rcpos) || (rna->end < rcpos)) {
+                            glob_prot_idx = proteins_count();
+                            set_proteins_count(proteins_count() + 1);
+
+                            protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
+                                                                    rna->leading_lagging,
+                                                                    rna->e
+                            ));
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // 4. Within Protein, search for STOP codon + update Protein STOP position + mark as to retranslate
+        // LEAD : within [pos_1-3,pos_2]
+        for (int32_t cpos = pos_1-3; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            bool is_protein = false;
+
+            for (int k = 0; k < 3; k++) {
+                if (dna->get_lead(rcpos + k) ==
+                    PROTEIN_END_LEAD[k]) {
+                    is_protein = true;
+                } else {
+                    is_protein = false;
+                    break;
+                }
+            }
+
+            if (is_protein) {
+                for (auto prot : proteins_) {
+                    if (prot->protein_start < prot->protein_end) {
+                        if (prot->protein_start + 13 < rcpos && prot->protein_end > rcpos) {
+                            prot->protein_end = rcpos;
+                            prot->protein_length = prot->protein_end - (prot->protein_start + 13);
+                            prot->to_retranslate = true;
+                        }
+                    } else {
+                        if (prot->protein_start + 13 < rcpos || prot->protein_end > rcpos) {
+                            prot->protein_end = rcpos;
+                            prot->protein_length = dna->length() - (prot->protein_start + 13) + prot->protein_end;
+                            prot->to_retranslate = true;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        // LAG  : within [pos_1,pos_2+3]
+        for (int32_t cpos = pos_1-3; cpos <= pos_2; cpos++) {
+            int32_t rcpos = Utils::mod(cpos,length());
+            bool is_protein = false;
+
+            for (int k = 0; k < 3; k++) {
+                if (dna->get_lag(rcpos - k) == PROTEIN_END_LAG[k]) {
+                    is_protein = true;
+                } else {
+                    is_protein = false;
+                    break;
+                }
+            }
+
+            if (is_protein) {
+                for (auto prot : proteins_) {
+                    if (prot->protein_start > prot->protein_end) {
+                        if (prot->protein_start - 13 > rcpos && prot->protein_end < rcpos) {
+                            prot->protein_end = rcpos;
+                            prot->protein_length = (prot->protein_start - 13) - prot->protein_end;
+                            prot->to_retranslate = true;
+                        }
+                    } else {
+                        if (prot->protein_start - 13 > rcpos || prot->protein_end < rcpos) {
+                            prot->protein_end = rcpos;
+                            prot->protein_length = (prot->protein_start - 13) +
+                                                   dna->length() - prot->protein_end;
+                            prot->to_retranslate = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void SIMD_List_Metadata::update_metadata() {
+        // 0. Cleanup Promoter/Rna/Protein mark as to delete
+        cleanup();
+
+        // 1. Compute new promoter
+        compute_promoters();
+
+        // 2. Recompute RNA mark as to_recompute
+        recompute_rna();
+
+        // 3. Recompute Protein mark as to_recompute
+        recompute_proteins();
+
+        // 4. Retranslate Protein mark as to_retranslate
+        retranslate_proteins();
+
+        // 5. If the proteome change (at least one new protein or a protein has changed), recompute phenotype+fitness
+        //if (recompute_phenotype)
+    }
+
+
+    void SIMD_List_Metadata::cleanup() {
+        // 1. Promoters
+        for (auto &strand: promoters_list_)
+            for (auto it = strand.begin(), nextit = it; it != strand.end(); it = nextit) {
+                nextit = next(it);
+                if ((*it).to_delete) strand.erase(it);
+            }
+
+        // 2. RNA
+        for (std::list<pRNA*>::iterator it_rna = rnas_.begin(); it_rna != rnas_.end(); it_rna++) {
+            if ((*(it_rna))->to_delete) delete (*(it_rna));
+        }
+
+        // 3. Proteins
+        for (std::list<pProtein*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
+            if ((*(it_protein))->to_delete) delete (*(it_protein));
+        }
+    }
+
+    void SIMD_List_Metadata::compute_promoters() {
+        Dna_SIMD* dna = indiv_->dna_;
+        for (auto &strand: promoters_list_)
+            for (auto &prom: strand) {
+                if (prom.to_compute) {
+                    recompute_phenotype = true;
+
+                    if (prom.leading_or_lagging) {
+                        /* Search for terminators */
+                        int cur_pos =
+                                prom.pos + 22;
+                        cur_pos = cur_pos >= dna->length() ? cur_pos - dna->length() : cur_pos;
+                        int start_pos = cur_pos;
+
+                        bool terminator_found = false;
+                        bool no_terminator = false;
+                        int term_dist_leading = 0;
+
+                        int loop_size = 0;
+
+                        while (!terminator_found) {
+                            loop_size++;
+                            for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
+
+                                term_dist_leading +=
+                                        dna->get_lead(cur_pos + t_motif_id) !=
+                                        dna->get_lead(cur_pos - t_motif_id + 10)
+                                        ? 1 : 0;
+                            }
+
+                            if (term_dist_leading == 4) {
+                                terminator_found = true;
+                            } else {
+                                cur_pos = cur_pos + 1 >= dna->length() ? cur_pos + 1 - dna->length() : cur_pos + 1;
+
+                                term_dist_leading = 0;
+                                if (cur_pos == start_pos) {
+                                    no_terminator = true;
+                                    terminator_found = true;
+                                }
+                            }
+                        }
+
+                        if (!no_terminator) {
+
+                            int32_t rna_end = cur_pos;
+
+                            int32_t rna_length = 0;
+
+                            if (prom.pos
+                                > rna_end)
+                                rna_length = dna->length() - prom.pos
+                                             + rna_end;
+                            else
+                                rna_length = rna_end - prom.pos;
+
+                            rna_length -= 11;
+
+                            if (rna_length > 0) {
+
+
+                                int glob_rna_idx = -1;
+                                glob_rna_idx = rna_count_++;
+                                rna_add(glob_rna_idx, new pRNA(
+                                        prom.pos,
+                                        rna_end,
+                                        !prom.leading_or_lagging,
+                                        1.0 -
+                                        prom.error /
+                                        5.0, rna_length));
+                            }
+                        }
+                    } else {
+                        /* Search for terminator */
+                        int cur_pos =
+                                prom.pos - 22;
+                        cur_pos =
+                                cur_pos < 0 ? dna->length() + (cur_pos) : cur_pos;
+                        int start_pos = cur_pos;
+                        bool terminator_found = false;
+                        bool no_terminator = false;
+                        int term_dist_lagging = 0;
+
+                        int loop_size = 0;
+
+                        while (!terminator_found) {
+                            for (int32_t t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
+                                term_dist_lagging +=
+                                        dna->get_lag(cur_pos - t_motif_id) !=
+                                        dna->get_lag(cur_pos + t_motif_id - 10)
+                                        ? 1 : 0;
+                            }
+
+                            if (term_dist_lagging == 4)
+                                terminator_found = true;
+                            else {
+                                cur_pos =
+                                        cur_pos - 1 < 0 ? dna->length() + (cur_pos - 1)
+                                                        : cur_pos - 1;
+                                term_dist_lagging = 0;
+                                if (cur_pos == start_pos) {
+                                    no_terminator = true;
+                                    terminator_found = true;
+                                }
+                            }
+                            loop_size++;
+                        }
+
+                        if (!no_terminator) {
+                            int32_t rna_end =
+                                    cur_pos - 10 < 0 ? dna->length() + (cur_pos - 10) :
+                                    cur_pos -
+                                    10;
+
+                            int32_t rna_length = 0;
+
+                            if (prom.pos < rna_end)
+                                rna_length = prom.pos + dna->length() - rna_end;
+                            else
+                                rna_length = prom.pos - rna_end;
+
+                            rna_length -= 21;
+
+                            if (rna_length >= 0) {
+                                int glob_rna_idx = -1;
+                                glob_rna_idx = rna_count_++;
+
+
+                                rna_add(glob_rna_idx, new pRNA(
+                                        prom.pos,
+                                        rna_end,
+                                        !prom.leading_or_lagging,
+                                        1.0 -
+                                        prom.error /
+                                        5.0, rna_length));
+                            }
+
+                        }
+                    }
+                }
+            }
+    }
+
+    void SIMD_List_Metadata::recompute_rna() {
+        for (auto rna : rnas_) {
+            if (rna->to_recompute) {
+                recompute_phenotype = true;
+
+                // Search for proteins ShineDal+START codon
+            }
+        }
+    }
+
+    void SIMD_List_Metadata::recompute_proteins() {
+        for (auto prot : proteins_) {
+            if (prot->to_recompute) {
+                recompute_phenotype = true;
+
+                // Search for proteins STOP codon
+            }
+        }
+    }
+
+    void SIMD_List_Metadata::retranslate_proteins() {
+        for (auto prot : proteins_) {
+            if (prot->to_retranslate) {
+                recompute_phenotype = true;
+
+                // Translate protein to h,w,m
+            }
+        }
+    }
+
     promoterStruct *SIMD_List_Metadata::promoters(int idx) {
         //for (int i = 0; i <= idx; i++)
         if (idx >= promoters_list_[LEADING].size()) {

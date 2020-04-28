@@ -20,6 +20,12 @@ class Dna;
 class Internal_SIMD_Struct;
 class SIMD_DnaFactory;
 
+    enum UpdateMetadataFlavor {
+        FULLSEARCH     = 0,
+        OPTPROMSEARCH  = 1,
+        UPDATEONLY   = 2
+    };
+
 class Dna_SIMD {
  public:
     Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory);
@@ -120,6 +126,8 @@ class Dna_SIMD {
     int32_t nb_blocks_;
     Internal_SIMD_Struct* indiv_;
     SIMD_DnaFactory* dna_factory_;
+
+    static int update_flavor_ = UPDATEONLY;
 
 };
 

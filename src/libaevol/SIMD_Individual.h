@@ -53,6 +53,8 @@ class promoterStruct {
     int32_t pos = -1;
     int8_t error = -1;
     bool leading_or_lagging; // TRUE = leading / FALSE = lagging
+    bool to_compute = true;
+    bool to_delete = false;
 };
 
 class pRNA {
@@ -83,6 +85,9 @@ class pRNA {
     bool is_coding_;
 
     bool is_init_ = false;
+
+    bool to_delete = false;
+    bool to_recompute = true;
 };
 
 class pProtein {
@@ -100,6 +105,12 @@ class pProtein {
       is_init_ = true;
     }
 
+    bool operator<(const pProtein & other){
+        return (h <  other.h)
+               || (h == other.h && m < other.m)
+               || (h == other.h && m == other.m && w < other.w);
+    }
+
     int32_t protein_start;
     int32_t protein_end;
     int32_t protein_length;
@@ -111,6 +122,11 @@ class pProtein {
     bool is_functional;
 
     bool is_init_ = false;
+
+    bool to_delete = false;
+    bool to_recompute = true;
+    bool to_retranslate = true;
+
 };
 
 class Internal_SIMD_Struct : public Observable {

@@ -203,6 +203,20 @@ namespace aevol {
                                                         int32_t pos_2,
                                                         std::list<promoterStruct*>& extracted_promoters) override;
 
+        void update_range(int32_t begin, int32_t end) override;
+        void update_range(int32_t pos) override;
+        void remove_range(int32_t begin, int32_t end) override;
+        void remove_range(int32_t pos) override;
+
+
+        void cleanup() override;
+        void compute_promoters() override;
+        void recompute_rna() override;
+        void recompute_proteins() override;
+        void retranslate_proteins() override;
+
+        void update_metadata() override;
+        void update_metadata_before_new_generation() override;
 
         SIMD_Promoters2Strands promoters_list_ = {{},
                                                   {}};
@@ -224,6 +238,8 @@ namespace aevol {
         int cmp_rna = 0;
 
         Internal_SIMD_Struct* indiv_;
+
+        bool recompute_phenotype = true;
     };
 }
 

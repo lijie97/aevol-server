@@ -533,7 +533,7 @@ namespace aevol {
         virtual pProtein* protein_next() = 0;
         virtual void protein_begin() = 0;
         virtual bool protein_end() = 0;
-        /** Search and update **/
+        /** Search and update promoters **/
         virtual void remove_promoters_around(int32_t pos_1) = 0;
         virtual void remove_promoters_around(int32_t pos_1, int32_t pos_2) = 0;
         virtual void remove_all_promoters() = 0;
@@ -598,6 +598,19 @@ namespace aevol {
                                                         int32_t pos_2,
                                                         std::list<promoterStruct*>& extracted_promoters) = 0;
 
+        virtual void update_range(int32_t begin, int32_t end) = 0;
+        virtual void update_range(int32_t pos) = 0;
+        virtual void remove_range(int32_t begin, int32_t end) = 0;
+        virtual void remove_range(int32_t pos) = 0;
+
+        virtual void cleanup() = 0;
+        virtual void compute_promoters() = 0;
+        virtual void recompute_rna() = 0;
+        virtual void recompute_proteins() = 0;
+        virtual void retranslate_proteins() = 0;
+
+        virtual void update_metadata() = 0;
+        virtual void update_metadata_before_new_generation() = 0;
 
         int32_t length() { return indiv_->dna_->length(); };
 
