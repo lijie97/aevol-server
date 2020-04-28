@@ -118,6 +118,7 @@ class Protein
     void  add_RNA(Rna * rna);
     char* AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
     virtual void  save(gzFile backup_file);
+    bool operator<(const Protein & other);
 
     // =================================================================
     //                           Public Attributes

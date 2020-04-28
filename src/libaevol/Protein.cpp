@@ -757,6 +757,15 @@ void Protein::save(gzFile backup_file)
 }
 
 // =================================================================
+//                        Overloaded Operators
+// =================================================================
+    bool Protein::operator<(const Protein & other){
+      return (height_ <  other.height_)
+             || (height_ == other.height_ && mean_ < other.mean_)
+             || (height_ == other.height_ && mean_ == other.mean_ && width_ < other.width_);
+    }
+
+// =================================================================
 //                           Protected Methods
 // =================================================================
 
