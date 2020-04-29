@@ -925,7 +925,7 @@ int main(int argc, char* argv[]) {
 
 
       // Evaluate the mutant, compute its statistics
-      mutant->Reevaluate();
+      mutant->ReevaluateInContext(initial_indiv->habitat()); //mutant->Reevaluate();
       mutant->compute_statistical_data();
       mutant->compute_non_coding();
 
