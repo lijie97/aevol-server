@@ -3686,6 +3686,7 @@ void GeneticUnit::compute_nb_of_affected_genes(const Mutation* mut,
       pos2 = Utils::mod(dupl->pos2() - 1, genlen);
       pos0 = dupl->pos3();
       mutlength = dupl->length();
+      break;
     }
     case DEL : {
       const auto& del = dynamic_cast<const Deletion*>(mut);
