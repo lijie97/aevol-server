@@ -207,7 +207,6 @@ namespace aevol {
 
             // Insert the promoters in the individual's RNA list
             for (auto& to_insert: promoters_to_insert[strand])
-                // TODO vld: could be compacted in a unique emplace(pos, to_insert) ?
                 if (pos != promoters_list_[strand].end()) {
                     promoters_list_[strand].insert(pos, *to_insert);
                 }
@@ -572,7 +571,7 @@ namespace aevol {
         int8_t dist;
 
         auto& strand = promoters_list_[LEADING];
-        auto first = strand.begin(); // TODO vld: should it not be reset at each loop step?
+        auto first = strand.begin();
 
         for (int32_t i = 0; i < pos; i++) {
             dist = is_promoter_leading(i);
@@ -808,8 +807,9 @@ namespace aevol {
             prot->to_recompute = false;
             prot->to_retranslate = false;
             prot->to_delete = false;
-
         }
+
+        recompute_phenotype = false;
     }
 
     void SIMD_List_Metadata::remove_range(int32_t pos) {
@@ -944,6 +944,8 @@ namespace aevol {
     }
 
     void SIMD_List_Metadata::update_range(int32_t pos_1, int32_t pos_2) {
+        assert(indiv_ != nullptr);
+
         // 1. Search promoter + mark as to compute
         // LEAD : within [pos_1-21,pos_2]
         for (int32_t cpos = pos_1-21; cpos <= pos_2; cpos++) {
@@ -1015,7 +1017,15 @@ namespace aevol {
                         }
                     }
 
-                    // TODO: Delete all prot on RNA if to_recompute + add RNA list for each protein
+                    for (auto prot : proteins_) {
+                        for (auto rna2 : prot->rna_list_) {
+                            if (rna2 == rna) {
+                                prot->rna_list_.remove(rna);
+                                if (prot->rna_list_.empty())
+                                    prot->to_delete = true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1052,7 +1062,15 @@ namespace aevol {
                         }
                     }
 
-                    // TODO: Delete all prot on RNA if to_recompute + add RNA list for each protein
+                    for (auto prot : proteins_) {
+                        for (auto rna2 : prot->rna_list_) {
+                            if (rna2 == rna) {
+                                prot->rna_list_.remove(rna);
+                                if (prot->rna_list_.empty())
+                                    prot->to_delete = true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1085,7 +1103,7 @@ namespace aevol {
 
                             protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
                                                                     rna->leading_lagging,
-                                                                    rna->e
+                                                                    rna->e,rna,false
                             ));
                         }
                     } else {
@@ -1095,7 +1113,7 @@ namespace aevol {
 
                             protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
                                                                     rna->leading_lagging,
-                                                                    rna->e
+                                                                    rna->e,rna,false
                             ));
                         }
                     }
@@ -1131,7 +1149,7 @@ namespace aevol {
 
                             protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
                                                                     rna->leading_lagging,
-                                                                    rna->e
+                                                                    rna->e,rna,false
                             ));
                         }
                     } else {
@@ -1141,7 +1159,7 @@ namespace aevol {
 
                             protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
                                                                     rna->leading_lagging,
-                                                                    rna->e
+                                                                    rna->e,rna,false
                             ));
                         }
                     }
@@ -1172,12 +1190,14 @@ namespace aevol {
                         if (prot->protein_start + 13 < rcpos && prot->protein_end > rcpos) {
                             prot->protein_end = rcpos;
                             prot->protein_length = prot->protein_end - (prot->protein_start + 13);
+                            prot->is_init_ = true;
                             prot->to_retranslate = true;
                         }
                     } else {
                         if (prot->protein_start + 13 < rcpos || prot->protein_end > rcpos) {
                             prot->protein_end = rcpos;
                             prot->protein_length = dna->length() - (prot->protein_start + 13) + prot->protein_end;
+                            prot->is_init_ = true;
                             prot->to_retranslate = true;
                         }
                     }
@@ -1207,6 +1227,7 @@ namespace aevol {
                             prot->protein_end = rcpos;
                             prot->protein_length = (prot->protein_start - 13) - prot->protein_end;
                             prot->to_retranslate = true;
+                            prot->is_init_ = true;
                         }
                     } else {
                         if (prot->protein_start - 13 > rcpos || prot->protein_end < rcpos) {
@@ -1214,6 +1235,7 @@ namespace aevol {
                             prot->protein_length = (prot->protein_start - 13) +
                                                    dna->length() - prot->protein_end;
                             prot->to_retranslate = true;
+                            prot->is_init_ = true;
                         }
                     }
                 }
@@ -1405,31 +1427,524 @@ namespace aevol {
     }
 
     void SIMD_List_Metadata::recompute_rna() {
+        Dna_SIMD* dna = indiv_->dna_;
+        int32_t dna_length = length();
+
         for (auto rna : rnas_) {
             if (rna->to_recompute) {
+                rna->reset();
+
                 recompute_phenotype = true;
 
-                // Search for proteins ShineDal+START codon
+                if (rna->is_init_) {
+                    int c_pos = rna->begin;
+
+                    if (rna->length >= 22) {
+                        if (rna->leading_lagging ==
+                            0) {
+                            c_pos += 22;
+                            c_pos = c_pos >= dna_length ? c_pos - dna_length : c_pos;
+                        } else {
+                            c_pos -= 22;
+                            c_pos = c_pos < 0 ? ((int) dna_length) + c_pos : c_pos;
+                        }
+
+                        while (c_pos != rna->end) {
+                            bool start = false;
+                            int k_t;
+
+                            if (rna->leading_lagging == 0) {
+                                // Search for Shine Dalgarro + START codon on LEADING
+                                for (int k = 0; k < 9; k++) {
+                                    k_t = k >= 6 ? k + 4 : k;
+
+                                    if (dna->get_lead(c_pos + k_t) == SHINE_DAL_SEQ_LEAD[k]) {
+                                        start = true;
+                                    } else {
+                                        start = false;
+                                        break;
+                                    }
+
+                                }
+                            } else {
+                                // Search for Shine Dalgarro + START codon on LAGGING
+                                for (int k = 0; k < 9; k++) {
+                                    k_t = k >= 6 ? k + 4 : k;
+
+                                    if (dna->get_lag(c_pos - k_t) == SHINE_DAL_SEQ_LAG[k]) {
+                                        start = true;
+                                    } else {
+                                        start = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (start) {
+                                int32_t glob_prot_idx = proteins_count();
+                                set_proteins_count(proteins_count() + 1);
+
+                                protein_add(glob_prot_idx, new pProtein(c_pos, -1, -1,
+                                                                        rna->leading_lagging,
+                                                                        rna->e,rna,false
+                                ));
+                            }
+
+                            if (rna->leading_lagging ==
+                                0) {
+                                c_pos++;
+                                c_pos =
+                                        c_pos >= dna_length ? c_pos - dna_length
+                                                            : c_pos;
+                            } else {
+                                c_pos--;
+                                c_pos = c_pos < 0 ? dna_length + c_pos : c_pos;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
     void SIMD_List_Metadata::recompute_proteins() {
+        Dna_SIMD* dna = indiv_->dna_;
+        int32_t dna_length = length();
+
         for (auto prot : proteins_) {
             if (prot->to_recompute) {
                 recompute_phenotype = true;
 
+                pRNA* rna = prot->rna_list_.front();
+
                 // Search for proteins STOP codon
+                int start_prot = prot->protein_start;
+                int start_protein_pos = rna->leading_lagging == 0 ?
+                                        start_prot +
+                                        13 :
+                                        start_prot -
+                                        13;
+                int length;
+
+                if (rna->leading_lagging == 0) {
+                    start_protein_pos = start_protein_pos >= dna_length ?
+                                        start_protein_pos - dna_length
+                                                                        : start_protein_pos;
+
+                    if (start_prot < rna->end) {
+                        length = rna->end - start_prot;
+                    } else {
+                        length = dna_length -
+                                 start_prot +
+                                 rna->end;
+
+                    }
+
+                    length -= 13;
+                } else {
+
+
+                    start_protein_pos = start_protein_pos < 0 ?
+                                        dna_length + start_protein_pos
+                                                              : start_protein_pos;
+
+                    if (start_prot > rna->end) {
+                        length = start_prot - rna->end;
+                    } else {
+                        length = start_prot +
+                                 dna_length -
+                                 rna->end;
+                    }
+
+                    length -= 13;
+                }
+
+                bool is_protein = false;
+
+                length += 1;
+                length = length - (length % 3);
+
+                int j = 0;
+                int32_t transcribed_start = 0;
+
+                if (rna->leading_lagging == 0) {
+                    transcribed_start = rna->begin + 22;
+                    transcribed_start = transcribed_start >= dna_length ?
+                                        transcribed_start - dna_length
+                                                                        : transcribed_start;
+
+                    if (transcribed_start <= start_prot) {
+                        j = start_prot - transcribed_start;
+                    } else {
+                        j = dna_length -
+                            transcribed_start +
+                            start_prot;
+
+                    }
+                } else {
+                    transcribed_start = rna->begin - 22;
+                    transcribed_start = transcribed_start < 0 ?
+                                        dna_length + transcribed_start
+                                                              : transcribed_start;
+
+                    if (transcribed_start >=
+                        start_prot) {
+                        j = transcribed_start -
+                            start_prot;
+                    } else {
+                        j = transcribed_start +
+                            dna_length - start_prot;
+                    }
+                }
+
+                j += 13;
+
+                while (rna->length - j >= 3) {
+
+                    int t_k;
+
+                    if (rna->leading_lagging == 0) {
+                        start_protein_pos =
+                                start_protein_pos >= dna_length ?
+                                start_protein_pos - dna_length
+                                                                : start_protein_pos;
+
+                        is_protein = false;
+
+                        for (int k = 0; k < 3; k++) {
+                            t_k = start_protein_pos + k;
+
+                            if (dna->get_lead(t_k) ==
+                                PROTEIN_END_LEAD[k]) {
+                                is_protein = true;
+                            } else {
+                                is_protein = false;
+                                break;
+                            }
+                        }
+
+                        if (is_protein) {
+                            int prot_length = -1;
+
+                            if (start_prot + 13 < t_k) {
+                                prot_length = t_k -
+                                              (start_prot +
+                                               13);
+                            } else {
+                                prot_length = dna_length -
+                                              (start_prot +
+                                               13) + t_k;
+                            }
+
+                            if (prot_length >= 3) {
+                                prot->protein_length = prot_length;
+                                prot->protein_end = t_k;
+
+                                prot->is_init_ = true;
+                                rna->is_coding_ = true;
+                            }
+
+                            break;
+                        }
+
+                        start_protein_pos += 3;
+                        start_protein_pos =
+                                start_protein_pos >= dna_length ?
+                                start_protein_pos - dna_length
+                                                                : start_protein_pos;
+                    } else {
+
+
+                        start_protein_pos = start_protein_pos < 0 ?
+                                            dna_length + start_protein_pos
+                                                                  : start_protein_pos;
+
+                        is_protein = false;
+                        for (int k = 0; k < 3; k++) {
+                            t_k = start_protein_pos - k;
+
+                            if (dna->get_lag(t_k) ==
+                                PROTEIN_END_LAG[k]) {
+                                is_protein = true;
+                            } else {
+                                is_protein = false;
+                                break;
+                            }
+                        }
+
+                        if (is_protein) {
+                            int prot_length = -1;
+                            if (start_prot - 13 > t_k) {
+                                prot_length =
+                                        (start_prot - 13) -
+                                        t_k;
+                            } else {
+                                prot_length =
+                                        (start_prot - 13) +
+                                        dna_length - t_k;
+                            }
+                            if (prot_length >= 3) {
+                                prot->protein_length = prot_length;
+                                prot->protein_end = t_k;
+
+                                prot->is_init_ = true;
+                                rna->is_coding_ = true;
+                            }
+                            break;
+                        }
+                        start_protein_pos = start_protein_pos - 3;
+                        start_protein_pos = start_protein_pos < 0 ?
+                                            dna_length + start_protein_pos
+                                                                  : start_protein_pos;
+                    }
+                    j += 3;
+                }
             }
         }
     }
 
     void SIMD_List_Metadata::retranslate_proteins() {
+        std::map<int32_t, pProtein *> lookup;
+
         for (auto prot : proteins_) {
-            if (prot->to_retranslate) {
+            if (prot->is_init_) {
+                if (lookup.find(prot->protein_start) == lookup.end()) {
+                    lookup[prot->protein_start] = prot;
+                } else {
+                    lookup[prot->protein_start]->e += prot->e;
+
+                    for (auto rna : prot->rna_list_)
+                        lookup[prot->protein_start]->rna_list_.push_back(rna);
+
+                    prot->is_init_ = false;
+                }
+            }
+        }
+
+
+        Dna_SIMD* dna = indiv_->dna_;
+        int32_t dna_length = length();
+
+        for (auto prot : proteins_) {
+            if (prot->to_retranslate && prot->is_init_) {
                 recompute_phenotype = true;
 
-                // Translate protein to h,w,m
+                if (prot->is_init_) {
+                    int c_pos = prot->protein_start, t_pos;
+                    int end_pos = prot->protein_end;
+                    if (prot->leading_lagging == 0) {
+                        c_pos += 13;
+                        end_pos -= 3;
+
+                        c_pos = c_pos >= dna_length ? c_pos - dna_length : c_pos;
+                        end_pos = end_pos < 0 ? dna_length + end_pos : end_pos;
+                    } else {
+                        c_pos -= 13;
+                        end_pos += 3;
+
+                        end_pos = end_pos >= dna_length ? end_pos - dna_length : end_pos;
+                        c_pos = c_pos < 0 ? dna_length + c_pos : c_pos;
+                    }
+
+                    int8_t value = 0;
+                    int8_t codon_list[64] = {};
+                    int8_t codon_idx = 0;
+                    int32_t count_loop = 0;
+
+                    if (prot->leading_lagging == 0) {
+                        // LEADING
+
+                        while (count_loop < prot->protein_length / 3 && codon_idx < 64) {
+                            value = 0;
+                            for (int8_t i = 0; i < 3; i++) {
+                                t_pos = c_pos + i;
+                                if (dna->get_lead(t_pos) == '1')
+                                    value += 1 << (CODON_SIZE - i - 1);
+                            }
+                            codon_list[codon_idx] = value;
+
+                            codon_idx++;
+
+                            count_loop++;
+                            c_pos += 3;
+                            c_pos = c_pos >= dna_length ? c_pos - dna_length : c_pos;
+                        }
+                    } else {
+                        // LAGGING
+                        while (count_loop < prot->protein_length / 3 && codon_idx < 64) {
+                            value = 0;
+                            for (int8_t i = 0; i < 3; i++) {
+                                t_pos = c_pos - i;
+                                if (dna->get_lag(t_pos) != '1')
+                                    value += 1 << (CODON_SIZE - i - 1);
+                            }
+                            codon_list[codon_idx] = value;
+                            codon_idx++;
+
+                            count_loop++;
+
+                            c_pos -= 3;
+                            c_pos = c_pos < 0 ? c_pos + dna_length : c_pos;
+                        }
+                    }
+
+                    double M = 0.0;
+                    double W = 0.0;
+                    double H = 0.0;
+
+                    int32_t nb_m = 0;
+                    int32_t nb_w = 0;
+                    int32_t nb_h = 0;
+
+                    bool bin_m = false; // Initializing to false will yield a conservation of the high weight bit
+                    bool bin_w = false; // when applying the XOR operator for the Gray to standard conversion
+                    bool bin_h = false;
+
+
+                    for (int i = 0; i < codon_idx; i++) {
+                        switch (codon_list[i]) {
+                            case CODON_M0 : {
+                                // M codon found
+                                nb_m++;
+
+                                // Convert Gray code to "standard" binary code
+                                bin_m ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                                //~ M <<= 1;
+                                M *= 2;
+
+                                // Add this nucleotide's contribution to M
+                                if (bin_m) M += 1;
+
+                                break;
+                            }
+                            case CODON_M1 : {
+                                // M codon found
+                                nb_m++;
+
+                                // Convert Gray code to "standard" binary code
+                                bin_m ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                                // A lower-than-the-previous-lowest bit was found, make a left bitwise shift
+                                //~ M <<= 1;
+                                M *= 2;
+
+                                // Add this nucleotide's contribution to M
+                                if (bin_m) M += 1;
+
+                                break;
+                            }
+                            case CODON_W0 : {
+                                // W codon found
+                                nb_w++;
+
+                                // Convert Gray code to "standard" binary code
+                                bin_w ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                                //~ W <<= 1;
+                                W *= 2;
+
+                                // Add this nucleotide's contribution to W
+                                if (bin_w) W += 1;
+
+                                break;
+                            }
+                            case CODON_W1 : {
+                                // W codon found
+                                nb_w++;
+
+                                // Convert Gray code to "standard" binary code
+                                bin_w ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                                //~ W <<= 1;
+                                W *= 2;
+
+                                // Add this nucleotide's contribution to W
+                                if (bin_w) W += 1;
+
+                                break;
+                            }
+                            case CODON_H0 :
+                            case CODON_START : // Start codon codes for the same amino-acid as H0 codon
+                            {
+                                // H codon found
+                                nb_h++;
+
+                                // Convert Gray code to "standard" binary code
+                                bin_h ^= false; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                                //~ H <<= 1;
+                                H *= 2;
+
+                                // Add this nucleotide's contribution to H
+                                if (bin_h) H += 1;
+
+                                break;
+                            }
+                            case CODON_H1 : {
+                                // H codon found
+                                nb_h++;
+
+                                // Convert Gray code to "standard" binary code
+                                bin_h ^= true; // as bin_m was initialized to false, the XOR will have no effect on the high weight bit
+
+                                // A lower-than-the-previous-lowest weight bit was found, make a left bitwise shift
+                                //~ H <<= 1;
+                                H *= 2;
+
+                                // Add this nucleotide's contribution to H
+                                if (bin_h) H += 1;
+
+                                break;
+                            }
+                        }
+                    }
+
+
+
+                    //  ----------------------------------------------------------------------------------
+                    //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
+                    //  ----------------------------------------------------------------------------------
+                    prot->m =
+                            nb_m != 0 ? M / (pow(2, nb_m) - 1) : 0.5;
+                    prot->w =
+                            nb_w != 0 ? W / (pow(2, nb_w) - 1) : 0.0;
+                    prot->h =
+                            nb_h != 0 ? H / (pow(2, nb_h) - 1) : 0.5;
+
+                    //  ------------------------------------------------------------------------------------
+                    //  3) Normalize M, W and H values according to the allowed ranges (defined in macros.h)
+                    //  ------------------------------------------------------------------------------------
+                    // x_min <= M <= x_max
+                    // w_min <= W <= w_max
+                    // h_min <= H <= h_max
+                    prot->m =
+                            (X_MAX - X_MIN) *
+                            prot->m +
+                            X_MIN;
+                    prot->w =
+                            (indiv_->w_max_ - W_MIN) *
+                            prot->w +
+                            W_MIN;
+                    prot->h =
+                            (H_MAX - H_MIN) *
+                            prot->h +
+                            H_MIN;
+
+                    if (nb_m == 0 || nb_w == 0 || nb_h == 0 ||
+                        prot->w ==
+                        0.0 ||
+                        prot->h ==
+                        0.0) {
+                        prot->is_functional = false;
+                    } else {
+                        prot->is_functional = true;
+                    }
+                }
             }
         }
     }

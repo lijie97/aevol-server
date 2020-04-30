@@ -120,14 +120,14 @@ class Dna_SIMD {
     int32_t nb_large_inv_= 0;
     int32_t nb_rear_= 0;
 
+    int8_t update_flavor_ = UPDATEONLY;
+        Internal_SIMD_Struct* indiv_;
  private:
 
     int32_t parent_length_;
     int32_t nb_blocks_;
-    Internal_SIMD_Struct* indiv_;
     SIMD_DnaFactory* dna_factory_;
 
-    static int update_flavor_ = UPDATEONLY;
 
 };
 

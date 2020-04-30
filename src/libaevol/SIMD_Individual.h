@@ -75,6 +75,7 @@ class pRNA {
     ~pRNA() {
     }
 
+    void reset() { start_prot.clear(); start_prot_count_ = 0; is_coding_ = false; }
     int32_t begin;
     int32_t end;
     int8_t leading_lagging; // 0 = leading, 1 = lagging
@@ -96,13 +97,14 @@ class pProtein {
     pProtein(int32_t t_protein_start,
       int32_t t_protein_end,
       int32_t t_protein_length,
-      int8_t t_leading_lagging, double t_e) {
+      int8_t t_leading_lagging, double t_e, pRNA* rna, bool is_init = true) {
       protein_start = t_protein_start;
       protein_end = t_protein_end;
       protein_length = t_protein_length;
       leading_lagging = t_leading_lagging;
       e = t_e;
-      is_init_ = true;
+      is_init_ = is_init;
+      rna_list_.push_back(rna);
     }
 
     bool operator<(const pProtein & other){
@@ -121,6 +123,8 @@ class pProtein {
     double e;
     bool is_functional;
 
+    std::list<pRNA*> rna_list_;
+
     bool is_init_ = false;
 
     bool to_delete = false;
@@ -137,6 +141,9 @@ class Internal_SIMD_Struct : public Observable {
 
     ~Internal_SIMD_Struct();
 
+
+    void set_metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata);
+    void set_metadata(Internal_SIMD_Struct* indiv);
     double phenotype[300];
     double delta[300];
     double fitness;

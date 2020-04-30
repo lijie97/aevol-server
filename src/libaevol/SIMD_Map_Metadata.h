@@ -13,9 +13,9 @@
 namespace aevol {
     class SIMD_Map_Metadata : public SIMD_Abstract_Metadata {
     public:
-        SIMD_Map_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) { count_promoters_ = 0; };
+        SIMD_Map_Metadata(Internal_SIMD_Struct* indiv) { count_promoters_ = 0; };
 
-        SIMD_Map_Metadata(Internal_SIMD_Struct* indiv, SIMD_Map_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
+        SIMD_Map_Metadata(Internal_SIMD_Struct* indiv, SIMD_Map_Metadata* metadata) {
             count_promoters_ = 0;
 
             for (const auto& prom : metadata->promoters_) {
@@ -211,6 +211,19 @@ namespace aevol {
                                                                 int32_t pos_2,
                                                                 std::list<promoterStruct*>& extracted_promoters) override;
 
+        void update_range(int32_t begin, int32_t end) {assert(true); exit(-1);}
+        void update_range(int32_t pos) {assert(true); exit(-1);}
+        void remove_range(int32_t begin, int32_t end) {assert(true); exit(-1);}
+        void remove_range(int32_t pos) {assert(true); exit(-1);}
+
+        void cleanup()  {assert(true); exit(-1);}
+        void compute_promoters() {assert(true); exit(-1);}
+        void recompute_rna()  {assert(true); exit(-1);}
+        void recompute_proteins() {assert(true); exit(-1);}
+        void retranslate_proteins() {assert(true); exit(-1);}
+
+        void update_metadata() {assert(true); exit(-1);}
+        void update_metadata_before_new_generation() {assert(true); exit(-1);}
 
         void rebuild_index() {
             if (count_promoters_ > (int)promoters_.size()/2) {
@@ -250,7 +263,6 @@ namespace aevol {
 
         int32_t count_promoters_;
         int32_t protein_count_ = 0;
-        Internal_SIMD_Struct* indiv_;
     };
 }
 

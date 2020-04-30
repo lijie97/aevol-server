@@ -110,6 +110,9 @@ void Dna_SIMD::set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
 
     parent_length_ = dna->length_;
     indiv_ = indiv;
+
+    assert(indiv_ != nullptr);
+
     dna_factory_ = indiv->dna_factory_;
 
 
@@ -786,6 +789,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
             }
         }
     } else if (update_flavor_ == UPDATEONLY) {
+        assert(indiv_->metadata_->indiv_ != nullptr);
         indiv_->metadata_->update_range(pos_3, pos_3+seg_length);
     }
 
@@ -1470,6 +1474,9 @@ void Dna_SIMD::apply_mutations_standalone() {
         printf("\n");*/
     //}
   do {
+      assert(indiv_->dna_ != nullptr);
+
+
       repl = indiv_->exp_m_->
               dna_mutator_array_[indiv_->indiv_id]->generate_next_mutation(length());
 

@@ -18,13 +18,15 @@ namespace aevol {
 
     class SIMD_Abstract_Metadata {
     public:
-        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata) {
-            indiv_ = indiv;
-        }
+        //virtual SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata)  = default; /*{
+            //assert (indiv_!= nullptr);
+            //indiv_ = indiv;
+        //}*/
 
-        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv) {
-            indiv_ = indiv;
-        }
+        //virtual SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv) = 0; /*{
+        //    assert (indiv_!= nullptr);
+        //    indiv_ = indiv;
+        //}*/
 
 
         virtual ~SIMD_Abstract_Metadata() {};
@@ -616,9 +618,14 @@ namespace aevol {
 
 
         int32_t rna_count_ = 0;
-    protected:
+
+
+        bool recompute_phenotype = true;
+
 
         Internal_SIMD_Struct* indiv_;
+    protected:
+
     };
 }
 

@@ -62,6 +62,8 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
         int y = indiv_id % exp_m_->world()->height();
 
         internal_simd_struct[indiv_id] = new Internal_SIMD_Struct(exp_m_, exp_m_->best_indiv()->w_max(),dna_factory_);
+        internal_simd_struct[indiv_id]->set_metadata(internal_simd_struct[indiv_id]);
+
         internal_simd_struct[indiv_id]->dna_ = dna_factory_->get_dna(exp_m->world()->grid(x, y)->individual()->genetic_unit_seq_length(0));
         internal_simd_struct[indiv_id]->dna_->set_indiv(exp_m->world()->grid(x, y)->individual()->genetic_unit(0).dna(),dna_factory_);
         internal_simd_struct[indiv_id]->indiv_id = indiv_id;
@@ -516,6 +518,12 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                         new Internal_SIMD_Struct(exp_m_,prev_internal_simd_struct
                         [next_generation_reproducer_[indiv_id]],dna_factory_);
 
+                internal_simd_struct[indiv_id]->set_metadata(internal_simd_struct[indiv_id],
+                                                             prev_internal_simd_struct
+                                                             [next_generation_reproducer_[indiv_id]]->metadata_);
+
+                assert(internal_simd_struct[indiv_id]->metadata_->indiv_ != nullptr);
+
                 internal_simd_struct[indiv_id]->global_id = AeTime::time()*1024+indiv_id;
                 internal_simd_struct[indiv_id]->indiv_id = indiv_id;
                 internal_simd_struct[indiv_id]->parent_id =
@@ -541,6 +549,8 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 #ifdef WITH_PERF_TRACES
                 auto t_start = std::chrono::steady_clock::now();
 #endif
+                assert(internal_simd_struct[indiv_id]->metadata_->indiv_ != nullptr);
+
                 if (standalone_)
                     internal_simd_struct[indiv_id]->dna_->apply_mutations_standalone();
                 else
@@ -1676,7 +1686,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                             start_prot, t_k,
                                             prot_length,
                                             rna->leading_lagging,
-                                            rna->e
+                                            rna->e,rna
                                     ));
 
 
@@ -1743,7 +1753,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                                 start_prot, t_k,
                                                 prot_length,
                                                 rna->leading_lagging,
-                                                rna->e
+                                                rna->e,rna
                                         ));
                                 rna->is_coding_ = true;
                             }
@@ -2002,7 +2012,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
             }
         }
 
-
+        // Merge into one protein duplicate from different Rna
         std::map<int32_t, pProtein *> lookup;
 
         internal_simd_struct[indiv_id]->metadata_->protein_begin();
@@ -2021,13 +2031,15 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                         lookup[prot->protein_start] = prot;
                     } else {
                         lookup[prot->protein_start]->e += prot->e;
+
+                        for (auto rna : prot->rna_list_)
+                            lookup[prot->protein_start]->rna_list_.push_back(rna);
+
                         prot->is_init_ = false;
                     }
                 }
             }
         }
-
-
     }
 
     void SIMD_Individual::compute_phenotype(int indiv_id) {
@@ -2228,6 +2240,11 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 16) {
             {
                 for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
+
+                    if (prev_internal_simd_struct[indiv_id]->dna_->update_flavor_ == UPDATEONLY) {
+                        prev_internal_simd_struct[indiv_id]->metadata_->update_metadata_before_new_generation();
+                    }
+
                     //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
                     if (standalone_ && optim_prom) {
                         selection(indiv_id);
@@ -2238,7 +2255,8 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
                     if (optim_prom) {
                         do_mutation(indiv_id);
-                        opt_prom_compute_RNA(indiv_id);
+                        if (internal_simd_struct[indiv_id]->dna_->update_flavor_ == OPTPROMSEARCH)
+                            opt_prom_compute_RNA(indiv_id);
                     } else {
                         int x = indiv_id / exp_m_->world()->height();
                         int y = indiv_id % exp_m_->world()->height();
@@ -2264,11 +2282,19 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                     }
 
                     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
-                        start_protein(indiv_id);
-                        compute_protein(indiv_id);
-                        translate_protein(indiv_id, w_max);
-                        compute_phenotype(indiv_id);
-                        compute_fitness(indiv_id, selection_pressure);
+                        if ((internal_simd_struct[indiv_id]->dna_->update_flavor_ == OPTPROMSEARCH) || !optim_prom) {
+                            start_protein(indiv_id);
+                            compute_protein(indiv_id);
+                            translate_protein(indiv_id, w_max);
+                            compute_phenotype(indiv_id);
+                            compute_fitness(indiv_id, selection_pressure);
+                        } else if (internal_simd_struct[indiv_id]->dna_->update_flavor_ == UPDATEONLY) {
+                            internal_simd_struct[indiv_id]->metadata_->update_metadata();
+                            if (internal_simd_struct[indiv_id]->metadata_->recompute_phenotype) {
+                                compute_phenotype(indiv_id);
+                                compute_fitness(indiv_id, selection_pressure);
+                            }
+                        }
                     }
 
                     if (standalone_ && optim_prom && exp_m_->record_tree()) {
@@ -3073,13 +3099,6 @@ void SIMD_Individual::check_result() {
         exp_m_ = exp_m;
         w_max_ = w_max;
 
-        if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
-            metadata_ = new SIMD_Map_Metadata(this);
-        else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
-            metadata_ = new SIMD_DynTab_Metadata(this);
-        else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
-            metadata_ = new SIMD_List_Metadata(this);
-
         dna_factory_ = dna_factory;
     }
 
@@ -3098,12 +3117,6 @@ Internal_SIMD_Struct::Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Stru
 
 
   //promoters.resize(clone->promoters.size());
-  if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
-      metadata_ = new SIMD_Map_Metadata(this,dynamic_cast<SIMD_Map_Metadata*>(clone->metadata_));
-  else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
-      metadata_ = new SIMD_DynTab_Metadata(this,dynamic_cast<SIMD_DynTab_Metadata*>(clone->metadata_));
-  else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
-      metadata_ = new SIMD_List_Metadata(this,dynamic_cast<SIMD_List_Metadata*>(clone->metadata_));
 
   fitness = clone->fitness;
   metaerror = clone->metaerror;
@@ -3121,6 +3134,24 @@ Internal_SIMD_Struct::~Internal_SIMD_Struct() {
 
   clearAllObserver();
 }
+
+void Internal_SIMD_Struct::set_metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata) {
+    if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+        metadata_ = new SIMD_Map_Metadata(indiv,dynamic_cast<SIMD_Map_Metadata*>(metadata));
+    else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+        metadata_ = new SIMD_DynTab_Metadata(indiv,dynamic_cast<SIMD_DynTab_Metadata*>(metadata));
+    else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+        metadata_ = new SIMD_List_Metadata(indiv,dynamic_cast<SIMD_List_Metadata*>(metadata));
+}
+
+    void Internal_SIMD_Struct::set_metadata(Internal_SIMD_Struct* indiv) {
+        if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+            metadata_ = new SIMD_Map_Metadata(indiv);
+        else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+            metadata_ = new SIMD_DynTab_Metadata(indiv);
+        else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+            metadata_ = new SIMD_List_Metadata(indiv);
+    }
 
 /**
  * We need some index for the promoter optimization

@@ -19,10 +19,10 @@ namespace aevol {
 
     class SIMD_List_Metadata  : public SIMD_Abstract_Metadata {
     public:
-        SIMD_List_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) { set_iterators(); };
+        SIMD_List_Metadata(Internal_SIMD_Struct* indiv) { indiv_ = indiv; set_iterators(); };
 
-        SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
-
+        SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata)  {
+            indiv_ = indiv;
             for (auto& strand: {LEADING, LAGGING}) {
                 for (auto& rna: metadata->promoters_list_[strand]) {
                     promoters_list_[strand].emplace_back(rna);
@@ -237,9 +237,6 @@ namespace aevol {
 
         int cmp_rna = 0;
 
-        Internal_SIMD_Struct* indiv_;
-
-        bool recompute_phenotype = true;
     };
 }
 

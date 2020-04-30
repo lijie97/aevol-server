@@ -18,7 +18,7 @@ namespace aevol {
 
     class SIMD_DynTab_Metadata : public SIMD_Abstract_Metadata {
     public:
-        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) {
+        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv)  {
             count_promoters_ = 0;
 
             nb_block_dyntab_ = 2;
@@ -30,7 +30,7 @@ namespace aevol {
                 promoters_[prom_idx] = nullptr;
         };
 
-        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv, SIMD_DynTab_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
+        SIMD_DynTab_Metadata(Internal_SIMD_Struct* indiv, SIMD_DynTab_Metadata* metadata)  {
             count_promoters_ = 0;
 
             nb_block_dyntab_ = ((metadata->promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
@@ -224,6 +224,20 @@ namespace aevol {
                                                                 int32_t pos_2,
                                                                 std::list<promoterStruct*>& extracted_promoters) override;
 
+
+        void update_range(int32_t begin, int32_t end) {assert(true); exit(-1);}
+        void update_range(int32_t pos) {assert(true); exit(-1);}
+        void remove_range(int32_t begin, int32_t end) {assert(true); exit(-1);}
+        void remove_range(int32_t pos) {assert(true); exit(-1);}
+
+        void cleanup()  {assert(true); exit(-1);}
+        void compute_promoters() {assert(true); exit(-1);}
+        void recompute_rna()  {assert(true); exit(-1);}
+        void recompute_proteins() {assert(true); exit(-1);}
+        void retranslate_proteins() {assert(true); exit(-1);}
+
+        void update_metadata() {assert(true); exit(-1);}
+        void update_metadata_before_new_generation() {assert(true); exit(-1);}
 
         void rebuild_index() {
 
