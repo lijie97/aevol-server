@@ -64,6 +64,16 @@ void DnaReplicationReport::clear() {
         ht_.clear();
         rearrangements_.clear();
         mutations_.clear();
+
+    nb_mut_[SWITCH] = 0;
+    nb_mut_[S_INS]  = 0;
+    nb_mut_[S_DEL]  = 0;
+    nb_mut_[DUPL]   = 0;
+    nb_mut_[DEL]    = 0;
+    nb_mut_[TRANS]  = 0;
+    nb_mut_[INV]    = 0;
+    nb_mut_[INS_HT] = 0;
+    nb_mut_[REPL_HT]= 0;
     }
 
 DnaReplicationReport::DnaReplicationReport(const DnaReplicationReport& other) {

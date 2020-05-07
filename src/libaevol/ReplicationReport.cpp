@@ -107,8 +107,8 @@ ReplicationReport::ReplicationReport(Individual* indiv,
 
 
 // Creates an independent copy of the original report
-ReplicationReport::ReplicationReport(const ReplicationReport& other) //:
-    //dna_replic_report_(other.dna_replic_report_)
+ReplicationReport::ReplicationReport(const ReplicationReport& other) :
+    dna_replic_report_(other.dna_replic_report_)
 {
   parent_id_  = other.parent_id_;
   donor_id_   = other.donor_id_;
@@ -151,9 +151,9 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
   gzread(tree_file, &nb_coding_RNAs_,      sizeof(nb_coding_RNAs_));
   gzread(tree_file, &nb_non_coding_RNAs_,  sizeof(nb_non_coding_RNAs_));
 
-  //dna_replic_report_.read_from_tree_file(tree_file);
+  dna_replic_report_.read_from_tree_file(tree_file);
 
-  //dna_replic_report_.compute_stats();
+  dna_replic_report_.compute_stats();
 
   parent_metabolic_error_ = -1;
   parent_secretion_error_ = -1;
@@ -207,6 +207,7 @@ void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* pare
 void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id,
                                 int parent_id)
 {
+        dna_replic_report_.clear();
 
       simd_indiv_ = offspring;
 
@@ -339,7 +340,7 @@ void ReplicationReport::signal_end_of_generation() {
 void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
-/*
+
   gzwrite(tree_file, &id_,         sizeof(id_));
 
     int32_t rankx = -1;
@@ -361,9 +362,9 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
   gzwrite(tree_file, &nb_non_fun_genes_,    sizeof(nb_non_fun_genes_));
   gzwrite(tree_file, &nb_coding_RNAs_,      sizeof(nb_coding_RNAs_));
   gzwrite(tree_file, &nb_non_coding_RNAs_,  sizeof(nb_non_coding_RNAs_));
-*/
 
-  //dna_replic_report_.write_to_tree_file(tree_file);
+
+  dna_replic_report_.write_to_tree_file(tree_file);
 }
 
 
