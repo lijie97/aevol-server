@@ -239,6 +239,8 @@ namespace aevol {
         void update_metadata() {assert(true); exit(-1);}
         void update_metadata_before_new_generation() {assert(true); exit(-1);}
 
+        void update_positions(int pos_after, bool insert_or_remove, int length_diff) {assert(true); exit(-1);}
+        void display() {assert(true);exit(-1);}
         void rebuild_index() {
 
         }

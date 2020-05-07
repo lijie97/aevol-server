@@ -2241,9 +2241,6 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             {
                 for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
 
-                    if (prev_internal_simd_struct[indiv_id]->dna_->update_flavor_ == UPDATEONLY) {
-                        prev_internal_simd_struct[indiv_id]->metadata_->update_metadata_before_new_generation();
-                    }
 
                     //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
                     if (standalone_ && optim_prom) {
@@ -2294,6 +2291,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                                 compute_phenotype(indiv_id);
                                 compute_fitness(indiv_id, selection_pressure);
                             }
+
+
+                            if (internal_simd_struct[indiv_id]->dna_->update_flavor_ == UPDATEONLY) {
+                                internal_simd_struct[indiv_id]->metadata_->update_metadata_before_new_generation();
+                            }
+
+                            printf("Stop processing Individual %d\n",indiv_id);
                         }
                     }
 

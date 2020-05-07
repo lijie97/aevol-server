@@ -614,6 +614,9 @@ namespace aevol {
         virtual void update_metadata() = 0;
         virtual void update_metadata_before_new_generation() = 0;
 
+        virtual void update_positions(int pos_after, bool insert_or_remove, int length_diff) = 0;
+        virtual void display() = 0;
+
         int32_t length() { return indiv_->dna_->length(); };
 
 

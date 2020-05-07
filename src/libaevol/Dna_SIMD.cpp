@@ -218,6 +218,8 @@ void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
   // Update length data
   length_ = new_length;
   nb_blocks_ = new_nb_block;
+
+  indiv_->metadata_->update_positions(pos_2,false,(pos_2 - pos_1));
 }
 
 void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
@@ -260,6 +262,8 @@ void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
     // Update length-related data
   length_ = new_length;
   nb_blocks_ = new_nb_block;
+
+  indiv_->metadata_->update_positions(pos,true,seq_length);
 }
 
 void Dna_SIMD::replace(int32_t pos, char* seq, int32_t seq_length) {
@@ -1389,6 +1393,9 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 }
 
 void Dna_SIMD::apply_mutations_standalone() {
+
+    printf("======= BEGIN :: APPLY MUTATION ============\n");
+    indiv_->metadata_->display();
   MutationEvent* repl;
     //printf("%d -- %d -- AMS-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
     //       indiv_->metadata_->promoter_count());
@@ -1486,14 +1493,14 @@ void Dna_SIMD::apply_mutations_standalone() {
 
           switch (repl->type()) {
               case DO_SWITCH:
-                  //printf("Start switch at %d\n", repl->pos_1());
+                  printf("Start switch at %d\n", repl->pos_1());
                   do_switch(repl->pos_1());
                   nb_swi_++;
                   nb_mut_++;
 //        printf("End switch at %d\n",repl->pos_1());
                   break;
               case SMALL_INSERTION:
-                  //printf("Start insertion at %d (%d %s)\n", repl->pos_1(), repl->number(), repl->seq());
+                  printf("Start insertion at %d (%d %s)\n", repl->pos_1(), repl->number(), repl->seq());
 #ifdef WITH_BITSET
                   do_small_insertion(repl->pos_1(), repl->seq());
 #else
@@ -1505,22 +1512,22 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case SMALL_DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-                  //printf("Start deletion at %d (%d)\n", repl->pos_1(), repl->number());
+                  printf("Start deletion at %d (%d)\n", repl->pos_1(), repl->number());
                   do_small_deletion(repl->pos_1(), repl->number());
                   nb_indels_++;
                   nb_mut_++;
 //        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
                   break;
               case DUPLICATION:
-                  //printf("Start duplication at %d (%d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3());
+                  printf("Start duplication at %d (%d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3());
                   do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
                   nb_large_dupl_++;
                   nb_rear_++;
 //        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
                   break;
               case TRANSLOCATION:
-                  //printf("Start translocation at %d (%d %d %d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                  //       repl->pos_4(), repl->invert());
+                  printf("Start translocation at %d (%d %d %d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                         repl->pos_4(), repl->invert());
                   do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                    repl->pos_4(), repl->invert());
                   nb_large_trans_++;
@@ -1528,7 +1535,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
                   break;
               case INVERSION:
-                  //printf("Start invertion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+                  printf("Start invertion at %d (%d)\n", repl->pos_1(), repl->pos_2());
                   do_inversion(repl->pos_1(), repl->pos_2());
                   nb_large_inv_++;
                   nb_rear_++;
@@ -1536,7 +1543,7 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-                  //printf("Start LARGE deletion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+                  printf("Start LARGE deletion at %d (%d)\n", repl->pos_1(), repl->pos_2());
                   do_deletion(repl->pos_1(), repl->pos_2());
                   nb_large_del_++;
                   nb_rear_++;
@@ -1614,6 +1621,9 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        }
 //        printf("\n");
     //}
+
+    printf("======= END :: APPLY MUTATION ============\n");
+    indiv_->metadata_->display();
 }
 
 

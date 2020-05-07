@@ -230,7 +230,7 @@ class ExpManager : public Observer {
         bool with_mrca_;
 
         //do you record the stat of the lineage ?
-        bool anc_stat_;
+        bool anc_stat_ = false;
 };
 
 // ===========================================================================

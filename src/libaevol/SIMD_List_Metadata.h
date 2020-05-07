@@ -23,10 +23,29 @@ namespace aevol {
 
         SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata)  {
             indiv_ = indiv;
+
+            // Copy promoters
             for (auto& strand: {LEADING, LAGGING}) {
                 for (auto& rna: metadata->promoters_list_[strand]) {
                     promoters_list_[strand].emplace_back(rna);
 
+                }
+            }
+
+            // Copy RNAs
+            for (auto rna : metadata->rnas_) {
+                rnas_.emplace_back(rna);
+            }
+
+            // Copy Proteins
+            for (auto prot : metadata->proteins_) {
+                proteins_.emplace_back(prot);
+                for (auto rna : metadata->rnas_) {
+                    for (auto rna2 : rnas_) {
+                        if (rna->begin == rna2->begin) {
+                            proteins_.back()->rna_list_.push_back(rna2);
+                        }
+                    }
                 }
             }
 
@@ -217,6 +236,10 @@ namespace aevol {
 
         void update_metadata() override;
         void update_metadata_before_new_generation() override;
+
+        void update_positions(int pos_after, bool insert_or_remove, int length_diff) override;
+
+        void display() override ;
 
         SIMD_Promoters2Strands promoters_list_ = {{},
                                                   {}};

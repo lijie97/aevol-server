@@ -72,6 +72,17 @@ class pRNA {
       start_prot_count_ = 0;
     }
 
+    pRNA(pRNA* clone) {
+        begin = clone->begin;
+        end = clone->end;
+        leading_lagging = clone->leading_lagging;
+        e = clone->e;
+        length = clone->length;
+        is_coding_ = clone->is_coding_;
+        is_init_ = clone->is_init_;
+        start_prot_count_ = clone->start_prot_count_;
+    }
+
     ~pRNA() {
     }
 
@@ -105,6 +116,15 @@ class pProtein {
       e = t_e;
       is_init_ = is_init;
       rna_list_.push_back(rna);
+    }
+
+    pProtein(pProtein* clone) {
+        protein_start = clone->protein_start;
+        protein_end = clone->protein_end;
+        protein_length = clone->protein_length;
+        leading_lagging = clone->leading_lagging;
+        e = clone->e;
+        is_init_ = clone->is_init_;
     }
 
     bool operator<(const pProtein & other){
