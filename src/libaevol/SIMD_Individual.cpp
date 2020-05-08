@@ -1064,13 +1064,13 @@ SIMD_Individual::~SIMD_Individual() {
 
                                 int glob_rna_idx = -1;
                                 glob_rna_idx = internal_simd_struct[indiv_id]->metadata_->rna_count_++;
-                                internal_simd_struct[indiv_id]->metadata_->rna_add(glob_rna_idx, new pRNA(
+                                internal_simd_struct[indiv_id]->metadata_->rna_add(glob_rna_idx,
                                         prom_pos,
                                         rna_end,
                                         !lead_lag,
                                         1.0 -
                                         prom_error /
-                                        5.0, rna_length));
+                                        5.0, rna_length);
                             }
                         }
                     } else {
@@ -1136,13 +1136,13 @@ SIMD_Individual::~SIMD_Individual() {
                                 glob_rna_idx = internal_simd_struct[indiv_id]->metadata_->rna_count_++;
 
 
-                                internal_simd_struct[indiv_id]->metadata_->rna_add(glob_rna_idx, new pRNA(
+                                internal_simd_struct[indiv_id]->metadata_->rna_add(glob_rna_idx,
                                         prom_pos,
                                         rna_end,
                                         !lead_lag,
                                         1.0 -
                                         prom_error /
-                                        5.0, rna_length));
+                                        5.0, rna_length);
                             }
 
                         }

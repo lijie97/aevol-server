@@ -899,6 +899,14 @@ namespace aevol {
         it_rna_ = rnas_.begin();
     }
 
+    void SIMD_List_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
+                 int8_t t_leading_lagging, double t_e,
+                 int32_t t_length) {
+        rnas_.push_back(new pRNA(t_begin, t_end,
+                 t_leading_lagging, t_e,
+                 t_length));
+    }
+
 
     pRNA *SIMD_List_Metadata::rna_next() {
         pRNA* rna = *(it_rna_);

@@ -508,6 +508,8 @@ namespace aevol {
         /*** RNAs ***/
         virtual pRNA* rnas(int idx) = 0;
         virtual void rna_add(int idx, pRNA* prot) = 0;
+        virtual void rna_add(int idx, int32_t t_begin, int32_t t_end, int8_t t_leading_lagging, double t_e,
+                             int32_t t_length) = 0;
 
         virtual int rna_count() = 0;
         virtual void set_rna_count(int rcount) = 0;
