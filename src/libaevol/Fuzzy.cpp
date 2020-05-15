@@ -269,6 +269,8 @@ void Fuzzy::sub(const AbstractFuzzy& f) {
 /// The area of a crossed trapezoid can be computed just the same as a
 /// normal one if the bases are counted algebrically (±).
 ProteinConcentration trapezoid_area(const Point& p1, const Point& p2) {
+//    printf("TA [ %lf %lf ] [ %lf %lf ] = %lf\n",p1.x,p2.x,p1.y,p2.y,fabs((p1.y + p2.y) / 2.0 *
+//                                                                    (p2.x - p1.x)));
   return fabs((p1.y + p2.y) / 2.0 *
               (p2.x - p1.x));
 }
@@ -360,6 +362,8 @@ void Fuzzy::clip(clipping_direction direction, ProteinConcentration bound) {
          (p->y > bound and bound > next(p)->y))) { // ie if p and next(p) are across bound
       // insert interpolated point
       //           *after* p
+
+//        printf("Add CLIP point [%lf %lf]\n",x(*p, *next(p), bound),bound);
       points_.insert(next(p), Point(x(*p, *next(p), bound),
                                    bound));
       // could now fast forward over created point... TODO?
@@ -446,6 +450,8 @@ list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x, s
   }
   // insert point before p
   // assert(invariant());
+
+//        printf("Add INTER point [%lf %lf]\n",x,y(x));
   return points_.insert(p, Point(x, y(x)));
 }
 
@@ -484,12 +490,15 @@ void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y) {
       if (prev(p)->x == x) {
         prev(p)->y += y;
       } else {
+//          printf("Add point [%lf %lf]\n",x,y);
         points_.insert(p, Point(x, y));
       }
     } else {
+//        printf("Add point [%lf %lf]\n",x,y);
       points_.insert(p, Point(x, y));
     }
   } else {
+//      printf("Add point [%lf %lf]\n",x,y);
     points_.insert(p, Point(x, y));
   }
 }
@@ -497,8 +506,12 @@ void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y) {
 
 void Fuzzy::print() const
 {
-  for (const Point& p : points_)
-    printf("[%f : %f] ",p.x,p.y);
-  printf("\n");
+//  for (const Point& p : points_)
+//    printf("[%f : %f] ",p.x,p.y);
+//  printf("\n");
+  for (int i = 0; i < 300; i++) {
+      double py = y(i / 299.0);
+      if (py != 0) printf("[%d : %f]\n", i, py);
+  }
 }
 } // namespace aevol

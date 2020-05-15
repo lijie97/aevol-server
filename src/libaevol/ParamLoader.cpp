@@ -1787,6 +1787,16 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     printf("Starting with a clonal population of individual with metabolic error %f and secretion error %f \n",indiv->dist_to_target_by_feature(METABOLISM),indiv->dist_to_target_by_feature(SECRETION));
     indivs.push_back(indiv);
 
+    printf("Phenotype : \n");
+    indiv->phenotype()->print();
+
+    printf("Target : \n");
+    phenotypic_target_handler.phenotypic_target().fuzzy()->print();
+
+
+    //indiv->phenotype()->print();
+    printf("Meta error : %lf %lf\n",indiv->phenotype()->get_geometric_area(),phenotypic_target_handler.get_geometric_area());
+
     // Make the clones and add them to the list of individuals
     for (int32_t i = 1 ; i < init_pop_size_ ; i++)
     {

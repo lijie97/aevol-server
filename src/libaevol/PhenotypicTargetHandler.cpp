@@ -141,54 +141,42 @@ void PhenotypicTargetHandler::BuildPhenotypicTarget() {
 
   // Generate sample points from gaussians
   if (not current_gaussians_.empty()) {
-    for (int16_t i = 0; i <= sampling_; i++) {
-      Point new_point = Point(
-          X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
-      for (const Gaussian& g: current_gaussians_)
-        new_point.y += g.compute_y(new_point.x);
-      phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
-    }
 
-    if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 1) {
-      HybridFuzzy* fuz = (HybridFuzzy*) phenotypic_target_->fuzzy();
+      for (int16_t i = 0; i <= sampling_; i++) {
+          Point new_point = Point(
+                  X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
+          for (const Gaussian &g: current_gaussians_)
+              new_point.y += g.compute_y(new_point.x);
 
-      for (int i = 1; i < fuz->get_pheno_size(); i++) {
-        if (fuz->points()[i] == 0.0) {
-          int minL = i - 1;
-          int maxL = i + 1;
-          int dist = 1;
 
-          while (fuz->points()[maxL] == 0.0) {
-              if (maxL+1 > PHENO_SIZE) break;
-            maxL++;
-            dist++;
-          }
-          double inc = 0.0;
-          if (fuz->points()[maxL] > fuz->points()[minL]) {
-            inc = (fuz->points()[maxL] - fuz->points()[minL]) / dist;
+//          printf("Add point [%f %d] = %f\n",new_point.x,i,new_point.y);
+
+          if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 0) {
+              phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
+//              printf("Point added [%d %f] = %f\n",i,new_point.x,((Fuzzy*)phenotypic_target_->fuzzy())->y(new_point.x));
           } else {
-            inc = (fuz->points()[minL] - fuz->points()[maxL]) / dist;
-            minL = maxL;
+              ((HybridFuzzy *) phenotypic_target_->fuzzy())->points()[i] = new_point.y;
+//              printf("Point added [%d %f] = %f\n",i,new_point.x,((HybridFuzzy*)phenotypic_target_->fuzzy())->points()[i]);
           }
-
-          for (int j = i; j < maxL; j++) {
-            fuz->points()[j] = fuz->points()[minL] + inc;
-            inc += inc;
-          }
-
-        }
       }
-    }
+
   }
+
 
 
   // Add lower and upper bounds
   phenotypic_target_->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
   phenotypic_target_->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
 
+//        if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 0) {
+//            printf("Size of points %d\n",((Fuzzy*)phenotypic_target_->fuzzy())->points().size());
+//        }
+//
+//  printf("=========== BEFORE SIMPLIFY============\n");
+  phenotypic_target_->ComputeArea();
   // Simplify (get rid of useless points)
   phenotypic_target_->fuzzy()->simplify();
-
+//        printf("=========== AFTER SIMPLIFY ============\n");
   // Compute areas (total and by feature)
   phenotypic_target_->ComputeArea();
 }

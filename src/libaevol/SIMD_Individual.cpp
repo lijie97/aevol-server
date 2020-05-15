@@ -14,7 +14,7 @@
 #include "SIMD_List_Metadata.h"
 #include "../../../../../../../../../usr/include/stdio.h"
 #include "../../../../../../../../../usr/include/stdint.h"
-
+#include "Fuzzy.h"
 
 #include <omp.h>
 #include <chrono>
@@ -76,13 +76,15 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
         dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
     }
 
-
+#ifdef PHENOTYPE_VECTOR
     target = new double[300];
     for (int i = 0; i < 300; i++) {
         double tmp = ((HybridFuzzy *) exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy())->points()[i];
-
-
         target[i] = tmp;
+    }
+#else
+    target = new Fuzzy(*(Fuzzy*)(exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy()));
+#endif
 
 #ifdef WITH_PERF_TRACES
         std::ofstream perf_traces_file_;
@@ -90,7 +92,6 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
         perf_traces_file_ << "Generation,Indiv_ID,Runtime" << std::endl;
         perf_traces_file_.close();
 #endif
-    }
 
     printf(" OK\n");
 
@@ -1960,7 +1961,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 //internal_simd_struct[indiv_id]->metadata_->protein_begin();
 
                 pProtein* prot  = internal_simd_struct[indiv_id]->metadata_->protein_next();
-                //printf("Protein %d Indiv %d : %p %p\n",protein_idx,indiv_id,prot,internal_simd_struct[indiv_id]->metadata_->proteins(protein_idx));
+//                printf("Protein %d Indiv %d : %p %p\n",protein_idx,indiv_id,prot,internal_simd_struct[indiv_id]->metadata_->proteins(protein_idx));
                 if (prot->is_init_) {
                     if (lookup.find(prot->protein_start) ==
                         lookup.end()) {
@@ -1968,6 +1969,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                     } else {
                         lookup[prot->protein_start]->e += prot->e;
                         prot->is_init_ = false;
+                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
+                               prot->e,lookup[prot->protein_start]->e);
                     }
                 }
             }
@@ -1975,6 +1978,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
     }
 
     void SIMD_Individual::compute_phenotype(int indiv_id) {
+#ifdef PHENOTYPE_VECTOR
         double activ_phenotype[300];
         double inhib_phenotype[300];
         {
@@ -1983,6 +1987,10 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 inhib_phenotype[fuzzy_idx] = 0;
             }
         }
+#else
+    Fuzzy* activ_phenotype = new Fuzzy();
+    Fuzzy* inhib_phenotype = new Fuzzy();
+#endif
 
         internal_simd_struct[indiv_id]->metadata_->protein_begin();
         for (int protein_idx = 0; protein_idx < internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
@@ -1997,6 +2005,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
                     if (prot->is_functional) {
                         // Compute triangle points' coordinates
+#ifdef PHENOTYPE_VECTOR
                         double x0 =
                                 prot->m -
                                 prot->w;
@@ -2046,13 +2055,20 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                             else
                                 inhib_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
                         }
-
+#else
+    if (prot->h > 0)
+        activ_phenotype->add_triangle(prot->m,prot->w,prot->h*
+                                                      prot->e);
+    else
+        inhib_phenotype->add_triangle(prot->m,prot->w,prot->h*
+                                                      prot->e);
+#endif
                     }
                 }
             }
         }
 
-
+#ifdef PHENOTYPE_VECTOR
         for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
             if (activ_phenotype[fuzzy_idx] > 1)
                 activ_phenotype[fuzzy_idx] = 1;
@@ -2065,9 +2081,21 @@ void SIMD_Individual::compute_protein(int indiv_id) {
             if (internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] < 0)
                 internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] = 0;
         }
+#else
+        activ_phenotype->clip(AbstractFuzzy::max,   Y_MAX);
+        inhib_phenotype->clip(AbstractFuzzy::min, - Y_MAX);
+
+        internal_simd_struct[indiv_id]->phenotype = new Fuzzy();
+        internal_simd_struct[indiv_id]->phenotype->add(*activ_phenotype);
+        internal_simd_struct[indiv_id]->phenotype->add(*inhib_phenotype);
+        internal_simd_struct[indiv_id]->phenotype->clip(AbstractFuzzy::min, Y_MIN);
+        internal_simd_struct[indiv_id]->phenotype->simplify();
+#endif
     }
 
+
 void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler) {
+  #ifdef PHENOTYPE_VECTOR
   for (int16_t i = 0; i <= 300; i++) {
     Point new_point = Point(
         X_MIN + (double) i * (X_MAX - X_MIN) / (double) 300, 0.0);
@@ -2080,7 +2108,6 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
 
     if (i < 300)
       target[(int)(new_point.x * 300)] = (float) new_point.y;
-
   }
 
   for (int i = 1; i < 300; i++) {
@@ -2116,9 +2143,11 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
     if (target[fuzzy_idx] < 0)
       target[fuzzy_idx] = 0;
   }
+  #endif
 }
 
     void SIMD_Individual::compute_fitness(int indiv_id, double selection_pressure) {
+#ifdef PHENOTYPE_VECTOR
         for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
 
             if (internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] > 1)
@@ -2139,6 +2168,11 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
                       std::fabs(internal_simd_struct[indiv_id]->delta[fuzzy_idx + 1])) /
                      (600.0));
         }
+#else
+        AbstractFuzzy* delta = new Fuzzy(*internal_simd_struct[indiv_id]->phenotype);
+        delta->sub(*(target));
+        internal_simd_struct[indiv_id]->metaerror = delta->get_geometric_area();
+#endif
 
         internal_simd_struct[indiv_id]->fitness = exp(
                 -selection_pressure *
@@ -2844,7 +2878,7 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
-                    if (i == 353) found = false;
+                    if (i == 776) found = false;
 
                     if (!found)
                         printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
@@ -2866,7 +2900,7 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
-                    if (i == 353) found = false;
+                    if (i == 776) found = false;
 
                     if (!found)
                         printf("RNA SIMD %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
@@ -2895,7 +2929,7 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
-                    if (i == 353) found = false;
+                    if (i == 776) found = false;
 
                     if (!found) {
                         printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f RNA : \n",
@@ -2929,7 +2963,7 @@ void SIMD_Individual::check_result() {
                             }
                         }
 
-                        if (i == 353) found = false;
+                        if (i == 776) found = false;
 
                         //for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
                         if (!found) {

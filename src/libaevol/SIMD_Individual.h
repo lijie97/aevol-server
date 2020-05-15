@@ -121,8 +121,13 @@ class Internal_SIMD_Struct : public Observable {
 
     ~Internal_SIMD_Struct();
 
+#ifdef PHENOTYPE_VECTOR
     double phenotype[300];
     double delta[300];
+#else
+    Fuzzy* phenotype;
+    Fuzzy* delta;
+#endif
     double fitness;
     double metaerror;
 
@@ -221,7 +226,11 @@ class SIMD_Individual : public Observable{
  private:
     ExpManager* exp_m_;
     int* dna_size;
+#ifdef PHENOTYPE_VECTOR
     double* target;
+#else
+    Fuzzy* target;
+#endif
     bool standalone_;
     bool first_gener_ = true;
 
