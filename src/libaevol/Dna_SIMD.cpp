@@ -181,7 +181,7 @@ if (mutation_list.size() > 0) {
 
 #ifndef WITH_BITSET
 void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
-//  printf("%d -- REMOVE POS 1 %d POS 2 %d LENGTH %d\n",indiv_->indiv_id,pos_1,pos_2,length());
+// if (indiv_->indiv_id == 586) printf("%d -- BEGIN -- REMOVE POS 1 %d POS 2 %d LENGTH %d\n",indiv_->indiv_id,pos_1,pos_2,length());
 
   assert(pos_1 >= 0 && pos_2 >= pos_1 && pos_2 <= length_);
 
@@ -215,6 +215,7 @@ void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
   // Update length data
   length_ = new_length;
   nb_blocks_ = new_nb_block;
+//    if (indiv_->indiv_id == 586) printf("%d -- END -- REMOVE POS 1 %d POS 2 %d LENGTH %d\n",indiv_->indiv_id,pos_1,pos_2,length());
 }
 
 void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
@@ -1334,8 +1335,8 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 
 void Dna_SIMD::apply_mutations_standalone() {
   MutationEvent* repl;
-    //printf("%d -- %d -- AMS-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
-    //       indiv_->metadata_->promoter_count());
+//    printf("%d -- %d -- AMS-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
+//           indiv_->metadata_->promoter_count());
 //    printf("%d -- %d -- BM -- Prom list LEAD : ",time(),indiv_->indiv_id);
 //    for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
 //        if (indiv_->metadata_->promoters(prom_idx) != nullptr)
@@ -1350,7 +1351,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 //                printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
 //    }
 //    printf("\n");
-//    if (indiv_->indiv_id == 17 || indiv_->indiv_id == 50 || indiv_->indiv_id == 18) {
+//    if (indiv_->indiv_id == 6) {
 //        printf("%d -- %d -- Parent %d\n",time(),indiv_->indiv_id,indiv_->parent_id);
 //        printf("%d -- %d -- BEFORE -- Prom list LEAD : ",time(),indiv_->indiv_id);
 //        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
@@ -1367,7 +1368,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        }
 //        printf("\n");
 //    }
-//
+
     /*
     if (AeTime::time() > 182) {
         //printf("Parent ID %d\n",indiv_->parent_id);
@@ -1427,14 +1428,14 @@ void Dna_SIMD::apply_mutations_standalone() {
 
           switch (repl->type()) {
               case DO_SWITCH:
-                  //printf("Start switch at %d\n", repl->pos_1());
+//                  printf("Start switch at %d\n", repl->pos_1());
                   do_switch(repl->pos_1());
                   nb_swi_++;
                   nb_mut_++;
 //        printf("End switch at %d\n",repl->pos_1());
                   break;
               case SMALL_INSERTION:
-                  //printf("Start insertion at %d (%d %s)\n", repl->pos_1(), repl->number(), repl->seq());
+//                  printf("Start insertion at %d (%d %s)\n", repl->pos_1(), repl->number(), repl->seq());
 #ifdef WITH_BITSET
                   do_small_insertion(repl->pos_1(), repl->seq());
 #else
@@ -1446,22 +1447,22 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case SMALL_DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-                  //printf("Start deletion at %d (%d)\n", repl->pos_1(), repl->number());
+//                  printf("Start deletion at %d (%d)\n", repl->pos_1(), repl->number());
                   do_small_deletion(repl->pos_1(), repl->number());
                   nb_indels_++;
                   nb_mut_++;
 //        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
                   break;
               case DUPLICATION:
-                  //printf("Start duplication at %d (%d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3());
+//                  printf("Start duplication at %d (%d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3());
                   do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
                   nb_large_dupl_++;
                   nb_rear_++;
 //        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
                   break;
               case TRANSLOCATION:
-                  //printf("Start translocation at %d (%d %d %d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                  //       repl->pos_4(), repl->invert());
+//                  printf("Start translocation at %d (%d %d %d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3(),
+//                         repl->pos_4(), repl->invert());
                   do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                    repl->pos_4(), repl->invert());
                   nb_large_trans_++;
@@ -1469,7 +1470,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
                   break;
               case INVERSION:
-                  //printf("Start invertion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+//                  printf("Start invertion at %d (%d)\n", repl->pos_1(), repl->pos_2());
                   do_inversion(repl->pos_1(), repl->pos_2());
                   nb_large_inv_++;
                   nb_rear_++;
@@ -1477,7 +1478,7 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-                  //printf("Start LARGE deletion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+//                  printf("Start LARGE deletion at %d (%d)\n", repl->pos_1(), repl->pos_2());
                   do_deletion(repl->pos_1(), repl->pos_2());
                   nb_large_del_++;
                   nb_rear_++;
@@ -1505,7 +1506,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 
   } while (indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_available() > 0);
    // printf("End mutation for %d\n",indiv_->indiv_id);
-//    if (indiv_->indiv_id == 17 || indiv_->indiv_id == 50 || indiv_->indiv_id == 18) {
+//    if (indiv_->indiv_id == 6) {
 //        printf("%d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);
 //        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
 //            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
@@ -1591,23 +1592,39 @@ void Dna_SIMD::apply_mutations() {
           }
           printf("\n");
     }*/
-
+//    if (indiv_->indiv_id == 6) {
+//        printf("%d -- %d -- Parent %d\n",time(),indiv_->indiv_id,indiv_->parent_id);
+//        printf("%d -- %d -- BEFORE -- Prom list LEAD : ",time(),indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+//        }
+//        printf("\n");
+//        printf("%d -- %d -- BEFORE -- Prom list LAG : ",time(),indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+//        }
+//        printf("\n");
+//    }
   for (auto repl : indiv_->exp_m_->dna_mutator_array_[indiv_->indiv_id]->mutation_list_) {
 //    if (indiv_->indiv_id == 179) {
 //      printf("Mutation type %d\n",repl->type());
 //    }
       //printf("Mutation type %d\n",repl->type());
-
+//    if (indiv_->indiv_id == 686) printf("%d -- ",indiv_->indiv_id);
     switch(repl->type()) {
         case DO_SWITCH:
-            //printf("Start switch at %d\n",repl->pos_1());
+//            if (indiv_->indiv_id == 686) printf("Start switch at %d\n",repl->pos_1());
             do_switch(repl->pos_1());
             nb_swi_++;
             nb_mut_++;
 //        printf("End switch at %d\n",repl->pos_1());
             break;
         case SMALL_INSERTION:
-            //printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
+//            if (indiv_->indiv_id == 686) printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
 #ifdef WITH_BITSET
             do_small_insertion(repl->pos_1(), repl->seq());
 #else
@@ -1619,21 +1636,21 @@ void Dna_SIMD::apply_mutations() {
             break;
         case SMALL_DELETION:
             //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-            //printf("Start deletion at %d (%d)\n",repl->pos_1(),repl->number());
+//            if (indiv_->indiv_id == 686) printf("Start deletion at %d (%d)\n",repl->pos_1(),repl->number());
             do_small_deletion(repl->pos_1(), repl->number());
             nb_indels_++;
             nb_mut_++;
 //        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
             break;
         case DUPLICATION:
-            //printf("Start duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
+//            if (indiv_->indiv_id == 686) printf("Start duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
             do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
             nb_large_dupl_++;
             nb_rear_++;
 //        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
             break;
         case TRANSLOCATION:
-            //printf("Start translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
+//            if (indiv_->indiv_id == 686) printf("Start translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
             do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                              repl->pos_4(), repl->invert());
             nb_large_trans_++;
@@ -1641,7 +1658,7 @@ void Dna_SIMD::apply_mutations() {
 //        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
             break;
         case INVERSION:
-            //printf("Start invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+//            if (indiv_->indiv_id == 686) printf("Start invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
             do_inversion(repl->pos_1(), repl->pos_2());
             nb_large_inv_++;
             nb_rear_++;
@@ -1649,7 +1666,7 @@ void Dna_SIMD::apply_mutations() {
             break;
         case DELETION:
 //            if (indiv_->indiv_id == 179)
-//                printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+//            if (indiv_->indiv_id == 686) printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
             do_deletion(repl->pos_1(), repl->pos_2());
             nb_large_del_++;
             nb_rear_++;
@@ -1673,6 +1690,23 @@ void Dna_SIMD::apply_mutations() {
 //    }
 
   }
+
+//    if (indiv_->indiv_id == 6) {
+//        printf("%d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+//                if (indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+//        }
+//        printf("\n");
+//        printf("%d -- %d -- AFTER -- Prom list LAG : ",time(),indiv_->indiv_id);
+//        for (int prom_idx = 0; prom_idx < indiv_->metadata_->promoter_count(); prom_idx++) {
+//            if (indiv_->metadata_->promoters(prom_idx) != nullptr)
+//                if (!indiv_->metadata_->promoters(prom_idx)->leading_or_lagging)
+//                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
+//        }
+//        printf("\n");
+//    }
 
 /*    if (indiv_->indiv_id == 632) {
         printf("%d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);

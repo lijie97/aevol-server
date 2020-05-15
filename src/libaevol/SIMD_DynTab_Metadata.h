@@ -102,7 +102,7 @@ namespace aevol {
         void rna_add(int idx, pRNA* rna) override;
         void rna_add(int idx, int32_t t_begin, int32_t t_end,
                      int8_t t_leading_lagging, double t_e,
-                     int32_t t_length) override {exit(1);};
+                     int32_t t_length) override;
 
         pRNA* rna_next() override ;
         void rna_begin() override ;

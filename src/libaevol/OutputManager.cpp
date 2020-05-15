@@ -272,7 +272,7 @@ void OutputManager::write_current_generation_outputs(bool create) const
     // debug std::cout << "writing backup for gen : " << t << '\n';
     stats_->flush();
     //exp_m_->WriteDynamicFiles();
-    exp_m_->WriteDynamicFiles(t, backup_world, create);
+    if (!exp_m_->check_simd()) exp_m_->WriteDynamicFiles(t, backup_world, create);
 
     WriteLastGenerFile(".", t);
     //delete backup_prng;

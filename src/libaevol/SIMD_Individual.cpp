@@ -200,6 +200,8 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     }
 
     void SIMD_Individual::check_selection(int indiv_id) {
+        printf("Check selection !!!!\n");
+
         int32_t selection_scope_x = exp_m_->sel()->selection_scope_x();
         int32_t selection_scope_y = exp_m_->sel()->selection_scope_y();
 
@@ -332,7 +334,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
                         int v_y = indiv_index[i] % grid_height;
 
                         printf(
-                                "ERROR -- Individual %d (%d,%d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
+                                "A-A-ERROR -- Individual %d (%d,%d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
                                 indiv_index[i],v_x,v_y,
                                 exp_m_->world()->grid(v_x, v_y)->individual()->dist_to_target_by_feature(
                                         METABOLISM),
@@ -409,7 +411,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 
 
     void SIMD_Individual::do_mutation(int indiv_id) {
-         if (standalone_) {
+         if (standalone_ && !exp_m_->check_simd()) {
 
                 int x = indiv_id / exp_m_->world()->height();
                 int y = indiv_id % exp_m_->world()->height();
@@ -463,7 +465,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 #ifdef WITH_PERF_TRACES
                 auto t_start = std::chrono::steady_clock::now();
 #endif
-                if (standalone_)
+                if (standalone_ && !exp_m_->check_simd())
                     internal_simd_struct[indiv_id]->dna_->apply_mutations_standalone();
                 else
                     internal_simd_struct[indiv_id]->dna_->apply_mutations();
@@ -990,10 +992,7 @@ SIMD_Individual::~SIMD_Individual() {
                     if (lead_lag) {
                         /* Search for terminators */
                         int cur_pos =
-                                prom_pos + 22;
-                        cur_pos = cur_pos >= dna_length ? cur_pos -
-                                                          dna_length :
-                                  cur_pos;
+                                Utils::mod(prom_pos + 22,dna_length);
                         int start_pos = cur_pos;
 
                         bool terminator_found = false;
@@ -1006,7 +1005,6 @@ SIMD_Individual::~SIMD_Individual() {
                             printf("Search from promoter from %d\n",cur_pos);*/
 
                         while (!terminator_found) {
-                            loop_size++;
                             for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
 
                                 term_dist_leading +=
@@ -1017,25 +1015,25 @@ SIMD_Individual::~SIMD_Individual() {
 
                             if (term_dist_leading == 4) {
                                 terminator_found = true;
-/*                                if (indiv_id == 632)
-                                    printf("==> FOUND FOR promoter from %d -- %d\n",cur_pos,loop_size);*/
+//                               if (indiv_id == 353)
+//                                    printf("==> FOUND FOR promoter from %d -- %d\n",cur_pos,loop_size);
                             }
                             else {
-                                cur_pos = cur_pos + 1 >= dna_length ? cur_pos + 1 -
-                                                                      dna_length
-                                                                    :
-                                          cur_pos + 1;
+                                cur_pos = Utils::mod(cur_pos + 1,dna_length);
 
                                 term_dist_leading = 0;
                                 if (cur_pos == start_pos) {
 
-/*                                    if (indiv_id == 632)
-                                        printf("NOT FOUND FOR promoter from %d -- %d\n",cur_pos,loop_size);*/
+//                                    if (indiv_id == 353)
+//                                        printf("NOT FOUND FOR promoter from %d -- %d\n",cur_pos,loop_size);
 
                                     no_terminator = true;
                                     terminator_found = true;
                                 }
                             }
+
+                            loop_size++;
+
                         }
 
                         if (!no_terminator) {
@@ -1047,17 +1045,22 @@ SIMD_Individual::~SIMD_Individual() {
 
                             int32_t rna_length = 0;
 
-                            if (prom_pos
-                                > rna_end)
-                                rna_length = dna_length -
-                                             prom_pos
-                                             + rna_end;
-                            else
-                                rna_length = rna_end - prom_pos;
+//                            if (indiv_id == 307)
+//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
 
-                            rna_length -= 11;
-/*                            if (indiv_id == 632)
-                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);*/
+//                            if (prom_pos
+//                                > rna_end)
+//                                rna_length = dna_length -
+//                                             prom_pos
+//                                             + rna_end;
+//                            else
+//                                rna_length = rna_end - prom_pos;
+
+                            rna_length = loop_size + TERM_SIZE -1;
+
+//                            rna_length -= 11;
+//                            if (indiv_id == 307)
+//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
 
                             if (rna_length > 0) {
 
@@ -1094,9 +1097,15 @@ SIMD_Individual::~SIMD_Individual() {
                                         ? 1 : 0;
                             }
 
-                            if (term_dist_lagging == 4)
+                            if (term_dist_lagging == 4) {
                                 terminator_found = true;
+//                                if (indiv_id == 353)
+//                                    printf("==> FOUND FOR promoter %d from %d -- %d\n", prom_pos, cur_pos, loop_size);
+                            }
                             else {
+//                                if (indiv_id == 353)
+//                                    printf("==> SEARCH FOR terminator prom %d : cur pos %d -- loop size %d\n", prom_pos, cur_pos, loop_size);
+
                                 cur_pos =
                                         cur_pos - 1 < 0 ? dna_length + (cur_pos - 1)
                                                         : cur_pos - 1;
@@ -1112,24 +1121,29 @@ SIMD_Individual::~SIMD_Individual() {
                         if (!no_terminator) {
 
 
-                            int32_t rna_end =
-                                    cur_pos - 10 < 0 ? dna_length + (cur_pos - 10) :
-                                    cur_pos -
-                                    10;
+                            int32_t rna_end = Utils::mod(cur_pos - 10,dna_length);
 
                             int32_t rna_length = 0;
 
-                            if (prom_pos <
-                                rna_end)
-                                rna_length =
-                                        prom_pos +
-                                        dna_length - rna_end;
-                            else
-                                rna_length =
-                                        prom_pos -
-                                        rna_end;
+//                            if (indiv_id == 307)
+//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
 
-                            rna_length -= 21;
+
+//                            if (prom_pos <
+//                                rna_end)
+//                                rna_length =
+//                                        prom_pos +
+//                                        dna_length - rna_end;
+//                            else
+//                                rna_length =
+//                                        prom_pos -
+//                                        rna_end;
+//
+//                            rna_length -= 21;
+                            rna_length = loop_size + TERM_SIZE -1;
+
+//                            if (indiv_id == 307)
+//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
 
                             if (rna_length >= 0) {
                                 int glob_rna_idx = -1;
@@ -1305,6 +1319,8 @@ SIMD_Individual::~SIMD_Individual() {
 
     void SIMD_Individual::start_protein(int indiv_id) {
         internal_simd_struct[indiv_id]->metadata_->rna_begin();
+//        if (indiv_id == 353)
+//            printf("RNA Count %d\n",internal_simd_struct[indiv_id]->metadata_->rna_count());
 
         for (int rna_idx = 0; rna_idx <
                               (int) internal_simd_struct[indiv_id]->metadata_->rna_count(); rna_idx++) {
@@ -1313,10 +1329,14 @@ SIMD_Individual::~SIMD_Individual() {
                 pRNA* rna = internal_simd_struct[indiv_id]->metadata_->rna_next();
                 int32_t dna_length = dna_size[indiv_id];
 
+//                if (indiv_id == 353)
+//                    printf("=======> Search protein START %d %d Length %d\n",rna->begin,rna->is_init_,
+//                    rna->length);
+
                 if (rna->is_init_) {
                     int c_pos = rna->begin;
 
-                    if (rna->length >= 22) {
+                    if (rna->length >= 21) {
                         if (rna->leading_lagging ==
                             0) {
                             c_pos += 22;
@@ -1329,10 +1349,17 @@ SIMD_Individual::~SIMD_Individual() {
                                     c_pos < 0 ? ((int) dna_length) + c_pos : c_pos;
                         }
 
-                        while (c_pos !=
-                               rna->end) {
+
+//                        if (indiv_id == 353)
+//                            printf("=======> Search protein START %d [ %d => %d ]\n",rna->begin,
+//                                   c_pos,rna->end);
+
+                        int loop_size = 0;
+                        while (loop_size < rna->length) {
                             bool start = false;
                             int k_t;
+
+//                            if (indiv_id == 353) printf("Search for proteins %d\n",c_pos);
 
                             if (rna->leading_lagging ==
                                 0) {
@@ -1341,9 +1368,7 @@ SIMD_Individual::~SIMD_Individual() {
                                     for (int k = 0; k < 9; k++) {
                                         k_t = k >= 6 ? k + 4 : k;
 
-                                        if (internal_simd_struct[indiv_id]->dna_->data_[(c_pos + k_t) +
-                                                                                        ((((unsigned
-                                        int32_t)((c_pos + k_t) - dna_length)) >> 31) -1 )*dna_length] ==
+                                        if (internal_simd_struct[indiv_id]->dna_->data_[Utils::mod((c_pos + k_t),dna_length)] ==
                                         SHINE_DAL_SEQ_LEAD[k]) {
                                             start = true;
                                         } else {
@@ -1352,6 +1377,10 @@ SIMD_Individual::~SIMD_Individual() {
                                         }
 
                                     }
+
+//                                if (indiv_id == 353)
+//                                    printf("%d => %d -- LEAD -- Search for proteins %d => %d\n",rna->begin,rna->end,c_pos,start);
+
                                 /*} else {
                                     for (int k = 0; k < 9; k++) {
                                         k_t = k >= 6 ? k + 4 : k;
@@ -1370,13 +1399,15 @@ SIMD_Individual::~SIMD_Individual() {
                             } else {
                                 //if (c_pos - 12 < 0) {
                                     // Search for Shine Dalgarro + START codon on LAGGING
+//                                    if (indiv_id == 353) printf("Printing at %d : ",c_pos);
                                     for (int k = 0; k < 9; k++) {
                                         k_t = k >= 6 ? k + 4 : k;
                                         //t_pos = c_pos - k_t;
 
-                                        if (internal_simd_struct[indiv_id]->dna_->data_[(c_pos - k_t) +
-                                                                                        (((unsigned
-                                        int32_t)((c_pos - k_t))) >> 31) *dna_length] ==
+//                                        if (indiv_id == 353)
+//                                            printf("%c",internal_simd_struct[indiv_id]->dna_->data_[Utils::mod((c_pos - k_t),dna_length)]);
+
+                                        if (internal_simd_struct[indiv_id]->dna_->data_[Utils::mod((c_pos - k_t),dna_length)] ==
                                         SHINE_DAL_SEQ_LAG[k]) {
                                             //if (internal_simd_struct[indiv_id]->dna_->get_lag(t_pos) ==
                                             //    SHINE_DAL_SEQ_LAG[k]) {
@@ -1386,6 +1417,12 @@ SIMD_Individual::~SIMD_Individual() {
                                             break;
                                         }
                                     }
+
+//                                if (indiv_id == 353)
+//                                    printf("\n");
+//
+//                                if (indiv_id == 353)
+//                                    printf("%d => %d --  LAG  -- Search for proteins %d => %d\n",rna->begin,rna->end,c_pos,start);
                                 /*} else {
                                     for (int k = 0; k < 9; k++) {
                                         k_t = k >= 6 ? k + 4 : k;
@@ -1411,8 +1448,7 @@ SIMD_Individual::~SIMD_Individual() {
                                 rna->start_prot.push_back(c_pos);
                             }
 
-                            if (rna->leading_lagging ==
-                                0) {
+                            if (rna->leading_lagging == 0) {
                                 c_pos++;
                                 c_pos =
                                         c_pos >= dna_length ? c_pos - dna_length
@@ -1421,6 +1457,7 @@ SIMD_Individual::~SIMD_Individual() {
                                 c_pos--;
                                 c_pos = c_pos < 0 ? dna_length + c_pos : c_pos;
                             }
+                            loop_size++;
                         }
                     }
                 }
@@ -1540,7 +1577,6 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 j += 13;
 
                 while (rna->length - j >= 3) {
-
                     int t_k;
 
                     if (rna->leading_lagging == 0) {
@@ -1562,6 +1598,10 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                 break;
                             }
                         }
+
+
+//                        if (indiv_id == 910)
+//                            printf("Search LEAD terminator at %d : J %d Length %d\n",start_protein_pos,j,rna->length);
 
                         if (is_protein) {
                             int prot_length = -1;
@@ -1586,8 +1626,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
                                     internal_simd_struct[indiv_id]->
                                             metadata_->protein_add(glob_prot_idx, new pProtein(
-                                            start_prot, t_k,
-                                            prot_length,
+                                            Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
+                                            prot_length/3,
                                             rna->leading_lagging,
                                             rna->e
                                     ));
@@ -1624,6 +1664,11 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                             }
                         }
 
+
+//                        if (indiv_id == 910)
+//                            printf("Search LAG terminator at %d : J %d Length %d\n",start_protein_pos,j,rna->length);
+
+
                         if (is_protein) {
                             int prot_length = -1;
                             if (start_prot - 13 > t_k) {
@@ -1643,8 +1688,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                         1);
                                 internal_simd_struct[indiv_id]->metadata_->protein_add(
                                         glob_prot_idx, new pProtein(
-                                                start_prot, t_k,
-                                                prot_length,
+                                                Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
+                                                prot_length/3,
                                                 rna->leading_lagging,
                                                 rna->e
                                         ));
@@ -1676,7 +1721,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 int end_pos = prot->protein_end;
                 if (prot->leading_lagging ==
                     0) {
-                    c_pos += 13;
+                    //c_pos += 13;
                     end_pos -= 3;
 
                     c_pos =
@@ -1684,7 +1729,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                                         : c_pos;
                     end_pos = end_pos < 0 ? dna_size[indiv_id] + end_pos : end_pos;
                 } else {
-                    c_pos -= 13;
+                    //c_pos -= 13;
                     end_pos += 3;
 
                     end_pos =
@@ -1703,8 +1748,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                     // LEADING
 
                     while (count_loop <
-                           prot->protein_length /
-                           3 &&
+                           prot->protein_length &&
                            codon_idx < 64) {
                         value = 0;
                         for (int8_t i = 0; i < 3; i++) {
@@ -1726,8 +1770,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 } else {
                     // LAGGING
                     while (count_loop <
-                           prot->protein_length /
-                           3 &&
+                           prot->protein_length &&
                            codon_idx < 64) {
                         value = 0;
                         for (int8_t i = 0; i < 3; i++) {
@@ -2118,7 +2161,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                     if (standalone_ && optim_prom) {
                         selection(indiv_id);
                     } else if (!standalone_ && optim_prom) {
-                        check_selection(indiv_id);
+                        if (exp_m_->check_simd()) check_selection(indiv_id);
                     }
 
 
@@ -2409,7 +2452,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         }
 
 
-            if (!first_gener_ && standalone_ && AeTime::time() % exp_m_->backup_step() == 0) {
+            if (!first_gener_ && standalone_ && !exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
 #pragma omp single
                 {
 
@@ -2480,7 +2523,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             }
         }
 
-        if (AeTime::time() == exp_m_->end_step() && standalone_) {
+        if (AeTime::time() == exp_m_->end_step() && standalone_ && !exp_m_->check_simd()) {
 #pragma omp for schedule(static)
             for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
                 int x = indiv_id / exp_m_->world()->height();
@@ -2640,8 +2683,11 @@ void SIMD_Individual::check_struct() {
 }
 
 void SIMD_Individual::check_result() {
+
+
 #pragma omp single
     {
+        printf("Check results !!!!!\n");
         int x, y;
 
         bool validated_generation = true;
@@ -2659,17 +2705,98 @@ void SIMD_Individual::check_result() {
             float i_fit_1 = roundf(fit_1 * 100);
             float i_fit_2 = roundf(fit_2 * 100);
 
+            int count_prot = 0;
+
+            for (int pidx = 0; pidx < prev_internal_simd_struct[i]->metadata_->proteins_count(); pidx++) {
+                if (prev_internal_simd_struct[i]->metadata_->proteins(pidx)->is_init_) {
+                    count_prot++;
+                }
+            }
+
+            int count_rna_cpu = 0;
+
+            for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
+                if (rna->transcript_length() >= 0) {
+                    count_rna_cpu++;
+                }
+            }
+
+
+            int idx = 0, fidx = 0;
+            for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
+                bool found = false;
+                fidx = 0;
+
+                for (int pidx = 0; pidx < prev_internal_simd_struct[i]->metadata_->proteins_count(); pidx++) {
+                    if (prev_internal_simd_struct[i]->metadata_->proteins(pidx)->is_init_) {
+                        if ((prev_internal_simd_struct[i]->metadata_->proteins(pidx)->e ==
+                             prot->concentration()) &&
+                            (prev_internal_simd_struct[i]->metadata_->proteins(pidx)->protein_end ==
+                             prot->last_STOP_base_pos()))
+                            if ((prev_internal_simd_struct[i]->metadata_->proteins(pidx)->protein_length ==
+                                                             prot->length()) &&
+                                (prev_internal_simd_struct[i]->metadata_->proteins(pidx)->protein_start ==
+                                 prot->first_translated_pos())) {
+                                found = true;
+                                fidx = pidx;
+                                break;
+                            } else {
+                                fidx = pidx;
+                            }
+
+                    }
+                }
+
+                if (!found) {
+                    printf("==================-------------------------======================\n");
+                    printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
+                           idx,
+                           prot->first_translated_pos(), prot->last_translated_pos(),
+                           prot->last_STOP_base_pos(),
+                           prot->length(), prot->strand(),
+                           prot->mean(), prot->width(), prot->height(), prot->is_functional(),
+                           prot->concentration());
+
+                    if (fidx < prev_internal_simd_struct[i]->metadata_->proteins_count())
+                        printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
+                               fidx,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->protein_start,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->protein_end,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->protein_length,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->leading_lagging,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->m,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->w,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->h,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->is_functional,
+                               prev_internal_simd_struct[i]->metadata_->proteins(fidx)->e
+                        );
+                    printf("==================-------------------------======================\n");
+                }
+                idx++;
+            }
+
+
+            for (int j = 0; j < prev_internal_simd_struct[i]->dna_->length(); j++) {
+                if (prev_internal_simd_struct[i]->dna_->data_[j] !=
+                    exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).dna()->data()[j]) {
+                    printf("%d -- %d -- DNA is different at %d !!!\n", AeTime::time(), i, j);
+
+                    exit(-1);
+                }
+            }
 
             int prot_size = (int) exp_m_->world()->grid(x, y)->individual()->protein_list().size();
-            if ((prev_internal_simd_struct[i]->metadata_->rna_count() !=
-                 exp_m_->world()->grid(x, y)->individual()->rna_list().size()) ||
-                (prev_internal_simd_struct[i]->metadata_->proteins_count() != prot_size)) {
-                validated_generation= false;
+            if (((prev_internal_simd_struct[i]->metadata_->rna_count() !=
+                    count_rna_cpu) ||
+                 (count_prot != prot_size))
+                || ((i_fit_1 != i_fit_2 && dna_size[i] > 300))) {
+                validated_generation = false;
+
 
                 printf(
-                        "ERROR -- %d -- Individual %d (P %d / %d) -_ %d | %d _- : Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
-                        AeTime::time(), i,x,y,
-                        exp_m_->world()->grid(x, y)->individual()->parent_id_,prev_internal_simd_struct[i]->parent_id,
+                        "X-X-ERROR -- %d -- Individual %d  -- %d %d --(P %d / %d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
+                        AeTime::time(), i, x,y,exp_m_->world()->grid(x, y)->individual()->parent_id_,
+                        prev_internal_simd_struct[i]->parent_id,
                         exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
                                 METABOLISM),
                         prev_internal_simd_struct[i]->metaerror,
@@ -2689,23 +2816,65 @@ void SIMD_Individual::check_result() {
                         exp_m_->world()->grid(x, y)->individual()->genetic_unit(
                                 0).seq_length());
 
-                /*int idx = 0;
+                printf("Promoters LEADING : ");
+                for (auto& prom : ((SIMD_List_Metadata*)prev_internal_simd_struct[i]->
+                        metadata_)->promoters_list_[LEADING]) {
+                    printf("%d ",prom.pos);
+                }
+                printf("\n");
+                printf("Promoters LAGGING : ");
+                for (auto& prom : ((SIMD_List_Metadata*)prev_internal_simd_struct[i]->
+                        metadata_)->promoters_list_[LAGGING]) {
+                    printf("%d ",prom.pos);
+                }
+                printf("\n");
+
+                int idx = 0;
 
                 for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
-                    printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
-                           rna->promoter_pos(), rna->last_transcribed_pos(), rna->strand(), rna->transcript_length());
+                    bool found = false;
+                    for (int pidx = 0; pidx < (int) (prev_internal_simd_struct[i]->metadata_->rna_count());
+                         pidx++) {
+                        if ((rna->promoter_pos() ==
+                            prev_internal_simd_struct[i]->metadata_->rnas(pidx)->begin) &&
+                            (rna->transcript_length() ==
+                             prev_internal_simd_struct[i]->metadata_->rnas(pidx)->length)){
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (i == 353) found = false;
+
+                    if (!found)
+                        printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
+                               rna->promoter_pos(), rna->last_transcribed_pos(), rna->strand(),
+                               rna->transcript_length());
                     idx++;
                 }
 
                 idx = 0;
                 for (idx = 0; idx < (int) (prev_internal_simd_struct[i]->metadata_->rna_count()); idx++) {
-                    printf("RNA SIMD %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
-                           prev_internal_simd_struct[i]->metadata_->rnas(idx)->begin,
-                           prev_internal_simd_struct[i]->metadata_->rnas(idx)->end,
-                           prev_internal_simd_struct[i]->metadata_->rnas(idx)->leading_lagging,
-                           prev_internal_simd_struct[i]->metadata_->rnas(idx)->length);
-                }
+                    bool found = false;
+                    for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
+                        if ((rna->promoter_pos() ==
+                            prev_internal_simd_struct[i]->metadata_->rnas(idx)->begin) &&
+                        (rna->transcript_length() ==
+                         prev_internal_simd_struct[i]->metadata_->rnas(idx)->length)) {
+                            found = true;
+                            break;
+                        }
+                    }
 
+                    if (i == 353) found = false;
+
+                    if (!found)
+                        printf("RNA SIMD %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
+                               prev_internal_simd_struct[i]->metadata_->rnas(idx)->begin,
+                               prev_internal_simd_struct[i]->metadata_->rnas(idx)->end,
+                               prev_internal_simd_struct[i]->metadata_->rnas(idx)->leading_lagging,
+                               prev_internal_simd_struct[i]->metadata_->rnas(idx)->length);
+                }
 
 
                 idx = 0;
@@ -2726,14 +2895,20 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
+                    if (i == 353) found = false;
+
                     if (!found) {
-                        printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
+                        printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f RNA : \n",
                                idx,
                                prot->first_translated_pos(), prot->last_translated_pos(),
                                prot->last_STOP_base_pos(),
                                prot->length(), prot->strand(),
                                prot->mean(), prot->width(), prot->height(), prot->is_functional(),
                                prot->concentration());
+
+                        for (auto rna : prot->rna_list()) {
+                            printf("[%d => %d]\n",rna->promoter_pos(),rna->last_transcribed_pos());
+                        }
                     }
                     idx++;
                 }
@@ -2754,6 +2929,8 @@ void SIMD_Individual::check_result() {
                             }
                         }
 
+                        if (i == 353) found = false;
+
                         //for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
                         if (!found) {
                             printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
@@ -2772,184 +2949,43 @@ void SIMD_Individual::check_result() {
                         }
                         prot_cpt_b++;
                     }
-                }*/
-                //exit(111);
-            }
-
-            if (i_fit_1 != i_fit_2 && dna_size[i] > 300)
-                //if (i == 268) {
-                if ((prev_internal_simd_struct[i]->metadata_->rna_count() !=
-                     exp_m_->world()->grid(x, y)->individual()->rna_list().size()) ||
-                    (prev_internal_simd_struct[i]->metadata_->proteins_count() != prot_size)) {
-                    validated_generation= false;
-
-                    printf(
-                            "ERROR -- %d -- Individual %d (P %d / %d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
-                            AeTime::time(), i,exp_m_->world()->grid(x, y)->individual()->parent_id_,prev_internal_simd_struct[i]->parent_id,
-                            exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
-                                    METABOLISM),
-                            prev_internal_simd_struct[i]->metaerror,
-                            exp_m_->world()->grid(x, y)->individual()->fitness(),
-                            prev_internal_simd_struct[i]->fitness);
-
-                    printf(
-                            "Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld Metaerror %f/%f Fitness %e/%e DNA Size %d/%d\n",
-                            prev_internal_simd_struct[i]->metadata_->rna_count(),
-                            exp_m_->world()->grid(x, y)->individual()->rna_list().size(),
-                            prev_internal_simd_struct[i]->metadata_->proteins_count(),
-                            exp_m_->world()->grid(x, y)->individual()->protein_list().size(),
-                            prev_internal_simd_struct[i]->metaerror,
-                            exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
-                                    METABOLISM), prev_internal_simd_struct[i]->fitness,
-                            exp_m_->world()->grid(x, y)->individual()->fitness(), dna_size[i],
-                            exp_m_->world()->grid(x, y)->individual()->genetic_unit(
-                                    0).seq_length());
-
-                    int idx = 0;
-
-                    for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
-                      printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
-                             rna->promoter_pos(), rna->last_transcribed_pos(), rna->strand(), rna->transcript_length());
-                      idx++;
-                    }
-
-                    idx = 0;
-                    for (idx = 0; idx < (int) (prev_internal_simd_struct[i]->metadata_->rna_count()); idx++) {
-                      printf("RNA SIMD %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
-                             prev_internal_simd_struct[i]->metadata_->rnas(idx)->begin,
-                             prev_internal_simd_struct[i]->metadata_->rnas(idx)->end,
-                             prev_internal_simd_struct[i]->metadata_->rnas(idx)->leading_lagging,
-                             prev_internal_simd_struct[i]->metadata_->rnas(idx)->length);
-                    }
-
-
-
-                    idx = 0;
-                    int prot_cpt_b = 0;
-
-                    for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
-                        bool found = false;
-
-                        for (int pidx = 0; pidx < prev_internal_simd_struct[i]->metadata_->proteins_count(); pidx++) {
-                            if (prev_internal_simd_struct[i]->metadata_->proteins(pidx)->is_init_) {
-                                if ((prev_internal_simd_struct[i]->metadata_->proteins(pidx)->e ==
-                                     prot->concentration()) &&
-                                    (prev_internal_simd_struct[i]->metadata_->proteins(pidx)->protein_end ==
-                                     prot->last_STOP_base_pos())) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!found) {
-                            printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
-                                   idx,
-                                   prot->first_translated_pos(), prot->last_translated_pos(),
-                                   prot->last_STOP_base_pos(),
-                                   prot->length(), prot->strand(),
-                                   prot->mean(), prot->width(), prot->height(), prot->is_functional(),
-                                   prot->concentration());
-                        }
-                        idx++;
-                    }
-
-                    for (int idx = 0; idx < prev_internal_simd_struct[i]->metadata_->proteins_count(); idx++) {
-                        if (prev_internal_simd_struct[i]->metadata_->proteins(idx)->is_init_) {
-
-
-                            bool found = false;
-
-                            for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
-                                if ((prev_internal_simd_struct[i]->metadata_->proteins(idx)->e ==
-                                     prot->concentration()) &&
-                                    (prev_internal_simd_struct[i]->metadata_->proteins(idx)->protein_end ==
-                                     prot->last_STOP_base_pos())) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-                            //for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
-                            if (!found) {
-                                printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
-                                       idx,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->protein_start,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->protein_end,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->protein_length,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->leading_lagging,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->m,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->w,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->h,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->is_functional,
-                                       prev_internal_simd_struct[i]->metadata_->proteins(idx)->e
-                                );
-                                validated_generation = false;
-                            }
-                            prot_cpt_b++;
-                        }
-                    }
-
-                    /*if (i==101) {
-                        compute_phenotype(i);
-
-                        for (auto &gen_unit: exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_) {
-                            gen_unit.phenotypic_contributions_computed_ = false;
-                            gen_unit.activ_contribution()->clear();
-                            gen_unit.inhib_contribution()->clear();
-
-
-                            printf("Compute CPU phen (%p)\n", &gen_unit);
-                            gen_unit.compute_phenotypic_contribution(i);
-                        }
-
-                        for (int j = 0; j < 300; j++) {
-                            printf("%d : %f -- %f\n", j, prev_internal_simd_struct[i]->phenotype[j],
-                                   ((HybridFuzzy *) exp_m_->world()->grid(x, y)->individual()->phenotype())->points()[j]);
-                        }
-                    }*/
-
-/*
-        idx = 0;
-        for (idx = 0; idx < (int) (internal_simd_struct[i]->rnas.size()); idx++) {
-          for (int idxb = 0; idxb <
-                             (int) (internal_simd_struct[i]->rnas[idx].start_prot.size()); idxb++) {
-            printf("Protein %d Start %d\n", idx,
-                   internal_simd_struct[i]->rnas[idx].start_prot[idxb]);
-          }
-        }*/
-
-                    //    for (int j = 0; j < 300; j++) {
-                    //      printf("PHENOTYPE [%d] : %f/%f\n",j,internal_simd_struct[i]->phenotype[j],((HybridFuzzy*) exp_m_->world()->indiv_at(x, y)->phenotype())->points()[j]);
-                    //    }
-
-/*      char c = getchar();
-      if (c=='q')
-        exit(-1);
-      c = getchar();*/
-                    exit(-1);
                 }
-/*
-    if (i == 0) {
-      for (int j = 0; j < 300; j++) {
-        printf("%d : %f/%f DELTA %f FABS %f\n",j,internal_simd_struct[i]->phenotype[j],target[j],internal_simd_struct[i]->delta[j],
-               std::fabs(internal_simd_struct[i]->delta[j]));
-      }
-      printf("Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld Metaerror %f/%f Fitness %e/%e\n",internal_simd_struct[i]->rnas.size(),
-             exp_m_->indiv_by_id(i)->rna_list().size(),internal_simd_struct[i]->proteins.size(),
-             exp_m_->indiv_by_id(i)->protein_list().size(),internal_simd_struct[i]->metaerror,
-             exp_m_->indiv_by_id(i)->dist_to_target_by_feature(METABOLISM),internal_simd_struct[i]->fitness,
-             exp_m_->indiv_by_id(i)->fitness());
 
-    }*/
+                printf("Start prot LEAD : ");
+                for (int pidx = 0; pidx < (int) (prev_internal_simd_struct[i]->metadata_->rna_count());
+                     pidx++) {
+                    if (prev_internal_simd_struct[i]->metadata_->rnas(pidx)->leading_lagging == 0) {
+                        for (int pos : prev_internal_simd_struct[i]->metadata_->rnas(pidx)->start_prot) {
+                            printf("%d ",pos);
+                        }
+                    }
+                }
+                printf("\n");
+
+
+                printf("Start prot LAG : ");
+                for (int pidx = 0; pidx < (int) (prev_internal_simd_struct[i]->metadata_->rna_count());
+                     pidx++) {
+                    if (prev_internal_simd_struct[i]->metadata_->rnas(pidx)->leading_lagging == 1) {
+                        for (int pos : prev_internal_simd_struct[i]->metadata_->rnas(pidx)->start_prot) {
+                            printf("%d ",pos);
+                        }
+                    }
+                }
+                printf("\n");
+
+
+                exit(-1);
+            }
 
         }
 
 
         if (validated_generation)
-            printf("Generation %d is replicated with SIMD without diff\n",AeTime::time());
-                }
+            printf("Generation %d is replicated with SIMD without diff\n", AeTime::time());
 
+
+    }
 }
 
 /** Internal_SIMD_Struct Constructor and Destructor **/
