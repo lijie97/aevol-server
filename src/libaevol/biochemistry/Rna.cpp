@@ -60,13 +60,13 @@ namespace aevol {
 Rna::Rna(GeneticUnit* gen_unit, const Rna &model)
 {
   // Copy "trivial" attributes
-  gen_unit_  = gen_unit;
-
-  strand_             = model.strand_;
-  pos_                = model.pos_;
-  transcript_length_  = model.transcript_length_;
-  basal_level_        = model.basal_level_;
-
+  gen_unit_             = gen_unit;
+  strand_               = model.strand_;
+  pos_                  = model.pos_;
+  transcript_length_    = model.transcript_length_;
+  sigma_                = model.sigma_;
+  basal_level_no_noise_ = model.basal_level_no_noise_;
+  basal_level_          = model.basal_level_;
   // Copy transcribed proteins
   // WARNING : Since this list do not "own" the proteins (they will not be deleted)
   //            proteins must NOT be CREATED here.
@@ -84,9 +84,9 @@ Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
 
   transcript_length_  = -1;
 #ifdef __POW_BASAL
-  basal_level_ = (double) 1.0 / (1<<diff);
+  basal_level_no_noise_ = (double) 1.0 / (1<<diff);
 #else
-  basal_level_ = 1 - (double)diff / (PROM_MAX_DIFF + 1);
+  basal_level_no_noise_ = 1 - (double)diff / (PROM_MAX_DIFF + 1);
 #endif
 
   constexpr int8_t NOISE_SEQ_SIZE          = 22;
@@ -123,9 +123,9 @@ Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
       }
     }
   }
-  sigma_             = (double)count_1/(double)NOISE_SEQ_SIZE*(MAX_NOISE-MIN_NOISE)+MIN_NOISE;
-  basal_level_noisy_ = exp(log(basal_level_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*sigma_);
-  //std::cout << sigma_ << " " << basal_level_ << " " << basal_level_noisy_ << "\n";
+  sigma_       = (double)count_1/(double)NOISE_SEQ_SIZE*(MAX_NOISE-MIN_NOISE)+MIN_NOISE;
+  basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*sigma_);
+  //std::cout << sigma_ << " " << basal_level_no_noise_ << " " << basal_level_ << "\n";
 }
 
 /*

@@ -56,7 +56,3 @@ ENV_AXIS_FEATURES       METABOLISM
 ##### 11. Plasmids ################
 ALLOW_PLASMIDS              false
 WITH_TRANSFER               false
-
-
-
-

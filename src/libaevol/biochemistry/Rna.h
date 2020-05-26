@@ -91,9 +91,9 @@ class Rna
     inline void       set_strand(Strand strand);
     inline int32_t    promoter_pos() const;
     inline void       set_promoter_pos(int32_t pos);
-    inline ProteinConcentration     basal_level() const;
-    inline ProteinConcentration     basal_level_noisy() const;
     inline double     sigma() const;
+    inline ProteinConcentration     basal_level_no_noise() const;
+    inline ProteinConcentration     basal_level() const;
     inline int32_t    transcript_length() const; // The promoter is NOT transcribed.
     inline void       set_transcript_length(int32_t length);
     inline bool       is_coding() const;
@@ -137,10 +137,9 @@ class Rna
                   // The promoter itself is NOT transcribed
                   // The terminator is transcribed.
     int32_t transcript_length_;
-    ProteinConcentration basal_level_;
-
-    ProteinConcentration basal_level_noisy_;
     double sigma_;
+    ProteinConcentration basal_level_no_noise_;
+    ProteinConcentration basal_level_;
 
     // Access list to the proteins transcribed by this rna
     std::list<Protein*> transcribed_proteins_;
@@ -180,14 +179,14 @@ inline int32_t Rna::promoter_pos() const
   return pos_;
 }
 
+inline ProteinConcentration Rna::basal_level_no_noise() const
+{
+  return basal_level_no_noise_;
+}
+
 inline ProteinConcentration Rna::basal_level() const
 {
   return basal_level_;
-}
-
-inline ProteinConcentration Rna::basal_level_noisy() const
-{
-  return basal_level_noisy_;
 }
 
 inline double Rna::sigma() const
