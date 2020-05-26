@@ -78,16 +78,54 @@ Rna::Rna(GeneticUnit* gen_unit, const Rna &model)
 
 Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
 {
-  gen_unit_  = gen_unit;
-  strand_ = strand;
-  pos_    = pos;
+  gen_unit_ = gen_unit;
+  strand_   = strand;
+  pos_      = pos;
 
   transcript_length_  = -1;
 #ifdef __POW_BASAL
   basal_level_ = (double) 1.0 / (1<<diff);
 #else
-  basal_level_        = 1 - (double)diff / (PROM_MAX_DIFF + 1);
+  basal_level_ = 1 - (double)diff / (PROM_MAX_DIFF + 1);
 #endif
+
+  constexpr int8_t NOISE_SEQ_SIZE          = 22;
+  constexpr int8_t NOISE_SEQ_PROM_DISTANCE = -22;
+  constexpr double MAX_NOISE               = 1.0;
+  constexpr double MIN_NOISE               = 0.0;
+
+  int start_noise_seq = -1, end_noise_seq = -1;
+
+  if (strand_ == LEADING)
+  {
+    start_noise_seq = Utils::mod(pos_ + NOISE_SEQ_PROM_DISTANCE, gen_unit_->dna()->length());
+  }
+  else
+  {
+    start_noise_seq = Utils::mod(pos_ - NOISE_SEQ_PROM_DISTANCE, gen_unit_->dna()->length());
+  }
+
+  int count_1 = 0;
+  for (int i = 0; i < NOISE_SEQ_SIZE; i++)
+  {
+    if (strand_ == LEADING)
+    {
+      if (gen_unit_->dna()->data()[Utils::mod(start_noise_seq+i, gen_unit_->dna()->length())] == '1')
+      {
+        count_1++;
+      }
+    }
+    else
+    {
+      if (gen_unit_->dna()->data()[Utils::mod(start_noise_seq-i, gen_unit_->dna()->length())] == '1')
+      {
+        count_1++;
+      }
+    }
+  }
+  sigma_             = (double)count_1/(double)NOISE_SEQ_SIZE*(MAX_NOISE-MIN_NOISE)+MIN_NOISE;
+  basal_level_noisy_ = exp(log(basal_level_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*sigma_);
+  //std::cout << sigma_ << " " << basal_level_ << " " << basal_level_noisy_ << "\n";
 }
 
 /*
