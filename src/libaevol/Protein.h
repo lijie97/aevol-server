@@ -119,6 +119,7 @@ class Protein
     char* AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
     virtual void  save(gzFile backup_file);
     bool operator<(const Protein & other);
+    void recompute_concentration();
 
     // =================================================================
     //                           Public Attributes

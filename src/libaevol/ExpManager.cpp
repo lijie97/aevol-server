@@ -323,8 +323,10 @@ void ExpManager::step_to_next_generation() {
     auto ta = high_resolution_clock::now();
 #endif
 
+#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
     {
+#endif
         world_->ApplyHabitatVariation();
 
         // Take a step in time
@@ -404,15 +406,20 @@ void ExpManager::step_to_next_generation() {
 /*  if (simd_first) {
     simd_individual->check_result();
   } else {*/
+#ifdef WITH_STANDALONE_SIMD
     }
-  //if (simd_individual->standalone())
-    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
+#endif
+    if (simd_individual->standalone())
+        simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
 
-    if (check_simd_)
+    if (check_simd_) {
         simd_individual->check_result();
+    }
   //}
+#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
     {
+#endif
 #ifdef __PERF_LOG__
         auto tb = high_resolution_clock::now();
         auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
@@ -448,7 +455,9 @@ void ExpManager::step_to_next_generation() {
 #endif
 
 #endif
+#ifdef WITH_STANDALONE_SIMD
     }
+#endif
 }
 
 /*!
@@ -695,17 +704,21 @@ void ExpManager::run_evolution() {
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
 
-      //if (SIMD_Individual::standalone_simd)
-        simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
+      if (simd_individual->standalone())
+          simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
 
-        if (check_simd_)
-            simd_individual->check_result();
+      if (check_simd_)
+          simd_individual->check_result();
 
       bool finished=false;
         // For each generation
+#ifdef WITH_STANDALONE_SIMD
 #pragma omp parallel
+#endif
                 while (!finished) {
+#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
+#endif
                         {
                             if (AeTime::time() % 100 == 0) {
                                 printf(
@@ -753,8 +766,10 @@ void ExpManager::run_evolution() {
                         }
                         // Take one step in the evolutionary loop
                         step_to_next_generation();
+#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
                         {
+#endif
 #ifdef __TRACING__
                             t2 = high_resolution_clock::now();
                                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -762,8 +777,9 @@ void ExpManager::run_evolution() {
                                 ae_logger::flush(AeTime::time());
 #endif
                         }
-
+#ifdef WITH_STANDALONE_SIMD
                 }
+#endif
 #ifdef __TRACING__
   t_t2 = high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();

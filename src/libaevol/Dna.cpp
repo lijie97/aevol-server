@@ -3958,8 +3958,8 @@ void Dna::apply_mutations() {
         case DELETION:
           segment_length =
               Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
-          /*printf("%d -- Deletion pos_1 %d pos_2 %d seg_lengh %d\n",
-                 indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);*/
+//          printf("%d -- Deletion pos_1 %d pos_2 %d seg_lengh %d length %d\n",
+//                 indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length, length());
           mut = new Deletion(repl->pos_1(), repl->pos_2(), segment_length);
           do_deletion(repl->pos_1(), repl->pos_2());
           break;

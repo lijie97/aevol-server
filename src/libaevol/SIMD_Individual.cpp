@@ -18,6 +18,7 @@
 
 #include <omp.h>
 #include <chrono>
+#include <algorithm>
 
 namespace aevol {
 
@@ -201,7 +202,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     }
 
     void SIMD_Individual::check_selection(int indiv_id) {
-        printf("Check selection !!!!\n");
+//        printf("Check selection !!!!\n");
 
         int32_t selection_scope_x = exp_m_->sel()->selection_scope_x();
         int32_t selection_scope_y = exp_m_->sel()->selection_scope_y();
@@ -1619,6 +1620,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
                             if (prot_length >= 3) {
                                 int32_t glob_prot_idx = -1;
+                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LEAD  [%d => %d] from RNA [%d => %d]\n",
+                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
+                                       rna->begin,rna->end);
                                 glob_prot_idx = internal_simd_struct[indiv_id]->metadata_->proteins_count();
                                 internal_simd_struct[indiv_id]->metadata_->set_proteins_count(
                                         internal_simd_struct[indiv_id]->metadata_->proteins_count() +
@@ -1683,6 +1687,10 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                             }
                             if (prot_length >= 3) {
                                 int32_t glob_prot_idx = -1;
+
+                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LAG  [%d => %d] from RNA [%d => %d] Basal %lf\n",
+                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
+                                        rna->begin,rna->end,rna->e);
                                 glob_prot_idx = internal_simd_struct[indiv_id]->metadata_->proteins_count();
                                 internal_simd_struct[indiv_id]->metadata_->set_proteins_count(
                                         internal_simd_struct[indiv_id]->metadata_->proteins_count() +
@@ -1962,15 +1970,41 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
                 pProtein* prot  = internal_simd_struct[indiv_id]->metadata_->protein_next();
 //                printf("Protein %d Indiv %d : %p %p\n",protein_idx,indiv_id,prot,internal_simd_struct[indiv_id]->metadata_->proteins(protein_idx));
-                if (prot->is_init_) {
+                if (prot->is_init_ && prot->leading_lagging==0) {
                     if (lookup.find(prot->protein_start) ==
                         lookup.end()) {
                         lookup[prot->protein_start] = prot;
                     } else {
                         lookup[prot->protein_start]->e += prot->e;
                         prot->is_init_ = false;
-                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
-                               prot->e,lookup[prot->protein_start]->e);
+//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
+//                               prot->e,lookup[prot->protein_start]->e);
+                    }
+                }
+            }
+        }
+
+        lookup.clear();
+
+        internal_simd_struct[indiv_id]->metadata_->protein_begin();
+        //((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->proteins_print();
+
+        for (int protein_idx = 0; protein_idx <
+                                  (int) internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
+            {
+                //internal_simd_struct[indiv_id]->metadata_->protein_begin();
+
+                pProtein* prot  = internal_simd_struct[indiv_id]->metadata_->protein_next();
+//                printf("Protein %d Indiv %d : %p %p\n",protein_idx,indiv_id,prot,internal_simd_struct[indiv_id]->metadata_->proteins(protein_idx));
+                if (prot->is_init_ && prot->leading_lagging==1) {
+                    if (lookup.find(prot->protein_start) ==
+                        lookup.end()) {
+                        lookup[prot->protein_start] = prot;
+                    } else {
+                        lookup[prot->protein_start]->e += prot->e;
+                        prot->is_init_ = false;
+//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
+//                               prot->e,lookup[prot->protein_start]->e);
                     }
                 }
             }
@@ -1992,81 +2026,105 @@ void SIMD_Individual::compute_protein(int indiv_id) {
     Fuzzy* inhib_phenotype = new Fuzzy();
 #endif
 
+        std::vector<pProtein *> protein_vector;
         internal_simd_struct[indiv_id]->metadata_->protein_begin();
         for (int protein_idx = 0; protein_idx < internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
             pProtein* prot = internal_simd_struct[indiv_id]->metadata_->protein_next();
             if (prot->is_init_) {
-                if (fabs(
-                        prot->w) >=
-                    1e-15 &&
-                    fabs(
-                            prot->h) >=
-                    1e-15) {
+                if (prot->leading_lagging==0)
+                    protein_vector.push_back(prot);
+            }
+        }
 
-                    if (prot->is_functional) {
-                        // Compute triangle points' coordinates
+        internal_simd_struct[indiv_id]->metadata_->protein_begin();
+        for (int protein_idx = 0; protein_idx < internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
+            pProtein* prot = internal_simd_struct[indiv_id]->metadata_->protein_next();
+            if (prot->is_init_) {
+                if (prot->leading_lagging==1)
+                    protein_vector.push_back(prot);
+            }
+        }
+
+        std::sort(protein_vector.begin(), protein_vector.end(),
+             [](pProtein *a, pProtein *b) { return *a < *b;});
+//        if (indiv_id == 392 &&AeTime::time() > 9349) printf("Add Triangle SIMD\n");
+        for (auto prot : protein_vector) {
+            if (fabs(
+                    prot->w) >=
+                1e-15 &&
+                fabs(
+                        prot->h) >=
+                1e-15) {
+
+                if (prot->is_functional) {
+                    // Compute triangle points' coordinates
 #ifdef PHENOTYPE_VECTOR
-                        double x0 =
-                                prot->m -
-                                prot->w;
-                        double x1 = prot->m;
-                        double x2 =
-                                prot->m +
-                                prot->w;
+                    double x0 =
+                            prot->m -
+                            prot->w;
+                    double x1 = prot->m;
+                    double x2 =
+                            prot->m +
+                            prot->w;
 
-                        double height = (prot->h *
-                                         prot->e);
+                    double height = (prot->h *
+                                     prot->e);
 
-                        int loop_A_start = (int) std::ceil(x0 * 299.0);
-                        loop_A_start = loop_A_start < 0 ? 0 : loop_A_start;
-                        loop_A_start = loop_A_start > 299 ? 299 : loop_A_start;
+                    int loop_A_start = (int) std::ceil(x0 * 299.0);
+                    loop_A_start = loop_A_start < 0 ? 0 : loop_A_start;
+                    loop_A_start = loop_A_start > 299 ? 299 : loop_A_start;
 
-                        int loop_A_end = (int) std::ceil(x1 * 299.0);
-                        loop_A_end = loop_A_end < 0 ? 0 : loop_A_end;
-                        loop_A_end = loop_A_end > 299 ? 299 : loop_A_end;
+                    int loop_A_end = (int) std::ceil(x1 * 299.0);
+                    loop_A_end = loop_A_end < 0 ? 0 : loop_A_end;
+                    loop_A_end = loop_A_end > 299 ? 299 : loop_A_end;
 
-                        for (int i = loop_A_start; i < loop_A_end; i++) {
-                            if (prot->h > 0)
-                                activ_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
-                            else
-                                inhib_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
-                        }
-
-                        // Compute the second equation of the triangle
-                        // Updating value between x1 and x2
-                        int loop_B_start = (int) std::ceil(x1 * 299.0);
-                        loop_B_start = loop_B_start < 0 ? 0 : loop_B_start;
-                        loop_B_start = loop_B_start > 299 ? 299 : loop_B_start;
-
-                        int loop_B_end = (int) std::ceil(x2 * 299.0);
-                        if (loop_B_end > 299) {
-                            if (prot->h > 0)
-                                activ_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
-                            else
-                                inhib_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
-                        }
-
-                        loop_B_end = loop_B_end < 0 ? 0 : loop_B_end;
-                        loop_B_end = loop_B_end > 299 ? 299 : loop_B_end;
-
-                        for (int i = loop_B_start; i < loop_B_end; i++) {
-                            if (prot->h > 0)
-                                activ_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
-                            else
-                                inhib_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
-                        }
-#else
-    if (prot->h > 0)
-        activ_phenotype->add_triangle(prot->m,prot->w,prot->h*
-                                                      prot->e);
-    else
-        inhib_phenotype->add_triangle(prot->m,prot->w,prot->h*
-                                                      prot->e);
-#endif
+                    for (int i = loop_A_start; i < loop_A_end; i++) {
+                        if (prot->h > 0)
+                            activ_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
+                        else
+                            inhib_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
                     }
+
+                    // Compute the second equation of the triangle
+                    // Updating value between x1 and x2
+                    int loop_B_start = (int) std::ceil(x1 * 299.0);
+                    loop_B_start = loop_B_start < 0 ? 0 : loop_B_start;
+                    loop_B_start = loop_B_start > 299 ? 299 : loop_B_start;
+
+                    int loop_B_end = (int) std::ceil(x2 * 299.0);
+                    if (loop_B_end > 299) {
+                        if (prot->h > 0)
+                            activ_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
+                        else
+                            inhib_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
+                    }
+
+                    loop_B_end = loop_B_end < 0 ? 0 : loop_B_end;
+                    loop_B_end = loop_B_end > 299 ? 299 : loop_B_end;
+
+                    for (int i = loop_B_start; i < loop_B_end; i++) {
+                        if (prot->h > 0)
+                            activ_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
+                        else
+                            inhib_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
+                    }
+#else
+                    if (prot->h > 0)
+                        activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
+                                                                        prot->e);
+                    else
+                        inhib_phenotype->add_triangle(prot->m, prot->w, prot->h *
+                                                                        prot->e);
+//                    if (indiv_id == 392 &&AeTime::time() > 9349) {
+//                        printf("Add triangle %lf %lf %lf (%lf %lf)\n", prot->m, prot->w, prot->h *
+//                                                                                         prot->e, prot->h, prot->e);
+//                        printf("Geom %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
+//                    }
+#endif
                 }
             }
         }
+
 
 #ifdef PHENOTYPE_VECTOR
         for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
@@ -2082,14 +2140,41 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] = 0;
         }
 #else
+//        if (indiv_id == 392 &&AeTime::time() > 9349) {
+//            printf("Geom %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
+//        }
+
         activ_phenotype->clip(AbstractFuzzy::max,   Y_MAX);
         inhib_phenotype->clip(AbstractFuzzy::min, - Y_MAX);
+
+//        if (indiv_id == 392 &&AeTime::time() > 9349) {
+//            printf("Geom CLIPA %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
+//        }
+
+        activ_phenotype->simplify();
+        inhib_phenotype->simplify();
+
+//        if (indiv_id == 392 &&AeTime::time() > 9349) {
+//            printf("Geom SIMPLIFYA %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
+//        }
 
         internal_simd_struct[indiv_id]->phenotype = new Fuzzy();
         internal_simd_struct[indiv_id]->phenotype->add(*activ_phenotype);
         internal_simd_struct[indiv_id]->phenotype->add(*inhib_phenotype);
+//        if (indiv_id == 392 &&AeTime::time() > 9349) {
+//            printf("Geom ADD %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
+//        }
+
         internal_simd_struct[indiv_id]->phenotype->clip(AbstractFuzzy::min, Y_MIN);
+
+//        if (indiv_id == 392 &&AeTime::time() > 9349) {
+//            printf("Geom CLIP %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
+//        }
         internal_simd_struct[indiv_id]->phenotype->simplify();
+
+//        if (indiv_id == 392 &&AeTime::time() > 9349) {
+//            printf("Geom SIMPLIFY %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
+//        }
 #endif
     }
 
@@ -2171,7 +2256,10 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
 #else
         AbstractFuzzy* delta = new Fuzzy(*internal_simd_struct[indiv_id]->phenotype);
         delta->sub(*(target));
+//        if (indiv_id==157) {        printf("Delta SIMD\n");
+//            delta->print();}
         internal_simd_struct[indiv_id]->metaerror = delta->get_geometric_area();
+        delete delta;
 #endif
 
         internal_simd_struct[indiv_id]->fitness = exp(
@@ -2191,39 +2279,43 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
         for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 16) {
             {
                 for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
-                    //printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
-                    if (standalone_ && optim_prom) {
+//                    printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
+                    if (standalone_ && optim_prom && !exp_m_->check_simd()) {
                         selection(indiv_id);
                     } else if (!standalone_ && optim_prom) {
                         if (exp_m_->check_simd()) check_selection(indiv_id);
+                    } else if (optim_prom && standalone() && exp_m_->check_simd()) {
+//                        printf("Check selection\n");
+                        check_selection(indiv_id);
                     }
+
 
 
                     if (optim_prom) {
                         do_mutation(indiv_id);
                         opt_prom_compute_RNA(indiv_id);
                     } else {
-                        int x = indiv_id / exp_m_->world()->height();
-                        int y = indiv_id % exp_m_->world()->height();
-                        delete exp_m_->dna_mutator_array_[indiv_id];
+                            int x = indiv_id / exp_m_->world()->height();
+                            int y = indiv_id % exp_m_->world()->height();
+                            delete exp_m_->dna_mutator_array_[indiv_id];
 
-                        exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
-                                exp_m_->world()->grid(x, y)->mut_prng(),
-                                prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
-                                exp_m_->exp_s()->mut_params()->duplication_rate(),
-                                exp_m_->exp_s()->mut_params()->deletion_rate(),
-                                exp_m_->exp_s()->mut_params()->translocation_rate(),
-                                exp_m_->exp_s()->mut_params()->inversion_rate(),
-                                exp_m_->exp_s()->mut_params()->point_mutation_rate(),
-                                exp_m_->exp_s()->mut_params()->small_insertion_rate(),
-                                exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-                                exp_m_->exp_s()->mut_params()->max_indel_size(),
-                                exp_m_->exp_s()->min_genome_length(),
-                                exp_m_->exp_s()->max_genome_length(), indiv_id, x, y);
-                        exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
+                            exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
+                                    exp_m_->world()->grid(x, y)->mut_prng(),
+                                    prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
+                                    exp_m_->exp_s()->mut_params()->duplication_rate(),
+                                    exp_m_->exp_s()->mut_params()->deletion_rate(),
+                                    exp_m_->exp_s()->mut_params()->translocation_rate(),
+                                    exp_m_->exp_s()->mut_params()->inversion_rate(),
+                                    exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+                                    exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+                                    exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+                                    exp_m_->exp_s()->mut_params()->max_indel_size(),
+                                    exp_m_->exp_s()->min_genome_length(),
+                                    exp_m_->exp_s()->max_genome_length(), indiv_id, x, y);
+                            exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
 
-                        start_stop_RNA(indiv_id);
-                        compute_RNA(indiv_id);
+                            start_stop_RNA(indiv_id);
+                            compute_RNA(indiv_id);
                     }
 
                     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
@@ -2841,7 +2933,7 @@ void SIMD_Individual::check_result() {
                         "Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld Metaerror %f/%f Fitness %e/%e DNA Size %d/%d\n",
                         prev_internal_simd_struct[i]->metadata_->rna_count(),
                         exp_m_->world()->grid(x, y)->individual()->rna_list().size(),
-                        prev_internal_simd_struct[i]->metadata_->proteins_count(),
+                        count_prot,
                         exp_m_->world()->grid(x, y)->individual()->protein_list().size(),
                         prev_internal_simd_struct[i]->metaerror,
                         exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
@@ -2878,12 +2970,12 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
-                    if (i == 776) found = false;
+                    if (i == 392) found = false;
 
                     if (!found)
-                        printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
+                        printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d Basal %lf\n", idx,
                                rna->promoter_pos(), rna->last_transcribed_pos(), rna->strand(),
-                               rna->transcript_length());
+                               rna->transcript_length(),rna->basal_level());
                     idx++;
                 }
 
@@ -2900,14 +2992,15 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
-                    if (i == 776) found = false;
+                    if (i == 392) found = false;
 
                     if (!found)
-                        printf("RNA SIMD %d Start %d Stop %d Leading/Lagging %d Length %d\n", idx,
+                        printf("RNA SIMD %d Start %d Stop %d Leading/Lagging %d Length %d  Basal %lf\n", idx,
                                prev_internal_simd_struct[i]->metadata_->rnas(idx)->begin,
                                prev_internal_simd_struct[i]->metadata_->rnas(idx)->end,
                                prev_internal_simd_struct[i]->metadata_->rnas(idx)->leading_lagging,
-                               prev_internal_simd_struct[i]->metadata_->rnas(idx)->length);
+                               prev_internal_simd_struct[i]->metadata_->rnas(idx)->length,
+                               prev_internal_simd_struct[i]->metadata_->rnas(idx)->e);
                 }
 
 
@@ -2929,7 +3022,7 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
-                    if (i == 776) found = false;
+                    if (i == 392) found = false;
 
                     if (!found) {
                         printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f RNA : \n",
@@ -2963,7 +3056,7 @@ void SIMD_Individual::check_result() {
                             }
                         }
 
-                        if (i == 776) found = false;
+                        if (i == 392) found = false;
 
                         //for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
                         if (!found) {
@@ -3009,6 +3102,26 @@ void SIMD_Individual::check_result() {
                 printf("\n");
 
 
+                prev_internal_simd_struct[i]->phenotype->print();
+                exp_m_->world()->grid(x, y)->individual()->phenotype()->print();
+
+                exp_m_->world()->grid(x, y)->individual()->phenotype()->
+                        is_identical_to(*prev_internal_simd_struct[i]->phenotype,0.000000000000001);
+
+                AbstractFuzzy* delta = new Fuzzy(*prev_internal_simd_struct[i]->phenotype);
+                delta->sub(*(target));
+
+                AbstractFuzzy* delta2 = FuzzyFactory::fuzzyFactory->create_fuzzy((*(exp_m_->world()->grid(x, y)->individual()->phenotype())));
+                delta2->sub(*(target));
+
+                delta->is_identical_to(*delta2,0.000000000000001);
+
+                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(),delta2->get_geometric_area());
+
+                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(0.0,1.0),delta2->get_geometric_area(0.0,1.0));
+
+                printf("=========> Metaerror %lf -- %lf\n",prev_internal_simd_struct[i]->phenotype->get_geometric_area(),
+                       exp_m_->world()->grid(x, y)->individual()->phenotype()->get_geometric_area());
                 exit(-1);
             }
 
@@ -3071,6 +3184,7 @@ Internal_SIMD_Struct::~Internal_SIMD_Struct() {
 
   dna_factory_->give_back(dna_);
 
+  delete phenotype;
   delete metadata_;
 
   clearAllObserver();
@@ -3083,4 +3197,10 @@ void Internal_SIMD_Struct::rebuild_index() {
         if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
             dynamic_cast<SIMD_Map_Metadata*>(metadata_)->rebuild_index();
 }
+
+    bool pProtein::operator<(const pProtein & other){
+        return (h <  other.h)
+               || (h == other.h && m < other.m)
+               || (h == other.h && m == other.m && w < other.w);
+    }
 }

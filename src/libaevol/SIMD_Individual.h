@@ -100,6 +100,8 @@ class pProtein {
       is_init_ = true;
     }
 
+    bool operator<(const pProtein & other);
+
     int32_t protein_start;
     int32_t protein_end;
     int32_t protein_length;

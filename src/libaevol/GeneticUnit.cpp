@@ -1124,7 +1124,16 @@ void GeneticUnit::do_translation() {
 #endif
 
           if (protein != protein_strand.end()) {
-            protein->add_RNA(&rna);
+
+              double pcon = protein->concentration();
+              (&*protein)->add_RNA(&rna);
+
+//              if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//                  printf("Update Protein (%lf %lf %lf) concentration Before %lf After %lf Rna %lf\n", protein->mean(),
+//                         protein->width(),protein->height(),pcon, protein->concentration(),
+//                         rna.basal_level());
+//              }
+
             rna.add_transcribed_protein(&*protein);
           }
           else {
@@ -1194,6 +1203,12 @@ void GeneticUnit::do_translation() {
 
                   auto& protein = protein_strand.back();
 
+//                  if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//                        printf("Adding Protein (%lf %lf %lf) concentration %lf Rna %lf\n", protein.mean(),
+//                               protein.width(),protein.height(),protein.concentration(),
+//                               rna.basal_level());
+//                    }
+
 //                    if (indiv()->grid_cell()->x()==11&&indiv()->grid_cell()->y()==1) {
 //                        printf("%d -- CPU  --  Adding protein start %d (%d) end %d (%d) length %d leading/lagging %d\n",
 //                               AeTime::time(),
@@ -1258,9 +1273,9 @@ void GeneticUnit::do_translation() {
     }
   }
 
-   for (auto & strand : protein_list_) {
-       strand.sort();
-   }
+//   for (auto & strand : protein_list_) {
+//       strand.sort();
+//   }
 
 }
 
@@ -1279,30 +1294,78 @@ void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
         activ_contribution_->clear();
         inhib_contribution_->clear();
     }*/
-  for (const auto& strand: protein_list_) // two strands: LEADING & LAGGING
-    for (const auto& prot: strand)
-      if (prot.is_functional()) {
-          /*if (indiv_id == 268) printf("Adding a prot\n");*/
-        /*if (indiv_->grid_cell()->x()*exp_m()->world()->height()+indiv_->grid_cell()->y() == 894) {
-          printf("Protein is %f %f %f %f\n",prot.mean(),
-                 prot.width(),
-                 prot.height(),prot.concentration());
+  std::vector<Protein *> protein_vector;
+  for (auto& strand: protein_list_) { // two strands: LEADING & LAGGING
+    for (auto& prot: strand) {
+      protein_vector.emplace_back(&prot);
+//        if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Concentration %lf Copy %lf Rna List %ld Copy %ld :: %lf %lf %lf (%lf %lf) :: %lf %lf %lf (%lf %lf)\n", prot.concentration(),
+//                   protein_vector.back()->concentration(), prot.rna_list().size(),
+//                   protein_vector.back()->rna_list().size(), protein_vector.back()->mean(), protein_vector.back()->width(),
+//                   protein_vector.back()->height() * protein_vector.back()->concentration(),
+//                   protein_vector.back()->height(), protein_vector.back()->concentration(),
+//                    prot.mean(),prot.width(),prot.height()*prot.concentration(),prot.height(),prot.concentration());
+//        }
+        //protein_vector.back()->concentration_ = 0.0;
+      //for (auto rna : prot.rna_list()) {
+      //    protein_vector.back()->add_RNA(rna);
+      //}
+    }
+  }
 
-          ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
-              ->add_triangle(prot.mean(),
-                             prot.width(),
-                             prot.height() * prot.concentration(), true);
-        } else*/
-          ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
+  sort(protein_vector.begin(), protein_vector.end(),
+       [](Protein *a, Protein *b) { return *a < *b;});
+//    if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//        printf("Add Triangle CPU\n");
+//    }
+  for(auto prot : protein_vector) {
+    if (prot->is_functional()) {
+//        if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Add triangle BREC %lf %lf %lf (%lf %lf) : \n", prot->mean(), prot->width(), prot->height() *
+//                                                                                           prot->concentration(),
+//                   prot->height(), prot->concentration());
+//            for (auto& rna : prot->rna_list()) printf("%f ",rna->basal_level());
+//            printf("\n");
+//        }
+
+//        prot->recompute_concentration();
+      /*if (indiv_id == 268) printf("Adding a prot\n");*/
+      /*if (indiv_->grid_cell()->x()*exp_m()->world()->height()+indiv_->grid_cell()->y() == 894) {
+        printf("Protein is %f %f %f %f\n",prot.mean(),
+               prot.width(),
+               prot.height(),prot.concentration());
+
+        ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
             ->add_triangle(prot.mean(),
                            prot.width(),
-                           prot.height() * prot.concentration());
+                           prot.height() * prot.concentration(), true);
+      } else*/
+//          ((prot.height() > 0) ? activ_contribution_ : inhib_contribution_)
+//            ->add_triangle(prot.mean(),
+//                           prot.width(),
+//                           prot.height() * prot.concentration());
+//      if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Add triangle %lf %lf %lf (%lf %lf) : \n", prot->mean(), prot->width(), prot->height() *
+//                                                                                             prot->concentration(),
+//                   prot->height(), prot->concentration());
+//        for (auto& rna : prot->rna_list()) printf("%f ",rna->basal_level());
+//                        printf("\n");
+//        }
+
+        ((prot->height() > 0) ? activ_contribution_ : inhib_contribution_)
+              ->add_triangle(prot->mean(), prot->width(),
+                             prot->height() * prot->concentration());
+
+//      if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Geom %lf %lf\n",activ_contribution()->get_geometric_area(),inhib_contribution()->get_geometric_area());
+//        }
 /*
           if (indiv_id == 101)
           for (int i = 0; i <= 1; i++) {
             printf("CPU -- X[%d] = %f (%e %e %e)\n",i,((HybridFuzzy*)activ_contribution_)->points()[i],prot.mean(),prot.width(),prot.height());
           }*/
-      }
+    }
+  }
   // if (prot->height() > 0)
   //   activ_contribution_->add_triangle(prot->mean(),
   //                                     prot->width(),
@@ -1316,8 +1379,16 @@ void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
   // The same goes for the upper bound for inhib_contribution_
   activ_contribution_->clip(Fuzzy::max,   Y_MAX );
   inhib_contribution_->clip(Fuzzy::min, - Y_MAX );
+//  if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//        printf("Geom AFTER CLIP GC %lf %lf\n",activ_contribution()->get_geometric_area(),inhib_contribution()->get_geometric_area());
+//    }
+
   activ_contribution_->simplify();
   inhib_contribution_->simplify();
+
+//  if (indiv_->grid_cell()->x() == 12 && indiv_->grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//        printf("Geom AFTER SIMPLIFY GC %lf %lf\n",activ_contribution()->get_geometric_area(),inhib_contribution()->get_geometric_area());
+//    }
 
   if ( exp_m_->output_m()->compute_phen_contrib_by_GU() )
   {

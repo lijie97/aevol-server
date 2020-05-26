@@ -225,7 +225,7 @@ class ExpManager : public Observer {
 
     bool first_gen = true;
 
-    bool check_simd_ = true;
+    bool check_simd_ = false;
 
         //wether you stop the simulation based on the age of mrca or not
         bool with_mrca_;

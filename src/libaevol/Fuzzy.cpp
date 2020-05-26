@@ -388,8 +388,11 @@ bool Fuzzy::is_identical_to(const AbstractFuzzy& f, ProteinConcentration toleran
        p != points_.end() ; // no need to check q because both lists have same size
        ++p, ++q)
     if (fabs(p->x - q->x) > tolerance * (fabs(p->x) + fabs(q->x)) or
-        fabs(p->y - q->y) > tolerance * (fabs(p->y) + fabs(q->y)))
-      return false;
+        fabs(p->y - q->y) > tolerance * (fabs(p->y) + fabs(q->y))) {
+//        printf("TA [ %lf %lf ] [ %lf %lf ] = %lf\n",p->x,q->x,p->y,q->y,fabs((p->y + q->y) / 2.0 *
+//                                                                             (q->x - p->x)));
+        return false;
+    }
   return true;
 }
 
@@ -511,7 +514,7 @@ void Fuzzy::print() const
 //  printf("\n");
   for (int i = 0; i < 300; i++) {
       double py = y(i / 299.0);
-      if (py != 0) printf("[%d : %f]\n", i, py);
+      if (py != 0) printf("[%d : %e]\n", i, py);
   }
 }
 } // namespace aevol

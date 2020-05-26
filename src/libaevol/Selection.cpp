@@ -266,7 +266,7 @@ void Selection::step_to_next_generation() {
     // Do local competitions
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp parallel for schedule(dynamic) private(x,y)
+//#pragma omp parallel for schedule(dynamic) private(x,y)
 #else
 #pragma omp target teams distribute parallel for schedule(static,1) private(x,y)
 #endif
@@ -367,14 +367,15 @@ void Selection::step_to_next_generation() {
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-  #pragma omp parallel
+//  #pragma omp parallel
+//#pragma omp single
   {
 #endif
 #endif
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp for schedule(dynamic) private(x,y,what)
+//#pragma omp for schedule(dynamic) private(x,y,what)
 #else
 #pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
 #endif
@@ -400,7 +401,7 @@ void Selection::step_to_next_generation() {
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp critical(updateindiv)
+//#pragma omp critical(updateindiv)
 #endif
 #endif
       {
@@ -413,14 +414,14 @@ void Selection::step_to_next_generation() {
   }
 #ifdef _OPENMP
   #ifndef __OPENMP_GPU
-#pragma omp barrier
+//#pragma omp barrier
   #endif
 #endif
   t1 = high_resolution_clock::now();
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp for schedule(dynamic)
+//#pragma omp for schedule(dynamic)
 #else
 #pragma omp target teams distribute parallel for schedule(static,1)
 #endif
