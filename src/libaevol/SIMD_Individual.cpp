@@ -1620,9 +1620,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
                             if (prot_length >= 3) {
                                 int32_t glob_prot_idx = -1;
-                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LEAD  [%d => %d] from RNA [%d => %d]\n",
-                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
-                                       rna->begin,rna->end);
+//                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LEAD  [%d => %d] from RNA [%d => %d]\n",
+//                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
+//                                       rna->begin,rna->end);
                                 glob_prot_idx = internal_simd_struct[indiv_id]->metadata_->proteins_count();
                                 internal_simd_struct[indiv_id]->metadata_->set_proteins_count(
                                         internal_simd_struct[indiv_id]->metadata_->proteins_count() +
@@ -1688,9 +1688,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                             if (prot_length >= 3) {
                                 int32_t glob_prot_idx = -1;
 
-                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LAG  [%d => %d] from RNA [%d => %d] Basal %lf\n",
-                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
-                                        rna->begin,rna->end,rna->e);
+//                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LAG  [%d => %d] from RNA [%d => %d] Basal %lf\n",
+//                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
+//                                        rna->begin,rna->end,rna->e);
                                 glob_prot_idx = internal_simd_struct[indiv_id]->metadata_->proteins_count();
                                 internal_simd_struct[indiv_id]->metadata_->set_proteins_count(
                                         internal_simd_struct[indiv_id]->metadata_->proteins_count() +
@@ -2175,6 +2175,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 //        if (indiv_id == 392 &&AeTime::time() > 9349) {
 //            printf("Geom SIMPLIFY %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
 //        }
+        delete activ_phenotype;
+        delete inhib_phenotype;
 #endif
     }
 
