@@ -234,10 +234,14 @@ StatRecord::StatRecord(ExpSetup* exp_s,
           n           += 1.0;
         }
       }
-      sigma_mean_ /= n;
-      sigma_sd_   /= n;
-      sigma_sd_   -= sigma_mean_*sigma_mean_;
-      sigma_sd_    = sqrt(sigma_sd_);
+      if (n > 0.0)
+      {
+        sigma_mean_ /= n;
+        sigma_sd_   /= n;
+        sigma_sd_   -= sigma_mean_*sigma_mean_;
+        sigma_sd_    = (sigma_sd_ < 0.00000001) ? 0. : sqrt(sigma_sd_);
+      }
+      //std::cout << sigma_mean_ << "\n";
 
       // -------------------------------------------------
       // Compute statistical data for the given individual
@@ -669,10 +673,12 @@ void StatRecord::initialize_data()
         if (stat_type_to_print == FITNESS_STATS)
         {
             fprintf(stat_file,
-                    "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e %e %e",
+                    "%" PRId64 " %" PRId32 " %e %e %e %" PRId32 " %e %e %e %e %e %e %e",
                     time,
                     pop_size_,
                     fitness_,
+                    sigma_mean_,
+                    sigma_sd_,
                     amount_of_dna_,
                     metabolic_error_,
                     parent_metabolic_error_,
@@ -680,9 +686,7 @@ void StatRecord::initialize_data()
                     secretion_error_,
                     parent_secretion_error_,
                     secretion_fitness_,
-                    compound_amount_,
-                    sigma_mean_,
-                    sigma_sd_);
+                    compound_amount_);
 #ifdef __REGUL
             fprintf(stat_file,
           " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",

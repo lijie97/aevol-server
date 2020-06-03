@@ -125,7 +125,7 @@ Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
   }
   sigma_       = (double)count_1/(double)NOISE_SEQ_SIZE*(MAX_NOISE-MIN_NOISE)+MIN_NOISE;
   basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*sigma_);
-  //std::cout << sigma_ << " " << basal_level_no_noise_ << " " << basal_level_ << "\n";
+  //std::cout << count_1 << " " << sigma_ << " " << basal_level_no_noise_ << " " << basal_level_ << "\n";
 }
 
 /*

@@ -253,6 +253,8 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Generation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Population size", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Fitness", key++);
+        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Sigma mean", key++);
+        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Sigma standard-deviation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Genome size (amount of DNA)", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Metabolic error", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Parent's metabolic error", key++);
@@ -745,7 +747,7 @@ void Stats::init_data() {
                     // Construct the correct name
                     if (best_indiv_only) {
                         sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
-                                STATS_DIR"/%s%s%s%s.out",
+                                STATS_DIR"/%s%s%s%s.txt",
                                 prefix.c_str(),
                                 stat_type_name[stat_type],
                                 chrom_or_gu_name[chrom_or_GU],
@@ -754,7 +756,7 @@ void Stats::init_data() {
                     else
                     {
                         sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
-                                STATS_DIR"/%s%s%s%s%s.out",
+                                STATS_DIR"/%s%s%s%s%s.txt",
                                 prefix.c_str(),
                                 stat_type_name[stat_type],
                                 chrom_or_gu_name[chrom_or_GU],
