@@ -93,7 +93,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
     exit(EXIT_FAILURE);
   }
 
-        printf("---- ] Allocate tree %ld\n",tree_step_);
+//        printf("---- ] Allocate tree %ld\n",tree_step_);
   replics_ = new ReplicationReport** [tree_step_];
   //for (int64_t t = AeTime::time()-tree_step_+1 ; t <= AeTime::time() ; t++) {
   for (int64_t t = 0 ; t < tree_step_ ; t++) {

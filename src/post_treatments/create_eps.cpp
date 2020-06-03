@@ -587,7 +587,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target,
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
 
   if (indiv->exp_m()->exp_s()->get_fuzzy_flavor() == 0)
-    for (const auto& p: ((Fuzzy*)indiv->phenotype_activ())->points())
+    for (const auto& p: ((Fuzzy*)indiv->phenotype())->points())
       fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   else {
     for (int i=0; i < ((HybridFuzzy*)indiv->phenotype())->get_pheno_size(); i++) {

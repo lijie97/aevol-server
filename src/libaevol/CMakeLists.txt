@@ -170,7 +170,9 @@ set(aevol_sources
   SIMD_List_Metadata.cpp
   SIMD_List_Metadata.h
   SIMD_DnaFactory.cpp
-  SIMD_DnaFactory.h)
+  SIMD_DnaFactory.h
+  Vector_Fuzzy.h
+  Vector_Fuzzy.cpp)
 
   
 if ( ${with-raevol} )

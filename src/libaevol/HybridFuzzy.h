@@ -5,7 +5,7 @@
 #ifndef AEVOL_HYBRIDFUZZY_H
 #define AEVOL_HYBRIDFUZZY_H
 
-#define PHENO_SIZE 300
+#define PHENO_SIZE 30000
 
 #include <vector>
 

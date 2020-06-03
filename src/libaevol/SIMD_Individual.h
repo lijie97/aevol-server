@@ -17,6 +17,7 @@
 #include "ae_enums.h"
 #include "Stats.h"
 #include "SIMD_DnaFactory.h"
+#include "Vector_Fuzzy.h"
 
 namespace aevol {
 
@@ -35,6 +36,8 @@ constexpr const char* SHINE_DAL_SEQ_LAG  = "100100111";
 constexpr const char* PROTEIN_END_LEAD  = "001";
 constexpr const char* PROTEIN_END_LAG   = "110";
 
+const int32_t PHENOTYPE_VECTOR_SIZE = 120000;
+    constexpr const  double D_PHENOTYPE_VECTOR_SIZE = 120000.0;
 
 class promoterStruct {
  public:
@@ -124,11 +127,11 @@ class Internal_SIMD_Struct : public Observable {
     ~Internal_SIMD_Struct();
 
 #ifdef PHENOTYPE_VECTOR
-    double phenotype[300];
-    double delta[300];
+    double phenotype[PHENOTYPE_VECTOR_SIZE];
+    double delta[PHENOTYPE_VECTOR_SIZE];
 #else
-    Fuzzy* phenotype;
-    Fuzzy* delta;
+        Vector_Fuzzy* phenotype;
+        Vector_Fuzzy* delta;
 #endif
     double fitness;
     double metaerror;
@@ -231,7 +234,7 @@ class SIMD_Individual : public Observable{
 #ifdef PHENOTYPE_VECTOR
     double* target;
 #else
-    Fuzzy* target;
+    Vector_Fuzzy* target;
 #endif
     bool standalone_;
     bool first_gener_ = true;

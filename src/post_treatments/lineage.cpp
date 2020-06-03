@@ -419,8 +419,8 @@ int main(int argc, char** argv) {
 
 
   gzclose(lineage_file);
-  delete [] reports;
-  delete exp_manager;
+  //delete [] reports;
+  //delete exp_manager;
 
   exit(EXIT_SUCCESS);
 }

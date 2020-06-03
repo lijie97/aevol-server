@@ -15,10 +15,13 @@
 #include "../../../../../../../../../usr/include/stdio.h"
 #include "../../../../../../../../../usr/include/stdint.h"
 #include "Fuzzy.h"
+#include "Vector_Fuzzy.h"
 
 #include <omp.h>
 #include <chrono>
 #include <algorithm>
+#include <sys/stat.h>
+#include <err.h>
 
 namespace aevol {
 
@@ -78,13 +81,13 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     }
 
 #ifdef PHENOTYPE_VECTOR
-    target = new double[300];
-    for (int i = 0; i < 300; i++) {
-        double tmp = ((HybridFuzzy *) exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy())->points()[i];
+    target = new double[PHENOTYPE_VECTOR_SIZE];
+    for (int i = 0; i < PHENOTYPE_VECTOR_SIZE; i++) {
+        double tmp = ((Fuzzy *) exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy())->y(((double)i)/D_PHENOTYPE_VECTOR_SIZE);
         target[i] = tmp;
     }
 #else
-    target = new Fuzzy(*(Fuzzy*)(exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy()));
+    target = new Vector_Fuzzy(*(Fuzzy*)(exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy()));
 #endif
 
 #ifdef WITH_PERF_TRACES
@@ -2013,17 +2016,19 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
     void SIMD_Individual::compute_phenotype(int indiv_id) {
 #ifdef PHENOTYPE_VECTOR
-        double activ_phenotype[300];
-        double inhib_phenotype[300];
+        double activ_phenotype[PHENOTYPE_VECTOR_SIZE];
+        double inhib_phenotype[PHENOTYPE_VECTOR_SIZE];
         {
-            for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
+            for (int fuzzy_idx = 0; fuzzy_idx < PHENOTYPE_VECTOR_SIZE; fuzzy_idx++) {
                 activ_phenotype[fuzzy_idx] = 0;
                 inhib_phenotype[fuzzy_idx] = 0;
             }
         }
+    Fuzzy* f_activ_phenotype = new Fuzzy();
+    Fuzzy* f_inhib_phenotype = new Fuzzy();
 #else
-    Fuzzy* activ_phenotype = new Fuzzy();
-    Fuzzy* inhib_phenotype = new Fuzzy();
+    Vector_Fuzzy* activ_phenotype = new Vector_Fuzzy();
+    Vector_Fuzzy* inhib_phenotype = new Vector_Fuzzy();
 #endif
 
         std::vector<pProtein *> protein_vector;
@@ -2070,44 +2075,93 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                     double height = (prot->h *
                                      prot->e);
 
-                    int loop_A_start = (int) std::ceil(x0 * 299.0);
+                    int loop_A_start = (int) std::ceil(x0 * D_PHENOTYPE_VECTOR_SIZE);
                     loop_A_start = loop_A_start < 0 ? 0 : loop_A_start;
-                    loop_A_start = loop_A_start > 299 ? 299 : loop_A_start;
+                    loop_A_start = loop_A_start > PHENOTYPE_VECTOR_SIZE ? PHENOTYPE_VECTOR_SIZE : loop_A_start;
 
-                    int loop_A_end = (int) std::ceil(x1 * 299.0);
+                    int loop_A_end = (int) std::ceil(x1 * D_PHENOTYPE_VECTOR_SIZE);
                     loop_A_end = loop_A_end < 0 ? 0 : loop_A_end;
-                    loop_A_end = loop_A_end > 299 ? 299 : loop_A_end;
+                    loop_A_end = loop_A_end > PHENOTYPE_VECTOR_SIZE ? PHENOTYPE_VECTOR_SIZE : loop_A_end;
 
                     for (int i = loop_A_start; i < loop_A_end; i++) {
                         if (prot->h > 0)
-                            activ_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
+                            activ_phenotype[i] += (((i / D_PHENOTYPE_VECTOR_SIZE) - x0) / (x1 - x0)) * height;
                         else
-                            inhib_phenotype[i] += (((i / 299.0) - x0) / (x1 - x0)) * height;
+                            inhib_phenotype[i] += (((i / D_PHENOTYPE_VECTOR_SIZE) - x0) / (x1 - x0)) * height;
                     }
 
                     // Compute the second equation of the triangle
                     // Updating value between x1 and x2
-                    int loop_B_start = (int) std::ceil(x1 * 299.0);
+                    int loop_B_start = (int) std::ceil(x1 * D_PHENOTYPE_VECTOR_SIZE);
                     loop_B_start = loop_B_start < 0 ? 0 : loop_B_start;
-                    loop_B_start = loop_B_start > 299 ? 299 : loop_B_start;
+                    loop_B_start = loop_B_start > PHENOTYPE_VECTOR_SIZE ? PHENOTYPE_VECTOR_SIZE : loop_B_start;
 
-                    int loop_B_end = (int) std::ceil(x2 * 299.0);
-                    if (loop_B_end > 299) {
+                    int loop_B_end = (int) std::ceil(x2 * D_PHENOTYPE_VECTOR_SIZE);
+                    if (loop_B_end > PHENOTYPE_VECTOR_SIZE) {
                         if (prot->h > 0)
-                            activ_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
+                            activ_phenotype[PHENOTYPE_VECTOR_SIZE-1] += height * ((x2 - 1.0) / (x2 - x1));
                         else
-                            inhib_phenotype[299] += height * ((x2 - 1.0) / (x2 - x1));
+                            inhib_phenotype[PHENOTYPE_VECTOR_SIZE-1] += height * ((x2 - 1.0) / (x2 - x1));
                     }
 
                     loop_B_end = loop_B_end < 0 ? 0 : loop_B_end;
-                    loop_B_end = loop_B_end > 299 ? 299 : loop_B_end;
+                    loop_B_end = loop_B_end > PHENOTYPE_VECTOR_SIZE ? PHENOTYPE_VECTOR_SIZE : loop_B_end;
 
                     for (int i = loop_B_start; i < loop_B_end; i++) {
                         if (prot->h > 0)
-                            activ_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
+                            activ_phenotype[i] += height * ((x2 - (i / D_PHENOTYPE_VECTOR_SIZE)) / (x2 - x1));
                         else
-                            inhib_phenotype[i] += height * ((x2 - (i / 299.0)) / (x2 - x1));
+                            inhib_phenotype[i] += height * ((x2 - (i / D_PHENOTYPE_VECTOR_SIZE)) / (x2 - x1));
                     }
+
+                    if (prot->h > 0)
+                        f_activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
+                                                                        prot->e);
+                    else
+                        f_inhib_phenotype->add_triangle(prot->m, prot->w, prot->h *
+                                                                        prot->e);
+
+//                    printf("SIMD_FUZZY ACTIV\n");
+//                    for (int i = 0; i < PHENOTYPE_VECTOR_SIZE; i++)
+//                        if (activ_phenotype[i]!=0) printf("[%lf : %lf]\n",((double)i)/D_PHENOTYPE_VECTOR_SIZE,activ_phenotype[i]);
+//                    printf("\n");
+//
+//                    printf("CLASSIC FUZZY ACTIV\n");
+//                    f_activ_phenotype->print();
+//
+//                    printf("SIMD FUZZY INHIB\n");
+//                    for (int i = 0; i < PHENOTYPE_VECTOR_SIZE; i++)
+//                        if (inhib_phenotype[i]!=0) printf("[%d : %f]\n",((double)i)/D_PHENOTYPE_VECTOR_SIZE,inhib_phenotype[i]);
+//                    printf("\n");
+//
+//                    printf("CLASSIC FUZZY INHIB\n");
+//                    f_inhib_phenotype->print();
+         double geom_active = 0, geom_inhib = 0;
+//
+        for (int fuzzy_idx = 0; fuzzy_idx < PHENOTYPE_VECTOR_SIZE-1; fuzzy_idx++) {
+            geom_active +=
+                    ((std::fabs(activ_phenotype[fuzzy_idx]) +
+                      std::fabs(activ_phenotype[fuzzy_idx + 1])) /
+                     (D_PHENOTYPE_VECTOR_SIZE*2));
+            geom_inhib += ((std::fabs(inhib_phenotype[fuzzy_idx]) +
+                      std::fabs(inhib_phenotype[fuzzy_idx + 1])) /
+                     (D_PHENOTYPE_VECTOR_SIZE*2));
+        }
+
+        double fgeom_active = f_activ_phenotype->get_geometric_area();
+        double fgeom_active_round = roundf(fgeom_active * 10000);
+        double geom_active_round = roundf(geom_active * 10000);
+
+        double fgeom_inhib = f_inhib_phenotype->get_geometric_area();
+        double fgeom_inhib_round = roundf(fgeom_inhib * 10000);
+        double geom_inhib_round = roundf(geom_inhib * 10000);
+
+        if ((geom_active_round != fgeom_active_round) || (geom_inhib_round != fgeom_inhib_round)) {
+        printf("After adding triangle (%lf %lf %lf) : Active %.10lf/%.10lf Inhib %.10lf/%.10lf\n",prot->m,prot->w,prot->h*prot->e,
+        geom_active,fgeom_active,
+        geom_inhib,fgeom_inhib);
+        exit(5);
+        }
 #else
                     if (prot->h > 0)
                         activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
@@ -2127,14 +2181,14 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
 
 #ifdef PHENOTYPE_VECTOR
-        for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
+        for (int fuzzy_idx = 0; fuzzy_idx < PHENOTYPE_VECTOR_SIZE; fuzzy_idx++) {
             if (activ_phenotype[fuzzy_idx] > 1)
                 activ_phenotype[fuzzy_idx] = 1;
             if (inhib_phenotype[fuzzy_idx] < -1)
                 inhib_phenotype[fuzzy_idx] = -1;
         }
 
-        for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
+        for (int fuzzy_idx = 0; fuzzy_idx < PHENOTYPE_VECTOR_SIZE; fuzzy_idx++) {
             internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] = activ_phenotype[fuzzy_idx] + inhib_phenotype[fuzzy_idx];
             if (internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] < 0)
                 internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] = 0;
@@ -2158,9 +2212,9 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 //            printf("Geom SIMPLIFYA %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
 //        }
 
-        internal_simd_struct[indiv_id]->phenotype = new Fuzzy();
-        internal_simd_struct[indiv_id]->phenotype->add(*activ_phenotype);
-        internal_simd_struct[indiv_id]->phenotype->add(*inhib_phenotype);
+        internal_simd_struct[indiv_id]->phenotype = new Vector_Fuzzy();
+        internal_simd_struct[indiv_id]->phenotype->add(activ_phenotype);
+        internal_simd_struct[indiv_id]->phenotype->add(inhib_phenotype);
 //        if (indiv_id == 392 &&AeTime::time() > 9349) {
 //            printf("Geom ADD %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
 //        }
@@ -2235,7 +2289,7 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
 
     void SIMD_Individual::compute_fitness(int indiv_id, double selection_pressure) {
 #ifdef PHENOTYPE_VECTOR
-        for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
+        for (int fuzzy_idx = 0; fuzzy_idx < PHENOTYPE_VECTOR_SIZE; fuzzy_idx++) {
 
             if (internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] > 1)
                 internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] = 1;
@@ -2249,15 +2303,15 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
 
         internal_simd_struct[indiv_id]->metaerror = 0;
 
-        for (int fuzzy_idx = 0; fuzzy_idx < 299; fuzzy_idx++) {
+        for (int fuzzy_idx = 0; fuzzy_idx < PHENOTYPE_VECTOR_SIZE; fuzzy_idx++) {
             internal_simd_struct[indiv_id]->metaerror +=
                     ((std::fabs(internal_simd_struct[indiv_id]->delta[fuzzy_idx]) +
                       std::fabs(internal_simd_struct[indiv_id]->delta[fuzzy_idx + 1])) /
-                     (600.0));
+                     (D_PHENOTYPE_VECTOR_SIZE*2));
         }
 #else
-        AbstractFuzzy* delta = new Fuzzy(*internal_simd_struct[indiv_id]->phenotype);
-        delta->sub(*(target));
+        Vector_Fuzzy* delta = new Vector_Fuzzy(*internal_simd_struct[indiv_id]->phenotype);
+        delta->sub(target);
 //        if (indiv_id==157) {        printf("Delta SIMD\n");
 //            delta->print();}
         internal_simd_struct[indiv_id]->metaerror = delta->get_geometric_area();
@@ -2438,18 +2492,6 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 //#pragma omp barrier
         bool without_stats = true;
         if (!without_stats) {
-#pragma omp single
-            {
-                // Stats
-                if (!optim_prom) {
-                    printf("-------------> Create stats\n");
-                    stats_best = new Stats_SIMD(this, AeTime::time(), true);
-                    stats_mean = new Stats_SIMD(this, AeTime::time(), false);
-                } else {
-                    stats_best->reinit(AeTime::time());
-                    stats_mean->reinit(AeTime::time());
-                }
-            }
 
 #pragma omp for schedule(static)
             for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
@@ -2486,6 +2528,15 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
 #pragma omp single
             {
+                // Stats
+                if (!optim_prom) {
+                    stats_best = new Stats_SIMD(this, AeTime::time(), true);
+                    stats_mean = new Stats_SIMD(this, AeTime::time(), false);
+                } else {
+                    stats_best->reinit(AeTime::time());
+                    stats_mean->reinit(AeTime::time());
+                }
+
                 stats_best->write_best();
                 stats_mean->write_average();
             }
@@ -2495,7 +2546,6 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 #pragma omp single
             {
                 if (!optim_prom) {
-                    printf("-------------> Create stats\n");
                     stats_best = new Stats_SIMD(this, AeTime::time(), true);
                 } else {
                     stats_best->reinit(AeTime::time());
@@ -2565,6 +2615,13 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 
                 if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
                     AeTime::time() > 0) {
+                    int status;
+                    status = mkdir(TREE_DIR, 0755);
+                    if ((status == -1) && (errno != EEXIST))
+                    {
+                        err(EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR);
+                    }
+
                     printf("Tree SIMD backup: %d\n", AeTime::time());
                     char tree_file_name[50];
 
@@ -3104,26 +3161,26 @@ void SIMD_Individual::check_result() {
                 printf("\n");
 
 
-                prev_internal_simd_struct[i]->phenotype->print();
-                exp_m_->world()->grid(x, y)->individual()->phenotype()->print();
+//                prev_internal_simd_struct[i]->phenotype->print();
+//                exp_m_->world()->grid(x, y)->individual()->phenotype()->print();
+//
+//                exp_m_->world()->grid(x, y)->individual()->phenotype()->
+//                        is_identical_to(*prev_internal_simd_struct[i]->phenotype,0.000000000000001);
+//
+//                AbstractFuzzy* delta = new Fuzzy(*prev_internal_simd_struct[i]->phenotype);
+//                delta->sub(*(target));
+//
+//                AbstractFuzzy* delta2 = FuzzyFactory::fuzzyFactory->create_fuzzy((*(exp_m_->world()->grid(x, y)->individual()->phenotype())));
+//                delta2->sub(*(target));
+//
+//                delta->is_identical_to(*delta2,0.000000000000001);
+//
+//                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(),delta2->get_geometric_area());
+//
+//                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(0.0,1.0),delta2->get_geometric_area(0.0,1.0));
 
-                exp_m_->world()->grid(x, y)->individual()->phenotype()->
-                        is_identical_to(*prev_internal_simd_struct[i]->phenotype,0.000000000000001);
-
-                AbstractFuzzy* delta = new Fuzzy(*prev_internal_simd_struct[i]->phenotype);
-                delta->sub(*(target));
-
-                AbstractFuzzy* delta2 = FuzzyFactory::fuzzyFactory->create_fuzzy((*(exp_m_->world()->grid(x, y)->individual()->phenotype())));
-                delta2->sub(*(target));
-
-                delta->is_identical_to(*delta2,0.000000000000001);
-
-                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(),delta2->get_geometric_area());
-
-                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(0.0,1.0),delta2->get_geometric_area(0.0,1.0));
-
-                printf("=========> Metaerror %lf -- %lf\n",prev_internal_simd_struct[i]->phenotype->get_geometric_area(),
-                       exp_m_->world()->grid(x, y)->individual()->phenotype()->get_geometric_area());
+//                printf("=========> Metaerror %lf -- %lf\n",prev_internal_simd_struct[i]->phenotype->get_geometric_area(),
+//                       exp_m_->world()->grid(x, y)->individual()->phenotype()->get_geometric_area());
                 exit(-1);
             }
 
@@ -3186,7 +3243,10 @@ Internal_SIMD_Struct::~Internal_SIMD_Struct() {
 
   dna_factory_->give_back(dna_);
 
+#ifndef PHENOTYPE_VECTOR
   delete phenotype;
+#endif
+
   delete metadata_;
 
   clearAllObserver();
