@@ -179,8 +179,10 @@ class StatRecord
 
     double  fitness_ = 0.0;
 
-    double  sigma_mean_ = 0.0;
-    double  sigma_sd_   = 0.0;
+    double  log_sigma_mean_ = 0.0;
+    double  log_sigma_sd_   = 0.0;
+    double  est_sigma_mean_ = 0.0;
+    double  est_sigma_sd_   = 0.0;
 
     double  metabolic_error_ = 0.0;
     double  parent_metabolic_error_ = 0.0;

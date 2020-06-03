@@ -96,8 +96,10 @@ StatRecord::StatRecord(const StatRecord &model)
 
   fitness_ = model.fitness_;
 
-  sigma_mean_ = model.sigma_mean_;
-  sigma_sd_   = model.sigma_sd_;
+  log_sigma_mean_ = model.log_sigma_mean_;
+  log_sigma_sd_   = model.log_sigma_sd_;
+  est_sigma_mean_ = model.est_sigma_mean_;
+  est_sigma_sd_   = model.est_sigma_sd_;
 
   amount_of_dna_                = model.amount_of_dna_;
   nb_coding_rnas_               = model.nb_coding_rnas_;
@@ -222,24 +224,32 @@ StatRecord::StatRecord(ExpSetup* exp_s,
   if (indiv->nb_genetic_units() == 1) {
 
       // COMPUTE SIGMA MEAN AND SD
-      sigma_mean_ = 0.0;
-      sigma_sd_   = 0.0;
-      double n    = 0.0;
+      log_sigma_mean_ = 0.0;
+      log_sigma_sd_   = 0.0;
+      est_sigma_mean_ = 0.0;
+      est_sigma_sd_   = 0.0;
+      double n        = 0.0;
       for (auto& rna: indiv->rna_list())
       {
         if (rna->is_coding())
         {
-          sigma_mean_ += rna->sigma();
-          sigma_sd_   += rna->sigma()*rna->sigma();
-          n           += 1.0;
+          log_sigma_mean_ += rna->log_sigma();
+          log_sigma_sd_   += rna->log_sigma()*rna->log_sigma();
+          est_sigma_mean_ += rna->est_sigma();
+          est_sigma_sd_   += rna->est_sigma()*rna->est_sigma();
+          n               += 1.0;
         }
       }
       if (n > 0.0)
       {
-        sigma_mean_ /= n;
-        sigma_sd_   /= n;
-        sigma_sd_   -= sigma_mean_*sigma_mean_;
-        sigma_sd_    = (sigma_sd_ < 0.00000001) ? 0. : sqrt(sigma_sd_);
+        log_sigma_mean_ /= n;
+        log_sigma_sd_   /= n;
+        log_sigma_sd_   -= log_sigma_mean_*log_sigma_mean_;
+        log_sigma_sd_    = (log_sigma_sd_ < 0.00000001) ? 0. : sqrt(log_sigma_sd_);
+        est_sigma_mean_ /= n;
+        est_sigma_sd_   /= n;
+        est_sigma_sd_   -= est_sigma_mean_*est_sigma_mean_;
+        est_sigma_sd_    = (est_sigma_sd_ < 0.00000001) ? 0. : sqrt(est_sigma_sd_);
       }
       //std::cout << sigma_mean_ << "\n";
 
@@ -609,8 +619,10 @@ void StatRecord::initialize_data()
 {
   pop_size_  = 0.0;
 
-  sigma_mean_ = 0.0;
-  sigma_sd_   = 0.0;
+  log_sigma_mean_ = 0.0;
+  log_sigma_sd_   = 0.0;
+  est_sigma_mean_ = 0.0;
+  est_sigma_sd_   = 0.0;
 
   metabolic_error_         = 0.0;
   metabolic_fitness_       = 0.0;
@@ -673,12 +685,14 @@ void StatRecord::initialize_data()
         if (stat_type_to_print == FITNESS_STATS)
         {
             fprintf(stat_file,
-                    "%" PRId64 " %" PRId32 " %e %e %e %" PRId32 " %e %e %e %e %e %e %e",
+                    "%" PRId64 " %" PRId32 " %e %e %e %e %e %" PRId32 " %e %e %e %e %e %e %e",
                     time,
                     pop_size_,
                     fitness_,
-                    sigma_mean_,
-                    sigma_sd_,
+                    log_sigma_mean_,
+                    log_sigma_sd_,
+                    est_sigma_mean_,
+                    est_sigma_sd_,
                     amount_of_dna_,
                     metabolic_error_,
                     parent_metabolic_error_,
@@ -777,8 +791,10 @@ void StatRecord::divide(double divisor)
 
   fitness_                 /= divisor;
 
-  sigma_mean_              /= divisor;
-  sigma_sd_                /= divisor;
+  log_sigma_mean_              /= divisor;
+  log_sigma_sd_                /= divisor;
+  est_sigma_mean_              /= divisor;
+  est_sigma_sd_                /= divisor;
 
   metabolic_error_         /= divisor;
   parent_metabolic_error_  /= divisor;
@@ -845,8 +861,10 @@ void StatRecord::divide_record(StatRecord const * to_divide, double power)
 
   if (to_divide->fitness_ != 0) { fitness_    /= pow(to_divide->fitness_, power); }
 
-  if (to_divide->sigma_mean_ != 0) { sigma_mean_    /= pow(to_divide->sigma_mean_, power); }
-  if (to_divide->sigma_sd_ != 0) { sigma_sd_    /= pow(to_divide->sigma_sd_, power); }
+  if (to_divide->log_sigma_mean_ != 0) { log_sigma_mean_    /= pow(to_divide->log_sigma_mean_, power); }
+  if (to_divide->log_sigma_sd_ != 0) { log_sigma_sd_    /= pow(to_divide->log_sigma_sd_, power); }
+  if (to_divide->est_sigma_mean_ != 0) { est_sigma_mean_    /= pow(to_divide->est_sigma_mean_, power); }
+  if (to_divide->est_sigma_sd_ != 0) { est_sigma_sd_    /= pow(to_divide->est_sigma_sd_, power); }
 
   if (to_divide->metabolic_error_ != 0)        { metabolic_error_         /= pow(to_divide->metabolic_error_, power); }
   if (to_divide->parent_metabolic_error_ != 0) { parent_metabolic_error_  /= pow(to_divide->parent_metabolic_error_, power); }
@@ -909,8 +927,10 @@ void StatRecord::add(StatRecord * to_add, int32_t index)
 
   fitness_                 += to_add->fitness_;
 
-  sigma_mean_              += to_add->sigma_mean_;
-  sigma_sd_                += to_add->sigma_sd_;
+  log_sigma_mean_              += to_add->log_sigma_mean_;
+  log_sigma_sd_                += to_add->log_sigma_sd_;
+  est_sigma_mean_              += to_add->est_sigma_mean_;
+  est_sigma_sd_                += to_add->est_sigma_sd_;
 
   metabolic_error_         += to_add->metabolic_error_;
   parent_metabolic_error_  += to_add->parent_metabolic_error_;
@@ -975,8 +995,10 @@ void StatRecord::substract_power(const StatRecord * means,
   // NB : pop_size is a "global" value and must not be summed.
   fitness_                 += pow(means->fitness_ - to_substract->fitness_, power);
 
-  sigma_mean_             += pow(means->sigma_mean_ - to_substract->sigma_mean_, power);
-  sigma_sd_               += pow(means->sigma_sd_ - to_substract->sigma_sd_, power);
+  log_sigma_mean_             += pow(means->log_sigma_mean_ - to_substract->log_sigma_mean_, power);
+  log_sigma_sd_               += pow(means->log_sigma_sd_ - to_substract->log_sigma_sd_, power);
+  est_sigma_mean_             += pow(means->est_sigma_mean_ - to_substract->est_sigma_mean_, power);
+  est_sigma_sd_               += pow(means->est_sigma_sd_ - to_substract->est_sigma_sd_, power);
 
   metabolic_error_         += pow(means->metabolic_error_ - to_substract->metabolic_error_, power);
   parent_metabolic_error_  += pow(means->parent_metabolic_error_ - to_substract->parent_metabolic_error_, power);

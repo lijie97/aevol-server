@@ -64,7 +64,8 @@ Rna::Rna(GeneticUnit* gen_unit, const Rna &model)
   strand_               = model.strand_;
   pos_                  = model.pos_;
   transcript_length_    = model.transcript_length_;
-  sigma_                = model.sigma_;
+  log_sigma_            = model.log_sigma_;
+  est_sigma_            = model.est_sigma_;
   basal_level_no_noise_ = model.basal_level_no_noise_;
   basal_level_          = model.basal_level_;
   // Copy transcribed proteins
@@ -91,7 +92,7 @@ Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
 
   constexpr int8_t NOISE_SEQ_SIZE          = 22;
   constexpr int8_t NOISE_SEQ_PROM_DISTANCE = -22;
-  constexpr double MAX_NOISE               = 1.0;
+  constexpr double MAX_NOISE               = 0.1;
   constexpr double MIN_NOISE               = 0.0;
 
   int start_noise_seq = -1, end_noise_seq = -1;
@@ -123,8 +124,10 @@ Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
       }
     }
   }
-  sigma_       = (double)count_1/(double)NOISE_SEQ_SIZE*(MAX_NOISE-MIN_NOISE)+MIN_NOISE;
-  basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*sigma_);
+  log_sigma_   = (double)count_1/(double)NOISE_SEQ_SIZE*(MAX_NOISE-MIN_NOISE)+MIN_NOISE;
+  est_sigma_   = (exp(log_sigma_*log_sigma_)-1.0)*exp(2.0*log(basal_level_no_noise_)+log_sigma_*log_sigma_);
+  est_sigma_   = (est_sigma_ < 0.00000001) ? 0. : sqrt(est_sigma_);
+  basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*log_sigma_);
   //std::cout << count_1 << " " << sigma_ << " " << basal_level_no_noise_ << " " << basal_level_ << "\n";
 }
 

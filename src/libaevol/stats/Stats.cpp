@@ -253,8 +253,10 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Generation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Population size", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Fitness", key++);
-        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Sigma mean", key++);
-        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Sigma standard-deviation", key++);
+        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Log-sigma mean", key++);
+        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Log-sigma standard-deviation", key++);
+        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Estimated sigma mean", key++);
+        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Estimated sigma standard-deviation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Genome size (amount of DNA)", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Metabolic error", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Parent's metabolic error", key++);
