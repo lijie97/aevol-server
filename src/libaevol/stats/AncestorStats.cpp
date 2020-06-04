@@ -366,15 +366,15 @@ void AncestorStats::Resume_stats(int64_t time) {
 
 void AncestorStats::write_environment_stats(int64_t t, const PhenotypicTargetHandler* pth,
                              FILE* env_output_file) {
-  // Num gener
-  fprintf(env_output_file, "%" PRId64, t);
-
-  for (const Gaussian& g: pth->gaussians())
-    fprintf(env_output_file,
-            "     %.16f %.16f %.16f",
-            g.mean(), g.width(), g.height());
-
-  fprintf(env_output_file, "\n");
+//  // Num gener
+//  fprintf(env_output_file, "%" PRId64, t);
+//
+//  for (const Gaussian& g: pth->gaussians())
+//    fprintf(env_output_file,
+//            "     %.16f %.16f %.16f",
+//            g.mean(), g.width(), g.height());
+//
+//  fprintf(env_output_file, "\n");
 }
 
 void AncestorStats::write_terminators_stats(int64_t t,  Individual* indiv,

@@ -67,7 +67,7 @@ PhenotypicTargetHandler::PhenotypicTargetHandler() {
 #if __cplusplus == 201103L
   phenotypic_target_ = make_unique<PhenotypicTarget>();
 #else
-  phenotypic_target_ = std::make_unique<PhenotypicTarget>();
+  phenotypic_target_ = new PhenotypicTarget();
 #endif
 
   // Sampling
@@ -87,6 +87,8 @@ PhenotypicTargetHandler::PhenotypicTargetHandler() {
   noise_alpha_        = 0.0;
   noise_sigma_        = 0.0;
   noise_sampling_log_ = 8;
+
+        env_switch_probability_ = 0.1;
 }
 
 PhenotypicTargetHandler::PhenotypicTargetHandler(
@@ -95,7 +97,7 @@ PhenotypicTargetHandler::PhenotypicTargetHandler(
 #if __cplusplus == 201103L
   phenotypic_target_ = make_unique<PhenotypicTarget>(*(rhs.phenotypic_target_));
 #else
-  phenotypic_target_ = std::make_unique<PhenotypicTarget>(*(rhs.phenotypic_target_));
+  phenotypic_target_ = new PhenotypicTarget(*(rhs.phenotypic_target_));
 #endif
 
   // ---------------------------------------------------------------- Gaussians
@@ -119,6 +121,14 @@ PhenotypicTargetHandler::PhenotypicTargetHandler(
   noise_sigma_ = rhs.noise_sigma_;
   noise_prob_ = rhs.noise_prob_;
   noise_sampling_log_ = rhs.noise_sampling_log_;
+
+
+  // Switch in a list
+  phenotypic_targets_       = rhs.phenotypic_targets_;
+  env_gaussians_list_       = rhs.env_gaussians_list_;
+    env_switch_probability_ = rhs.env_switch_probability_;
+    id_current_env_ = rhs.id_current_env_;
+
 }
 
 PhenotypicTargetHandler::PhenotypicTargetHandler(gzFile backup_file) {
@@ -136,61 +146,66 @@ PhenotypicTargetHandler::~PhenotypicTargetHandler() {
 //                                   Methods
 // ============================================================================
 void PhenotypicTargetHandler::BuildPhenotypicTarget() {
-  // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
-  phenotypic_target_->fuzzy()->clear();
+    if (var_method_ != SWITCH_ENVIRONMENT) {
+        // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
+        phenotypic_target_->fuzzy()->clear();
 
-  // Generate sample points from gaussians
-  if (not current_gaussians_.empty()) {
-    for (int16_t i = 0; i <= sampling_; i++) {
-      Point new_point = Point(
-          X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
-      for (const Gaussian& g: current_gaussians_)
-        new_point.y += g.compute_y(new_point.x);
-      phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
-    }
-
-    if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 1) {
-      HybridFuzzy* fuz = (HybridFuzzy*) phenotypic_target_->fuzzy();
-
-      for (int i = 1; i < fuz->get_pheno_size(); i++) {
-        if (fuz->points()[i] == 0.0) {
-          int minL = i - 1;
-          int maxL = i + 1;
-          int dist = 1;
-
-          while (fuz->points()[maxL] == 0.0) {
-              if (maxL+1 > PHENO_SIZE) break;
-            maxL++;
-            dist++;
-          }
-          double inc = 0.0;
-          if (fuz->points()[maxL] > fuz->points()[minL]) {
-            inc = (fuz->points()[maxL] - fuz->points()[minL]) / dist;
-          } else {
-            inc = (fuz->points()[minL] - fuz->points()[maxL]) / dist;
-            minL = maxL;
-          }
-
-          for (int j = i; j < maxL; j++) {
-            fuz->points()[j] = fuz->points()[minL] + inc;
-            inc += inc;
-          }
-
+        // Generate sample points from gaussians
+        if (not current_gaussians_.empty()) {
+            for (int16_t i = 0; i <= sampling_; i++) {
+                Point new_point = Point(
+                        X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
+                for (const Gaussian &g: current_gaussians_)
+                    new_point.y += g.compute_y(new_point.x);
+                phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
+            }
         }
-      }
+
+
+        // Add lower and upper bounds
+        phenotypic_target_->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
+        phenotypic_target_->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
+
+        // Simplify (get rid of useless points)
+        phenotypic_target_->fuzzy()->simplify();
+
+        // Compute areas (total and by feature)
+        phenotypic_target_->ComputeArea();
+    } else {
+        // SWITCH_IN_A_LIST
+        phenotypic_targets_.resize(env_gaussians_list_.size());
+
+        for (int idx = 0; idx < env_gaussians_list_.size(); idx++) {
+//            delete phenotypic_targets_[idx];
+            phenotypic_targets_[idx] = new PhenotypicTarget();
+
+            phenotypic_targets_[idx]->fuzzy()->clear();
+
+            // Generate sample points from gaussians
+            if (not env_gaussians_list_[idx].empty()) {
+                for (int16_t i = 0; i <= sampling_; i++) {
+                    Point new_point = Point(
+                            X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
+                    for (const Gaussian &g: env_gaussians_list_[idx])
+                        new_point.y += g.compute_y(new_point.x);
+                    phenotypic_targets_[idx]->fuzzy()->add_point(new_point.x, new_point.y);
+                }
+            }
+
+
+            // Add lower and upper bounds
+            phenotypic_targets_[idx]->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
+            phenotypic_targets_[idx]->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
+
+            // Simplify (get rid of useless points)
+            phenotypic_targets_[idx]->fuzzy()->simplify();
+
+            // Compute areas (total and by feature)
+            phenotypic_targets_[idx]->ComputeArea();
+        }
+
+        phenotypic_target_ = phenotypic_targets_[id_current_env_];
     }
-  }
-
-
-  // Add lower and upper bounds
-  phenotypic_target_->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
-  phenotypic_target_->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
-
-  // Simplify (get rid of useless points)
-  phenotypic_target_->fuzzy()->simplify();
-
-  // Compute areas (total and by feature)
-  phenotypic_target_->ComputeArea();
 }
 
 void PhenotypicTargetHandler::ApplyVariation() {
@@ -203,6 +218,9 @@ void PhenotypicTargetHandler::ApplyVariation() {
     case AUTOREGRESSIVE_HEIGHT_VAR :
       ApplyAutoregressiveHeightVariation();
       break;
+    case SWITCH_ENVIRONMENT:
+          ApplySwitchEnvironment();
+          break;
     default :
       Utils::ExitWithDevMsg("Unknown variation method", __FILE__, __LINE__);
   }
@@ -264,8 +282,29 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
   BuildPhenotypicTarget();
 }
 
+void PhenotypicTargetHandler::ApplySwitchEnvironment() {
+    if (phenotypic_targets_.size()==1)
+        return;
+
+
+//    printf("Switch prob %lf\n",env_switch_probability_);
+    if ( var_prng_->random() < env_switch_probability_) {
+        int old_id = id_current_env_;
+        //we have to change to a new env that have an id different from the old one
+        while( id_current_env_ == old_id ) {
+            id_current_env_ = var_prng_->random((int)phenotypic_targets_.size());
+        }
+
+//        printf("Switch from %d to %d\n",old_id,id_current_env_);
+        //The environment has changed
+        phenotypic_target_ = phenotypic_targets_[id_current_env_];
+    }
+}
+
 void PhenotypicTargetHandler::save(gzFile backup_file) const {
-  //printf("Appel a la sauvegarde de PhenotypicTargetHandler\n");
+//    printf("ENV SWITCH PROBA %lf\n",env_switch_probability_);
+
+    //printf("Appel a la sauvegarde de PhenotypicTargetHandler\n");
   // --------------------------------------------------------------------------
   //  Write phenotypic target segmentation
   phenotypic_target_->SaveSegmentation(backup_file);
@@ -319,6 +358,40 @@ void PhenotypicTargetHandler::save(gzFile backup_file) const {
     for (const Gaussian & g: initial_gaussians_)
       g.save(backup_file);
   }
+
+    // Save gaussians :
+    if (var_method_ == SWITCH_ENVIRONMENT) {
+        int16_t nb_env_list = env_gaussians_list_.size();
+        gzwrite(backup_file, &nb_env_list, sizeof(nb_env_list));
+//        printf("Env List %ld\n",nb_env_list);
+
+        for (int idx = 0; idx < nb_env_list; idx++) {
+            int16_t nb_gaussian_list = env_gaussians_list_[idx].size();
+            gzwrite(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
+//            printf("Env List G %ld : %ld\n",idx,nb_gaussian_list);
+
+            for (const Gaussian &g: env_gaussians_list_[idx]) {
+                    g.save(backup_file);
+            }
+        }
+
+        gzwrite(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
+//        printf("ENV SWITCH PROBA %lf\n",env_switch_probability_);
+
+        gzwrite(backup_file, &id_current_env_, sizeof(id_current_env_));
+   } else {
+        int16_t nb_gaussian_list = env_gaussians_list_.size();
+        nb_gaussians = 0;
+        gzwrite(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
+        for (const std::list<Gaussian> &gaussian_list: env_gaussians_list_) {
+            nb_gaussians = gaussian_list.size();
+            gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
+            for (const Gaussian &g: gaussian_list) {
+                g.save(backup_file);
+            }
+        }
+    }
+
 }
 
 void PhenotypicTargetHandler::load(gzFile backup_file) {
@@ -328,7 +401,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
 #if __cplusplus == 201103L
   phenotypic_target_ = make_unique<PhenotypicTarget>();
 #else
-  phenotypic_target_ = std::make_unique<PhenotypicTarget>();
+  phenotypic_target_ = new PhenotypicTarget();
 #endif
 
   phenotypic_target_->LoadSegmentation(backup_file);
@@ -384,7 +457,43 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
       initial_gaussians_.emplace_back(backup_file);
   }
 
-  // --------------------------------------------------------------------------
+  // Load gaussians
+    if (var_method_ == SWITCH_ENVIRONMENT) {
+        int16_t nb_env_list;
+        gzread(backup_file, &nb_env_list, sizeof(nb_env_list));
+//        printf("Env List %ld\n",nb_env_list);
+        env_gaussians_list_.resize(nb_env_list);
+        for (int idx = 0; idx < nb_env_list; idx++) {
+            int16_t nb_gaussian_list;
+            gzread(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
+//            printf("Env List G %ld : %ld\n",idx,nb_gaussian_list);
+
+            for (int16_t j = 0; j < nb_gaussian_list; j++) {
+                env_gaussians_list_[idx].push_back(Gaussian(backup_file));
+            }
+        }
+
+        gzread(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
+//        printf("ENV SWITCH PROBA %lf\n",env_switch_probability_);
+
+        gzread(backup_file, &id_current_env_, sizeof(id_current_env_));
+    } else {
+        int16_t nb_gaussian_list = 0;
+        nb_gaussians = 0;
+        gzread(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
+        for (int16_t i = 0; i < nb_gaussian_list; i++) {
+            env_gaussians_list_.push_back(std::list<Gaussian>());
+            gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
+            for (int16_t j = 0; j < nb_gaussians; j++) {
+                env_gaussians_list_.back().push_back(Gaussian(backup_file));
+            }
+        }
+    }
+
+
+
+
+    // --------------------------------------------------------------------------
   //  Build the phenotypic target
   BuildPhenotypicTarget();
 }

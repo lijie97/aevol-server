@@ -160,6 +160,8 @@ ParamLoader::ParamLoader(const char* file_name)
   env_var_sigma_  = 0;
   env_var_tau_    = 0;
 
+    env_switch_probability_ = 0.1;
+
   // -------------------------------------------------- Phenotypic target noise
   env_noise_method_       = NO_NOISE;
   env_noise_alpha_        = 0;
@@ -965,12 +967,44 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       
     #else
           std_env_gaussians.push_back(
-        Gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
+        Gaussian(atof(line->words[2]), atof(line->words[3]), atof(line->words[4])));
+
+      if ( atoi(line->words[1]) - 1 < (int)env_gaussians_list_.size() && atoi(line->words[1]) > 0)
+      {
+          (env_gaussians_list_.at( atoi(line->words[1]) - 1)).push_back
+                  ( Gaussian(  atof( line->words[2] ), atof( line->words[3] ), atof( line->words[4] ) ) );
+      }
+      else
+      {
+          printf( " ERROR in param file \"%s\" on line %" PRId32 " : There is only %ld environment.\n",
+                  param_file_name_, cur_line, env_gaussians_list_.size() );
+          exit( EXIT_FAILURE );
+      }
     #endif
   }
   else if (strcmp(line->words[0], "ENV_SAMPLING") == 0)
   {
     env_sampling_ = atoi(line->words[1]);
+  }
+  else if (strcmp(line->words[0], "NB_ENVIRONMENTS") == 0) {
+    int16_t nb_env = atoi(line->words[1]);
+
+    if (nb_env < 1) {
+      printf("ERROR in param file \"%s\" on line %" PRId32 " : you must have at least one environment\n",
+             param_file_name_, cur_line);
+      printf("you put %" PRId16 "\n", nb_env);
+      exit(EXIT_FAILURE);
+    }
+
+    // Utile uniquement en cas de reprise sur backup
+    // Je ne sais pas comment ça va se passer avec cette version ...
+    if (env_gaussians_list_.size() > 0) {
+      env_gaussians_list_.clear();
+    }
+
+    for( int16_t i = 0; i < nb_env; i++) {
+      env_gaussians_list_.push_back(std::list<Gaussian>());
+    }
   }
   else if (strcmp(line->words[0], "ENV_VARIATION") == 0)
   {
@@ -1037,8 +1071,21 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       }
       env_var_method_ = LOCAL_GAUSSIANS_VAR;
       env_var_seed_ = atoi(line->words[2]);
+    }else if (strcmp(line->words[1], "switch_environment") == 0)
+    {
+        if (line->nb_words != 3) {
+            printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+                   param_file_name_, cur_line);
+            printf("usage: %s %s probability to switch between different environments\n",
+                   line->words[0], line->words[1]);
+            exit(EXIT_FAILURE);
+        }
+        env_var_method_ = SWITCH_ENVIRONMENT;
+        env_switch_probability_ = atof(line->words[2]);
+        printf("Env Switch PL %lf\n",env_switch_probability_);
     }
-      #ifdef __REGUL
+#ifdef __REGUL
     else if (strcmp(line->words[1], "switch_in_a_list") == 0)
     {
       if (line->nb_words != 3) {
@@ -1616,8 +1663,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   #endif
 
   // Move the gaussian list from the parameters to the phen target handler
-  #ifndef __REGUL  
-  phenotypic_target_handler.set_gaussians(std_env_gaussians);
+
+  #ifndef __REGUL
+  phenotypic_target_handler.set_gaussians(env_gaussians_list_);
   #else
   phenotypic_target_handler.set_gaussians(_env_gaussians_list);
   phenotypic_target_handler.set_signals_models(_signals_models);
@@ -1647,6 +1695,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     phenotypic_target_handler.set_var_method(env_var_method_);
     phenotypic_target_handler.set_var_prng(std::make_shared<JumpingMT>(env_var_seed_));
     phenotypic_target_handler.set_var_sigma_tau(env_var_sigma_, env_var_tau_);
+    phenotypic_target_handler.set_env_switch_probability(env_switch_probability_);
 #ifdef __REGUL
     phenotypic_target_handler.set_switch_probability(_env_switch_probability);
 #endif
@@ -1664,6 +1713,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   }
 
   // Build the phenotypic target
+
+
   #ifndef __REGUL
   phenotypic_target_handler.BuildPhenotypicTarget();
   #else

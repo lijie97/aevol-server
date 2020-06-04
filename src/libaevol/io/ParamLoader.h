@@ -160,6 +160,8 @@ class ParamLoader {
   PhenotypicTargetVariationMethod env_var_method_;
   double      env_var_sigma_;
   int32_t     env_var_tau_;
+  double      env_switch_probability_;
+  std::vector<std::list<Gaussian>> env_gaussians_list_;
 
   // -------------------------------------------------- Phenotypic target noise
   PhenotypicTargetNoiseMethod env_noise_method_;   // Method... TODO

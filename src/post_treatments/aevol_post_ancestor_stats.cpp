@@ -697,15 +697,15 @@ FILE* open_environment_stat_file(const char* prefix, const char* postfix) {
 
 void write_environment_stats(int64_t t, const PhenotypicTargetHandler* pth,
                              FILE* env_output_file) {
-  // Num gener
-  fprintf(env_output_file, "%" PRId64, t);
-
-  for (const Gaussian& g: pth->gaussians())
-    fprintf(env_output_file,
-            "     %.16f %.16f %.16f",
-            g.mean(), g.width(), g.height());
-
-  fprintf(env_output_file, "\n");
+//  // Num gener
+//  fprintf(env_output_file, "%" PRId64, t);
+//
+//  for (const Gaussian& g: pth->gaussians())
+//    fprintf(env_output_file,
+//            "     %.16f %.16f %.16f",
+//            g.mean(), g.width(), g.height());
+//
+//  fprintf(env_output_file, "\n");
 }
 
 

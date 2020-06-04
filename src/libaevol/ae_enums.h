@@ -54,7 +54,8 @@ enum PhenotypicTargetVariationMethod {
   AUTOREGRESSIVE_HEIGHT_VAR = 2,
   LOCAL_GAUSSIANS_VAR       = 3,
   SWITCH_IN_A_LIST          = 4,
-  ONE_AFTER_ANOTHER         = 5
+  ONE_AFTER_ANOTHER         = 5,
+  SWITCH_ENVIRONMENT        = 6
 };
 
 enum PhenotypicTargetNoiseMethod {

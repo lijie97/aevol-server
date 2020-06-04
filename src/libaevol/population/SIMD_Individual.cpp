@@ -4191,54 +4191,7 @@ void SIMD_Individual::compute_phenotype() {
     }
 
 void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler) {
-  for (int16_t i = 0; i <= 300; i++) {
-    Point new_point = Point(
-        X_MIN + (double) i * (X_MAX - X_MIN) / (double) 300, 0.0);
-    //printf("Gaussians %d\n",phenotypic_target_handler->current_gaussians().size());
 
-    for (const Gaussian& g: phenotypic_target_handler->current_gaussians())
-      new_point.y += g.compute_y(new_point.x);
-
-    //printf("Sampling %d = %lf\n",(int)(new_point.x * 300),new_point.y);
-
-    if (i < 300)
-      target[(int)(new_point.x * 300)] = (float) new_point.y;
-
-  }
-
-  for (int i = 1; i < 300; i++) {
-      if (target[i] == 0.0) {
-        int minL = i - 1;
-        int maxL = i + 1;
-        int dist = 1;
-
-        while (target[maxL] == 0.0) {
-          maxL++;
-          dist++;
-        }
-        float inc = 0.0;
-        if (target[maxL] > target[minL]) {
-          inc = (target[maxL] - target[minL]) / dist;
-        } else {
-          inc = (target[minL] - target[maxL]) / dist;
-          minL = maxL;
-        }
-
-        for (int j = i; j < maxL; j++) {
-          target[j] = target[minL] + inc;
-          inc += inc;
-        }
-
-      }
-    }
-
-  for (int fuzzy_idx = 0; fuzzy_idx < 300; fuzzy_idx++) {
-
-    if (target[fuzzy_idx] > 1)
-      target[fuzzy_idx] = 1;
-    if (target[fuzzy_idx] < 0)
-      target[fuzzy_idx] = 0;
-  }
 }
 
 void SIMD_Individual::compute_fitness(double selection_pressure) {

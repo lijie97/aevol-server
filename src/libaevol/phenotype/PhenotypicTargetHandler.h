@@ -106,13 +106,13 @@ class PhenotypicTargetHandler
   double area_by_feature(int8_t feature) const {
     return phenotypic_target_->area_by_feature(feature);
   }
-  const list<Gaussian>& gaussians() const {
-    return initial_gaussians_;
-  }
-
-    const list<Gaussian>& current_gaussians() const {
-      return current_gaussians_;
-    }
+//  const list<Gaussian>& gaussians() const {
+//    return initial_gaussians_;
+//  }
+//
+//    const list<Gaussian>& current_gaussians() const {
+//      return current_gaussians_;
+//    }
 
   const PhenotypicTargetVariationMethod& var_method() const {
     return var_method_;
@@ -125,9 +125,13 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
-  void set_gaussians(const list<Gaussian>& gaussians) {
-    current_gaussians_ = initial_gaussians_ = gaussians;
+  void set_gaussians(const std::vector<std::list<Gaussian>>& gaussians_list) {
+      printf("NB FAUS %ld\n",gaussians_list.size());
+      env_gaussians_list_ = std::vector(gaussians_list);
+      phenotypic_targets_.resize(env_gaussians_list_.size());
+      printf("NB GASS %ld\n",env_gaussians_list_.size());
   }
+
   void set_sampling(int16_t val){
     sampling_ = val;
   }
@@ -175,18 +179,25 @@ class PhenotypicTargetHandler
     noise_sampling_log_ = sampling_log;
   }
 
+    void set_env_switch_probability(double env_switch) {
+        env_switch_probability_ = env_switch;
+        printf("ENV SWITCH %lf\n",env_switch);
+    }
+
+        std::vector<std::list<Gaussian>> env_gaussians_list_;
  protected :
   // ==========================================================================
   //                            Protected Methods
   // ==========================================================================
   void ApplyAutoregressiveMeanVariation();
   void ApplyAutoregressiveHeightVariation();
+  void ApplySwitchEnvironment();
 
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
   // ------------------------------------------------ Current Phenotypic Target
-  std::unique_ptr<PhenotypicTarget> phenotypic_target_;
+  PhenotypicTarget* phenotypic_target_;
 
   // ---------------------------------------------------------------- Gaussians
   /// Phenotypic target's constitutive Gaussians in their initial state
@@ -222,6 +233,13 @@ class PhenotypicTargetHandler
   double noise_prob_;
   /// Log2 of the number of points in the noise fuzzy_set
   int8_t noise_sampling_log_;
+
+
+  /// Switch in a list
+
+    std::vector<PhenotypicTarget*> phenotypic_targets_;
+    double env_switch_probability_;
+    int id_current_env_ = 0;
 };
 
 // ============================================================================

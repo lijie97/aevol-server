@@ -614,10 +614,10 @@ int main(int argc, char* argv[]) {
       Utils::ExitWithUsrMsg("sorry, aevol_modify has not yet been implemented "
                                 "for per grid-cell phenotypic target");
     }
-    auto phenotypicTargetHandler =
-        exp_manager->world()->phenotypic_target_handler();
-    phenotypicTargetHandler->set_gaussians(new_gaussians);
-    phenotypicTargetHandler->BuildPhenotypicTarget();
+//    auto phenotypicTargetHandler =
+//        exp_manager->world()->phenotypic_target_handler();
+//    phenotypicTargetHandler->set_gaussians(new_gaussians);
+//    phenotypicTargetHandler->BuildPhenotypicTarget();
   }
 
   // 9) Save the modified experiment
