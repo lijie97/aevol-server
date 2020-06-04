@@ -123,6 +123,10 @@ ExpManager::~ExpManager() noexcept
   delete exp_s_;
   delete output_m_;
   delete world_;
+
+  delete [] dna_mutator_array_;
+
+  delete FuzzyFactory::fuzzyFactory;
 }
 
 // ===========================================================================
@@ -410,7 +414,7 @@ void ExpManager::step_to_next_generation() {
     }
 #endif
     if (simd_individual->standalone())
-        simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
+        simd_individual->run_a_step(w_max_,selection_pressure(),true);
 
     if (check_simd_) {
         simd_individual->check_result();
@@ -692,6 +696,8 @@ void ExpManager::run_evolution() {
   cudaProfilerStart();
 #endif
 
+        w_max_ = best_indiv()->w_max();
+
   bool first_run = true;
 
       //"Post Treatment"
@@ -705,7 +711,7 @@ void ExpManager::run_evolution() {
 
 
       if (simd_individual->standalone())
-          simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
+          simd_individual->run_a_step(w_max_,selection_pressure(),false);
 
       if (check_simd_)
           simd_individual->check_result();

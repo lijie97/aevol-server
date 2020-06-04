@@ -633,6 +633,10 @@ SIMD_Individual::~SIMD_Individual() {
 
   delete dna_factory_;
 
+  delete target;
+
+  delete next_generation_reproducer_;
+
 
 
   if (standalone_) {
@@ -807,7 +811,10 @@ SIMD_Individual::~SIMD_Individual() {
                 printf("Adding promoters LEADING %d at %d\n",dna_pos,prom_idx);*/
 
                             internal_simd_struct[indiv_id]->metadata_->promoter_add(prom_idx, nprom);
+
+                        delete nprom;
                     }
+
 
 #ifndef WITH_BITSET
                     int dist_term_lead = term_dist_leading[0] +
@@ -867,7 +874,7 @@ SIMD_Individual::~SIMD_Individual() {
 
 
                             internal_simd_struct[indiv_id]->metadata_->promoter_add(prom_idx, nprom);
-
+                            delete nprom;
                     }
 
 #ifndef WITH_BITSET
@@ -2332,9 +2339,9 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
 //#pragma omp parallel
 //    {
 #pragma omp for schedule(dynamic)
-        for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 16) {
+        for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 1) {
             {
-                for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 16; indiv_id++) {
+                for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
 //                    printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
                     if (standalone_ && optim_prom && !exp_m_->check_simd()) {
                         selection(indiv_id);

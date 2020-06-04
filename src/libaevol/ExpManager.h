@@ -228,10 +228,13 @@ class ExpManager : public Observer {
     bool check_simd_ = false;
 
         //wether you stop the simulation based on the age of mrca or not
-        bool with_mrca_;
+        bool with_mrca_ = false;
 
         //do you record the stat of the lineage ?
-        bool anc_stat_;
+        bool anc_stat_ = false;
+
+
+        double w_max_ = 0;
 };
 
 // ===========================================================================

@@ -90,6 +90,8 @@ World::~World()
   // statements and these are the corresponding deletes
   delete [] grid_1d_;
   delete [] grid_;
+
+  delete phenotypic_target_handler_;
 }
 
 // =================================================================
