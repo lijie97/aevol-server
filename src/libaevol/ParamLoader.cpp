@@ -275,7 +275,7 @@ ParamLoader::ParamLoader(const char* file_name)
 
   _fuzzy_flavor = 0;
 
-  simd_metadata_flavor_ = SIMDMetadataFlavor::STD_MAP;
+  simd_metadata_flavor_ = SIMDMetadataFlavor::STD_LIST;
 
 #ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
