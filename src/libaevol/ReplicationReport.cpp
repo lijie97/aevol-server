@@ -380,13 +380,13 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 //                          Non inline accessors
 // =================================================================
 void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
-        printf("Receive ??? events\n");
+//        printf("Receive ??? events\n");
   switch (e) {
     case MUTATION :
         //printf("Receive mutation events\n");
 //#pragma omp critical
       //{
-          //dna_replic_report_.add_mut(reinterpret_cast<Mutation *>(arg));
+          dna_replic_report_.add_mut(reinterpret_cast<Mutation *>(arg));
       //}
       break;
     default :
