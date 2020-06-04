@@ -154,11 +154,6 @@ Tree::~Tree() {
         }
       }
 
-        fprintf(stderr,
-                "ERROR: Couldn't find indiv with rank %" PRId32 " in file %s:%d\n",
-                rank, __FILE__, __LINE__);
-        return NULL;
-    }
 
     void Tree::signal_end_of_generation() {
         auto cur_reports = reports(AeTime::time());

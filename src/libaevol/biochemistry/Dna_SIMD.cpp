@@ -2422,11 +2422,11 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 //
 //      }
 
-      printf("AFTER_EXTRACT : Lagging promoters lists : ");
-      for (auto it : indiv_->lagging_prom_pos) {
-        printf("%d (%d) || ", it.first, it.second);
-      }
-      printf("\n");
+//      printf("AFTER_EXTRACT : Lagging promoters lists : ");
+//      for (auto it : indiv_->lagging_prom_pos) {
+//        printf("%d (%d) || ", it.first, it.second);
+//      }
+//      printf("\n");
 
     // 3a) Invert promoters of segments B and C
       if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
@@ -2442,7 +2442,6 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
           SIMD_List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
       }
-      printf("\n");
 
 //      if (indiv_->indiv_id == 18) {
 //          printf("AFTER INVERT \n");
@@ -2570,7 +2569,6 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
               delete (*(it_rna));
           }
       }
-      printf("\n");
 
       indiv_->metadata_->insert_promoters(promoters_B);
       for (auto strand: {LEADING, LAGGING}) {
@@ -2579,7 +2577,6 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
               delete (*(it_rna));
           }
       }
-      printf("\n");
 
       indiv_->metadata_->insert_promoters(promoters_D);
       for (auto strand: {LEADING, LAGGING}) {
@@ -2588,15 +2585,7 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
               delete (*(it_rna));
           }
       }
-      printf("\n");
-    }*/
 
-    // 4) Reinsert the shifted promoters
-    indiv_->insert_promoters(promoters_C);
-
-    indiv_->insert_promoters(promoters_B);
-
-    indiv_->insert_promoters(promoters_D);
 
     /*if (indiv_->indiv_id == 12) {
       printf("AFTER_INSERT : Leading promoters lists : ");

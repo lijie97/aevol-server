@@ -1076,14 +1076,13 @@ void Selection::run_life(Individual* new_indiv) {
 
 }
 
+#ifdef __REGUL
 void Selection::run_life(Individual_R* new_indiv) {
 
-#ifdef __REGUL
     if (dynamic_cast<PhenotypicTargetHandler_R*>(&new_indiv->grid_cell()->habitat().
         phenotypic_target_handler_nonconst())->hasChanged()) {
       new_indiv->evaluated_ = false;
     }
-#endif
 
     // Evaluate new individual
     new_indiv->Evaluate();
@@ -1092,6 +1091,7 @@ void Selection::run_life(Individual_R* new_indiv) {
     new_indiv->compute_statistical_data();
 
 }
+#endif
 
 Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   // This function uses the array prob_reprod_ when selection scheme is
