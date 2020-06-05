@@ -1062,8 +1062,9 @@ void GeneticUnit::do_translation() {
            transcript_length - i >= DO_TRANSLATION_LOOP;
            ++i) {
 
-        /*if (indiv()->grid_cell()->x() == 19 && indiv()->grid_cell()->y() == 24)
-        {
+          if (indiv()->grid_cell_->x() == 15 &&
+              indiv()->grid_cell_->y() == 17)
+          {
           printf("Searching for start prot at %d starting at %d -- LENGTH %d (min length %d) -- %d SD %d S %d\n",
                  Utils::mod(transcript_start
                             +
@@ -1080,7 +1081,7 @@ void GeneticUnit::do_translation() {
                                        *
                                        (i + SHINE_DAL_SIZE + SHINE_START_SPACER),
                                      genome_length)));
-        }*/
+        }
 
 
         if (is_shine_dalgarno(strand, Utils::mod(transcript_start
@@ -1128,28 +1129,28 @@ void GeneticUnit::do_translation() {
             rna.add_transcribed_protein(&*protein);
           }
           else {
-            /*if (indiv()->grid_cell_->x() == 28 &&
-                indiv()->grid_cell_->y() == 19) {
+            if (indiv()->grid_cell_->x() == 15 &&
+                indiv()->grid_cell_->y() == 17) {
               printf("Found start at %d ", Utils::mod(transcript_start
                                                       +
                                                       (strand == LEADING
                                                        ? i : -i),
                                                       genome_length));
-              for (int xi = i; xi <= i + SHINE_DAL_SIZE + SHINE_START_SPACER +
-                                    CODON_SIZE; xi++) {
-                printf("%c (%d) ", dna()->data()[Utils::mod(transcript_start
-                                                       +
-                                                       (strand == LEADING
-                                                        ? xi : -xi),
-                                                       genome_length)],
-                       Utils::mod(transcript_start
-                                  +
-                                  (strand == LEADING
-                                   ? xi : -xi),
-                                  genome_length));
-              }
+//              for (int xi = i; xi <= i + SHINE_DAL_SIZE + SHINE_START_SPACER +
+//                                    CODON_SIZE; xi++) {
+//                printf("%c (%d) ", dna()->data()[Utils::mod(transcript_start
+//                                                       +
+//                                                       (strand == LEADING
+//                                                        ? xi : -xi),
+//                                                       genome_length)],
+//                       Utils::mod(transcript_start
+//                                  +
+//                                  (strand == LEADING
+//                                   ? xi : -xi),
+//                                  genome_length));
+//              }
               printf("\n");
-            }*/
+            }
 
 
             // Build codon list and make new protein when stop found

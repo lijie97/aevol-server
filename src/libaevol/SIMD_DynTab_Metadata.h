@@ -240,7 +240,10 @@ namespace aevol {
         void update_metadata_before_new_generation() {assert(true); exit(-1);}
 
         void update_positions(int pos_after, bool insert_or_remove, int length_diff) {assert(true); exit(-1);}
-        void display() {assert(true);exit(-1);}
+        void update_positions(int pos_after, int pos_before,int8_t add_or_reduce,  int length_diff) {assert(true); exit(-1);}
+        void mark_positions(int pos_1, int pos_2, int8_t before) {assert(true); exit(-1);}
+
+        void display(bool check_to_delete) {assert(true);exit(-1);}
         void rebuild_index() {
 
         }

@@ -376,8 +376,8 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
                                                                                  length_));
             }
         } else if (update_flavor_ == UPDATEONLY) {
-            indiv_->metadata_->update_range(pos, Utils::mod(pos, Utils::mod(pos + nb_insert,
-                                                                            length_)));
+            indiv_->metadata_->update_range(pos, Utils::mod(pos + nb_insert,
+                                                                            length_));
         }
     }
 
@@ -782,7 +782,12 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 //                    printf("%d ",indiv_->metadata_->promoters(prom_idx)->pos);
 //        }
 //        printf("\n");
-
+                for (auto strand: {LEADING, LAGGING}) {
+                    for (std::list<promoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
+                         it_rna != duplicated_promoters[strand].end(); it_rna++) {
+                        delete (*(it_rna));
+                    }
+                }
             }
         } else {
             for (auto strand: {LEADING, LAGGING}) {
@@ -820,37 +825,37 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
   if (not invert) {
     if (pos_min == pos_1) {
-      //if (indiv_->indiv_id==799) printf("A\n");
+      if (indiv_->indiv_id==497) printf("A\n");
       ABCDE_to_ADCBE(pos_1, pos_3, pos_2, pos_4);
     }
     else if (pos_min == pos_2) {
-        //if (indiv_->indiv_id==799) printf("B\n");
+        if (indiv_->indiv_id==497) printf("B\n");
       ABCDE_to_ADCBE(pos_2, pos_4, pos_1, pos_3);
     }
     else if (pos_min == pos_3) {
-       // if (indiv_->indiv_id==799) printf("C\n");
+        if (indiv_->indiv_id==497) printf("C\n");
       ABCDE_to_ADCBE(pos_3, pos_2, pos_4, pos_1);
     }
     else { // if (pos_min == pos_4)
-        //if (indiv_->indiv_id==799) printf("D\n");
+        if (indiv_->indiv_id==497) printf("D\n");
       ABCDE_to_ADCBE(pos_4, pos_1, pos_3, pos_2);
     }
   }
   else { // invert
     if (pos_min == pos_1) {
-        //if (indiv_->indiv_id==799) printf("E\n");
+        if (indiv_->indiv_id==497) printf("E\n");
       ABCDE_to_ADBpCpE(pos_1, pos_3, pos_2, pos_4);
     }
     else if (pos_min == pos_2) {
-        //if (indiv_->indiv_id==799) printf("F\n");
+        if (indiv_->indiv_id==497) printf("F\n");
       ABCDE_to_ADBpCpE(pos_2, pos_4, pos_1, pos_3);
     }
     else if (pos_min == pos_3) {
-        //if (indiv_->indiv_id==799) printf("G\n");
+        if (indiv_->indiv_id==497) printf("G\n");
       ABCDE_to_ACpDpBE(pos_3, pos_2, pos_4, pos_1);
     }
     else { // if (pos_min == pos_4)
-        //if (indiv_->indiv_id==799) printf("H\n");
+        if (indiv_->indiv_id==497) printf("H\n");
       ABCDE_to_ACpDpBE(pos_4, pos_1, pos_3, pos_2);
     }
   }
@@ -1307,6 +1312,9 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
        }*/
       if (update_flavor_ == OPTPROMSEARCH) {
           indiv_->metadata_->remove_promoters_around(pos_1, pos_2);
+      } else if (update_flavor_ == UPDATEONLY) {
+          indiv_->metadata_->remove_range(pos_1,length());
+          indiv_->metadata_->remove_range(0,pos_2);
       }
       /*if (indiv_->indiv_id == 30) {
        printf("After remove\n");
@@ -1377,8 +1385,8 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
               indiv_->metadata_->look_for_new_promoters_around(0);
           }
       }  else if (update_flavor_ == UPDATEONLY) {
-          indiv_->metadata_->remove_range(pos_1,length());
-          indiv_->metadata_->remove_range(0,pos_2);
+          indiv_->metadata_->update_range(pos_1,length());
+          indiv_->metadata_->update_range(0,pos_2);
       }
   }
 
@@ -1395,7 +1403,7 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
 void Dna_SIMD::apply_mutations_standalone() {
 
     printf("======= BEGIN :: APPLY MUTATION ============\n");
-    indiv_->metadata_->display();
+    indiv_->metadata_->display(false);
   MutationEvent* repl;
     //printf("%d -- %d -- AMS-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
     //       indiv_->metadata_->promoter_count());
@@ -1489,18 +1497,18 @@ void Dna_SIMD::apply_mutations_standalone() {
 
       if (repl != nullptr) {
           //if (indiv_->indiv_id == 30 || indiv_->indiv_id==61 || indiv_->indiv_id==62)
-          //printf("%d -- %d -- Mutation type %d\n", time(), indiv_->indiv_id, repl->type());
+          printf("%d -- %d -- Mutation type %d\n", time(), indiv_->indiv_id, repl->type());
 
           switch (repl->type()) {
               case DO_SWITCH:
-                  printf("Start switch at %d\n", repl->pos_1());
+                  printf("SIMD -- %d -- Start switch at %d\n", indiv_->indiv_id, repl->pos_1());
                   do_switch(repl->pos_1());
                   nb_swi_++;
                   nb_mut_++;
 //        printf("End switch at %d\n",repl->pos_1());
                   break;
               case SMALL_INSERTION:
-                  printf("Start insertion at %d (%d %s)\n", repl->pos_1(), repl->number(), repl->seq());
+                  printf("SIMD -- %d -- Start insertion at %d (%d %s)\n", indiv_->indiv_id, repl->pos_1(), repl->number(), repl->seq());
 #ifdef WITH_BITSET
                   do_small_insertion(repl->pos_1(), repl->seq());
 #else
@@ -1512,21 +1520,21 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case SMALL_DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-                  printf("Start deletion at %d (%d)\n", repl->pos_1(), repl->number());
+                  printf("SIMD -- %d -- Start deletion at %d (%d)\n",indiv_->indiv_id,  repl->pos_1(), repl->number());
                   do_small_deletion(repl->pos_1(), repl->number());
                   nb_indels_++;
                   nb_mut_++;
 //        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
                   break;
               case DUPLICATION:
-                  printf("Start duplication at %d (%d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3());
+                  printf("SIMD -- %d -- Start duplication at %d (%d %d)\n", indiv_->indiv_id, repl->pos_1(), repl->pos_2(), repl->pos_3());
                   do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
                   nb_large_dupl_++;
                   nb_rear_++;
 //        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
                   break;
               case TRANSLOCATION:
-                  printf("Start translocation at %d (%d %d %d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3(),
+                  printf("SIMD -- %d -- Start translocation at %d (%d %d %d %d)\n", indiv_->indiv_id, repl->pos_1(), repl->pos_2(), repl->pos_3(),
                          repl->pos_4(), repl->invert());
                   do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                    repl->pos_4(), repl->invert());
@@ -1535,7 +1543,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
                   break;
               case INVERSION:
-                  printf("Start invertion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+                  printf("SIMD -- %d -- Start invertion at %d (%d)\n", indiv_->indiv_id, repl->pos_1(), repl->pos_2());
                   do_inversion(repl->pos_1(), repl->pos_2());
                   nb_large_inv_++;
                   nb_rear_++;
@@ -1543,7 +1551,7 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-                  printf("Start LARGE deletion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+                  printf("SIMD -- %d -- Start LARGE deletion at %d (%d)\n",indiv_->indiv_id,  repl->pos_1(), repl->pos_2());
                   do_deletion(repl->pos_1(), repl->pos_2());
                   nb_large_del_++;
                   nb_rear_++;
@@ -1623,7 +1631,7 @@ void Dna_SIMD::apply_mutations_standalone() {
     //}
 
     printf("======= END :: APPLY MUTATION ============\n");
-    indiv_->metadata_->display();
+    indiv_->metadata_->display(false);
 }
 
 
@@ -1669,14 +1677,14 @@ void Dna_SIMD::apply_mutations() {
 
     switch(repl->type()) {
         case DO_SWITCH:
-            //printf("Start switch at %d\n",repl->pos_1());
+            printf("Start switch at %d\n",repl->pos_1());
             do_switch(repl->pos_1());
             nb_swi_++;
             nb_mut_++;
 //        printf("End switch at %d\n",repl->pos_1());
             break;
         case SMALL_INSERTION:
-            //printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
+            printf("Start insertion at %d (%d %s)\n",repl->pos_1(),repl->number(),repl->seq());
 #ifdef WITH_BITSET
             do_small_insertion(repl->pos_1(), repl->seq());
 #else
@@ -1688,21 +1696,21 @@ void Dna_SIMD::apply_mutations() {
             break;
         case SMALL_DELETION:
             //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-            //printf("Start deletion at %d (%d)\n",repl->pos_1(),repl->number());
+            printf("Start deletion at %d (%d)\n",repl->pos_1(),repl->number());
             do_small_deletion(repl->pos_1(), repl->number());
             nb_indels_++;
             nb_mut_++;
 //        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
             break;
         case DUPLICATION:
-            //printf("Start duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
+            printf("Start duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
             do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
             nb_large_dupl_++;
             nb_rear_++;
 //        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
             break;
         case TRANSLOCATION:
-            //printf("Start translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
+            printf("Start translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
             do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                              repl->pos_4(), repl->invert());
             nb_large_trans_++;
@@ -1710,7 +1718,7 @@ void Dna_SIMD::apply_mutations() {
 //        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
             break;
         case INVERSION:
-            //printf("Start invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+            printf("Start invertion at %d (%d)\n",repl->pos_1(),repl->pos_2());
             do_inversion(repl->pos_1(), repl->pos_2());
             nb_large_inv_++;
             nb_rear_++;
@@ -1718,7 +1726,7 @@ void Dna_SIMD::apply_mutations() {
             break;
         case DELETION:
 //            if (indiv_->indiv_id == 179)
-//                printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
+                printf("Start LARGE deletion at %d (%d)\n",repl->pos_1(),repl->pos_2());
             do_deletion(repl->pos_1(), repl->pos_2());
             nb_large_del_++;
             nb_rear_++;
@@ -1810,12 +1818,34 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     new_genome->set_indiv(length_,parent_length_,indiv_);
     //printf("DNA %d || New DNA %d || Block %d || New Block %d\n",length_,new_genome->length_,nb_blocks_,new_genome->nb_blocks_);
     //printf("LEN %d %d %d\n",len_A,len_D,pos_D);
-  memcpy(new_genome->data_, data_, len_A * sizeof(char));
-  memcpy(&(new_genome->data_[len_A]), &data_[pos_D], len_D * sizeof(char));
-  memcpy(&(new_genome->data_[len_AD]), &data_[pos_C], len_C * sizeof(char));
-  memcpy(&(new_genome->data_[len_ADC]), &data_[pos_B], len_B * sizeof(char));
-  memcpy(&(new_genome->data_[len_ADCB]), &data_[pos_E], len_E * sizeof(char));
-  new_genome->data_[length_] = '\0';
+    if (update_flavor_ == UPDATEONLY) {
+        printf("ABCDE_to_ADCBE pos %d %d %d %d len %d %d %d %d composed len %d %d %d %d\n", pos_B, pos_C, pos_D, pos_E,
+               len_B, len_C, len_D, len_E, len_A, len_AD, len_ADC, len_ADCB);
+
+        // Mark segment B
+        indiv_->metadata_->mark_positions(pos_B, pos_C, 1);
+
+        // Mark segment C
+        indiv_->metadata_->mark_positions(pos_C, pos_D, 2);
+
+        // Mark segment D
+        indiv_->metadata_->mark_positions(pos_D, pos_E, 3);
+    }
+
+    memcpy(new_genome->data_, data_, len_A * sizeof(char));
+
+
+    memcpy(&(new_genome->data_[len_A]), &data_[pos_D], len_D * sizeof(char));
+
+    memcpy(&(new_genome->data_[len_AD]), &data_[pos_C], len_C * sizeof(char));
+
+    memcpy(&(new_genome->data_[len_ADC]), &data_[pos_B], len_B * sizeof(char));
+
+    memcpy(&(new_genome->data_[len_ADCB]), &data_[pos_E], len_E * sizeof(char));
+
+
+
+    new_genome->data_[length_] = '\0';
 
   // Replace sequence
   // NB : The size of the genome doesn't change. Therefore, we don't nee
@@ -1830,8 +1860,29 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     nb_blocks_ = new_nb_block;
     indiv_->dna_factory_->give_back(new_genome);
-#endif
 
+    if (update_flavor_ == UPDATEONLY) {
+        printf("Remove/Update range\n");
+        indiv_->metadata_->remove_range(pos_B);
+        indiv_->metadata_->remove_range(pos_C);
+        indiv_->metadata_->remove_range(pos_D);
+        indiv_->metadata_->remove_range(pos_E);
+
+        // Update position len B
+        printf("Update position range\n");
+        indiv_->metadata_->update_positions(pos_B,pos_C,1,-pos_B+len_ADC);
+        indiv_->metadata_->update_positions(pos_C,pos_D,2,-pos_C+len_AD);
+        indiv_->metadata_->update_positions(pos_D,pos_E,3,-pos_D+len_A);
+
+        // Update position len C
+        printf("Update range\n");
+        indiv_->metadata_->update_range(len_ADCB);
+        indiv_->metadata_->update_range(len_ADC);
+        indiv_->metadata_->update_range(len_AD);
+        indiv_->metadata_->update_range(len_A);
+    }
+
+#endif
     if (update_flavor_ == OPTPROMSEARCH) {
         // ========== Update promoter list ==========
         if (length() >= PROM_SIZE) {
@@ -2212,11 +2263,29 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 //      }
 //      printf("\n");
 //    }
+            for (auto strand: {LEADING, LAGGING}) {
+                for (std::list<promoterStruct *>::iterator it_rna = promoters_B[strand].begin();
+                     it_rna != promoters_B[strand].end(); it_rna++) {
+                    delete (*(it_rna));
+                }
+            }
+            for (auto strand: {LEADING, LAGGING}) {
+                for (std::list<promoterStruct *>::iterator it_rna = promoters_C[strand].begin();
+                     it_rna != promoters_C[strand].end(); it_rna++) {
+                    delete (*(it_rna));
+                }
+            }
+            for (auto strand: {LEADING, LAGGING}) {
+                for (std::list<promoterStruct *>::iterator it_rna = promoters_D[strand].begin();
+                     it_rna != promoters_D[strand].end(); it_rna++) {
+                    delete (*(it_rna));
+                }
+            }
         }
     }
 }
 
-void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
+void Dna_SIMD:: ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
                            int32_t pos_E) {
   // Rearrange the sequence from ABCDE to ADBpCpE (complex translocation
   // with inversion of segment defined between positions pos_B and pos_D)
@@ -2283,9 +2352,23 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     new_genome->set_indiv(length_,parent_length_,indiv_);
 
   // Copy segments A and D
+    if (update_flavor_ == UPDATEONLY) {
+        printf("ABCDE_to_ADBpCpE pos %d %d %d %d len %d %d %d %d composed len %d %d %d %d\n", pos_B, pos_C, pos_D,
+               pos_E,
+               len_B, len_C, len_D, len_E, len_A, len_AD, len_ADB, len_ADBC);
+
+        // Mark segment B
+        indiv_->metadata_->mark_positions(pos_B, pos_C, 1);
+
+        // Mark segment C
+        indiv_->metadata_->mark_positions(pos_C, pos_D, 2);
+
+        // Mark segment D
+        indiv_->metadata_->mark_positions(pos_D, pos_E, 3);
+    }
+
   memcpy(new_genome->data_, data_, len_A * sizeof(char));
   memcpy(&(new_genome->data_[len_A]), &data_[pos_D], len_D * sizeof(char));
-
 
   // Build Bp and put it in the new genome
   char* inverted_segment;
@@ -2329,7 +2412,6 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   memcpy(&(new_genome->data_[len_ADBC]), &data_[pos_E], len_E * sizeof(char));
   new_genome->data_[length_] = '\0';
 
-
   // Replace sequence
     char* old_data = data_;
     data_ = new_genome->data_;
@@ -2342,8 +2424,25 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     nb_blocks_ = new_nb_block;
 
     indiv_->dna_factory_->give_back(new_genome);
-#endif
 
+    if (update_flavor_ == UPDATEONLY) {
+        printf("Remove/Update range\n");
+        indiv_->metadata_->remove_range(pos_B,pos_C);
+        indiv_->metadata_->remove_range(pos_C,pos_D);
+        indiv_->metadata_->remove_range(pos_D);
+        indiv_->metadata_->remove_range(pos_E);
+
+        // Update position len B
+        printf("Update position range\n");
+        indiv_->metadata_->update_positions(pos_D,pos_E,3,-pos_D+len_A);
+
+        // Update position len C
+        printf("Update range\n");
+        indiv_->metadata_->update_range(len_A);
+        indiv_->metadata_->update_range(len_AD,len_ADBC);
+        indiv_->metadata_->update_range(len_ADBC);
+    }
+#endif
     if (update_flavor_ == OPTPROMSEARCH) {
         // ========== Update promoter list ==========
         if (length() >= PROM_SIZE) {
@@ -2708,6 +2807,19 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   // Create new sequence
     Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(length_);
     new_genome->set_indiv(length_,parent_length_,indiv_);
+    if (update_flavor_ == UPDATEONLY) {
+        printf("ABCDE_to_ACpDpBE pos %d %d %d %d len %d %d %d %d composed len %d %d %d %d\n", pos_B, pos_C, pos_D, pos_E,
+               len_B, len_C, len_D, len_E, len_A, len_AC, len_ACD, len_ACDB);
+
+        // Mark segment B
+        indiv_->metadata_->mark_positions(pos_B,pos_C,1);
+
+        // Mark segment C
+        indiv_->metadata_->mark_positions(pos_C,pos_D,2);
+
+        // Mark segment D
+        indiv_->metadata_->mark_positions(pos_D,pos_E,3);
+    }
 
   // Copy segment A
   memcpy(new_genome->data_, data_, len_A * sizeof(char));
@@ -2751,8 +2863,10 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
   // Copy segments B and E
   memcpy(&(new_genome->data_[len_ACD]), &data_[pos_B], len_B * sizeof(char));
+
   memcpy(&(new_genome->data_[len_ACDB]), &data_[pos_E], len_E * sizeof(char));
     new_genome->data_[length_] = '\0';
+
 
 
   // Replace sequence
@@ -2767,8 +2881,24 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     nb_blocks_ = new_nb_block;
     indiv_->dna_factory_->give_back(new_genome);
-#endif
 
+    if (update_flavor_ == UPDATEONLY) {
+        printf("Remove/Update range\n");
+        indiv_->metadata_->remove_range(pos_B);
+        indiv_->metadata_->remove_range(pos_C,pos_E);
+        indiv_->metadata_->remove_range(pos_E);
+
+        // Update position len B
+        printf("Update position range\n");
+        indiv_->metadata_->update_positions(pos_B,pos_C,1,-pos_B+len_ACD);
+
+        // Update position len C
+        printf("Update range\n");
+        indiv_->metadata_->update_range(len_A);
+        indiv_->metadata_->update_range(len_AC,len_ACDB);
+        indiv_->metadata_->update_range(len_ACDB);
+    }
+#endif
     if (update_flavor_ == OPTPROMSEARCH) {
 
         // ========== Update promoter list ==========

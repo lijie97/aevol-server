@@ -216,6 +216,7 @@ namespace aevol {
         void remove_range(int32_t begin, int32_t end) {assert(true); exit(-1);}
         void remove_range(int32_t pos) {assert(true); exit(-1);}
 
+
         void cleanup()  {assert(true); exit(-1);}
         void compute_promoters() {assert(true); exit(-1);}
         void recompute_rna()  {assert(true); exit(-1);}
@@ -226,7 +227,10 @@ namespace aevol {
         void update_metadata_before_new_generation() {assert(true); exit(-1);}
 
         void update_positions(int pos_after, bool insert_or_remove, int length_diff) {assert(true); exit(-1);}
-        void display() {assert(true);exit(-1);}
+        void update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff) {assert(true); exit(-1);}
+        void mark_positions(int pos_1, int pos_2, int8_t before) {assert(true); exit(-1);}
+
+        void display(bool check_to_delete) {assert(true);exit(-1);}
         void rebuild_index() {
             if (count_promoters_ > (int)promoters_.size()/2) {
                 /**

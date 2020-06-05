@@ -43,11 +43,15 @@ class promoterStruct {
     }
 
     promoterStruct(const promoterStruct& clone) {
-      pos=clone.pos;error=clone.error;leading_or_lagging=clone.leading_or_lagging;
+      pos=clone.pos;error=clone.error;leading_or_lagging=clone.leading_or_lagging;to_compute=false;
     }
 
     promoterStruct(promoterStruct* clone) {
-      pos=clone->pos;error=clone->error;leading_or_lagging=clone->leading_or_lagging;
+      pos=clone->pos;error=clone->error;leading_or_lagging=clone->leading_or_lagging;to_compute=false;
+    }
+
+    bool operator<(const promoterStruct & other){
+        return (pos <  other.pos);
     }
 
     int32_t pos = -1;
@@ -55,6 +59,7 @@ class promoterStruct {
     bool leading_or_lagging; // TRUE = leading / FALSE = lagging
     bool to_compute = true;
     bool to_delete = false;
+    int8_t transloc_move = 0;
 };
 
 class pRNA {
@@ -84,6 +89,7 @@ class pRNA {
     }
 
     ~pRNA() {
+        start_prot.clear();
     }
 
     void reset() { start_prot.clear(); start_prot_count_ = 0; is_coding_ = false; }
@@ -100,6 +106,8 @@ class pRNA {
 
     bool to_delete = false;
     bool to_recompute = true;
+    bool to_search_for_end = false;
+    int8_t transloc_move = 0;
 };
 
 class pProtein {
@@ -150,6 +158,7 @@ class pProtein {
     bool to_delete = false;
     bool to_recompute = true;
     bool to_retranslate = true;
+    int8_t transloc_move = 0;
 
 };
 

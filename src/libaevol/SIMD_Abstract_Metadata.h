@@ -34,38 +34,51 @@ namespace aevol {
         /*** Promoters ***/
         inline int8_t is_promoter_leading(int pos) {
 #ifdef VANILLA_SEARCH
-                int8_t prom_dist_leading[26];
-                int len = indiv_->dna_->length();
+            int8_t prom_dist_leading = 0;
+            int len = indiv_->dna_->length();
 
-                for (int motif_id = 0; motif_id < 22; motif_id++) {
-                        prom_dist_leading[motif_id] =
-                                PROM_SEQ_LEAD[motif_id] ==
-                                indiv_->dna_->data_[pos + motif_id >= len ? pos + motif_id - len : pos + motif_id]
-                                ? 0 : 1;
-                }
+            for (int motif_id = 0; motif_id < 22; motif_id++) {
+                prom_dist_leading +=
+                        PROM_SEQ_LEAD[motif_id] ==
+                        indiv_->dna_->data_[pos + motif_id >= len ? pos + motif_id - len : pos + motif_id]
+                        ? 0 : 1;
+                if (prom_dist_leading>PROM_MAX_DIFF)
+                    break;
+            }
 
-                return prom_dist_leading[0] +
-                       prom_dist_leading[1] +
-                       prom_dist_leading[2] +
-                       prom_dist_leading[3] +
-                       prom_dist_leading[4] +
-                       prom_dist_leading[5] +
-                       prom_dist_leading[6] +
-                       prom_dist_leading[7] +
-                       prom_dist_leading[8] +
-                       prom_dist_leading[9] +
-                       prom_dist_leading[10] +
-                       prom_dist_leading[11] +
-                       prom_dist_leading[12] +
-                       prom_dist_leading[13] +
-                       prom_dist_leading[14] +
-                       prom_dist_leading[15] +
-                       prom_dist_leading[16] +
-                       prom_dist_leading[17] +
-                       prom_dist_leading[18] +
-                       prom_dist_leading[19] +
-                       prom_dist_leading[20] +
-                       prom_dist_leading[21];
+            return prom_dist_leading;
+//                int8_t prom_dist_leading[26];
+//                int len = indiv_->dna_->length();
+//
+//                for (int motif_id = 0; motif_id < 22; motif_id++) {
+//                        prom_dist_leading[motif_id] =
+//                                PROM_SEQ_LEAD[motif_id] ==
+//                                indiv_->dna_->data_[pos + motif_id >= len ? pos + motif_id - len : pos + motif_id]
+//                                ? 0 : 1;
+//                }
+//
+//                return prom_dist_leading[0] +
+//                       prom_dist_leading[1] +
+//                       prom_dist_leading[2] +
+//                       prom_dist_leading[3] +
+//                       prom_dist_leading[4] +
+//                       prom_dist_leading[5] +
+//                       prom_dist_leading[6] +
+//                       prom_dist_leading[7] +
+//                       prom_dist_leading[8] +
+//                       prom_dist_leading[9] +
+//                       prom_dist_leading[10] +
+//                       prom_dist_leading[11] +
+//                       prom_dist_leading[12] +
+//                       prom_dist_leading[13] +
+//                       prom_dist_leading[14] +
+//                       prom_dist_leading[15] +
+//                       prom_dist_leading[16] +
+//                       prom_dist_leading[17] +
+//                       prom_dist_leading[18] +
+//                       prom_dist_leading[19] +
+//                       prom_dist_leading[20] +
+//                       prom_dist_leading[21];
 #elif CMOD_SEARCH
             int8_t prom_dist_leading[26];
                 int len = indiv_->dna_->length();
@@ -615,7 +628,10 @@ namespace aevol {
         virtual void update_metadata_before_new_generation() = 0;
 
         virtual void update_positions(int pos_after, bool insert_or_remove, int length_diff) = 0;
-        virtual void display() = 0;
+        virtual void update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff) = 0;
+        virtual void mark_positions(int pos_1, int pos_2, int8_t before) = 0;
+
+        virtual void display(bool check_to_delete) = 0;
 
         int32_t length() { return indiv_->dna_->length(); };
 

@@ -28,18 +28,19 @@ namespace aevol {
             for (auto& strand: {LEADING, LAGGING}) {
                 for (auto& rna: metadata->promoters_list_[strand]) {
                     promoters_list_[strand].emplace_back(rna);
-
                 }
             }
 
             // Copy RNAs
             for (auto rna : metadata->rnas_) {
-                rnas_.emplace_back(rna);
+                pRNA* nrna = new pRNA(rna);
+                rnas_.push_back(nrna);
             }
 
             // Copy Proteins
             for (auto prot : metadata->proteins_) {
-                proteins_.emplace_back(prot);
+                pProtein* nprot = new pProtein(prot);
+                proteins_.push_back(nprot);
                 for (auto rna : metadata->rnas_) {
                     for (auto rna2 : rnas_) {
                         if (rna->begin == rna2->begin) {
@@ -227,9 +228,9 @@ namespace aevol {
         void remove_range(int32_t begin, int32_t end) override;
         void remove_range(int32_t pos) override;
 
-
         void cleanup() override;
         void compute_promoters() override;
+        void search_for_rna_terminator() ;
         void recompute_rna() override;
         void recompute_proteins() override;
         void retranslate_proteins() override;
@@ -238,8 +239,10 @@ namespace aevol {
         void update_metadata_before_new_generation() override;
 
         void update_positions(int pos_after, bool insert_or_remove, int length_diff) override;
+        void update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff) override;
+        void mark_positions(int pos_1, int pos_2, int8_t before) override;
 
-        void display() override ;
+        void display(bool check_to_delete) override ;
 
         SIMD_Promoters2Strands promoters_list_ = {{},
                                                   {}};

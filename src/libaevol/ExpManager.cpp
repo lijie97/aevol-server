@@ -382,7 +382,7 @@ void ExpManager::step_to_next_generation() {
         t1 = high_resolution_clock::now();
 #endif
 
-        if (!simd_individual->standalone())
+        if (!simd_individual->standalone() || (simd_individual->standalone() && check_simd_))
           exp_s_->step_to_next_generation();
 
 
