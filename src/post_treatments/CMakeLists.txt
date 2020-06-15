@@ -69,6 +69,9 @@ target_link_libraries(aevol_post_soft_lineage PUBLIC aevol)
 add_executable(aevol_post_robustness aevol_post_robustness.cpp)
 target_link_libraries(aevol_post_robustness PUBLIC aevol libaevol-post)
 
+add_executable(aevol_post_test_json aevol_post_test_json.cpp)
+target_link_libraries(aevol_post_test_json PUBLIC aevol libaevol-post)
+
 # ============================================================================
 # Set behaviour on make install
 # ============================================================================
