@@ -916,6 +916,14 @@ namespace aevol {
         rnas_[idx] = rna;
     }
 
+    void SIMD_DynTab_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
+                 int8_t t_leading_lagging, double t_e,
+                 int32_t t_length) {
+        rnas_[idx] = new pRNA(t_begin, t_end,
+                t_leading_lagging, t_e,
+                t_length);
+    }
+
     pRNA* SIMD_DynTab_Metadata::rna_next() {
         pRNA* rna = *it_rna_;
         it_rna_++;

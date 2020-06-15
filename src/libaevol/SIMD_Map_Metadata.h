@@ -86,6 +86,9 @@ namespace aevol {
         /*** RNAs ***/
         pRNA* rnas(int idx) override;
         void rna_add(int idx, pRNA* rna) override;
+        void rna_add(int idx, int32_t t_begin, int32_t t_end,
+                     int8_t t_leading_lagging, double t_e,
+                      int32_t t_length) override {exit(1);};
 
         pRNA* rna_next() override ;
         void rna_begin() override ;
@@ -227,7 +230,7 @@ namespace aevol {
         void update_metadata_before_new_generation() {assert(true); exit(-1);}
 
         void update_positions(int pos_after, bool insert_or_remove, int length_diff) {assert(true); exit(-1);}
-        void update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff) {assert(true); exit(-1);}
+        void update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff, int8_t mark) {assert(true); exit(-1);}
         void mark_positions(int pos_1, int pos_2, int8_t before) {assert(true); exit(-1);}
 
         void display(bool check_to_delete) {assert(true);exit(-1);}

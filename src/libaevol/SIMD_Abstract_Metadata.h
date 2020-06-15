@@ -523,6 +523,8 @@ namespace aevol {
         /*** RNAs ***/
         virtual pRNA* rnas(int idx) = 0;
         virtual void rna_add(int idx, pRNA* prot) = 0;
+        virtual void rna_add(int idx, int32_t t_begin, int32_t t_end, int8_t t_leading_lagging, double t_e,
+                             int32_t t_length) = 0;
 
         virtual int rna_count() = 0;
         virtual void set_rna_count(int rcount) = 0;
@@ -628,7 +630,7 @@ namespace aevol {
         virtual void update_metadata_before_new_generation() = 0;
 
         virtual void update_positions(int pos_after, bool insert_or_remove, int length_diff) = 0;
-        virtual void update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff) = 0;
+        virtual void update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff, int8_t mark = -1) = 0;
         virtual void mark_positions(int pos_1, int pos_2, int8_t before) = 0;
 
         virtual void display(bool check_to_delete) = 0;

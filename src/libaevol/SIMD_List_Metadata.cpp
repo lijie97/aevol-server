@@ -1439,9 +1439,9 @@ namespace aevol {
 
     void SIMD_List_Metadata::display(bool check_to_delete) {
         bool error = false;
-        printf("%d -- [ BEGIN -------------------------------------------------------]\n",indiv_->indiv_id);
-        printf("Length %d\n",length());
-        printf("Promoters Start : ");
+        printf("[SIMD] -- %d -- [ BEGIN -------------------------------------------------------]\n",indiv_->indiv_id);
+        printf("[SIMD] -- Length %d\n",length());
+        printf("[SIMD] -- Promoters Start : ");
 
         for (auto &strand: promoters_list_)
             for (auto &prom: strand) {
@@ -1454,7 +1454,7 @@ namespace aevol {
             }
 
         }
-        printf("\nRNA Start : ");
+        printf("\n[SIMD] -- RNA Start : ");
 
         for (auto rna : rnas_) {
             printf("[%d => %d]",rna->begin,rna->end);
@@ -1466,16 +1466,16 @@ namespace aevol {
 
         }
 
-        printf("\nProteins : ");
+        printf("\n[SIMD] -- Proteins : ");
         for (auto prot : proteins_) {
             printf("[%d => %d]",prot->protein_start,prot->protein_end);
             if (prot->protein_start >= length())
                 if ((prot->to_delete && check_to_delete)) {
                     error = true;
-                    printf("\nRNA ERROR : %d %d %d\nRNA Start : ", prot->protein_start, length(), prot->to_delete);
+                    printf("\nProtein ERROR : %d %d %d\nProtein Start : ", prot->protein_start, length(), prot->to_delete);
                 }
         }
-        printf("\n%d -- [ END   -------------------------------------------------------]\n",indiv_->indiv_id);
+        printf("\n[SIMD] -- %d -- [ END   -------------------------------------------------------]\n",indiv_->indiv_id);
 
         if (error) {
             printf("ERROR !!!!\n");exit(11);
@@ -1504,6 +1504,7 @@ namespace aevol {
         // 1. Compute new promoter
         compute_promoters();
 
+        display(true);
 
         // 2. Recompute RNA mark as to_recompute
         printf("%d -- Search RNAs Terminator\n",indiv_->indiv_id);
@@ -1511,14 +1512,17 @@ namespace aevol {
         printf("%d -- Compute RNAs\n",indiv_->indiv_id);
         recompute_rna();
 
+        display(true);
         printf("%d -- Compute proteins\n",indiv_->indiv_id);
         // 3. Recompute Protein mark as to_recompute
         recompute_proteins();
 
+        display(true);
         printf("%d -- Translate proteins\n",indiv_->indiv_id);
         // 4. Retranslate Protein mark as to_retranslate
         retranslate_proteins();
 
+        display(true);
         // 5. If the proteome change (at least one new protein or a protein has changed), recompute phenotype+fitness
         //if (recompute_phenotype)
         display(true);
@@ -1918,6 +1922,7 @@ namespace aevol {
                                                                         rna->leading_lagging,
                                                                         rna->e,rna,false
                                 ));
+                                printf("Add proteins %d\n",c_pos);
                             }
 
                             if (rna->leading_lagging ==
@@ -2449,8 +2454,8 @@ namespace aevol {
 
     }
 
-    void SIMD_List_Metadata::update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff) {
-        printf("Update positions %d %d %d -- %d\n",pos_after,pos_before,length_diff,length());
+    void SIMD_List_Metadata::update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff, int8_t mark) {
+        printf("Update positions %d %d %d -- %d -- %d\n",pos_after,pos_before,length_diff,length(),mark);
         printf("%d -- UPDATE_POSITIONS : Begin\n",indiv_->indiv_id);
 
         if (add_or_reduce == 1) {
@@ -2458,87 +2463,110 @@ namespace aevol {
             // UPDATE Promoters
             for (auto &strand: promoters_list_) {
                 for (auto &prom: strand) {
-                    if (prom.pos >= pos_after && prom.pos < pos_before && prom.transloc_move == 1) {
-                        printf("INSERT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
-                        prom.pos += length_diff;
+                    if (prom.pos >= pos_after && prom.pos < pos_before) {
+                        if (mark == -1 || prom.transloc_move == mark) {
+                            printf("INSERT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
+                            prom.pos += length_diff;
+                        }
                     }
                 }
             }
 
             // UPDATE Rna
             for (auto rna : rnas_) {
-                if (rna->begin >= pos_after && rna->begin < pos_before && rna->transloc_move == 1) {
-                    printf("INSERT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
-                    rna->begin += length_diff;
-                    rna->end += length_diff;
+                if (rna->begin >= pos_after && rna->begin < pos_before) {
+                    if (mark == -1 || rna->transloc_move ==  mark) {
+                        printf("INSERT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
+                        rna->begin += length_diff;
+                        rna->end += length_diff;
+                    } else {
+
+                    }
                 }
             }
 
             // UPDATE Proteins
             for (auto prot : proteins_) {
-                if (prot->protein_start >= pos_after && prot->protein_start < pos_before && prot->transloc_move == 1) {
-                    printf("INSERT -- Update Proteins from %d to %d\n", prot->protein_start,
-                           prot->protein_start + length_diff);
-                    prot->protein_start += length_diff;
-                    prot->protein_end += length_diff;
+                if (prot->protein_start >= pos_after && prot->protein_start < pos_before) {
+                    if (mark == -1 ||prot->transloc_move ==  mark) {
+                        printf("INSERT -- Update Proteins from %d to %d\n", prot->protein_start,
+                               prot->protein_start + length_diff);
+                        prot->protein_start += length_diff;
+                        prot->protein_end += length_diff;
+                    }
                 }
             }
         } else if (add_or_reduce == 0){
             //REDUCE
             for (auto &strand: promoters_list_) {
                 for (auto &prom: strand) {
-                    if (prom.pos >= pos_after && prom.pos < pos_before && prom.transloc_move == 1) {
-                        printf("DELETE -- Update Promoters from %d to %d\n", prom.pos, prom.pos - length_diff);
-                        prom.pos -= length_diff;
+                    if (prom.pos >= pos_after && prom.pos < pos_before) {
+                        if (mark == -1 || prom.transloc_move ==  mark) {
+                            printf("DELETE -- Update Promoters from %d to %d\n", prom.pos, prom.pos - length_diff);
+                            prom.pos -= length_diff;
+                        }
                     }
                 }
             }
 
             // UPDATE Rna
             for (auto rna : rnas_) {
-                if (rna->begin >= pos_after && rna->begin < pos_before && rna->transloc_move == 1) {
-                    printf("DELETE -- Update RNA from %d to %d\n", rna->begin, rna->begin - length_diff);
-                    rna->begin -= length_diff;
-                    rna->end -= length_diff;
+                if (rna->begin >= pos_after && rna->begin < pos_before) {
+                    if (mark == -1 ||rna->transloc_move ==  mark) {
+                        printf("DELETE -- Update RNA from %d to %d\n", rna->begin, rna->begin - length_diff);
+                        rna->begin -= length_diff;
+                        rna->end -= length_diff;
+                    }
                 }
             }
 
             // UPDATE Proteins
             for (auto prot : proteins_) {
-                if (prot->protein_start >= pos_after && prot->protein_start < pos_before && prot->transloc_move == 1) {
-                    printf("DELETE -- Update Proteins from %d to %d\n", prot->protein_start,
-                           prot->protein_start - length_diff);
-                    prot->protein_start -= length_diff;
-                    prot->protein_end -= length_diff;
+                if (prot->protein_start >= pos_after && prot->protein_start < pos_before) {
+                    if (mark == -1 ||  prot->transloc_move ==  mark) {
+                        printf("DELETE -- Update Proteins from %d to %d\n", prot->protein_start,
+                               prot->protein_start - length_diff);
+                        prot->protein_start -= length_diff;
+                        prot->protein_end -= length_diff;
+                    }
                 }
             }
         } else if (add_or_reduce == 2)  {
             // SHIFT
             for (auto &strand: promoters_list_) {
                 for (auto &prom: strand) {
-                    if (prom.pos >= pos_after && prom.pos < pos_before && prom.transloc_move == 1) {
-                        printf("SHIFT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
-                        prom.pos += length_diff;
+                    if (prom.pos >= pos_after && prom.pos < pos_before) {
+                        if (mark == -1 ||prom.transloc_move == mark) {
+                            printf("SHIFT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
+                            prom.pos += length_diff;
+                        }
+                    } else {
+                        printf("NO SHIFT (INCORRECT MARK) -- Update Promoters from %d to %d __ %d != %d\n", prom.pos,
+                               prom.pos + length_diff,prom.transloc_move,mark);
                     }
                 }
             }
 
             // UPDATE Rna
             for (auto rna : rnas_) {
-                if (rna->begin >= pos_after && rna->begin < pos_before && rna->transloc_move == 1) {
-                    printf("SHIFT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
-                    rna->begin += length_diff;
-                    rna->end += length_diff;
+                if (rna->begin >= pos_after && rna->begin < pos_before) {
+                    if (mark == -1 ||  rna->transloc_move ==  mark) {
+                        printf("SHIFT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
+                        rna->begin += length_diff;
+                        rna->end += length_diff;
+                    }
                 }
             }
 
             // UPDATE Proteins
             for (auto prot : proteins_) {
-                if (prot->protein_start >= pos_after && prot->protein_start < pos_before && prot->transloc_move == 1) {
-                    printf("SHIFT -- Update Proteins from %d to %d\n", prot->protein_start,
-                           prot->protein_start + length_diff);
-                    prot->protein_start += length_diff;
-                    prot->protein_end += length_diff;
+                if (prot->protein_start >= pos_after && prot->protein_start < pos_before) {
+                    if (mark == -1 || prot->transloc_move ==  mark ) {
+                        printf("SHIFT -- Update Proteins from %d to %d\n", prot->protein_start,
+                               prot->protein_start + length_diff);
+                        prot->protein_start += length_diff;
+                        prot->protein_end += length_diff;
+                    }
                 }
             }
         }
@@ -2675,6 +2703,14 @@ namespace aevol {
     void SIMD_List_Metadata::rna_add(int idx, pRNA *rna) {
         rnas_.push_front(rna);
         it_rna_ = rnas_.begin();
+    }
+
+    void SIMD_List_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
+                 int8_t t_leading_lagging, double t_e,
+                 int32_t t_length) {
+        rnas_.push_back(new pRNA(t_begin, t_end,
+                 t_leading_lagging, t_e,
+                 t_length));
     }
 
 

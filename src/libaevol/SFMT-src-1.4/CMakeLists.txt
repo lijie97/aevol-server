@@ -49,6 +49,6 @@ target_compile_definitions(sfmt
 
 
 # ============================================================================
-# Use C++11
+# Silence -Wunused-const-variable warning
 # ============================================================================
-#target_compile_options(sfmt PRIVATE "-std=c++14")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wno-unused-const-variable")

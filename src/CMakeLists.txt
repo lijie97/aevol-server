@@ -2,7 +2,10 @@
 # Tell cmake about subdirectories to look into
 # ============================================================================
 add_subdirectory(libaevol)
-add_subdirectory(post_treatments)
+
+if (with-post-treatments)
+  add_subdirectory(post_treatments)
+endif()
 
 
 # ============================================================================
@@ -16,6 +19,17 @@ find_package(ZLIB REQUIRED)
 # ============================================================================
 include_directories(".")
 include_directories("libaevol")
+include_directories("libaevol/mutation")
+include_directories("libaevol/phenotype")
+include_directories("libaevol/biochemistry")
+include_directories("libaevol/rng")
+include_directories("libaevol/world")
+include_directories("libaevol/population")
+include_directories("libaevol/stats")
+include_directories("libaevol/cuda")
+include_directories("libaevol/io")
+include_directories("libaevol/gui")
+include_directories("libaevol/utils")
 
 # ============================================================================
 # Add targets add their dependencies
@@ -42,7 +56,7 @@ endif()
 
 if ( ${with-simd} )
     add_definitions(-DWITH_STANDALONE_SIMD)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=skylake -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ()
 
 
@@ -57,9 +71,3 @@ install(TARGETS aevol_create DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_create)
 install(TARGETS aevol_modify DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_modify)
 install(TARGETS aevol_propagate DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_propagate)
 install(TARGETS aevol_run DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_run)
-
-
-# ============================================================================
-# Include tests
-# ============================================================================
-add_subdirectory(tests EXCLUDE_FROM_ALL)

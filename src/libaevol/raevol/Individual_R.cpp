@@ -36,8 +36,8 @@
 //                            Project Files
 // =================================================================
 #include "Individual_R.h"
-#include "../ExpManager.h"
-#include "../HybridFuzzy.h"
+#include "ExpManager.h"
+#include "HybridFuzzy.h"
 
 namespace aevol {
 

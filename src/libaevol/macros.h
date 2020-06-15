@@ -110,6 +110,7 @@ constexpr double H_MIN = -1.0;
 constexpr double H_MAX = 1.0;
 constexpr double W_MIN = 0.0;
 // W_MAX is defined through a parameter
+constexpr double FUZZY_ROUNDING = 1000000000000.0;
 
 constexpr int8_t SC_MATCH_BONUS   = 1;
 constexpr int8_t SC_MISMATCH_COST = 2;
