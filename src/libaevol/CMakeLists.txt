@@ -61,6 +61,9 @@ set(aevol_sources
 
   io/Dump.cpp
   io/Dump.h
+  io/IOJson.cpp
+  io/IOJson.h
+  io/json.hpp
   io/LightTree.cpp
   io/LightTree.h
   io/Logging.cpp
