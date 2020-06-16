@@ -500,30 +500,33 @@ void ExpManager::load(gzFile& exp_s_file,
         dna_mutator_array_[i] = nullptr;
     }
 
-    simd_individual = new SIMD_Individual(this);
-    simd_individual->protein_grain_size = grain_size;
-    simd_individual->rna_grain_size = grain_size;
-
+    if (to_be_run) {
+        simd_individual = new SIMD_Individual(this);
+        simd_individual->protein_grain_size = grain_size;
+        simd_individual->rna_grain_size = grain_size;
+    }
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
-
-  simd_individual->set_stats(output_m_->stats());
-
+    if (to_be_run) {
+        simd_individual->set_stats(output_m_->stats());
+    }
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (SIMD_Individual::standalone_simd) {
-          simd_individual->addObserver(tree(), NEW_INDIV);
-          for (int16_t x = 0; x < grid_width(); x++) {
-              for (int16_t y = 0; y < grid_height(); y++) {
-                  simd_individual->internal_simd_struct[x*grid_height()+y]->addObserver(
-                          tree(),
-                          END_REPLICATION);
+          if (to_be_run) {
+              simd_individual->addObserver(tree(), NEW_INDIV);
+              for (int16_t x = 0; x < grid_width(); x++) {
+                  for (int16_t y = 0; y < grid_height(); y++) {
+                      simd_individual->internal_simd_struct[x * grid_height() + y]->addObserver(
+                              tree(),
+                              END_REPLICATION);
+                  }
               }
+              simd_individual->addObserver(tree(), END_GENERATION);
           }
-          simd_individual->addObserver(tree(), END_GENERATION);
       } else {
           sel()->addObserver(tree(), NEW_INDIV);
           for (int16_t x = 0; x < grid_width(); x++) {
@@ -539,15 +542,17 @@ void ExpManager::load(gzFile& exp_s_file,
 
   if (record_light_tree()){
     if (SIMD_Individual::standalone_simd) {
-      simd_individual->addObserver(light_tree(), NEW_INDIV);
-      for (int16_t x = 0; x < grid_width(); x++) {
-        for (int16_t y = 0; y < grid_height(); y++) {
-          simd_individual->internal_simd_struct[x*grid_height()+y]->addObserver(
-                  light_tree(),
-                  END_REPLICATION);
+        if (to_be_run) {
+            simd_individual->addObserver(light_tree(), NEW_INDIV);
+            for (int16_t x = 0; x < grid_width(); x++) {
+                for (int16_t y = 0; y < grid_height(); y++) {
+                    simd_individual->internal_simd_struct[x * grid_height() + y]->addObserver(
+                            light_tree(),
+                            END_REPLICATION);
+                }
+            }
+            simd_individual->addObserver(light_tree(), END_GENERATION);
         }
-      }
-      simd_individual->addObserver(light_tree(), END_GENERATION);
     } else {
       sel()->addObserver(light_tree(), NEW_INDIV);
       for (int16_t x = 0; x < grid_width(); x++) {

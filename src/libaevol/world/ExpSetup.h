@@ -199,7 +199,7 @@ class ExpSetup {
   // =======================================================================
   ExpManager* exp_m_;
 
-  int fuzzy_flavor_;
+  int fuzzy_flavor_ = 0;
   int simd_metadata_flavor_;
   // ----------------------------------------------------- Selection context
   Selection* sel_;

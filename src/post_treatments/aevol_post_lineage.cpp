@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
 
-  FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_manager->exp_s());
+  FuzzyFactory::fuzzyFactory = new FuzzyFactory(0);
 
   // Check that the tree was recorded
   if (not exp_manager->record_tree()) {

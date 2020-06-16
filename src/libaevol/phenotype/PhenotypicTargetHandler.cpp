@@ -151,13 +151,13 @@ void PhenotypicTargetHandler::BuildPhenotypicTarget() {
 
 //          printf("Add point [%f %d] = %f\n",new_point.x,i,new_point.y);
 
-          if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 0) {
+//          if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 0) {
               phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
 //              printf("Point added [%d %f] = %f\n",i,new_point.x,((Fuzzy*)phenotypic_target_->fuzzy())->y(new_point.x));
-          } else {
-              ((HybridFuzzy *) phenotypic_target_->fuzzy())->points()[i] = new_point.y;
-//              printf("Point added [%d %f] = %f\n",i,new_point.x,((HybridFuzzy*)phenotypic_target_->fuzzy())->points()[i]);
-          }
+//          } else {
+//              ((HybridFuzzy *) phenotypic_target_->fuzzy())->points()[i] = new_point.y;
+////              printf("Point added [%d %f] = %f\n",i,new_point.x,((HybridFuzzy*)phenotypic_target_->fuzzy())->points()[i]);
+//          }
       }
 
   }
