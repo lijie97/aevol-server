@@ -20,7 +20,7 @@ set(AUTHORIZED_MTPERIOD 607 1279 2281 4253 11213 19937 44497 86243 132049 216091
 set(with-post-treatments ON CACHE BOOL "Whether to build post-treatments")
 
 set(with-x ON CACHE BOOL "Whether to enable graphical outputs")
-set(with-omp OFF CACHE BOOL "Whether to enable OpenMP parallelization")
+set(with-omp ON CACHE BOOL "Whether to enable OpenMP parallelization")
 set(enable-profiling OFF CACHE BOOL "Whether to enable profiling")
 set(with-tracing OFF CACHE BOOL "Whether to use tracing")
 set(enable-perflog OFF CACHE BOOL "Whether to active performance log")
@@ -30,7 +30,7 @@ set(enable-trivialjumps OFF CACHE STRING "When this option is set, a trivial jum
 
 set(with-triangle OFF CACHE BOOL "Whether to enable triangle phenotypic target (else Gaussian)")
 set(with-raevol OFF CACHE BOOL "Whether to enable R-Aevol (Gene regulation) version")
-set(with-detectclone ON CACHE BOOL "Whether to enable clones and not recompute them")
+set(with-detectclone OFF CACHE BOOL "Whether to enable clones and not recompute them")
 set(with-floatconcentration OFF CACHE BOOL "Whether to enable the encoding of concentration has float (and not double)")
 set(with-simd OFF CACHE BOOL "Whether to switch to the SIMD implementation of (R-)Aevol")
 

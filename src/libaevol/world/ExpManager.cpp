@@ -696,14 +696,16 @@ void ExpManager::run_evolution() {
                   simd_individual->best_indiv->metaerror,
                   simd_individual->nb_clones_);
         } else {
-          printf("  Best individual's distance to target (metabolic) : %f\n",
+          printf("  Best individual's distance to target (metabolic) : %f, fitness : %f\n",
                  //best_indiv()->id(),
-                 best_indiv()->dist_to_target_by_feature(METABOLISM));
+                 best_indiv()->dist_to_target_by_feature(METABOLISM),
+                 best_indiv()->fitness());
         }
       } else {
-        printf("  Best individual's distance to target (metabolic) : %f\n",
+        printf("  Best individual's distance to target (metabolic) : %f, fitness : %f\n",
                //best_indiv()->id(),
-               best_indiv()->dist_to_target_by_feature(METABOLISM));
+               best_indiv()->dist_to_target_by_feature(METABOLISM),
+               best_indiv()->fitness());
       }
     }
 
