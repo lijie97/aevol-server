@@ -48,15 +48,6 @@
 
 namespace aevol {
 
-DnaReplicationReport::~DnaReplicationReport() {
-/*  for (auto it = ht_.begin(); it < ht_.end(); it++) {
-    delete (*it);
-  }*/
-  ht_.clear();
-  rearrangements_.clear();
-  mutations_.clear();
-}
-
 DnaReplicationReport::DnaReplicationReport(const DnaReplicationReport& other) {
   Mutation* mut = nullptr;
 
