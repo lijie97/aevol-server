@@ -94,6 +94,9 @@ class World
   Individual* indiv_by_id(int32_t id) const;
   Individual* indiv_by_rank(int32_t rank) const;
 
+  double secretion_degradation_prop() const { return secretion_degradation_prop_; };
+  double secretion_diffusion_prop() const { return secretion_diffusion_prop_; };
+
   inline double** secretion_present_grid() const;
   inline double** secreted_amount_grid() const;
   inline double** metabolic_fitness_grid() const;

@@ -321,15 +321,12 @@ IOJson::IOJson(const std::string & filename) {
 
 IOJson::IOJson(const std::string &param_in, const std::string &chromosome) {
   ParamLoader paramLoader(param_in.c_str());
-
   setStrainName(paramLoader.strain_name_);
-
   setSeed(paramLoader.seed_);
   setMutSeed(paramLoader.mut_seed_);
   setStochSeed(paramLoader.stoch_seed_);
   setEnvNoiseSeed(paramLoader.env_noise_seed_);
   setEnvVarSeed(paramLoader.env_var_seed_);
-
   // ------------------------------------------------------------ Constraints
   setMinGenomeLength(paramLoader.min_genome_length_);
   setMaxGenomeLength(paramLoader.max_genome_length_);
@@ -405,7 +402,6 @@ IOJson::IOJson(const std::string &param_in, const std::string &chromosome) {
   // -------------------------------------------------------------- Selection
   setSelectionScheme(paramLoader.selection_scheme_);
   setSelectionPressure(paramLoader.selection_pressure_);
-
   setSelectionScope(paramLoader.selection_scope_);
   setSelectionScopeX(paramLoader.selection_scope_x_);
   setSelectionScopeY(paramLoader.selection_scope_y_);
@@ -490,6 +486,66 @@ IOJson::IOJson(const std::string &param_in, const std::string &chromosome) {
     gaussian_vector.emplace_back(item.height(),item.mean(),item.width());
   }
   setEnvAddGaussian(gaussian_vector);
+}
+
+IOJson::IOJson(ExpManager * exp_m) {
+
+  ExpSetup* exp_s = exp_m->exp_s();
+  Selection* sel = exp_m->sel();
+  OutputManager* output_m = exp_m->output_m();
+  output_m->InitStats();
+  World* world = exp_m->world();
+
+  init();
+
+  // ---------------------------------------------------------------- Selection
+  setSelectionScheme(sel->selection_scheme());
+  setSelectionPressure(sel->selection_pressure());
+
+  setSelectionScope(sel->selection_scope());
+  setSelectionScopeX(sel->selection_scope_x());
+  setSelectionScopeX(sel->selection_scope_y());
+
+  setFitnessFunction(sel->fitness_func());
+  setFitnessFunctionX(sel->fitness_function_scope_x());
+  setFitnessFunctionY(sel->fitness_function_scope_y());
+  // ----------------------------------------------------------------- Transfer
+  setWithHt(exp_s->with_HT());
+  setReplHtWithClosePoints(exp_s->repl_HT_with_close_points());
+  setHtInsRate(exp_s->HT_ins_rate());
+  setHtReplRate(exp_s->HT_repl_rate());
+  setReplHtDetachRate(exp_s->repl_HT_detach_rate());
+
+  // ----------------------------------------------------------------- Plasmids
+  setAllowPlasmids(exp_s->with_plasmids());
+  setProbPlasmidHt(exp_s->prob_plasmid_HT());
+  setTuneDonorAbility(exp_s->tune_donor_ability());
+  setTuneRecipientAbility(exp_s->tune_recipient_ability());
+  setDonorCost(exp_s->donor_cost());
+  setRecipientCost(exp_s->recipient_cost());
+  setSwapGUs(exp_s->swap_GUs());
+  setComputePhenContribByGu(output_m->compute_phen_contrib_by_GU());
+  setPartialMixNbPermutations(world->partial_mix_nb_permutations());
+
+  // ---------------------------------------------------------------- Secretion
+  setWithSecretion(exp_s->with_secretion());
+  setSecretionContribToFitness(exp_s->secretion_contrib_to_fitness());
+  setSecretionCost(exp_s->secretion_cost());
+  setSecretionDegradationProp(world->secretion_degradation_prop());
+  setSecretionDiffusionProp(world->secretion_diffusion_prop());
+
+  setFuzzyFlavor(exp_s->get_fuzzy_flavor());
+
+  //------------------------------------------------------------------ Parameter for SIMD
+  setMinGenomeLength(exp_s->min_genome_length());
+  setMaxGenomeLength(exp_s->max_genome_length());
+
+  setWorldWidth(world->width());
+  setWorldHeigth(world->height());
+  setInitPopSize(world->nb_indivs());
+
+
+
 }
 
 void IOJson::load(ExpManager * exp_m, bool verbose,
@@ -1702,4 +1758,9 @@ const std::string &IOJson::getStrainName() const {
 void IOJson::write(const std::string &filename) const {
   std::ofstream file(filename);
   file << json_file_.dump(2) << std::endl;
+}
+void IOJson::addIndividual(Individual* indiv, json gu_list) {
+    individuals_.emplace_back(*indiv);
+    json_file_["indivs"].push_back(gu_list);
+
 }
