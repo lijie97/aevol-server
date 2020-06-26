@@ -17,6 +17,7 @@ class IOJson {
  public:
   explicit IOJson(const std::string & filename);
   explicit IOJson(const std::string &param_in, const std::string &chromosome);
+  explicit IOJson(ExpManager * exp_m);
 
   std::string strain_name();
   int max_indel_size() const;
@@ -31,7 +32,7 @@ class IOJson {
   void setStrainName(const std::string &strainName);
   const vector<Individual> &getIndividuals() const;
   void setIndividuals(const vector<Individual> &individuals);
-  void addIndividual(const std::string &genome);
+  void addIndividual(Individual* indiv, json gu_list);
   uint32_t getSeed() const;
   void setSeed(uint32_t seed);
   int getInitPopSize() const;
