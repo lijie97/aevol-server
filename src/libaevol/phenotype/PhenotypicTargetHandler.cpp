@@ -288,6 +288,8 @@ void PhenotypicTargetHandler::ApplySwitchEnvironment() {
 
 
 //    printf("Switch prob %lf\n",env_switch_probability_);
+  if (env_switch_probability_ <= 1.0)
+  {
     if ( var_prng_->random() < env_switch_probability_) {
         int old_id = id_current_env_;
         //we have to change to a new env that have an id different from the old one
@@ -299,6 +301,23 @@ void PhenotypicTargetHandler::ApplySwitchEnvironment() {
         //The environment has changed
         phenotypic_target_ = phenotypic_targets_[id_current_env_];
     }
+  }
+  else
+  {
+    if ((int)env_switch_probability_ == AeTime::time())
+    {
+      std::cout << (int)env_switch_probability_ << " " << AeTime::time() << "\n";
+      int old_id = id_current_env_;
+      //we have to change to a new env that have an id different from the old one
+      while( id_current_env_ == old_id ) {
+          id_current_env_ = var_prng_->random((int)phenotypic_targets_.size());
+      }
+
+//        printf("Switch from %d to %d\n",old_id,id_current_env_);
+      //The environment has changed
+      phenotypic_target_ = phenotypic_targets_[id_current_env_];
+    }
+  }
 }
 
 void PhenotypicTargetHandler::save(gzFile backup_file) const {

@@ -67,9 +67,9 @@ Rna::Rna(GeneticUnit* gen_unit, const Rna &model)
   log_sigma_            = model.log_sigma_;
   est_sigma_            = model.est_sigma_;
   basal_level_no_noise_ = model.basal_level_no_noise_;
-  //basal_level_          = model.basal_level_;
+  basal_level_          = model.basal_level_;
 
-  basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*log_sigma_);
+  //basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*log_sigma_);
 
   // Copy transcribed proteins
   // WARNING : Since this list do not "own" the proteins (they will not be deleted)
@@ -130,8 +130,8 @@ Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
   log_sigma_   = (double)count_1/(double)NOISE_SEQ_SIZE*(MAX_NOISE-MIN_NOISE)+MIN_NOISE;
   est_sigma_   = (exp(log_sigma_*log_sigma_)-1.0)*exp(2.0*log(basal_level_no_noise_)+log_sigma_*log_sigma_);
   est_sigma_   = (est_sigma_ < 0.00000001) ? 0. : sqrt(est_sigma_);
-  basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*log_sigma_);
-  //basal_level_ = basal_level_no_noise_;
+  //basal_level_ = exp(log(basal_level_no_noise_)+genetic_unit()->indiv()->stoch_prng()->gaussian_random()*log_sigma_);
+  basal_level_ = basal_level_no_noise_;
   //std::cout << count_1 << " " << sigma_ << " " << basal_level_no_noise_ << " " << basal_level_ << "\n";
 }
 
