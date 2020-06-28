@@ -306,7 +306,7 @@ void PhenotypicTargetHandler::ApplySwitchEnvironment() {
   {
     if ((int)env_switch_probability_ == AeTime::time())
     {
-      std::cout << (int)env_switch_probability_ << " " << AeTime::time() << "\n";
+      //std::cout << (int)env_switch_probability_ << " " << AeTime::time() << "\n";
       int old_id = id_current_env_;
       //we have to change to a new env that have an id different from the old one
       while( id_current_env_ == old_id ) {
