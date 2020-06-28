@@ -286,8 +286,12 @@ void PhenotypicTargetHandler::ApplySwitchEnvironment() {
     if (phenotypic_targets_.size()==1)
         return;
 
-
-//    printf("Switch prob %lf\n",env_switch_probability_);
+  if (phenotypic_targets_.size() == 1)
+  {
+    phenotypic_target_ = phenotypic_targets_[0];
+    return;
+  }
+  //    printf("Switch prob %lf\n",env_switch_probability_);
   if (env_switch_probability_ <= 1.0)
   {
     if ( var_prng_->random() < env_switch_probability_) {
