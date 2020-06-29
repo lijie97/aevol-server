@@ -122,6 +122,34 @@ class PhenotypicTargetHandler
     return phenotypic_target_->area_by_feature(METABOLISM);
   }
 
+  int16_t sampling() const {
+      return sampling_;
+  }
+
+  double noise_alpha() const {
+      return noise_alpha_;
+  }
+
+  double noise_prob() const {
+      return noise_prob_;
+  }
+
+  int8_t noise_sampling_log() const {
+      return noise_sampling_log_;
+  }
+
+  double noise_sigma() const {
+      return noise_sigma_;
+  }
+
+  double var_sigma() const {
+      return var_sigma_;
+  }
+
+  double var_tau() const {
+      return var_tau_;
+  }
+
   // ==========================================================================
   //                                 Setters
   // ==========================================================================

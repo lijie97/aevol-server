@@ -106,8 +106,7 @@ int main(int argc, char* argv[]) {
 
   IOJson* io_json = new IOJson(exp_manager);
   json gu_list = json::array();
-  IOJson* io_json_bis = new IOJson("param.in","Sequence");
-  io_json_bis->write("JsonBis");
+
   // The best individual is already known because it is the last in the list
   // Thus we do not need to know anything about the environment and to evaluate
   // the individuals
@@ -116,12 +115,12 @@ int main(int argc, char* argv[]) {
   if (best_only) {
     Individual* best = exp_manager->best_indiv();
     best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-    gu_list = analyse_indiv(best, triangles_file, sequence_file, json_file, gu, best->habitat().phenotypic_target());
+    gu_list = analyse_indiv(best, triangles_file, sequence_file, json_file, gu, best->habitat().phenotypic_target()); // list of GU of the individual
     io_json->addIndividual(best, gu_list);
   }
   else if(ind != -1)
   {
-      if(ind >= exp_manager->grid_width()*exp_manager->grid_height())
+      if(ind >= exp_manager->grid_width()*exp_manager->grid_height() || ind < -1) // invalid individual ID are set to 0
           {
             ind = 0;
           }
@@ -172,12 +171,15 @@ inline json analyse_indiv(Individual* indiv, FILE* triangles_file,
   if (gu == -1) { // We want to treat all genetic units
     int32_t gen_unit_number = 0;
     for (auto& gen_unit: indiv->genetic_unit_list_nonconst()) {
+
+      // Get the sequence of the GU
       std::string dna = gen_unit.dna()->data();
       int32_t length = gen_unit.dna()->length();
       dna.resize(length);
       json a_gu;
       a_gu["GU"]["seq"] = dna;
       gu_list.push_back(a_gu);
+
       if(triangles_file != nullptr) {
         analyse_gu(&gen_unit, gen_unit_number, triangles_file,
                    phenotypicTarget);
@@ -194,12 +196,15 @@ inline json analyse_indiv(Individual* indiv, FILE* triangles_file,
   }
   else { // User has specified a genetic unit
     GeneticUnit* gen_unit = &indiv->genetic_unit_nonconst(gu);
+
+    // Get the sequence of the GU
     std::string dna = gen_unit->dna()->data();
     int32_t length = gen_unit->dna()->length();
     dna.resize(length);
     json a_gu;
     a_gu["GU"]["seq"] = dna;
     gu_list.push_back(a_gu);
+
     if(triangles_file != nullptr) {
         analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget);
     }

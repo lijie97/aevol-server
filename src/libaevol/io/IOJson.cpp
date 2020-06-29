@@ -495,6 +495,8 @@ IOJson::IOJson(ExpManager * exp_m) {
   OutputManager* output_m = exp_m->output_m();
   output_m->InitStats();
   World* world = exp_m->world();
+  PhenotypicTargetHandler* phenotypic_target_handler = world->phenotypic_target_handler();
+  std::shared_ptr<aevol::MutationParams> param_mut = exp_s->mut_params();
 
   init();
 
@@ -540,12 +542,48 @@ IOJson::IOJson(ExpManager * exp_m) {
   setMinGenomeLength(exp_s->min_genome_length());
   setMaxGenomeLength(exp_s->max_genome_length());
 
+  //------------------------------------------------------------------ Alignements
+  setDeletionProportion(param_mut->deletion_proportion());
+  setDuplicationProportion(param_mut->duplication_proportion());
+  setInversionProportion(param_mut->inversion_proportion());
+  setTranslocationProportion(param_mut->translocation_proportion());
+  setNeighbourhoodRate(param_mut->neighbourhood_rate());
+  setWithAlignments(param_mut->with_alignments());
+
+  //------------------------------------------------------------------ Mutations
+  setDeletionRate(param_mut->deletion_rate());
+  setDuplicationRate(param_mut->duplication_rate());
+  setInversionRate(param_mut->inversion_rate());
+  setMaxIndelSize(param_mut->max_indel_size());
+  setPointMutationRate(param_mut->point_mutation_rate());
+  setSmallDeletionRate(param_mut->small_deletion_rate());
+  setSmallInsertionRate(param_mut->small_insertion_rate());
+  setTranslocationRate(param_mut->translocation_rate());
+  setWith4PtsTrans(param_mut->with_4pts_trans());
+
+  //------------------------------------------------------------------ Env
+  setEnvSampling(phenotypic_target_handler->sampling());
+  setEnvNoiseAlpha(phenotypic_target_handler->noise_alpha());
+  setEnvNoiseProb(phenotypic_target_handler->noise_prob());
+  setEnvNoiseSamplingLog(phenotypic_target_handler->noise_sampling_log());
+  //setEnvNoiseSeed(phenotypic_target_handler->);
+  setEnvNoiseSigma(phenotypic_target_handler->noise_sigma());
+
+  //------------------------------------------------------------------ Segmentation
+  //setEnvAxisFeatures(phenotypic_target_handler->);
+  //setEnvAxisNbSegments(phenotypic_target_handler->);
+  //setEnvAxisSeparateSegments(phenotypic_target_handler->);
+
+  //------------------------------------------------------------------ Variation
+  setEnvVarMethod(phenotypic_target_handler->var_method());
+  //setEnvVarSeed(phenotypic_target_handler->);
+  setEnvVarSigma(phenotypic_target_handler->var_sigma());
+  setEnvVarTau(phenotypic_target_handler->var_tau());
+
+
   setWorldWidth(world->width());
   setWorldHeigth(world->height());
   setInitPopSize(world->nb_indivs());
-
-
-
 }
 
 void IOJson::load(ExpManager * exp_m, bool verbose,
@@ -649,7 +687,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
 #endif
 
   // Shorthand for phenotypic target handler
-#ifndef __REGUL
+#ifndef __REGULdeletion_proportion
   PhenotypicTargetHandler& phenotypic_target_handler =
       habitat.phenotypic_target_handler_nonconst();
 #else
