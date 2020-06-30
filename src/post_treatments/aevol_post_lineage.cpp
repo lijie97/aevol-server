@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
 
-  FuzzyFactory::fuzzyFactory = new FuzzyFactory(0);
+  FuzzyFactory::fuzzyFactory = new FuzzyFactory();
 
   // Check that the tree was recorded
   if (not exp_manager->record_tree()) {
@@ -354,14 +354,19 @@ int main(int argc, char** argv) {
 
     // Replay the mutations stored in the current replication report on the
     // current genome
+
     unit = initial_ancestor.genetic_unit_list().cbegin();
     for (const auto& mut: reports[i]->dna_replic_report().HT()) {
+        printf("%ld -- Undergoes %d\n",t,mut->mut_type());
       (unit->dna())->undergo_this_mutation(*mut);
+
     }
     for (const auto& mut: reports[i]->dna_replic_report().rearrangements()) {
+        printf("%ld -- Undergoes %d\n",t,mut->mut_type());
       (unit->dna())->undergo_this_mutation(*mut);
     }
     for (const auto& mut: reports[i]->dna_replic_report().mutations()) {
+        printf("%ld -- Undergoes %d\n",t,mut->mut_type());
       unit->dna()->undergo_this_mutation(*mut);
     }
 
@@ -393,6 +398,11 @@ int main(int argc, char** argv) {
                 (int32_t)strlen(str1), str1);
         fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n",
                 (int32_t)strlen(str2), str2);
+
+        for (int pos = 0; pos < strlen(str1); pos++)
+            if (str1[pos] != str2[pos]) fprintf(stderr, "Position %d is different  : %c %c\n",
+                    pos,str1[pos],str2[pos]);
+
         delete [] str1;
         delete [] str2;
         gzclose(lineage_file);

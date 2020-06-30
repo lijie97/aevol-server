@@ -2456,6 +2456,7 @@ bool Dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert,
 }
 
 void Dna::undergo_this_mutation(const Mutation& mut) {
+
   switch (mut.mut_type()) {
     case SWITCH :
       do_switch(dynamic_cast<const PointMutation&>(mut).pos());

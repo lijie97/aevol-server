@@ -126,7 +126,7 @@ ExpManager::~ExpManager() noexcept
 
   delete [] dna_mutator_array_;
 
-  delete FuzzyFactory::fuzzyFactory;
+  //delete FuzzyFactory::fuzzyFactory;
 }
 
 // ===========================================================================
@@ -481,7 +481,7 @@ void ExpManager::load(gzFile& exp_s_file,
   printf(" OK\n");
 
   if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory();
 
 
   // ---------------------------------------------------------- Retrieve world
@@ -604,8 +604,7 @@ void ExpManager::load(const char* dir,
 
 
   if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
-  printf("Factory flavor %d : %d\n",exp_s_->get_fuzzy_flavor(),FuzzyFactory::fuzzyFactory->get_fuzzy_flavor());
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory();
 }
 
 

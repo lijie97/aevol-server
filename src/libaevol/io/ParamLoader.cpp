@@ -1615,7 +1615,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 #endif
 
   if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory();
 
   // 2) --------------------------------------------- Create and init a Habitat
   #ifndef __REGUL
