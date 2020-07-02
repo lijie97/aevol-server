@@ -580,7 +580,10 @@ IOJson::IOJson(ExpManager * exp_m) {
   setEnvVarSigma(phenotypic_target_handler->var_sigma());
   setEnvVarTau(phenotypic_target_handler->var_tau());
 
+  setEnvNoiseSeed(phenotypic_target_handler->noise_prng().use_count());
 
+
+  setEnvAddGaussian(phenotypic_target_handler->current_gaussians());
   setWorldWidth(world->width());
   setWorldHeigth(world->height());
   setInitPopSize(world->nb_indivs());
@@ -1800,5 +1803,7 @@ void IOJson::write(const std::string &filename) const {
 void IOJson::addIndividual(Individual* indiv, json gu_list) {
     individuals_.emplace_back(*indiv);
     json_file_["indivs"].push_back(gu_list);
+    json j = {{"id", indiv->id()}};
+    json_file_["indivs"].push_back(j);
 
 }

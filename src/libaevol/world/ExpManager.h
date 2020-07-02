@@ -115,6 +115,7 @@ class ExpManager : public Observer {
   Individual* best_indiv() const { return world()->best_indiv(); }
   Individual* indiv_by_id(int32_t id) const;
   Individual* indiv_by_rank(int32_t rank) const;
+  Individual* indiv_by_position(int16_t x, int16_t y) const;
 
   // Accessors to output manager stuff
   int64_t	backup_step() const { return output_m()->backup_step(); }
