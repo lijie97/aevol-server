@@ -150,6 +150,10 @@ class PhenotypicTargetHandler
       return var_tau_;
   }
 
+  std::shared_ptr<JumpingMT> noise_prng() const {
+      return noise_prng_;
+  }
+
   // ==========================================================================
   //                                 Setters
   // ==========================================================================

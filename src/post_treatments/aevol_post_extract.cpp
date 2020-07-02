@@ -32,6 +32,7 @@
 #include <cstdio>
 #include "IOJson.h"
 #include <string>
+#include <assert.h>
 
 // =================================================================
 //                            Project Files
@@ -44,10 +45,15 @@ using namespace aevol;
 static char* triangles_file_name  = nullptr;
 static char* sequence_file_name  = nullptr;
 static char* json_file_name = nullptr;
-static bool best_only = true;
+static bool all_indiv = false;
+static bool by_index = false;
+static bool x_axis = false;
+static bool y_axis = false;
 static int16_t gu = -1;
 static int32_t timestep = -1;
 static int32_t ind = -1;
+static int16_t x_pos = -1;
+static int16_t y_pos = -1;
 
 // Helper functions
 void print_help(char* prog_path);
@@ -63,6 +69,14 @@ void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
+
+  assert(x_axis == y_axis);
+  //make sure that no more than one option is selected
+  int nb_option = 0;
+  if(all_indiv){nb_option++;}
+  if(by_index){nb_option++;}
+  if(x_axis){nb_option++;}
+  assert(nb_option <= 1);
 
   // Open the files
   FILE* triangles_file = nullptr;
@@ -107,23 +121,22 @@ int main(int argc, char* argv[]) {
   IOJson* io_json = new IOJson(exp_manager);
   json gu_list = json::array();
 
+  if(by_index){
+      assert(ind >= 0 && ind < exp_manager->grid_width() * exp_manager->grid_height());
+  }
+  if(x_axis){
+      //we already know that x_axis = y_axis
+      assert(x_pos >= 0 && x_pos < exp_manager->grid_width());
+      assert(y_pos >= 0 && y_pos < exp_manager->grid_height());
+  }
+
   // The best individual is already known because it is the last in the list
   // Thus we do not need to know anything about the environment and to evaluate
   // the individuals
 
   // Parse the individuals
-  if (best_only) {
-    Individual* best = exp_manager->best_indiv();
-    best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-    gu_list = analyse_indiv(best, triangles_file, sequence_file, json_file, gu, best->habitat().phenotypic_target()); // list of GU of the individual
-    io_json->addIndividual(best, gu_list);
-  }
-  else if(ind != -1)
+  if(by_index)
   {
-      if(ind >= exp_manager->grid_width()*exp_manager->grid_height() || ind < -1) // invalid individual ID are set to 0
-          {
-            ind = 0;
-          }
       for (const auto& indiv: exp_manager->indivs()) {
           if(indiv->id() == ind){
               gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
@@ -131,14 +144,20 @@ int main(int argc, char* argv[]) {
           }
       }
   }
-  else
-  {
+  else if (all_indiv) {
     for (const auto& indiv: exp_manager->indivs()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
 
       gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
       io_json->addIndividual(indiv, gu_list);
     }
+  }
+  else
+  {
+    Individual* best = exp_manager->best_indiv();
+    best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
+    gu_list = analyse_indiv(best, triangles_file, sequence_file, json_file, gu, best->habitat().phenotypic_target()); // list of GU of the individual
+    io_json->addIndividual(best, gu_list);
   }
 
   if (sequence_file_name != nullptr) {
@@ -370,7 +389,7 @@ or extract -b -p populations/pop_020000.ae -s seq_020000_best\n");
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char * options_list = "hVt:aU:S:T:J:i:";
+  const char * options_list = "hVt:aU:S:T:J:i:x:y:";
   static struct option long_options_list[] = {
       {"help",      no_argument,        nullptr, 'h'},
       {"version",   no_argument,        nullptr, 'V'},
@@ -381,6 +400,8 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       {"triangles", required_argument,  nullptr, 'T'},
       {"json",      required_argument,  nullptr, 'J'},
       {"index",     required_argument,  nullptr, 'i'},
+      {"xaxis",     required_argument,  nullptr, 'x'},
+      {"yaxis",     required_argument,  nullptr, 'y'},
       {0, 0, 0, 0}
   };
 
@@ -402,7 +423,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         break;
       }
       case 'a' : {
-        best_only = false;
+        all_indiv = true;
         break;
       }
       case 'U' : {
@@ -425,8 +446,18 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         break;
       }
       case 'i' : {
-        ind = atol(optarg);
-        best_only = false;
+        ind = atoi(optarg);
+        by_index = true;
+        break;
+      }
+      case 'x' : {
+        x_pos = atoi(optarg);
+        x_axis = true;
+        break;
+      }
+      case 'y' : {
+        y_pos = atol(optarg);
+        y_axis = true;
         break;
       }
     }
