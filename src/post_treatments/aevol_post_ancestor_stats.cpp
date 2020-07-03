@@ -171,9 +171,9 @@ int main(int argc, char* argv[]) {
   FILE* fixed_mutations_file = nullptr;
   if (trace_mutations) {
     char fixed_mutations_file_name[255];
-    snprintf(fixed_mutations_file_name, 60,
-             "stats/fixedmut-b" TIMESTEP_FORMAT "-e" TIMESTEP_FORMAT "-i%"
-                 PRId32 "-r%" PRId32 ".out",
+    snprintf(fixed_mutations_file_name, 255,
+             "stats/ancestor_stats/fixedmut-b" TIMESTEP_FORMAT
+             "-e" TIMESTEP_FORMAT "-i%" PRId32 "-r%" PRId32 ".out",
              t0, t_end, final_indiv_index, final_indiv_rank);
     fixed_mutations_file = fopen(fixed_mutations_file_name, "w");
     if (fixed_mutations_file == nullptr) {
@@ -208,9 +208,9 @@ int main(int argc, char* argv[]) {
     fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n");
 
   }
-  
-  
-  
+
+
+
 
 
   // ==================================================
