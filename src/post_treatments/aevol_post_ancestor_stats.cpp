@@ -199,13 +199,10 @@ int main(int argc, char* argv[]) {
     fprintf(fixed_mutations_file, "#  12. repl_seg_len     (replaced segment length for repl_HT, -1 for the others)\n");
     fprintf(fixed_mutations_file, "#  13. GU_length        (before the event)\n");
     fprintf(fixed_mutations_file, "#  14. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n");
-    fprintf(fixed_mutations_file, "#  15. Number of coding RNAs possibly disrupted by the breakpoints \n");
-    fprintf(fixed_mutations_file, "#  16. Number of coding RNAs completely included in the segment (donor segment in the case of a transfer) \n");
-    fprintf(fixed_mutations_file, "#  17. Number of coding RNAs that were completely included in the replaced segment (meaningful only for repl_HT) \n");
     fprintf(fixed_mutations_file, "####################################################################################################################\n");
     fprintf(fixed_mutations_file, "#\n");
     fprintf(fixed_mutations_file, "# Header for R\n");
-    fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n");
+    fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact\n");
 
   }
 
@@ -392,7 +389,7 @@ int main(int argc, char* argv[]) {
 
         mut->generic_description_string(mut_descr_string);
         fprintf(fixed_mutations_file,
-                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f\n",
                 time(), 0, mut_descr_string, unitlen_before,
                 impact_on_metabolic_error);
       }
@@ -418,7 +415,7 @@ int main(int argc, char* argv[]) {
 
         mut->generic_description_string(mut_descr_string);
         fprintf(fixed_mutations_file,
-                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f \n",
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f\n",
                 time(), 0, mut_descr_string, unitlen_before,
                 impact_on_metabolic_error);
       }
