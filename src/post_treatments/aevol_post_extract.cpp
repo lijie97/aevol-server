@@ -137,12 +137,14 @@ int main(int argc, char* argv[]) {
   // Parse the individuals
   if(by_index)
   {
-      for (const auto& indiv: exp_manager->indivs()) {
-          if(indiv->id() == ind){
-              gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
-              io_json->addIndividual(indiv, gu_list);
-          }
-      }
+      Individual* indiv = exp_manager->indiv_by_id(ind);
+      gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
+      io_json->addIndividual(indiv, gu_list);
+  }
+  else if(x_axis){
+      Individual* indiv = exp_manager->indiv_by_position(x_pos, y_pos);
+      gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
+      io_json->addIndividual(indiv, gu_list);
   }
   else if (all_indiv) {
     for (const auto& indiv: exp_manager->indivs()) {

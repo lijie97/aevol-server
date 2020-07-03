@@ -576,17 +576,24 @@ IOJson::IOJson(ExpManager * exp_m) {
 
   //------------------------------------------------------------------ Variation
   setEnvVarMethod(phenotypic_target_handler->var_method());
-  //setEnvVarSeed(phenotypic_target_handler->);
+  setEnvVarSeed(phenotypic_target_handler->var_prng().use_count());
   setEnvVarSigma(phenotypic_target_handler->var_sigma());
   setEnvVarTau(phenotypic_target_handler->var_tau());
 
   setEnvNoiseSeed(phenotypic_target_handler->noise_prng().use_count());
 
+  setRecordTree(output_m->record_tree());
+  setRecordLightTree(output_m->record_light_tree());
+  //setTreeStep((int) output_m->tree_step());
 
   setEnvAddGaussian(phenotypic_target_handler->current_gaussians());
   setWorldWidth(world->width());
   setWorldHeigth(world->height());
   setInitPopSize(world->nb_indivs());
+
+  setBackupStep(output_m->backup_step());
+  setBigBackupStep(output_m->big_backup_step());
+
 }
 
 void IOJson::load(ExpManager * exp_m, bool verbose,
