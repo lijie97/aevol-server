@@ -24,9 +24,9 @@ class IOJson {
   std::vector<Individual> & individuals();
   void write(const std::string &filename) const;
   void init();
-  void load(ExpManager * exp_m, bool verbose,
-                    char* chromosome, int32_t lchromosome,
-                    char* plasmid, int32_t lplasmid);
+  void load(ExpManager * exp_m, bool verbose = false,
+                    char* chromosome = nullptr, int32_t lchromosome = 0,
+                    char* plasmid = nullptr, int32_t lplasmid = 0);
 
   const std::string &getStrainName() const;
   void setStrainName(const std::string &strainName);
@@ -348,6 +348,8 @@ class IOJson {
   void setWith4PtsTrans(bool with4PtsTrans);
   bool isWellMixed() const;
   void setWellMixed(bool wellMixed);
+  std::string getIndividualSequence(int32_t index, int32_t gu) const;
+  int32_t getNbrIndividuals() const;
  private:
   int world_heigth_;
   int world_width_;
