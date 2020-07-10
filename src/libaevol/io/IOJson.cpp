@@ -211,15 +211,16 @@ IOJson::IOJson(const std::string & filename) {
 
   setStrainName(input_file_["param_in"].value("strain_name", "default"));
   setSeed(input_file_["param_in"]["rng"]["seed"]);
+  setSeed(0);
   setInitPopSize(input_file_["param_in"]["initial_conditions"]["init_pop_size"]);
   setWorldHeigth(input_file_["param_in"]["world_size"][0]);
   setWorldWidth(input_file_["param_in"]["world_size"][1]);
 
-  setChromosomeInitialLength(input_file_["param_in"]["initial_conditions"]["chromosome_inital_length"]);
+  //setChromosomeInitialLength(input_file_["param_in"]["initial_conditions"]["chromosome_inital_length"]);
   setMinGenomeLength(input_file_["param_in"]["constraints"]["min_genome_length"]);
   setFuzzyFlavor(input_file_["param_in"]["fuzzy_flavor"]);
 
-  json::array_t json_init_method = input_file_["param_in"]["initial_conditions"]["init_method"];
+  /*json::array_t json_init_method = input_file_["param_in"]["initial_conditions"]["init_method"];
   int init_method_tmp = 0;
   for (const auto & item : json_init_method) {
     std::string item_str = item;
@@ -237,7 +238,7 @@ IOJson::IOJson(const std::string & filename) {
       init_method_tmp |= WITH_INS_SEQ;
     }
   }
-  setInitMethod(init_method_tmp);
+  setInitMethod(init_method_tmp);*/
 
 
   setPointMutationRate(input_file_["param_in"]["mutations"].value("point_mutation_rate", 1e-7));
@@ -263,7 +264,7 @@ IOJson::IOJson(const std::string & filename) {
   }
   setSelectionScheme(selection_scheme_tmp);
 
-  setSelectionPressure(input_file_["param_in"]["selection"].value("selection_scheme_rate", 1000));
+  //setSelectionPressure(input_file_["param_in"]["selection"].value("selection_scheme_rate", 1000));
   setMaxIndelSize(input_file_["param_in"]["mutations"]["max_indel_size"]);
 
   setEnvSampling(input_file_["param_in"]["env"]["env_sampling"]);
@@ -273,12 +274,14 @@ IOJson::IOJson(const std::string & filename) {
     env_gaussian_tmp.emplace_back(item[0], item[1], item[2]);
   }
   setEnvAddGaussian(env_gaussian_tmp);
-  setMaxTriangleWidth(input_file_["param_in"]["max_triangle_width"]);
+  //setMaxTriangleWidth(input_file_["param_in"]["max_triangle_width"]);
+  setMaxTriangleWidth(0.1);
+
   setBackupStep(input_file_["param_in"]["output"]["backup_step"]);
   setRecordTree(input_file_["param_in"]["output"].value("record_tree", false));
-  setMoreStats(input_file_["param_in"]["output"].value("more_stats", false));
+  //setMoreStats(input_file_["param_in"]["output"].value("more_stats", false));
 
-  json individuals_json = json_file_["indivs"];
+  json individuals_json = input_file_["indivs"];
 
   for (auto & indiv : individuals_json) {
     uint32_t seed = input_file_["param_in"]["rng"].value("seed", seed_);
@@ -286,9 +289,11 @@ IOJson::IOJson(const std::string & filename) {
     bool allow_plasmids = indiv.value("allow_plasmids",allow_plasmids_);
     uint32_t id = indiv.value("id", 0);
     int minimum_size = indiv.value("min_genome_length", min_genome_length_);
-    double max_triangle_width = indiv.value("max_triangle_width", max_triangle_width_);
-    int age  = indiv.value("generation", 0);
-    std::string strain_name = indiv.value("strain_name", strain_name);
+    //double max_triangle_width = indiv.value("max_triangle_width", max_triangle_width_);
+    double max_triangle_width = 0.1;
+    //int age  = indiv.value("generation", 0);
+    int age = 0;
+    std::string strain_name = indiv.value("strain_name", strain_name_);
     auto mut_prng = new JumpingMT(seed);
     auto stoch_prng = new JumpingMT(seed);
     std::shared_ptr<JumpingMT> mut_prng_ptr(mut_prng);
@@ -307,15 +312,20 @@ IOJson::IOJson(const std::string & filename) {
                           minimum_size, max_size, allow_plasmids, id, strain_name.c_str(), age);
     auto *expSetup = new ExpSetup(nullptr);
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(expSetup);
-    json gu = indiv["GU"];
-    std::string genome_str = gu.value("seq", "test");;
-    //gu.value("seq","0").c_str();
-    char *genome = new char[genome_str.length()+1];
-    strcpy(genome, genome_str.c_str());
-    individual.add_GU(genome,strlen(genome));
-    individual.genetic_unit_nonconst(0).set_min_gu_length(0);
-    individual.genetic_unit_nonconst(0).set_max_gu_length(1000000);
-    individuals_.emplace_back(individual);
+
+    json gu_list = indiv["GU"];
+    for (auto & a_gu : gu_list) {
+      std::string genome_str = a_gu.value("seq", "test");
+      ;
+      //a_gu.value("seq","0").c_str();
+      char *genome = new char[genome_str.length() + 1];
+      strcpy(genome, genome_str.c_str());
+      individual.add_GU(genome, strlen(genome));
+      individual.genetic_unit_nonconst(0).set_min_gu_length(0);
+      individual.genetic_unit_nonconst(0).set_max_gu_length(1000000);
+    }
+    addIndividual(&individual,gu_list);
+    //individuals_.emplace_back(individual);
   }
 }
 
@@ -569,11 +579,6 @@ IOJson::IOJson(ExpManager * exp_m) {
   //setEnvNoiseSeed(phenotypic_target_handler->);
   setEnvNoiseSigma(phenotypic_target_handler->noise_sigma());
 
-  //------------------------------------------------------------------ Segmentation
-  //setEnvAxisFeatures(phenotypic_target_handler->);
-  //setEnvAxisNbSegments(phenotypic_target_handler->);
-  //setEnvAxisSeparateSegments(phenotypic_target_handler->);
-
   //------------------------------------------------------------------ Variation
   setEnvVarMethod(phenotypic_target_handler->var_method());
   setEnvVarSeed(phenotypic_target_handler->var_prng().use_count());
@@ -593,6 +598,13 @@ IOJson::IOJson(ExpManager * exp_m) {
 
   setBackupStep(output_m->backup_step());
   setBigBackupStep(output_m->big_backup_step());
+
+  setStrainName(exp_m->best_indiv()->strain_name());
+  setAllowPlasmids(exp_m->best_indiv()->allow_plasmids());
+
+  //setSeed(world->prng()->initial_seed());
+
+  json_file_["indivs"];
 
 }
 
@@ -797,7 +809,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
   param_mut->set_inversion_proportion(inversion_proportion_);
 
   exp_s->set_mutation_parameters(param_mut);
-/*
+
   Individual * indiv = NULL;
   int32_t id_new_indiv = 0;
 
@@ -805,6 +817,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
 #ifndef __REGUL
+    printf("construction de indiv :\n");
     Individual * indiv = new Individual(exp_m,
                                         mut_prng,
                                         stoch_prng,
@@ -834,7 +847,6 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
     indiv->add_GU(chromosome, lchromosome);
     indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
     indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
-
     if (plasmid != NULL)
     {
       printf("Option -p is used: plasmid will be loaded from a text file\n");
@@ -852,7 +864,6 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
       printf("ERROR: if you use option -c and ALLOW_PLASMIDS is set to true, you must also use option -p. \n For now loading a genetic unit from text file and generating the other is not supported.\n");
       exit(EXIT_FAILURE);
     }
-
     indiv->set_with_stochasticity(with_stochasticity_);
     indiv->compute_statistical_data();
     indiv->EvaluateInContext(habitat);
@@ -1043,7 +1054,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
       }
     }
   }
-*/
+
   // -------------------------------------------------------- Spatial structure
   exp_m->InitializeWorld(world_width_, world_heigth_,
                          world_prng,mut_prng,stoch_prng,
@@ -1069,21 +1080,21 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
   world->set_is_well_mixed(well_mixed);
   world->set_partial_mix_nb_permutations(partial_mix_nb_permutations_);
 
-  // Set each individual's position on the grid
-//  int16_t x, y;
-//  int16_t x_max = exp_m->grid_width();
-//  int16_t y_max = exp_m->grid_height();
-//
-//  for (const auto& indiv: indivs) {
-//    do {
-//      x = exp_m->world()->prng()->random(x_max);
-//      y = exp_m->world()->prng()->random(y_max);
-//    } while (world->indiv_at(x, y) != NULL);
-//
-//    world->PlaceIndiv(indiv, x, y, true);
-//  }
-//
-//  world->set_best(0, 0);
+ //Set each individual's position on the grid
+  int16_t x, y;
+  int16_t x_max = exp_m->grid_width();
+  int16_t y_max = exp_m->grid_height();
+
+  for (const auto& indiv: indivs) {
+    do {
+      x = exp_m->world()->prng()->random(x_max);
+      y = exp_m->world()->prng()->random(y_max);
+    } while (world->indiv_at(x, y) != NULL);
+
+    world->PlaceIndiv(indiv, x, y, true);
+  }
+
+  world->set_best(0, 0);
 
 
 
@@ -1809,8 +1820,18 @@ void IOJson::write(const std::string &filename) const {
 }
 void IOJson::addIndividual(Individual* indiv, json gu_list) {
     individuals_.emplace_back(*indiv);
-    json_file_["indivs"].push_back(gu_list);
-    json j = {{"id", indiv->id()}};
-    json_file_["indivs"].push_back(j);
+    json my_indiv;
+    my_indiv["GU"] = gu_list;
+    my_indiv["id"] = indiv->id();
+    json_file_["indivs"].push_back(my_indiv);
 
+}
+const vector<Individual> & IOJson::getIndividuals() const{
+  return individuals_;
+}
+std::string IOJson::getIndividualSequence(int32_t index, int32_t gu) const{
+  return json_file_["indivs"][0]["GU"][0]["seq"];
+}
+int32_t IOJson::getNbrIndividuals() const {
+  return json_file_["indivs"].size();
 }

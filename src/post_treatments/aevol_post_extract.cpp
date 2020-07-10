@@ -197,9 +197,7 @@ inline json analyse_indiv(Individual* indiv, FILE* triangles_file,
       std::string dna = gen_unit.dna()->data();
       int32_t length = gen_unit.dna()->length();
       dna.resize(length);
-      json a_gu;
-      a_gu["GU"]["seq"] = dna;
-      gu_list.push_back(a_gu);
+      gu_list.emplace_back(dna);
 
       if(triangles_file != nullptr) {
         analyse_gu(&gen_unit, gen_unit_number, triangles_file,
@@ -222,9 +220,7 @@ inline json analyse_indiv(Individual* indiv, FILE* triangles_file,
     std::string dna = gen_unit->dna()->data();
     int32_t length = gen_unit->dna()->length();
     dna.resize(length);
-    json a_gu;
-    a_gu["GU"]["seq"] = dna;
-    gu_list.push_back(a_gu);
+    gu_list.emplace_back(dna);
 
     if(triangles_file != nullptr) {
         analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget);
