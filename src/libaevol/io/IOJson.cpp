@@ -210,8 +210,7 @@ IOJson::IOJson(const std::string & filename) {
   init();
 
   setStrainName(input_file_["param_in"].value("strain_name", "default"));
-  //setSeed(input_file_["param_in"]["rng"]["seed"]);
-  setSeed(0);
+  setSeed(input_file_["param_in"]["rng"]["seed"]);
   setInitPopSize(input_file_["param_in"]["initial_conditions"]["init_pop_size"]);
   setWorldHeigth(input_file_["param_in"]["world_size"][0]);
   setWorldWidth(input_file_["param_in"]["world_size"][1]);
@@ -255,7 +254,7 @@ IOJson::IOJson(const std::string & filename) {
   setEnvNoiseProb(input_file_["param_in"]["env"]["noise"].value("env_noise_prob",0));
   setEnvNoiseSamplingLog(input_file_["param_in"]["env"]["noise"].value("env_noise_sampling_log",0));
   setEnvNoiseSigma(input_file_["param_in"]["env"]["noise"].value("env_noise_sigma",0));
-  //setEnvVarMethod(input_file_["param_in"]["env"]["variation"].value("env_noise_sigma",NO_VAR));
+  //setEnvVarMethod(input_file_["param_in"]["env"]["variation"].value("env_var_method",NO_VAR));
   setEnvVarSeed(input_file_["param_in"]["env"]["variation"].value("env_var_seed",0));
   setEnvVarSigma(input_file_["param_in"]["env"]["variation"].value("env_var_sigma",0));
   setEnvVarTau(input_file_["param_in"]["env"]["variation"].value("env_var_tau",0));
@@ -295,8 +294,7 @@ IOJson::IOJson(const std::string & filename) {
   json individuals_json = input_file_["indivs"];
 
   for (auto & indiv : individuals_json) {
-    //uint32_t seed = input_file_["param_in"]["rng"].value("seed", seed_);
-    uint32_t seed = 0;
+    uint32_t seed = input_file_["param_in"]["rng"].value("seed", seed_);
     uint32_t max_size = indiv.value("max_genome_length", max_genome_length_);
     bool allow_plasmids = indiv.value("allow_plasmids",allow_plasmids_);
     uint32_t id = indiv.value("id", 0);
@@ -614,7 +612,7 @@ IOJson::IOJson(ExpManager * exp_m) {
   setStrainName(exp_m->best_indiv()->strain_name());
   setAllowPlasmids(exp_m->best_indiv()->allow_plasmids());
 
-  //setSeed(world->prng()->initial_seed());
+  setSeed(world->prng()->initial_seed());
 
   json_file_["indivs"];
 
@@ -1534,22 +1532,22 @@ void IOJson::setEnvVarMethod(PhenotypicTargetVariationMethod envVarMethod) {
   env_var_method_ = envVarMethod;
   switch (envVarMethod) {
   case PhenotypicTargetVariationMethod::SWITCH_IN_A_LIST :
-    json_file_["param_in"]["env"]["variation"]["env_noise_sigma"] = "SWITCH_IN_A_LIST";
+    json_file_["param_in"]["env"]["variation"]["env_var_method"] = "SWITCH_IN_A_LIST";
     break;
   case PhenotypicTargetVariationMethod::AUTOREGRESSIVE_HEIGHT_VAR :
-    json_file_["param_in"]["env"]["variation"]["env_noise_sigma"] = "AUTOREGRESSIVE_HEIGHT_VAR";
+    json_file_["param_in"]["env"]["variation"]["env_var_method"] = "AUTOREGRESSIVE_HEIGHT_VAR";
     break;
   case PhenotypicTargetVariationMethod::AUTOREGRESSIVE_MEAN_VAR :
-    json_file_["param_in"]["env"]["variation"]["env_noise_sigma"] = "AUTOREGRESSIVE_MEAN_VAR";
+    json_file_["param_in"]["env"]["variation"]["env_var_method"] = "AUTOREGRESSIVE_MEAN_VAR";
     break;
   case PhenotypicTargetVariationMethod::ONE_AFTER_ANOTHER :
-    json_file_["param_in"]["env"]["variation"]["env_noise_sigma"] = "ONE_AFTER_ANOTHER";
+    json_file_["param_in"]["env"]["variation"]["env_var_method"] = "ONE_AFTER_ANOTHER";
     break;
   case PhenotypicTargetVariationMethod::NO_VAR :
-    json_file_["param_in"]["env"]["variation"]["env_noise_sigma"] = "NO_VAR";
+    json_file_["param_in"]["env"]["variation"]["env_var_method"] = "NO_VAR";
     break;
   case PhenotypicTargetVariationMethod::LOCAL_GAUSSIANS_VAR :
-    json_file_["param_in"]["env"]["variation"]["env_noise_sigma"] = "LOCAL_GAUSSIANS_VAR";
+    json_file_["param_in"]["env"]["variation"]["env_var_method"] = "LOCAL_GAUSSIANS_VAR";
     break;
   }
 }
