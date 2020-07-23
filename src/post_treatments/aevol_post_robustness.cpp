@@ -112,8 +112,9 @@ int main(int argc, char* argv[]) {
   wanted_rank = indiv_tmp->rank();
 
   IndivAnalysis wanted_indiv(*indiv_tmp);
+    wanted_indiv.set_grid_cell(indiv_tmp->grid_cell());
+  wanted_indiv.grid_cell()->set_individual((Individual*)&wanted_indiv);;
   indiv_tmp = nullptr;
-
   // Now that we have the index and rank of the indiv of interest, we can
   // generate the output file name and hence open that file
   char filename[255];
