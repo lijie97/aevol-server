@@ -319,6 +319,7 @@ int main(int argc, char** argv) {
   std::ofstream of;
   of.open("lignée_old.txt");
 
+  char* dna_4704;
   for (int64_t i = 0 ; i < t_end - t0 ; i++) {
     // Where are we in time...
     int64_t t = t0 + i + 1;
@@ -337,6 +338,7 @@ int main(int argc, char** argv) {
     reports[i]->write_to_tree_file(lineage_file);
     if (verbose) printf(" OK\n");
 
+      char *str_next;
 
     if (check_genome_now) {
       // Load the simulation
@@ -357,27 +359,24 @@ int main(int argc, char** argv) {
 
     unit = initial_ancestor.genetic_unit_list().cbegin();
     for (const auto& mut: reports[i]->dna_replic_report().HT()) {
-        printf("%ld -- Undergoes %d\n",t,mut->mut_type());
       (unit->dna())->undergo_this_mutation(*mut);
 
     }
     for (const auto& mut: reports[i]->dna_replic_report().rearrangements()) {
-        printf("%ld -- Undergoes %d\n",t,mut->mut_type());
       (unit->dna())->undergo_this_mutation(*mut);
     }
     for (const auto& mut: reports[i]->dna_replic_report().mutations()) {
-        printf("%ld -- Undergoes %d\n",t,mut->mut_type());
-      unit->dna()->undergo_this_mutation(*mut);
+        unit->dna()->undergo_this_mutation(*mut);
     }
 
     if (check_genome_now) {
       if (verbose) {
-        printf("Checking the sequence of the unit...");
+        printf("%d -- Checking the sequence of the unit...",t);
         fflush(stdout);
       }
       assert(stored_gen_unit != stored_indiv->genetic_unit_list().cend());
 
-      char * str1 = new char[unit->dna()->length() + 1];
+        char * str1 = new char[unit->dna()->length() + 1];
       memcpy(str1, unit->dna()->data(),
              unit->dna()->length() * sizeof(char));
       str1[unit->dna()->length()] = '\0';
@@ -398,10 +397,6 @@ int main(int argc, char** argv) {
                 (int32_t)strlen(str1), str1);
         fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n",
                 (int32_t)strlen(str2), str2);
-
-        for (int pos = 0; pos < strlen(str1); pos++)
-            if (str1[pos] != str2[pos]) fprintf(stderr, "Position %d is different  : %c %c\n",
-                    pos,str1[pos],str2[pos]);
 
         delete [] str1;
         delete [] str2;

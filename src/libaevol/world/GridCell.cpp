@@ -142,7 +142,7 @@ void GridCell::load(gzFile backup_file,
   stoch_prng_ = std::make_shared<JumpingMT>(backup_file);
 
 #if __cplusplus == 201103L
-  reprod_prng_ = make_unique<JumpingMT>(backup_file);
+    reprod_prng_ = make_unique<JumpingMT>(backup_file);
     reprod_prng_simd_ = make_unique<JumpingMT>(backup_file);
 #else
   reprod_prng_ = std::make_unique<JumpingMT>(backup_file);

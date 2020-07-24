@@ -121,7 +121,7 @@ class Dna : public ae_string, public Observable {
   // Perform a single local mutation at a specified position
   // (useful to replay the evolution)
   bool do_switch(int32_t pos);
-  bool do_small_insertion(int32_t pos, int16_t nb_insert, char * seq);
+  bool do_small_insertion(int32_t pos, int32_t nb_insert, char * seq);
   bool do_small_deletion(int32_t pos, int16_t nb_del);
 
   // Perform a single rearrangement at random positions

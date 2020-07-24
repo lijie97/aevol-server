@@ -84,6 +84,7 @@ void SmallInsertion::load(gzFile backup_file) {
   gzread(backup_file, &length_, sizeof(length_));
   seq_ = new char[length_ + 1];
   gzread(backup_file, seq_, length_ * sizeof(seq_[0]));
+  seq_[length_] = '\0';
 }
 
 void SmallInsertion::generic_description_string(char* str) const {

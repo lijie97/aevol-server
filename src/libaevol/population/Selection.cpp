@@ -891,7 +891,10 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 
   // Set the new individual's location on the grid
-  exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
+#pragma omp critical(placeindiv)
+  {
+    exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
+  }
   //NewIndivEvent *eindiv = new NewIndivEvent(new_indiv,parent, x, y);
   //notifyObservers(NEW_INDIV, eindiv);
 
@@ -1005,7 +1008,11 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     }
 
       // Notify observers that a new individual was created from <parent>
-      exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
+#pragma omp critical(placeindiv)
+      {
+        exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
+      }
+
 #ifdef WITH_PERF_TRACES
         apply_mutation[index] = -1;
 #endif
@@ -1025,7 +1032,6 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       apply_mutation[index] = t_end.time_since_epoch().count() - t_start.time_since_epoch().count();
 #endif
 
-    chromosome->dna()->apply_mutations();
 #ifdef __DETECT_CLONE
     }
 #endif

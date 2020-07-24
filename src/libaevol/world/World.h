@@ -91,6 +91,9 @@ class World
   GridCell ***  grid() const {return grid_;};
   inline GridCell*    grid(int16_t x, int16_t y) const;
   inline Individual*   indiv_at(int16_t x, int16_t y) const;
+
+    inline Individual*   indiv_at_nonconst(int16_t x, int16_t y) {return grid_[x][y]->individual_nonconst();}
+
   Individual* indiv_by_id(int32_t id) const;
   Individual* indiv_by_rank(int32_t rank) const;
 

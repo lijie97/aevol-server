@@ -373,6 +373,7 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
 #endif
 
 bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
+    int32_t old_pos = pos;
   // Remove promoters containing at least one nucleotide from the sequence to
   // delete
     indiv_->metadata_->remove_promoters_around(pos, Utils::mod(pos + nb_del, length()));
@@ -405,6 +406,7 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
     remove(0, nb_del_at_pos_0);
 #endif
 
+
     pos -= nb_del_at_pos_0;
 
     // Update promoter list
@@ -415,7 +417,7 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
   }
 
     if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
-        SmallDeletion *mut = new SmallDeletion(pos, nb_del);
+        SmallDeletion *mut = new SmallDeletion(old_pos, nb_del);
         //indiv_->notifyObservers(MUTATION, mut);
         indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
         delete mut;
@@ -432,6 +434,13 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 #else
   char* duplicate_segment = NULL;
 #endif
+
+    if (length_ == 1)
+    {
+        printf("*** genome of size 1 ; duplication not done *** \n");
+        return false;
+    }
+
   int32_t seg_length;
     //printf("Mutation is %d %d %d -- %d\n",pos_1,pos_2,pos_3,length());
 
@@ -885,6 +894,12 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
   //                                             pos_2    <-'
   //
 
+        if (length_ == 1)
+        {
+            printf("*** genome of size 1 ; inversion not done *** \n");
+            return false;
+        }
+
   int32_t seg_length = pos_2 - pos_1;
 
   // Create the inverted sequence
@@ -1116,6 +1131,12 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
 bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
     //if (indiv_->indiv_id==30) printf("DO DELETION is %d %d -- %d\n",pos_1,pos_2,length());
   // Delete segment going from pos_1 (included) to pos_2 (excluded)
+    if (length_ == 1)
+    {
+        printf("*** genome of size 1 ; deletion not done *** \n");
+        return false;
+    }
+
   if (pos_1 < pos_2) {
     //
     //       pos_1         pos_2                   -> 0-
@@ -1428,14 +1449,14 @@ void Dna_SIMD::apply_mutations_standalone() {
 
           switch (repl->type()) {
               case DO_SWITCH:
-//                  printf("Start switch at %d\n", repl->pos_1());
+//                  printf("%d -- %d -- Start switch at %d\n", AeTime::time(),indiv_->indiv_id, repl->pos_1());
                   do_switch(repl->pos_1());
                   nb_swi_++;
                   nb_mut_++;
 //        printf("End switch at %d\n",repl->pos_1());
                   break;
               case SMALL_INSERTION:
-//                  printf("Start insertion at %d (%d %s)\n", repl->pos_1(), repl->number(), repl->seq());
+//                  printf("%d -- %d -- Start insertion at %d (%d %s)\n", AeTime::time(),indiv_->indiv_id, repl->pos_1(), repl->number(), repl->seq());
 #ifdef WITH_BITSET
                   do_small_insertion(repl->pos_1(), repl->seq());
 #else
@@ -1447,21 +1468,21 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case SMALL_DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-//                  printf("Start deletion at %d (%d)\n", repl->pos_1(), repl->number());
+//                  printf("%d -- %d -- Start deletion at %d (%d)\n",AeTime::time(),indiv_->indiv_id,  repl->pos_1(), repl->number());
                   do_small_deletion(repl->pos_1(), repl->number());
                   nb_indels_++;
                   nb_mut_++;
 //        printf("End deletion at %d (%d)\n",repl->pos_1(),repl->number());
                   break;
               case DUPLICATION:
-//                  printf("Start duplication at %d (%d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3());
+//                  printf("%d -- %d -- Start duplication at %d (%d %d)\n",AeTime::time(),indiv_->indiv_id,  repl->pos_1(), repl->pos_2(), repl->pos_3());
                   do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
                   nb_large_dupl_++;
                   nb_rear_++;
 //        printf("End duplication at %d (%d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3());
                   break;
               case TRANSLOCATION:
-//                  printf("Start translocation at %d (%d %d %d %d)\n", repl->pos_1(), repl->pos_2(), repl->pos_3(),
+//                  printf("%d -- %d -- Start translocation at %d (%d %d %d %d)\n",AeTime::time(),indiv_->indiv_id,  repl->pos_1(), repl->pos_2(), repl->pos_3(),
 //                         repl->pos_4(), repl->invert());
                   do_translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                    repl->pos_4(), repl->invert());
@@ -1470,7 +1491,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        printf("End translocation at %d (%d %d %d %d)\n",repl->pos_1(),repl->pos_2(),repl->pos_3(),repl->pos_4(),repl->invert());
                   break;
               case INVERSION:
-//                  printf("Start invertion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+//                  printf("%d -- %d -- Start invertion at %d (%d)\n", AeTime::time(),indiv_->indiv_id, repl->pos_1(), repl->pos_2());
                   do_inversion(repl->pos_1(), repl->pos_2());
                   nb_large_inv_++;
                   nb_rear_++;
@@ -1478,7 +1499,7 @@ void Dna_SIMD::apply_mutations_standalone() {
                   break;
               case DELETION:
                   //if (indiv_->indiv_id == 626 && AeTime::time() == 21)
-//                  printf("Start LARGE deletion at %d (%d)\n", repl->pos_1(), repl->pos_2());
+//                  printf("%d -- %d -- Start LARGE deletion at %d (%d)\n", AeTime::time(),indiv_->indiv_id, repl->pos_1(), repl->pos_2());
                   do_deletion(repl->pos_1(), repl->pos_2());
                   nb_large_del_++;
                   nb_rear_++;

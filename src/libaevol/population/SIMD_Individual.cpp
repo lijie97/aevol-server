@@ -2346,10 +2346,10 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                     if (standalone_ && optim_prom && !exp_m_->check_simd()) {
                         selection(indiv_id);
                     } else if (!standalone_ && optim_prom) {
-                        if (exp_m_->check_simd()) check_selection(indiv_id);
+                        //if (exp_m_->check_simd()) check_selection(indiv_id);
                     } else if (optim_prom && standalone() && exp_m_->check_simd()) {
 //                        printf("Check selection\n");
-                        check_selection(indiv_id);
+                        //check_selection(indiv_id);
                     }
 
 
@@ -2400,6 +2400,11 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                         delete eindiv;
                     }
                     //printf("COMPUTE INDIV %d -- End\n",indiv_id);
+
+//                    if (indiv_id == 906 && AeTime::time()>4742 && AeTime::time() < 4745) {
+//                        printf("DNA  :: %s\n",internal_simd_struct[indiv_id]->dna_->data());
+//                    }
+
                 }
             }
         }
@@ -2620,7 +2625,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                 }
 
 
-                if (standalone_ && exp_m_->record_tree() && AeTime::time() % exp_m_->output_m()->tree_step() == 0 &&
+                if (standalone_ && exp_m_->record_tree() && AeTime::time() %  exp_m_->tree_step() == 0 &&
                     AeTime::time() > 0) {
                     int status;
                     status = mkdir(TREE_DIR, 0755);
