@@ -10,10 +10,10 @@ int main(int argc, char **argv) {
   IOJson test("param.in", "chromosome.txt");
 
   test.load(new ExpManager(), true, NULL, 0, NULL, 0);
-  test.write("extracted.json");
+  test.write("input.json");
 
 
-  IOJson test2("extracted.json");
-  test2.load(new ExpManager(), true, NULL, 0, NULL, 0);
-  test2.write("output.json");
+//  IOJson test2("extracted.json");
+//  test2.load(new ExpManager(), true, NULL, 0, NULL, 0);
+  // test2.write("output.json");
 }

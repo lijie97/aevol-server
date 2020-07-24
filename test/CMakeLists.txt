@@ -24,7 +24,7 @@ foreach (TEST IN LISTS TESTS)
   set(TEST_RUNNER run_${TEST})
   set(TEST_RUNNERS ${TEST_RUNNERS} ${TEST_RUNNER})
 
-  add_executable(${TEST} ${TEST}.cpp)
+  add_executable(${TEST} ${TEST}.cpp ../src/post_treatments/aevol_post_robustness_json.cpp)
 
   # We need the Aevol headers
   target_include_directories(${TEST}

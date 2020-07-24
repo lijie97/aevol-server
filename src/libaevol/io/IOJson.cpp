@@ -301,8 +301,7 @@ IOJson::IOJson(const std::string & filename) {
     int minimum_size = indiv.value("min_genome_length", min_genome_length_);
     //double max_triangle_width = indiv.value("max_triangle_width", max_triangle_width_);
     double max_triangle_width = 0.1;
-    //int age  = indiv.value("generation", 0);
-    int age = 0;
+    int age  = indiv.value("generation", 0);
     std::string strain_name = indiv.value("strain_name", strain_name_);
     auto mut_prng = new JumpingMT(seed);
     auto stoch_prng = new JumpingMT(seed);
@@ -1833,6 +1832,7 @@ void IOJson::addIndividual(Individual* indiv, json gu_list) {
     json my_indiv;
     my_indiv["GU"] = gu_list;
     my_indiv["id"] = indiv->id();
+    my_indiv["generation"] = indiv->age();
     json_file_["indivs"].push_back(my_indiv);
 
 }
@@ -1840,7 +1840,7 @@ const vector<Individual> & IOJson::getIndividuals() const{
   return individuals_;
 }
 std::string IOJson::getIndividualSequence(int32_t index, int32_t gu) const{
-  return json_file_["indivs"][0]["GU"][0]["seq"];
+  return json_file_["indivs"][index]["GU"][gu]["seq"];
 }
 int32_t IOJson::getNbrIndividuals() const {
   return json_file_["indivs"].size();
