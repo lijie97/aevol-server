@@ -302,6 +302,7 @@ IOJson::IOJson(const std::string & filename) {
     //double max_triangle_width = indiv.value("max_triangle_width", max_triangle_width_);
     double max_triangle_width = 0.1;
     int age  = indiv.value("generation", 0);
+    //int age  = indiv.value("generation", 0);
     std::string strain_name = indiv.value("strain_name", strain_name_);
     auto mut_prng = new JumpingMT(seed);
     auto stoch_prng = new JumpingMT(seed);
@@ -1832,7 +1833,10 @@ void IOJson::addIndividual(Individual* indiv, json gu_list) {
     json my_indiv;
     my_indiv["GU"] = gu_list;
     my_indiv["id"] = indiv->id();
+<<<<<<< HEAD
     my_indiv["generation"] = indiv->age();
+=======
+>>>>>>> 122bd80b3439bbbdcaba801802ff4603696f43f7
     json_file_["indivs"].push_back(my_indiv);
 
 }
