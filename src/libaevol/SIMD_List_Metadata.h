@@ -35,22 +35,29 @@ namespace aevol {
             for (auto rna : metadata->rnas_) {
                 pRNA* nrna = new pRNA(rna);
                 rnas_.push_back(nrna);
+                nrna->to_recompute = false;
             }
 
             // Copy Proteins
             for (auto prot : metadata->proteins_) {
                 pProtein* nprot = new pProtein(prot);
                 proteins_.push_back(nprot);
-                for (auto rna : metadata->rnas_) {
+                for (auto rna : prot->rna_list_) {
                     for (auto rna2 : rnas_) {
                         if (rna->begin == rna2->begin) {
+//                            printf("Add RNA %d to Protein %d\n",rna2->begin,nprot->protein_start);
                             proteins_.back()->rna_list_.push_back(rna2);
+                            proteins_.back()->to_retranslate = false;
+                            proteins_.back()->to_recompute = false;
                         }
                     }
                 }
             }
 
             set_iterators();
+
+//            printf("End of constructor List Metadata\n");
+//            display(false);
         };
 
 

@@ -819,15 +819,15 @@ namespace aevol {
 
     void SIMD_List_Metadata::remove_range(int32_t pos_1, int32_t pos_2) {
 
-        printf("======= BEGIN :: REMOVE RANGE ============\n");
-        display(false);
+//        printf("======= BEGIN :: REMOVE RANGE [%d => %d]============\n",pos_1,pos_2);
+//        display(false);
         // 0. Remove RNA with promoter
         // LEAD : within [pos_1-21,pos_2]
         for (int32_t cpos = pos_1-21; cpos <= pos_2; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto& prom: promoters_list_[LEADING]) {
                 if (prom.pos == rcpos) {
-                    printf("Promoters to delete %d\n",prom.pos);
+//                    printf("Promoters to delete LEAD %d\n",prom.pos);
                     prom.to_delete = true;
                 }
             }
@@ -838,7 +838,7 @@ namespace aevol {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto& prom: promoters_list_[LAGGING]) {
                 if (prom.pos == rcpos) {
-                    printf("Promoters to delete %d\n",prom.pos);
+//                    printf("Promoters to delete LAG %d\n",prom.pos);
                     prom.to_delete = true;
                 }
             }
@@ -846,21 +846,33 @@ namespace aevol {
 
         // 1. Remove RNA with promoter
         // LEAD : within [pos_1-21,pos_2]
+//        printf("Search for RNA between %d and %d\n",pos_1-21,pos_2);
         for (int32_t cpos = pos_1-21; cpos <= pos_2; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto rna : rnas_) {
-                if (rna->leading_lagging) {
+//                printf("Process RNA %d %d\n",rna->begin,rna->leading_lagging);
+                if (rna->leading_lagging == 0) {
+//                    printf("To delete or NOT LEAD : %d == %d\n",rna->begin,rcpos);
+
                     if (rna->begin == rcpos) {
                         rna->to_delete = true;
 
+//                        printf("RNA to delete LEAD %d\n",rna->begin);
+
                         for (auto prot : proteins_) {
                             for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
-                                if ((*rna2)->begin == rna->begin) rna2 = prot->rna_list_.erase(rna2);
+                                if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                    rna2 = prot->rna_list_.erase(rna2);
+
+                                    prot->e -= rna->e;
+                                }
                                 else ++ rna2;
                             }
 
-                            if (prot->rna_list_.empty())
+                            if (prot->rna_list_.empty()) {
+//                                printf("Protein to delete %d : RNA %d\n",rna->begin,prot->protein_start);
                                 prot->to_delete = true;
+                            }
                         }
                     }
                 }
@@ -868,21 +880,34 @@ namespace aevol {
         }
 
         // LAG  : within [pos_1,pos_2+21]
+//                printf("Remove RNA with %d to %d\n",pos_1,pos_2+21);
+//                printf("Remove RNA with %d to %d\n",pos_1,pos_2+21);
+
         for (int32_t cpos = pos_1; cpos <= pos_2+21; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto rna : rnas_) {
-                if (!rna->leading_lagging) {
+//                printf("Process RNA %d %d\n",rna->begin,rna->leading_lagging);
+                if (rna->leading_lagging == 1) {
+//                    printf("To delete or NOT LAG : %d == %d\n",rna->begin,rcpos);
+
                     if (rna->begin == rcpos) {
                         rna->to_delete = true;
 
+//                        printf("RNA to delete LAG %d\n",rna->begin);
+
                         for (auto prot : proteins_) {
                             for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
-                                if ((*rna2)->begin == rna->begin) rna2 = prot->rna_list_.erase(rna2);
+                                if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                    rna2 = prot->rna_list_.erase(rna2);
+                                    prot->e -= rna->e;
+                                }
                                 else ++ rna2;
                             }
 
-                            if (prot->rna_list_.empty())
+                            if (prot->rna_list_.empty()) {
+//                                printf("Protein to delete %d : RNA %d\n", rna->begin, prot->protein_start);
                                 prot->to_delete = true;
+                            }
                         }
                     }
                 }
@@ -894,15 +919,18 @@ namespace aevol {
         for (int32_t cpos = pos_1-10; cpos <= pos_2; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto rna : rnas_) {
-                if (rna->leading_lagging) {
+                if (rna->leading_lagging == 0) {
                     if (rna->end == rcpos) {
-                        printf("RECOMPUTE RNA %d => %d\n",rna->begin,rna->end);
+//                        printf("RECOMPUTE RNA %d => %d\n",rna->begin,rna->end);
                         rna->to_search_for_end = true;
                         rna->to_recompute = true;
 
                         for (auto prot : proteins_) {
                             for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
-                                if ((*rna2)->begin == rna->begin) rna2 = prot->rna_list_.erase(rna2);
+                                if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                    rna2 = prot->rna_list_.erase(rna2);
+                                    prot->e -= rna->e;
+                                }
                                 else ++ rna2;
                             }
 
@@ -918,15 +946,18 @@ namespace aevol {
         for (int32_t cpos = pos_1; cpos <= pos_2+10; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto rna : rnas_) {
-                if (!rna->leading_lagging) {
+                if (rna->leading_lagging == 1) {
                     if (rna->end == rcpos) {
-                        printf("RECOMPUTE RNA %d => %d\n",rna->begin,rna->end);
+//                        printf("RECOMPUTE RNA %d => %d\n",rna->begin,rna->end);
                         rna->to_search_for_end = true;
                         rna->to_recompute = true;
 
                         for (auto prot : proteins_) {
                             for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
-                                if ((*rna2)->begin == rna->begin) rna2 = prot->rna_list_.erase(rna2);
+                                if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                    rna2 = prot->rna_list_.erase(rna2);
+                                    prot->e -= rna->e;
+                                }
                                 else ++ rna2;
                             }
 
@@ -938,12 +969,57 @@ namespace aevol {
             }
         }
 
+        // 2bis. Recompute if mutation within RNA
+        for (auto rna : rnas_) {
+            if (rna->leading_lagging == 0) {
+                if (rna->begin < pos_1 && rna->end > pos_2) {
+//                    printf("RECOMPUTE RNA MUTATION WITHIN %d => %d\n",rna->begin,rna->end);
+                    rna->to_recompute = true;
+                    rna->to_search_for_end = true;
+
+                    for (auto prot : proteins_) {
+                        for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
+                            if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                rna2 = prot->rna_list_.erase(rna2);
+                                prot->e -= rna->e;
+                            }
+                            else ++ rna2;
+                        }
+
+                        if (prot->rna_list_.empty())
+                            prot->to_delete = true;
+                    }
+                }
+            } else {
+                if (rna->begin > pos_2 && rna->end < pos_1) {
+//                    printf("RECOMPUTE RNA MUTATION WITHIN %d => %d\n",rna->begin,rna->end);
+                    rna->to_recompute = true;
+                    rna->to_search_for_end = true;
+
+                    for (auto prot : proteins_) {
+                        for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
+                            if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                rna2 = prot->rna_list_.erase(rna2);
+                                prot->e -= rna->e;
+                            }
+                            else ++ rna2;
+                        }
+
+                        if (prot->rna_list_.empty())
+                            prot->to_delete = true;
+                    }
+                }
+            }
+        }
+
         // 3. Remove Protein with ShineDal+Start
         // LEAD : within [pos_1-12,pos_2]
+//        printf("Search for Protein_STart (LEAD) between %d and %d\n",pos_1-12,pos_2);
+
         for (int32_t cpos = pos_1-12; cpos <= pos_2; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto prot : proteins_) {
-                if (prot->leading_lagging) {
+                if (prot->leading_lagging == 0) {
                     if (prot->protein_start == rcpos) {
                         prot->to_delete = true;
                     }
@@ -952,10 +1028,11 @@ namespace aevol {
         }
 
         // LAG  : within [pos_1,pos_2+12]
+//        printf("Search for Protein_STart (LAG) between %d and %d\n",pos_1,pos_2+12);
         for (int32_t cpos = pos_1; cpos <= pos_2+12; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto prot : proteins_) {
-                if (!prot->leading_lagging) {
+                if (prot->leading_lagging == 1) {
                     if (prot->protein_start == rcpos) {
                         prot->to_delete = true;
                     }
@@ -965,10 +1042,12 @@ namespace aevol {
 
         // 4. Recompute Protein with Stop
         // LEAD : within [pos_1-3,pos_2]
+//        printf("Search for Protein_Stop (LEAD) between %d and %d\n",pos_1-3,pos_2);
+
         for (int32_t cpos = pos_1-3; cpos <= pos_2; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto prot : proteins_) {
-                if (prot->leading_lagging) {
+                if (prot->leading_lagging == 0) {
                     if (prot->protein_end == rcpos) {
                         prot->to_recompute = true;
                     }
@@ -977,10 +1056,13 @@ namespace aevol {
         }
 
         // LAG  : within [pos_1,pos_2+3]
+//        printf("Search for Protein_Stop (LEAD) between %d and %d\n",pos_1+3,pos_2);
+
+
         for (int32_t cpos = pos_1; cpos <= pos_2+3; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             for (auto prot : proteins_) {
-                if (!prot->leading_lagging) {
+                if (prot->leading_lagging == 1) {
                     if (prot->protein_end == rcpos) {
                         prot->to_recompute = true;
                     }
@@ -988,8 +1070,27 @@ namespace aevol {
             }
         }
 
-        printf("======= END :: REMOVE RANGE ============\n");
-        display(false);
+        // 5. Recompute if mutation within protein
+        for (auto prot : proteins_) {
+            if (prot->leading_lagging == 0) {
+                if (prot->protein_start < pos_1 && prot->protein_end > pos_2) {
+//                    printf("RECOMPUTE PROTEIN MUTATION WITHIN %d => %d\n",
+//                           prot->protein_start,prot->protein_end);
+
+                    prot->to_delete = true;
+                }
+            } else {
+                if (prot->protein_start > pos_2 && prot->protein_end < pos_1) {
+//                    printf("RECOMPUTE PROTEIN MUTATION WITHIN %d => %d\n",
+//                           prot->protein_start,prot->protein_end);
+
+                    prot->to_delete = true;
+                }
+            }
+        }
+
+//        printf("======= END :: REMOVE RANGE ============ %d => %d\n",pos_1,pos_2);
+//        display(false);
     }
 
     void SIMD_List_Metadata::update_range(int32_t pos) {
@@ -998,8 +1099,8 @@ namespace aevol {
 
     void SIMD_List_Metadata::update_range(int32_t pos_1, int32_t pos_2) {
 
-        printf("======= BEGIN :: UPDATE RANGE [%d => %d] ============\n",pos_1,pos_2);
-        display(false);
+//        printf("======= BEGIN :: UPDATE RANGE [%d => %d] ============\n",pos_1,pos_2);
+//        display(false);
 
         // 1. Search promoter + mark as to compute
         // LEAD : within [pos_1-21,pos_2]
@@ -1015,8 +1116,8 @@ namespace aevol {
                                      });
 
                 bool toAdd = false;
-                if (first != strand.end())
-                    printf("UPDATE_PROMOTER_LEADING : ALREADY FOUND %d => %d (%d)\n", first->pos, rcpos,first->to_delete);
+//                if (first != strand.end())
+//                    printf("UPDATE_PROMOTER_LEADING : ALREADY FOUND %d => %d (%d)\n", first->pos, rcpos,first->to_delete);
 
                 if (first == strand.end())
                     toAdd = true;
@@ -1027,13 +1128,14 @@ namespace aevol {
 
                 if (toAdd) {
                     promoters_list_[LEADING].emplace(first, rcpos, dist, true);
-                    printf("UPDATE_PROMOTER_LEADING : NEW %d => %d\n", rcpos, dist);
+//                    printf("UPDATE_PROMOTER_LEADING : NEW %d => %d\n", rcpos, dist);
                 }
             }
         }
 
         // LAG  : within [pos_1,pos_2+21]
-        for (int32_t cpos = pos_1; cpos < pos_2+21; cpos++) {
+//                printf("Looking for prom LAG %d %d\n",pos_1,pos_2+21);
+        for (int32_t cpos = pos_1; cpos <= pos_2+21; cpos++) {
             int32_t rcpos = Utils::mod(cpos,length());
             int8_t dist = is_promoter_lagging(rcpos);
             if (dist <= 4) {
@@ -1044,8 +1146,8 @@ namespace aevol {
                                      [rcpos](promoterStruct& r) { return r.pos <= rcpos; });
 
                 bool toAdd = false;
-                if (first != strand.end())
-                    printf("UPDATE_PROMOTER_LAGGING : ALREADY FOUND %d => %d\n", rcpos, dist);
+//                if (first != strand.end())
+//                    printf("UPDATE_PROMOTER_LAGGING : ALREADY FOUND %d => %d\n", rcpos, dist);
 
                 if (first == strand.end())
                     toAdd = true;
@@ -1056,13 +1158,13 @@ namespace aevol {
 
                 if (toAdd) {
                     promoters_list_[LAGGING].emplace(first, rcpos, dist, false);
-                    printf("UPDATE_PROMOTER_LAGGING : NEW %d => %d\n", rcpos, dist);
+//                    printf("UPDATE_PROMOTER_LAGGING : NEW %d => %d\n", rcpos, dist);
                 }
             }
         }
 
-        printf("======= AFTER_PROMOTER_UPDATE :: UPDATE RANGE ============\n");
-        display(false);
+//        printf("======= AFTER_PROMOTER_UPDATE :: UPDATE RANGE ============\n");
+//        display(false);
 
         // 2. Within RNA, search terminator + update terminator position + delete all Protein on RNA
         // LEAD : within [pos_1-10,pos_2]
@@ -1093,11 +1195,11 @@ namespace aevol {
 
                                     rna->to_recompute = true;
 
-                                    printf("UPDATE_RNA_LEADING : NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
-                                           rna->begin, rna->end);
+//                                    printf("UPDATE_RNA_LEADING : NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
+//                                           rna->begin, rna->end);
                                 }
                             } else {
-                                if ((rna->begin + 22 < rcpos && rcpos < length()) || (rna->end > rcpos && rcpos >= 0)) {
+                                if ((rna->begin + 22 < rcpos && rcpos < length()) && (rna->end > rcpos && rcpos >= 0)) {
                                     int32_t old_new = rna->end;
 
                                     rna->end = rcpos;
@@ -1106,19 +1208,26 @@ namespace aevol {
 
                                     rna->to_recompute = true;
 
-                                    printf("UPDATE_RNA_LEADING : NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
-                                           rna->begin, rna->end);
+//                                    printf("UPDATE_RNA_LAGGING : NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
+//                                           rna->begin, rna->end);
                                 }
                             }
 
-                            for (auto prot : proteins_) {
-                                for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
-                                    if ((*rna2)->begin == rna->begin) rna2 = prot->rna_list_.erase(rna2);
-                                    else ++rna2;
-                                }
+                            if (rna->to_recompute) {
+                                for (auto& prot : proteins_) {
+                                    for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
+                                        if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                            rna2 = prot->rna_list_.erase(rna2);
+                                            prot->e -= rna->e;
+                                        }
+                                        else ++rna2;
+                                    }
 
-                                if (prot->rna_list_.empty())
-                                    prot->to_delete = true;
+                                    if (prot->rna_list_.empty()) {
+//                                        printf("Mark protein %d to delete\n",prot->protein_start);
+                                        prot->to_delete = true;
+                                    }
+                                }
                             }
                         }
                     }
@@ -1152,11 +1261,11 @@ namespace aevol {
 
                                     rna->to_recompute = true;
 
-                                    printf("UPDATE_RNA_LAGGING: NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
-                                           rna->begin, rna->end);
+//                                    printf("UPDATE_RNA_LAGGING: NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
+//                                           rna->begin, rna->end);
                                 }
                             } else {
-                                if ((rna->begin - 22 > rcpos && rcpos >= 0) || (rna->end < rcpos && rcpos < length())) {
+                                if ((rna->begin - 22 > rcpos && rcpos >= 0) && (rna->end < rcpos && rcpos < length())) {
                                     int32_t old_new = rna->end;
 
                                     rna->end = rcpos;
@@ -1165,19 +1274,26 @@ namespace aevol {
 
                                     rna->to_recompute = true;
 
-                                    printf("UPDATE_RNA_LAGGING : NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
-                                           rna->begin, rna->end);
+//                                    printf("UPDATE_RNA_LAGGING : NEW %d => %d (PREV %d => %d)\n", rna->begin, old_new,
+//                                           rna->begin, rna->end);
                                 }
                             }
 
-                            for (auto prot : proteins_) {
-                                for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
-                                    if ((*rna2)->begin == rna->begin) rna2 = prot->rna_list_.erase(rna2);
-                                    else ++rna2;
-                                }
+                            if (rna->to_recompute) {
+                                for (auto prot : proteins_) {
+                                    for (auto rna2 = prot->rna_list_.begin(); rna2 != prot->rna_list_.end();) {
+                                        if (((*rna2)->begin == rna->begin) & ((*rna2)->leading_lagging == rna->leading_lagging)) {
+                                            rna2 = prot->rna_list_.erase(rna2);
+                                            prot->e -= rna->e;
+                                        }
+                                        else ++rna2;
+                                    }
 
-                                if (prot->rna_list_.empty())
-                                    prot->to_delete = true;
+                                    if (prot->rna_list_.empty()) {
+//                                        printf("Mark protein %d to delete\n",prot->protein_start);
+                                        prot->to_delete = true;
+                                    }
+                                }
                             }
                         }
                     }
@@ -1185,8 +1301,8 @@ namespace aevol {
             }
         }
 
-        printf("======= AFTER_UPDATE_RNA :: UPDATE RANGE ============\n");
-        display(false);
+//        printf("======= AFTER_UPDATE_RNA :: UPDATE RANGE ============\n");
+//        display(false);
 
 
 
@@ -1208,21 +1324,23 @@ namespace aevol {
 
             if (is_protein) {
                 for (auto prot : proteins_) {
-                    if (!prot->to_delete) {
+                    if (!prot->to_delete && prot->protein_end!=-1) {
                         if (prot->leading_lagging == 0) {
                             if (prot->protein_start < prot->protein_end) {
-                                if (prot->protein_start + 13 < rcpos && prot->protein_end > rcpos) {
+                                if (prot->protein_start < rcpos && prot->protein_end > rcpos) {
+//                                    printf("UPDATE PROTEIN END %d => %d\n",prot->protein_end,rcpos);
                                     prot->protein_end = rcpos;
-                                    prot->protein_length = prot->protein_end - (prot->protein_start + 13);
+                                    prot->protein_length = (prot->protein_end - (prot->protein_start))/3;
                                     prot->is_init_ = true;
                                     prot->to_retranslate = true;
                                 }
                             } else {
-                                if ((prot->protein_start + 13 < rcpos && rcpos < length()) ||
+                                if ((prot->protein_start < rcpos && rcpos < length()) &&
                                     (prot->protein_end > rcpos && rcpos >= 0)) {
+//                                    printf("UPDATE PROTEIN END %d => %d\n",prot->protein_end,rcpos);
                                     prot->protein_end = rcpos;
                                     prot->protein_length =
-                                            dna->length() - (prot->protein_start + 13) + prot->protein_end;
+                                            (dna->length() - (prot->protein_start) + prot->protein_end)/3;
                                     prot->is_init_ = true;
                                     prot->to_retranslate = true;
                                 }
@@ -1250,21 +1368,23 @@ namespace aevol {
 
             if (is_protein) {
                 for (auto prot : proteins_) {
-                    if (!prot->to_delete) {
+                    if (!prot->to_delete && prot->protein_end!=-1) {
                         if (prot->leading_lagging == 1) {
                             if (prot->protein_start > prot->protein_end) {
-                                if (prot->protein_start - 13 > rcpos && prot->protein_end < rcpos) {
+                                if (prot->protein_start > rcpos && prot->protein_end < rcpos) {
+//                                    printf("UPDATE PROTEIN END %d => %d\n",prot->protein_end,rcpos);
                                     prot->protein_end = rcpos;
-                                    prot->protein_length = (prot->protein_start - 13) - prot->protein_end;
+                                    prot->protein_length = ((prot->protein_start) - prot->protein_end)/3;
                                     prot->to_retranslate = true;
                                     prot->is_init_ = true;
                                 }
                             } else {
-                                if ((prot->protein_start - 13 < rcpos && rcpos >= 0) ||
+                                if ((prot->protein_start < rcpos && rcpos >= 0) &&
                                     (prot->protein_end < rcpos && rcpos < length())) {
+//                                    printf("UPDATE PROTEIN END %d => %d\n",prot->protein_end,rcpos);
                                     prot->protein_end = rcpos;
-                                    prot->protein_length = (prot->protein_start - 13) +
-                                                           dna->length() - prot->protein_end;
+                                    prot->protein_length = ((prot->protein_start) +
+                                                           dna->length() - prot->protein_end)/3;
                                     prot->to_retranslate = true;
                                     prot->is_init_ = true;
                                 }
@@ -1298,38 +1418,48 @@ namespace aevol {
                 for (auto rna : rnas_) {
                     if (!rna->to_delete)
                         if (rna->leading_lagging == 0) {
-                            if (rna->begin < rna->end) {
                                 if (rna->begin + 22 < rcpos && rna->end > rcpos) {
+                                    int mrcpos = Utils::mod(rcpos+13,length());
                                     auto prot = std::find_if(proteins_.begin(),proteins_.end(),
-                                                             [rcpos](const pProtein* q)
-                                                             {return q->protein_start != rcpos;});
+                                                             [mrcpos](const pProtein* q)
+                                                             {return q->protein_start == mrcpos;});
 
                                     bool toAdd=false;
                                     if ((prot == proteins_.end()))
                                         toAdd = true;
                                     else if ((!(*prot)->to_delete) and ((*prot)->leading_lagging != rna->leading_lagging)) {
                                         toAdd = true;
+                                    } else if ((!(*prot)->to_delete) and ((*prot)->protein_start == rcpos+13) and
+                                            ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                        (*prot)->e += rna->e;
+                                        (*prot)->rna_list_.push_back(rna);
                                     }
 
                                     if (toAdd) {
                                         glob_prot_idx = proteins_count();
                                         set_proteins_count(proteins_count() + 1);
 
-                                        printf("]]]]]]]]]]]] ADD == Protein (IF) %d\n", rcpos);
+//                                        printf("]]]]]]]]]]]] ADD == Protein (IF) %d\n", rcpos);
+
+//                                        printf("]]]]]]]]]]]] ADD == Protein (IF) %d -- RNA %d %d\n",
+//                                               Utils::mod(rcpos+13,length()),
+//                                               rna->begin, rna->end);
 
 
-                                        protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
+                                        protein_add(glob_prot_idx, new pProtein(Utils::mod(rcpos+13,length()), -1, -1,
                                                                                 rna->leading_lagging,
                                                                                 rna->e, rna, false
                                         ));
                                     }
                                 }
                             } else {
-                                if ((rna->begin + 22 < rcpos && rcpos < length()) ||
+                                if ((rna->begin + 22 < rcpos && rcpos < length()) &&
                                     (rna->end > rcpos && rcpos >= 0)) {
+                                    int mrcpos = Utils::mod(rcpos-13,length());
+
                                     auto prot = std::find_if(proteins_.begin(),proteins_.end(),
-                                                             [rcpos](const pProtein* q)
-                                                             {return q->protein_start != rcpos;});
+                                                             [mrcpos](const pProtein* q)
+                                                             {return q->protein_start == mrcpos;});
 
 
                                     bool toAdd=false;
@@ -1337,16 +1467,20 @@ namespace aevol {
                                         toAdd = true;
                                     else if ((!(*prot)->to_delete) and  ((*prot)->leading_lagging != rna->leading_lagging)) {
                                         toAdd = true;
+                                    } else if ((!(*prot)->to_delete) and ((*prot)->protein_start == rcpos-13) and
+                                               ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                        (*prot)->e += rna->e;
+                                        (*prot)->rna_list_.push_back(rna);
                                     }
 
                                     if (toAdd) {
                                         glob_prot_idx = proteins_count();
                                         set_proteins_count(proteins_count() + 1);
 
-                                        printf("]]]]]]]]]]]] ADD == Protein (ELSE) %d -- RNA %d %d\n", rcpos,
-                                               rna->begin, rna->end);
+//                                        printf("]]]]]]]]]]]] ADD == Protein (ELSE) %d -- RNA %d %d\n", Utils::mod(rcpos-13,length()),
+//                                               rna->begin, rna->end);
 
-                                        protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
+                                        protein_add(glob_prot_idx, new pProtein(Utils::mod(rcpos-13,length()), -1, -1,
                                                                                 rna->leading_lagging,
                                                                                 rna->e, rna, false
                                         ));
@@ -1354,7 +1488,6 @@ namespace aevol {
                                 }
                             }
                         }
-                }
 
             }
         }
@@ -1380,61 +1513,79 @@ namespace aevol {
                 int32_t glob_prot_idx = -1;
                 for (auto rna : rnas_) {
                     if (!rna->to_delete)
-                        if (rna->leading_lagging == 1) {
-                            if (rna->begin > rna->end) {
-                                if (rna->begin - 22 > rcpos && rna->end < rcpos) {
-                                    auto prot = std::find_if(proteins_.begin(),proteins_.end(),
-                                                             [rcpos](const pProtein* q)
-                                                             {return q->protein_start != rcpos;});
-                                    bool toAdd=false;
-                                    if ((prot == proteins_.end()))
-                                        toAdd = true;
-                                    else if ((!(*prot)->to_delete) and ((*prot)->leading_lagging != rna->leading_lagging)) {
-                                        toAdd = true;
-                                    }
+                        if (rna->leading_lagging == 0) {
+                            if (rna->begin - 22 > rcpos && rna->end < rcpos) {
+                                int mrcpos = Utils::mod(rcpos+13,length());
 
-                                    if (toAdd) {
-                                        glob_prot_idx = proteins_count();
-                                        set_proteins_count(proteins_count() + 1);
-
-                                        protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
-                                                                                rna->leading_lagging,
-                                                                                rna->e, rna, false
-                                        ));
-                                    }
+                                auto prot = std::find_if(proteins_.begin(), proteins_.end(),
+                                                         [mrcpos](const pProtein *q) {
+                                                             return q->protein_start == mrcpos;
+                                                         });
+                                bool toAdd = false;
+                                if ((prot == proteins_.end()))
+                                    toAdd = true;
+                                else if ((!(*prot)->to_delete) and ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                    toAdd = true;
+                                } else if ((!(*prot)->to_delete) and ((*prot)->protein_start == rcpos+13) and
+                                           ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                    (*prot)->e += rna->e;
+                                    (*prot)->rna_list_.push_back(rna);
                                 }
-                            } else {
-                                if ((rna->begin - 22 > rcpos && rcpos >= 0) ||
-                                    (rna->end < rcpos && rcpos < length())) {
-                                    auto prot = std::find_if(proteins_.begin(),proteins_.end(),
-                                                             [rcpos](const pProtein* q)
-                                                             {return q->protein_start != rcpos;});
-                                    bool toAdd=false;
-                                    if ((prot == proteins_.end()))
-                                        toAdd = true;
-                                    else if ((!(*prot)->to_delete) and ((*prot)->leading_lagging != rna->leading_lagging)) {
-                                        toAdd = true;
-                                    }
 
-                                    if (toAdd) {
-                                        glob_prot_idx = proteins_count();
-                                        set_proteins_count(proteins_count() + 1);
+                                if (toAdd) {
+                                    glob_prot_idx = proteins_count();
+                                    set_proteins_count(proteins_count() + 1);
+//                                    printf("]]]]]]]]]]]] ADD == Protein (LEAD 2) %d -- RNA %d %d\n", Utils::mod(rcpos+13,length()),
+//                                           rna->begin, rna->end);
+                                    protein_add(glob_prot_idx, new pProtein(Utils::mod(rcpos+13,length()), -1, -1,
+                                                                            rna->leading_lagging,
+                                                                            rna->e, rna, false
+                                    ));
+                                }
+                            }
+                        } else {
+                            if ((rna->begin - 22 > rcpos && rcpos >= 0) &&
+                                (rna->end < rcpos && rcpos < length())) {
+                                int mrcpos = Utils::mod(rcpos-13,length());
 
-                                        protein_add(glob_prot_idx, new pProtein(rcpos, -1, -1,
-                                                                                rna->leading_lagging,
-                                                                                rna->e, rna, false
-                                        ));
-                                    }
+                                auto prot = std::find_if(proteins_.begin(), proteins_.end(),
+                                                         [mrcpos](const pProtein *q) {
+                                                             return q->protein_start == mrcpos;
+                                                         });
+                                bool toAdd = false;
+                                if ((prot == proteins_.end()))
+                                    toAdd = true;
+                                else if ((!(*prot)->to_delete) and ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                    toAdd = true;
+                                } else if (((*prot)->protein_start == rcpos-13)
+                                           and ((*prot)->leading_lagging == rna->leading_lagging)) {
+
+                                } else if ((!(*prot)->to_delete) and ((*prot)->protein_start == rcpos-13) and
+                                           ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                    (*prot)->e += rna->e;
+                                    (*prot)->rna_list_.push_back(rna);
+                                }
+
+                                if (toAdd) {
+                                    glob_prot_idx = proteins_count();
+                                    set_proteins_count(proteins_count() + 1);
+//                                    printf("]]]]]]]]]]]] ADD == Protein (LAG 2) %d -- RNA %d %d %d\n", Utils::mod(rcpos-13,length()),
+//                                           rna->begin, rna->end, rna->leading_lagging);
+                                    protein_add(glob_prot_idx, new pProtein(Utils::mod(rcpos-13,length()), -1, -1,
+                                                                            rna->leading_lagging,
+                                                                            rna->e, rna, false
+                                    ));
                                 }
                             }
                         }
+
                 }
 
             }
         }
 
-        printf("======= END :: UPDATE RANGE ============\n");
-        display(false);
+//        printf("======= END :: UPDATE RANGE ============ %d %d\n",pos_1,pos_2);
+//        display(false);
     }
 
     void SIMD_List_Metadata::display(bool check_to_delete) {
@@ -1447,7 +1598,7 @@ namespace aevol {
             for (auto &prom: strand) {
             printf("[%d (%d) => %d %d]",prom.pos,prom.leading_or_lagging,prom.to_compute,prom.to_delete);
             if ((prom.pos >= length())) {
-                if (!prom.to_delete && !check_to_delete) {
+                if (prom.to_delete && check_to_delete) {
                     error = true;
                     printf("\nPromoters ERROR : %d %d %d\nPromoters Start : ", prom.pos, length(), prom.to_delete);
                 }
@@ -1457,7 +1608,8 @@ namespace aevol {
         printf("\n[SIMD] -- RNA Start : ");
 
         for (auto rna : rnas_) {
-            printf("[%d => %d]",rna->begin,rna->end);
+            printf("[%d => %d (R %d D %d LoL %d SfT %d)]",rna->begin,rna->end,rna->to_recompute,rna->to_delete,
+                   rna->leading_lagging,rna->to_search_for_end);
             if ((rna->begin >= length()))
                 if ((rna->to_delete && check_to_delete)) {
                     error = true;
@@ -1468,7 +1620,12 @@ namespace aevol {
 
         printf("\n[SIMD] -- Proteins : ");
         for (auto prot : proteins_) {
-            printf("[%d => %d]",prot->protein_start,prot->protein_end);
+            printf("[%d (%d) => %d == %lf %lf %lf] %d : ",prot->protein_start,prot->to_delete,prot->protein_end,
+            prot->w,prot->h,prot->m,prot->rna_list_.size());
+            for (auto rna : prot->rna_list_) {
+                printf("[%d => %d] ",rna->begin,rna->end);
+            }
+            printf("\n");
             if (prot->protein_start >= length())
                 if ((prot->to_delete && check_to_delete)) {
                     error = true;
@@ -1495,38 +1652,46 @@ namespace aevol {
     }
 
     void SIMD_List_Metadata::update_metadata() {
-        printf("Start processing Individual %d\n",indiv_->indiv_id);
+//        printf("Start processing Individual %d\n",indiv_->indiv_id);
         // 0. Cleanup Promoter/Rna/Protein mark as to delete
         cleanup();
-        display(true);
+//        display(true);
+//        proteins_print();
 
-        printf("%d -- Compute promoters\n",indiv_->indiv_id);
+
+//        printf("%d -- Compute promoters\n",indiv_->indiv_id);
         // 1. Compute new promoter
         compute_promoters();
 
-        display(true);
+//        display(true);
 
         // 2. Recompute RNA mark as to_recompute
-        printf("%d -- Search RNAs Terminator\n",indiv_->indiv_id);
+//        printf("%d -- Search RNAs Terminator\n",indiv_->indiv_id);
         search_for_rna_terminator();
-        printf("%d -- Compute RNAs\n",indiv_->indiv_id);
+        cleanup();
+//        printf("%d -- Compute RNAs\n",indiv_->indiv_id);
         recompute_rna();
 
-        display(true);
-        printf("%d -- Compute proteins\n",indiv_->indiv_id);
+//        display(true);
+//        printf("%d -- Compute proteins\n",indiv_->indiv_id);
         // 3. Recompute Protein mark as to_recompute
         recompute_proteins();
+//        display(true);
 
-        display(true);
-        printf("%d -- Translate proteins\n",indiv_->indiv_id);
+
+//        proteins_print();
+
+//        display(true);
+//        printf("%d -- Translate proteins\n",indiv_->indiv_id);
         // 4. Retranslate Protein mark as to_retranslate
         retranslate_proteins();
 
-        display(true);
+//        proteins_print();
+//        display(true);
         // 5. If the proteome change (at least one new protein or a protein has changed), recompute phenotype+fitness
         //if (recompute_phenotype)
-        display(true);
-        printf("%d -- Individual has been computed\n",indiv_->indiv_id);
+//        display(true);
+//        printf("%d -- Individual has been computed\n",indiv_->indiv_id);
 
     }
 
@@ -1565,11 +1730,21 @@ namespace aevol {
                 if (prom.to_compute) {
                     recompute_phenotype = true;
 
-                    if (prom.leading_or_lagging) {
+                    Dna_SIMD *dna = indiv_->dna_;
+                    int32_t dna_length = dna->length();
+                    int prom_pos;
+                    bool lead_lag;
+                    double prom_error;
+
+                    prom_pos = prom.pos;
+                    lead_lag = prom.leading_or_lagging;
+                    prom_error = fabs(
+                            ((float) prom.error));
+
+                    if (lead_lag) {
                         /* Search for terminators */
                         int cur_pos =
-                                prom.pos + 22;
-                        cur_pos = Utils::mod(cur_pos,dna->length());
+                                Utils::mod(prom_pos + 22,dna_length);
                         int start_pos = cur_pos;
 
                         bool terminator_found = false;
@@ -1579,7 +1754,6 @@ namespace aevol {
                         int loop_size = 0;
 
                         while (!terminator_found) {
-                            loop_size++;
                             for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
 
                                 term_dist_leading +=
@@ -1590,8 +1764,9 @@ namespace aevol {
 
                             if (term_dist_leading == 4) {
                                 terminator_found = true;
-                            } else {
-                                cur_pos = Utils::mod(cur_pos + 1, dna->length());
+                            }
+                            else {
+                                cur_pos = Utils::mod(cur_pos + 1,dna_length);
 
                                 term_dist_leading = 0;
                                 if (cur_pos == start_pos) {
@@ -1599,43 +1774,39 @@ namespace aevol {
                                     terminator_found = true;
                                 }
                             }
+
+                            loop_size++;
+
                         }
 
                         if (!no_terminator) {
 
-                            int32_t rna_end = cur_pos;
-
+                            int32_t rna_end =
+                                    cur_pos;
                             int32_t rna_length = 0;
 
-                            if (prom.pos
-                                > rna_end)
-                                rna_length = dna->length() - prom.pos
-                                             + rna_end;
-                            else
-                                rna_length = rna_end - prom.pos;
-
-                            rna_length -= 11;
+                            rna_length = loop_size + TERM_SIZE -1;
 
                             if (rna_length > 0) {
 
 
                                 int glob_rna_idx = -1;
                                 glob_rna_idx = rna_count_++;
-                                rna_add(glob_rna_idx, new pRNA(
-                                        prom.pos,
-                                        rna_end,
-                                        !prom.leading_or_lagging,
-                                        1.0 -
-                                        prom.error /
-                                        5.0, rna_length));
+                                rna_add(glob_rna_idx,
+                                                                                   prom_pos,
+                                                                                   rna_end,
+                                                                                   !lead_lag,
+                                                                                   1.0 -
+                                                                                   prom_error /
+                                                                                   5.0, rna_length);
                             }
                         }
                     } else {
                         /* Search for terminator */
                         int cur_pos =
-                                prom.pos - 22;
+                                prom_pos - 22;
                         cur_pos =
-                                Utils::mod(cur_pos, dna->length());
+                                cur_pos < 0 ? dna_length + (cur_pos) : cur_pos;
                         int start_pos = cur_pos;
                         bool terminator_found = false;
                         bool no_terminator = false;
@@ -1645,33 +1816,19 @@ namespace aevol {
 
                         while (!terminator_found) {
                             for (int32_t t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
-
-/*                                if (cur_pos > dna->length()) {
-
-                                    printf("ERROR  : %d %d %d %ld\n",
-                                           cur_pos,
-
-                                           (cur_pos - t_motif_id) + (((unsigned
-                                    int32_t)((cur_pos - t_motif_id))) >> 31) *dna->length(),
-                                            (cur_pos + t_motif_id - 10) + (((unsigned
-                                    int32_t)((cur_pos + t_motif_id - 10))) >> 31) *dna->length(),
-                                            dna->length());
-
-                                    exit(2);
-
-                                }*/
-
                                 term_dist_lagging +=
                                         dna->get_lag(cur_pos - t_motif_id) !=
                                         dna->get_lag(cur_pos + t_motif_id - 10)
                                         ? 1 : 0;
                             }
 
-                            if (term_dist_lagging == 4)
+                            if (term_dist_lagging == 4) {
                                 terminator_found = true;
+                            }
                             else {
                                 cur_pos =
-                                        Utils::mod(cur_pos - 1, dna->length());
+                                        cur_pos - 1 < 0 ? dna_length + (cur_pos - 1)
+                                                        : cur_pos - 1;
                                 term_dist_lagging = 0;
                                 if (cur_pos == start_pos) {
                                     no_terminator = true;
@@ -1682,50 +1839,56 @@ namespace aevol {
                         }
 
                         if (!no_terminator) {
-                            int32_t rna_end =
-                                    Utils::mod(cur_pos - 10, dna->length());
+
+
+                            int32_t rna_end = Utils::mod(cur_pos - 10,dna_length);
 
                             int32_t rna_length = 0;
 
-                            if (prom.pos < rna_end)
-                                rna_length = prom.pos + dna->length() - rna_end;
-                            else
-                                rna_length = prom.pos - rna_end;
-
-                            rna_length -= 21;
+                            rna_length = loop_size + TERM_SIZE -1;
 
                             if (rna_length >= 0) {
                                 int glob_rna_idx = -1;
                                 glob_rna_idx = rna_count_++;
 
 
-                                rna_add(glob_rna_idx, new pRNA(
-                                        prom.pos,
-                                        rna_end,
-                                        !prom.leading_or_lagging,
-                                        1.0 -
-                                        prom.error /
-                                        5.0, rna_length));
+                                 rna_add(glob_rna_idx,
+                                                                                   prom_pos,
+                                                                                   rna_end,
+                                                                                   !lead_lag,
+                                                                                   1.0 -
+                                                                                   prom_error /
+                                                                                   5.0, rna_length);
                             }
 
                         }
                     }
+
                 }
             }
     }
 
     void SIMD_List_Metadata::search_for_rna_terminator() {
-        display(true);
+//        display(true);
         Dna_SIMD* dna = indiv_->dna_;
         for (auto rna: rnas_)
             if (rna->to_search_for_end) {
                 recompute_phenotype = true;
+                Dna_SIMD *dna = indiv_->dna_;
+                int32_t dna_length = dna->length();
+                int prom_pos;
+                bool lead_lag;
+                double prom_error;
 
-                if (rna->leading_lagging == 0) {
+                prom_pos = rna->begin;
+                lead_lag = rna->leading_lagging;
+
+//                printf("Search for new terminator %d (%d)\n",prom_pos,lead_lag);
+
+                if (lead_lag == 0) {
                     /* Search for terminators */
                     int cur_pos =
-                            rna->begin + 22;
-                    cur_pos = Utils::mod(cur_pos, dna->length());
+                            Utils::mod(prom_pos + 22,dna_length);
                     int start_pos = cur_pos;
 
                     bool terminator_found = false;
@@ -1735,7 +1898,6 @@ namespace aevol {
                     int loop_size = 0;
 
                     while (!terminator_found) {
-                        loop_size++;
                         for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
 
                             term_dist_leading +=
@@ -1746,8 +1908,9 @@ namespace aevol {
 
                         if (term_dist_leading == 4) {
                             terminator_found = true;
-                        } else {
-                            cur_pos = Utils::mod(cur_pos + 1, dna->length());
+                        }
+                        else {
+                            cur_pos = Utils::mod(cur_pos + 1,dna_length);
 
                             term_dist_leading = 0;
                             if (cur_pos == start_pos) {
@@ -1755,35 +1918,48 @@ namespace aevol {
                                 terminator_found = true;
                             }
                         }
+
+                        loop_size++;
+
                     }
 
                     if (!no_terminator) {
 
-                        int32_t rna_end = cur_pos;
+                        int32_t rna_end =
+                                cur_pos;
 
                         int32_t rna_length = 0;
 
-                        if (rna->begin > rna_end)
-                            rna_length = dna->length() - rna->begin
-                                         + rna_end;
-                        else
-                            rna_length = rna_end - rna->begin;
-
-                        rna_length -= 11;
+                        rna_length = loop_size + TERM_SIZE -1;
 
                         if (rna_length > 0) {
+//                            printf("Update terminator %d OLD %d Begin %d\n",rna_end,rna->end,rna->begin);
+
                             rna->end = rna_end;
                             rna->length = rna_length;
+
+
+                            for (auto prot : proteins_) {
+                                for (auto rnax : prot->rna_list_) {
+                                    if (rnax->begin == rna->begin && rna->leading_lagging == rnax->leading_lagging) {
+//                                        printf("Protein still within RNA ? %d => %d RNA %d => %d\n",prot->protein_start,
+//                                               prot->protein_end,rna->begin,rna->end);
+
+                                        prot->to_delete = true;
+                                    }
+                                }
+                            }
+
                         } else
                             rna->to_delete = true;
-                    } else
+                    }else
                         rna->to_delete = true;
                 } else {
                     /* Search for terminator */
                     int cur_pos =
-                            rna->begin - 22;
+                            prom_pos - 22;
                     cur_pos =
-                            Utils::mod(cur_pos,dna->length());
+                            cur_pos < 0 ? dna_length + (cur_pos) : cur_pos;
                     int start_pos = cur_pos;
                     bool terminator_found = false;
                     bool no_terminator = false;
@@ -1793,33 +1969,19 @@ namespace aevol {
 
                     while (!terminator_found) {
                         for (int32_t t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
-
-/*                                if (cur_pos > dna->length()) {
-
-                                    printf("ERROR  : %d %d %d %ld\n",
-                                           cur_pos,
-
-                                           (cur_pos - t_motif_id) + (((unsigned
-                                    int32_t)((cur_pos - t_motif_id))) >> 31) *dna->length(),
-                                            (cur_pos + t_motif_id - 10) + (((unsigned
-                                    int32_t)((cur_pos + t_motif_id - 10))) >> 31) *dna->length(),
-                                            dna->length());
-
-                                    exit(2);
-
-                                }*/
-
                             term_dist_lagging +=
                                     dna->get_lag(cur_pos - t_motif_id) !=
                                     dna->get_lag(cur_pos + t_motif_id - 10)
                                     ? 1 : 0;
                         }
 
-                        if (term_dist_lagging == 4)
+                        if (term_dist_lagging == 4) {
                             terminator_found = true;
+                        }
                         else {
                             cur_pos =
-                                    Utils::mod(cur_pos - 1, dna->length());
+                                    cur_pos - 1 < 0 ? dna_length + (cur_pos - 1)
+                                                    : cur_pos - 1;
                             term_dist_lagging = 0;
                             if (cur_pos == start_pos) {
                                 no_terminator = true;
@@ -1829,39 +1991,54 @@ namespace aevol {
                         loop_size++;
                     }
 
+//                    printf("New terminator found or not ? %d : %d (%d) %d\n",
+//                           no_terminator,cur_pos,rna->begin,length());
+
                     if (!no_terminator) {
-                        int32_t rna_end =
-                                Utils::mod(cur_pos - 10, dna->length());
+
+
+                        int32_t rna_end = Utils::mod(cur_pos - 10,dna_length);
 
                         int32_t rna_length = 0;
+                        rna_length = loop_size + TERM_SIZE -1;
 
-                        if (rna->begin < rna_end)
-                            rna_length = rna->begin + dna->length() - rna_end;
-                        else
-                            rna_length = rna->begin - rna_end;
 
-                        rna_length -= 21;
+                        if (rna_length > 0) {
 
-                        if (rna_length >= 0) {
+//                            printf("Update terminator %d OLD %d Begin %d\n",rna_end,rna->end,rna->begin);
+
                             rna->end = rna_end;
                             rna->length = rna_length;
-                        }else
+
+
+                            for (auto prot : proteins_) {
+                                for (auto rnax : prot->rna_list_) {
+                                    if (rnax->begin == rna->begin && rna->leading_lagging == rnax->leading_lagging) {
+//                                        printf("Protein still within RNA ? %d => %d RNA %d => %d\n",prot->protein_start,
+//                                        prot->protein_end,rna->begin,rna->end);
+
+                                        prot->to_delete = true;
+                                    }
+                                }
+                            }
+                        } else
                             rna->to_delete = true;
 
-                    } else
+                    }else
                         rna->to_delete = true;
                 }
+
             }
-        display(true);
+//        display(true);
     }
 
     void SIMD_List_Metadata::recompute_rna() {
         Dna_SIMD* dna = indiv_->dna_;
         int32_t dna_length = length();
-        display(true);
+//        display(true);
         int rna_idx = 0;
         for (auto rna : rnas_) {
-            printf("Compute RNA %d\n",rna_idx);
+//            printf("Compute RNA %d %d %d\n",rna_idx,rna->to_recompute,rna->to_delete);
             rna_idx++;
 
             if (rna->to_recompute) {
@@ -1872,27 +2049,33 @@ namespace aevol {
                 if (rna->is_init_) {
                     int c_pos = rna->begin;
 
-                    if (rna->length >= 22) {
+                    if (rna->length >= 21) {
                         if (rna->leading_lagging ==
                             0) {
                             c_pos += 22;
-                            c_pos = Utils::mod(c_pos,dna_length);
+                            c_pos =
+                                    c_pos >= dna_length ? c_pos - dna_length
+                                                        : c_pos;
                         } else {
                             c_pos -= 22;
-                            c_pos = Utils::mod(c_pos, dna_length);
+                            c_pos =
+                                    c_pos < 0 ? ((int) dna_length) + c_pos : c_pos;
                         }
 
-                        printf("RNA Start %d -> %d\n",c_pos,rna->end);
-                        while (c_pos != rna->end) {
+                        int loop_size = 0;
+//                        printf("RNA Begin loop %d => %d :: %d\n",rna->begin,rna->end,loop_size);
+                        while (loop_size < rna->length) {
                             bool start = false;
                             int k_t;
 
-                            if (rna->leading_lagging == 0) {
+                            if (rna->leading_lagging ==
+                                0) {
                                 // Search for Shine Dalgarro + START codon on LEADING
                                 for (int k = 0; k < 9; k++) {
                                     k_t = k >= 6 ? k + 4 : k;
 
-                                    if (dna->get_lead(c_pos + k_t) == SHINE_DAL_SEQ_LEAD[k]) {
+                                    if (indiv_->dna_->data_[Utils::mod((c_pos + k_t),dna_length)] ==
+                                        SHINE_DAL_SEQ_LEAD[k]) {
                                         start = true;
                                     } else {
                                         start = false;
@@ -1905,7 +2088,8 @@ namespace aevol {
                                 for (int k = 0; k < 9; k++) {
                                     k_t = k >= 6 ? k + 4 : k;
 
-                                    if (dna->get_lag(c_pos - k_t) == SHINE_DAL_SEQ_LAG[k]) {
+                                    if (indiv_->dna_->data_[Utils::mod((c_pos - k_t),dna_length)] ==
+                                        SHINE_DAL_SEQ_LAG[k]) {
                                         start = true;
                                     } else {
                                         start = false;
@@ -1918,36 +2102,72 @@ namespace aevol {
                                 int32_t glob_prot_idx = proteins_count();
                                 set_proteins_count(proteins_count() + 1);
 
-                                protein_add(glob_prot_idx, new pProtein(c_pos, -1, -1,
-                                                                        rna->leading_lagging,
-                                                                        rna->e,rna,false
-                                ));
-                                printf("Add proteins %d\n",c_pos);
+                                int start_protein_pos = rna->leading_lagging == 0 ?
+                                                        c_pos +
+                                                        13 :
+                                                        c_pos -
+                                                        13;
+                                start_protein_pos = Utils::mod(start_protein_pos,dna_length);
+
+                                auto prot = std::find_if(proteins_.begin(), proteins_.end(),
+                                                         [start_protein_pos](const pProtein *q) {
+                                                             return q->protein_start == start_protein_pos;
+                                                         });
+                                bool toAdd = false;
+                                if ((prot == proteins_.end()))
+                                    toAdd = true;
+                                else if ((!(*prot)->to_delete) and ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                    toAdd = true;
+                                } else if ((!(*prot)->to_delete) and ((*prot)->protein_start == start_protein_pos) and
+                                           ((*prot)->leading_lagging != rna->leading_lagging)) {
+                                    (*prot)->e += rna->e;
+                                    (*prot)->rna_list_.push_back(rna);
+                                }
+
+                                if (toAdd) {
+                                    protein_add(glob_prot_idx, new pProtein(start_protein_pos, -1, -1,
+                                                                            rna->leading_lagging,
+                                                                            rna->e, rna, false
+                                    ));
+
+//                                    printf("Add proteins %d -- %d %d ==> ",start_protein_pos,rna->begin,rna->end);
+//                                    if (proteins_.front()->protein_start == start_protein_pos) {
+//                                        for (auto rna : proteins_.front()->rna_list_) {
+//                                            printf("[ %d %d ] ",
+//                                                   proteins_.front()->rna_list_.front()->begin,
+//                                                   proteins_.front()->rna_list_.front()->end);
+//                                        }
+//                                    }
+//                                    printf("\n");
+                                }
+
                             }
 
-                            if (rna->leading_lagging ==
-                                0) {
+                            if (rna->leading_lagging == 0) {
                                 c_pos++;
                                 c_pos =
-                                        Utils::mod(c_pos, dna_length);
+                                        c_pos >= dna_length ? c_pos - dna_length
+                                                            : c_pos;
                             } else {
                                 c_pos--;
-                                c_pos = Utils::mod(c_pos, dna_length);
+                                c_pos = c_pos < 0 ? dna_length + c_pos : c_pos;
                             }
+                            loop_size++;
                         }
                     }
+
                 }
             }
         }
-        display(true);
+//        display(true);
     }
 
     void SIMD_List_Metadata::recompute_proteins() {
         Dna_SIMD* dna = indiv_->dna_;
         int32_t dna_length = length();
 
-        for (auto prot : proteins_) {
-            if (prot->to_recompute) {
+        for (auto& prot : proteins_) {
+            if (prot->to_recompute || prot->protein_end == -1) {
                 recompute_phenotype = true;
 
                 pRNA* rna = prot->rna_list_.front();
@@ -1955,10 +2175,8 @@ namespace aevol {
                 // Search for proteins STOP codon
                 int start_prot = prot->protein_start;
                 int start_protein_pos = rna->leading_lagging == 0 ?
-                                        start_prot +
-                                        13 :
-                                        start_prot -
-                                        13;
+                                        start_prot :
+                                        start_prot ;
                 int length;
 
                 if (rna->leading_lagging == 0) {
@@ -1979,12 +2197,14 @@ namespace aevol {
                 } else {
 
 
-                    start_protein_pos = Utils::mod(start_protein_pos,dna_length);
+                    start_protein_pos = start_protein_pos < 0 ?
+                                        dna_length + start_protein_pos
+                                                              : start_protein_pos;
 
                     if (start_prot > rna->end) {
-                        length = start_prot - rna->end;
+                        length =  prot->protein_start - rna->end;
                     } else {
-                        length = start_prot +
+                        length =  prot->protein_start +
                                  dna_length -
                                  rna->end;
                     }
@@ -2002,7 +2222,12 @@ namespace aevol {
 
                 if (rna->leading_lagging == 0) {
                     transcribed_start = rna->begin + 22;
-                    transcribed_start = Utils::mod(transcribed_start, dna_length);
+                    transcribed_start = transcribed_start >= dna_length ?
+                                        transcribed_start - dna_length
+                                                                        : transcribed_start;
+
+//                    printf("RNA Begin %d Transcribed start %d Start Prot %d\n",
+//                           rna->begin,transcribed_start,start_prot);
 
                     if (transcribed_start <= start_prot) {
                         j = start_prot - transcribed_start;
@@ -2014,7 +2239,15 @@ namespace aevol {
                     }
                 } else {
                     transcribed_start = rna->begin - 22;
-                    transcribed_start = Utils::mod(transcribed_start,dna_length);
+//                    printf("A -- RNA Begin %d Transcribed start %d Start Prot %d\n",
+//                           rna->begin,transcribed_start,start_prot);
+
+                    transcribed_start = transcribed_start < 0 ?
+                                        dna_length + transcribed_start
+                                                              : transcribed_start;
+
+//                    printf("B -- RNA Begin %d Transcribed start %d Start Prot %d\n",
+//                           rna->begin,transcribed_start,start_prot);
 
                     if (transcribed_start >=
                         start_prot) {
@@ -2026,14 +2259,18 @@ namespace aevol {
                     }
                 }
 
-                j += 13;
+//                printf("Searching for protein END J %d Lenght %d TS %d ProtStart %d RNA %d => %d\n",
+//                       j,rna->length,transcribed_start,prot->protein_start,rna->begin,rna->end);
 
                 while (rna->length - j >= 3) {
 
                     int t_k;
 
                     if (rna->leading_lagging == 0) {
-                        start_protein_pos = Utils::mod(start_protein_pos, dna_length);
+                        start_protein_pos =
+                                start_protein_pos >= dna_length ?
+                                start_protein_pos - dna_length
+                                                                : start_protein_pos;
 
                         is_protein = false;
 
@@ -2049,21 +2286,26 @@ namespace aevol {
                             }
                         }
 
-                        if (is_protein) {
+
+
+//                        printf("LOOKing for start prot at %d : %d\n",start_protein_pos,is_protein);
+//
+
+                        if (is_protein && j > 1) {
                             int prot_length = -1;
 
-                            if (start_prot + 13 < t_k) {
+                            if (start_prot < t_k) {
                                 prot_length = t_k -
-                                              (start_prot +
-                                               13);
+                                              (start_prot);
                             } else {
                                 prot_length = dna_length -
-                                              (start_prot +
-                                               13) + t_k;
+                                              (start_prot) + t_k;
                             }
 
+//                            printf("ADD PROT LEAD %d %d %d %d\n",start_prot,prot_length,t_k,j);
                             if (prot_length >= 3) {
-                                prot->protein_length = prot_length;
+
+                                prot->protein_length = prot_length/3;
                                 prot->protein_end = t_k;
 
                                 prot->is_init_ = true;
@@ -2074,11 +2316,14 @@ namespace aevol {
                         }
 
                         start_protein_pos += 3;
-                        start_protein_pos = Utils::mod(start_protein_pos, dna_length);
+                        start_protein_pos =
+                                start_protein_pos >= dna_length ?
+                                start_protein_pos - dna_length
+                                                                : start_protein_pos;
                     } else {
-
-
-                        start_protein_pos = Utils::mod(start_protein_pos,dna_length);
+                        start_protein_pos = start_protein_pos < 0 ?
+                                            dna_length + start_protein_pos
+                                                                  : start_protein_pos;
 
                         is_protein = false;
                         for (int k = 0; k < 3; k++) {
@@ -2093,19 +2338,26 @@ namespace aevol {
                             }
                         }
 
-                        if (is_protein) {
+//                        printf("Search for prot end starting at %d : IsP %d J %d -- L %d\n",start_protein_pos,
+//                               is_protein,j,
+//                               rna->length);
+
+
+                        if (is_protein && j > 1) {
                             int prot_length = -1;
-                            if (start_prot - 13 > t_k) {
+                            if (start_prot > t_k) {
                                 prot_length =
-                                        (start_prot - 13) -
-                                        t_k;
+                                        (start_prot -
+                                        t_k);
                             } else {
                                 prot_length =
-                                        (start_prot - 13) +
+                                        (start_prot) +
                                         dna_length - t_k;
                             }
+
+//                            printf("ADD PROT %d %d %d %d\n",start_prot,prot_length,t_k,j);
                             if (prot_length >= 3) {
-                                prot->protein_length = prot_length;
+                                prot->protein_length = prot_length/3;
                                 prot->protein_end = t_k;
 
                                 prot->is_init_ = true;
@@ -2114,55 +2366,47 @@ namespace aevol {
                             break;
                         }
                         start_protein_pos = start_protein_pos - 3;
-                        start_protein_pos = Utils::mod(start_protein_pos, dna_length);
+                        start_protein_pos = start_protein_pos < 0 ?
+                                            dna_length + start_protein_pos
+                                                                  : start_protein_pos;
                     }
                     j += 3;
                 }
+
             }
         }
     }
 
     void SIMD_List_Metadata::retranslate_proteins() {
-        std::map<int32_t, pProtein *> lookup;
-
-        for (auto prot : proteins_) {
-            if (prot->is_init_) {
-                if (lookup.find(prot->protein_start) == lookup.end()) {
-                    lookup[prot->protein_start] = prot;
-                } else {
-                    lookup[prot->protein_start]->e += prot->e;
-
-                    for (auto rna : prot->rna_list_)
-                        lookup[prot->protein_start]->rna_list_.push_back(rna);
-
-                    prot->is_init_ = false;
-                }
-            }
-        }
-
-
         Dna_SIMD* dna = indiv_->dna_;
         int32_t dna_length = length();
 
         for (auto prot : proteins_) {
+//            printf("TRANSLATING PROTEIN %d -- %d :: %d %d\n",prot->protein_start,prot->protein_length,
+//                   prot->to_retranslate,prot->is_init_);
             if (prot->to_retranslate && prot->is_init_) {
                 recompute_phenotype = true;
 
                 if (prot->is_init_) {
                     int c_pos = prot->protein_start, t_pos;
                     int end_pos = prot->protein_end;
-                    if (prot->leading_lagging == 0) {
-                        c_pos += 13;
+                    if (prot->leading_lagging ==
+                        0) {
+                        //c_pos += 13;
                         end_pos -= 3;
 
-                        c_pos = Utils::mod(c_pos,dna_length);
-                        end_pos = Utils::mod(end_pos, dna_length);
+                        c_pos =
+                                c_pos >= dna_length ? c_pos - dna_length
+                                                            : c_pos;
+                        end_pos = end_pos < 0 ? dna_length + end_pos : end_pos;
                     } else {
-                        c_pos -= 13;
+                        //c_pos -= 13;
                         end_pos += 3;
 
-                        end_pos = Utils::mod(end_pos, dna_length);
-                        c_pos = Utils::mod(c_pos,dna_length);
+                        end_pos =
+                                end_pos >= dna_length ? end_pos - dna_length
+                                                              : end_pos;
+                        c_pos = c_pos < 0 ? dna_length + c_pos : c_pos;
                     }
 
                     int8_t value = 0;
@@ -2170,31 +2414,41 @@ namespace aevol {
                     int8_t codon_idx = 0;
                     int32_t count_loop = 0;
 
-                    if (prot->leading_lagging == 0) {
+                    if (prot->leading_lagging ==
+                        0) {
                         // LEADING
 
-                        while (count_loop < prot->protein_length / 3 && codon_idx < 64) {
+                        while (count_loop <
+                               prot->protein_length &&
+                               codon_idx < 64) {
                             value = 0;
                             for (int8_t i = 0; i < 3; i++) {
                                 t_pos = c_pos + i;
-                                if (dna->get_lead(t_pos) == '1')
+                                if (indiv_->dna_->get_lead(t_pos) ==
+                                    '1')
                                     value += 1 << (CODON_SIZE - i - 1);
                             }
+//                            printf("Codon %d  : %d\n",codon_idx,value);
                             codon_list[codon_idx] = value;
 
                             codon_idx++;
 
                             count_loop++;
                             c_pos += 3;
-                            c_pos = Utils::mod(c_pos, dna_length);
+                            c_pos =
+                                    c_pos >= dna_length ? c_pos - dna_length
+                                                                : c_pos;
                         }
                     } else {
                         // LAGGING
-                        while (count_loop < prot->protein_length / 3 && codon_idx < 64) {
+                        while (count_loop <
+                               prot->protein_length &&
+                               codon_idx < 64) {
                             value = 0;
                             for (int8_t i = 0; i < 3; i++) {
                                 t_pos = c_pos - i;
-                                if (dna->get_lag(t_pos) != '1')
+                                if (indiv_->dna_->get_lag(t_pos) !=
+                                    '1')
                                     value += 1 << (CODON_SIZE - i - 1);
                             }
                             codon_list[codon_idx] = value;
@@ -2203,7 +2457,7 @@ namespace aevol {
                             count_loop++;
 
                             c_pos -= 3;
-                            c_pos = Utils::mod(c_pos, dna_length);
+                            c_pos = c_pos < 0 ? c_pos + dna_length : c_pos;
                         }
                     }
 
@@ -2366,11 +2620,68 @@ namespace aevol {
                 }
             }
         }
+
+
+        std::map<int32_t, pProtein *> lookup;
+
+        protein_begin();
+        //((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->proteins_print();
+
+        for (int protein_idx = 0; protein_idx <
+                                  (int) proteins_count(); protein_idx++) {
+            {
+                //internal_simd_struct[indiv_id]->metadata_->protein_begin();
+
+                pProtein* prot  = protein_next();
+//                printf("Protein %d Indiv %d : %p %p -- %lf %lf %lf\n",protein_idx,indiv_->indiv_id,prot,
+//                       proteins(protein_idx),prot->m,prot->w,prot->h*prot->e);
+                if (prot->is_init_ && prot->leading_lagging==0) {
+                    if (lookup.find(prot->protein_start) ==
+                        lookup.end()) {
+                        lookup[prot->protein_start] = prot;
+                    } else {
+                        lookup[prot->protein_start]->e += prot->e;
+                        prot->is_init_ = false;
+//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
+//                               prot->e,lookup[prot->protein_start]->e);
+                    }
+                }
+            }
+        }
+
+        lookup.clear();
+
+        protein_begin();
+        //proteins_print();
+        protein_begin();
+
+        for (int protein_idx = 0; protein_idx <
+                                  (int) proteins_count(); protein_idx++) {
+            {
+                //internal_simd_struct[indiv_id]->metadata_->protein_begin();
+
+                pProtein* prot  = protein_next();
+//                printf("Protein %d Indiv %d : %p %p -- %lf %lf %lf\n",protein_idx,indiv_->indiv_id,prot,
+//                       proteins(protein_idx),prot->m,prot->w,prot->h*prot->e);
+
+                if (prot->is_init_ && prot->leading_lagging==1) {
+                    if (lookup.find(prot->protein_start) ==
+                        lookup.end()) {
+                        lookup[prot->protein_start] = prot;
+                    } else {
+                        lookup[prot->protein_start]->e += prot->e;
+                        prot->is_init_ = false;
+//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
+//                               prot->e,lookup[prot->protein_start]->e);
+                    }
+                }
+            }
+        }
     }
 
     void SIMD_List_Metadata::update_positions(int pos_after, bool insert_or_remove, int length_diff) {
-        printf("Update positions %d %d %d -- %d\n",pos_after,insert_or_remove,length_diff,length());
-        printf("%d -- UPDATE_POSITIONS : Begin\n",indiv_->indiv_id);
+//        printf("Update positions %d %d %d -- %d\n",pos_after,insert_or_remove,length_diff,length());
+//        printf("%d -- UPDATE_POSITIONS : Begin\n",indiv_->indiv_id);
 
 
         if (insert_or_remove) {
@@ -2379,7 +2690,7 @@ namespace aevol {
             for (auto &strand: promoters_list_) {
                 for (auto &prom: strand) {
                     if (prom.pos >= pos_after) {
-                        printf("INSERT -- Update Promoters from %d to %d\n",prom.pos,prom.pos+length_diff);
+//                        printf("INSERT -- Update Promoters from %d to %d\n",prom.pos,prom.pos+length_diff);
                         prom.pos += length_diff;
                     }
                 }
@@ -2392,35 +2703,37 @@ namespace aevol {
             // UPDATE Rna
             for (auto rna : rnas_) {
                 if (rna->begin >= pos_after) {
-                    printf("INSERT -- Update RNA from %d to %d\n",rna->begin,rna->begin+length_diff);
+//                    printf("INSERT -- Update RNA from %d to %d\n",rna->begin,rna->begin+length_diff);
                     rna->begin += length_diff;
-                    rna->end   += length_diff;
                 }
+                if (rna->end >= pos_after)
+                    rna->end   += length_diff;
             }
 
             // UPDATE Proteins
             for (auto prot : proteins_) {
                 if (prot->protein_start >= pos_after) {
-                    printf("INSERT -- Update Proteins from %d to %d\n",prot->protein_start,prot->protein_start+length_diff);
+//                    printf("INSERT -- Update Proteins from %d to %d\n",prot->protein_start,prot->protein_start+length_diff);
                     prot->protein_start += length_diff;
-                    prot->protein_end   += length_diff;
                 }
+                if (prot->protein_end >= pos_after)
+                    prot->protein_end   += length_diff;
             }
         } else {
             // REMOVE
-
-            printf("Promoters list : ");
-            for (auto &strand: promoters_list_)
-                for (auto &prom: strand) {
-                    printf("%d ",prom.pos);
-                }
-            printf("\n");
+//
+//            printf("Promoters list : ");
+//            for (auto &strand: promoters_list_)
+//                for (auto &prom: strand) {
+//                    printf("%d ",prom.pos);
+//                }
+//            printf("\n");
 
             // UPDATE Promoters
             for (auto &strand: promoters_list_) {
                 for (auto &prom: strand) {
                     if (prom.pos >= pos_after) {
-                        printf("DELETE -- Update Promoters from %d to %d\n",prom.pos,prom.pos-length_diff);
+//                        printf("DELETE -- Update Promoters from %d to %d\n",prom.pos,prom.pos-length_diff);
                         prom.pos -= length_diff;
                     }
                 }
@@ -2432,31 +2745,33 @@ namespace aevol {
             // UPDATE Rna
             for (auto rna : rnas_) {
                 if (rna->begin >= pos_after) {
-                    printf("DELETE -- Update RNA from %d to %d\n",rna->begin,rna->begin-length_diff);
+//                    printf("DELETE -- Update RNA from %d to %d\n",rna->begin,rna->begin-length_diff);
                     rna->begin -= length_diff;
-                    rna->end   -= length_diff;
                 }
+                if (rna->end >= pos_after)
+                    rna->end   -= length_diff;
             }
 
             // UPDATE Proteins
             for (auto prot : proteins_) {
                 if (prot->protein_start >= pos_after) {
-                    printf("DELETE -- Update Proteins from %d to %d\n",prot->protein_start,prot->protein_start-length_diff);
+//                    printf("DELETE -- Update Proteins from %d to %d\n",prot->protein_start,prot->protein_start-length_diff);
                     prot->protein_start -= length_diff;
-                    prot->protein_end   -= length_diff;
                 }
+                if (prot->protein_end >= pos_after)
+                    prot->protein_end   -= length_diff;
             }
         }
 
-        printf("%d -- UPDATE_POSITIONS : End\n",indiv_->indiv_id);
+//        printf("%d -- UPDATE_POSITIONS : End\n",indiv_->indiv_id);
 
         //display(false);
 
     }
 
     void SIMD_List_Metadata::update_positions(int pos_after, int pos_before, int8_t add_or_reduce, int length_diff, int8_t mark) {
-        printf("Update positions %d %d %d -- %d -- %d\n",pos_after,pos_before,length_diff,length(),mark);
-        printf("%d -- UPDATE_POSITIONS : Begin\n",indiv_->indiv_id);
+//        printf("Update positions %d %d %d -- %d -- %d\n",pos_after,pos_before,length_diff,length(),mark);
+//        printf("%d -- UPDATE_POSITIONS : Begin\n",indiv_->indiv_id);
 
         if (add_or_reduce == 1) {
             // INCREASE
@@ -2465,8 +2780,8 @@ namespace aevol {
                 for (auto &prom: strand) {
                     if (prom.pos >= pos_after && prom.pos < pos_before) {
                         if (mark == -1 || prom.transloc_move == mark) {
-                            printf("INSERT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
-                            prom.pos += length_diff;
+//                            printf("INSERT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
+                            prom.pos = prom.pos+length_diff;
                         }
                     }
                 }
@@ -2476,23 +2791,41 @@ namespace aevol {
             for (auto rna : rnas_) {
                 if (rna->begin >= pos_after && rna->begin < pos_before) {
                     if (mark == -1 || rna->transloc_move ==  mark) {
-                        printf("INSERT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
-                        rna->begin += length_diff;
-                        rna->end += length_diff;
+//                        printf("INSERT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
+                        rna->begin = rna->begin+length_diff;
                     } else {
 
                     }
                 }
+
+                if (rna->end >= pos_after && rna->end < pos_before) {
+                    if (mark == -1 || rna->transloc_move ==  mark) {
+//                        printf("INSERT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
+
+                        rna->end = rna->end+length_diff;
+                    } else {
+
+                    }
+                }
+
             }
 
             // UPDATE Proteins
             for (auto prot : proteins_) {
                 if (prot->protein_start >= pos_after && prot->protein_start < pos_before) {
                     if (mark == -1 ||prot->transloc_move ==  mark) {
-                        printf("INSERT -- Update Proteins from %d to %d\n", prot->protein_start,
-                               prot->protein_start + length_diff);
-                        prot->protein_start += length_diff;
-                        prot->protein_end += length_diff;
+//                        printf("INSERT -- Update Proteins from %d to %d\n", prot->protein_start,
+//                               prot->protein_start + length_diff);
+                        prot->protein_start = prot->protein_start+length_diff;
+                    }
+                }
+
+
+                if (prot->protein_end >= pos_after && prot->protein_end < pos_before) {
+                    if (mark == -1 ||prot->transloc_move ==  mark) {
+//                        printf("INSERT -- Update Proteins from %d to %d\n", prot->protein_start,
+//                               prot->protein_start + length_diff);
+                        prot->protein_end = prot->protein_end+length_diff;
                     }
                 }
             }
@@ -2502,8 +2835,8 @@ namespace aevol {
                 for (auto &prom: strand) {
                     if (prom.pos >= pos_after && prom.pos < pos_before) {
                         if (mark == -1 || prom.transloc_move ==  mark) {
-                            printf("DELETE -- Update Promoters from %d to %d\n", prom.pos, prom.pos - length_diff);
-                            prom.pos -= length_diff;
+//                            printf("DELETE -- Update Promoters from %d to %d\n", prom.pos, prom.pos - length_diff);
+                            prom.pos = prom.pos-length_diff;
                         }
                     }
                 }
@@ -2513,9 +2846,14 @@ namespace aevol {
             for (auto rna : rnas_) {
                 if (rna->begin >= pos_after && rna->begin < pos_before) {
                     if (mark == -1 ||rna->transloc_move ==  mark) {
-                        printf("DELETE -- Update RNA from %d to %d\n", rna->begin, rna->begin - length_diff);
-                        rna->begin -= length_diff;
-                        rna->end -= length_diff;
+//                        printf("DELETE -- Update RNA from %d to %d\n", rna->begin, rna->begin - length_diff);
+                        rna->begin = rna->begin-length_diff;
+                    }
+                }
+
+                if (rna->end >= pos_after && rna->end < pos_before) {
+                    if (mark == -1 ||rna->transloc_move ==  mark) {
+                        rna->end = rna->end-length_diff;
                     }
                 }
             }
@@ -2524,10 +2862,17 @@ namespace aevol {
             for (auto prot : proteins_) {
                 if (prot->protein_start >= pos_after && prot->protein_start < pos_before) {
                     if (mark == -1 ||  prot->transloc_move ==  mark) {
-                        printf("DELETE -- Update Proteins from %d to %d\n", prot->protein_start,
-                               prot->protein_start - length_diff);
-                        prot->protein_start -= length_diff;
-                        prot->protein_end -= length_diff;
+//                        printf("DELETE -- Update Proteins from %d to %d\n", prot->protein_start,
+//                               prot->protein_start - length_diff);
+                        prot->protein_start = prot->protein_start-length_diff;
+                    }
+                }
+
+                if (prot->protein_end >= pos_after && prot->protein_end < pos_before) {
+                    if (mark == -1 ||  prot->transloc_move ==  mark) {
+//                        printf("DELETE -- Update Proteins from %d to %d\n", prot->protein_start,
+//                               prot->protein_start - length_diff);
+                        prot->protein_end = prot->protein_end-length_diff;
                     }
                 }
             }
@@ -2537,12 +2882,12 @@ namespace aevol {
                 for (auto &prom: strand) {
                     if (prom.pos >= pos_after && prom.pos < pos_before) {
                         if (mark == -1 ||prom.transloc_move == mark) {
-                            printf("SHIFT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
-                            prom.pos += length_diff;
+//                            printf("SHIFT -- Update Promoters from %d to %d\n", prom.pos, prom.pos + length_diff);
+                            prom.pos = prom.pos+length_diff;
                         }
                     } else {
-                        printf("NO SHIFT (INCORRECT MARK) -- Update Promoters from %d to %d __ %d != %d\n", prom.pos,
-                               prom.pos + length_diff,prom.transloc_move,mark);
+//                        printf("NO SHIFT (INCORRECT MARK) -- Update Promoters from %d to %d __ %d != %d\n", prom.pos,
+//                               prom.pos + length_diff,prom.transloc_move,mark);
                     }
                 }
             }
@@ -2551,9 +2896,15 @@ namespace aevol {
             for (auto rna : rnas_) {
                 if (rna->begin >= pos_after && rna->begin < pos_before) {
                     if (mark == -1 ||  rna->transloc_move ==  mark) {
-                        printf("SHIFT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
-                        rna->begin += length_diff;
-                        rna->end += length_diff;
+//                        printf("SHIFT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
+                        rna->begin = rna->begin+length_diff;
+                    }
+                }
+
+                if (rna->end >= pos_after && rna->end < pos_before) {
+                    if (mark == -1 ||  rna->transloc_move ==  mark) {
+//                        printf("SHIFT -- Update RNA from %d to %d\n", rna->begin, rna->begin + length_diff);
+                        rna->end = rna->end+length_diff;
                     }
                 }
             }
@@ -2562,15 +2913,28 @@ namespace aevol {
             for (auto prot : proteins_) {
                 if (prot->protein_start >= pos_after && prot->protein_start < pos_before) {
                     if (mark == -1 || prot->transloc_move ==  mark ) {
-                        printf("SHIFT -- Update Proteins from %d to %d\n", prot->protein_start,
-                               prot->protein_start + length_diff);
-                        prot->protein_start += length_diff;
-                        prot->protein_end += length_diff;
+//                        printf("%d -- SHIFT -- Update Proteins from %d (%d) to %d (%d)\n", AeTime::time(),
+//                               prot->protein_start,
+//                               prot->protein_end,
+//                               prot->protein_start + length_diff,
+//                               prot->protein_end + length_diff);
+                        prot->protein_start = prot->protein_start+length_diff;
+                    }
+                }
+
+                if (prot->protein_end >= pos_after && prot->protein_end < pos_before) {
+                    if (mark == -1 || prot->transloc_move ==  mark ) {
+//                        printf("%d -- SHIFT -- Update Proteins from %d (%d) to %d (%d)\n", AeTime::time(),
+//                               prot->protein_start,
+//                               prot->protein_end,
+//                               prot->protein_start + length_diff,
+//                               prot->protein_end + length_diff);
+                        prot->protein_end = prot->protein_end+length_diff;
                     }
                 }
             }
         }
-        printf("%d -- UPDATE_POSITIONS : End\n",indiv_->indiv_id);
+//        printf("%d -- UPDATE_POSITIONS : End\n",indiv_->indiv_id);
     }
 
     void SIMD_List_Metadata::mark_positions(int pos_1, int pos_2, int8_t before) {
@@ -2758,7 +3122,10 @@ namespace aevol {
     void SIMD_List_Metadata::proteins_print() {
         int prot_idx=0;
         for (auto prot : proteins_) {
-            printf("Protein %d : %p\n",prot_idx,prot);
+            printf("Protein %d : %lf %lf %lf %lf : ",prot_idx,prot->m,prot->w,prot->h,prot->e);
+            for (auto rna : prot->rna_list_)
+                printf("[%d => %d] ",rna->begin,rna->end);
+            printf("\n");
             prot_idx++;
         }
     }

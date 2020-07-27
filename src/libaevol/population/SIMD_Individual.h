@@ -89,6 +89,7 @@ class pRNA {
         is_coding_ = clone->is_coding_;
         is_init_ = clone->is_init_;
         start_prot_count_ = clone->start_prot_count_;
+        to_recompute = clone->to_recompute;
     }
 
     ~pRNA() {
@@ -136,6 +137,12 @@ class pProtein {
         leading_lagging = clone->leading_lagging;
         e = clone->e;
         is_init_ = clone->is_init_;
+        to_recompute = clone->to_recompute;
+        to_retranslate = clone->to_retranslate;
+        m = clone->m;
+        w = clone->w;
+        h = clone->h;
+        is_functional = clone->is_functional;
     }
 
     bool operator<(const pProtein & other){
