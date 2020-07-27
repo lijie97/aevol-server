@@ -1833,10 +1833,7 @@ void IOJson::addIndividual(Individual* indiv, json gu_list) {
     json my_indiv;
     my_indiv["GU"] = gu_list;
     my_indiv["id"] = indiv->id();
-<<<<<<< HEAD
     my_indiv["generation"] = indiv->age();
-=======
->>>>>>> 122bd80b3439bbbdcaba801802ff4603696f43f7
     json_file_["indivs"].push_back(my_indiv);
 
 }
