@@ -18,7 +18,8 @@ enum MutationEventType {
     DUPLICATION               = 3,
     TRANSLOCATION         = 4,
     INVERSION        = 5,
-    DELETION         = 6
+    DELETION         = 6,
+    NONE
 };
 
 class MutationEvent {

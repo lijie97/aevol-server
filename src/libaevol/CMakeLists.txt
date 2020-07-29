@@ -57,6 +57,9 @@ set(aevol_sources
   biochemistry/VisAVis.cpp
   biochemistry/VisAVis.h
 
+        cuda/Threefry.cpp
+        cuda/Threefry.h
+
   gui/X11Window.cpp
   gui/X11Window.h
 

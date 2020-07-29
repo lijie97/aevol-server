@@ -44,6 +44,7 @@
 #include "Observer.h"
 #include "ObservableEvent.h"
 #include "SaveWorld.h"
+#include "Threefry.h"
 
 namespace aevol {
 // =================================================================
@@ -176,6 +177,10 @@ class ExpManager : public Observer {
     // SIMD Stuff
     SIMD_Individual* simd_individual = nullptr;
     int grain_size = 1;
+
+
+        std::unique_ptr<Threefry> rng_;
+
  protected:
   // =======================================================================
   //                              Protected Methods

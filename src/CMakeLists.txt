@@ -59,10 +59,24 @@ if ( ${with-simd} )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ()
 
+if ( USE_CUDA )
+    find_package(CUDA REQUIRED)
+    enable_language(CUDA)
+    set(CUDA_NVCC_FLAGS "-std=c++11 -arch=compute_60 -lineinfo")
+    cuda_compile(cuda_aevol libaevol/cuda/Algorithms.cu libaevol/cuda/ThreefryGPU.cu)
+endif ( USE_CUDA )
 
-add_executable(aevol_run aevol_run.cpp)
-target_link_libraries(aevol_run PUBLIC aevol)
-
+if ( CUDA_FOUND )
+    add_definitions(-DUSE_CUDA)
+    cuda_add_executable(aevol_run_gpu aevol_run.cpp ${cuda_aevol})
+    # nvToolsExt for enhanced profiling (ad-hoc chunks)
+    target_link_libraries(aevol_run_gpu aevol nvToolsExt)
+    install(TARGETS aevol_run_gpu DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_run_gpu)
+else ( CUDA_FOUND )
+    add_executable(aevol_run aevol_run.cpp)
+    target_link_libraries(aevol_run PUBLIC aevol)
+    install(TARGETS aevol_run DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_run)
+endif ( CUDA_FOUND )
 
 # ============================================================================
 # Set behaviour on make install
@@ -70,4 +84,3 @@ target_link_libraries(aevol_run PUBLIC aevol)
 install(TARGETS aevol_create DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_create)
 install(TARGETS aevol_modify DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_modify)
 install(TARGETS aevol_propagate DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_propagate)
-install(TARGETS aevol_run DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_run)
