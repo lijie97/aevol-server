@@ -43,7 +43,11 @@
 #include "Individual.h"
 #include "Dna_SIMD.h"
 #include "SIMD_Individual.h"
+#include "Threefry.h"
 
+//#ifdef USE_CUDA
+#include "Algorithms.h"
+//#endif
 
 #ifdef __CUDACC__
 #include "CUDA_Individual.h"
@@ -149,6 +153,7 @@ void ExpManager::InitializeWorld(int16_t grid_width,
   world_->set_mut_prng(mut_prng);
   world_->set_stoch_prng(stoch_prng);
   world_->InitGrid(grid_width, grid_height, habitat, share_phenotypic_target);
+
 }
 
 /*!
@@ -712,6 +717,10 @@ void ExpManager::run_evolution() {
 
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
+        unsigned int seed = 101010;
+        rng_ = std::move(std::make_unique<Threefry>(Threefry(world()->width(), world()->height(), seed)));
+        run_evolution_on_gpu(1);
+        exit(-1);
 
       if (simd_individual->standalone())
           simd_individual->run_a_step(w_max_,selection_pressure(),false);
@@ -980,5 +989,60 @@ std::list<std::pair<Individual*, ReplicationReport*>>
   return annotated_list;
 }
 
+
+//#ifdef USE_CUDA
+void ExpManager::run_evolution_on_gpu(int nb_gen) {
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  cout << "Transfer" << endl;
+  transfer_in(this, true);
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  auto duration_transfer_in = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+  cout << "Transfer done in " << duration_transfer_in << endl;
+//
+//    for (int indiv_id = 0; indiv_id < nb_indivs_; indiv_id++) {
+//        // dna_mutator_array_ is set only to have has_mutate() true so that RNA, protein and phenotype will be computed
+//        delete dna_mutator_array_[indiv_id];
+//        dna_mutator_array_[indiv_id] = new DnaMutator(nullptr, 0, 0, indiv_id);
+//        dna_mutator_array_[indiv_id]->setMutate(true);
+//
+//        opt_prom_compute_RNA(indiv_id);
+//        //compute_RNA(indiv_id);
+//
+//        start_protein(indiv_id);
+//        compute_protein(indiv_id);
+//
+//        translate_protein(indiv_id, w_max_);
+//
+//        compute_phenotype(indiv_id);
+//
+//        compute_fitness(indiv_id, selection_pressure_);
+//    }
+//
+  printf("Running evolution from %d to %d\n",AeTime::time(),AeTime::time()+nb_gen);
+  bool firstGen = true;
+  for (int gen = 0; gen < nb_gen+1; gen++) {
+//    if(gen == 91) nvtxRangePushA("generation 91 to 100");
+    AeTime::plusplus();
+      //run_a_step(w_max_,selection_pressure_,firstGen);
+
+      high_resolution_clock::time_point t1 = high_resolution_clock::now();
+      run_a_step_on_GPU(nb_indivs(), w_max_, sel()->selection_pressure(), world()->width(),
+                        world()->height(),exp_s()->mut_params()->duplication_rate());
+
+      t2 = high_resolution_clock::now();
+      auto duration_transfer_in = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+      std::cout<<"LOG,"<<duration_transfer_in<<std::endl;
+
+    firstGen = false;
+//    if(gen == 100) nvtxRangePop();
+    printf("Generation %d : \n",AeTime::time());
+
+//    if (AeTime::time() % backup_step_ == 0) {
+//      save(AeTime::time());
+//    }
+  }
+}
+//#endif
 
 } // namespace aevol

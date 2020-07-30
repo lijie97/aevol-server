@@ -1703,9 +1703,9 @@ void run_a_step_on_GPU(int nb_indiv, double w_max, double selection_pressure, in
 
     dim3 dimGrid(x_dim_size,y_dim_size);
 
-    //printf("Global number of promoter is %d\n",cpt_prom);
+//    printf("Global number of promoter is %d\n",cpt_prom);
 
-    //printf("Before KERNEL %d %d\n",x_dim_size,y_dim_size);
+    printf("Before KERNEL %d %d\n",x_dim_size,y_dim_size);
 
     //next_generation_dna_read<<<1,1>>>(dna, dna_offset, dna_size, global_dna_size);
     //checkCuda(cudaMemset(nb_mut_bp, 0, 1 * sizeof(unsigned long long int)));
@@ -1718,9 +1718,9 @@ void run_a_step_on_GPU(int nb_indiv, double w_max, double selection_pressure, in
     //checkCuda(cudaMemcpy(&read_x,
     //                     nb_mut_bp, sizeof(unsigned long long int), cudaMemcpyDeviceToHost));
 
-    //printf("Read is %ld out of %d\n",read_x,global_dna_size);
+//    printf("Read is %ld out of %d\n",read_x,global_dna_size);
 
-    //printf("After KERNEL\n");
+    printf("After KERNEL\n");
 
 
     //display_promoters<<<1,1>>>(dna_term,dna_size);
@@ -1736,7 +1736,7 @@ void run_a_step_on_GPU(int nb_indiv, double w_max, double selection_pressure, in
         checkCuda(cudaMalloc(&rna,current_size_rna_list* sizeof(cuRNA)));
     }
 
-    //printf("Total number of promoters %d\n",total_nb_promoters_host);
+    printf("Total number of promoters %d\n",total_nb_promoters_host);
 
 
     compute_RNA_offset<<<nb_indiv,128>>>(nb_promoters,rna_offset);
@@ -1753,7 +1753,7 @@ void run_a_step_on_GPU(int nb_indiv, double w_max, double selection_pressure, in
                          rna_idx+nb_indiv, sizeof(int), cudaMemcpyDeviceToHost));
 
 
-    //printf("Total number of RNAs %d\n",global_nb_rna);
+    printf("Total number of RNAs %d\n",global_nb_rna);
     compute_RNA<<<global_nb_rna/128+1,128>>>( dna_term,dna_size, dna_offset, rna, global_nb_rna);
 
     cudaDeviceSynchronize();
@@ -1773,7 +1773,7 @@ void run_a_step_on_GPU(int nb_indiv, double w_max, double selection_pressure, in
         current_size_protein_list = total_nb_protein_host * 1.1;
         checkCuda(cudaMalloc(&protein,current_size_protein_list* sizeof(cuProtein)));
     }
-    //printf("Total number of protein %d\n",total_nb_protein_host);
+    printf("Total number of protein %d\n",total_nb_protein_host);
 
     compute_protein_offset<<<nb_indiv,128>>>(nb_proteins, protein_offset);
 
@@ -1785,7 +1785,7 @@ void run_a_step_on_GPU(int nb_indiv, double w_max, double selection_pressure, in
                          protein_idx+nb_indiv, sizeof(int), cudaMemcpyDeviceToHost));
 
 
-    //printf("Total number of Proteins %d\n",global_nb_protein);
+    printf("Total number of Proteins %d\n",global_nb_protein);
 
 
     //printf("Global number of CPU Proteins is %d\n",cpt_prom);
@@ -1822,7 +1822,7 @@ void run_a_step_on_GPU(int nb_indiv, double w_max, double selection_pressure, in
         current_size_tab_mutation = total_nb_mutations_host * 1.1;
         checkCuda(cudaMalloc(&tab_mutation,current_size_tab_mutation* sizeof(TypeMutation)));
     }
-    //printf("Display all mut %d\n",total_nb_mutations_host);
+    printf("Display all mut %d\n",total_nb_mutations_host);
 
     int min_genome_length_  = 10;
     int max_genome_length_  = 10000000;

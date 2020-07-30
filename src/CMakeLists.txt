@@ -34,11 +34,6 @@ include_directories("libaevol/utils")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
-add_executable(aevol_create aevol_create.cpp)
-target_link_libraries(aevol_create PUBLIC aevol)
-
-add_executable(aevol_modify aevol_modify.cpp)
-target_link_libraries(aevol_modify PUBLIC aevol)
 
 #######################
 ## Searching for libs
@@ -71,16 +66,36 @@ if ( CUDA_FOUND )
     cuda_add_executable(aevol_run_gpu aevol_run.cpp ${cuda_aevol})
     # nvToolsExt for enhanced profiling (ad-hoc chunks)
     target_link_libraries(aevol_run_gpu aevol nvToolsExt)
+
+    cuda_add_executable(aevol_create_gpu aevol_create.cpp ${cuda_aevol})
+    # nvToolsExt for enhanced profiling (ad-hoc chunks)
+    target_link_libraries(aevol_create_gpu aevol nvToolsExt)
+
+    cuda_add_executable(aevol_modify_gpu aevol_modify.cpp ${cuda_aevol})
+    # nvToolsExt for enhanced profiling (ad-hoc chunks)
+    target_link_libraries(aevol_modify_gpu aevol nvToolsExt)
+
+
+
     install(TARGETS aevol_run_gpu DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_run_gpu)
+    install(TARGETS aevol_create_gpu DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_create_gpu)
+    install(TARGETS aevol_modify_gpu DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_modify_gpu)
+
 else ( CUDA_FOUND )
     add_executable(aevol_run aevol_run.cpp)
     target_link_libraries(aevol_run PUBLIC aevol)
     install(TARGETS aevol_run DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_run)
+    add_executable(aevol_create aevol_create.cpp)
+    target_link_libraries(aevol_create PUBLIC aevol)
+
+    add_executable(aevol_modify aevol_modify.cpp)
+    target_link_libraries(aevol_modify PUBLIC aevol)
+    install(TARGETS aevol_create DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_create)
+    install(TARGETS aevol_modify DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_modify)
+
 endif ( CUDA_FOUND )
 
 # ============================================================================
 # Set behaviour on make install
 # ============================================================================
-install(TARGETS aevol_create DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_create)
-install(TARGETS aevol_modify DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_modify)
 install(TARGETS aevol_propagate DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_propagate)

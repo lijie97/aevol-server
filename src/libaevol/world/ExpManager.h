@@ -161,6 +161,7 @@ class ExpManager : public Observer {
   void load(int64_t t0, char* exp_s_file, char* exp_backup_file, char* sp_struct_file, char* out_p_file,
             bool verbose = false, bool to_be_run = true);
   void run_evolution();
+  void run_evolution_on_gpu(int nb_gen);
   virtual void display() {};
   void update_best();
   void FillGridWithClones(Individual& dolly) { world_->FillGridWithClones(dolly); }
