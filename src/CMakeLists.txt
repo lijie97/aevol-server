@@ -43,11 +43,6 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.65.0 COMPONENTS filesystem)
 
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    add_executable(aevol_propagate aevol_propagate.cpp)
-    target_link_libraries(aevol_propagate PUBLIC aevol ${Boost_LIBRARIES})
-endif()
 
 if ( ${with-simd} )
     add_definitions(-DWITH_STANDALONE_SIMD)
@@ -95,7 +90,21 @@ else ( CUDA_FOUND )
 
 endif ( CUDA_FOUND )
 
+
+if(Boost_FOUND)
+    if ( CUDA_FOUND )
+        include_directories(${Boost_INCLUDE_DIRS})
+        cuda_add_executable(aevol_propagate_gpu aevol_propagate.cpp ${cuda_aevol})
+        target_link_libraries(aevol_propagate_gpu aevol ${Boost_LIBRARIES} nvToolsExt)
+        install(TARGETS aevol_propagate_gpu DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_propagate_gpu)
+    else ( CUDA_FOUND )
+        include_directories(${Boost_INCLUDE_DIRS})
+        add_executable(aevol_propagate aevol_propagate.cpp)
+        target_link_libraries(aevol_propagate PUBLIC aevol ${Boost_LIBRARIES})
+        install(TARGETS aevol_propagate DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_propagate)
+    endif()
+endif()
+
 # ============================================================================
 # Set behaviour on make install
 # ============================================================================
-install(TARGETS aevol_propagate DESTINATION ${CMAKE_INSTALL_BINDIR}/aevol_propagate)
