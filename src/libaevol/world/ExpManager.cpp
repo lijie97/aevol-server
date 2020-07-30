@@ -800,11 +800,11 @@ void ExpManager::run_evolution() {
   cudaProfilerStop();
 #endif
 
-  output_m_->flush();
-  if(with_mrca_ && record_light_tree())
-    output_m_->light_tree()->save_mrca_indiv();
-  if(anc_stat_ && record_light_tree())
-    output_m_->light_tree()->close_anc_stat();
+//  output_m_->flush();
+//  if(with_mrca_ && record_light_tree())
+//    output_m_->light_tree()->save_mrca_indiv();
+//  if(anc_stat_ && record_light_tree())
+//    output_m_->light_tree()->close_anc_stat();
 
   printf("================================================================\n");
   printf("  The run is finished. \n");
@@ -883,7 +883,6 @@ void ExpManager::open_backup_files(gzFile& exp_backup_file,
 
   sprintf(exp_backup_file_name, "%s/" EXP_S_FNAME_FORMAT, dir, t);
   sprintf(world_file_name, "%s/" WORLD_FNAME_FORMAT, dir, t);
-
 
   // -------------------------------------------------------------------------
   // Open backup files

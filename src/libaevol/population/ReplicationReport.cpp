@@ -181,6 +181,7 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
 void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
 {
 
+    dna_replic_report_.clear();
   indiv_ = offspring;
 
   id_ = indiv_id;
@@ -200,8 +201,8 @@ void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* pare
   mean_align_score_       = 0.0;
 
   // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
-  indiv_->addObserver(this, MUTATION);
-  indiv_->addObserver(tree, END_REPLICATION);
+//  indiv_->addObserver(this, MUTATION);
+//  indiv_->addObserver(tree, END_REPLICATION);
 }
 
 void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id,
@@ -333,11 +334,12 @@ void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
  * Actions such as update the individuals' ranks can be done here.
  */
 void ReplicationReport::signal_end_of_generation() {
-    if (!SIMD_Individual::standalone_simd)
+    if (!SIMD_Individual::standalone_simd) {
         rank_ = indiv_->rank();
+    }
 }
 
-void ReplicationReport::write_to_tree_file(gzFile tree_file) const
+void ReplicationReport::write_to_tree_file(gzFile tree_file)
 {
   // Store individual identifiers and rank
 
@@ -347,7 +349,6 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
   if (SIMD_Individual::standalone_simd) {
       rankx = 0;
   } else {
-      assert(rank_ != -1);
       rankx = rank_;
   }
 
@@ -362,7 +363,6 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
   gzwrite(tree_file, &nb_non_fun_genes_,    sizeof(nb_non_fun_genes_));
   gzwrite(tree_file, &nb_coding_RNAs_,      sizeof(nb_coding_RNAs_));
   gzwrite(tree_file, &nb_non_coding_RNAs_,  sizeof(nb_non_coding_RNAs_));
-
 
   dna_replic_report_.write_to_tree_file(tree_file);
 }

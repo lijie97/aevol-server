@@ -143,6 +143,8 @@ int main(int argc, char** argv) {
 
     sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t_end);
 
+  printf("Loading %d\n",t_end);
+
   tree = new Tree(exp_manager, tree_file_name);
 
   if (verbose) {

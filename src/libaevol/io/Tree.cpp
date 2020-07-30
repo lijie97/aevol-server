@@ -93,7 +93,6 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
     exit(EXIT_FAILURE);
   }
 
-//        printf("---- ] Allocate tree %ld\n",tree_step_);
   replics_ = new ReplicationReport** [tree_step_];
   //for (int64_t t = AeTime::time()-tree_step_+1 ; t <= AeTime::time() ; t++) {
   for (int64_t t = 0 ; t < tree_step_ ; t++) {
@@ -174,6 +173,7 @@ Tree::~Tree() {
 
                 assert(replics_[t][indiv_i] != NULL);
                 replics_[t][indiv_i]->write_to_tree_file(tree_file);
+
             }
 
         gzclose(tree_file);
@@ -192,16 +192,38 @@ Tree::~Tree() {
     }
 
 void Tree::update_new_indiv(NewIndivEvent* evt) {
-    replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
-                                                         evt->simd_child->exp_m_->grid_height()
-                                                         + evt->y]->
-            init(this, evt->simd_child, evt->simd_parent, evt->indiv_id_, evt->parent_id_);
+//    printf("%ld  (%ld) %d (%d %d %d)\n",Utils::mod(AeTime::time() - 1, tree_step_),AeTime::time(),evt->x *
+//                                                                                                  evt->simd_child->exp_m_->grid_height()
+//                                                                                                  + evt->y,
+//           evt->x,
+//           evt->child->exp_m()->grid_height(),
+//           evt->y);
+
+    if (SIMD_Individual::standalone_simd) {
+        replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+                                                             evt->simd_child->exp_m_->grid_height()
+                                                             + evt->y]->
+                init(this, evt->simd_child, evt->simd_parent, evt->indiv_id_, evt->parent_id_);
+    } else {
+        replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+                                                             evt->child->exp_m()->grid_height()
+                                                             + evt->y]->
+                init(this, evt->child, evt->parent, evt->indiv_id_, evt->parent_id_);
+    }
+
 }
 
 void Tree::update_end_replication(EndReplicationEvent* evt) {
-    replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+    if (SIMD_Individual::standalone_simd) {
+        replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+
                                                          evt->simd_child->exp_m_->grid_height()
                                                          + evt->y]->signal_end_of_replication(evt->simd_child);
+    } else {
+        replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
+                                                             evt->child->exp_m()->grid_height()
+                                                             + evt->y]->signal_end_of_replication(evt->child);
+    }
 }
 
 

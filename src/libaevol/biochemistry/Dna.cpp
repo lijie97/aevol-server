@@ -293,7 +293,10 @@ int32_t Dna::do_small_mutations() {
 
     // Record mutation in tree
     if (mut != NULL) {
-      indiv_->notifyObservers(MUTATION, mut);
+      //indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       delete mut;
     }
   }
@@ -379,8 +382,11 @@ int32_t Dna::do_rearrangements() {
 
     // Record rearrangement in tree
     if (mut != NULL) {
-      indiv_->notifyObservers(MUTATION, mut);
-      delete mut;
+//      indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
+        delete mut;
     }
   }
   return nb_rear;
@@ -777,7 +783,10 @@ int32_t Dna::do_rearrangements_with_align() {
     //    or delete it.
     ///////////////////////////////////////////////////////////////////////////
     if (mut != NULL) {
-      indiv_->notifyObservers(MUTATION, mut);
+//      indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       delete mut;
     }
   }
@@ -791,7 +800,10 @@ int32_t Dna::do_transfer(int32_t parent_id) {
   if (indiv_->mut_prng()->random() < indiv_->HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
     if (mut != nullptr) {
-      indiv_->notifyObservers(MUTATION, mut);
+//      indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       nb_transfer++;
       delete mut;
     }
@@ -800,7 +812,10 @@ int32_t Dna::do_transfer(int32_t parent_id) {
   if (indiv_->mut_prng()->random() < indiv_->HT_repl_rate()) {
     mut = do_repl_HT(parent_id);
     if (mut != nullptr) {
-      indiv_->notifyObservers(MUTATION, mut);
+      //indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       nb_transfer++;
       delete mut;
     }
@@ -3992,8 +4007,14 @@ void Dna::apply_mutations() {
           break;
       }
       if (mut != nullptr) {
-        indiv_->notifyObservers(MUTATION, mut);
-        delete mut;
+#pragma omp critical
+          {
+              //indiv_->notifyObservers(MUTATION, mut);
+              indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                                     indiv_->exp_m()->grid_height()
+                                                                     + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
+              delete mut;
+          }
       }
     }
 

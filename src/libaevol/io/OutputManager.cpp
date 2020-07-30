@@ -219,23 +219,23 @@ void OutputManager::write_current_generation_outputs(bool create) const
 
   stats_->add_indivs(AeTime::time(), indivs);
 
-  SaveWorld* backup_world;
-  //JumpingMT* backup_prng;
-  if (t % backup_step_ == 0) {
-    backup_world = exp_m_->world()->make_save(exp_m_, indivs,exp_m_->world()->phenotypic_target_shared());
-  }
+//  SaveWorld* backup_world;
+//  //JumpingMT* backup_prng;
+//  if (t % backup_step_ == 0) {
+//    backup_world = exp_m_->world()->make_save(exp_m_, indivs,exp_m_->world()->phenotypic_target_shared());
+//  }
 
 #ifdef __OPENMP_TASK
 #pragma omp task depend(out: dep[d_LT_LT])
 #endif
   // LightTree
-  if (record_light_tree_ && t > 0) {
-    light_tree_->update_tree(t, nullptr);
-    if(t % backup_step_ == 0) {
-      //std::cout << "writing light tree for gen : " << t << '\n';
-      write_light_tree(t);
-    }
-  }
+//  if (record_light_tree_ && t > 0) {
+//    light_tree_->update_tree(t, nullptr);
+//    if(t % backup_step_ == 0) {
+//      //std::cout << "writing light tree for gen : " << t << '\n';
+//      write_light_tree(t);
+//    }
+//  }
 
 #ifdef __OPENMP_TASK
   #pragma omp task  depend(out: dep[d_S_S])
@@ -271,13 +271,13 @@ void OutputManager::write_current_generation_outputs(bool create) const
   if (t % backup_step_ == 0) {
     // debug std::cout << "writing backup for gen : " << t << '\n';
     stats_->flush();
-    //exp_m_->WriteDynamicFiles();
-    if (!exp_m_->check_simd() || (exp_m_->check_simd() && AeTime::time()==0))
-      exp_m_->WriteDynamicFiles(t, backup_world, create);
+    exp_m_->WriteDynamicFiles();
+//    if (!exp_m_->check_simd() || (exp_m_->check_simd() && AeTime::time()==0))
+//      exp_m_->WriteDynamicFiles(t, backup_world, create);
 
     WriteLastGenerFile(".", t);
     //delete backup_prng;
-    delete backup_world;
+//    delete backup_world;
   }
 #ifdef __OPENMP_TASK
   }
@@ -382,12 +382,11 @@ int64_t OutputManager::last_gener() {
 
       sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", gen);
 
-
-      gzFile tree_file = gzopen( tree_file_name, "w" );
+//      gzFile tree_file = gzopen( tree_file_name, "w" );
       // Write phylogenetic data (tree)
       tree_->write_to_tree_file(tree_file_name);
 
-      gzclose(tree_file);
+//      gzclose(tree_file);
 
       // debug std::cout << "OK" << '\n';
     }

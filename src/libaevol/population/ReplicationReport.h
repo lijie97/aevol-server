@@ -127,7 +127,7 @@ class ReplicationReport : public Observer {
     void signal_end_of_replication(Internal_SIMD_Struct* indiv);
 
     void signal_end_of_generation();
-    void write_to_tree_file(gzFile tree_file) const;
+    void write_to_tree_file(gzFile tree_file);
 
 
   void update(Observable& o, ObservableEvent e, void* arg) override;

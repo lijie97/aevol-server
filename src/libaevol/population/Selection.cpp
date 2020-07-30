@@ -370,7 +370,7 @@ void Selection::step_to_next_generation() {
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-//#pragma omp for schedule(dynamic) private(x,y,what)
+#pragma omp parallel for schedule(dynamic) private(x,y,what)
 #else
 #pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
 #endif
@@ -396,7 +396,7 @@ void Selection::step_to_next_generation() {
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-//#pragma omp critical(updateindiv)
+#pragma omp critical(updateindiv)
 #endif
 #endif
       {
@@ -416,7 +416,7 @@ void Selection::step_to_next_generation() {
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-//#pragma omp for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 #else
 #pragma omp target teams distribute parallel for schedule(static,1)
 #endif
@@ -446,11 +446,14 @@ void Selection::step_to_next_generation() {
 
 #pragma omp critical
         {
-            EndReplicationEvent *eindiv = new EndReplicationEvent(
-                    world->indiv_at(x, y), x, y);
+            //EndReplicationEvent *eindiv = new EndReplicationEvent(
+//                    world->indiv_at(x, y), x, y);
             // Tell observers the replication is finished
-            world->indiv_at(x, y)->notifyObservers(END_REPLICATION, eindiv);
-            delete eindiv;
+            //->notifyObservers(END_REPLICATION, eindiv);
+            exp_m_->tree()->report_by_index(AeTime::time(),x *
+                                                                 grid_height
+                                                                 + y)->signal_end_of_replication(world->indiv_at(x, y));
+            //delete eindiv;
         }
     }
    /* t2 = high_resolution_clock::now();
@@ -538,7 +541,7 @@ void Selection::step_to_next_generation() {
     exp_m_->update_best();
 
     // Notify observers of the end of the generation
-    notifyObservers(END_GENERATION);
+    exp_m_->tree()->signal_end_of_generation();
 
 
 #ifdef WITH_PERF_TRACES
@@ -1001,9 +1004,13 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       new_indiv = dynamic_cast<Individual_R_X11*>(parent);
     #endif
 #endif
-       {
+
+#pragma omp critical(placeindiv)
+        {
       NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
-      notifyObservers(NEW_INDIV, eindiv);
+      //notifyObservers(NEW_INDIV, eindiv);
+
+          exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
     }
 
@@ -1020,7 +1027,8 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 #endif
     {
       NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
-      notifyObservers(NEW_INDIV, eindiv);
+      //notifyObservers(NEW_INDIV, eindiv);
+      exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
     }
 #ifdef WITH_PERF_TRACES
