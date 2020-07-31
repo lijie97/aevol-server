@@ -323,6 +323,37 @@ IOJson::IOJson(const std::string & filename) {
     auto *expSetup = new ExpSetup(nullptr);
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(expSetup);
 
+
+    int x = indiv.value("x_pos", 0);
+    int y = indiv.value("y_pos", 0);
+
+    PhenotypicTargetHandler* phenotypic_target_handler = new PhenotypicTargetHandler();
+    phenotypic_target_handler->set_sampling(input_file_["param_in"]["env"].value("env_sampling",300));
+    phenotypic_target_handler->set_noise_alpha(input_file_["param_in"]["env"]["noise"].value("env_noise_alpha",0));
+    phenotypic_target_handler->set_noise_prob(input_file_["param_in"]["env"]["noise"].value("env_noise_prob",0));
+    phenotypic_target_handler->set_noise_sampling_log(input_file_["param_in"]["env"]["noise"].value("env_noise_sampling_log",0));
+    uint32_t noise_seed = input_file_["param_in"]["env"]["noise"].value("env_noise_seed",0);
+    std::shared_ptr<JumpingMT> noise_prng = std::make_shared<JumpingMT>(noise_seed);
+    phenotypic_target_handler->set_noise_prng(noise_prng);
+    phenotypic_target_handler->set_noise_sigma(input_file_["param_in"]["env"]["noise"].value("env_noise_sigma",0));
+    uint32_t var_seed = input_file_["param_in"]["env"]["variation"].value("env_var_seed",0);
+    std::shared_ptr<JumpingMT> var_prng = std::make_shared<JumpingMT>(var_seed);
+    phenotypic_target_handler->set_var_prng(var_prng);
+    phenotypic_target_handler->set_var_sigma(input_file_["param_in"]["env"]["variation"].value("env_var_sigma",0));
+    phenotypic_target_handler->set_var_tau(input_file_["param_in"]["env"]["variation"].value("env_var_tau",0));
+
+
+    Habitat* habitat = new Habitat();
+    habitat->set_phenotypic_target_handler(phenotypic_target_handler);
+    std::unique_ptr<Habitat> habitat_ptr = std::unique_ptr<Habitat>(habitat);
+    GridCell* grid_cell = new GridCell(x,y,std::move(habitat_ptr),&individual,mut_prng_ptr,stoch_prng_ptr);
+    grid_cell->set_individual(&individual);
+    individual.set_grid_cell(grid_cell);
+    int16_t height = input_file_["param_in"]["world_size"][0];
+    int16_t width = input_file_["param_in"]["world_size"][1];
+    std::shared_ptr<JumpingMT> prng_ptr = std::make_shared<JumpingMT>(seed);
+    individual.exp_m()->InitializeWorld(width,height,prng_ptr,mut_prng_ptr,stoch_prng_ptr,*habitat,true);
+
     json gu_list = indiv["GU"];
     for (auto & a_gu : gu_list) {
       std::string genome_str = a_gu.value("seq", "test");
@@ -334,8 +365,8 @@ IOJson::IOJson(const std::string & filename) {
       individual.genetic_unit_nonconst(0).set_min_gu_length(0);
       individual.genetic_unit_nonconst(0).set_max_gu_length(1000000);
     }
-    addIndividual(&individual,gu_list);
-    //individuals_.emplace_back(individual);
+    addIndividual(individual,gu_list);
+
   }
 }
 
@@ -1828,15 +1859,16 @@ void IOJson::write(const std::string &filename) const {
   std::ofstream file(filename);
   file << json_file_.dump(2) << std::endl;
 }
-void IOJson::addIndividual(Individual* indiv, json gu_list) {
-    individuals_.emplace_back(*indiv);
+void IOJson::addIndividual(Individual &indiv, json gu_list) {
+    individuals_.push_back(indiv);
     json my_indiv;
     my_indiv["GU"] = gu_list;
-    my_indiv["id"] = indiv->id();
-<<<<<<< HEAD
-    my_indiv["generation"] = indiv->age();
-=======
->>>>>>> 122bd80b3439bbbdcaba801802ff4603696f43f7
+    my_indiv["id"] = indiv.id();
+    my_indiv["generation"] = indiv.age();
+    if(indiv.grid_cell() != nullptr) {
+      my_indiv["x_pos"] = indiv.grid_cell_->x();
+      my_indiv["y_pos"] = indiv.grid_cell_->y();
+    }
     json_file_["indivs"].push_back(my_indiv);
 
 }

@@ -32,7 +32,7 @@ class IOJson {
   void setStrainName(const std::string &strainName);
   const vector<Individual> &getIndividuals() const;
   void setIndividuals(const vector<Individual> &individuals);
-  void addIndividual(Individual* indiv, json gu_list);
+  void addIndividual(Individual &indiv, json gu_list);
   uint32_t getSeed() const;
   void setSeed(uint32_t seed);
   int getInitPopSize() const;

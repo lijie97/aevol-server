@@ -356,6 +356,9 @@ Individual::Individual(const Individual& other) {
 
   // Plasmids settings
   allow_plasmids_ = other.allow_plasmids_;
+
+
+  grid_cell_ = other.grid_cell_;
 }
 
 /**

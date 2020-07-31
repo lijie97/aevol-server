@@ -63,8 +63,10 @@ int main(int argc, char* argv[]) {
 
   IOJson* iojson = new IOJson(json_file_name);
 
-   for(Individual indiv: iojson->getIndividuals()) {
+   for(auto &indiv: iojson->getIndividuals()) {
     IndivAnalysis wanted_indiv(indiv);
+    wanted_indiv.set_grid_cell(indiv.grid_cell());
+    wanted_indiv.grid_cell()->set_individual((Individual*)&wanted_indiv);
     wanted_indiv.Evaluate();
     wanted_indiv.compute_statistical_data();
     wanted_indiv.compute_non_coding();
