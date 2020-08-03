@@ -53,16 +53,18 @@ static bool full_output = false;
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
 
-  //ExpManager* exp_manager = new ExpManager();
-  //exp_manager->load(0, true, false);
-
+  /* Open output file */
   FILE* output_summary = fopen(output_file_name, "w");
   if (output_summary == nullptr) {
     Utils::ExitWithUsrMsg(std::string("Could not create ") + output_file_name);
   }
+  write_headers(output_summary,full_output);
+
 
   IOJson* iojson = new IOJson(json_file_name);
 
+
+  /* Analyse each individuals of the json file */
    for(auto &indiv: iojson->getIndividuals()) {
     IndivAnalysis wanted_indiv(indiv);
     wanted_indiv.set_grid_cell(indiv.grid_cell());
@@ -71,13 +73,17 @@ int main(int argc, char* argv[]) {
     wanted_indiv.compute_statistical_data();
     wanted_indiv.compute_non_coding();
 
-    wanted_indiv.compute_experimental_f_nu(
-      nb_mutants, std::make_shared<JumpingMT>(time(nullptr)), output_summary,
-      verbose, full_output);
+     if ((time() >= begin) && ((time() < end) || (end == -1)) &&
+         (((time() - begin) % period) == 0)) {
+
+      wanted_indiv.compute_experimental_f_nu(
+          nb_mutants, std::make_shared<JumpingMT>(time(nullptr)),
+          output_summary, verbose, full_output);
+    }
   }
 
   fclose(output_summary);
-  //delete exp_manager;
+
   return EXIT_SUCCESS;
 }
 
@@ -165,12 +171,12 @@ void print_help(char* prog_path) {
   printf("*                                                                            *\n");
   printf("******************************************************************************\n");
   printf("\n");
-  printf("%s: generate and analyse mutants for the provided lineage.\n",
+  printf("%s: generate and analyse mutants for the provided json file.\n",
          prog_name);
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s LINEAGE_FILE [-b TIMESTEP] [-e TIMESTEP] [-n NB_MUTANTS] [-P PERIOD] [-o output] [-v]\n",
+  printf("   or : %s JSON_FILE [-b TIMESTEP] [-e TIMESTEP] [-n NB_MUTANTS] [-P PERIOD] [-o output] [-v]\n",
          prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
@@ -188,4 +194,42 @@ void print_help(char* prog_path) {
   printf("  -o, --output\n");
   printf("\toutput file name\n");
   printf("  -v, --verbose\n\tbe verbose\n");
+}
+
+
+int write_headers(FILE* output_file,bool full_output) {
+  // --------------------------------------
+  //  Write headers in robustness files
+  // --------------------------------------
+  if (!full_output)
+  {
+    fprintf(output_file,"# ------------------------------------------------------\n");
+    fprintf(output_file,"# Evolvability, Robustness and Antirobustness statistics\n");
+    fprintf(output_file,"# ------------------------------------------------------\n");
+    fprintf(output_file,"# \n");
+    fprintf(output_file,"# 1. Generation \n");
+    fprintf(output_file,"# 2. Fraction of positive offspring  (2*10 is Evolvability) \n");
+    fprintf(output_file,"# 3. Fraction of neutral offspring (aka reproductive robustness) \n");
+    fprintf(output_file,"# 4. Fraction of neutral mutants (aka mutational robustness) \n");
+    fprintf(output_file,"# 5. Fraction of negative offspring \n");
+    fprintf(output_file,"# 8. Cumul of delta-gaps of positive offspring\n");
+    fprintf(output_file,"# 9. Cumul of delta-gaps of negative offspring\n");
+    fprintf(output_file,"# 6. Delta-gap for the best offspring \n");
+    fprintf(output_file,"# 7. Delta-gap for the worst offspring \n");
+    fprintf(output_file,"# 10. Cumul of delta-fitness of positive offspring (2*10 is Evolvability)\n");
+    fprintf(output_file,"# 11. Cumum of delta-fitness of negative offspring\n");
+    fprintf(output_file,"# 12. Delta-fitness for the best offspring\n");
+    fprintf(output_file,"# 13. Delta-fitness for the worst offspring\n\n\n");
+  }
+  else
+  {
+    fprintf(output_file,"# ------------------------------------------------------\n");
+    fprintf(output_file,"# Evolvability, Robustness and Antirobustness statistics\n");
+    fprintf(output_file,"# ------------------------------------------------------\n");
+    fprintf(output_file,"# \n");
+    fprintf(output_file,"# 1. Generation \n");
+    fprintf(output_file,"# 2 to n+2. delta-fitness of each tested offspring \n\n\n");
+
+  }
+  return 0;
 }
