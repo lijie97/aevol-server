@@ -73,8 +73,7 @@ int main(int argc, char* argv[]) {
     wanted_indiv.compute_statistical_data();
     wanted_indiv.compute_non_coding();
 
-     if ((time() >= begin) && ((time() < end) || (end == -1)) &&
-         (((time() - begin) % period) == 0)) {
+     if ((time() >= begin) && ((time() < end) || (end == -1))) {
 
       wanted_indiv.compute_experimental_f_nu(
           nb_mutants, std::make_shared<JumpingMT>(time(nullptr)),
@@ -89,7 +88,7 @@ int main(int argc, char* argv[]) {
 
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
-  const char* short_options = "hVvfn:b:e:P:o:";
+  const char* short_options = "hVvfn:b:e:o:";
   static struct option long_options[] = {
       {"help",        no_argument,       nullptr, 'h'},
       {"version",     no_argument,       nullptr, 'V'},
@@ -98,7 +97,6 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       {"nb-mutants",  required_argument, nullptr, 'n'},
       {"begin",       required_argument, nullptr, 'b'},
       {"end",         required_argument, nullptr, 'e'},
-      {"period",      required_argument, nullptr, 'P'},
       {"output",      required_argument, nullptr, 'o'},
       {0, 0, 0, 0}
   };
@@ -127,9 +125,6 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       break;
     case 'n' :
       nb_mutants = atol(optarg);
-      break;
-    case 'P' :
-      period = atol(optarg);
       break;
     case 'o' :
       output_file_name = new char[strlen(optarg) + 1];
@@ -176,7 +171,7 @@ void print_help(char* prog_path) {
   printf("\n");
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or : %s JSON_FILE [-b TIMESTEP] [-e TIMESTEP] [-n NB_MUTANTS] [-P PERIOD] [-o output] [-v]\n",
+  printf("   or : %s JSON_FILE [-b TIMESTEP] [-e TIMESTEP] [-n NB_MUTANTS] [-o output] [-v]\n",
          prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
@@ -189,8 +184,6 @@ void print_help(char* prog_path) {
   printf("\tnumber of mutants to be generated\n");
   printf("  -f, --full\n");
   printf("\tfull output (otherwize synthetic output will be produced). -f option must be used with care as it may produce very large output files\n");
-  printf("  -P, --period\n");
-  printf("\tperiod with which to perform the analysis\n");
   printf("  -o, --output\n");
   printf("\toutput file name\n");
   printf("  -v, --verbose\n\tbe verbose\n");

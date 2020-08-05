@@ -64,7 +64,7 @@ static int64_t timestep = -1;
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
-  
+
   // ----------------------
   //  Prepare the outputs
   // ----------------------
