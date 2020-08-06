@@ -59,8 +59,6 @@ int main(int argc, char* argv[]) {
                           lineage_file_name + "\n");
   }
 
-  IOJson* iojson = new IOJson(json_file_name);
-
   int64_t t0 = 0;
   int64_t t_end = 0;
 
@@ -72,6 +70,11 @@ int main(int argc, char* argv[]) {
   // =============================
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t0, true, false);
+
+  IOJson* iojson = new IOJson(exp_manager);
+
+  FILE* json_file = nullptr;
+  json_file = fopen(json_file_name,"w");
 
   // The current version doesn't allow for phenotypic variation nor for
   // different phenotypic targets among the grid
@@ -153,7 +156,12 @@ int main(int argc, char* argv[]) {
     aevol::AeTime::plusplus();
   }
 
+  iojson->write(json_file_name);
+
+  fclose(json_file);
   gzclose(lineage_file);
+  delete [] json_file_name;
+  delete [] lineage_file_name;
   delete exp_manager;
   return EXIT_SUCCESS;
 }
