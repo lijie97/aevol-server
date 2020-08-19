@@ -63,6 +63,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
+
 ReplicationReport::ReplicationReport(Individual* indiv,
                                      const Individual* parent,
                                      Individual* donor /*= NULL*/)
@@ -180,6 +181,7 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
 void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
 {
 
+    dna_replic_report_.clear();
   indiv_ = offspring;
 
   id_ = indiv_id;
@@ -199,18 +201,19 @@ void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* pare
   mean_align_score_       = 0.0;
 
   // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
-  indiv_->addObserver(this, MUTATION);
-  indiv_->addObserver(tree, END_REPLICATION);
+//  indiv_->addObserver(this, MUTATION);
+//  indiv_->addObserver(tree, END_REPLICATION);
 }
 
 void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id,
                                 int parent_id)
 {
+        dna_replic_report_.clear();
 
       simd_indiv_ = offspring;
 
-      id_ = indiv_id;
-      parent_id_ = parent_id;
+      id_ = (unsigned long long) indiv_id;
+      parent_id_ = (unsigned long long) parent_id;
 
       rank_ = 0;
 
@@ -227,9 +230,16 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
       parent_genome_size_     = parent->dna_->length();
       mean_align_score_       = 0.0;
 
+      donor_id_ = -1;
+      donor_metabolic_error_ = -1;
+      donor_secretion_error_ = -1;
+      donor_genome_size_ = -1;
+
+      dna_replic_report_.clear();
+
       // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
-      simd_indiv_->addObserver(this, MUTATION);
-      simd_indiv_->addObserver(tree, END_REPLICATION);
+      //simd_indiv_->addObserver(this, MUTATION);
+      //simd_indiv_->addObserver(tree, END_REPLICATION);
 }
 
     void ReplicationReport::init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
@@ -264,8 +274,8 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
 
         simd_indiv_ = offspring;
 
-        id_ = indiv_id;
-        parent_id_ = parent_id;
+        id_ = (unsigned long long) indiv_id;
+        parent_id_ = (unsigned long long) parent_id;
 
         rank_ = 0;
 
@@ -324,21 +334,21 @@ void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
  * Actions such as update the individuals' ranks can be done here.
  */
 void ReplicationReport::signal_end_of_generation() {
-    if (!SIMD_Individual::standalone_simd)
+    if (!SIMD_Individual::standalone_simd) {
         rank_ = indiv_->rank();
+    }
 }
 
-void ReplicationReport::write_to_tree_file(gzFile tree_file) const
+void ReplicationReport::write_to_tree_file(gzFile tree_file)
 {
   // Store individual identifiers and rank
+
   gzwrite(tree_file, &id_,         sizeof(id_));
-  //printf("ID %d\n",id_);
 
     int32_t rankx = -1;
   if (SIMD_Individual::standalone_simd) {
       rankx = 0;
   } else {
-      assert(rank_ != -1);
       rankx = rank_;
   }
 
@@ -370,7 +380,7 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 //                          Non inline accessors
 // =================================================================
 void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
-        //printf("Receive ??? events\n");
+//        printf("Receive ??? events\n");
   switch (e) {
     case MUTATION :
         //printf("Receive mutation events\n");

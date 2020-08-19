@@ -47,6 +47,7 @@ target_compile_definitions(sfmt
   PUBLIC __STDC_FORMAT_MACROS
   PUBLIC __STDC_CONSTANT_MACROS)
 
+
 # ============================================================================
 # Silence -Wunused-const-variable warning
 # ============================================================================

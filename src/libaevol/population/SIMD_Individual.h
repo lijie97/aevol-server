@@ -16,12 +16,16 @@
 #include "PhenotypicTargetHandler.h"
 #include "ae_enums.h"
 #include "Stats.h"
+#include "SIMD_DnaFactory.h"
+#include "Vector_Fuzzy.h"
 
 namespace aevol {
 
     class ExpManager;
     class Dna_SIMD;
     class Stats_SIMD;
+    class SIMD_Abstract_Metadata;
+    class SIMD_Map_Metadata;
 
 constexpr const char* PROM_SEQ_LEAD = "0101011001110010010110";
 constexpr const char* PROM_SEQ_LAG  = "1010100110001101101001";
@@ -32,6 +36,8 @@ constexpr const char* SHINE_DAL_SEQ_LAG  = "100100111";
 constexpr const char* PROTEIN_END_LEAD  = "001";
 constexpr const char* PROTEIN_END_LAG   = "110";
 
+const int32_t PHENOTYPE_VECTOR_SIZE = 120000;
+    constexpr const  double D_PHENOTYPE_VECTOR_SIZE = 120000.0;
 
 class promoterStruct {
  public:
@@ -64,13 +70,18 @@ class pRNA {
       length = t_length;
       is_coding_ = false;
       is_init_ = true;
+      start_prot_count_ = 0;
+    }
+
+    ~pRNA() {
     }
 
     int32_t begin;
     int32_t end;
     int8_t leading_lagging; // 0 = leading, 1 = lagging
     double e;
-    std::vector<int32_t> start_prot;
+    std::list<int32_t > start_prot;
+    int32_t start_prot_count_;
     int32_t length;
     bool is_coding_;
 
@@ -92,6 +103,8 @@ class pProtein {
       is_init_ = true;
     }
 
+    bool operator<(const pProtein & other);
+
     int32_t protein_start;
     int32_t protein_end;
     int32_t protein_length;
@@ -107,23 +120,19 @@ class pProtein {
 
 class Internal_SIMD_Struct : public Observable {
  public:
-    Internal_SIMD_Struct(ExpManager* exp_m, double w_max);
+    Internal_SIMD_Struct(ExpManager* exp_m, double w_max, SIMD_DnaFactory* dna_factory);
 
-    Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone, bool copy_dna = true);
+    Internal_SIMD_Struct(ExpManager* exp_m, Internal_SIMD_Struct* clone, SIMD_DnaFactory* dna_factory);
 
     ~Internal_SIMD_Struct();
 
-    std::map<int32_t,promoterStruct*> promoters;
-    std::map<int32_t,int32_t> leading_prom_pos;
-    std::map<int32_t,int32_t> lagging_prom_pos;
-    int count_prom = 0;
-
-    std::set<int> terminator_lag;
-    std::set<int> terminator_lead;
-    std::vector<pRNA*> rnas;
-    std::vector<pProtein*> proteins;
-    double phenotype[300];
-    double delta[300];
+#ifdef PHENOTYPE_VECTOR
+    double phenotype[PHENOTYPE_VECTOR_SIZE];
+    double delta[PHENOTYPE_VECTOR_SIZE];
+#else
+        Vector_Fuzzy* phenotype;
+        Vector_Fuzzy* delta;
+#endif
     double fitness;
     double metaerror;
 
@@ -134,10 +143,8 @@ class Internal_SIMD_Struct : public Observable {
 
     int32_t usage_count_ = 1;
 
-    int32_t protein_count_ = 0;
-    int32_t rna_count_ = 0;
-
     ExpManager* exp_m_;
+    SIMD_DnaFactory* dna_factory_;
 
     int global_id = -1;
 
@@ -164,79 +171,7 @@ class Internal_SIMD_Struct : public Observable {
 
     void rebuild_index();
 
-    void remove_promoters_around(int32_t pos_1);
-    void remove_promoters_around(int32_t pos_1, int32_t pos_2);
-    void remove_all_promoters();
-
-    void look_for_new_promoters_around(int32_t pos_1, int32_t pos_2);
-    void look_for_new_promoters_around(int32_t pos);
-
-    void locate_promoters();
-
-    void move_all_promoters_after(int32_t pos, int32_t delta_pos);
-
-    void duplicate_promoters_included_in(int32_t pos_1,
-                                         int32_t pos_2,
-                                         std::vector<std::list<promoterStruct*>>& duplicated_promoters);
-    void extract_promoters_included_in(int32_t pos_1,
-                                       int32_t pos_2, std::vector<std::list<promoterStruct*>>& extracted_promoters);
-    void insert_promoters(std::vector<std::list<promoterStruct*>>& promoters_to_insert);
-    void insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
-                                                   int32_t pos);
-
-    void invert_promoters_included_in(int32_t pos1,
-                                      int32_t pos2);
-
-
-    static void shift_promoters(
-        std::vector<std::list<promoterStruct*>>& promoters_to_shift,
-        int32_t delta_pos,
-        int32_t seq_length);
-    static void invert_promoters(std::vector<std::list<promoterStruct*>>& promoter_lists,
-                                 int32_t pos1,
-                                 int32_t pos2);
-
-    int8_t is_promoter_leading(int pos);
-    int8_t is_promoter_lagging(int pos);
-    void lst_promoters(bool lorl,
-                                         Position before_after_btw, // with regard to the strand's reading direction
-                                         int32_t pos1,
-                                         int32_t pos2,
-                                         std::list<promoterStruct*>& promoters_list);
-
- protected:
-    void remove_leading_promoters_starting_between(int32_t pos_1,
-                                                   int32_t pos_2);
-    void remove_leading_promoters_starting_after(int32_t pos);
-    void remove_leading_promoters_starting_before(int32_t pos);
-
-    void remove_lagging_promoters_starting_between(int32_t pos_1,
-                                                   int32_t pos_2);
-    void remove_lagging_promoters_starting_after(int32_t pos);
-    void remove_lagging_promoters_starting_before(int32_t pos);
-
-    void move_all_leading_promoters_after(int32_t pos, int32_t delta_pos);
-    void move_all_lagging_promoters_after(int32_t pos,int32_t delta_pos);
-
-    void look_for_new_leading_promoters_starting_between(int32_t pos_1, int32_t pos_2);
-    void look_for_new_leading_promoters_starting_after(int32_t pos);
-    void look_for_new_leading_promoters_starting_before(int32_t pos);
-
-    void look_for_new_lagging_promoters_starting_between(int32_t pos_1,int32_t pos_2);
-    void look_for_new_lagging_promoters_starting_after(int32_t pos);
-    void look_for_new_lagging_promoters_starting_before(int32_t pos);
-
-    void promoters_included_in(int32_t pos_1,
-                                                     int32_t pos_2,
-                                                     std::vector<std::list<promoterStruct*>>& promoters_list);
-
-    void extract_leading_promoters_starting_between(int32_t pos_1,
-                                                                          int32_t pos_2, std::list<promoterStruct*>& extracted_promoters);
-
-    void extract_lagging_promoters_starting_between(int32_t pos_1,
-                                                                          int32_t pos_2,
-                                                                          std::list<promoterStruct*>& extracted_promoters);
-
+    SIMD_Abstract_Metadata* metadata_;
 };
 
 class PromoterList {
@@ -252,22 +187,7 @@ class SIMD_Individual : public Observable{
 
     ~SIMD_Individual();
 
-    void clear_struct_before_next_step();
-    void do_mutation();
-
     void run_a_step(double w_max, double selection_pressure,bool optim_prom = false);
-
-    void start_stop_RNA();
-    void opt_prom_compute_RNA();
-
-    void compute_RNA();
-
-    void start_protein();
-    void compute_protein();
-    void translate_protein(double w_max);
-    void compute_phenotype();
-    void compute_fitness(double selection_pressure);
-
 
     void do_mutation(int indiv_id);
 
@@ -283,6 +203,7 @@ class SIMD_Individual : public Observable{
 
     void check_result();
     void check_dna();
+    void check_struct();
     void check_individual(int indiv_id, int x, int y);
     bool standalone() const { return standalone_; }
 
@@ -305,19 +226,28 @@ class SIMD_Individual : public Observable{
     int rna_grain_size = 32;
     int protein_grain_size = 32;
 
+    SIMD_DnaFactory* dna_factory_;
+
  private:
     ExpManager* exp_m_;
     int* dna_size;
+#ifdef PHENOTYPE_VECTOR
     double* target;
+#else
+    Vector_Fuzzy* target;
+#endif
     bool standalone_;
+    bool first_gener_ = true;
 
     Stats_SIMD* stats_best = nullptr;
     Stats_SIMD* stats_mean = nullptr;
 
 
-    Stats* stats_;
 
-    void selection();
+    long apply_mutation[1024];
+
+
+    Stats* stats_;
 
     void selection(int indiv_id);
 

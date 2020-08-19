@@ -293,7 +293,10 @@ int32_t Dna::do_small_mutations() {
 
     // Record mutation in tree
     if (mut != NULL) {
-      indiv_->notifyObservers(MUTATION, mut);
+      //indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       delete mut;
     }
   }
@@ -379,8 +382,11 @@ int32_t Dna::do_rearrangements() {
 
     // Record rearrangement in tree
     if (mut != NULL) {
-      indiv_->notifyObservers(MUTATION, mut);
-      delete mut;
+//      indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
+        delete mut;
     }
   }
   return nb_rear;
@@ -777,7 +783,10 @@ int32_t Dna::do_rearrangements_with_align() {
     //    or delete it.
     ///////////////////////////////////////////////////////////////////////////
     if (mut != NULL) {
-      indiv_->notifyObservers(MUTATION, mut);
+//      indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       delete mut;
     }
   }
@@ -791,7 +800,10 @@ int32_t Dna::do_transfer(int32_t parent_id) {
   if (indiv_->mut_prng()->random() < indiv_->HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
     if (mut != nullptr) {
-      indiv_->notifyObservers(MUTATION, mut);
+//      indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       nb_transfer++;
       delete mut;
     }
@@ -800,7 +812,10 @@ int32_t Dna::do_transfer(int32_t parent_id) {
   if (indiv_->mut_prng()->random() < indiv_->HT_repl_rate()) {
     mut = do_repl_HT(parent_id);
     if (mut != nullptr) {
-      indiv_->notifyObservers(MUTATION, mut);
+      //indiv_->notifyObservers(MUTATION, mut);
+        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                               indiv_->exp_m()->grid_height()
+                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
       nb_transfer++;
       delete mut;
     }
@@ -929,7 +944,7 @@ bool Dna::do_switch(int32_t pos) {
   return true;
 }
 
-bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
+bool Dna::do_small_insertion(int32_t pos, int32_t nb_insert, char* seq) {
   // Check genome size limit
   assert(length_ + nb_insert <= gen_unit_->max_gu_length());
   assert(indiv_->amount_of_dna() + nb_insert <=
@@ -969,6 +984,9 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
 
   // Remove promoters containing at least one nucleotide from the sequence to
   // delete
+//  printf("Remove %d %d (%d %d) %d\n",pos,Utils::mod(pos + nb_del, length()),pos,nb_del,length());
+//  fflush(stdout);
+
   gen_unit_->remove_promoters_around(pos, Utils::mod(pos + nb_del, length_));
 
   // Do the deletion and update promoter list
@@ -2456,48 +2474,72 @@ bool Dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert,
 }
 
 void Dna::undergo_this_mutation(const Mutation& mut) {
+//    printf("UNDERGO MUT : \n");
   switch (mut.mut_type()) {
     case SWITCH :
+//        printf("%d -- DO Switch %d\n",indiv()->id(),dynamic_cast<const PointMutation&>(mut).pos());
       do_switch(dynamic_cast<const PointMutation&>(mut).pos());
       break;
     case S_INS : {
       const auto& s_ins = dynamic_cast<const SmallInsertion&>(mut);
+//      printf("%d -- DO INSERT ",indiv()->id());
+//      fflush(stdout);
+//
+//             printf("%d ",s_ins.pos());
+//      fflush(stdout);
+//             printf("%d ",s_ins.length());
+//      fflush(stdout);
+//      for (int i = 0; i < s_ins.length(); i++)
+//          printf("%c",s_ins.seq()[i]);
+//      printf("\n");
+//
+//      printf("%s\n", s_ins.seq());
+//      fflush(stdout);
+
       do_small_insertion(s_ins.pos(), s_ins.length(), s_ins.seq());
       break;
     }
     case S_DEL : {
       const auto& s_del = dynamic_cast<const SmallDeletion&>(mut);
+//        printf("%d -- DO DELETE %d %d\n",indiv()->id(),s_del.pos(), s_del.length());
       do_small_deletion(s_del.pos(), s_del.length());
       break;
     }
     case DUPL : {
       const auto& dupl = dynamic_cast<const Duplication&>(mut);
+//      printf("%d -- DO DUPLICATION %d %d %d\n",indiv()->id(),dupl.pos1(), dupl.pos2(), dupl.pos3());
       do_duplication(dupl.pos1(), dupl.pos2(), dupl.pos3());
       break;
     }
     case DEL : {
       const auto& del = dynamic_cast<const Deletion&>(mut);
+//      printf("%d -- DO DELETE LARGE %d %d\n",indiv()->id(),del.pos1(), del.pos2());
       do_deletion(del.pos1(), del.pos2());
       break;
     }
     case TRANS : {
       const auto& trans = dynamic_cast<const Translocation&>(mut);
+//      printf("%d -- DO TRANS %d %d %d %d %d\n",indiv()->id(),trans.pos1(), trans.pos2(), trans.pos3(), trans.pos4(),
+//             trans.invert());
       do_translocation(trans.pos1(), trans.pos2(), trans.pos3(), trans.pos4(),
                        trans.invert());
       break;
     }
     case INV : {
       const auto& inv = dynamic_cast<const Inversion&>(mut);
+//      printf("%d -- DO INVERSION %d %d\n",indiv()->id(),inv.pos1(), inv.pos2());
       do_inversion(inv.pos1(), inv.pos2());
       break;
     }
     case INS_HT : {
       const auto& ins_ht = dynamic_cast<const InsertionHT&>(mut);
+//      printf("NON NON \n");
       do_ins_HT(ins_ht.receiver_pos(), ins_ht.seq(), ins_ht.length());
       break;
     }
     case REPL_HT : {
       const auto& repl_ht = dynamic_cast<const ReplacementHT&>(mut);
+//        printf("NON NON NOPEP \n");
       do_repl_HT(repl_ht.receiver_pos1(), repl_ht.receiver_pos2(),
                  repl_ht.seq(), repl_ht.length());
       break;
@@ -3862,6 +3904,19 @@ void Dna::apply_mutations() {
 
   do {
 
+/*    if (indiv_->id() == 632) {
+      printf("%d -- %d -- CPU_BEFORE -- Prom list LEAD : ",time(),indiv_->id());
+      for (auto prom : indiv_->genetic_unit(0).rna_list()[LEADING]) {
+        printf("%d ", prom.promoter_pos());
+      }
+      printf("\n");
+      printf("%d -- %d -- CPU_BEFORE -- Prom list LAG : ",time(),indiv_->id());
+        for (auto prom : indiv_->genetic_unit(0).rna_list()[LAGGING]) {
+            printf("%d ", prom.promoter_pos());
+        }
+      printf("\n");
+    }*/
+
     //if (indiv()->id()==93) {
     //  printf("Mutation for ? %d\n",indiv()->id()%(1024*AeTime::time()));
     //}
@@ -3879,12 +3934,12 @@ void Dna::apply_mutations() {
 
       switch (repl->type()) {
         case DO_SWITCH:
-          //printf("%d -- Switch at %d\n",indiv()->id(),repl->pos_1());
+//          printf("%d -- %d -- Switch at %d\n",AeTime::time(),indiv()->id(),repl->pos_1());
           mut = new PointMutation(repl->pos_1());
           do_switch(repl->pos_1());
           break;
         case SMALL_INSERTION:
-          //printf("%d -- Insertion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
+//          printf("%d -- %d -- Insertion at %d size %d\n",AeTime::time(),indiv()->id(),repl->pos_1(),repl->number());
 #ifdef WITH_BITSET
           char* seqchar = repl->seq()->to_char();
                     mut = new SmallInsertion(repl->pos_1(), repl->number(), seqchar);
@@ -3898,7 +3953,7 @@ void Dna::apply_mutations() {
 
           break;
         case SMALL_DELETION:
-          //printf("%d -- Deletion at %d size %d\n",indiv()->id(),repl->pos_1(),repl->number());
+//          printf("%d -- %d -- Deletion at %d size %d\n",AeTime::time(),indiv()->id(),repl->pos_1(),repl->number());
           mut = new SmallDeletion(repl->pos_1(), repl->number());
           do_small_deletion(repl->pos_1(), repl->number());
           break;
@@ -3906,13 +3961,13 @@ void Dna::apply_mutations() {
           segment_length =
               Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
 
-/*          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
-            printf(
-                "%d -- Duplication pos_1 %d pos_2 %d pos_3 %d seg_lengh %d\n",
-                indiv()->id(), repl->pos_1(), repl->pos_2(), repl->pos_3(),
-                segment_length);
-            printf("Size before %d\n",length_);
-          }*/
+//          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
+//            printf(
+//                "%d -- %d -- Duplication pos_1 %d pos_2 %d pos_3 %d seg_lengh %d\n",
+//                    AeTime::time(),indiv()->id(), repl->pos_1(), repl->pos_2(), repl->pos_3(),
+//                segment_length);
+//            printf("Size before %d\n",length_);
+//          }*/
 
           mut = new Duplication(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                 segment_length);
@@ -3925,9 +3980,9 @@ void Dna::apply_mutations() {
           break;
         case TRANSLOCATION:
           segment_length = repl->pos_2() - repl->pos_1();
-          /*printf("%d -- Translocation pos_1 %d pos_2 %d pos_3 %d pos_4 %d seg_lengh %d\n",
-                 indiv()->id(),repl->pos_1(),repl->pos_2(),repl->pos_3(),
-                 repl->pos_4(),segment_length);*/
+//          printf("%d -- %d -- Translocation pos_1 %d pos_2 %d pos_3 %d pos_4 %d seg_lengh %d\n",
+//                  AeTime::time(),indiv()->id(),repl->pos_1(),repl->pos_2(),repl->pos_3(),
+//                 repl->pos_4(),segment_length);
 
           mut = new Translocation(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                   repl->pos_4(), segment_length,
@@ -3937,27 +3992,44 @@ void Dna::apply_mutations() {
           break;
         case INVERSION:
           segment_length = repl->pos_2() - repl->pos_1();
-          /*printf("%d -- Inversion pos_1 %d pos_2 %d seg_lengh %d\n",
-                 indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);*/
+//          printf("%d -- %d -- Inversion pos_1 %d pos_2 %d seg_lengh %d\n",AeTime::time(),
+//                 indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);
           mut = new Inversion(repl->pos_1(), repl->pos_2(), segment_length);
           do_inversion(repl->pos_1(), repl->pos_2());
           break;
         case DELETION:
           segment_length =
               Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
-          /*printf("%d -- Deletion pos_1 %d pos_2 %d seg_lengh %d\n",
-                 indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length);*/
+//          printf("%d -- %d -- Deletion pos_1 %d pos_2 %d seg_lengh %d length %d\n",
+//                  AeTime::time(),indiv()->id(),repl->pos_1(),repl->pos_2(),segment_length, length());
           mut = new Deletion(repl->pos_1(), repl->pos_2(), segment_length);
           do_deletion(repl->pos_1(), repl->pos_2());
           break;
       }
       if (mut != nullptr) {
-        indiv_->notifyObservers(MUTATION, mut);
-        delete mut;
+#pragma omp critical
+          {
+              //indiv_->notifyObservers(MUTATION, mut);
+              indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                                     indiv_->exp_m()->grid_height()
+                                                                     + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
+              delete mut;
+          }
       }
     }
 
-
+/*      if (indiv_->id() == 632) {
+          printf("%d -- %d -- CPU_AFTER -- Prom list LEAD : ",time(),indiv_->id());
+          for (auto prom : indiv_->genetic_unit(0).rna_list()[LEADING]) {
+              printf("%d ", prom.promoter_pos());
+          }
+          printf("\n");
+          printf("%d -- %d -- CPU_AFTER -- Prom list LAG : ",time(),indiv_->id());
+          for (auto prom : indiv_->genetic_unit(0).rna_list()[LAGGING]) {
+              printf("%d ", prom.promoter_pos());
+          }
+          printf("\n");
+      }*/
 
   } while (exp_m_->dna_mutator_array_[indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()]
                         ->mutation_available() > 0);

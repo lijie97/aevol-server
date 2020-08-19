@@ -1,7 +1,7 @@
 # ============================================================================
 # Require minimal version of cmake
 # ============================================================================
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.0.2)
 
 
 # ============================================================================
@@ -21,6 +21,7 @@ set(with-post-treatments ON CACHE BOOL "Whether to build post-treatments")
 
 set(with-x OFF CACHE BOOL "Whether to enable graphical outputs")
 set(with-omp OFF CACHE BOOL "Whether to enable OpenMP parallelization")
+
 set(enable-profiling OFF CACHE BOOL "Whether to enable profiling")
 set(with-tracing OFF CACHE BOOL "Whether to use tracing")
 set(enable-perflog OFF CACHE BOOL "Whether to active performance log")
@@ -33,6 +34,8 @@ set(with-raevol OFF CACHE BOOL "Whether to enable R-Aevol (Gene regulation) vers
 set(with-detectclone ON CACHE BOOL "Whether to enable clones and not recompute them")
 set(with-floatconcentration OFF CACHE BOOL "Whether to enable the encoding of concentration has float (and not double)")
 set(with-simd OFF CACHE BOOL "Whether to switch to the SIMD implementation of (R-)Aevol")
+set(with-perf-traces OFF CACHE BOOL "Whether to activate performance traces of (R-)Aevol")
+set(search-type "OLD" CACHE STRING "Which SIMD pattern search version of (R-)Aevol")
 
 if ( ${with-x} )
     FIND_PACKAGE(X11 REQUIRED)
@@ -47,49 +50,12 @@ else ()
     message("graphical output disable")
 endif ()
 
-if(APPLE)
-    # X11 headers
-    include_directories(AFTER "/opt/X11/include")
-
-    # OpenMP stuff for Clang
-    if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
-       CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
-        # C configuration
-        set(OpenMP_C "${CMAKE_C_COMPILER}")
-        set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp \
-            -Wno-unused-command-line-argument")
-        set(OpenMP_C_LIB_NAMES "libomp" "libgomp" "libiomp5")
-        # C++ configuration
-        set(OpenMP_CXX "${CMAKE_CXX_COMPILER}")
-        set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp \
-        -Wno-unused-command-line-argument -I /usr/local/opt/libomp/include")
-        set(OpenMP_CXX_LIB_NAMES "libomp" "libgomp" "libiomp5")
-        set(OpenMP_libomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
-        set(OpenMP_libgomp_LIBRARY ${OpenMP_CXX_LIB_NAMES})
-        set(OpenMP_libiomp5_LIBRARY ${OpenMP_CXX_LIB_NAMES})
-    endif()
-
-    # Hide advanced macOS configuration variables
-    mark_as_advanced(
-        CMAKE_EXECUTABLE_FORMAT
-        CMAKE_INSTALL_PREFIX
-        CMAKE_OSX_ARCHITECTURES
-        CMAKE_OSX_DEPLOYMENT_TARGET
-        CMAKE_OSX_SYSROOT
-        Boost_FILESYSTEM_LIBRARY_RELEASE
-        Boost_INCLUDE_DIR
-    )
-endif()
-
 if ( ${with-omp} )
     find_package(OpenMP REQUIRED)
-
     if ( OPENMP_FOUND )
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    	if(APPLE)
-    	    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS} /usr/local/lib/libomp.dylib")
-	endif()
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
     endif ()
 endif ()
 
@@ -152,12 +118,6 @@ if ( ${with-simd} )
 endif ()
 
 
-# ===========================================================================
-# Tell CMake to export compile commands for IDE integration
-# ===========================================================================
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-
 # ============================================================================
 # Get GNU standard installation directories (GNUInstallDirs module)
 # ============================================================================
@@ -183,22 +143,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}
 # ============================================================================
 # Set build type specific compilation flags
 # ============================================================================
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -DDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -Wall -DDEBUG")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -Wall -DDEBUG -g -march=haswell")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -Wall -DDEBUG -g -march=haswell")
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math -pipe -fexpensive-optimizations")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -pipe -fexpensive-optimizations")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math -pipe -fexpensive-optimizations -march=haswell")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -pipe -fexpensive-optimizations -march=haswell")
 
 
 # ============================================================================
 # Tell cmake about subdirectories to look into
 # ============================================================================
 add_subdirectory(src)
-
-# ============================================================================
-# Include tests
-# ============================================================================
-add_subdirectory(test EXCLUDE_FROM_ALL)
 
 
 # ============================================================================

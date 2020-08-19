@@ -45,7 +45,7 @@ class Stats_SIMD {
 
     int64_t generation_;
 
-    bool is_indiv_;
+    bool is_indiv_ = true;
 
     int32_t pop_size_;
 

@@ -756,6 +756,17 @@ void Protein::save(gzFile backup_file)
     AA->save(backup_file);
 }
 
+void Protein::recompute_concentration() {
+    concentration_=0.0; for (auto rna : rna_list_) { concentration_+=rna->basal_level();}}
+// =================================================================
+//                        Overloaded Operators
+// =================================================================
+    bool Protein::operator<(const Protein & other){
+      return (height_ <  other.height_)
+             || (height_ == other.height_ && mean_ < other.mean_)
+             || (height_ == other.height_ && mean_ == other.mean_ && width_ < other.width_);
+    }
+
 // =================================================================
 //                           Protected Methods
 // =================================================================

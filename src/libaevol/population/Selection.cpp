@@ -104,6 +104,12 @@ Selection::Selection(ExpManager* exp_m) {
   // --------------------------- Probability of reproduction of each organism
   prob_reprod_ = NULL;
 
+#ifdef WITH_PERF_TRACES
+        std::ofstream perf_traces_file_;
+        perf_traces_file_.open("vanilla_perf_traces.csv",std::ofstream::trunc);
+        perf_traces_file_<<"Generation,Indiv_ID,Runtime"<<std::endl;
+        perf_traces_file_.close();
+#endif
 
 }
 
@@ -121,6 +127,8 @@ int mutator = 0;
 //                            Public Methods
 // =================================================================
 void Selection::step_to_next_generation() {
+
+
 
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
@@ -179,10 +187,13 @@ void Selection::step_to_next_generation() {
 
   int16_t x, y;
   int8_t what;
+  high_resolution_clock::time_point t1,t2;
 
   //std::unordered_map<unsigned long long, Individual*> unique_individual;
 
+#ifndef __TBB
   std::list<Individual*> new_generation;
+#endif
 
   if (selection_scope_ == SCOPE_GLOBAL) {
     delete[] prob_reprod_;
@@ -223,6 +234,12 @@ void Selection::step_to_next_generation() {
       i++;
     }
   } else {
+/*      for (int32_t index = 0; index < grid_width * grid_height; index++) {
+          x = index / grid_height;
+          y = index % grid_height;
+
+          world->grid(x, y)->old_one = Individual::CreateClone(world->indiv_at(x, y), 444444);
+      }*/
     if (fitness_function_ == FITNESS_GLOBAL_SUM) {
 #ifdef __REGUL
         int number_of_phenotypic_target_models = dynamic_cast<const Habitat_R&> (world->grid(0,0)->habitat()).number_of_phenotypic_target_models();
@@ -244,7 +261,7 @@ void Selection::step_to_next_generation() {
     // Do local competitions
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp parallel for schedule(dynamic) private(x,y)
+//#pragma omp parallel for schedule(dynamic) private(x,y)
 #else
 #pragma omp target teams distribute parallel for schedule(static,1) private(x,y)
 #endif
@@ -262,6 +279,25 @@ void Selection::step_to_next_generation() {
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->parent_id =
           reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y();*/
 
+/*      if ( x*exp_m_->world()->height()+y == 80) {
+        printf("80 -- DNA Size %d (parent %d) -- reproducer %d (%d)\n",
+               exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->dna_->length_,
+               exp_m_->simd_individual->prev_internal_simd_struct
+               [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()]->dna_->length_,
+               reproducers[x][y]->genetic_unit(0).dna()->length(),
+               reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()
+        );
+      }*/
+
+      /*if ( x*exp_m_->world()->height()+y == 49) {
+        printf("49 -- DNA Size %d (parent %d) -- reproducer %d (%d)\n",
+               exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->dna_->length_,
+               exp_m_->simd_individual->prev_internal_simd_struct
+               [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()]->dna_->length_,
+               reproducers[x][y]->genetic_unit(0).dna()->length(),
+               reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()
+        );
+      }*/
     }
   }
 
@@ -294,59 +330,97 @@ void Selection::step_to_next_generation() {
 #endif
 
   std::vector<Individual*> to_evaluate;
+#ifndef __TBB
+
+
+/*  printf("Start to next gen -- FROM SELECTION.CPP\n");
+  for (int32_t index = 0; index < exp_m_->world()->width() * exp_m_->world()->height(); index++) {
+    int32_t x = index / exp_m_->world()->height();
+    int32_t y = index % exp_m_->world()->height();
+    auto indiv = exp_m_->world()->grid(x,y)->individual();
+
+    if (indiv->genetic_unit(0).dna()->length() == 8099)
+      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
+             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
+             indiv->grid_cell()->x()*exp_m_->world()->
+                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
+
+    if (x*exp_m_->world()->height()+y==43)
+      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
+             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
+             indiv->grid_cell()->x()*exp_m_->world()->
+                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
+
+    if (x*exp_m_->world()->height()+y==44)
+      printf("%d (%d %d : %d) (%d %d) (%p) (%p) ",indiv->genetic_unit(0).dna()->length(),
+             indiv->grid_cell()->x(),indiv->grid_cell()->y(),
+             indiv->grid_cell()->x()*exp_m_->world()->
+                 height()+indiv->grid_cell()->y(),x,y,indiv,reproducers[x][y]);
+
+  }
+  printf("\n");*/
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp parallel
+//  #pragma omp parallel
+//#pragma omp single
   {
-#endif  // __OPENMP_GPU
-#endif  // _OPENMP
+#endif
+#endif
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp for schedule(dynamic) private(x,y,what)
-#else  // __OPENMP_GPU
+#pragma omp parallel for schedule(dynamic) private(x,y,what)
+#else
 #pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
-#endif  // __OPENMP_GPU
-#endif  // _OPENMP
-
+#endif
+#endif
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
     y = index % grid_height;
 
+    /*if (index == 43 || index == 44)*/
+      /*printf("BEFORE -- Reproducer %d -> %d : %ld\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
+             reproducers[x][y]->genetic_unit(0).dna()->length());*/
+
     do_replication(reproducers[x][y],
                    x * grid_height + y, what, x, y);
 
+/*    if (index == 43 || index == 44)
+      printf("AFTER -- Reproducer %d -> %d : %d\n",index,reproducers[x][y]->grid_cell()->x()*world->height()+reproducers[x][y]->grid_cell()->y(),
+             reproducers[x][y]->genetic_unit(0).dna()->length());*/
+
 #ifdef __DETECT_CLONE
     if (what == 1 || what == 2) {
-#endif  // __DETECT_CLONE
+#endif
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
 #pragma omp critical(updateindiv)
-#endif // __OPENMP_GPU
-#endif // _OPENMP
+#endif
+#endif
       {
         to_evaluate.push_back(pop_grid[x][y]->individual());
       }
 #ifdef __DETECT_CLONE
     }
-#endif // __DETECT_CLONE
+#endif
 
   }
 #ifdef _OPENMP
-#ifndef __OPENMP_GPU
-#pragma omp barrier
-#endif // __OPENMP_GPU
-#endif // _OPENMP
+  #ifndef __OPENMP_GPU
+//#pragma omp barrier
+  #endif
+#endif
+  t1 = high_resolution_clock::now();
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#pragma omp for schedule(dynamic)
-#else // __OPENMP_GPU
+#pragma omp parallel for schedule(dynamic)
+#else
 #pragma omp target teams distribute parallel for schedule(static,1)
-#endif // __OPENMP_GPU
-#endif // _OPENMP
+#endif
+#endif
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
 #ifdef __REGUL
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
@@ -354,16 +428,16 @@ void Selection::step_to_next_generation() {
         !to_evaluate[i]->evaluated_) {
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
     }
-#else  // __REGUL
+#else
     run_life(to_evaluate[i]);
-#endif // __REGUL
+#endif
   }
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
   }
-#endif // __OPENMP_GPU
-#endif // _OPENMP
+#endif
+#endif
 
 
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
@@ -372,17 +446,41 @@ void Selection::step_to_next_generation() {
 
 #pragma omp critical
         {
-            EndReplicationEvent *eindiv = new EndReplicationEvent(
-                    world->indiv_at(x, y), x, y);
+            //EndReplicationEvent *eindiv = new EndReplicationEvent(
+//                    world->indiv_at(x, y), x, y);
             // Tell observers the replication is finished
-            world->indiv_at(x, y)->notifyObservers(END_REPLICATION, eindiv);
-            delete eindiv;
+            //->notifyObservers(END_REPLICATION, eindiv);
+            exp_m_->tree()->report_by_index(AeTime::time(),x *
+                                                                 grid_height
+                                                                 + y)->signal_end_of_replication(world->indiv_at(x, y));
+            //delete eindiv;
         }
     }
+   /* t2 = high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+        t2 - t1).count();
+    cout << "TIMER," << AeTime::time() << ",OLD," << duration << endl;
+*/
 
     for (int16_t x = 0; x < grid_width; x++)
       for (int16_t y = 0; y < grid_height; y++)
         new_generation.push_back(pop_grid[x][y]->individual());
+#else
+    std::vector<Individual*> new_generation;
+    tbb::task_group tgroup;
+
+    for (int16_t x = 0 ; x < grid_width ; x++)
+      for (int16_t y = 0 ; y < grid_height ; y++)
+        tgroup.run([=] {do_replication(reproducers[x][y], x * grid_height + y, x, y);});
+    tgroup.wait();
+
+    for (int16_t x = 0 ; x < grid_width ; x++)
+      for (int16_t y = 0 ; y < grid_height ; y++)
+        new_generation.push_back(pop_grid[x][y]->get_individual());
+
+#endif
+
+
 
   // delete the temporary grid and the parental generation
   for (int16_t x = 0; x < grid_width; x++) {
@@ -416,10 +514,17 @@ void Selection::step_to_next_generation() {
 #endif*/
 
     // Compute the rank of each individual
+#ifndef __TBB
+
 
     new_generation.sort([](Individual* lhs, Individual* rhs) {
         return lhs->fitness() < rhs->fitness();
     });
+#else
+    tbb::parallel_sort(new_generation.begin(),new_generation.end(), [](Individual* lhs, Individual* rhs) {
+        return lhs->get_fitness() < rhs->get_fitness();
+    });
+#endif
 
     int rank = 1;
 
@@ -436,8 +541,17 @@ void Selection::step_to_next_generation() {
     exp_m_->update_best();
 
     // Notify observers of the end of the generation
-    notifyObservers(END_GENERATION);
+    exp_m_->tree()->signal_end_of_generation();
 
+
+#ifdef WITH_PERF_TRACES
+        std::ofstream perf_traces_file_;
+        perf_traces_file_.open("vanilla_perf_traces.csv",std::ofstream::app);
+        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+            perf_traces_file_<<AeTime::time()<<","<<indiv_id<<","<<apply_mutation[indiv_id]<<std::endl;
+        }
+        perf_traces_file_.close();
+#endif
 /*#ifdef __DETECT_CLONE
 //    int number_of_clones = 0;
 #ifdef __OPENMP_TASK
@@ -780,7 +894,10 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 
   // Set the new individual's location on the grid
-  exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
+#pragma omp critical(placeindiv)
+  {
+    exp_m_->world()->PlaceIndiv(new_indiv, x, y, true);
+  }
   //NewIndivEvent *eindiv = new NewIndivEvent(new_indiv,parent, x, y);
   //notifyObservers(NEW_INDIV, eindiv);
 
@@ -858,6 +975,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       printf("Indiv 93 has mutate %d\n",exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate());
     }*/
 
+//printf("%d -- Indiv %d has mutate ? %d\n",time(),x*exp_m_->world()->height()+y,exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate());
 #ifdef __DETECT_CLONE
     if (! exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate()) {
 
@@ -886,23 +1004,42 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
       new_indiv = dynamic_cast<Individual_R_X11*>(parent);
     #endif
 #endif
-       {
+
+#pragma omp critical(placeindiv)
+        {
       NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
-      notifyObservers(NEW_INDIV, eindiv);
+      //notifyObservers(NEW_INDIV, eindiv);
+
+          exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
     }
 
       // Notify observers that a new individual was created from <parent>
-      exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
+#pragma omp critical(placeindiv)
+      {
+        exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
+      }
+
+#ifdef WITH_PERF_TRACES
+        apply_mutation[index] = -1;
+#endif
     } else {
 #endif
     {
       NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
-      notifyObservers(NEW_INDIV, eindiv);
+      //notifyObservers(NEW_INDIV, eindiv);
+      exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
     }
-
+#ifdef WITH_PERF_TRACES
+      auto t_start = std::chrono::steady_clock::now();
+#endif
     chromosome->dna()->apply_mutations();
+#ifdef WITH_PERF_TRACES
+      auto t_end = std::chrono::steady_clock::now();
+      apply_mutation[index] = t_end.time_since_epoch().count() - t_start.time_since_epoch().count();
+#endif
+
 #ifdef __DETECT_CLONE
     }
 #endif
@@ -944,11 +1081,8 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   return new_indiv;
 }
 
-#ifndef __REGUL
-
 void Selection::run_life(Individual* new_indiv) {
   // Evaluate new individual
-  
   new_indiv->Evaluate();
 
   // Compute statistics
@@ -956,8 +1090,7 @@ void Selection::run_life(Individual* new_indiv) {
 
 }
 
-#else
-
+#ifdef __REGUL
 void Selection::run_life(Individual_R* new_indiv) {
 
     if (dynamic_cast<PhenotypicTargetHandler_R*>(&new_indiv->grid_cell()->habitat().
@@ -972,7 +1105,6 @@ void Selection::run_life(Individual_R* new_indiv) {
     new_indiv->compute_statistical_data();
 
 }
-
 #endif
 
 Individual *Selection::do_local_competition (int16_t x, int16_t y) {
@@ -1172,24 +1304,96 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   int16_t y_offset = (found_org % selection_scope_y_) - 1;
 
 
-  delete [] local_fit_array;
+  //delete [] local_fit_array;
   delete [] sort_fit_array;
   delete [] initial_location;
-  delete [] probs;
+  //delete [] probs;
 
 
-/*    world->grid(x,y)->probs = probs;
+  world->grid(x,y)->probs = probs;
     world->grid(x,y)->local_fit_array = local_fit_array;
     world->grid(x,y)->sum_local_fit = sum_local_fit;
-    world->grid(x,y)->local_meta_array = local_meta_array;
-    world->grid(x,y)->loc_phenotype = loc_phenotype;*/
+    /*     world->grid(x,y)->local_meta_array = local_meta_array;
+       world->grid(x,y)->loc_phenotype = loc_phenotype;*/
 
     exp_m_->simd_individual->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                             ((y+y_offset+grid_height) % grid_height);
 
+    //printf("At %d -- GridCell %d -> Parent %d\n",AeTime::time(),x*grid_height+y,exp_m_->simd_individual->next_generation_reproducer_[x*grid_height+y]);
+
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);
 }
+
+#ifdef __TBB
+Individual* Selection::do_replication_tbb(Individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
+{
+  // ===========================================================================
+  //  1) Copy parent
+  // ===========================================================================
+#ifdef __NO_X
+    #ifndef __REGUL
+      Individual* new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
+    #else
+      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+    #endif
+  #elif defined __X11
+#ifndef __REGUL
+      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+    #else
+  Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+#endif
+#endif
+
+  // Notify observers that a new individual was created from <parent>
+  {
+    Individual* msg[2] = {new_indiv, parent};
+    notifyObservers(NEW_INDIV, msg);
+  }
+
+  // Set the new individual's location on the grid
+  _exp_m->world()->PlaceIndiv(new_indiv, x, y);
+
+  // Perform transfer, rearrangements and mutations
+  if (not new_indiv->get_allow_plasmids())
+  {
+    const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list().front();
+
+    chromosome->get_dna()->perform_mutations(parent->get_id());
+  }
+  else
+  { // For each GU, apply mutations
+    // Randomly determine the order in which the GUs will undergo mutations
+    bool inverse_order = (new_indiv->get_mut_prng()->random((int32_t) 2) < 0.5);
+
+    if (not inverse_order) { // Apply mutations in normal GU order
+      for (const auto& gen_unit: new_indiv->get_genetic_unit_list()) {
+        gen_unit.get_dna()->perform_mutations(parent->get_id() );
+      }
+    }
+    else { // Apply mutations in inverse GU order
+      const auto& gul = new_indiv->get_genetic_unit_list();
+      for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
+        gen_unit->get_dna()->perform_mutations(parent->get_id());
+      }
+    }
+  }
+
+  // Evaluate new individual
+  new_indiv->Evaluate();
+
+  // Compute statistics
+  new_indiv->compute_statistical_data();
+
+  #pragma omp critical
+//  {
+  // Tell observers the replication is finished
+  new_indiv->notifyObservers(END_REPLICATION, nullptr);
+}
+
+  return new_indiv;
+}
+#endif
 
 // =================================================================
 //                          Non inline accessors

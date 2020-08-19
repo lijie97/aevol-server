@@ -125,6 +125,7 @@ class ExpManager : public Observer {
   int32_t tree_step() const { return static_cast<int32_t>(output_m()->tree_step()); }
   Tree* tree() const { return output_m()->tree(); }
   LightTree* light_tree() const { return output_m()->light_tree(); }
+  bool check_simd() const { return check_simd_; }
 
   // =======================================================================
   //                          Accessors: setters
@@ -225,12 +226,16 @@ class ExpManager : public Observer {
 
     bool first_gen = true;
 
+    bool check_simd_ = false;
 
         //wether you stop the simulation based on the age of mrca or not
-        bool with_mrca_;
+        bool with_mrca_ = false;
 
         //do you record the stat of the lineage ?
-        bool anc_stat_;
+        bool anc_stat_ = false;
+
+
+        double w_max_ = 0;
 };
 
 // ===========================================================================

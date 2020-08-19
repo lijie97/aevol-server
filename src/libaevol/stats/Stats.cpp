@@ -920,7 +920,7 @@ void Stats::MoveTmpFiles(const std::string& destdir) {
           i++;
       }*/
 
-      if (!SIMD_Individual::standalone_simd) {
+      if ((!SIMD_Individual::standalone_simd) || (SIMD_Individual::standalone_simd && exp_m_->check_simd())){
           std::unordered_map<unsigned long long, Individual *> unique_individual;
 
           for (auto indiv : indivs_[gen]) {

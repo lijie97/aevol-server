@@ -44,6 +44,7 @@
 #include "Dna_SIMD.h"
 #include "SIMD_Individual.h"
 
+
 #ifdef __CUDACC__
 #include "CUDA_Individual.h"
 #include<cuda_profiler_api.h>
@@ -53,11 +54,10 @@
 #include "raevol/cuda_struct.h"
 #include "raevol/Individual_R.h"
 #endif
+#include<chrono>
 
-#include <chrono>
 #include <iostream>
 #include <unordered_map>
-
 using namespace std;
 using namespace std::chrono;
 
@@ -123,6 +123,10 @@ ExpManager::~ExpManager() noexcept
   delete exp_s_;
   delete output_m_;
   delete world_;
+
+  delete [] dna_mutator_array_;
+
+  //delete FuzzyFactory::fuzzyFactory;
 }
 
 // ===========================================================================
@@ -314,51 +318,63 @@ void ExpManager::save_copy(char* dir, int64_t time) const
 
 void ExpManager::step_to_next_generation() {
   // TODO <david.parsons@inria.fr> Apply phenotypic target variation and noise
-  world_->ApplyHabitatVariation();
-
-  // Take a step in time
-  AeTime::plusplus();
-
-  //if (AeTime::time() == 14) {
-    // Create the corresponding new generation
 #ifdef __PERF_LOG__
-auto     t1 = high_resolution_clock::now();
+    auto t1 = high_resolution_clock::now();
+    auto t2 = high_resolution_clock::now();
+    auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-  //auto     s_t1 = high_resolution_clock::now();
+    auto ta = high_resolution_clock::now();
+#endif
+
+#ifdef WITH_STANDALONE_SIMD
+#pragma omp single
+    {
+#endif
+        world_->ApplyHabitatVariation();
+
+        // Take a step in time
+        AeTime::plusplus();
+
+        //if (AeTime::time() == 14) {
+        // Create the corresponding new generation
+#ifdef __PERF_LOG__
+        auto t1 = high_resolution_clock::now();
+
+        //auto     s_t1 = high_resolution_clock::now();
 #endif
 
 #ifdef __CUDACC__
-  if (first_gen) {
-    cudaProfilerStop();
-  }
-  transfer_in(this, first_gen);
+        if (first_gen) {
+          cudaProfilerStop();
+        }
+        transfer_in(this, first_gen);
 
 
-  auto t2 = high_resolution_clock::now();
-  auto duration_A = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        auto t2 = high_resolution_clock::now();
+        auto duration_A = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
-  t1 = high_resolution_clock::now();
+        t1 = high_resolution_clock::now();
 
-  run_a_step(nb_indivs(), (float) best_indiv()->w_max(),
-               selection_pressure(),first_gen);
+        run_a_step(nb_indivs(), (float) best_indiv()->w_max(),
+                     selection_pressure(),first_gen);
 
-  t2 = high_resolution_clock::now();
-  auto duration_B = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        t2 = high_resolution_clock::now();
+        auto duration_B = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
-    /** Debug START **/
-   // print_debug_promoters_start(this);
-//    print_debug_rna(this);
-//    print_debug_protein(this);
-//    print_debug_phenotype(this);
-    //print_debug_fitness(this);
-    /** Debug END **/
+          /** Debug START **/
+         // print_debug_promoters_start(this);
+      //    print_debug_rna(this);
+      //    print_debug_protein(this);
+      //    print_debug_phenotype(this);
+          //print_debug_fitness(this);
+          /** Debug END **/
 
-  t1 = high_resolution_clock::now();
-    // Transfer data out of the GPU
-  transfer_out(this,false);
-  t2 = high_resolution_clock::now();
-  auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
+        t1 = high_resolution_clock::now();
+          // Transfer data out of the GPU
+        transfer_out(this,false);
+        t2 = high_resolution_clock::now();
+        auto duration_C = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - s_t1 ).count();
 #endif
 
 /*  bool simd_first = false;
@@ -366,70 +382,84 @@ auto     t1 = high_resolution_clock::now();
     simd_first = true;
   }*/
 
-  //}
+        //}
 #ifdef __PERF_LOG__
-    t1 = high_resolution_clock::now();
+        t1 = high_resolution_clock::now();
 #endif
 
-  if (!simd_individual->standalone())
-    exp_s_->step_to_next_generation();
+        if (!simd_individual->standalone() || (simd_individual->standalone()&&check_simd())) {
+            exp_s_->step_to_next_generation();
+        }
 
 
 #ifdef __CUDACC__
-  t2 = high_resolution_clock::now();
+        t2 = high_resolution_clock::now();
 #else
 #ifdef __PERF_LOG__
-  auto t2 = high_resolution_clock::now();
+        auto t2 = high_resolution_clock::now();
 #endif
 #endif
 
 #ifdef __PERF_LOG__
-    auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 
-  auto ta = high_resolution_clock::now();
+        auto ta = high_resolution_clock::now();
 #endif
 
 /*  if (simd_first) {
-    //simd_individual->check_result();
+    simd_individual->check_result();
   } else {*/
-  if (simd_individual->standalone())
-    simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),true);
+#ifdef WITH_STANDALONE_SIMD
+    }
+#endif
+    if (simd_individual->standalone())
+        simd_individual->run_a_step(w_max_,selection_pressure(),true);
+
+    if (check_simd_) {
+        simd_individual->check_result();
+    }
   //}
-
-#ifdef __PERF_LOG__
-  auto tb = high_resolution_clock::now();
-  auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>( tb - ta ).count();
-#endif
-
-  if (!simd_individual->standalone()) {
-#ifdef __PERF_LOG__
-      t1 = high_resolution_clock::now();
-#endif
-    // Write statistical data and store phylogenetic data (tree)
+#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
     {
-      output_m_->write_current_generation_outputs();
-    }
+#endif
+#ifdef __PERF_LOG__
+        auto tb = high_resolution_clock::now();
+        auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
+#endif
+
+        if ((!simd_individual->standalone()) || (simd_individual->standalone() && check_simd())) {
+#ifdef __PERF_LOG__
+            t1 = high_resolution_clock::now();
+#endif
+            // Write statistical data and store phylogenetic data (tree)
+            {
+                //printf("----------------> Must not be here\n");
+                output_m_->write_current_generation_outputs();
+            }
 
 #ifdef __PERF_LOG__
-      t2 = high_resolution_clock::now();
-    duration_2 += std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+            t2 = high_resolution_clock::now();
+            duration_2 += std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 #endif
-  }
+        }
 
 #ifdef __CUDACC__
-  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
+        std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration<<","<<duration_A<<","<<duration_B<<","<<duration_C<<std::endl;
 
-  if (first_gen) {
-    cudaProfilerStart();
-    first_gen = false;
-  }
+        if (first_gen) {
+          cudaProfilerStart();
+          first_gen = false;
+        }
 #else
 
 #ifdef __PERF_LOG__
-  std::cout<<"PERFLOG,"<<AeTime::time()<<","<<duration_2<<","<<duration_simd<<std::endl;
+        std::cout << "PERFLOG," << AeTime::time() << "," << duration_2 << "," << duration_simd << std::endl;
 #endif
 
+#endif
+#ifdef WITH_STANDALONE_SIMD
+    }
 #endif
 }
 
@@ -451,7 +481,7 @@ void ExpManager::load(gzFile& exp_s_file,
   printf(" OK\n");
 
   if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory();
 
 
   // ---------------------------------------------------------- Retrieve world
@@ -470,30 +500,33 @@ void ExpManager::load(gzFile& exp_s_file,
         dna_mutator_array_[i] = nullptr;
     }
 
-    simd_individual = new SIMD_Individual(this);
-    simd_individual->protein_grain_size = grain_size;
-    simd_individual->rna_grain_size = grain_size;
-
+    if (to_be_run) {
+        simd_individual = new SIMD_Individual(this);
+        simd_individual->protein_grain_size = grain_size;
+        simd_individual->rna_grain_size = grain_size;
+    }
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
-
-  simd_individual->set_stats(output_m_->stats());
-
+    if (to_be_run) {
+        simd_individual->set_stats(output_m_->stats());
+    }
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (SIMD_Individual::standalone_simd) {
-          simd_individual->addObserver(tree(), NEW_INDIV);
-          for (int16_t x = 0; x < grid_width(); x++) {
-              for (int16_t y = 0; y < grid_height(); y++) {
-                  simd_individual->internal_simd_struct[x*grid_height()+y]->addObserver(
-                          tree(),
-                          END_REPLICATION);
+          if (to_be_run) {
+              simd_individual->addObserver(tree(), NEW_INDIV);
+              for (int16_t x = 0; x < grid_width(); x++) {
+                  for (int16_t y = 0; y < grid_height(); y++) {
+                      simd_individual->internal_simd_struct[x * grid_height() + y]->addObserver(
+                              tree(),
+                              END_REPLICATION);
+                  }
               }
+              simd_individual->addObserver(tree(), END_GENERATION);
           }
-          simd_individual->addObserver(tree(), END_GENERATION);
       } else {
           sel()->addObserver(tree(), NEW_INDIV);
           for (int16_t x = 0; x < grid_width(); x++) {
@@ -509,15 +542,17 @@ void ExpManager::load(gzFile& exp_s_file,
 
   if (record_light_tree()){
     if (SIMD_Individual::standalone_simd) {
-      simd_individual->addObserver(light_tree(), NEW_INDIV);
-      for (int16_t x = 0; x < grid_width(); x++) {
-        for (int16_t y = 0; y < grid_height(); y++) {
-          simd_individual->internal_simd_struct[x*grid_height()+y]->addObserver(
-                  light_tree(),
-                  END_REPLICATION);
+        if (to_be_run) {
+            simd_individual->addObserver(light_tree(), NEW_INDIV);
+            for (int16_t x = 0; x < grid_width(); x++) {
+                for (int16_t y = 0; y < grid_height(); y++) {
+                    simd_individual->internal_simd_struct[x * grid_height() + y]->addObserver(
+                            light_tree(),
+                            END_REPLICATION);
+                }
+            }
+            simd_individual->addObserver(light_tree(), END_GENERATION);
         }
-      }
-      simd_individual->addObserver(light_tree(), END_GENERATION);
     } else {
       sel()->addObserver(light_tree(), NEW_INDIV);
       for (int16_t x = 0; x < grid_width(); x++) {
@@ -569,8 +604,7 @@ void ExpManager::load(const char* dir,
 
 
   if (FuzzyFactory::fuzzyFactory == NULL)
-    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s_);
-  printf("Factory flavor %d : %d\n",exp_s_->get_fuzzy_flavor(),FuzzyFactory::fuzzyFactory->get_fuzzy_flavor());
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory();
 }
 
 
@@ -665,6 +699,8 @@ void ExpManager::run_evolution() {
   cudaProfilerStart();
 #endif
 
+        w_max_ = best_indiv()->w_max();
+
   bool first_run = true;
 
       //"Post Treatment"
@@ -677,91 +713,82 @@ void ExpManager::run_evolution() {
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
 
-      if (SIMD_Individual::standalone_simd)
-        simd_individual->run_a_step(best_indiv()->w_max(),selection_pressure(),false);
+      if (simd_individual->standalone())
+          simd_individual->run_a_step(w_max_,selection_pressure(),false);
 
+      if (check_simd_)
+          simd_individual->check_result();
 
+      bool finished=false;
         // For each generation
-  while (true) { // termination condition is into the loop
+#ifdef WITH_STANDALONE_SIMD
+#pragma omp parallel
+#endif
+                while (!finished) {
+#ifdef WITH_STANDALONE_SIMD
+#pragma omp single
+#endif
+                        {
+                            if (AeTime::time() % 100 == 0) {
+                                printf(
+                                        "============================== %" PRId64 " ==============================\n",
+                                        AeTime::time());
+                                if (!first_run) {
+                                    if (SIMD_Individual::standalone_simd) {
+                                        simd_individual->dna_factory_->stats();
+                                        printf(
+                                                "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
+                                                //simd_individual->best_indiv->indiv_id,
+                                                simd_individual->best_indiv->metaerror,
+                                                simd_individual->nb_clones_);
+                                    } else {
+                                        printf("  Best individual's distance to target (metabolic) : %f\n",
+                                                //best_indiv()->id(),
+                                               best_indiv()->dist_to_target_by_feature(METABOLISM));
+                                    }
+                                } else {
+                                    printf("  Best individual's distance to target (metabolic) : %f\n",
+                                            //best_indiv()->id(),
+                                           best_indiv()->dist_to_target_by_feature(METABOLISM));
+                                }
+                            }
 
-    if (AeTime::time() % 1 == 0) {
-      printf(
-              "============================== %" PRId64 " ==============================\n",
-              AeTime::time());
-      if (!first_run) {
-        if (SIMD_Individual::standalone_simd) {
-          printf(
-                  "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
-                  //simd_individual->best_indiv->indiv_id,
-                  simd_individual->best_indiv->metaerror,
-                  simd_individual->nb_clones_);
-        } else {
-          printf("  Best individual's distance to target (metabolic) : %f\n",
-                 //best_indiv()->id(),
-                 best_indiv()->dist_to_target_by_feature(METABOLISM));
-        }
-      } else {
-        printf("  Best individual's distance to target (metabolic) : %f\n",
-               //best_indiv()->id(),
-               best_indiv()->dist_to_target_by_feature(METABOLISM));
-      }
-    }
-
-    first_run = false;
-
-/*
-    int16_t nb_activators = 0;
-    int16_t nb_operators = 0;
-
-    Individual_R* test = dynamic_cast<Individual_R*>(best_indiv());
-
-    //test->init_indiv(dynamic_cast<const Habitat_R&>(test->habitat()));
-
-    int nb_protein = 0;
-    for (const auto& rnax: test->_rna_list_coding) {
-      Rna_R* rna = (Rna_R*) rnax;
-      for (unsigned int i = 0; i < rna->nb_influences(); i++) {
-        nb_protein++;
-        if (rna->_enhancing_coef_list[i] > 0) {
-          nb_activators++;
-        }
-
-        if (rna->_operating_coef_list[i] > 0) {
-          nb_operators++;
-        }
-      }
-    }
-
-    printf("  Proteins %ld (%d) - RNA %ld - Link A %d - I %d\n",test->protein_list().size(),nb_protein,
-           test->_rna_list_coding.size(),
-           nb_activators,nb_operators);
-*/
+                            first_run = false;
 
 
 #ifdef __X11
-    display();
+                            display();
 #endif
-    if (with_mrca_ && record_light_tree()) {
-      if (AeTime::time() == t_end_) {
-        output_m_->light_tree()->keep_indivs(indivs());
-      }
-      if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
-        break;
-    } else if (AeTime::time() >= t_end_ or quit_signal_received())
-      break;
+                            if (with_mrca_ && record_light_tree()) {
+                                /*if (AeTime::time() == t_end_) {
+                                    output_m_->light_tree()->keep_indivs(indivs());
+                                }*/
+                                if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
+                                    finished = true;
+                            } else if (AeTime::time() >= t_end_ or quit_signal_received())
+                                finished = true;
 
 #ifdef __TRACING__
-    t1 = high_resolution_clock::now();
+                            t1 = high_resolution_clock::now();
 #endif
-    // Take one step in the evolutionary loop
-    step_to_next_generation();
+
+                        }
+                        // Take one step in the evolutionary loop
+                        step_to_next_generation();
+#ifdef WITH_STANDALONE_SIMD
+#pragma omp single
+                        {
+#endif
 #ifdef __TRACING__
-    t2 = high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-        ae_logger::addLog(SELECTION,duration);
-        ae_logger::flush(AeTime::time());
+                            t2 = high_resolution_clock::now();
+                                auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+                                ae_logger::addLog(SELECTION,duration);
+                                ae_logger::flush(AeTime::time());
 #endif
-  }
+                        }
+#ifdef WITH_STANDALONE_SIMD
+                }
+#endif
 #ifdef __TRACING__
   t_t2 = high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
@@ -773,11 +800,11 @@ void ExpManager::run_evolution() {
   cudaProfilerStop();
 #endif
 
-  output_m_->flush();
-  if(with_mrca_ && record_light_tree())
-    output_m_->light_tree()->save_mrca_indiv();
-  if(anc_stat_ && record_light_tree())
-    output_m_->light_tree()->close_anc_stat();
+//  output_m_->flush();
+//  if(with_mrca_ && record_light_tree())
+//    output_m_->light_tree()->save_mrca_indiv();
+//  if(anc_stat_ && record_light_tree())
+//    output_m_->light_tree()->close_anc_stat();
 
   printf("================================================================\n");
   printf("  The run is finished. \n");
@@ -786,7 +813,6 @@ void ExpManager::run_evolution() {
   if (!simd_individual->standalone()) {
     FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
     fputs(best_indiv()->genetic_unit_sequence(0), org_file);
-    fputs("\n", org_file);
     fclose(org_file);
   }
 }
@@ -857,7 +883,6 @@ void ExpManager::open_backup_files(gzFile& exp_backup_file,
 
   sprintf(exp_backup_file_name, "%s/" EXP_S_FNAME_FORMAT, dir, t);
   sprintf(world_file_name, "%s/" WORLD_FNAME_FORMAT, dir, t);
-
 
   // -------------------------------------------------------------------------
   // Open backup files

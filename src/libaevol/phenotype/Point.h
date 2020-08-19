@@ -34,12 +34,17 @@
 
 namespace aevol {
 
-struct Point {
+class Point {
+public:
   ProteinConcentration x;
-  ProteinConcentration y;
+  mutable ProteinConcentration y;
   Point(ProteinConcentration x_, ProteinConcentration y_): x(x_), y(y_) {};
   Point() {};
   Point(Point* p): x(p->x), y(p->y) {};
+
+  bool operator<(const Point & other) const {
+      return (x <  other.x);
+  }
 };
 
 Point readpoint(const gzFile backup_file);

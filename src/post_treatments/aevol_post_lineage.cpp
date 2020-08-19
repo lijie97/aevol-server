@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
 
-  FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_manager->exp_s());
+  FuzzyFactory::fuzzyFactory = new FuzzyFactory();
 
   // Check that the tree was recorded
   if (not exp_manager->record_tree()) {
@@ -142,6 +142,8 @@ int main(int argc, char** argv) {
   //
 
     sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t_end);
+
+  printf("Loading %d\n",t_end);
 
   tree = new Tree(exp_manager, tree_file_name);
 
@@ -319,6 +321,7 @@ int main(int argc, char** argv) {
   std::ofstream of;
   of.open("lignée_old.txt");
 
+  char* dna_4704;
   for (int64_t i = 0 ; i < t_end - t0 ; i++) {
     // Where are we in time...
     int64_t t = t0 + i + 1;
@@ -337,6 +340,7 @@ int main(int argc, char** argv) {
     reports[i]->write_to_tree_file(lineage_file);
     if (verbose) printf(" OK\n");
 
+      char *str_next;
 
     if (check_genome_now) {
       // Load the simulation
@@ -354,25 +358,27 @@ int main(int argc, char** argv) {
 
     // Replay the mutations stored in the current replication report on the
     // current genome
+
     unit = initial_ancestor.genetic_unit_list().cbegin();
     for (const auto& mut: reports[i]->dna_replic_report().HT()) {
       (unit->dna())->undergo_this_mutation(*mut);
+
     }
     for (const auto& mut: reports[i]->dna_replic_report().rearrangements()) {
       (unit->dna())->undergo_this_mutation(*mut);
     }
     for (const auto& mut: reports[i]->dna_replic_report().mutations()) {
-      unit->dna()->undergo_this_mutation(*mut);
+        unit->dna()->undergo_this_mutation(*mut);
     }
 
     if (check_genome_now) {
       if (verbose) {
-        printf("Checking the sequence of the unit...");
+        printf("%d -- Checking the sequence of the unit...",t);
         fflush(stdout);
       }
       assert(stored_gen_unit != stored_indiv->genetic_unit_list().cend());
 
-      char * str1 = new char[unit->dna()->length() + 1];
+        char * str1 = new char[unit->dna()->length() + 1];
       memcpy(str1, unit->dna()->data(),
              unit->dna()->length() * sizeof(char));
       str1[unit->dna()->length()] = '\0';
@@ -393,6 +399,7 @@ int main(int argc, char** argv) {
                 (int32_t)strlen(str1), str1);
         fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n",
                 (int32_t)strlen(str2), str2);
+
         delete [] str1;
         delete [] str2;
         gzclose(lineage_file);
@@ -419,8 +426,8 @@ int main(int argc, char** argv) {
 
 
   gzclose(lineage_file);
-  delete [] reports;
-  delete exp_manager;
+  //delete [] reports;
+  //delete exp_manager;
 
   exit(EXIT_SUCCESS);
 }

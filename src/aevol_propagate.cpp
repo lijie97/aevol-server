@@ -99,10 +99,11 @@ int main(int argc, char* argv[]) {
   ExpManager* exp_manager = new ExpManager();
 #endif
 
-  exp_manager->load(input_dir, timestep, verbose, false);
+  exp_manager->load(input_dir, timestep, verbose, true);
 
   if (not keep_prng_states) {
-    auto max = std::numeric_limits<int32_t>::max();
+
+      auto max = std::numeric_limits<int32_t>::max();
 
 #if __cplusplus == 201103L
     auto prng = make_unique<JumpingMT>(time(nullptr));
@@ -136,7 +137,11 @@ int main(int argc, char* argv[]) {
     exp_manager->world()->set_phen_target_prngs(
             std::make_shared<JumpingMT>(prng->random(max)),
             std::make_shared<JumpingMT>(prng->random(max)));
+
+      exp_manager->save_copy(output_dir, timestep);
+
   } else {
+
     if (selseed != -1) {
 #if __cplusplus == 201103L
       auto prng = make_unique<JumpingMT>(selseed);
@@ -157,8 +162,10 @@ int main(int argc, char* argv[]) {
         }
       }
 
-      exp_manager->save_copy(output_dir, timestep);
     }
+
+
+      exp_manager->save_copy(output_dir, timestep);
   }
 }
 

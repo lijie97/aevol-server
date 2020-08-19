@@ -294,6 +294,9 @@ class ParamLoader {
   // Fuzzy set flavor
   int _fuzzy_flavor;
 
+  // SIMD Metadata set flavor
+  int simd_metadata_flavor_;
+
   // Other
   bool more_stats_;  // TODO : explain
 

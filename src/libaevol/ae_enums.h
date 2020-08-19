@@ -115,6 +115,12 @@ enum Position {
   AFTER
 };
 
+enum SIMDMetadataFlavor {
+    STD_MAP = 0,
+    DYN_TAB = 1,
+    STD_LIST = 2
+};
+
 } // namespace aevol
 
 #endif // AEVOL_ENUMS_H_

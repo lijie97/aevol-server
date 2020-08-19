@@ -84,6 +84,7 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   secretion_cost_               = 0.0;
 
   fuzzy_flavor_                 = 0;
+  simd_metadata_flavor_         = STD_MAP;
 
 #ifdef __REGUL
   _protein_presence_limit = 1e-2;
@@ -110,6 +111,8 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   gzwrite(exp_setup_file,
           &fuzzy_flavor_,sizeof(fuzzy_flavor_));
+      gzwrite(exp_setup_file,
+              &simd_metadata_flavor_,sizeof(simd_metadata_flavor_));
   // --------------------------------------------------------------- Transfer
   int8_t tmp_with_HT = static_cast<int8_t>(with_HT_);
   int8_t tmp_repl_HT_with_close_points = static_cast<int8_t>(repl_HT_with_close_points_);
@@ -203,6 +206,7 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
 
 void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   gzread(setup_file,&fuzzy_flavor_,sizeof(fuzzy_flavor_));
+  gzread(setup_file,&simd_metadata_flavor_,sizeof(simd_metadata_flavor_));
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
   int8_t tmp_repl_HT_with_close_points;

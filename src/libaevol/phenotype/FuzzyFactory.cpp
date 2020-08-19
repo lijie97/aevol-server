@@ -105,11 +105,11 @@ AbstractFuzzy* FuzzyFactory::create_fuzzy()
 {
   AbstractFuzzy* fuzzy;
 
-  if (_exp_s->get_fuzzy_flavor() == 0) {
+//  if (_exp_s->get_fuzzy_flavor() == 0) {
     fuzzy = new Fuzzy();
-  } else {
-    fuzzy = new HybridFuzzy();
-  }
+//  } else {
+//    fuzzy = new HybridFuzzy();
+//  }
 
   return fuzzy;
 }
@@ -118,11 +118,11 @@ AbstractFuzzy* FuzzyFactory::create_fuzzy(const AbstractFuzzy& copy)
 {
   AbstractFuzzy* fuzzy;
 
-  if (_exp_s->get_fuzzy_flavor() == 0) {
+//  if (_exp_s->get_fuzzy_flavor() == 0) {
     fuzzy = new Fuzzy((Fuzzy&)(copy));
-  } else {
-    fuzzy = new HybridFuzzy((HybridFuzzy&)(copy));
-  }
+//  } else {
+//    fuzzy = new HybridFuzzy((HybridFuzzy&)(copy));
+//  }
 
   return fuzzy;
 }
@@ -131,19 +131,15 @@ AbstractFuzzy* FuzzyFactory::create_fuzzy(const gzFile backup)
 {
   AbstractFuzzy* fuzzy;
 
-  if (_exp_s->get_fuzzy_flavor() == 0) {
+//  if (_exp_s->get_fuzzy_flavor() == 0) {
     fuzzy = new Fuzzy(backup);
-  } else {
-    fuzzy = new HybridFuzzy(backup);
-  }
+//  } else {
+//    fuzzy = new HybridFuzzy(backup);
+//  }
 
   return fuzzy;
 }
 
-int FuzzyFactory::get_fuzzy_flavor()
-{
-  return _exp_s->get_fuzzy_flavor();
-}
 // ============================================================================
 //                            Non inline accessors
 // ============================================================================

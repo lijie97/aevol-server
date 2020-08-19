@@ -99,6 +99,7 @@ class GridCell
   inline int16_t y() const {return y_;};
   inline double compound_amount() const;
   inline Individual * individual() const;
+  inline Individual * individual_nonconst() {return individual_;}
 
   inline double secreted_amount() const;
   inline double metabolic_fitness() const;

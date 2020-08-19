@@ -47,7 +47,7 @@ class DnaReplicationReport {
   // =================================================================
   //                             Constructors
   // =================================================================
-  DnaReplicationReport() = default;
+  DnaReplicationReport() {};
   DnaReplicationReport(const DnaReplicationReport&);
   DnaReplicationReport(DnaReplicationReport&&) = delete;
 
@@ -82,6 +82,8 @@ class DnaReplicationReport {
   void add_local_mut(Mutation* mut);
   void add_rear(Mutation* mut);
   void add_HT(Mutation* mut);
+
+  void clear();
 
   void write_to_tree_file(gzFile tree_file) const;
   void read_from_tree_file(gzFile tree_file);

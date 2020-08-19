@@ -171,6 +171,9 @@ ProteinConcentration HybridFuzzy::get_geometric_area( ProteinConcentration start
   if (istart_segment < 0) istart_segment = 0; else if (istart_segment > (_pheno_size-1)) istart_segment = _pheno_size-1;
   if (iend_segment < 0) iend_segment = 0; else if (iend_segment > (_pheno_size-1)) iend_segment = _pheno_size-1;
   for (int i = istart_segment; i < iend_segment; i++) {
+
+      printf("TA [ %lf %lf ] [ %lf %lf ] = %lf\n",((double)i)/300.0,((double)i+1)/300.0,_points[i],_points[i+1],
+             ((fabs(_points[i]) + fabs(_points[i+1])) / (2.0*_pheno_size)));
     area+=((fabs(_points[i]) + fabs(_points[i+1])) / (2.0*_pheno_size));
   }
 
@@ -248,7 +251,7 @@ ProteinConcentration HybridFuzzy::get_y( ProteinConcentration x ) const
 void HybridFuzzy::print() const
 {
   for (int i = 0; i < _pheno_size; i++)
-    if (_points[i]!=0) printf("[%d : %f] ",i,_points[i]);
+    if (_points[i]!=0) printf("[%d : %f]\n",i,_points[i]);
   printf("\n");
 }
 

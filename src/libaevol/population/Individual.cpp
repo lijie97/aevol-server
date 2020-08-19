@@ -1317,14 +1317,35 @@ void Individual::compute_phenotype() {
       }*/
   }
 
-  phenotype_activ_->clip(AbstractFuzzy::max,   Y_MAX);
+
+
+//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Geom %lf %lf\n", phenotype_activ()->get_geometric_area(),phenotype_inhib()->get_geometric_area());
+//        }
+
+
+        phenotype_activ_->clip(AbstractFuzzy::max,   Y_MAX);
   phenotype_inhib_->clip(AbstractFuzzy::min, - Y_MAX);
+
+//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Geom CLIPA %lf %lf\n", phenotype_activ()->get_geometric_area(),phenotype_inhib()->get_geometric_area());
+//        }
 
   phenotype_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotype_->add(*phenotype_activ_);
   phenotype_->add(*phenotype_inhib_);
+//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Geom ADD %lf\n", phenotype()->get_geometric_area());
+//        }
   phenotype_->clip(AbstractFuzzy::min, Y_MIN);
+//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Geom CLIP %lf\n", phenotype()->get_geometric_area());
+//        }
   phenotype_->simplify();
+
+//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
+//            printf("Geom SIMPLIFY %lf\n", phenotype()->get_geometric_area());
+//        }
 }
 
 void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
@@ -1355,10 +1376,22 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
 
+//    if (grid_cell()->x() == 4 && grid_cell()->y() == 29) {
+//        printf("Delta VAN\n");
+//        delta->print();
+//    }
+
+
   for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
+
     dist_to_target_by_segment_[i] = delta->get_geometric_area(
       segments[i]->start, segments[i]->stop);
+
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_by_segment_[i];
+
+//      if (grid_cell()->x() == 4 && grid_cell()->y() == 29)
+//          printf("Segment %ld [%f %f] : Geom %f--  Feature %d : %f\n",i,segments[i]->start,segments[i]->stop,
+//             dist_to_target_by_segment_[i],segments[i]->feature,dist_to_target_by_feature_[segments[i]->feature]);
   }
 
   delete delta;

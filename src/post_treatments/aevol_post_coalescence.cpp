@@ -251,7 +251,7 @@ int main(int argc, char** argv)
               }
 
 
-        std::map<int32_t, ReplicationReport*> reports = tree->reports(local_time);
+        ReplicationReport** reports = tree->reports(local_time);
 
           #pragma omp parallel for
           for (int i = 0; i < pop_size; i++) {

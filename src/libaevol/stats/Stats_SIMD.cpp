@@ -124,6 +124,7 @@ Stats_SIMD::Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation, boo
 }
 
 void Stats_SIMD::compute_best() {
+//    printf("Compute BEST\n");
   is_indiv_ = true;
 
   fitness_ = simd_individual_->best_indiv->fitness;
@@ -147,10 +148,10 @@ void Stats_SIMD::compute_best() {
   nb_trans_ = simd_individual_->best_indiv->dna_->nb_large_trans_;
   nb_inv_ = simd_individual_->best_indiv->dna_->nb_large_inv_;
 
-  dupl_rate_  = nb_dupl_  / simd_individual_->best_indiv->dna_->parent_length();
-  del_rate_   = nb_del_   / simd_individual_->best_indiv->dna_->parent_length();
-  trans_rate_ = nb_trans_ / simd_individual_->best_indiv->dna_->parent_length();
-  inv_rate_   = nb_inv_   / simd_individual_->best_indiv->dna_->parent_length();
+  dupl_rate_  = nb_dupl_  / (double)( simd_individual_->best_indiv->dna_->parent_length());
+  del_rate_   = nb_del_   / (double)( simd_individual_->best_indiv->dna_->parent_length());
+  trans_rate_ = nb_trans_ / (double)( simd_individual_->best_indiv->dna_->parent_length());
+  inv_rate_   = nb_inv_   / (double)( simd_individual_->best_indiv->dna_->parent_length());
 
 /*  nb_bases_in_0_CDS_;
   nb_bases_in_0_functional_CDS_;
@@ -239,14 +240,30 @@ void Stats_SIMD::write_best() {
     compute_best();
 
   if (is_indiv_ && is_computed_) {
+//      printf("FITNESS %e\n",fitness_);
+
     // Write best stats
-    statfile_best_<<generation_<<","<<fitness_<<","<<metabolic_error_<<","<<
-        amount_of_dna_<<","<<nb_coding_rnas_<<","<<nb_non_coding_rnas_<<","<<
-        nb_functional_genes_<<","<<nb_non_functional_genes_<<","<<nb_mut_
-        <<","<<nb_switch_<<","<<nb_indels_<<","<<nb_rear_<<","<<nb_dupl_<<","<<
-        nb_del_<<","<<nb_trans_<<","<<nb_inv_<<","<<dupl_rate_<<","<<del_rate_
-        <<","<<trans_rate_<<","<<inv_rate_
-                  <<std::endl;
+    statfile_best_<<generation_;
+    statfile_best_<<","<<fitness_;
+    statfile_best_<<","<<metabolic_error_;
+    statfile_best_<<","<<amount_of_dna_;
+    statfile_best_<<","<<nb_coding_rnas_;
+    statfile_best_<<","<<nb_non_coding_rnas_;
+    statfile_best_<<","<<nb_functional_genes_;
+    statfile_best_<<","<<nb_non_functional_genes_;
+    statfile_best_<<","<<nb_mut_;
+    statfile_best_<<","<<nb_switch_;
+    statfile_best_<<","<<nb_indels_;
+    statfile_best_<<","<<nb_rear_;
+    statfile_best_<<","<<nb_dupl_;
+    statfile_best_<<","<<nb_del_;
+    statfile_best_<<","<<nb_trans_;
+    statfile_best_<<","<<nb_inv_;
+    statfile_best_<<","<<dupl_rate_;
+    statfile_best_<<","<<del_rate_;
+    statfile_best_<<","<<trans_rate_;
+    statfile_best_<<","<<inv_rate_;
+    statfile_best_<<std::endl;
     statfile_best_.flush();
   }
 }

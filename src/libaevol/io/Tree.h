@@ -54,6 +54,14 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 
+class RepTree
+{
+public:
+    RepTree() { a = 1; }
+    ~RepTree() = default;
+
+    int a = -1;
+};
 
 class Tree : public Observer
 {
@@ -86,7 +94,7 @@ class Tree : public Observer
     // the tree was emptied every TREE_STEP generations ==> it contains
     // only the last generations since the last emptying ==> do not ask
     // something about an older generation
-    std::map<int32_t, ReplicationReport*> reports(int64_t t) const;
+    ReplicationReport** reports(int64_t t) const;
     ReplicationReport* report_by_index(int64_t t, int32_t index) const;
     ReplicationReport* report_by_rank(int64_t t, int32_t rank) const;
 
@@ -99,10 +107,15 @@ class Tree : public Observer
     //                            Public Methods
     // =================================================================
     void signal_end_of_generation();
-    void write_to_tree_file(int64_t gen, gzFile tree_file);
+    void write_to_tree_file(char* tree_file_name);
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
 
+    void update_new_indiv(NewIndivEvent* evt);
+
+    void update_end_replication(EndReplicationEvent* evt);
+
+    void update_end_generation();
 
     // =================================================================
     //                           Public Attributes
@@ -125,8 +138,7 @@ class Tree : public Observer
 
     int64_t tree_step_;
 
-    //ReplicationReport*** replics_;
-    std::map<int64_t, std::map<int32_t, ReplicationReport*>> replics_;
+    ReplicationReport*** replics_;
     // Two-dimensional table of ReplicationReport*
     //    dimension 1 (lines)   : generation
     //    dimension 2 (columns) : individual

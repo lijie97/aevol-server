@@ -8,7 +8,7 @@
 
 #include <cstdint>
 #include <list>
-
+#include "Utils.h"
 //#include "Dna.h"
 #include "MutationEvent.h"
 #include "BitSet_SIMD.h"
@@ -18,13 +18,25 @@ namespace aevol {
 #define BLOCK_SIZE INT32_C(1024)
 class Dna;
 class Internal_SIMD_Struct;
+class SIMD_DnaFactory;
 
 class Dna_SIMD {
  public:
-    Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv);
-    Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, bool copy_dna = true);
-    Dna_SIMD(Dna* dna);
+    Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory);
+    Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory);
+    Dna_SIMD(Dna* dna, SIMD_DnaFactory* dna_factory);
+    Dna_SIMD(int length, SIMD_DnaFactory* dna_factory);
     ~Dna_SIMD();
+
+    void set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv);
+    void set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory);
+    void set_indiv(int length, int parent_length, Internal_SIMD_Struct* indiv);
+
+    inline char get_lead(int32_t pos) { return data_[Utils::mod(pos,length_ )]; }
+//return data_[pos + (((unsigned int32_t)(pos - length_) >> 31) -1) * length_];};
+    inline char get_lag(int32_t pos) { return data_[Utils::mod(pos,length_)]; } //return data_[pos + ((unsigned int32_t)(pos) >> 31) * length_];};
+
+    inline int nb_block() { return nb_blocks_; }
 
     void apply_mutations();
 
@@ -107,6 +119,7 @@ class Dna_SIMD {
     int32_t parent_length_;
     int32_t nb_blocks_;
     Internal_SIMD_Struct* indiv_;
+    SIMD_DnaFactory* dna_factory_;
 
 };
 

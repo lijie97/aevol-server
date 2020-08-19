@@ -90,6 +90,8 @@ World::~World()
   // statements and these are the corresponding deletes
   delete [] grid_1d_;
   delete [] grid_;
+
+  delete phenotypic_target_handler_;
 }
 
 // =================================================================
@@ -171,7 +173,7 @@ void World::evaluate_individuals()
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
       #ifndef __REGUL
-      Individual* indiv       = indiv_at(x, y);
+      Individual* indiv       = indiv_at_nonconst(x, y);
       #else
       Individual_R* indiv       = dynamic_cast <Individual_R*> (indiv_at(x, y));
       #endif
@@ -409,10 +411,13 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
   MallocGrid();
 
   for (int16_t x = 0 ; x < width_ ; x++)
-    for (int16_t y = 0 ; y < height_ ; y++)
-      grid_[x][y] = new GridCell(backup_file,
-                                 exp_man,
-                                 phenotypic_target_handler_);
+    for (int16_t y = 0 ; y < height_ ; y++) {
+        grid_[x][y] = new GridCell(backup_file,
+                                   exp_man,
+                                   phenotypic_target_handler_);
+//        printf("Individual %p %p %p\n",grid_[x][y],grid_[x][y]->individual_nonconst(),
+//               grid_[x][y]->individual_nonconst()->grid_cell());
+    }
 
   gzread(backup_file, &x_best, sizeof(x_best));
   gzread(backup_file, &y_best, sizeof(y_best));

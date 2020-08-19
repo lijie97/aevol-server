@@ -3,6 +3,7 @@
 # ============================================================================
 add_subdirectory(SFMT-src-1.4)
 
+
 # ============================================================================
 # Find packages
 # ============================================================================
@@ -185,6 +186,18 @@ set(aevol_sources
   world/SaveWorld.h
   world/World.cpp
   world/World.h
+SIMD_Abstract_Metadata.cpp 
+  SIMD_Abstract_Metadata.h 
+  SIMD_Map_Metadata.cpp 
+  SIMD_Map_Metadata.h
+  SIMD_DynTab_Metadata.cpp
+  SIMD_DynTab_Metadata.h
+  SIMD_List_Metadata.cpp
+  SIMD_List_Metadata.h
+  SIMD_DnaFactory.cpp
+  SIMD_DnaFactory.h
+  Vector_Fuzzy.h
+  Vector_Fuzzy.cpp
   )
   
 if ( ${with-raevol} )
