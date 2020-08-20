@@ -27,6 +27,8 @@ class SIMD_PhenotypicTargetHandler_R {
   std::vector<std::list<int16_t>> env_signals_list_;
 
   Vector_Fuzzy** targets_fuzzy_;
+  Vector_Fuzzy** targets_fuzzy_by_id_;
+
   PhenotypicTargetVariationMethod var_method_;
 
   int16_t* list_env_id_;
@@ -41,8 +43,6 @@ class SIMD_PhenotypicTargetHandler_R {
   double env_switch_probability_;
   int16_t sampling_;
 
-
-  Vector_Fuzzy** targets_fuzzy_by_id_;
 
   std::shared_ptr<JumpingMT> var_prng_;
 
