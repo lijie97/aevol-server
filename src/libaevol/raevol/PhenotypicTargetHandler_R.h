@@ -179,6 +179,14 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
 
     void ShuffleRandomlySignals();
 
+  std::vector<PhenotypicTarget_R*> phenotypic_targets_;
+  std::vector<std::list<Gaussian>> env_gaussians_list_;
+  std::vector<std::list<int16_t>> env_signals_list_;
+  std::vector<Protein_R*> signals_models_;
+  std::list<Protein_R*> signals_models_list_;
+  double env_switch_probability_;
+  int16_t _nb_indiv_age;
+
  protected :
   // ==========================================================================
   //                            Protected Methods
@@ -197,13 +205,6 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   //                               Attributes
   // ==========================================================================
 
-  std::vector<PhenotypicTarget_R*> phenotypic_targets_;
-  std::vector<std::list<Gaussian>> env_gaussians_list_;
-  std::vector<std::list<int16_t>> env_signals_list_;
-  std::vector<Protein_R*> signals_models_;
-  std::list<Protein_R*> signals_models_list_;
-  double env_switch_probability_;
-  int16_t _nb_indiv_age;
 
   bool hasChanged_;
 

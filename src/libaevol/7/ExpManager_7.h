@@ -80,7 +80,14 @@ class ExpManager_7 : public Observable{
 
 
   void build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler);
-
+#ifdef __REGUL
+  void compute_network(int indiv_id, double selection_pressure);
+  void update_network(int indiv_id, double selection_pressure);
+  void evaluate_network(int indiv_id, double selection_pressure, int env_id);
+  void finalize_network(int indiv_id, double selection_pressure);
+  void solve_network(int indiv_id, double selection_pressure);
+  void update_phenotype( int indiv_id );
+#endif
 
   void set_stats(Stats* stats) { stats_ = stats; }
 
@@ -103,10 +110,15 @@ class ExpManager_7 : public Observable{
  private:
   ExpManager* exp_m_;
   int* dna_size;
+#ifdef __REGUL
+  Vector_Fuzzy** targets;
+SIMD_PhenotypicTargetHandler_R* phenotypic_target_handler_;
+#else
 #ifdef PHENOTYPE_VECTOR
   double* target;
 #else
   Vector_Fuzzy* target;
+#endif
 #endif
   bool first_gener_ = true;
 

@@ -26,3 +26,51 @@
 
 
 #include "Rna_7.h"
+
+
+double Rna_7::affinity_with_protein( int32_t index, pProtein *protein, Internal_SIMD_Struct* indiv, ExpManager* exp_m ) {
+  int32_t len = protein->protein_length;
+
+  if (len > 5) {
+    double max = 0;
+    double temp = 1;
+
+    int32_t quadon_tab[5];
+
+    for (int32_t pos = index; pos < index+5; pos++) {
+
+      int8_t quadon[4];
+
+      if (leading_lagging == LEADING) {
+        for (int8_t i = 0; i < QUADON_SIZE; i++) {
+          quadon[i] = (indiv->dna_->get_lead(pos + i) == '1')
+                      ? 1 << (QUADON_SIZE - i - 1)
+                      : 0;
+        }
+      } else {
+        for (int8_t i = 0; i < QUADON_SIZE; i++) {
+          quadon[i] = (indiv->dna_->get_lag(pos - i) != '1')
+                      ? (QUADON_SIZE - i - 1)
+                      : 0;
+        }
+      }
+
+      quadon_tab[pos - index] = quadon[0] + quadon[1] + quadon[2] + quadon[3];
+    }
+
+    for (int32_t i = 0; i < len - 4; i++) {
+      temp = 1;
+
+      for (int8_t j = 0; j < 5; j++) {
+        temp *= exp_m->exp_s()->get_binding_matrix(quadon_tab[j],
+                                                   protein->codon_list[i + j]);
+      }
+
+      max = (max < temp) ? temp : max;
+    }
+
+    return max;
+  } else {
+    return 0.0;
+  }
+}

@@ -941,14 +941,6 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
   return new_indiv;
 }
 
-void Selection::run_life(Individual* new_indiv) {
-  // Evaluate new individual
-  new_indiv->Evaluate();
-
-  // Compute statistics
-  new_indiv->compute_statistical_data();
-
-}
 
 #ifdef __REGUL
 void Selection::run_life(Individual_R* new_indiv) {
@@ -963,6 +955,15 @@ void Selection::run_life(Individual_R* new_indiv) {
 
     // Compute statistics
     new_indiv->compute_statistical_data();
+
+}
+#else
+void Selection::run_life(Individual* new_indiv) {
+  // Evaluate new individual
+  new_indiv->Evaluate();
+
+  // Compute statistics
+  new_indiv->compute_statistical_data();
 
 }
 #endif

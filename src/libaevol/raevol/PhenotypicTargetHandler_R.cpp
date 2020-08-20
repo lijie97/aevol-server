@@ -474,36 +474,6 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int16_t id) {
       }
       phenotypic_target->fuzzy()->add_point(new_point.x, new_point.y);
     }
-
-    if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 1) {
-      HybridFuzzy* fuz = (HybridFuzzy*) phenotypic_target->fuzzy();
-
-      for (int i = 1; i < fuz->get_pheno_size(); i++) {
-        if (fuz->points()[i] == 0.0) {
-          int minL = i - 1;
-          int maxL = i + 1;
-          int dist = 1;
-
-          while (fuz->points()[maxL] == 0.0) {
-            maxL++;
-            dist++;
-          }
-          double inc = 0.0;
-          if (fuz->points()[maxL] > fuz->points()[minL]) {
-            inc = (fuz->points()[maxL] - fuz->points()[minL]) / dist;
-          } else {
-            inc = (fuz->points()[minL] - fuz->points()[maxL]) / dist;
-            minL = maxL;
-          }
-
-          for (int j = i; j < maxL; j++) {
-            fuz->points()[j] = fuz->points()[minL] + inc;
-            inc += inc;
-          }
-
-        }
-      }
-    }
   }
   // Add lower and upper bounds
   phenotypic_target->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);

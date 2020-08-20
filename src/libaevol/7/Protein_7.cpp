@@ -26,3 +26,32 @@
 
 
 #include "Protein_7.h"
+Protein_7::Protein_7(Protein_R* prot_sig) {
+  protein_length = prot_sig->length();
+  e = prot_sig->concentration();
+
+  signal_ = prot_sig->is_signal();
+
+  nb_codons_ = prot_sig->AA_list().size();
+
+  for (int i = 0; i < nb_codons_; i++)
+    codon_list[i] = prot_sig->_cod_tab[i];
+}
+
+
+Protein_7::Protein_7(pProtein* prot) {
+  protein_start   = prot->protein_start;
+  protein_end     = prot->protein_end;
+  protein_length  = prot->protein_length;
+  leading_lagging = prot->leading_lagging;
+  e               = prot->e;
+  is_init_        = true;
+  signal_         = prot->signal_;
+  nb_codons_      = prot->nb_codons_;
+
+  for (int i = 0; i < nb_codons_; i++)
+    codon_list[i] = prot->codon_list[i];
+
+  initial_e_ = prot->initial_e_;
+  inherited_ = true;
+}
