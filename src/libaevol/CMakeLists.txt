@@ -214,7 +214,7 @@ if ( ${with-raevol} )
           raevol/Rna_R.h
           raevol/Rna_R.cpp 
 	  #"SIMD_Abstract Metadata.cpp" "SIMD_Abstract Metadata.h" SIMD_Map_Metadata.cpp SIMD_Map_Metadata.h
-	  )
+            raevol/SIMD_PhenotypicTargetHandler_R.cpp raevol/SIMD_PhenotypicTargetHandler_R.h)
 endif ()
 
 add_library(aevol ${aevol_sources})

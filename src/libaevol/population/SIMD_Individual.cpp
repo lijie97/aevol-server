@@ -80,6 +80,11 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
         dna_size[indiv_id] = internal_simd_struct[indiv_id]->dna_->length();
     }
 
+#ifdef __REGUL
+    phenotypic_target_handler_ = new SIMD_PhenotypicTargetHandler_R(
+        dynamic_cast<PhenotypicTargetHandler_R*>(exp_m->world()->phenotypic_target_handler()),
+        exp_m->exp_s());
+#else
 #ifdef PHENOTYPE_VECTOR
     target = new double[PHENOTYPE_VECTOR_SIZE];
     for (int i = 0; i < PHENOTYPE_VECTOR_SIZE; i++) {
@@ -88,6 +93,7 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
     }
 #else
     target = new Vector_Fuzzy(*(Fuzzy*)(exp_m->world()->phenotypic_target_handler()->phenotypic_target().fuzzy()));
+#endif
 #endif
 
 #ifdef WITH_PERF_TRACES
@@ -111,48 +117,126 @@ SIMD_Individual::SIMD_Individual(ExpManager* exp_m) {
 
         int16_t neighborhood_size = selection_scope_x * selection_scope_y;
 
+        FitnessFunction fitness_function = exp_m_->sel()->fitness_func();
+        int32_t fitness_function_scope_x = exp_m_->sel()->fitness_function_scope_x();
+        int32_t fitness_function_scope_y = exp_m_->sel()->fitness_function_scope_y();
+
         double *  local_fit_array   = new double[neighborhood_size];
         double *  local_meta_array   = new double[neighborhood_size];
         double *  probs             = new double[neighborhood_size];
         int16_t   count             = 0;
         double    sum_local_fit     = 0.0;
 
-        //int * indiv_index = new int[neighborhood_size];
-
         int32_t x = indiv_id / grid_height;
         int32_t y = indiv_id % grid_height;
 
         int cur_x,cur_y;
 
-        for (int8_t i = -1 ; i < selection_scope_x-1 ; i++) {
+#ifdef __REGUL
+      double ** fitness_sum_local_tab_;
+#endif
+
+      if (fitness_function == FITNESS_LOCAL_SUM) {
+#ifdef __REGUL
+        fitness_sum_local_tab_ = new double*[fitness_function_scope_x*fitness_function_scope_y];
+        for (int tab_id = 0; tab_id < fitness_function_scope_x*fitness_function_scope_y; tab_id++)
+          fitness_sum_local_tab_[tab_id] = new double[phenotypic_target_handler_->nb_env_];
+
+        for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_; env_id++) {
+
+          int tab_id = 0;
+          fitness_sum_local_tab_[tab_id][env_id] = 0;
+
+          for (int8_t i = -1; i < selection_scope_x - 1; i++) {
             for (int8_t j = -1; j < selection_scope_y - 1; j++) {
-                cur_x = (x + i + grid_width) % grid_width;
-                cur_y = (y + j + grid_height) % grid_height;
+              cur_x = (x + i + grid_width) % grid_width;
+              cur_y = (y + j + grid_height) % grid_height;
 
+              int16_t new_x,new_y;
+              for (int8_t ii = -1; ii < fitness_function_scope_x - 1; ii++) {
+                for (int8_t jj = -1; jj < fitness_function_scope_y - 1; jj++) {
+                  //TODO: Check values HERE !
 
-                local_fit_array[count] = prev_internal_simd_struct[cur_x * grid_height + cur_y]->fitness;
+                  new_x = (cur_x + ii + grid_width) % grid_width;
+                  new_y = (cur_y + jj + grid_height) % grid_height;
 
-                local_meta_array[count] = prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror;
-
-                //printf("Local fit %e %d %d %d -> %e\n",local_fit_array[count],cur_x,cur_y,cur_x*grid_height+cur_y,
-                //       prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);
-
-
-                /*printf("Metaerror : %e -- %e\n", local_meta_array[count],
-                       internal_simd_struct[cur_x * grid_height + cur_y]->metaerror);*/
-                if (local_meta_array[count] != prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror) {
-                    printf("NONONNONONONN\n");
-                    exit(-1);
+                  fitness_sum_local_tab_[tab_id][env_id] +=
+                      prev_internal_simd_struct[new_x * grid_height + new_y]->fitness_by_env_id_[env_id];
                 }
-                sum_local_fit += local_fit_array[count];
-
-
-                //indiv_index[count] = cur_x * grid_height + cur_y;
-                /*if (indiv_id == 0)
-                    printf("SIMD Local SUM Fit %e -- Fitness %e (CPU %e)\n",sum_local_fit,local_fit_array[count],exp_m_->world()->grid(x,y)->local_fit_array[count]);*/
-                count++;
+              }
+              tab_id++;
             }
+          }
         }
+#else
+        printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+    exit(-1);
+#endif
+      }
+
+      int tab_id = 0;
+
+      for (int8_t i = -1 ; i < selection_scope_x-1 ; i++) {
+        for (int8_t j = -1; j < selection_scope_y - 1; j++) {
+          cur_x = (x + i + grid_width) % grid_width;
+          cur_y = (y + j + grid_height) % grid_height;
+
+          if (fitness_function == FITNESS_EXP) {
+            local_fit_array[count] =
+                prev_internal_simd_struct[cur_x * grid_height + cur_y]->fitness;
+            local_meta_array[count] =
+                prev_internal_simd_struct[cur_x * grid_height + cur_y]
+                    ->metaerror;
+          } else if (fitness_function == FITNESS_GLOBAL_SUM) {
+#ifdef __REGUL
+            double composed_fitness = 0;
+            for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_;
+                 env_id++) {
+              composed_fitness +=
+                  prev_internal_simd_struct[cur_x * grid_height + cur_y]->fitness_by_env_id_[env_id] /
+                  fitness_sum_tab_[env_id];
+            }
+            composed_fitness /= phenotypic_target_handler_->nb_env_;
+            local_fit_array[count] = composed_fitness;
+#else
+            printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+            exit(-1);
+#endif
+          } else if (fitness_function == FITNESS_LOCAL_SUM) {
+#ifdef __REGUL
+            double composed_fitness = 0;
+            for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_;
+                 env_id++) {
+              composed_fitness +=
+                  prev_internal_simd_struct[cur_x * grid_height + cur_y]->fitness_by_env_id_[env_id] /
+                  fitness_sum_local_tab_[tab_id][env_id];
+            }
+            composed_fitness /= phenotypic_target_handler_->nb_env_;
+            local_fit_array[count] = composed_fitness;
+#else
+            printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+            exit(-1);
+#endif
+          }
+
+          sum_local_fit += local_fit_array[count];
+
+          count++;
+          tab_id++;
+        }
+      }
+
+
+      if (fitness_function == FITNESS_LOCAL_SUM) {
+#ifdef __REGUL
+        for (int tab_id = 0; tab_id < fitness_function_scope_x * fitness_function_scope_y; tab_id++)
+          delete[] fitness_sum_local_tab_[tab_id];
+        delete[] fitness_sum_local_tab_;
+#else
+        printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+      exit(-1);
+#endif
+      }
 
         for(int16_t i = 0 ; i < neighborhood_size ; i++) {
             probs[i] = local_fit_array[i]/sum_local_fit;
@@ -633,7 +717,10 @@ SIMD_Individual::~SIMD_Individual() {
 
   delete dna_factory_;
 
+#ifdef __REGUL
+#else
   delete target;
+#endif
 
   delete next_generation_reproducer_;
 
@@ -1644,7 +1731,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                             Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
                                             prot_length/3,
                                             rna->leading_lagging,
-                                            rna->e
+                                            rna->e,rna
                                     ));
 
 
@@ -1710,7 +1797,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                                 Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
                                                 prot_length/3,
                                                 rna->leading_lagging,
-                                                rna->e
+                                                rna->e,rna
                                         ));
                                 rna->is_coding_ = true;
                             }
@@ -1726,6 +1813,10 @@ void SIMD_Individual::compute_protein(int indiv_id) {
             }
         }
     }
+
+#ifdef __REGUL
+  ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->add_inherited_proteins();
+#endif
 }
 
 
@@ -1758,7 +1849,6 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 }
 
                 int8_t value = 0;
-                int8_t codon_list[64] = {};
                 int8_t codon_idx = 0;
                 int32_t count_loop = 0;
 
@@ -1776,7 +1866,7 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                 '1')
                                 value += 1 << (CODON_SIZE - i - 1);
                         }
-                        codon_list[codon_idx] = value;
+                        prot->codon_list[codon_idx] = value;
 
                         codon_idx++;
 
@@ -1798,7 +1888,8 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                                 '1')
                                 value += 1 << (CODON_SIZE - i - 1);
                         }
-                        codon_list[codon_idx] = value;
+
+                        prot->codon_list[codon_idx] = value;
                         codon_idx++;
 
                         count_loop++;
@@ -1821,8 +1912,10 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                 bool bin_h = false;
 
 
+                prot->nb_codons_ = codon_idx-1;
+
                 for (int i = 0; i < codon_idx; i++) {
-                    switch (codon_list[i]) {
+                    switch (prot->codon_list[i]) {
                         case CODON_M0 : {
                             // M codon found
                             nb_m++;
@@ -1986,6 +2079,10 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                         lookup[prot->protein_start] = prot;
                     } else {
                         lookup[prot->protein_start]->e += prot->e;
+                        lookup[prot->protein_start]->rna_list_.insert(
+                            lookup[prot->protein_start]->rna_list_.end(),
+                            prot->rna_list_.begin(),prot->rna_list_.end());
+
                         prot->is_init_ = false;
 //                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
 //                               prot->e,lookup[prot->protein_start]->e);
@@ -2294,7 +2391,23 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
   #endif
 }
 
-    void SIMD_Individual::compute_fitness(int indiv_id, double selection_pressure) {
+    void SIMD_Individual::compute_fitness(int indiv_id, double selection_pressure, int env_id) {
+#ifdef __REGUL
+      Vector_Fuzzy* delta = new Vector_Fuzzy(*internal_simd_struct[indiv_id]->phenotype);
+      delta->sub(phenotypic_target_handler_->targets_fuzzy_[env_id]);
+
+      if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
+        internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id] = delta->get_geometric_area();
+      else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER)
+        internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id] += delta->get_geometric_area();
+
+      delete delta;
+
+      if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
+        internal_simd_struct[indiv_id]->fitness_by_env_id_[env_id] = exp(
+            -selection_pressure *
+            ((double) internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id]));
+#else
 #ifdef PHENOTYPE_VECTOR
         for (int fuzzy_idx = 0; fuzzy_idx < PHENOTYPE_VECTOR_SIZE; fuzzy_idx++) {
 
@@ -2324,18 +2437,314 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
         internal_simd_struct[indiv_id]->metaerror = delta->get_geometric_area();
         delete delta;
 #endif
-
         internal_simd_struct[indiv_id]->fitness = exp(
                 -selection_pressure *
                 ((double) internal_simd_struct[indiv_id]->metaerror));
+#endif
     }
 
+#ifdef __REGUL
+void SIMD_Individual::compute_network(int indiv_id, double selection_pressure) {
+  // Allocate fitness and metarror array
+  if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST) {
+    internal_simd_struct[indiv_id]->fitness_by_env_id_ = new double[phenotypic_target_handler_->nb_eval_];
+    internal_simd_struct[indiv_id]->metaerror_by_env_id_ = new double[phenotypic_target_handler_->nb_eval_];
+  } else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER) {
+    internal_simd_struct[indiv_id]->fitness_by_env_id_ = new double[phenotypic_target_handler_->nb_env_];
+    internal_simd_struct[indiv_id]->metaerror_by_env_id_ = new double[phenotypic_target_handler_->nb_env_];
 
+    for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_; env_id++) {
+      internal_simd_struct[indiv_id]->fitness_by_env_id_[env_id] = 0;
+      internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id] = 0;
+    }
+  }
+
+  // Add signals
+  ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_.resize(phenotypic_target_handler_->signals_models_.size());
+  int i = 0;
+  for (auto signal : phenotypic_target_handler_->signals_models_) {
+    int glob_prot_idx = internal_simd_struct[indiv_id]->metadata_->proteins_count();
+    internal_simd_struct[indiv_id]->metadata_->set_proteins_count(
+        internal_simd_struct[indiv_id]->metadata_->proteins_count() +
+        1);
+
+    pProtein* prot = new pProtein(signal);
+    internal_simd_struct[indiv_id]->metadata_->protein_add(glob_prot_idx, prot);
+    ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_[i] = (prot);
+    i++;
+  }
+
+  // Set influences
+  internal_simd_struct[indiv_id]->metadata_->rna_begin();
+  for (int i = 0; i < internal_simd_struct[indiv_id]->metadata_->rna_count(); i++) {
+    pRNA* rna = internal_simd_struct[indiv_id]->metadata_->rna_next();
+    if (rna != nullptr) {
+      if (rna->is_coding_) {
+        rna->nb_influences_ = 0;
+
+        int32_t enhancer_position = rna->enhancer_position(internal_simd_struct[indiv_id]->dna_->length());
+        int32_t operator_position = rna->operator_position(internal_simd_struct[indiv_id]->dna_->length());
+
+        double enhance,operate;
+        internal_simd_struct[indiv_id]->metadata_->protein_begin();
+        for (int j = 0; j < internal_simd_struct[indiv_id]->metadata_->proteins_count(); j++) {
+          pProtein* prot =
+              internal_simd_struct[indiv_id]->metadata_->protein_next();
+          if (prot != nullptr) {
+            enhance = rna->affinity_with_protein(enhancer_position, prot, internal_simd_struct[indiv_id], exp_m_);
+            operate = rna->affinity_with_protein(operator_position, prot, internal_simd_struct[indiv_id], exp_m_);
+
+            if (enhance != 0.0 || operate != 0.0) {
+
+              rna->affinity_list.push_back(AffinityFactor(prot->e,enhance,operate));
+              prot->is_TF_ = true;
+
+              rna->nb_influences_ ++;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void SIMD_Individual::update_network(int indiv_id, double selection_pressure) {
+
+  internal_simd_struct[indiv_id]->metadata_->rna_begin();
+  for (int x = 0; x < internal_simd_struct[indiv_id]->metadata_->rna_count(); x++) {
+    pRNA* rna = internal_simd_struct[indiv_id]->metadata_->rna_next();
+    if (rna != nullptr) {
+      if (rna->is_coding_) {
+
+        double enhancer_activity = 0;
+        double operator_activity = 0;
+
+        for (auto affinity: rna->affinity_list) {
+          enhancer_activity +=
+              affinity.enhancer_factor * affinity.protein_concentration;
+          operator_activity +=
+              affinity.operator_factor * affinity.protein_concentration;
+        }
+
+        ProteinConcentration enhancer_activity_pow_n =
+            enhancer_activity == 0
+                ? 0
+                : pow(enhancer_activity, exp_m_->exp_s()->get_hill_shape_n());
+        ProteinConcentration operator_activity_pow_n =
+            operator_activity == 0
+                ? 0
+                : pow(operator_activity, exp_m_->exp_s()->get_hill_shape_n());
+        rna->synthesis_rate =
+            rna->e *
+            (exp_m_->exp_s()->get_hill_shape() /
+             (operator_activity_pow_n + exp_m_->exp_s()->get_hill_shape())) *
+            (1 + ((1 / rna->e) - 1) * (enhancer_activity_pow_n /
+                                       (enhancer_activity_pow_n +
+                                        exp_m_->exp_s()->get_hill_shape())));
+      }
+    }
+  }
+
+  internal_simd_struct[indiv_id]->metadata_->protein_begin();
+  for (int j = 0; j < internal_simd_struct[indiv_id]->metadata_->proteins_count(); j++) {
+    pProtein* prot =
+        internal_simd_struct[indiv_id]->metadata_->protein_next();
+    if (!prot->signal_) {
+      prot->delta_concentration_ = 0;
+
+      for (auto rna : prot->rna_list_) {
+        prot->delta_concentration_ += rna->synthesis_rate;
+      }
+
+      prot->delta_concentration_ -= exp_m_->exp_s()->get_degradation_rate() * prot->e;
+      prot->delta_concentration_ *= 1.0/exp_m_->exp_s()->get_nb_degradation_step();
+    }
+  }
+
+  // Apply the changes in concentrations we have just computed
+
+  internal_simd_struct[indiv_id]->metadata_->protein_begin();
+  for (int j = 0; j < internal_simd_struct[indiv_id]->metadata_->proteins_count(); j++) {
+    pProtein* prot =
+        internal_simd_struct[indiv_id]->metadata_->protein_next();
+    if (!prot->signal_) prot->e += prot->delta_concentration_;
+  }
+}
+
+void SIMD_Individual::evaluate_network(int indiv_id, double selection_pressure, int env_id) {
+  update_phenotype(indiv_id);
+
+  compute_fitness(indiv_id,selection_pressure,env_id);
+
+  if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
+    internal_simd_struct[indiv_id]->metaerror += internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id];
+}
+
+void SIMD_Individual::finalize_network(int indiv_id, double selection_pressure) {
+  if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST) {
+    internal_simd_struct[indiv_id]->metaerror =
+        internal_simd_struct[indiv_id]->metaerror /
+        (double)(phenotypic_target_handler_->nb_indiv_age_);
+  }
+  else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER) {
+    for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_; env_id++) {
+      internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id] =
+          internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id] / 10.0;
+      internal_simd_struct[indiv_id]->metaerror +=
+          internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id];
+
+      internal_simd_struct[indiv_id]->fitness_by_env_id_[env_id] = exp(
+          -selection_pressure *
+          ((double) internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id]));
+    }
+    internal_simd_struct[indiv_id]->metaerror =
+        internal_simd_struct[indiv_id]->metaerror / (double) (phenotypic_target_handler_->nb_env_);
+  }
+
+  internal_simd_struct[indiv_id]->fitness = exp(
+      -selection_pressure *
+      ((double) internal_simd_struct[indiv_id]->metaerror));
+}
+
+void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
+  internal_simd_struct[indiv_id]->metadata_->protein_begin();
+  for (int j = 0;
+       j < internal_simd_struct[indiv_id]->metadata_->proteins_count(); j++) {
+    pProtein* prot =
+        internal_simd_struct[indiv_id]->metadata_->protein_next();
+    if (!prot->signal_) {
+      prot->e = prot->initial_e_;
+    }
+  }
+
+  compute_network(indiv_id, selection_pressure);
+
+  internal_simd_struct[indiv_id]->metaerror = 0;
+
+  if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER) {
+    for (int16_t env_i = 0; env_i < phenotypic_target_handler_->nb_env_; env_i++) {
+
+      //Set the concentration of signals for this age
+      for (auto prot1: ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_) {
+        prot1->e = 0;
+      }
+
+      for (auto prot_id : phenotypic_target_handler_->env_signals_list_[env_i]) {
+        ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_[prot_id]->e = 0.9;
+      }
+
+      for (int16_t i = 0; i < 10; i++) {
+
+        for (int j = 0; j < 10; j++) {
+          update_network(indiv_id,selection_pressure);
+        }
+
+        // If we have to evaluate the individual at this age
+        evaluate_network(indiv_id,selection_pressure,env_i);
+      }
+    }
+
+    finalize_network(indiv_id,selection_pressure);
+  } else {
+    std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
+    // i is thus the age of the individual
+    for (int16_t i = 1; i <= phenotypic_target_handler_->nb_indiv_age_; i++) {
+      //Set the concentration of signals for this age
+      for (auto prot1: ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_) {
+        prot1->e = 0;
+      }
+
+      for (auto prot_id : phenotypic_target_handler_->env_signals_list_[phenotypic_target_handler_->list_env_id_[i]]) {
+        ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_[prot_id]->e = 0.9;
+      }
+
+      for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
+        update_network(indiv_id,selection_pressure);
+      }
+
+      // If we have to evaluate the individual at this age
+      if (eval->find(i) != eval->end()) {
+        evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
+      }
+    }
+
+    finalize_network(indiv_id,selection_pressure);
+  }
+}
+
+double pRNA::affinity_with_protein( int32_t index, pProtein *protein, Internal_SIMD_Struct* indiv, ExpManager* exp_m ) {
+  int32_t len = protein->protein_length;
+
+  if (len > 5) {
+    double max = 0;
+    double temp = 1;
+
+    int32_t quadon_tab[5];
+
+    for (int32_t pos = index; pos < index+5; pos++) {
+
+      int8_t quadon[4];
+
+      if (leading_lagging == LEADING) {
+        for (int8_t i = 0; i < QUADON_SIZE; i++) {
+          quadon[i] = (indiv->dna_->get_lead(pos + i) == '1')
+                          ? 1 << (QUADON_SIZE - i - 1)
+                          : 0;
+        }
+      } else {
+        for (int8_t i = 0; i < QUADON_SIZE; i++) {
+          quadon[i] = (indiv->dna_->get_lag(pos - i) != '1')
+                          ? (QUADON_SIZE - i - 1)
+                          : 0;
+        }
+      }
+
+      quadon_tab[pos - index] = quadon[0] + quadon[1] + quadon[2] + quadon[3];
+    }
+
+    for (int32_t i = 0; i < len - 4; i++) {
+      temp = 1;
+
+      for (int8_t j = 0; j < 5; j++) {
+        temp *= exp_m->exp_s()->get_binding_matrix(quadon_tab[j],
+                                               protein->codon_list[i + j]);
+      }
+
+      max = (max < temp) ? temp : max;
+    }
+
+    return max;
+  } else {
+    return 0.0;
+  }
+}
+
+void SIMD_Individual::update_phenotype( int indiv_id ) {
+  delete internal_simd_struct[indiv_id]->phenotype;
+  compute_phenotype(indiv_id);
+}
+#endif
 void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool optim_prom) {
 #pragma omp single
     {
         nb_clones_ = 0;
-    }
+
+      if (exp_m_->sel()->fitness_func() == FITNESS_GLOBAL_SUM) {
+#ifdef __REGUL
+        fitness_sum_tab_ = new double[phenotypic_target_handler_->nb_env_];
+        for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_; env_id++) {
+          fitness_sum_tab_[env_id] = 0;
+          for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++)
+            fitness_sum_tab_[env_id] += prev_internal_simd_struct[indiv_id]->fitness_by_env_id_[env_id];
+        }
+#else
+        printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+        exit(-1);
+#endif
+      }
+  }
+
+
 //#pragma omp parallel
 //    {
 #pragma omp for schedule(dynamic)
@@ -2343,6 +2752,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
             {
                 for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
 //                    printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
+
                     if (standalone_ && optim_prom && !exp_m_->check_simd()) {
                         selection(indiv_id);
                     } else if (!standalone_ && optim_prom) {
@@ -3277,4 +3687,34 @@ void Internal_SIMD_Struct::rebuild_index() {
                || (h == other.h && m < other.m)
                || (h == other.h && m == other.m && w < other.w);
     }
+
+pProtein::pProtein(Protein_R* prot_sig) {
+  protein_length = prot_sig->length();
+  e = prot_sig->concentration();
+
+  signal_ = prot_sig->is_signal();
+
+  nb_codons_ = prot_sig->AA_list().size();
+
+  for (int i = 0; i < nb_codons_; i++)
+    codon_list[i] = prot_sig->_cod_tab[i];
+}
+
+
+pProtein::pProtein(pProtein* prot) {
+  protein_start   = prot->protein_start;
+  protein_end     = prot->protein_end;
+  protein_length  = prot->protein_length;
+  leading_lagging = prot->leading_lagging;
+  e               = prot->e;
+  is_init_        = true;
+  signal_         = prot->signal_;
+  nb_codons_      = prot->nb_codons_;
+
+  for (int i = 0; i < nb_codons_; i++)
+    codon_list[i] = prot->codon_list[i];
+
+  initial_e_ = prot->initial_e_;
+  inherited_ = true;
+}
 }

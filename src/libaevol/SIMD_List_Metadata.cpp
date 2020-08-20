@@ -4,11 +4,45 @@
 
 #include "SIMD_List_Metadata.h"
 #include "AeTime.h"
+#include "ExpManager.h"
+
 #include <list>
 #include <algorithm>
 #include <iterator>
 
 namespace aevol {
+
+    SIMD_List_Metadata::SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
+
+      for (auto& strand: {LEADING, LAGGING}) {
+        for (auto& rna: metadata->promoters_list_[strand]) {
+          promoters_list_[strand].emplace_back(rna);
+        }
+      }
+
+    #ifdef __REGUL
+      for (auto prot: proteins_) {
+        if (!prot->signal_ &&
+            prot->e > indiv_->exp_m_->exp_s()->get_protein_presence_limit())
+          inherited_proteins_.push_back(new pProtein(prot));
+      }
+
+      for (auto prot : inherited_proteins_) {
+        prot->inherited_ = true;
+      }
+    #endif
+
+      set_iterators();
+    }
+
+    void SIMD_List_Metadata::add_inherited_proteins() {
+      for (auto prot : inherited_proteins_) {
+        int glob_prot_idx = proteins_count();
+        set_proteins_count(proteins_count() + 1);
+        protein_add(glob_prot_idx, prot);
+      }
+    }
+
     void SIMD_List_Metadata::lst_promoters(bool lorl,
                        Position before_after_btw, // with regard to the strand's reading direction
                        int32_t pos1,

@@ -21,17 +21,7 @@ namespace aevol {
     public:
         SIMD_List_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) { set_iterators(); };
 
-        SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
-
-            for (auto& strand: {LEADING, LAGGING}) {
-                for (auto& rna: metadata->promoters_list_[strand]) {
-                    promoters_list_[strand].emplace_back(rna);
-
-                }
-            }
-
-            set_iterators();
-        };
+        SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata);
 
 
         ~SIMD_List_Metadata() override {
@@ -45,7 +35,14 @@ namespace aevol {
             for (std::list<pProtein*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
                 delete (*(it_protein));
             }
+
+
+          for (std::list<pProtein*>::iterator it_protein = inherited_proteins_.begin(); it_protein != inherited_proteins_.end(); it_protein++) {
+            delete (*(it_protein));
+          }
         };
+
+        void add_inherited_proteins();
 
         /** Getter **/
 
@@ -211,6 +208,11 @@ namespace aevol {
                                                   {}};
 
         std::list<pProtein*> proteins_;
+#ifdef __REGUL
+  std::list<pProtein*> inherited_proteins_;
+  std::vector<pProtein*> signal_proteins_;
+#endif
+
     protected:
         SIMD_Promoters1Strand::iterator it_promoter_;
         int it_promoter_pos_;

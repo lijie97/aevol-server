@@ -5,9 +5,10 @@
 #ifndef RAEVOL_CUDA_SIMD_INDIVIDUAL_H
 #define RAEVOL_CUDA_SIMD_INDIVIDUAL_H
 
-#include <vector>
 #include <map>
+#include <raevol/SIMD_PhenotypicTargetHandler_R.h>
 #include <set>
+#include <vector>
 
 //#include "ExpManager.h"
 //#include "Stats_SIMD.h"
@@ -18,6 +19,7 @@
 #include "Stats.h"
 #include "SIMD_DnaFactory.h"
 #include "Vector_Fuzzy.h"
+#include "raevol/Protein_R.h"
 
 namespace aevol {
 
@@ -26,6 +28,7 @@ namespace aevol {
     class Stats_SIMD;
     class SIMD_Abstract_Metadata;
     class SIMD_Map_Metadata;
+    class SIMD_PhenotypicTargetHandler_R;
 
 constexpr const char* PROM_SEQ_LEAD = "0101011001110010010110";
 constexpr const char* PROM_SEQ_LAG  = "1010100110001101101001";
@@ -58,6 +61,21 @@ class promoterStruct {
     bool leading_or_lagging; // TRUE = leading / FALSE = lagging
 };
 
+class AffinityFactor {
+ public:
+  AffinityFactor(double pconcentration, double efactor, double ofactor) {
+    protein_concentration = pconcentration;
+    enhancer_factor = efactor;
+    operator_factor = ofactor;
+  }
+
+  double protein_concentration;
+  double enhancer_factor;
+  double operator_factor;
+};
+
+class pProtein;
+
 class pRNA {
  public:
     pRNA() {};
@@ -75,6 +93,48 @@ class pRNA {
 
     ~pRNA() {
     }
+
+#ifdef __REGUL
+    std::list<AffinityFactor> affinity_list;
+
+    int nb_influences_ = 0;
+
+    int32_t enhancer_position(int32_t length) {
+      if(leading_lagging == LEADING)
+      {
+        return (begin - 20)  % ( length ) < 0 ?
+               ((begin - 20)  % ( length )) + ( length ) :
+               (begin - 20)  % ( length );
+      }
+      else  // strand_ = LAGGING
+      {
+        return (begin + 20)  % ( length ) < 0 ?
+               ((begin + 20)  % ( length )) + ( length ) :
+               (begin + 20)  % ( length );
+      }
+    }
+
+  int32_t operator_position(int32_t length) {
+    if(leading_lagging == LEADING)
+    {
+      return (begin + PROM_SIZE)  % ( length ) < 0 ?
+             (begin + PROM_SIZE)  % ( length ) + (length) :
+             (begin + PROM_SIZE)  % ( length );
+    }
+    else  // strand_ = LAGGING
+    {
+      return (begin - PROM_SIZE)  % ( length ) < 0 ?
+             (begin - PROM_SIZE)  % ( length ) + (length) :
+             (begin - PROM_SIZE)  % ( length );
+    }
+  }
+
+  double affinity_with_protein( int32_t index, pProtein *protein,
+                                     Internal_SIMD_Struct* indiv,
+                               ExpManager* exp_m);
+
+  double synthesis_rate;
+#endif
 
     int32_t begin;
     int32_t end;
@@ -94,14 +154,27 @@ class pProtein {
     pProtein(int32_t t_protein_start,
       int32_t t_protein_end,
       int32_t t_protein_length,
-      int8_t t_leading_lagging, double t_e) {
+      int8_t t_leading_lagging, double t_e, pRNA* rna) {
       protein_start = t_protein_start;
       protein_end = t_protein_end;
       protein_length = t_protein_length;
       leading_lagging = t_leading_lagging;
       e = t_e;
+
       is_init_ = true;
+
+#ifdef __REGUL
+      rna_list_.push_back(rna);
+      initial_e_ = e;
+#endif
     }
+
+#ifdef __REGUL
+    pProtein(Protein_R* prot_sig);
+
+
+  pProtein(pProtein* prot);
+#endif
 
     bool operator<(const pProtein & other);
 
@@ -116,6 +189,19 @@ class pProtein {
     bool is_functional;
 
     bool is_init_ = false;
+
+    int8_t codon_list[64] = {};
+    int16_t nb_codons_ = 0;
+
+#ifdef __REGUL
+  bool is_TF_;
+
+  double initial_e_ = -1;
+  double    delta_concentration_;
+  bool      inherited_ = false;
+  bool      signal_;
+  std::list<pRNA*> rna_list_;
+#endif
 };
 
 class Internal_SIMD_Struct : public Observable {
@@ -135,6 +221,10 @@ class Internal_SIMD_Struct : public Observable {
 #endif
     double fitness;
     double metaerror;
+
+
+  double* fitness_by_env_id_;
+  double* metaerror_by_env_id_;
 
     Dna_SIMD* dna_;
 
@@ -198,7 +288,7 @@ class SIMD_Individual : public Observable{
     void compute_protein(int indiv_id);
     void translate_protein(int indiv_id, double w_max);
     void compute_phenotype(int indiv_id);
-    void compute_fitness(int indiv_id, double selection_pressure);
+    void compute_fitness(int indiv_id, double selection_pressure, int env_id = -1);
 
 
     void check_result();
@@ -210,6 +300,14 @@ class SIMD_Individual : public Observable{
 
     void build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler);
 
+#ifdef __REGUL
+  void compute_network(int indiv_id, double selection_pressure);
+  void update_network(int indiv_id, double selection_pressure);
+  void evaluate_network(int indiv_id, double selection_pressure, int env_id);
+  void finalize_network(int indiv_id, double selection_pressure);
+  void solve_network(int indiv_id, double selection_pressure);
+  void update_phenotype( int indiv_id );
+#endif
 
     void set_stats(Stats* stats) { stats_ = stats; }
 
@@ -228,13 +326,20 @@ class SIMD_Individual : public Observable{
 
     SIMD_DnaFactory* dna_factory_;
 
+    double* fitness_sum_tab_;
+
  private:
     ExpManager* exp_m_;
     int* dna_size;
+#ifdef __REGUL
+Vector_Fuzzy** targets;
+SIMD_PhenotypicTargetHandler_R* phenotypic_target_handler_;
+#else
 #ifdef PHENOTYPE_VECTOR
     double* target;
 #else
     Vector_Fuzzy* target;
+#endif
 #endif
     bool standalone_;
     bool first_gener_ = true;
