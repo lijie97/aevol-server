@@ -7,15 +7,17 @@
 namespace aevol {
 
 SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetHandler_R *handler, ExpSetup* exp_s) {
+
   env_gaussians_list_.resize(handler->env_gaussians_list_.size());
   nb_env_ = env_gaussians_list_.size();
 
   int i = 0;
   for (auto gaussian_env : handler->env_gaussians_list_) {
     for (auto gauss : gaussian_env) {
-      env_gaussians_list_[i].push_back(Gaussian(gauss));
-      i++;
+      env_gaussians_list_[i].emplace_back(gauss);
     }
+
+    i++;
   }
 
   env_signals_list_.resize(handler->env_signals_list_.size());
@@ -23,8 +25,9 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
   for (auto env_signal : handler->env_signals_list_) {
     for (auto e_signal : env_signal) {
       env_signals_list_[i].push_back(e_signal);
-      i++;
     }
+    i++;
+
   }
 
   i = 0;

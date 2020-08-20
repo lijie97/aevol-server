@@ -354,19 +354,19 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   int16_t nb_gaussian_list = 0;
   int16_t nb_gaussians = 0;
   gzread(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
-  //printf("Loading %d gaussians list\n", nb_gaussian_list);
+  printf("Loading %d gaussians list\n", nb_gaussian_list);
   for( int16_t i = 0; i<nb_gaussian_list; i++) {
     env_gaussians_list_.push_back( std::list<Gaussian>());
     gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    //printf("There are %d gaussian in gaussians list %d\n", nb_gaussians, i);
+    printf("There are %d gaussian in gaussians list %d\n", nb_gaussians, i);
     for (int16_t j = 0 ; j < nb_gaussians ; j++) {
       env_gaussians_list_.back().push_back(Gaussian(backup_file));
-      //printf("Nb gaussians in current_gaussians : %d\n", env_gaussians_list_.back().size());
-      /*printf("Gaussian %d. Height = %f, Mean = %f, width = %f\n",j,
-       env_gaussians_list_.back().back().get_height(),
-       env_gaussians_list_.back().back().get_mean(),
-       env_gaussians_list_.back().back().get_width()
-        );*/
+      printf("Nb gaussians in current_gaussians : %d\n", env_gaussians_list_.back().size());
+      printf("Gaussian %d. Height = %f, Mean = %f, width = %f\n",j,
+       env_gaussians_list_.back().back().height(),
+       env_gaussians_list_.back().back().mean(),
+       env_gaussians_list_.back().back().width()
+        );
     }
   }
 
