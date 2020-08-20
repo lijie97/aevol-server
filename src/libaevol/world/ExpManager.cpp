@@ -330,6 +330,9 @@ void ExpManager::step_to_next_generation() {
 #pragma omp single
     {
 #endif
+    if (simd_individual->standalone())
+       simd_individual->phenotypic_target_handler_->ApplyVariation();
+    else
         world_->ApplyHabitatVariation();
 
         // Take a step in time

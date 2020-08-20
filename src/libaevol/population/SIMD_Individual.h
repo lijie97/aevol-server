@@ -307,6 +307,9 @@ class SIMD_Individual : public Observable{
   void finalize_network(int indiv_id, double selection_pressure);
   void solve_network(int indiv_id, double selection_pressure);
   void update_phenotype( int indiv_id );
+
+
+  SIMD_PhenotypicTargetHandler_R* phenotypic_target_handler_;
 #endif
 
     void set_stats(Stats* stats) { stats_ = stats; }
@@ -333,7 +336,6 @@ class SIMD_Individual : public Observable{
     int* dna_size;
 #ifdef __REGUL
 Vector_Fuzzy** targets;
-SIMD_PhenotypicTargetHandler_R* phenotypic_target_handler_;
 #else
 #ifdef PHENOTYPE_VECTOR
     double* target;

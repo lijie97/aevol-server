@@ -2394,7 +2394,10 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
     void SIMD_Individual::compute_fitness(int indiv_id, double selection_pressure, int env_id) {
 #ifdef __REGUL
       Vector_Fuzzy* delta = new Vector_Fuzzy(*internal_simd_struct[indiv_id]->phenotype);
-      delta->sub(phenotypic_target_handler_->targets_fuzzy_[env_id]);
+      if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
+        delta->sub(phenotypic_target_handler_->targets_fuzzy_[env_id]);
+      else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER)
+        delta->sub(phenotypic_target_handler_->targets_fuzzy_by_id_[env_id]);
 
       if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
         internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id] = delta->get_geometric_area();
