@@ -73,6 +73,8 @@ namespace aevol {
             }
         };
 
+        void add_inherited_proteins();
+
         /** Getter **/
 
         void set_iterators() {

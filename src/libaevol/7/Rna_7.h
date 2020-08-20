@@ -33,6 +33,21 @@
 #include <cstdint>
 
 namespace aevol {
+
+class AffinityFactor {
+ public:
+  AffinityFactor(double pconcentration, double efactor, double ofactor) {
+    protein_concentration = pconcentration;
+    enhancer_factor = efactor;
+    operator_factor = ofactor;
+  }
+
+  double protein_concentration;
+  double enhancer_factor;
+  double operator_factor;
+};
+
+
 class Rna_7 {
  public:
   Rna_7(){};
@@ -52,6 +67,50 @@ class Rna_7 {
   }
 
   ~Rna_7() {}
+
+
+#ifdef __REGUL
+  std::list<AffinityFactor> affinity_list;
+
+    int nb_influences_ = 0;
+
+    int32_t enhancer_position(int32_t length) {
+      if(leading_lagging == LEADING)
+      {
+        return (begin - 20)  % ( length ) < 0 ?
+               ((begin - 20)  % ( length )) + ( length ) :
+               (begin - 20)  % ( length );
+      }
+      else  // strand_ = LAGGING
+      {
+        return (begin + 20)  % ( length ) < 0 ?
+               ((begin + 20)  % ( length )) + ( length ) :
+               (begin + 20)  % ( length );
+      }
+    }
+
+  int32_t operator_position(int32_t length) {
+    if(leading_lagging == LEADING)
+    {
+      return (begin + PROM_SIZE)  % ( length ) < 0 ?
+             (begin + PROM_SIZE)  % ( length ) + (length) :
+             (begin + PROM_SIZE)  % ( length );
+    }
+    else  // strand_ = LAGGING
+    {
+      return (begin - PROM_SIZE)  % ( length ) < 0 ?
+             (begin - PROM_SIZE)  % ( length ) + (length) :
+             (begin - PROM_SIZE)  % ( length );
+    }
+  }
+
+  double affinity_with_protein( int32_t index, pProtein *protein,
+                                     Internal_SIMD_Struct* indiv,
+                               ExpManager* exp_m);
+
+  double synthesis_rate;
+#endif
+
 
   int32_t begin;
   int32_t end;

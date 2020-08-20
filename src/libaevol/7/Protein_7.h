@@ -31,6 +31,7 @@
 #include <cstdint>
 
 namespace aevol {
+
 class Protein_7 {
  public:
   Protein_7(){};
@@ -38,14 +39,26 @@ class Protein_7 {
             int32_t t_protein_end,
             int32_t t_protein_length,
             int8_t t_leading_lagging,
-            double t_e) {
+            double t_e, Rna_7* rna) {
     protein_start   = t_protein_start;
     protein_end     = t_protein_end;
     protein_length  = t_protein_length;
     leading_lagging = t_leading_lagging;
     e               = t_e;
     is_init_        = true;
+
+#ifdef __REGUL
+    rna_list_.push_back(rna);
+      initial_e_ = e;
+#endif
   }
+
+#ifdef __REGUL
+  Protein_7(Protein_R* prot_sig);
+
+
+  Protein_7(pProtein* prot);
+#endif
 
   bool operator<(const Protein_7& other);
 
@@ -60,6 +73,15 @@ class Protein_7 {
   bool is_functional;
 
   bool is_init_ = false;
+#ifdef __REGUL
+  bool is_TF_;
+
+  double initial_e_ = -1;
+  double    delta_concentration_;
+  bool      inherited_ = false;
+  bool      signal_;
+  std::list<pRNA*> rna_list_;
+#endif
 };
 }
 
