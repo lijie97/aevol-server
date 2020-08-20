@@ -46,6 +46,8 @@ static char* lineage_file_name = nullptr;
 static int32_t begin = 0; //< First generation to analyse
 static int32_t end = -1; //< Last generation to analyse
 static int32_t period = 1; //< Period of analysis
+static int32_t final_indiv_index = -1;
+static int32_t final_indiv_rank = -1;
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
@@ -64,6 +66,8 @@ int main(int argc, char* argv[]) {
 
   gzread(lineage_file, &t0, sizeof(t0));
   gzread(lineage_file, &t_end, sizeof(t_end));
+  gzread(lineage_file,&final_indiv_index,sizeof(final_indiv_index));
+  gzread(lineage_file,&final_indiv_rank,sizeof(final_indiv_rank));
 
   // =============================
   //  Open the experience manager
@@ -160,7 +164,6 @@ int main(int argc, char* argv[]) {
 
   fclose(json_file);
   gzclose(lineage_file);
-  delete [] json_file_name;
   delete [] lineage_file_name;
   delete exp_manager;
   return EXIT_SUCCESS;
