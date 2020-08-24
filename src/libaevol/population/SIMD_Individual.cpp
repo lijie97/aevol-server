@@ -2404,6 +2404,11 @@ void SIMD_Individual::build_phenotypic_target(PhenotypicTargetHandler* phenotypi
       else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER)
         internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id] += delta->get_geometric_area();
 
+//      printf("Meta error %d : %lf (%lf -- %lf)\n",env_id,
+//             internal_simd_struct[indiv_id]->metaerror_by_env_id_[env_id],
+//             phenotypic_target_handler_->targets_fuzzy_[env_id]->get_geometric_area(),
+//             internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
+
       delete delta;
 
       if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
@@ -2610,6 +2615,8 @@ void SIMD_Individual::finalize_network(int indiv_id, double selection_pressure) 
 }
 
 void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
+//  printf("%d -- Reset proteins %d\n",indiv_id,internal_simd_struct[indiv_id]->metadata_->proteins_count());
+
   internal_simd_struct[indiv_id]->metadata_->protein_begin();
   for (int j = 0;
        j < internal_simd_struct[indiv_id]->metadata_->proteins_count(); j++) {
@@ -2619,6 +2626,8 @@ void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
       prot->e = prot->initial_e_;
     }
   }
+
+//  printf("%d -- Compute Network at age 0\n",indiv_id);
 
   compute_network(indiv_id, selection_pressure);
 
@@ -2651,7 +2660,10 @@ void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
   } else {
     std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
-    for (int16_t i = 1; i <= phenotypic_target_handler_->nb_indiv_age_; i++) {
+    for (int16_t i = 1; i < phenotypic_target_handler_->nb_indiv_age_; i++) {
+//      printf("%d -- Solve Network at age %d -- %ld -- Env ID %d\n",indiv_id,i,((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_.size(),
+//             phenotypic_target_handler_->list_env_id_[i]);
+
       //Set the concentration of signals for this age
       for (auto prot1: ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_) {
         prot1->e = 0;
@@ -2661,16 +2673,19 @@ void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
         ((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_[prot_id]->e = 0.9;
       }
 
+//      printf("%d -- Update Network at age %d\n",indiv_id,i);
       for (int j = 0; j < exp_m_->exp_s()->get_nb_degradation_step(); j++) {
         update_network(indiv_id,selection_pressure);
       }
 
       // If we have to evaluate the individual at this age
       if (eval->find(i) != eval->end()) {
+//        printf("%d -- Evaluate Network at age %d\n",indiv_id,i);
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
       }
     }
 
+//    printf("%d -- Finalize Network\n",indiv_id);
     finalize_network(indiv_id,selection_pressure);
   }
 }
@@ -2799,7 +2814,11 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                         compute_protein(indiv_id);
                         translate_protein(indiv_id, w_max);
                         compute_phenotype(indiv_id);
+#ifdef __REGUL
+                        solve_network(indiv_id,selection_pressure);
+#else
                         compute_fitness(indiv_id, selection_pressure);
+#endif
                     }
 
                     if (standalone_ && optim_prom && exp_m_->record_tree()) {
@@ -3081,6 +3100,19 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                         delete exp_m_->world()->grid(x, y)->individual();
                         //exp_m_->world()->grid(x, y)->set_individual(nullptr);
 
+#ifdef __REGUL
+                        Individual_R *indiv = new Individual_R(exp_m_,
+                                                         exp_m_->world()->grid(x, y)->mut_prng(),
+                                                         exp_m_->world()->grid(x, y)->stoch_prng(),
+                                                         exp_m_->exp_s()->mut_params(),
+                                                         w_max,
+                                                         exp_m_->exp_s()->min_genome_length(),
+                                                         exp_m_->exp_s()->max_genome_length(),
+                                                         false,
+                                                         indiv_id,
+                                                         "",
+                                                         0);
+#else
                         Individual *indiv = new Individual(exp_m_,
                                                            exp_m_->world()->grid(x, y)->mut_prng(),
                                                            exp_m_->world()->grid(x, y)->stoch_prng(),
@@ -3092,6 +3124,7 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                                                            indiv_id,
                                                            "",
                                                            0);
+#endif
                         int32_t nb_blocks_ = prev_internal_simd_struct[indiv_id]->dna_->length() / BLOCK_SIZE + 1;
                         char *dna_string = new char[nb_blocks_ * BLOCK_SIZE];
                         memset(dna_string, 0,

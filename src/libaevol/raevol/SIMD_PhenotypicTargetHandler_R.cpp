@@ -8,6 +8,11 @@ namespace aevol {
 
 SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetHandler_R *handler, ExpSetup* exp_s) {
 
+  var_method_ = handler->var_method();
+
+  if (var_method_ == NO_VAR)
+    var_method_ = SWITCH_IN_A_LIST;
+
   env_gaussians_list_.resize(handler->env_gaussians_list_.size());
   nb_env_ = env_gaussians_list_.size();
 
@@ -16,7 +21,7 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
     for (auto gauss : gaussian_env) {
       env_gaussians_list_[i].emplace_back(gauss);
     }
-
+    handler->env_signals_list_[i];
     i++;
   }
 
@@ -40,7 +45,6 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
   env_switch_probability_ = handler->env_switch_probability_;
   nb_indiv_age_ = handler->_nb_indiv_age;
 
-  var_method_ = handler->var_method();
   var_prng_ = handler->var_prng_;
 
   sampling_ = handler->sampling();
@@ -72,10 +76,12 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
 
   if (var_method_ == SWITCH_IN_A_LIST) {
     targets_fuzzy_ = new Vector_Fuzzy*[nb_indiv_age_];
+    list_env_id_ = new int16_t[nb_indiv_age_];
 
     if (nb_env_ <= 1) {
       for (int age = 0; age < nb_indiv_age_; age++) {
         targets_fuzzy_[age] = targets_fuzzy_by_id_[0];
+        list_env_id_[age] = 0;
       }
     }
 

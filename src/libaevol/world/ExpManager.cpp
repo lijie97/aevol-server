@@ -716,8 +716,10 @@ void ExpManager::run_evolution() {
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
 
-      if (simd_individual->standalone())
-          simd_individual->run_a_step(w_max_,selection_pressure(),false);
+      if (simd_individual->standalone()) {
+        simd_individual->phenotypic_target_handler_->ApplyVariation();
+        simd_individual->run_a_step(w_max_, selection_pressure(), false);
+      }
 
       if (check_simd_)
           simd_individual->check_result();
