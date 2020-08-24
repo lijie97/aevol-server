@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
   }
 
   iojson->write(json_file_name);
-  printf("nb indiv : %d\n",iojson->getNbrIndividuals());
+
   fclose(json_file);
   gzclose(lineage_file);
   delete [] lineage_file_name;

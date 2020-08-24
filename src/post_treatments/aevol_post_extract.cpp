@@ -324,7 +324,7 @@ void print_help(char* prog_path) {
     printf("\n");
     printf("Usage : %s -h\n", prog_name);
     printf("   or : %s -V or --version\n", prog_name);
-    printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-J JSON_FILE] [-U NUM_GU] [-a]\n",
+    printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-J JSON_FILE] [-U NUM_GU] [-a] [-x X -y Y]\n",
            prog_name);
     printf("\nOptions\n");
     printf("  -h, --help\n\tprint this help, then exit\n");
@@ -343,6 +343,8 @@ void print_help(char* prog_path) {
     printf("\ttreat all the individuals (default: treat only the best)\n");
     printf("  -i IND\n");
     printf("\tonly treat individual #IND (default: treat only the best)\n");
+    printf("  -x X -y Y\n");
+    printf("\tonly treat individual at position X, Y on the grid\n");
 
 
     printf("\n\
