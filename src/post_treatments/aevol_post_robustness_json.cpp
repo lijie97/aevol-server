@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 
 
   IOJson* iojson = new IOJson(json_file_name);
-
+  iojson->setRecordTree(false);
 
   /* Analyse each individuals of the json file */
    for(auto &indiv: iojson->getIndividuals()) {

@@ -447,6 +447,8 @@ Individual::Individual(const Individual* parent, int32_t id,
 
   // Initialize statistical data
   modularity_ = -1;
+
+  grid_cell_ = parent->grid_cell_;
 }
 
 Individual* Individual::CreateIndividual(ExpManager* exp_m,

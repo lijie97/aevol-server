@@ -29,6 +29,7 @@
 // ============================================================================
 #include <list>
 #include <getopt.h>
+#include <assert.h>
 
 #include "aevol.h"
 #include "IndivAnalysis.h"
@@ -129,8 +130,7 @@ int main(int argc, char* argv[]) {
     {
       gen_unit.dna()->undergo_this_mutation(*mut);
 
-      if ((time() >= begin) && ((time() < end) || (end == -1)) &&
-          (((time() - begin) % period) == 0)) {
+      if (period == -1) {
         iojson->addIndividual(indiv,extract_gu(&indiv));
       }
     }
@@ -139,8 +139,7 @@ int main(int argc, char* argv[]) {
     {
       gen_unit.dna()->undergo_this_mutation(*mut);
 
-      if ((time() >= begin) && ((time() < end) || (end == -1)) &&
-          (((time() - begin) % period) == 0)) {
+      if (period == -1) {
         iojson->addIndividual(indiv,extract_gu(&indiv));
       }
     }
@@ -149,9 +148,15 @@ int main(int argc, char* argv[]) {
     {
       gen_unit.dna()->undergo_this_mutation(*mut);
 
+      if (period == -1) {
+        iojson->addIndividual(indiv,extract_gu(&indiv));
+      }
+    }
+
+    if (period != -1) {
       if ((time() >= begin) && ((time() < end) || (end == -1)) &&
           (((time() - begin) % period) == 0)) {
-        iojson->addIndividual(indiv,extract_gu(&indiv));
+        iojson->addIndividual(indiv, extract_gu(&indiv));
       }
     }
 
@@ -161,7 +166,7 @@ int main(int argc, char* argv[]) {
   }
 
   iojson->write(json_file_name);
-
+  printf("nb indiv : %d\n",iojson->getNbrIndividuals());
   fclose(json_file);
   gzclose(lineage_file);
   delete [] lineage_file_name;
@@ -214,6 +219,8 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   if (optind != argc - 1) {
     Utils::ExitWithUsrMsg("please specify a lineage file");
   }
+
+  assert(period > 0 ||period == -1);
 
   lineage_file_name = new char[strlen(argv[optind]) + 1];
   sprintf(lineage_file_name, "%s", argv[optind]);

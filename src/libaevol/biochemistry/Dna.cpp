@@ -294,9 +294,11 @@ int32_t Dna::do_small_mutations() {
     // Record mutation in tree
     if (mut != NULL) {
       //indiv_->notifyObservers(MUTATION, mut);
+      if(exp_m_->record_tree() == true)  {
         indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
                                                                indiv_->exp_m()->grid_height()
                                                                + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
+        }
       delete mut;
     }
   }
@@ -383,9 +385,11 @@ int32_t Dna::do_rearrangements() {
     // Record rearrangement in tree
     if (mut != NULL) {
 //      indiv_->notifyObservers(MUTATION, mut);
-        indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
-                                                               indiv_->exp_m()->grid_height()
-                                                               + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
+        if(exp_m_->record_tree() == true) {
+          indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
+                                                                 indiv_->exp_m()->grid_height()
+                                                                 + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);
+          }
         delete mut;
     }
   }
