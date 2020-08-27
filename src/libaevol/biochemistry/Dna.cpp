@@ -4010,6 +4010,7 @@ void Dna::apply_mutations() {
 #pragma omp critical
           {
               //indiv_->notifyObservers(MUTATION, mut);
+            if (indiv_->exp_m_->record_tree())
               indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->grid_cell()->x() *
                                                                      indiv_->exp_m()->grid_height()
                                                                      + indiv_->grid_cell()->y())->dna_replic_report().add_mut(mut);

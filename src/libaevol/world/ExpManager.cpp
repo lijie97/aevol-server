@@ -418,9 +418,9 @@ void ExpManager::step_to_next_generation() {
     if (simd_individual->standalone())
         simd_individual->run_a_step(w_max_,selection_pressure(),true);
 
-    if (check_simd_) {
-        simd_individual->check_result();
-    }
+  if (check_simd_&&simd_individual->standalone())
+    simd_individual->check_result();
+
   //}
 #ifdef WITH_STANDALONE_SIMD
 #pragma omp single
@@ -721,7 +721,7 @@ void ExpManager::run_evolution() {
         simd_individual->run_a_step(w_max_, selection_pressure(), false);
       }
 
-      if (check_simd_)
+      if (check_simd_&&simd_individual->standalone())
           simd_individual->check_result();
 
       bool finished=false;

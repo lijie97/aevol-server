@@ -197,7 +197,7 @@ class pProtein {
   bool is_TF_;
 
   double initial_e_ = -1;
-  double    delta_concentration_;
+  double    delta_concentration_ = 0;
   bool      inherited_ = false;
   bool      signal_;
   std::list<pRNA*> rna_list_;
@@ -216,8 +216,8 @@ class Internal_SIMD_Struct : public Observable {
     double phenotype[PHENOTYPE_VECTOR_SIZE];
     double delta[PHENOTYPE_VECTOR_SIZE];
 #else
-        Vector_Fuzzy* phenotype;
-        Vector_Fuzzy* delta;
+        Vector_Fuzzy* phenotype = nullptr;
+        Vector_Fuzzy* delta = nullptr;
 #endif
     double fitness;
     double metaerror;

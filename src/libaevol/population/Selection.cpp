@@ -450,6 +450,7 @@ void Selection::step_to_next_generation() {
 //                    world->indiv_at(x, y), x, y);
             // Tell observers the replication is finished
             //->notifyObservers(END_REPLICATION, eindiv);
+        if (exp_m_->record_tree())
             exp_m_->tree()->report_by_index(AeTime::time(),x *
                                                                  grid_height
                                                                  + y)->signal_end_of_replication(world->indiv_at(x, y));
@@ -541,6 +542,7 @@ void Selection::step_to_next_generation() {
     exp_m_->update_best();
 
     // Notify observers of the end of the generation
+  if (exp_m_->record_tree())
     exp_m_->tree()->signal_end_of_generation();
 
 
@@ -1009,7 +1011,7 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
         {
       NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
       //notifyObservers(NEW_INDIV, eindiv);
-
+      if (exp_m_->record_tree())
           exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
     }
@@ -1028,7 +1030,8 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     {
       NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
       //notifyObservers(NEW_INDIV, eindiv);
-      exp_m_->tree()->update_new_indiv(eindiv);
+      if (exp_m_->record_tree())
+        exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
     }
 #ifdef WITH_PERF_TRACES

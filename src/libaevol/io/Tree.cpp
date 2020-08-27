@@ -199,7 +199,7 @@ void Tree::update_new_indiv(NewIndivEvent* evt) {
 //           evt->child->exp_m()->grid_height(),
 //           evt->y);
 
-    if (SIMD_Individual::standalone_simd) {
+    if (aevol::SIMD_Individual::standalone_simd) {
         replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
                                                              evt->simd_child->exp_m_->grid_height()
                                                              + evt->y]->

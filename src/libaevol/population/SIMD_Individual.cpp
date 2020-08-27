@@ -2079,12 +2079,14 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                         lookup[prot->protein_start] = prot;
                     } else {
                         lookup[prot->protein_start]->e += prot->e;
+                        lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
                         lookup[prot->protein_start]->rna_list_.insert(
                             lookup[prot->protein_start]->rna_list_.end(),
                             prot->rna_list_.begin(),prot->rna_list_.end());
 
                         prot->is_init_ = false;
-//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
+//                        if (indiv_id == 22) printf("%d -- Protein %d is already there, fuz it with another one %f : %f\n",
+//                                 protein_idx, prot->protein_start,
 //                               prot->e,lookup[prot->protein_start]->e);
                     }
                 }
@@ -2093,9 +2095,18 @@ void SIMD_Individual::compute_protein(int indiv_id) {
 
         lookup.clear();
 
-        internal_simd_struct[indiv_id]->metadata_->protein_begin();
+//        internal_simd_struct[indiv_id]->metadata_->protein_begin();
         //((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->proteins_print();
+//
+//      for (int j = 0; j < internal_simd_struct[indiv_id]->metadata_->proteins_count(); j++) {
+//        pProtein* prot =
+//            internal_simd_struct[indiv_id]->metadata_->protein_next();
+//
+//        if (indiv_id == 22)
+//          printf("TRANSLATE_PROT_1 -- Protein %d :: %lf DELTA %lf\n", j, prot->e);
+//      }
 
+      internal_simd_struct[indiv_id]->metadata_->protein_begin();
         for (int protein_idx = 0; protein_idx <
                                   (int) internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
             {
@@ -2109,13 +2120,32 @@ void SIMD_Individual::compute_protein(int indiv_id) {
                         lookup[prot->protein_start] = prot;
                     } else {
                         lookup[prot->protein_start]->e += prot->e;
+                        lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
+                        lookup[prot->protein_start]->rna_list_.insert(
+                          lookup[prot->protein_start]->rna_list_.end(),
+                          prot->rna_list_.begin(),prot->rna_list_.end());
+
                         prot->is_init_ = false;
-//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
+//                        if (indiv_id==22) printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
 //                               prot->e,lookup[prot->protein_start]->e);
                     }
                 }
             }
         }
+//      if (indiv_id == 0) {
+//        printf("Number of protein for individual 0 : %d\n",internal_simd_struct[indiv_id]->metadata_->proteins_count());
+//
+//          internal_simd_struct[indiv_id]->metadata_->protein_begin();
+//          for (int j = 0;
+//               j < internal_simd_struct[indiv_id]->metadata_->proteins_count();
+//               j++) {
+//            pProtein* prot =
+//                internal_simd_struct[indiv_id]->metadata_->protein_next();
+//
+//            printf("TRANSLATE_PROT_2 -- Protein %d :: %lf DELTA %lf\n", j,
+//                   prot->e);
+//          }
+//        }
     }
 
     void SIMD_Individual::compute_phenotype(int indiv_id) {
@@ -2499,15 +2529,22 @@ void SIMD_Individual::compute_network(int indiv_id, double selection_pressure) {
           pProtein* prot =
               internal_simd_struct[indiv_id]->metadata_->protein_next();
           if (prot != nullptr) {
-            enhance = rna->affinity_with_protein(enhancer_position, prot, internal_simd_struct[indiv_id], exp_m_);
-            operate = rna->affinity_with_protein(operator_position, prot, internal_simd_struct[indiv_id], exp_m_);
+            if (prot->is_init_) {
+              enhance = rna->affinity_with_protein(
+                  enhancer_position, prot, internal_simd_struct[indiv_id],
+                  exp_m_);
+              operate = rna->affinity_with_protein(
+                  operator_position, prot, internal_simd_struct[indiv_id],
+                  exp_m_);
 
-            if (enhance != 0.0 || operate != 0.0) {
+              if (enhance != 0.0 || operate != 0.0) {
 
-              rna->affinity_list.push_back(AffinityFactor(prot->e,enhance,operate));
-              prot->is_TF_ = true;
+                rna->affinity_list.push_back(
+                    AffinityFactor(prot->e, enhance, operate));
+                prot->is_TF_ = true;
 
-              rna->nb_influences_ ++;
+                rna->nb_influences_++;
+              }
             }
           }
         }
@@ -2558,14 +2595,18 @@ void SIMD_Individual::update_network(int indiv_id, double selection_pressure) {
     pProtein* prot =
         internal_simd_struct[indiv_id]->metadata_->protein_next();
     if (!prot->signal_) {
-      prot->delta_concentration_ = 0;
+      if (prot->is_init_) {
+        prot->delta_concentration_ = 0;
 
-      for (auto rna : prot->rna_list_) {
-        prot->delta_concentration_ += rna->synthesis_rate;
+        for (auto rna: prot->rna_list_) {
+          prot->delta_concentration_ += rna->synthesis_rate;
+        }
+
+        prot->delta_concentration_ -=
+            exp_m_->exp_s()->get_degradation_rate() * prot->e;
+        prot->delta_concentration_ *=
+            1.0 / exp_m_->exp_s()->get_nb_degradation_step();
       }
-
-      prot->delta_concentration_ -= exp_m_->exp_s()->get_degradation_rate() * prot->e;
-      prot->delta_concentration_ *= 1.0/exp_m_->exp_s()->get_nb_degradation_step();
     }
   }
 
@@ -2575,7 +2616,17 @@ void SIMD_Individual::update_network(int indiv_id, double selection_pressure) {
   for (int j = 0; j < internal_simd_struct[indiv_id]->metadata_->proteins_count(); j++) {
     pProtein* prot =
         internal_simd_struct[indiv_id]->metadata_->protein_next();
-    if (!prot->signal_) prot->e += prot->delta_concentration_;
+
+//    if (indiv_id == 0) printf("UPDATE_NETWORK ALL_PROT -- Protein %d :: %lf DELTA %lf\n",j,prot->e,prot->delta_concentration_);
+
+    if (!prot->signal_)
+      if (prot->is_init_) {
+        prot->e += prot->delta_concentration_;
+//        if (indiv_id == 3) printf("UPDATE_NETWORK_AFTER_UPDATE Protein %d :: %lf DELTA %lf - %d\n",j,prot->e,prot->delta_concentration_,
+//                 internal_simd_struct[indiv_id]->metadata_->proteins_count());
+      }
+
+
   }
 }
 
@@ -2589,10 +2640,11 @@ void SIMD_Individual::evaluate_network(int indiv_id, double selection_pressure, 
 }
 
 void SIMD_Individual::finalize_network(int indiv_id, double selection_pressure) {
+  double sum_meta = internal_simd_struct[indiv_id]->metaerror;
   if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST) {
     internal_simd_struct[indiv_id]->metaerror =
         internal_simd_struct[indiv_id]->metaerror /
-        (double)(phenotypic_target_handler_->nb_indiv_age_);
+        (double)(phenotypic_target_handler_->nb_eval_);
   }
   else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER) {
     for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_; env_id++) {
@@ -2612,6 +2664,8 @@ void SIMD_Individual::finalize_network(int indiv_id, double selection_pressure) 
   internal_simd_struct[indiv_id]->fitness = exp(
       -selection_pressure *
       ((double) internal_simd_struct[indiv_id]->metaerror));
+  if (AeTime::time()!=0) printf("%d -- Finalize Network :: %lf %lf (%lf %lf)\n",indiv_id,internal_simd_struct[indiv_id]->metaerror,internal_simd_struct[indiv_id]->fitness,
+         sum_meta,(double) (phenotypic_target_handler_->nb_eval_));
 }
 
 void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
@@ -2623,7 +2677,9 @@ void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
     pProtein* prot =
         internal_simd_struct[indiv_id]->metadata_->protein_next();
     if (!prot->signal_) {
-      prot->e = prot->initial_e_;
+      if (prot->is_init_) {
+        prot->e = prot->initial_e_;
+      }
     }
   }
 
@@ -2660,7 +2716,7 @@ void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
   } else {
     std::set<int>* eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
-    for (int16_t i = 1; i < phenotypic_target_handler_->nb_indiv_age_; i++) {
+    for (int16_t i = 0; i < phenotypic_target_handler_->nb_indiv_age_; i++) {
 //      printf("%d -- Solve Network at age %d -- %ld -- Env ID %d\n",indiv_id,i,((SIMD_List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->signal_proteins_.size(),
 //             phenotypic_target_handler_->list_env_id_[i]);
 
@@ -2679,9 +2735,10 @@ void SIMD_Individual::solve_network(int indiv_id, double selection_pressure) {
       }
 
       // If we have to evaluate the individual at this age
-      if (eval->find(i) != eval->end()) {
-//        printf("%d -- Evaluate Network at age %d\n",indiv_id,i);
+      if (eval->find(i+1) != eval->end()) {
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
+        if (AeTime::time()!=0)  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,internal_simd_struct[indiv_id]->metaerror,
+               internal_simd_struct[indiv_id]->metaerror_by_env_id_[0],phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 
@@ -2810,13 +2867,27 @@ void SIMD_Individual::run_a_step(double w_max, double selection_pressure,bool op
                     }
 
                     if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
-                        start_protein(indiv_id);
-                        compute_protein(indiv_id);
-                        translate_protein(indiv_id, w_max);
-                        compute_phenotype(indiv_id);
+                      start_protein(indiv_id);
+                      compute_protein(indiv_id);
+                      translate_protein(indiv_id, w_max);
+
 #ifdef __REGUL
+                      internal_simd_struct[indiv_id]->metadata_->protein_begin();
+                      for (int j = 0; j < internal_simd_struct[indiv_id]
+                                              ->metadata_->proteins_count();
+                           j++) {
+                        pProtein* prot = internal_simd_struct[indiv_id]
+                                             ->metadata_->protein_next();
+
+//                        if (indiv_id == 22)
+//                          printf("INACT -- Protein %d :: %lf\n", j,
+//                                 prot->e);
+                      }
+
+
                         solve_network(indiv_id,selection_pressure);
 #else
+                        compute_phenotype(indiv_id);
                         compute_fitness(indiv_id, selection_pressure);
 #endif
                     }
@@ -3539,7 +3610,7 @@ void SIMD_Individual::check_result() {
                         }
                     }
 
-                    if (i == 392) found = false;
+                    if (i == 0) found = false;
 
                     if (!found) {
                         printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f RNA : \n",
@@ -3573,7 +3644,7 @@ void SIMD_Individual::check_result() {
                             }
                         }
 
-                        if (i == 392) found = false;
+                        if (i == 0) found = false;
 
                         //for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
                         if (!found) {
