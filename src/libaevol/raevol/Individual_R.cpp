@@ -355,6 +355,9 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
         if (eval->find(i) != eval->end()) {
             //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
             eval_step(habitat, i);
+            printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
+                   _dist_sum,dist_to_target_by_feature_[METABOLISM],
+                   habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
         }
     }
 
@@ -498,6 +501,9 @@ void Individual_R::final_step( const Habitat_R& habitat, int16_t age ) {
            dist_to_target_by_feature_[METABOLISM], fitness_, fitness_by_feature_[METABOLISM]);*/
 
   phenotype_computed_ = true;
+
+  printf("%d -- Finalize Network :: %lf %lf (%lf %lf)\n",id_,dist_to_target_by_feature_[METABOLISM], fitness_,
+         _dist_sum, (double) (exp_m_->exp_s()->get_list_eval_step()->size()));
 }
 
 void Individual_R::final_step_one_after_another( const Habitat_R& habitat, int16_t env_id ) {
@@ -539,8 +545,12 @@ void Individual_R::update_concentrations( void )
 	}
 
 	// Apply the changes in concentrations we have just computed
+//        int j = 0;
   for (auto& prot : protein_list_) {
 		if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->update_concentration();
+
+//    if (id_ == 3) printf("Protein %d :: %lf DELTA %lf\n",j,prot->concentration(),((Protein_R*)prot)->_delta_concentration);
+//    j++;
 	}
 }
 
