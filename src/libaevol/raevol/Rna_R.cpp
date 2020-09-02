@@ -105,7 +105,7 @@ Rna_R::~Rna_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Rna_R::set_influences( std::list<Protein*>& protein_list )
+void Rna_R::set_influences( std::list<Protein*>& protein_list, int id )
 {
 	int32_t enhancer_position = get_enhancer_position();
 	int32_t operator_position = get_operator_position();
@@ -130,6 +130,8 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list )
     operate = affinity_with_protein( operator_position, prot );
 
     if (enhance != 0.0 || operate != 0.0) {
+      if (id==389) printf("Add Affinity for RNA %d with Protein %d : E %lf O %lf\n",
+             first_transcribed_pos(),i,enhance,operate);
 
       _protein_list.insert(itprot,(Protein_R*) prot);
 
@@ -181,8 +183,14 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
 
 //    printf("O[%d] %f %f %f\n",i,operator_activity,_operating_coef_list[i],_protein_list[i]->concentration_);
     operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
-
+    if (gen_unit_->indiv()->id()==389)
+      printf("CPU -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",first_transcribed_pos(),_protein_list[i]->first_translated_pos(),
+             _protein_list[i]->concentration_,  _enhancing_coef_list[i], _operating_coef_list[i]);
   }
+
+
+  if (gen_unit_->indiv()->id()==389)
+    printf("CPU -- RNA %d Enhancer %lf Operator %lf\n",first_transcribed_pos(),enhancer_activity,operator_activity);
 /*#else
   ProteinConcentration enhancer_tab[_nb_influences];
   ProteinConcentration operator_tab[_nb_influences];
@@ -337,14 +345,8 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
 
   if (len > 5) {
 
-#ifndef __BLAS__
     ProteinConcentration max = 0;
     ProteinConcentration temp = 1;
-#else
-    ProteinConcentration max = 0;
-    ProteinConcentration  tab_temp[len-4];
-#endif
-
 
     int32_t quadon_tab[5];
     Protein_R* prot = NULL;
@@ -353,26 +355,29 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
     const char* dna = gen_unit_->dna()->data();
     int32_t  len_dna    = gen_unit_->dna()->length();
 
-#ifdef __SIMD
-#pragma omp simd collapse(2)
-#endif
     for (int32_t pos = index; pos < index+5; pos++) {
 
       int8_t quadon[4];
 
       if ( strand_ == LEADING )
       {
+        for (int8_t i = 0; i < QUADON_SIZE; i++) {
+          quadon[i] = (dna[Utils::mod(pos + i,len_dna)] == '1')
+                      ? 1 << (QUADON_SIZE - i - 1)
+                      : 0;
+        }
+      } else {
+        for (int8_t i = 0; i < QUADON_SIZE; i++) {
+          quadon[i] = (dna[Utils::mod(pos - i,len_dna)] != '1')
+                      ? (QUADON_SIZE - i - 1)
+                      : 0;
+        }
+      }/*
         if (pos+QUADON_SIZE < len_dna) {
-#ifdef __SIMD
-#pragma omp simd
-#endif
           for (int8_t i = 0; i < QUADON_SIZE; i++) {
             quadon[i] = (dna[pos + i] == '1') ? 1 <<  (QUADON_SIZE - i - 1) : 0;
           }
         } else {
-#ifdef __SIMD
-#pragma omp simd
-#endif
           for (int8_t i = 0; i < QUADON_SIZE; i++) {
             quadon[i] = (dna[((pos + i) % len_dna < 0 ? (pos + i) % len_dna +
                                                         len_dna : (pos + i) %
@@ -384,16 +389,10 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
       else  // ( strand == LAGGING )
       {
         if (pos-QUADON_SIZE >= 0) {
-#ifdef __SIMD
-#pragma omp simd
-#endif
           for (int8_t i = 0; i < QUADON_SIZE; i++) {
             quadon[i] = (dna[pos - i] != '1') ?  (QUADON_SIZE - i - 1) : 0;
           }
         } else {
-#ifdef __SIMD
-#pragma omp simd
-#endif
           for (int8_t i = 0; i < QUADON_SIZE; i++) {
             quadon[i] = (dna[((pos - i) % len_dna < 0 ? (pos - i) % len_dna +
                                                         len_dna : (pos - i) %
@@ -401,56 +400,24 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
                          '1') ?  (QUADON_SIZE - i - 1) : 0;
           }
         }
-      }
+      }*/
 
       quadon_tab[pos-index] = quadon[0]+quadon[1]+quadon[2]+quadon[3];//gen_unit_->indiv_r_->get_quadon(gen_unit_, strand_, (index + i));
     }
 
-
-    //ProteinConcentration (* binding_matrix)[MAX_QUADON][MAX_CODON] = &(gen_unit_->exp_m()->exp_s()->_binding_matrix);
-#ifdef __SIMD
-#pragma omp simd
-#endif
     for (int32_t i = 0; i < len - 4; i++) {
-
-#ifndef __BLAS__
       temp = 1;
-#else
-      tab_temp[i]  = (*binding_matrix)[quadon_tab[0]][prot->_cod_tab[i]]
-                   * (*binding_matrix)[quadon_tab[1]][prot->_cod_tab[i+1]]
-                   * (*binding_matrix)[quadon_tab[2]][prot->_cod_tab[i+2]]
-                   * (*binding_matrix)[quadon_tab[3]][prot->_cod_tab[i+3]]
-                   * (*binding_matrix)[quadon_tab[4]][prot->_cod_tab[i+4]];
 
-      max = (max < tab_temp[i] ? tab_temp[i] : max);
-#endif
-
-//      if (tab_temp[i] > 1) {
-//        for (int8_t j = 0; j < QUADON_SIZE; j++) {
-//          printf("BM[%d][%d] = %f\n",quadon_tab[j],prot->_cod_tab[i+j],
-//                 (*binding_matrix)[quadon_tab[j]][prot->_cod_tab[i+j]]);
-//        }
-//      }
-#ifndef __BLAS__
       for (int8_t j = 0; j < 5; j++) {
         temp *= gen_unit_->exp_m()->exp_s()->_binding_matrix[quadon_tab[j]][prot->_cod_tab[
             i + j]];
       }
 
       max = (max < temp) ? temp : max;
-#endif
+
     }
 
-#ifdef __BLAS__
-#ifdef __FLOAT_CONCENTRATION
-    return tab_temp[cblas_isamax(len-4,tab_temp,1)];
-#else
     return max;
-    //return tab_temp[cblas_idamax(len-4,tab_temp,1)];
-#endif
-#else
-    return max;
-#endif
   } else {
     return 0.0;
   }

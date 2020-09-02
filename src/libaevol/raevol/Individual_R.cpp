@@ -327,6 +327,12 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
     } else {*/
     _dist_sum = 0;
 
+
+  if (id_==389) {
+    for (auto prot: protein_list_)
+      printf("%d -- CPU -- Protein %d : %lf\n", id_, prot->first_translated_pos(),
+             prot->concentration());
+  }
     std::set<int> *eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
            // printf("Evaluate for %d\n",exp_m_->exp_s()->get_nb_indiv_age());
@@ -345,6 +351,11 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
             one_step();
         }
 
+//      if (id_==389) {
+//        for (auto prot: protein_list_)
+//          printf("%d -- AFTER -- Protein %d : %lf\n", id_, prot->first_translated_pos(),
+//                 prot->concentration());
+//      }
 
         /*for (const auto& prot : protein_list_) {
           printf("AT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
@@ -355,7 +366,8 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
         if (eval->find(i) != eval->end()) {
             //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
             eval_step(habitat, i);
-            printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
+            if (id_==389)
+            printf("%d -- CPU -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
                    _dist_sum,dist_to_target_by_feature_[METABOLISM],
                    habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
         }
@@ -436,6 +448,9 @@ void Individual_R::init_indiv(const Habitat_R& habitat)
 
   _networked = true;
   //initialized = true;
+
+
+
 }
 
 void Individual_R::one_step( void )
@@ -444,8 +459,8 @@ void Individual_R::one_step( void )
   // 4) Make the individual "live its life" and compute partial phenotypes and
   //    fitnesses
   //----------------------------------------------------------------------------
-
   update_concentrations();
+
 }
 
 void Individual_R::eval_step( const Habitat_R& habitat, int16_t age ) {
@@ -502,8 +517,8 @@ void Individual_R::final_step( const Habitat_R& habitat, int16_t age ) {
 
   phenotype_computed_ = true;
 
-  printf("%d -- Finalize Network :: %lf %lf (%lf %lf)\n",id_,dist_to_target_by_feature_[METABOLISM], fitness_,
-         _dist_sum, (double) (exp_m_->exp_s()->get_list_eval_step()->size()));
+//  printf("%d -- Finalize Network :: %lf %lf (%lf %lf)\n",id_,dist_to_target_by_feature_[METABOLISM], fitness_,
+//         _dist_sum, (double) (exp_m_->exp_s()->get_list_eval_step()->size()));
 }
 
 void Individual_R::final_step_one_after_another( const Habitat_R& habitat, int16_t env_id ) {
@@ -532,7 +547,7 @@ void Individual_R::set_influences()
   }*/
 
 	  for(auto& rna : _rna_list_coding) {
-		  rna->set_influences( protein_list_ );
+		  rna->set_influences( protein_list_, id() );
 	  }
 }
 
@@ -542,6 +557,7 @@ void Individual_R::update_concentrations( void )
 	// Concentrations must not be changed at this stage
   for (auto& prot : protein_list_) {
     if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->compute_delta_concentration(exp_m_);
+
 	}
 
 	// Apply the changes in concentrations we have just computed
