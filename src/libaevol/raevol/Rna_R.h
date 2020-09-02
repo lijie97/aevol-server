@@ -75,7 +75,7 @@ class Rna_R : public Rna
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void    set_influences( std::list<Protein*>& protein_list );
+    void    set_influences( std::list<Protein*>& protein_list, int id );
     ProteinConcentration  get_synthesis_rate( void );
     ProteinConcentration  get_affinity_with_protein( int32_t index, Protein *protein );
     int32_t get_enhancer_position( void );

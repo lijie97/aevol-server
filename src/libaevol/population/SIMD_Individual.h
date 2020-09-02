@@ -61,20 +61,22 @@ class promoterStruct {
     bool leading_or_lagging; // TRUE = leading / FALSE = lagging
 };
 
+class pProtein;
+
 class AffinityFactor {
  public:
-  AffinityFactor(double pconcentration, double efactor, double ofactor) {
-    protein_concentration = pconcentration;
+  AffinityFactor(pProtein* prot, double efactor, double ofactor) {
+    protein = prot;
     enhancer_factor = efactor;
     operator_factor = ofactor;
   }
 
-  double protein_concentration;
+  pProtein* protein;
   double enhancer_factor;
   double operator_factor;
-};
 
-class pProtein;
+  double concentration();
+};
 
 class pRNA {
  public:
@@ -133,7 +135,7 @@ class pRNA {
                                      Internal_SIMD_Struct* indiv,
                                ExpManager* exp_m);
 
-  double synthesis_rate;
+  double compute_synthesis_rate(Internal_SIMD_Struct* indiv);
 #endif
 
     int32_t begin;
@@ -199,7 +201,7 @@ class pProtein {
   double initial_e_ = -1;
   double    delta_concentration_ = 0;
   bool      inherited_ = false;
-  bool      signal_;
+  bool      signal_ = false;
   std::list<pRNA*> rna_list_;
 #endif
 };
