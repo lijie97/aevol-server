@@ -243,6 +243,11 @@ void Protein_R::compute_delta_concentration( ExpManager* exp_m )
 
       _delta_concentration += _rna_R_list[i]->get_synthesis_rate();
       ///if (_id == 34483) printf("Prot %ld synthesis by %ld at rate %e\n",_id,rna->get_id(),rna->get_synthesis_rate());
+
+//      if (indiv()->id() == 389) printf("UPDATE_NETWORK_SYN_UPDATE Protein CPU %d :: %lf DELTA %lf - %lf -- %d\n",
+//                                                                   first_translated_pos(),concentration(),_delta_concentration,_rna_R_list[i]->get_synthesis_rate(),
+//                                                                       _rna_R_list[i]->first_transcribed_pos()
+//        );
     }
     //if (_id == 34483) printf("\n");
     //if (_id == 34483)  printf("Prot %ld BEFORE DEGRADATION concentration %f %f\n",_id,concentration_,_delta_concentration);
