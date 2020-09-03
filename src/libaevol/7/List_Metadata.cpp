@@ -2,11 +2,13 @@
 // Created by arrouan on 26/09/19.
 //
 
-#include "SIMD_List_Metadata.h"
+#include "List_Metadata.h"
+
 #include "AeTime.h"
-#include <list>
+
 #include <algorithm>
 #include <iterator>
+#include <list>
 
 namespace aevol {
     void SIMD_List_Metadata::lst_promoters(bool lorl,

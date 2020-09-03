@@ -32,8 +32,8 @@
 // =================================================================
 #include "ExpManager.h"
 
-#include "7/Dna_SIMD.h"
-#include "7/SIMD_Individual.h"
+#include "7/Dna_7.h"
+#include "7/Individual_7.h"
 #include "Individual.h"
 
 #include <cerrno>

@@ -43,8 +43,8 @@ set(aevol_sources
   biochemistry/Alignment.h
   biochemistry/Codon.cpp
   biochemistry/Codon.h
-        7/Dna_SIMD.cpp
-        7/Dna_SIMD.h
+        7/Dna_7.cpp
+        7/Dna_7.h
   biochemistry/Dna.cpp
   biochemistry/Dna.h
   biochemistry/DnaReplicationReport.cpp
@@ -141,8 +141,8 @@ set(aevol_sources
   population/ReplicationReport.h
   population/Selection.cpp
   population/Selection.h
-        7/SIMD_Individual.cpp
-        7/SIMD_Individual.h
+        7/Individual_7.cpp
+        7/Individual_7.h
 
   rng/JumpingMT.cpp
   rng/JumpingMT.h
@@ -156,8 +156,8 @@ set(aevol_sources
   stats/NonCodingMetrics.h
   stats/StatRecord.cpp
   stats/StatRecord.h
-        7/Stats_SIMD.cpp
-        7/Stats_SIMD.h
+        7/Stats_7.cpp
+        7/Stats_7.h
   stats/Stats.cpp
   stats/Stats.h
   utils//ObservableEvent.h
@@ -184,16 +184,16 @@ set(aevol_sources
   world/SaveWorld.h
   world/World.cpp
   world/World.h
-        7/SIMD_Abstract_Metadata.cpp
-        7/SIMD_Abstract_Metadata.h
-        7/SIMD_Map_Metadata.cpp
-        7/SIMD_Map_Metadata.h
-        7/SIMD_DynTab_Metadata.cpp
-        7/SIMD_DynTab_Metadata.h
-        7/SIMD_List_Metadata.cpp
-        7/SIMD_List_Metadata.h
-        7/SIMD_DnaFactory.cpp
-        7/SIMD_DnaFactory.h
+        7/Abstract_Metadata.cpp
+        7/Abstract_Metadata.h
+        7/Map_Metadata.cpp
+        7/Map_Metadata.h
+        7/DynTab_Metadata.cpp
+        7/DynTab_Metadata.h
+        7/List_Metadata.cpp
+        7/List_Metadata.h
+        7/DnaFactory.cpp
+        7/DnaFactory.h
         7/Vector_Fuzzy.h
         7/Vector_Fuzzy.cpp
   )

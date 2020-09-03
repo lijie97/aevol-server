@@ -38,7 +38,7 @@
 // =================================================================
 #include "Tree.h"
 
-#include "7/SIMD_Individual.h"
+#include "7/Individual_7.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Individual.h"

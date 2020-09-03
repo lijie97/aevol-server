@@ -2,7 +2,7 @@
 // Created by arrouan on 18/07/19.
 //
 
-#include "SIMD_Map_Metadata.h"
+#include "Map_Metadata.h"
 #include "AeTime.h"
 
 namespace aevol {

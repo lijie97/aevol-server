@@ -2,16 +2,17 @@
 // Created by arrouan on 27/07/17.
 //
 
-#include "SIMD_Individual.h"
-#include "Dna_SIMD.h"
+#include "Individual_7.h"
+
 #include "DnaMutator.h"
-#include "HybridFuzzy.h"
-#include "Stats_SIMD.h"
+#include "Dna_7.h"
 #include "ExpManager.h"
+#include "HybridFuzzy.h"
+#include "Stats_7.h"
 //#include "SIMD_Abstract_Metadata.h"
-#include "7/SIMD_DynTab_Metadata.h"
-#include "7/SIMD_List_Metadata.h"
-#include "7/SIMD_Map_Metadata.h"
+#include "7/DynTab_Metadata.h"
+#include "7/List_Metadata.h"
+#include "7/Map_Metadata.h"
 #include "7/Vector_Fuzzy.h"
 #include "Fuzzy.h"
 #include "stdint.h"

@@ -5,13 +5,13 @@
 #ifndef AEVOL_SIMD_METADATA_H
 #define AEVOL_SIMD_METADATA_H
 
-#include <cstdint>
-
-#include <vector>
-#include <list>
+#include "Dna_7.h"
+#include "Individual_7.h"
 #include "ae_enums.h"
-#include "SIMD_Individual.h"
-#include "Dna_SIMD.h"
+
+#include <cstdint>
+#include <list>
+#include <vector>
 
 namespace aevol {
     class promoterStruct;

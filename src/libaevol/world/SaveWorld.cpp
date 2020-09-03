@@ -40,7 +40,7 @@
 #include "raevol/Individual_R.h"
 #endif
 
-#include "7/Dna_SIMD.h"
+#include "7/Dna_7.h"
 #include "ExpManager.h"
 
 namespace aevol {

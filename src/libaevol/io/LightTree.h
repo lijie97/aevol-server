@@ -32,10 +32,10 @@
 // =================================================================
 //                              Includes
 // =================================================================
+#include "DnaFactory.h"
 #include "ObservableEvent.h"
 #include "Observer.h"
 #include "ReplicationReport.h"
-#include "SIMD_DnaFactory.h"
 
 #include <cstdio>
 #include <cstdlib>

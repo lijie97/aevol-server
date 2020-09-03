@@ -2,10 +2,10 @@
 // Created by arrouan on 20/03/20.
 //
 
-#ifndef AEVOL_SIMD_DNAFACTORY_H
-#define AEVOL_SIMD_DNAFACTORY_H
+#ifndef AEVOL_DNAFACTORY_H
+#define AEVOL_DNAFACTORY_H
 
-#include "Dna_SIMD.h"
+#include "Dna_7.h"
 namespace aevol {
     enum DnaFactory_Policy {
         FIRST = 0,
@@ -52,4 +52,4 @@ namespace aevol {
     };
 
 }
-#endif //AEVOL_SIMD_DNAFACTORY_H
+#endif //AEVOL_DNAFACTORY_H

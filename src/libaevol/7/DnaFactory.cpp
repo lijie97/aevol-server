@@ -1,8 +1,9 @@
 //
 // Created by arrouan on 20/03/20.
 //
+#include "DnaFactory.h"
+
 #include <list>
-#include "SIMD_DnaFactory.h"
 namespace aevol {
     void SIMD_DnaFactory::init(int init_size) {
         for (int i = 0; i < pool_size_; i++) {

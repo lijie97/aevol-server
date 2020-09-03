@@ -33,7 +33,7 @@
 //                                   Includes
 // ============================================================================
 #include "GridCell.h"
-#include "SIMD_Individual.h"
+#include "Individual_7.h"
 
 #include <cassert>
 #include <cinttypes>
