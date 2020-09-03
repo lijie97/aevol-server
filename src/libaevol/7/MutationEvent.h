@@ -7,7 +7,6 @@
 
 
 #include <cstdint>
-#include "BitSet_SIMD.h"
 
 namespace aevol {
 
@@ -29,11 +28,7 @@ class MutationEvent {
 
     void switch_pos(int32_t pos);
 
-#ifdef WITH_BITSET
-    void small_insertion(int32_t pos, BitSet_SIMD* seq);
-#else
     void small_insertion(int32_t pos, int32_t number, char* seq);
-#endif
     void small_deletion(int32_t pos, int32_t number);
 
     void duplication(int32_t pos1, int32_t pos2, int32_t pos3);
@@ -56,11 +51,7 @@ class MutationEvent {
 
     int32_t invert() { return invert_; }
 
-#ifdef WITH_BITSET
-    BitSet_SIMD* seq() { return seq_; }
-#else
     char* seq() { return seq_; }
-#endif
 
  private:
     int32_t type_;
@@ -71,11 +62,7 @@ class MutationEvent {
 
     bool invert_;
 
-#ifdef WITH_BITSET
-    BitSet_SIMD* seq_ = nullptr;
-#else
     char* seq_ = nullptr;
-#endif
 };
 }
 
