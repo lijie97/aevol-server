@@ -9,19 +9,19 @@
 #include "Stats_SIMD.h"
 #include "ExpManager.h"
 //#include "SIMD_Abstract_Metadata.h"
-#include "SIMD_Map_Metadata.h"
-#include "SIMD_DynTab_Metadata.h"
-#include "SIMD_List_Metadata.h"
-#include "../../../../../../../../../usr/include/stdio.h"
-#include "../../../../../../../../../usr/include/stdint.h"
+#include "7/SIMD_DynTab_Metadata.h"
+#include "7/SIMD_List_Metadata.h"
+#include "7/SIMD_Map_Metadata.h"
+#include "7/Vector_Fuzzy.h"
 #include "Fuzzy.h"
-#include "Vector_Fuzzy.h"
+#include "stdint.h"
+#include "stdio.h"
 
-#include <omp.h>
-#include <chrono>
 #include <algorithm>
-#include <sys/stat.h>
+#include <chrono>
 #include <err.h>
+#include <omp.h>
+#include <sys/stat.h>
 
 namespace aevol {
 

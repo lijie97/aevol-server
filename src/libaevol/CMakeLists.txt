@@ -25,6 +25,7 @@ include_directories("./cuda")
 include_directories("./io")
 include_directories("./gui")
 include_directories("./utils")
+include_directories("./7")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -42,8 +43,8 @@ set(aevol_sources
   biochemistry/Alignment.h
   biochemistry/Codon.cpp
   biochemistry/Codon.h
-  biochemistry/Dna_SIMD.cpp
-  biochemistry/Dna_SIMD.h
+        7/Dna_SIMD.cpp
+        7/Dna_SIMD.h
   biochemistry/Dna.cpp
   biochemistry/Dna.h
   biochemistry/DnaReplicationReport.cpp
@@ -81,8 +82,8 @@ set(aevol_sources
   
   mutation/Deletion.cpp
   mutation/Deletion.h
-  mutation/DnaMutator.cpp
-  mutation/DnaMutator.h
+        7/DnaMutator.cpp
+        7/DnaMutator.h
   mutation/Duplication.cpp
   mutation/Duplication.h
   mutation/HorizontalTransfer.h
@@ -93,8 +94,8 @@ set(aevol_sources
   mutation/LocalMutation.h
   mutation/Mutation.cpp
   mutation/Mutation.h
-  mutation/MutationEvent.cpp
-  mutation/MutationEvent.h
+        7/MutationEvent.cpp
+        7/MutationEvent.h
   mutation/MutationParams.cpp
   mutation/MutationParams.h
   mutation/PointMutation.cpp
@@ -140,8 +141,8 @@ set(aevol_sources
   population/ReplicationReport.h
   population/Selection.cpp
   population/Selection.h
-  population/SIMD_Individual.cpp
-  population/SIMD_Individual.h
+        7/SIMD_Individual.cpp
+        7/SIMD_Individual.h
 
   rng/JumpingMT.cpp
   rng/JumpingMT.h
@@ -155,8 +156,8 @@ set(aevol_sources
   stats/NonCodingMetrics.h
   stats/StatRecord.cpp
   stats/StatRecord.h
-  stats/Stats_SIMD.cpp
-  stats/Stats_SIMD.h
+        7/Stats_SIMD.cpp
+        7/Stats_SIMD.h
   stats/Stats.cpp
   stats/Stats.h
   utils//ObservableEvent.h
@@ -183,18 +184,18 @@ set(aevol_sources
   world/SaveWorld.h
   world/World.cpp
   world/World.h
-SIMD_Abstract_Metadata.cpp 
-  SIMD_Abstract_Metadata.h 
-  SIMD_Map_Metadata.cpp 
-  SIMD_Map_Metadata.h
-  SIMD_DynTab_Metadata.cpp
-  SIMD_DynTab_Metadata.h
-  SIMD_List_Metadata.cpp
-  SIMD_List_Metadata.h
-  SIMD_DnaFactory.cpp
-  SIMD_DnaFactory.h
-  Vector_Fuzzy.h
-  Vector_Fuzzy.cpp
+        7/SIMD_Abstract_Metadata.cpp
+        7/SIMD_Abstract_Metadata.h
+        7/SIMD_Map_Metadata.cpp
+        7/SIMD_Map_Metadata.h
+        7/SIMD_DynTab_Metadata.cpp
+        7/SIMD_DynTab_Metadata.h
+        7/SIMD_List_Metadata.cpp
+        7/SIMD_List_Metadata.h
+        7/SIMD_DnaFactory.cpp
+        7/SIMD_DnaFactory.h
+        7/Vector_Fuzzy.h
+        7/Vector_Fuzzy.cpp
   )
   
 if ( ${with-raevol} )

@@ -32,17 +32,15 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
+#include "GridCell.h"
+#include "SIMD_Individual.h"
+
+#include <cassert>
 #include <cinttypes>
 #include <cstdio>
 #include <cstdlib>
-#include <cassert>
-
 #include <memory>
-
 #include <zlib.h>
-
-#include "GridCell.h"
-#include "SIMD_Individual.h"
 
 namespace aevol {
 

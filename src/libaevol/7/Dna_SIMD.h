@@ -11,7 +11,6 @@
 #include "Utils.h"
 //#include "Dna.h"
 #include "MutationEvent.h"
-#include "BitSet_SIMD.h"
 
 namespace aevol {
 

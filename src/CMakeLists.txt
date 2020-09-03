@@ -30,6 +30,7 @@ include_directories("libaevol/cuda")
 include_directories("libaevol/io")
 include_directories("libaevol/gui")
 include_directories("libaevol/utils")
+include_directories("libaevol/7")
 
 # ============================================================================
 # Add targets add their dependencies

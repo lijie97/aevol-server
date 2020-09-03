@@ -14,10 +14,10 @@
 //#include "Dna_SIMD.h"
 #include "Observable.h"
 #include "PhenotypicTargetHandler.h"
-#include "ae_enums.h"
-#include "Stats.h"
 #include "SIMD_DnaFactory.h"
+#include "Stats.h"
 #include "Vector_Fuzzy.h"
+#include "ae_enums.h"
 
 namespace aevol {
 

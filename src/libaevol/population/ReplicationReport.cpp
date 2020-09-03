@@ -37,14 +37,15 @@
 //                            Project Files
 
 #include "ReplicationReport.h"
-#include "DnaReplicationReport.h"
-#include "Mutation.h"
-#include "SIMD_Individual.h"
-#include "Dna_SIMD.h"
-#include "Individual.h"
-#include "GridCell.h"
-#include "ExpManager.h"
+
+#include "7/Dna_SIMD.h"
+#include "7/SIMD_Individual.h"
 #include "AeTime.h"
+#include "DnaReplicationReport.h"
+#include "ExpManager.h"
+#include "GridCell.h"
+#include "Individual.h"
+#include "Mutation.h"
 #include "Observable.h"
 #include "Tree.h"
 

@@ -40,8 +40,8 @@
 #include "raevol/Individual_R.h"
 #endif
 
+#include "7/Dna_SIMD.h"
 #include "ExpManager.h"
-#include "Dna_SIMD.h"
 
 namespace aevol {
 

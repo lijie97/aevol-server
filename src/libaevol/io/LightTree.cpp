@@ -41,11 +41,11 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "SIMD_Individual.h"
-#include "LightTree.h"
+#include "7/Dna_SIMD.h"
+#include "7/SIMD_Individual.h"
 #include "AeTime.h"
 #include "AncestorStats.h"
-#include "Dna_SIMD.h"
+#include "LightTree.h"
 
 namespace aevol {
 

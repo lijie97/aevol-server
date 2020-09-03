@@ -32,17 +32,16 @@
 // =================================================================
 //                              Includes
 // =================================================================
-#include <inttypes.h>
+#include "ObservableEvent.h"
+#include "Observer.h"
+#include "ReplicationReport.h"
+#include "SIMD_DnaFactory.h"
 
-#include <vector>
-#include <unordered_map>
 #include <cstdio>
 #include <cstdlib>
-
-#include "ReplicationReport.h"
-#include "Observer.h"
-#include "ObservableEvent.h"
-#include "SIMD_DnaFactory.h"
+#include <inttypes.h>
+#include <unordered_map>
+#include <vector>
 
 namespace aevol {
 

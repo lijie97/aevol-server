@@ -36,15 +36,16 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <algorithm>
 #include "Tree.h"
 
-#include "macros.h"
+#include "7/SIMD_Individual.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Individual.h"
 #include "Utils.h"
-#include "SIMD_Individual.h"
+#include "macros.h"
+
+#include <algorithm>
 
 namespace aevol {
 

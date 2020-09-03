@@ -31,7 +31,8 @@
 //                              Includes
 // =================================================================
 #include "Selection.h"
-#include "Dna_SIMD.h"
+
+#include "7/Dna_SIMD.h"
 #include "DnaMutator.h"
 //#include <math.h>
 
@@ -68,7 +69,7 @@ using namespace std::chrono;
     #include "raevol/Individual_R_X11.h"
   #endif
 #endif
-#include "SIMD_Individual.h"
+#include "7/SIMD_Individual.h"
 
 namespace aevol {
 

@@ -1,14 +1,15 @@
 //
 // Created by arrouan on 19/01/18.
 //
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <fcntl.h>
-
 #include "Stats_SIMD.h"
-#include "Dna_SIMD.h"
-#include "SIMD_Individual.h"
+
+#include "7/Dna_SIMD.h"
+#include "7/SIMD_Individual.h"
+
+#include <fcntl.h>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 namespace aevol {
 

@@ -30,20 +30,18 @@
 // =================================================================
 //                              Includes
 // =================================================================
-#include <err.h>
-#include <cerrno>
-#include <sys/stat.h>
-
-#include <list>
-#include <iostream>
-
-#include <zlib.h>
-
 #include "ExpManager.h"
-#include "Individual.h"
-#include "Dna_SIMD.h"
-#include "SIMD_Individual.h"
 
+#include "7/Dna_SIMD.h"
+#include "7/SIMD_Individual.h"
+#include "Individual.h"
+
+#include <cerrno>
+#include <err.h>
+#include <iostream>
+#include <list>
+#include <sys/stat.h>
+#include <zlib.h>
 
 #ifdef __CUDACC__
 #include "CUDA_Individual.h"

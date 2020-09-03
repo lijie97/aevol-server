@@ -2,16 +2,16 @@
 // Created by Jonathan Rouzaud-Cornabas on 24/08/17.
 //
 
-
-#include "SIMD_Individual.h"
-#include "ExpManager.h"
 #include "Dna_SIMD.h"
-#include "DnaMutator.h"
-#include "BitSet_SIMD.h"
-#include "Individual.h"
-#include "SIMD_Map_Metadata.h"
+
 #include "SIMD_DynTab_Metadata.h"
+#include "SIMD_Individual.h"
 #include "SIMD_List_Metadata.h"
+#include "SIMD_Map_Metadata.h"
+#include "BitSet_SIMD.h"
+#include "DnaMutator.h"
+#include "ExpManager.h"
+#include "Individual.h"
 
 #define REDUCTION_FACTOR 16
 
