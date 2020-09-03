@@ -68,6 +68,9 @@ class GeneticUnit {
   // =================================================================
   //                             Constructors
   // =================================================================
+
+  GeneticUnit(Individual* indiv);
+
   GeneticUnit(Individual* indiv,
               int32_t length,
               std::shared_ptr<JumpingMT> prng);
@@ -353,8 +356,6 @@ class GeneticUnit {
                                     int& nb_genes_at_breakpoints,
                                     int& nb_genes_in_segment,
                                     int& nb_genes_in_replaced_segment);
-
-  void copy_parent(const GeneticUnit* parent, bool env_has_changed);
 
   // =================================================================
   //                           Public Attributes

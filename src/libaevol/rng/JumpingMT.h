@@ -101,8 +101,11 @@ class JumpingMT
     inline int32_t  random(int32_t max);  // ~ > Integer in [0, max[ (uniform distribution)
     inline int64_t  random(int64_t max);  // ~
     int32_t         binomial_random(int32_t nb, double prob); // Binomial drawing of parameters (nb, prob)
-    double          gaussian_random();                    // Double following a Standard Normal distribution
-    int32_t          roulette_random(double* probs, int32_t nb_elts, bool verbose = false); // Roulette selection
+    // Double following a Standard Normal distribution
+    double gaussian_random(double mu = 0.0, double sigma = 1.0);
+    int32_t roulette_random(double* probs,
+                            int32_t nb_elts,
+                            bool verbose = false); // Roulette selection
     void            multinomial_drawing (int32_t* destination, double* source, int32_t nb_drawings, int32_t colors);
     // Multinomial drawing of parameters (nb, {source[0], source[1], ... source[colors-1]})
 

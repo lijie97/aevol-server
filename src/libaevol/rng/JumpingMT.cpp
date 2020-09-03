@@ -217,8 +217,8 @@ int32_t JumpingMT::binomial_random(int32_t nb_drawings, double prob)
   return nb_success;
 }
 
-double JumpingMT::gaussian_random()
-{
+double JumpingMT::gaussian_random(double mu /* = 0.0 */,
+                                  double sigma /* = 0.0 */) {
   double x1, x2;
   double r = 0;
   do
@@ -232,7 +232,9 @@ double JumpingMT::gaussian_random()
 
   r = sqrt((-2.0 * log(r)) / r); // Box-muller transformation
 
-  return x1 * r;
+  double draw = x1 * r; // Drawn from N(0, 1)
+
+  return draw * sigma + mu;
 }
 
 int32_t JumpingMT::roulette_random(double* probs, int32_t nb_elts, bool verbose )
