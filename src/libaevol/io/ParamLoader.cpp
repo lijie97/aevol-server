@@ -1273,10 +1273,12 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     if (strncmp(line->words[1], "stdmap", 6) == 0)
     {
       simd_metadata_flavor_ = STD_MAP;
+      printf("Not fully working ATM, choose list\n"); exit(-1);
     }
     else if (strncmp(line->words[1], "dyntab", 6) == 0)
     {
       simd_metadata_flavor_ = DYN_TAB;
+      printf("Not fully working ATM, choose list\n"); exit(-1);
     }
     else if (strncmp(line->words[1], "list", 6) == 0)
     {
