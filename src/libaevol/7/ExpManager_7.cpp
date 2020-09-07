@@ -352,11 +352,6 @@ void ExpManager_7::do_mutation(int indiv_id) {
       delete eindiv;
     }
 
-#ifdef WITH_BITSET
-    internal_simd_struct[indiv_id]->dna_->bitset_ =
-            new BitSet_SIMD(prev_internal_simd_struct
-              [internal_simd_struct[indiv_id]->parent_id]->dna_->bitset_);
-#endif
 
 #ifdef WITH_PERF_TRACES
     auto t_start = std::chrono::steady_clock::now();
@@ -501,20 +496,7 @@ ExpManager_7::~ExpManager_7() {
 
 void ExpManager_7::start_stop_RNA(int indiv_id) {
   for (int dna_pos = 0; dna_pos < dna_size[indiv_id]; dna_pos++) {
-#ifdef WITH_BITSET
-    //printf("Looking for DNA of %d\n",indiv_id);
 
-      if (internal_simd_struct[indiv_id]->dna_->bitset_->length_ > 0) {
-
-        int dist_lead = internal_simd_struct[indiv_id]->dna_->bitset_->is_promoter(
-            true, dna_pos);
-        int dist_lag = internal_simd_struct[indiv_id]->dna_->bitset_->is_promoter(
-            false, dna_pos);
-        bool is_terminator_lead = internal_simd_struct[indiv_id]->dna_->bitset_->is_terminator(
-            true, dna_pos);
-        bool is_terminator_lag = internal_simd_struct[indiv_id]->dna_->bitset_->is_terminator(
-            false, dna_pos);
-#else
 
     int len = dna_size[indiv_id];
     if (len >= PROM_SIZE) {
@@ -605,7 +587,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
                       prom_dist_leading[19] +
                       prom_dist_leading[20] +
                       prom_dist_leading[21];
-#endif
 
       if (dist_lead <= 4) {
         PromoterStruct* nprom = new PromoterStruct(dna_pos, dist_lead,
@@ -622,20 +603,16 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
       }
 
 
-#ifndef WITH_BITSET
+
       int dist_term_lead = term_dist_leading[0] +
                            term_dist_leading[1] +
                            term_dist_leading[2] +
                            term_dist_leading[3];
 
       if (dist_term_lead == 4) {
-#else
-        if (is_terminator_lead) {
-#endif
         internal_simd_struct[indiv_id]->metadata_->terminator_add(LEADING, dna_pos);
       }
 
-#ifndef WITH_BITSET
       int dist_lag = prom_dist_lagging[0] +
                      prom_dist_lagging[1] +
                      prom_dist_lagging[2] +
@@ -658,7 +635,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
                      prom_dist_lagging[19] +
                      prom_dist_lagging[20] +
                      prom_dist_lagging[21];
-#endif
 
       if (dist_lag <= 4) {
         PromoterStruct* nprom = new PromoterStruct(dna_pos, dist_lag,
@@ -672,7 +648,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
         delete nprom;
       }
 
-#ifndef WITH_BITSET
       int dist_term_lag = term_dist_lagging[0] +
                           term_dist_lagging[1] +
                           term_dist_lagging[2] +
@@ -680,9 +655,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
 
 
       if (dist_term_lag == 4) {
-#else
-        if (is_terminator_lag) {
-#endif
         internal_simd_struct[indiv_id]->metadata_->terminator_add(LAGGING, dna_pos);
       }
     }
@@ -2234,7 +2206,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
 
 void ExpManager_7::check_dna() {
-#ifndef WITH_BITSET
+
   int x, y;
   for (int i = 0; i < (int) exp_m_->nb_indivs(); i++) {
     x = i / exp_m_->world()->height();
@@ -2260,10 +2232,6 @@ void ExpManager_7::check_dna() {
       }
     }
   }
-#else
-  printf("NOT YET IMPLEMENTED WITH BITSET !\n");
-  exit(-1);
-#endif
 }
 
 void ExpManager_7::check_individual(int i, int x, int y) {

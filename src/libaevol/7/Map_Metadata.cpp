@@ -493,11 +493,8 @@ namespace aevol {
         // Hamming distance of the sequence from the promoter consensus
 
         for (int32_t i = pos_1; i < pos_2; i++) {
-#ifdef WITH_BITSET
-            int8_t dist = dna_->bitset_->is_promoter(true,i);
-#else
+
             int8_t dist = is_promoter_leading(i);
-#endif
 
             if (dist <= 4) {
                 if (leading_prom_pos_.find(i) == leading_prom_pos_.end()) {
@@ -523,11 +520,8 @@ namespace aevol {
         //int8_t dist = 8;
 
         for (int32_t i = pos; i < length(); i++) {
-#ifdef WITH_BITSET
-            int8_t dist = dna_->bitset_->is_promoter(true,i);
-#else
+
             int8_t dist = is_promoter_leading(i);
-#endif
             if (dist <= 4) { // dist takes the hamming distance of the sequence from the consensus
                 if (leading_prom_pos_.find(i) == leading_prom_pos_.end()) {
                   PromoterStruct* nprom = new PromoterStruct(i, dist, true);
@@ -551,11 +545,8 @@ namespace aevol {
         // Hamming distance of the sequence from the promoter consensus
 
         for (int32_t i = 0; i < pos; i++) {
-#ifdef WITH_BITSET
-            int8_t dist = dna_->bitset_->is_promoter(true,i);
-#else
+
             int8_t dist = is_promoter_leading(i);
-#endif
             if (dist <= 4) { // dist takes the hamming distance of the sequence from the consensus
                 if (leading_prom_pos_.find(i) == leading_prom_pos_.end()) {
                   PromoterStruct* nprom = new PromoterStruct(i, dist, true);
@@ -587,11 +578,8 @@ namespace aevol {
 
         // Hamming distance of the sequence from the promoter consensus
         for (int32_t i = pos_2 - 1; i >= pos_1; i--) {
-#ifdef WITH_BITSET
-            int8_t dist = dna_->bitset_->is_promoter(false,i);
-#else
+
             int8_t dist = is_promoter_lagging(i);
-#endif
             if (dist <= 4) { // dist takes the hamming distance of the sequence from the consensus
                 if (lagging_prom_pos_.find(i) == lagging_prom_pos_.end()) {
                   PromoterStruct* nprom = new PromoterStruct(i, dist, false);
@@ -615,11 +603,8 @@ namespace aevol {
         // Hamming distance of the sequence from the promoter consensus
 
         for (int32_t i = length() - 1; i >= pos; i--) {
-#ifdef WITH_BITSET
-            int8_t dist = dna_->bitset_->is_promoter(false,i);
-#else
+
             int8_t dist = is_promoter_lagging(i);
-#endif
             if (dist <= 4) { // dist takes the hamming distance of the sequence from the consensus
                 if (lagging_prom_pos_.find(i) == lagging_prom_pos_.end()) {
                   PromoterStruct* nprom = new PromoterStruct(i, dist, false);
@@ -643,11 +628,8 @@ namespace aevol {
         // Hamming distance of the sequence from the promoter consensus
 
         for (int32_t i = pos - 1; i >= 0; i--) {
-#ifdef WITH_BITSET
-            int8_t dist = dna_->bitset_->is_promoter(false,i);
-#else
+
             int8_t dist = is_promoter_lagging(i);
-#endif
             if (dist <= 4) { // dist takes the hamming distance of the sequence from the consensus
                 if (lagging_prom_pos_.find(i) == lagging_prom_pos_.end()) {
                   PromoterStruct* nprom = new PromoterStruct(i, dist, false);

@@ -304,41 +304,17 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
 
       // Insert the sequence
       // Prepare the sequence to be inserted
-#ifdef WITH_BITSET
-      BitSet_SIMD* inserted_seq = new BitSet_SIMD(nb_insert);
-#else
+
       char* inserted_seq = new char[nb_insert + 1];
-#endif
       char inserted_char;
       for (int16_t j = 0; j < nb_insert; j++) {
         inserted_char = static_cast<char>('0' + mut_prng_->random(NB_BASE));
-#ifdef WITH_BITSET
-        if (inserted_char == '0')
-#ifdef _DYNAMIC_CUSTOM_BITSET
-          inserted_seq->set_to_0(j);
-#elif _STATIC_BITSET
-          inserted_seq->data_.set(j,false);
-#endif
-        else
-#ifdef _DYNAMIC_CUSTOM_BITSET
-          inserted_seq->set_to_1(j);
-#elif _STATIC_BITSET
-          inserted_seq->data_.set(j,true);
-#endif
-#else
         inserted_seq[j] = inserted_char;
-#endif
       }
-#ifndef WITH_BITSET
       inserted_seq[nb_insert] = '\0';
-#endif
 
       mevent = new MutationEvent();
-#ifdef WITH_BITSET
-      mevent->small_insertion(pos,inserted_seq);
-#else
       mevent->small_insertion(pos,nb_insert,inserted_seq);
-#endif
 
       mutation_list_.push_back(mevent);
 

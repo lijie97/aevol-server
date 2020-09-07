@@ -3940,16 +3940,9 @@ void Dna::apply_mutations() {
           break;
         case SMALL_INSERTION:
 //          printf("%d -- %d -- Insertion at %d size %d\n",AeTime::time(),indiv()->id(),repl->pos_1(),repl->number());
-#ifdef WITH_BITSET
-          char* seqchar = repl->seq()->to_char();
-                    mut = new SmallInsertion(repl->pos_1(), repl->number(), seqchar);
-          do_small_insertion(repl->pos_1(), repl->number(), seqchar);
 
-          delete seqchar;
-#else
               mut = new SmallInsertion(repl->pos_1(), repl->number(), repl->seq());
               do_small_insertion(repl->pos_1(), repl->number(), repl->seq());
-#endif
 
           break;
         case SMALL_DELETION:
