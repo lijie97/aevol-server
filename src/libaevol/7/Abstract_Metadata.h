@@ -495,6 +495,7 @@ namespace aevol {
                     break;
                 }
             }
+            return start;
         }
 /*        virtual void lst_shine_dal_start_prot(bool lorl,
                            Position before_after_btw, // with regard to the strand's reading direction

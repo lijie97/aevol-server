@@ -30,7 +30,7 @@
 
 
 #include "Rna_7.h"
-
+#include "Protein_7.h"
 #include "Abstract_Metadata.h"
 #include "Dna_7.h"
 #include "Individual_7.h"

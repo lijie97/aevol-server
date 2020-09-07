@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
-    printf("Loading individual %d\n",reports[1]->parent_id());
+    printf("Loading individual %lld\n",reports[1]->parent_id());
 
   const Individual& initial_ancestor = *(exp_manager->indiv_by_id(reports[1]->parent_id()));
 

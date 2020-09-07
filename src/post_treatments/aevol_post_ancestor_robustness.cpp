@@ -46,7 +46,7 @@ static int32_t nb_mutants = 1000; //< Number of mutants per individual
 static int32_t begin = 0; //< First generation to analyse
 static int32_t end = -1; //< Last generation to analyse
 static int32_t period = 1; //< Period of analysis
-static char* output_file_name = "robustness_summary.txt";
+static char* output_file_name = (char*)"robustness_summary.txt";
 static bool verbose = false;
 static bool full_output = false;
 

@@ -227,7 +227,7 @@ int main(int argc, char** argv)
               map_tree[((int) ((local_time - 1) / tree_step) + 1) * tree_step] = new Tree(exp_manager, tree_file_name);
               tree = map_tree[((int) ((local_time - 1) / tree_step) + 1) * tree_step];
 
-              printf("Loading tree %d\n",((int) ((local_time - 1) / tree_step) + 1) * tree_step);
+              printf("Loading tree %ld\n",((int) ((local_time - 1) / tree_step) + 1) * tree_step);
       } else
           tree = map_tree[((int) ((local_time - 1) / tree_step) + 1) * tree_step];
 
@@ -244,7 +244,7 @@ int main(int argc, char** argv)
                           ".ae", ((int) ((local_time - 1) / tree_step) + 1) * tree_step);
                           map_tree[((int) ((local_time - 1) / tree_step) + 1) * tree_step] = new Tree(exp_manager, tree_file_name);
                           tree = map_tree[((int) ((local_time - 1) / tree_step) + 1) * tree_step];
-                          printf("Loading tree %d\n",((int) ((local_time - 1) / tree_step) + 1) * tree_step);
+                          printf("Loading tree %ld\n",((int) ((local_time - 1) / tree_step) + 1) * tree_step);
                   } else {
                       tree = map_tree[((int) ((local_time - 1) / tree_step) + 1) * tree_step];
                   }

@@ -117,14 +117,14 @@ int main(int argc, char* argv[]) {
   indiv_tmp = nullptr;
   // Now that we have the index and rank of the indiv of interest, we can
   // generate the output file name and hence open that file
-  char filename[255];
-  snprintf(filename, 255, "%s/robustness-summary-%" PRId64 "-i%" PRId32 "-r%" PRId32,
+  char filename[512];
+  snprintf(filename, 512, "%s/robustness-summary-%" PRId64 "-i%" PRId32 "-r%" PRId32,
       directory_name, timestep, wanted_index, wanted_rank);
   FILE* output_summary = fopen(filename, "w");
   if (output_summary == nullptr) {
     Utils::ExitWithUsrMsg(std::string("Could not open file ") + filename);
   }
-  snprintf(filename, 255, "%s/robustness-detailed-%" PRId64 "-i%" PRId32 "-r%" PRId32,
+  snprintf(filename, 512, "%s/robustness-detailed-%" PRId64 "-i%" PRId32 "-r%" PRId32,
       directory_name, timestep, wanted_index, wanted_rank);
   FILE* output_detailed = fopen(filename, "w");
   if (output_detailed == nullptr) {

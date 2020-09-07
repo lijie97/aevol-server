@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
 
     sprintf(tree_file_name,"tree/tree_" TIMESTEP_FORMAT ".ae", t_end);
 
-  printf("Loading %d\n",t_end);
+  printf("Loading %ld\n",t_end);
 
   tree = new Tree(exp_manager, tree_file_name);
 
@@ -373,7 +373,7 @@ int main(int argc, char** argv) {
 
     if (check_genome_now) {
       if (verbose) {
-        printf("%d -- Checking the sequence of the unit...",t);
+        printf("%ld -- Checking the sequence of the unit...",t);
         fflush(stdout);
       }
       assert(stored_gen_unit != stored_indiv->genetic_unit_list().cend());

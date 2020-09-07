@@ -364,14 +364,14 @@ void ExpManager_7::check_selection(int indiv_id) {
             exp_m_->world()->grid(v_x, v_y)->individual()->fitness(),
             prev_internal_simd_struct[indiv_index[i]]->fitness);
 
-        printf("ID CPU %d SIMD %d -- PARENT ID CPU %d SIMD %d\n",
+        printf("ID CPU %lld SIMD %d -- PARENT ID CPU %d SIMD %d\n",
                exp_m_->world()->grid(v_x, v_y)->individual()->id(),
                prev_internal_simd_struct[indiv_index[i]]->indiv_id,
                exp_m_->world()->grid(v_x, v_y)->individual()->parent_id_,
                prev_internal_simd_struct[indiv_index[i]]->parent_id);
 
         printf(
-            "Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld\n",
+            "Nb RNA SIMD/CPU %ud/%ld Protein %ud/%ld\n",
             prev_internal_simd_struct[indiv_index[i]]->metadata_->rna_count(),
             exp_m_->world()->grid(v_x, v_y)->individual()->rna_list().size(),
             prev_internal_simd_struct[indiv_index[i]]->metadata_->proteins_count(),
@@ -2650,7 +2650,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
           err(EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR);
         }
 
-        printf("Tree SIMD backup: %d\n", AeTime::time());
+        printf("Tree SIMD backup: %ld\n", AeTime::time());
         char tree_file_name[50];
 
         sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", AeTime::time());
@@ -2793,7 +2793,7 @@ void ExpManager_7::check_individual(int i, int x, int y) {
   printf("%d %d %d -- ",i,x,y);
 
   printf(
-      "Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld Metaerror %f/%f Fitness %e/%e DNA Size %d/%d\n",
+      "Nb RNA SIMD/CPU %ud/%ld Protein %ud/%ld Metaerror %f/%f Fitness %e/%e DNA Size %d/%d\n",
       prev_internal_simd_struct[i]->metadata_->rna_count(),
       exp_m_->world()->grid(x, y)->individual()->rna_list().size(),
       prev_internal_simd_struct[i]->metadata_->proteins_count(),
@@ -2992,7 +2992,7 @@ void ExpManager_7::check_result() {
       for (int j = 0; j < prev_internal_simd_struct[i]->dna_->length(); j++) {
         if (prev_internal_simd_struct[i]->dna_->data_[j] !=
             exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).dna()->data()[j]) {
-          printf("%d -- %d -- DNA is different at %d !!!\n", AeTime::time(), i, j);
+          printf("%ld -- %d -- DNA is different at %d !!!\n", AeTime::time(), i, j);
 
           exit(-1);
         }
@@ -3007,7 +3007,7 @@ void ExpManager_7::check_result() {
 
 
         printf(
-            "X-X-ERROR -- %d -- Individual %d  -- %d %d --(P %d / %d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
+            "X-X-ERROR -- %ld -- Individual %d  -- %d %d --(P %d / %d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
             AeTime::time(), i, x,y,exp_m_->world()->grid(x, y)->individual()->parent_id_,
             prev_internal_simd_struct[i]->parent_id,
             exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
@@ -3017,7 +3017,7 @@ void ExpManager_7::check_result() {
             prev_internal_simd_struct[i]->fitness);
 
         printf(
-            "Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld Metaerror %f/%f Fitness %e/%e DNA Size %d/%d\n",
+            "Nb RNA SIMD/CPU %ud/%ld Protein %ud/%ld Metaerror %f/%f Fitness %e/%e DNA Size %d/%d\n",
             prev_internal_simd_struct[i]->metadata_->rna_count(),
             exp_m_->world()->grid(x, y)->individual()->rna_list().size(),
             count_prot,
@@ -3216,7 +3216,7 @@ void ExpManager_7::check_result() {
 
 
     if (validated_generation)
-      printf("Generation %d is replicated with SIMD without diff\n", AeTime::time());
+      printf("Generation %ld is replicated with SIMD without diff\n", AeTime::time());
 
 
   }

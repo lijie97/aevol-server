@@ -203,7 +203,7 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
 
       char *dummy;
       fprintf(triangles_file,
-              "%" PRId32 " %s %s %" PRId32 " %" PRId32 " %" PRId32
+              "%lld %s %s %" PRId32 " %" PRId32 " %" PRId32
                   " %s %f %f %f %f %d %" PRId32 " %" PRId32 " %f\n",
               gen_unit->indiv()->id(),
               gen_unit_number != 0 ? "PLASMID" :

@@ -29,6 +29,7 @@
 #define AEVOL_LIST_METADATA_H
 
 
+#include "Protein_7.h"
 #include "Rna_7.h"
 #include "Abstract_Metadata.h"
 #include "Dna_7.h"

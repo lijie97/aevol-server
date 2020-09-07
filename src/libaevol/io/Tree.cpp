@@ -153,6 +153,7 @@ Tree::~Tree() {
                 return replics_[Utils::mod(t - 1, tree_step_)][i];
             }
         }
+        return nullptr;
       }
 
 
