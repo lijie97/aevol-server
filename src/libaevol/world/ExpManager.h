@@ -49,7 +49,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class SIMD_Individual;
+class ExpManager_7;
 class DnaMutator;
 /// Allows for high-level experiment management. (This is Aevol's top-level class.)
 ///
@@ -174,7 +174,7 @@ class ExpManager : public Observer {
     DnaMutator** dna_mutator_array_ = nullptr;
 
     // SIMD Stuff
-    SIMD_Individual* simd_individual = nullptr;
+    ExpManager_7* simd_individual = nullptr;
     int grain_size = 1;
  protected:
   // =======================================================================

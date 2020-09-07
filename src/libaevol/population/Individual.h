@@ -63,7 +63,7 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 class GridCell;
-class Dna_SIMD;
+class Dna_7;
 
 /// Models an individual cell.
 ///

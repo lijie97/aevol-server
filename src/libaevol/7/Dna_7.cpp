@@ -15,7 +15,7 @@
 #define REDUCTION_FACTOR 16
 
 namespace aevol {
-Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory) {
+Dna_7::Dna_7(Dna* dna, Individual_7 * indiv, DnaFactory * dna_factory) {
   length_ = dna->length();
 
   nb_blocks_ = nb_blocks(length_);// _mm_free(ptr)
@@ -28,7 +28,7 @@ Dna_SIMD::Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_f
   dna_factory_ = dna_factory;
 }
 
-Dna_SIMD::Dna_SIMD(Dna* dna, SIMD_DnaFactory* dna_factory) {
+Dna_7::Dna_7(Dna* dna, DnaFactory * dna_factory) {
         length_ = dna->length();
 
         nb_blocks_ = nb_blocks(length_);
@@ -38,12 +38,12 @@ Dna_SIMD::Dna_SIMD(Dna* dna, SIMD_DnaFactory* dna_factory) {
 
         //printf("Calling LENGTH\n");
         parent_length_ = dna->length();
-        //printf("Dna_SIMD out of constructor\n");
+        //printf("Dna_7 out of constructor\n");
     dna_factory_ = dna_factory;
 
 }
 
-Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory) {
+Dna_7::Dna_7(Dna_7 * dna, Individual_7 * indiv, DnaFactory * dna_factory) {
   length_ = dna->length_;
 
   nb_blocks_ = nb_blocks(length_);
@@ -58,9 +58,7 @@ Dna_SIMD::Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* 
 
 }
 
-
-
-Dna_SIMD::Dna_SIMD(int length, SIMD_DnaFactory* dna_factory) {
+Dna_7::Dna_7(int length, DnaFactory * dna_factory) {
     length_ = length;
 
     nb_blocks_ = nb_blocks(length_);
@@ -70,7 +68,7 @@ Dna_SIMD::Dna_SIMD(int length, SIMD_DnaFactory* dna_factory) {
 
 }
 
-void Dna_SIMD::set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
+void Dna_7::set_indiv(Dna_7 * dna, Individual_7 * indiv) {
     int new_nb_blocks = nb_blocks(dna->length_);
 
     //printf("Length %d %d (%d %d)\n",length_,dna->length(),nb_blocks_,dna->nb_blocks_);
@@ -94,7 +92,7 @@ void Dna_SIMD::set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv) {
 
 }
 
-void Dna_SIMD::set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory) {
+void Dna_7::set_indiv(Dna* dna, DnaFactory * dna_factory) {
     int new_nb_blocks = nb_blocks(dna->length());
 
     length_ = dna->length();
@@ -118,7 +116,7 @@ void Dna_SIMD::set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory) {
 
 }
 
-void Dna_SIMD::set_indiv(int req_length, int parent_length, Internal_SIMD_Struct* indiv) {
+void Dna_7::set_indiv(int req_length, int parent_length, Individual_7 * indiv) {
     int new_nb_blocks = nb_blocks(req_length);
     length_ = req_length;
 
@@ -140,9 +138,7 @@ void Dna_SIMD::set_indiv(int req_length, int parent_length, Internal_SIMD_Struct
 
 }
 
-
-
-Dna_SIMD::~Dna_SIMD() {
+Dna_7::~Dna_7() {
   if (data_ != nullptr) { free(data_); data_=nullptr;}
 
 if (mutation_list.size() > 0) {
@@ -154,7 +150,7 @@ if (mutation_list.size() > 0) {
 
 }
 
-void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
+void Dna_7::remove(int32_t pos_1, int32_t pos_2) {
 // if (indiv_->indiv_id == 586) printf("%d -- BEGIN -- REMOVE POS 1 %d POS 2 %d LENGTH %d\n",indiv_->indiv_id,pos_1,pos_2,length());
 
   assert(pos_1 >= 0 && pos_2 >= pos_1 && pos_2 <= length_);
@@ -165,8 +161,8 @@ void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
 //  printf("POS 1 %d POS 2 %d  LENGTH %d NEW Length %d Nb Block %d\n",
 //         pos_1,pos_2,length(),new_length,new_nb_blocks);
 
-  Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(new_length);
-  //printf("Dna_SIMD -- REMOVE -- Start\n");
+  Dna_7 * new_genome = indiv_->dna_factory_->get_dna(new_length);
+  //printf("Dna_7 -- REMOVE -- Start\n");
     new_genome->set_indiv(new_length,parent_length_,indiv_);
 
   // Copy the remaining of the genome in tmp (preceeding and following parts)
@@ -184,7 +180,7 @@ void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
   new_genome->length_ = length();
 
   indiv_->dna_factory_->give_back(new_genome);
-   // printf("Dna_SIMD -- REMOVE -- End\n");
+   // printf("Dna_7 -- REMOVE -- End\n");
 
   // Update length data
   length_ = new_length;
@@ -192,7 +188,7 @@ void Dna_SIMD::remove(int32_t pos_1, int32_t pos_2) {
 //    if (indiv_->indiv_id == 586) printf("%d -- END -- REMOVE POS 1 %d POS 2 %d LENGTH %d\n",indiv_->indiv_id,pos_1,pos_2,length());
 }
 
-void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
+void Dna_7::insert(int32_t pos, const char* seq, int32_t seq_length) {
 // Insert sequence 'seq' at position 'pos'
   assert(pos >= 0 && pos < length_);
 
@@ -204,8 +200,8 @@ void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
   // Compute size of new genome
   int32_t new_length    = length_ + seq_length;
 
-  Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(new_length);
-    //printf("Dna_SIMD -- INSERT -- Start\n");
+  Dna_7 * new_genome = indiv_->dna_factory_->get_dna(new_length);
+    //printf("Dna_7 -- INSERT -- Start\n");
 
     new_genome->set_indiv(new_length,parent_length_,indiv_);
 
@@ -226,7 +222,7 @@ void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
 
     indiv_->dna_factory_->give_back(new_genome);
 
-    //printf("Dna_SIMD -- INSERT -- End\n");
+    //printf("Dna_7 -- INSERT -- End\n");
 
 
     // Update length-related data
@@ -234,7 +230,7 @@ void Dna_SIMD::insert(int32_t pos, const char* seq, int32_t seq_length) {
   nb_blocks_ = new_nb_block;
 }
 
-void Dna_SIMD::replace(int32_t pos, char* seq, int32_t seq_length) {
+void Dna_7::replace(int32_t pos, char* seq, int32_t seq_length) {
 // Invert the sequence between positions 'first' and 'last'
   // Check pos value
   assert(pos >= 0 && pos < length_);
@@ -252,7 +248,7 @@ void Dna_SIMD::replace(int32_t pos, char* seq, int32_t seq_length) {
 }
 
 
-bool Dna_SIMD::do_switch(int32_t pos) {
+bool Dna_7::do_switch(int32_t pos) {
   // Perform the mutation
   if (data_[pos] == '0') data_[pos] = '1';
   else data_[pos] = '0';
@@ -264,7 +260,7 @@ bool Dna_SIMD::do_switch(int32_t pos) {
   if (length() >= PROM_SIZE)
       indiv_->metadata_->look_for_new_promoters_around(pos, Utils::mod(pos + 1, length()));
 
-  if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
+  if (ExpManager_7::standalone_simd && indiv_->exp_m_->record_tree()) {
       PointMutation *mut = new PointMutation(pos);
 /*      printf("SEND MUTATION EVENT (%ld)\n",indiv_->observers_[MUTATION].size());*/
       //indiv_->notifyObservers(MUTATION, mut);
@@ -275,7 +271,7 @@ bool Dna_SIMD::do_switch(int32_t pos) {
   return true;
 }
 
-bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
+bool Dna_7::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
   // Remove the promoters that will be broken
     indiv_->metadata_->remove_promoters_around(pos);
 
@@ -298,7 +294,7 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
     }
   }
 
-    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
+    if (ExpManager_7::standalone_simd && indiv_->exp_m_->record_tree()) {
         SmallInsertion *mut = new SmallInsertion(pos, nb_insert, seq);
         //indiv_->notifyObservers(MUTATION, mut);
         indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
@@ -308,7 +304,7 @@ bool Dna_SIMD::do_small_insertion(int32_t pos, int16_t nb_insert, char* seq) {
   return true;
 }
 
-bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
+bool Dna_7::do_small_deletion(int32_t pos, int16_t nb_del) {
     int32_t old_pos = pos;
   // Remove promoters containing at least one nucleotide from the sequence to
   // delete
@@ -343,7 +339,7 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
     }
   }
 
-    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
+    if (ExpManager_7::standalone_simd && indiv_->exp_m_->record_tree()) {
         SmallDeletion *mut = new SmallDeletion(old_pos, nb_del);
         //indiv_->notifyObservers(MUTATION, mut);
         indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
@@ -354,7 +350,7 @@ bool Dna_SIMD::do_small_deletion(int32_t pos, int16_t nb_del) {
 }
 
 
-bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
+bool Dna_7::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 // Duplicate segment [pos_1; pos_2[ and insert the duplicate before pos_3
   char* duplicate_segment = NULL;
 
@@ -419,7 +415,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 
   // Create a copy of the promoters beared by the segment to be duplicated
   // (they will be inserted in the individual's RNA list later)
-  std::vector<std::list<promoterStruct*>> duplicated_promoters = {{},
+  std::vector<std::list<PromoterStruct *>> duplicated_promoters = {{},
                                             {}};
     indiv_->metadata_->duplicate_promoters_included_in(pos_1, pos_2,
                                              duplicated_promoters);
@@ -514,7 +510,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   if (length() >= PROM_SIZE) {
     if (length() - seg_length < PROM_SIZE) {
         for (auto strand: {LEADING, LAGGING}) {
-            for (std::list<promoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
+            for (std::list<PromoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
                     it_rna != duplicated_promoters[strand].end(); it_rna++) {
                 delete (*(it_rna));
             }
@@ -581,7 +577,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 
         indiv_->metadata_->insert_promoters_at(duplicated_promoters, pos_3);
         /*for (auto strand: {LEADING, LAGGING}) {
-            for (std::list<promoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
+            for (std::list<PromoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
                  it_rna != duplicated_promoters[strand].end(); it_rna++) {
                 delete (*(it_rna));
             }
@@ -658,7 +654,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 //        }
 //        printf("\n");
         for (auto strand: {LEADING, LAGGING}) {
-            for (std::list<promoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
+            for (std::list<PromoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
                  it_rna != duplicated_promoters[strand].end(); it_rna++) {
                 delete (*(it_rna));
             }
@@ -666,7 +662,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
     }
   } else {
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = duplicated_promoters[strand].begin();
                it_rna != duplicated_promoters[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -675,7 +671,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
 
   free(duplicate_segment);
 
-    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
+    if (ExpManager_7::standalone_simd && indiv_->exp_m_->record_tree()) {
         Duplication *mut = new Duplication(pos_1, pos_2, pos_3, seg_length);
         indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
         //indiv_->notifyObservers(MUTATION, mut);
@@ -684,7 +680,7 @@ bool Dna_SIMD::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3) {
   return true;
 }
 
-bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
+bool Dna_7::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
                            int32_t pos_4, bool invert) {
   int32_t pos_min = Utils::min(pos_1,
                                Utils::min(pos_2, Utils::min(pos_3, pos_4)));
@@ -728,7 +724,7 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
   int32_t segment_length = pos_2 - pos_1;
 
-    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
+    if (ExpManager_7::standalone_simd && indiv_->exp_m_->record_tree()) {
         Translocation *mut = new Translocation(pos_1, pos_2, pos_3, pos_4,
                                                segment_length, invert);
         //indiv_->notifyObservers(MUTATION, mut);
@@ -741,7 +737,7 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
 
 /*
-bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
+bool Dna_7::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
                            int32_t pos_4, bool invert) {
   // Determine which position comes first and do the corresponding rearrangement
   // TODO(dpa) use min from std
@@ -781,7 +777,7 @@ bool Dna_SIMD::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 }
 */
 
-bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
+bool Dna_7::do_inversion(int32_t pos_1, int32_t pos_2) {
 // Invert segment going from pos_1 (included) to pos_2 (excluded)
 // Exemple : sequence 011101001100 => 110011010001
   if (pos_1 == pos_2) return false; // Invert everything <=> Invert nothing!
@@ -832,15 +828,15 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
             printf("\n");
 
             printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
             printf("\n");
             printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
@@ -869,15 +865,15 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
         printf("\n");
 
         printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
             std::advance(it, prom_idx);
             printf("%d ", (*it).pos);
         }
         printf("\n");
         printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
             std::advance(it, prom_idx);
             printf("%d ", (*it).pos);
         }
@@ -905,15 +901,15 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
             printf("\n");
 
             printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
             printf("\n");
             printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
@@ -946,15 +942,15 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
           printf("\n");
 
           printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+          for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+              auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
               std::advance(it, prom_idx);
               printf("%d ", (*it).pos);
           }
           printf("\n");
           printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+          for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+              auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
               std::advance(it, prom_idx);
               printf("%d ", (*it).pos);
           }
@@ -983,15 +979,15 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
           printf("\n");
 
           printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+          for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+              auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
               std::advance(it, prom_idx);
               printf("%d ", (*it).pos);
           }
           printf("\n");
           printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+          for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+              auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
               std::advance(it, prom_idx);
               printf("%d ", (*it).pos);
           }
@@ -1001,7 +997,7 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
 
   free(inverted_segment);
 
-  if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
+  if (ExpManager_7::standalone_simd && indiv_->exp_m_->record_tree()) {
       Inversion *mut = new Inversion(pos_1, pos_2, seg_length);
       //indiv_->notifyObservers(MUTATION, mut);
       indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);
@@ -1012,7 +1008,7 @@ bool Dna_SIMD::do_inversion(int32_t pos_1, int32_t pos_2) {
 }
 
 
-bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
+bool Dna_7::do_deletion(int32_t pos_1, int32_t pos_2) {
     //if (indiv_->indiv_id==30) printf("DO DELETION is %d %d -- %d\n",pos_1,pos_2,length());
   // Delete segment going from pos_1 (included) to pos_2 (excluded)
     if (length_ == 1)
@@ -1037,15 +1033,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
     /*if (indiv_->indiv_id == 30) {
       printf("Before remove %d %d\n",pos_1,pos_2);
         printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
             std::advance(it, prom_idx);
             printf("%d ", (*it).pos);
         }
         printf("\n");
         printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
             std::advance(it, prom_idx);
             printf("%d ", (*it).pos);
         }
@@ -1058,15 +1054,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
       /*if (indiv_->indiv_id == 30)  {
           printf("After remove\n");
           printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+          for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+              auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
               std::advance(it, prom_idx);
               printf("%d ", (*it).pos);
           }
           printf("\n");
           printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-          for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-              auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+          for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+              auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
               std::advance(it, prom_idx);
               printf("%d ", (*it).pos);
           }
@@ -1083,15 +1079,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
         /*if (indiv_->indiv_id == 30) {
             printf("After move %d %d\n",pos_1, -segment_length);
             printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
             printf("\n");
             printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
@@ -1101,15 +1097,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
         /*if (indiv_->indiv_id == 30) {
             printf("After look\n");
             printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
             printf("\n");
             printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
@@ -1140,15 +1136,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
      /*if (indiv_->indiv_id == 30) {
           printf("Before remove %d %d\n",pos_1,pos_2);
          printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-         for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-             auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+         for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+             auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
              std::advance(it, prom_idx);
              printf("%d ", (*it).pos);
          }
          printf("\n");
          printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-         for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-             auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+         for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+             auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
              std::advance(it, prom_idx);
              printf("%d ", (*it).pos);
          }
@@ -1159,15 +1155,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
          /*if (indiv_->indiv_id == 30) {
           printf("After remove\n");
              printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-             for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-                 auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+             for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                 auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
                  std::advance(it, prom_idx);
                  printf("%d ", (*it).pos);
              }
              printf("\n");
              printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-             for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-                 auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+             for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                 auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
                  std::advance(it, prom_idx);
                  printf("%d ", (*it).pos);
              }
@@ -1183,15 +1179,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
         /*if (indiv_->indiv_id == 30) {
             printf("Before move XA %d %d\n",0,-pos_2);
             printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
             printf("\n");
             printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
@@ -1201,15 +1197,15 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
         /*if (indiv_->indiv_id == 30) {
             printf("After move XA %d %d\n",0,-pos_2);
             printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
             printf("\n");
             printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-                auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+            for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+                auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
                 std::advance(it, prom_idx);
                 printf("%d ", (*it).pos);
             }
@@ -1219,7 +1215,7 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
         indiv_->metadata_->look_for_new_promoters_around(0);
     }
   }
-    if (SIMD_Individual::standalone_simd && indiv_->exp_m_->record_tree()) {
+    if (ExpManager_7::standalone_simd && indiv_->exp_m_->record_tree()) {
         int32_t segment_length = Utils::mod(pos_2 - pos_1 - 1, length()) + 1;
         Deletion *mut = new Deletion(pos_1, pos_2, segment_length);
         indiv_->exp_m_->tree()->report_by_index(AeTime::time(),indiv_->indiv_id)->dna_replic_report().add_mut(mut);//notifyObservers(MUTATION, mut);
@@ -1229,7 +1225,7 @@ bool Dna_SIMD::do_deletion(int32_t pos_1, int32_t pos_2) {
   return true;
 }
 
-void Dna_SIMD::apply_mutations_standalone() {
+void Dna_7::apply_mutations_standalone() {
   MutationEvent* repl;
 //    printf("%d -- %d -- AMS-1 -- Number of RNAs %d (%d)\n",time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
 //           indiv_->metadata_->promoter_count());
@@ -1269,8 +1265,8 @@ void Dna_SIMD::apply_mutations_standalone() {
     if (AeTime::time() > 182) {
         //printf("Parent ID %d\n",indiv_->parent_id);
         /*printf("Promoter size %ld %ld %ld\n", indiv_->metadata_->promoter_count(),
-               ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(),
-                       ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size());*/
+               ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(),
+                       ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size());*/
 /*
         std::set<int> leading;
         printf("FROM_MUTATE -- %d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_->indiv_id);
@@ -1300,15 +1296,15 @@ void Dna_SIMD::apply_mutations_standalone() {
         printf("\n");
 */
 /*        printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
             std::advance(it, prom_idx);
             printf("%d ", (*it).pos);
         }
         printf("\n");
         printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
             std::advance(it, prom_idx);
             printf("%d ",(*it).pos);
         }
@@ -1435,15 +1431,15 @@ void Dna_SIMD::apply_mutations_standalone() {
 //        printf("\n");
 //
 //        printf("%d -- %d -- AFTER -- ADV-DIRECT -- Prom list LEAD : ", time(), indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-//            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
+//        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
+//            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LEADING].begin();
 //            std::advance(it, prom_idx);
 //            printf("%d ", (*it).pos);
 //        }
 //        printf("\n");
 //        printf("%d -- %d -- AFTER -- ADV-DIRECT -- Prom list LAG : ", time(), indiv_->indiv_id);
-//        for (int prom_idx = 0; prom_idx < ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-//            auto it =  ((SIMD_List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
+//        for (int prom_idx = 0; prom_idx < ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
+//            auto it =  ((List_Metadata*)indiv_->metadata_)->promoters_list_[LAGGING].begin();
 //            std::advance(it, prom_idx);
 //            printf("%d ", (*it).pos);
 //        }
@@ -1452,7 +1448,7 @@ void Dna_SIMD::apply_mutations_standalone() {
 }
 
 
-void Dna_SIMD::apply_mutations() {
+void Dna_7::apply_mutations() {
 //
 //  if (indiv_->indiv_id == 30) {
 //    printf("APPLY_MUTATION : Leading promoters lists : ");
@@ -1617,7 +1613,7 @@ void Dna_SIMD::apply_mutations() {
 }
 
 
-void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
+void Dna_7::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
                          int32_t pos_E) {
   // Rearrange the sequence from ABCDE to ADCBE (complex translocation
   // of segment defined between positions pos_B and pos_D)
@@ -1647,7 +1643,7 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   int32_t len_ADCB = len_ADC + len_B;
 
   // Create new sequence
-    Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(length_);
+  Dna_7 * new_genome = indiv_->dna_factory_->get_dna(length_);
     //printf("BEFORE :: DNA %d || New DNA %d || Block %d || New Block %d\n",length_,new_genome->length_,nb_blocks_,new_genome->nb_blocks_);
 
     new_genome->set_indiv(length_,parent_length_,indiv_);
@@ -1748,11 +1744,11 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 //      }
 
     // Create temporary lists for promoters to move and/or invert
-    std::vector<std::list<promoterStruct*>> promoters_B = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_B = {{},
                                      {}};
-    std::vector<std::list<promoterStruct*>> promoters_C = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_C = {{},
                                      {}};
-    std::vector<std::list<promoterStruct*>> promoters_D = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_D = {{},
                                      {}};
     // Extract promoters that are totally included in each segment to be moved
     // and shift them to their new positions
@@ -1778,13 +1774,13 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 
         if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
-            SIMD_Map_Metadata::shift_promoters(promoters_B, len_D + len_C,
+          Map_Metadata::shift_promoters(promoters_B, len_D + len_C,
                                    length());
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
-                SIMD_DynTab_Metadata::shift_promoters(promoters_B, len_D + len_C,
+          DynTab_Metadata::shift_promoters(promoters_B, len_D + len_C,
                                                    length());
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
-            SIMD_List_Metadata::shift_promoters(promoters_B, len_D + len_C,
+          List_Metadata::shift_promoters(promoters_B, len_D + len_C,
                                                   length());
 //        if (indiv_->indiv_id == 799 && time() == 52) {
 //            printf("After shift Extracted promoters\n");
@@ -1824,13 +1820,13 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 
         if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
-            SIMD_Map_Metadata::shift_promoters(promoters_C, len_D - len_B,
+          Map_Metadata::shift_promoters(promoters_C, len_D - len_B,
                                    length());
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
-            SIMD_DynTab_Metadata::shift_promoters(promoters_C, len_D - len_B,
+          DynTab_Metadata::shift_promoters(promoters_C, len_D - len_B,
                                                length());
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
-            SIMD_List_Metadata::shift_promoters(promoters_C, len_D - len_B,
+          List_Metadata::shift_promoters(promoters_C, len_D - len_B,
                                                   length());
 //        if (indiv_->indiv_id == 799 && time() == 52) {
 //            printf("After shift extracted promoters\n");
@@ -1868,13 +1864,13 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 //        }
 
         if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
-            SIMD_Map_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+          Map_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                    length());
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
-            SIMD_DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+          DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                length());
         else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
-            SIMD_List_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+          List_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                   length());
 
 //        if (indiv_->indiv_id == 799 && time() == 52) {
@@ -1939,7 +1935,7 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     // Reinsert the shifted promoters
       indiv_->metadata_->insert_promoters(promoters_B);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_B[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_B[strand].begin();
                it_rna != promoters_B[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -1947,7 +1943,7 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
       indiv_->metadata_->insert_promoters(promoters_C);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_C[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_C[strand].begin();
                it_rna != promoters_C[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -1955,7 +1951,7 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
       indiv_->metadata_->insert_promoters(promoters_D);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_D[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_D[strand].begin();
                it_rna != promoters_D[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -2064,7 +2060,7 @@ void Dna_SIMD::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   }
 }
 
-void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
+void Dna_7::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
                            int32_t pos_E) {
   // Rearrange the sequence from ABCDE to ADBpCpE (complex translocation
   // with inversion of segment defined between positions pos_B and pos_D)
@@ -2095,7 +2091,7 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   int32_t len_ADBC = len_ADB + len_C;
 
   // Create new sequence
-    Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(length_);
+  Dna_7 * new_genome = indiv_->dna_factory_->get_dna(length_);
     new_genome->set_indiv(length_,parent_length_,indiv_);
 
   // Copy segments A and D
@@ -2198,11 +2194,11 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 //    }
 
     // Create temporary lists for promoters to move and/or invert
-    std::vector<std::list<promoterStruct*>> promoters_B = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_B = {{},
                                      {}};
-    std::vector<std::list<promoterStruct*>> promoters_C = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_C = {{},
                                      {}};
-    std::vector<std::list<promoterStruct*>> promoters_D = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_D = {{},
                                      {}};
 
     // 2) Extract promoters that are totally included in each segment to be
@@ -2269,17 +2265,17 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     // 3a) Invert promoters of segments B and C
       if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
-          SIMD_Map_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
+        Map_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
 
-          SIMD_Map_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+        Map_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
       } else  if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
-          SIMD_DynTab_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
+        DynTab_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
 
-          SIMD_DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+        DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
       } else  if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
-          SIMD_List_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
+        List_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
 
-          SIMD_List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+        List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
       }
 
 //      if (indiv_->indiv_id == 18) {
@@ -2328,31 +2324,31 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     // 3b) Shift these promoters positions
       if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
-          SIMD_Map_Metadata::shift_promoters(promoters_B, len_D,
+        Map_Metadata::shift_promoters(promoters_B, len_D,
                                                length());
 
-          SIMD_Map_Metadata::shift_promoters(promoters_C, len_D,
+        Map_Metadata::shift_promoters(promoters_C, len_D,
                                                 length());
 
-          SIMD_Map_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+        Map_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                 length());
       } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
-          SIMD_DynTab_Metadata::shift_promoters(promoters_B, len_D,
+        DynTab_Metadata::shift_promoters(promoters_B, len_D,
                                              length());
 
-          SIMD_DynTab_Metadata::shift_promoters(promoters_C, len_D,
+        DynTab_Metadata::shift_promoters(promoters_C, len_D,
                                              length());
 
-          SIMD_DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+        DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                              length());
       } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
-          SIMD_List_Metadata::shift_promoters(promoters_B, len_D,
+        List_Metadata::shift_promoters(promoters_B, len_D,
                                                 length());
 
-          SIMD_List_Metadata::shift_promoters(promoters_C, len_D,
+        List_Metadata::shift_promoters(promoters_C, len_D,
                                                 length());
 
-          SIMD_List_Metadata::shift_promoters(promoters_D, -len_B - len_C,
+        List_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                 length());
       }
 
@@ -2403,7 +2399,7 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     // 4) Reinsert the shifted promoters
       indiv_->metadata_->insert_promoters(promoters_C);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_C[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_C[strand].begin();
                it_rna != promoters_C[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -2411,7 +2407,7 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
       indiv_->metadata_->insert_promoters(promoters_B);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_B[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_B[strand].begin();
                it_rna != promoters_B[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -2419,7 +2415,7 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
       indiv_->metadata_->insert_promoters(promoters_D);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_D[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_D[strand].begin();
                it_rna != promoters_D[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -2455,7 +2451,7 @@ void Dna_SIMD::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   }
 }
 
-void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
+void Dna_7::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
                            int32_t pos_E) {
   // Rearrange the sequence from ABCDE to ACpDpBE (complex translocation with
   // inversion of segment defined between positions pos_C and pos_E)
@@ -2491,7 +2487,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   //printf("%d %d %d %d -- %d %d %d %d %d\n",pos_B,pos_C,pos_D,pos_E,len_A,len_B,len_C,len_D,len_E);
 
   // Create new sequence
-    Dna_SIMD* new_genome = indiv_->dna_factory_->get_dna(length_);
+  Dna_7 * new_genome = indiv_->dna_factory_->get_dna(length_);
     new_genome->set_indiv(length_,parent_length_,indiv_);
 
   // Copy segment A
@@ -2614,11 +2610,11 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 
     // Create temporary lists for promoters to move and/or invert
-    std::vector<std::list<promoterStruct*>> promoters_B = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_B = {{},
                                      {}};
-    std::vector<std::list<promoterStruct*>> promoters_C = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_C = {{},
                                      {}};
-    std::vector<std::list<promoterStruct*>> promoters_D = {{},
+    std::vector<std::list<PromoterStruct *>> promoters_D = {{},
                                      {}};
 
     // 2) Extract promoters that are totally included in each segment to be
@@ -2695,17 +2691,17 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     // 3a) Invert promoters of segments C and D
       if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
-          SIMD_Map_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+        Map_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
 
-          SIMD_Map_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
+        Map_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
       } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
-          SIMD_DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+        DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
 
-          SIMD_DynTab_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
+        DynTab_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
       } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
-          SIMD_List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
+        List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
 
-          SIMD_List_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
+        List_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
       }
 
 //      if (indiv_->indiv_id == 17) {
@@ -2755,31 +2751,31 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
     // 3b) Shift these promoters positions
       if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
-          SIMD_Map_Metadata::shift_promoters(promoters_B, len_C + len_D,
+        Map_Metadata::shift_promoters(promoters_B, len_C + len_D,
                                                 length());
 
-          SIMD_Map_Metadata::shift_promoters(promoters_C, -len_B,
+        Map_Metadata::shift_promoters(promoters_C, -len_B,
                                                 length());
 
-          SIMD_Map_Metadata::shift_promoters(promoters_D, -len_B,
+        Map_Metadata::shift_promoters(promoters_D, -len_B,
                                                 length());
       } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
-          SIMD_DynTab_Metadata::shift_promoters(promoters_B, len_C + len_D,
+        DynTab_Metadata::shift_promoters(promoters_B, len_C + len_D,
                                              length());
 
-          SIMD_DynTab_Metadata::shift_promoters(promoters_C, -len_B,
+        DynTab_Metadata::shift_promoters(promoters_C, -len_B,
                                              length());
 
-          SIMD_DynTab_Metadata::shift_promoters(promoters_D, -len_B,
+        DynTab_Metadata::shift_promoters(promoters_D, -len_B,
                                              length());
       } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
-          SIMD_List_Metadata::shift_promoters(promoters_B, len_C + len_D,
+        List_Metadata::shift_promoters(promoters_B, len_C + len_D,
                                                 length());
 
-          SIMD_List_Metadata::shift_promoters(promoters_C, -len_B,
+        List_Metadata::shift_promoters(promoters_C, -len_B,
                                                 length());
 
-          SIMD_List_Metadata::shift_promoters(promoters_D, -len_B,
+        List_Metadata::shift_promoters(promoters_D, -len_B,
                                                 length());
       }
 
@@ -2829,7 +2825,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     // 4) Reinsert the shifted promoters
       indiv_->metadata_->insert_promoters(promoters_B);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_B[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_B[strand].begin();
                it_rna != promoters_B[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -2837,7 +2833,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
       indiv_->metadata_->insert_promoters(promoters_D);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_D[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_D[strand].begin();
                it_rna != promoters_D[strand].end(); it_rna++) {
               delete (*(it_rna));
           }
@@ -2845,7 +2841,7 @@ void Dna_SIMD::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
       indiv_->metadata_->insert_promoters(promoters_C);
       for (auto strand: {LEADING, LAGGING}) {
-          for (std::list<promoterStruct *>::iterator it_rna = promoters_C[strand].begin();
+          for (std::list<PromoterStruct *>::iterator it_rna = promoters_C[strand].begin();
                it_rna != promoters_C[strand].end(); it_rna++) {
               delete (*(it_rna));
           }

@@ -34,6 +34,8 @@
 
 #include "7/Dna_7.h"
 #include "7/Individual_7.h"
+#include "7/ExpManager_7.h"
+#include "7/Stats_7.h"
 #include "Individual.h"
 
 #include <cerrno>
@@ -499,7 +501,7 @@ void ExpManager::load(gzFile& exp_s_file,
     }
 
     if (to_be_run) {
-        simd_individual = new SIMD_Individual(this);
+        simd_individual = new ExpManager_7(this);
         simd_individual->protein_grain_size = grain_size;
         simd_individual->rna_grain_size = grain_size;
     }
@@ -513,7 +515,7 @@ void ExpManager::load(gzFile& exp_s_file,
     }
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
-      if (SIMD_Individual::standalone_simd) {
+      if (ExpManager_7::standalone_simd) {
           if (to_be_run) {
               simd_individual->addObserver(tree(), NEW_INDIV);
               for (int16_t x = 0; x < grid_width(); x++) {
@@ -539,7 +541,7 @@ void ExpManager::load(gzFile& exp_s_file,
   }
 
   if (record_light_tree()){
-    if (SIMD_Individual::standalone_simd) {
+    if (ExpManager_7::standalone_simd) {
         if (to_be_run) {
             simd_individual->addObserver(light_tree(), NEW_INDIV);
             for (int16_t x = 0; x < grid_width(); x++) {
@@ -732,7 +734,7 @@ void ExpManager::run_evolution() {
                                         "============================== %" PRId64 " ==============================\n",
                                         AeTime::time());
                                 if (!first_run) {
-                                    if (SIMD_Individual::standalone_simd) {
+                                    if (ExpManager_7::standalone_simd) {
                                         simd_individual->dna_factory_->stats();
                                         printf(
                                                 "  Best individual's distance to target (metabolic) : %f (clones %d)\n",

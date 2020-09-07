@@ -4,6 +4,7 @@
 
 #include "DynTab_Metadata.h"
 
+#include "Rna_7.h"
 #include "AeTime.h"
 
 namespace aevol {
@@ -11,8 +12,8 @@ namespace aevol {
 
 
 
-    void SIMD_DynTab_Metadata::lst_promoters(bool lorl, Position before_after_btw, int32_t pos1, int32_t pos2,
-                                          std::list<promoterStruct*>& motif_list) {
+    void DynTab_Metadata::lst_promoters(bool lorl, Position before_after_btw, int32_t pos1, int32_t pos2,
+                                          std::list<PromoterStruct*>& motif_list) {
 
         /*
          * pos_1    >=      LEADING
@@ -77,7 +78,7 @@ namespace aevol {
 
     }
 
-    void SIMD_DynTab_Metadata::remove_promoters_around(int32_t pos) {
+    void DynTab_Metadata::remove_promoters_around(int32_t pos) {
         if (length() >= PROM_SIZE) {
             remove_leading_promoters_starting_between(Utils::mod(pos - PROM_SIZE + 1,
                                                                  length()),
@@ -91,7 +92,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
+    void DynTab_Metadata::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
         if (Utils::mod(pos_1 - pos_2, length()) >= PROM_SIZE) {
 //            printf("Remove LEADING between %d %d\n",Utils::mod(pos_1 - PROM_SIZE + 1,
 //                                                               length()),
@@ -111,7 +112,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::remove_all_promoters() {
+    void DynTab_Metadata::remove_all_promoters() {
 
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             delete promoters_[prom_idx];
@@ -121,7 +122,7 @@ namespace aevol {
         count_promoters_ = 0;
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_promoters_around(int32_t pos_1, int32_t pos_2) {
+    void DynTab_Metadata::look_for_new_promoters_around(int32_t pos_1, int32_t pos_2) {
         if (length() >= PROM_SIZE) {
             look_for_new_leading_promoters_starting_between(
                     Utils::mod(pos_1 - PROM_SIZE + 1,
@@ -133,7 +134,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_promoters_around(int32_t pos) {
+    void DynTab_Metadata::look_for_new_promoters_around(int32_t pos) {
         if (length() >= PROM_SIZE) {
             //printf("%d -- %d -- LNPA-1 -- Number of RNAs %d (%d)\n",AeTime::time(),indiv_->indiv_id,indiv_->metadata_->rna_count(),
             //       indiv_->metadata_->promoter_count());
@@ -150,20 +151,20 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::locate_promoters() {
+    void DynTab_Metadata::locate_promoters() {
         look_for_new_leading_promoters_starting_between(0,length());
         look_for_new_lagging_promoters_starting_between(0,length());
     }
 
-    void SIMD_DynTab_Metadata::move_all_promoters_after(int32_t pos, int32_t delta_pos) {
+    void DynTab_Metadata::move_all_promoters_after(int32_t pos, int32_t delta_pos) {
         move_all_leading_promoters_after(pos, delta_pos);
         move_all_lagging_promoters_after(pos, delta_pos);
     }
 
-    void SIMD_DynTab_Metadata::duplicate_promoters_included_in(int32_t pos_1, int32_t pos_2,
-                                                            std::vector<std::list<promoterStruct *>> &duplicated_promoters) {
+    void DynTab_Metadata::duplicate_promoters_included_in(int32_t pos_1, int32_t pos_2,
+                                                            std::vector<std::list<PromoterStruct*>> &duplicated_promoters) {
         // 1) Get promoters to be duplicated
-        std::vector<std::list<promoterStruct*>> retrieved_promoters = {{},
+        std::vector<std::list<PromoterStruct*>> retrieved_promoters = {{},
                                                                        {}};
 
         promoters_included_in(pos_1, pos_2, retrieved_promoters);
@@ -187,7 +188,7 @@ namespace aevol {
         for (auto& strand: {LEADING, LAGGING}) {
             for (auto& prom : retrieved_promoters[strand]) {
                 // Make a copy of current RNA inside container
-                duplicated_promoters[strand].push_back(new promoterStruct(prom));
+                duplicated_promoters[strand].push_back(new PromoterStruct(prom));
 
                 // Set RNA's position as it's position on the duplicated segment
                 duplicated_promoters[strand].back()->pos = Utils::mod(duplicated_promoters[strand].back()->pos -pos_1,
@@ -197,8 +198,8 @@ namespace aevol {
 
     }
 
-    void SIMD_DynTab_Metadata::extract_promoters_included_in(int32_t pos_1, int32_t pos_2,
-                                                          std::vector<std::list<promoterStruct *>> &extracted_promoters) {
+    void DynTab_Metadata::extract_promoters_included_in(int32_t pos_1, int32_t pos_2,
+                                                          std::vector<std::list<PromoterStruct*>> &extracted_promoters) {
         if (pos_2 - pos_1 < PROM_SIZE) {
             return;
         }
@@ -209,7 +210,7 @@ namespace aevol {
                                                    extracted_promoters[LAGGING]);
     }
 
-    void SIMD_DynTab_Metadata::insert_promoters(std::vector<std::list<promoterStruct *>> &promoters_to_insert) {
+    void DynTab_Metadata::insert_promoters(std::vector<std::list<PromoterStruct*>> &promoters_to_insert) {
         if (count_promoters_ + promoters_to_insert[LEADING].size() + promoters_to_insert[LAGGING].size() >= dyntab_size_)
             reallocate_promoters();
 
@@ -257,7 +258,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
+    void DynTab_Metadata::insert_promoters_at(std::vector<std::list<PromoterStruct*>>& promoters_to_insert,
                              int32_t pos) {
         if (count_promoters_ + promoters_to_insert[LEADING].size() + promoters_to_insert[LAGGING].size() >= dyntab_size_)
             reallocate_promoters();
@@ -307,7 +308,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::invert_promoters_included_in(int32_t pos1,
+    void DynTab_Metadata::invert_promoters_included_in(int32_t pos1,
                                       int32_t pos2) {
         int32_t segment_length = pos2 - pos1;
 
@@ -315,21 +316,21 @@ namespace aevol {
             return;
         }
 
-        std::vector<std::list<promoterStruct*>> inverted_promoters = {{},
+        std::vector<std::list<PromoterStruct*>> inverted_promoters = {{},
                                                                       {}};
 
         // 1) Extract the promoters completely included on the segment to be inverted
         extract_promoters_included_in(pos1, pos2, inverted_promoters);
 
         // 2) Invert segment's promoters
-        SIMD_DynTab_Metadata::invert_promoters(inverted_promoters, pos1, pos2);
+        DynTab_Metadata::invert_promoters(inverted_promoters, pos1, pos2);
 
         // 3) Reinsert the inverted promoters
         insert_promoters(inverted_promoters);
     }
 
-    void SIMD_DynTab_Metadata::shift_promoters(
-            std::vector<std::list<promoterStruct*>>& promoters_to_shift,
+    void DynTab_Metadata::shift_promoters(
+            std::vector<std::list<PromoterStruct*>>& promoters_to_shift,
             int32_t delta_pos,
             int32_t seq_length) {
         for (auto& strand: {LEADING, LAGGING})
@@ -337,7 +338,7 @@ namespace aevol {
                 prom->pos = Utils::mod(prom->pos + delta_pos, seq_length);
     }
 
-    void SIMD_DynTab_Metadata::invert_promoters(std::vector<std::list<promoterStruct*>>& promoter_lists,
+    void DynTab_Metadata::invert_promoters(std::vector<std::list<PromoterStruct*>>& promoter_lists,
                                          int32_t pos1,
                                          int32_t pos2) {
         // Exchange LEADING and LAGGING lists
@@ -351,7 +352,7 @@ namespace aevol {
             }
     }
 
-    void SIMD_DynTab_Metadata::remove_leading_promoters_starting_between(int32_t pos_1,
+    void DynTab_Metadata::remove_leading_promoters_starting_between(int32_t pos_1,
                                                    int32_t pos_2) {
         if (pos_1 > pos_2) {
             remove_leading_promoters_starting_after(pos_1);
@@ -370,7 +371,7 @@ namespace aevol {
         }
 
     }
-    void SIMD_DynTab_Metadata::remove_leading_promoters_starting_after(int32_t pos) {
+    void DynTab_Metadata::remove_leading_promoters_starting_after(int32_t pos) {
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
                 if (promoters_[prom_idx]->leading_or_lagging)
@@ -382,7 +383,8 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::remove_leading_promoters_starting_before(int32_t pos) {
+    void
+    DynTab_Metadata::remove_leading_promoters_starting_before(int32_t pos) {
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
                 if (promoters_[prom_idx]->leading_or_lagging)
@@ -394,7 +396,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::remove_lagging_promoters_starting_between(int32_t pos_1,
+    void DynTab_Metadata::remove_lagging_promoters_starting_between(int32_t pos_1,
                                                    int32_t pos_2) {
         if (pos_1 == length()) pos_1 = 0;
         if (pos_2 == 0) pos_2 = length();
@@ -418,7 +420,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::remove_lagging_promoters_starting_after(int32_t pos) {
+    void DynTab_Metadata::remove_lagging_promoters_starting_after(int32_t pos) {
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
                 if (!promoters_[prom_idx]->leading_or_lagging)
@@ -430,7 +432,8 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::remove_lagging_promoters_starting_before(int32_t pos) {
+    void
+    DynTab_Metadata::remove_lagging_promoters_starting_before(int32_t pos) {
         // Delete RNAs until we reach pos (or we reach the end of the list)
         // TODO: optimize by starting from the end (with reverse iterators)
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
@@ -444,7 +447,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::move_all_leading_promoters_after(int32_t pos, int32_t delta_pos) {
+    void DynTab_Metadata::move_all_leading_promoters_after(int32_t pos, int32_t delta_pos) {
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
                 if (promoters_[prom_idx]->leading_or_lagging)
@@ -457,7 +460,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::move_all_lagging_promoters_after(int32_t pos,int32_t delta_pos) {
+    void DynTab_Metadata::move_all_lagging_promoters_after(int32_t pos,int32_t delta_pos) {
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
                 if (!promoters_[prom_idx]->leading_or_lagging)
@@ -470,7 +473,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_leading_promoters_starting_between(int32_t pos_1, int32_t pos_2) {
+    void DynTab_Metadata::look_for_new_leading_promoters_starting_between(int32_t pos_1, int32_t pos_2) {
         // When pos_1 > pos_2, we will perform the search in 2 steps.
         // As positions  0 and dna_->length() are equivalent, it's preferable to
         // keep 0 for pos_1 and dna_->length() for pos_2.
@@ -515,14 +518,14 @@ namespace aevol {
                         count_promoters_ = count_promoters_ + 1;
                     }
 
-                    promoters_[prom_idx] = new promoterStruct(i, dist, true);
+                    promoters_[prom_idx] = new PromoterStruct(i, dist, true);
                 }
 
             }
         }
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_leading_promoters_starting_after(int32_t pos) {
+    void DynTab_Metadata::look_for_new_leading_promoters_starting_after(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
         //int8_t dist = 8;
 
@@ -554,13 +557,13 @@ namespace aevol {
                         count_promoters_ = count_promoters_ + 1;
                     }
 
-                    promoters_[prom_idx] = new promoterStruct(i, dist, true);;
+                    promoters_[prom_idx] = new PromoterStruct(i, dist, true);;
                 }
             }
         }
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_leading_promoters_starting_before(int32_t pos) {
+    void DynTab_Metadata::look_for_new_leading_promoters_starting_before(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
         if (count_promoters_ + (pos)/PROM_SIZE >= dyntab_size_)
             reallocate_promoters();
@@ -590,13 +593,13 @@ namespace aevol {
                         count_promoters_ = count_promoters_ + 1;
                     }
 
-                    promoters_[prom_idx] = new promoterStruct(i, dist, true);;
+                    promoters_[prom_idx] = new PromoterStruct(i, dist, true);;
                 }
             }
         }
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_lagging_promoters_starting_between(int32_t pos_1,int32_t pos_2) {
+    void DynTab_Metadata::look_for_new_lagging_promoters_starting_between(int32_t pos_1,int32_t pos_2) {
         // When pos_1 > pos_2, we will perform the search in 2 steps.
         // As positions  0 and dna_->length() are equivalent, it's preferable to
         // keep 0 for pos_1 and dna_->length() for pos_2.
@@ -639,13 +642,13 @@ namespace aevol {
                         count_promoters_ = count_promoters_ + 1;
                     }
 
-                    promoters_[prom_idx] = new promoterStruct(i, dist, false);;
+                    promoters_[prom_idx] = new PromoterStruct(i, dist, false);;
                 }
             }
         }
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_lagging_promoters_starting_after(int32_t pos) {
+    void DynTab_Metadata::look_for_new_lagging_promoters_starting_after(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
         if (count_promoters_ + (length() - pos)/PROM_SIZE >= dyntab_size_)
             reallocate_promoters();
@@ -675,13 +678,13 @@ namespace aevol {
                         count_promoters_ = count_promoters_ + 1;
                     }
 
-                    promoters_[prom_idx] = new promoterStruct(i, dist, false);;
+                    promoters_[prom_idx] = new PromoterStruct(i, dist, false);;
                 }
             }
         }
     }
 
-    void SIMD_DynTab_Metadata::look_for_new_lagging_promoters_starting_before(int32_t pos) {
+    void DynTab_Metadata::look_for_new_lagging_promoters_starting_before(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
         if (count_promoters_ + (pos)/PROM_SIZE >= dyntab_size_)
             reallocate_promoters();
@@ -711,15 +714,15 @@ namespace aevol {
                         count_promoters_ = count_promoters_ + 1;
                     }
 
-                    promoters_[prom_idx] = new promoterStruct(i, dist, false);;
+                    promoters_[prom_idx] = new PromoterStruct(i, dist, false);;
                 }
             }
         }
     }
 
-    void SIMD_DynTab_Metadata::promoters_included_in(int32_t pos_1,
+    void DynTab_Metadata::promoters_included_in(int32_t pos_1,
                                int32_t pos_2,
-                               std::vector<std::list<promoterStruct*>>& promoters_list) {
+                               std::vector<std::list<PromoterStruct*>>& promoters_list) {
         if (pos_1 < pos_2) {
 //            printf("promoters << included in %d and %d\n",pos_1,pos_2);
             int32_t seg_length = pos_2 - pos_1;
@@ -803,8 +806,8 @@ namespace aevol {
         }
     }
 
-    void SIMD_DynTab_Metadata::extract_leading_promoters_starting_between(int32_t pos_1,
-                                                    int32_t pos_2, std::list<promoterStruct*>& extracted_promoters) {
+    void DynTab_Metadata::extract_leading_promoters_starting_between(int32_t pos_1,
+                                                    int32_t pos_2, std::list<PromoterStruct*>& extracted_promoters) {
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
                 if (promoters_[prom_idx]->leading_or_lagging)
@@ -817,9 +820,9 @@ namespace aevol {
     }
 
 
-    void SIMD_DynTab_Metadata::extract_lagging_promoters_starting_between(int32_t pos_1,
+    void DynTab_Metadata::extract_lagging_promoters_starting_between(int32_t pos_1,
                                                     int32_t pos_2,
-                                                    std::list<promoterStruct*>& extracted_promoters) {
+                                                    std::list<PromoterStruct*>& extracted_promoters) {
 
         for (int prom_idx = 0; prom_idx < count_promoters_; prom_idx++) {
             if (promoters_[prom_idx] != nullptr) {
@@ -832,55 +835,55 @@ namespace aevol {
         }
     }
 
-    promoterStruct *SIMD_DynTab_Metadata::promoters(int idx) {
+    PromoterStruct* DynTab_Metadata::promoters(int idx) {
         return promoters_[idx];
     }
 
-    void SIMD_DynTab_Metadata::promoter_add(int idx, promoterStruct *prom) {
+    void DynTab_Metadata::promoter_add(int idx, PromoterStruct*prom) {
         promoters_[idx] = prom;
     }
 
-    promoterStruct* SIMD_DynTab_Metadata::promoter_next() {
+    PromoterStruct* DynTab_Metadata::promoter_next() {
 
-        promoterStruct* prom = promoters_[it_promoter_];
+      PromoterStruct* prom = promoters_[it_promoter_];
         it_promoter_++;
 
         return prom;
     }
 
-    void SIMD_DynTab_Metadata::promoter_begin() {
+    void DynTab_Metadata::promoter_begin() {
         it_promoter_ = 0;
         it_promoter_count_ = 0;
     }
 
-    bool SIMD_DynTab_Metadata::promoter_end() {
+    bool DynTab_Metadata::promoter_end() {
         return it_promoter_count_ == promoter_count();
     }
 
 
-    int SIMD_DynTab_Metadata::promoter_count() {
+    int DynTab_Metadata::promoter_count() {
         return count_promoters_;
     }
 
-    void SIMD_DynTab_Metadata::set_promoters_count(int pcount) {
+    void DynTab_Metadata::set_promoters_count(int pcount) {
         count_promoters_ = pcount;
     }
 
-    int SIMD_DynTab_Metadata::terminator_count(int LoL) {
+    int DynTab_Metadata::terminator_count(int LoL) {
         if (LoL == LEADING)
             return (int) terminator_lead_.size();
         else
             return (int) terminator_lag_.size();
     }
 
-    void SIMD_DynTab_Metadata::terminator_add(int LoL, int dna_pos) {
+    void DynTab_Metadata::terminator_add(int LoL, int dna_pos) {
         if (LoL == LEADING)
             terminator_lead_.insert(dna_pos);
         else
             terminator_lag_.insert(dna_pos);
     }
 
-    int SIMD_DynTab_Metadata::next_terminator(int LoL, int dna_pos) {
+    int DynTab_Metadata::next_terminator(int LoL, int dna_pos) {
         if (LoL == LEADING) {
             auto it_rna_end = terminator_lead_.lower_bound(dna_pos);
 
@@ -904,94 +907,94 @@ namespace aevol {
 
     }
 
-    void SIMD_DynTab_Metadata::terminators_clear() {
+    void DynTab_Metadata::terminators_clear() {
         terminator_lead_.clear();
         terminator_lag_.clear();
     }
 
-    pRNA *SIMD_DynTab_Metadata::rnas(int idx) {
+    Rna_7* DynTab_Metadata::rnas(int idx) {
         return rnas_[idx];
     }
 
-    void SIMD_DynTab_Metadata::rna_add(int idx, pRNA *rna) {
+    void DynTab_Metadata::rna_add(int idx, Rna_7*rna) {
         rnas_[idx] = rna;
     }
 
-    void SIMD_DynTab_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
+    void DynTab_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
                  int8_t t_leading_lagging, double t_e,
                  int32_t t_length) {
-        rnas_[idx] = new pRNA(t_begin, t_end,
+        rnas_[idx] = new Rna_7(t_begin, t_end,
                 t_leading_lagging, t_e,
                 t_length);
     }
 
-    pRNA* SIMD_DynTab_Metadata::rna_next() {
-        pRNA* rna = *it_rna_;
+    Rna_7* DynTab_Metadata::rna_next() {
+      Rna_7* rna = *it_rna_;
         it_rna_++;
         return rna;
     }
 
-    void SIMD_DynTab_Metadata::rna_begin() {
+    void DynTab_Metadata::rna_begin() {
         it_rna_ = rnas_.begin();
     }
 
-    bool SIMD_DynTab_Metadata::rna_end() {
+    bool DynTab_Metadata::rna_end() {
         return it_rna_ == rnas_.end();
     }
 
-    int SIMD_DynTab_Metadata::rna_count() {
+    int DynTab_Metadata::rna_count() {
         return rna_count_;
     }
 
-    void SIMD_DynTab_Metadata::set_rna_count(int rcount) {
+    void DynTab_Metadata::set_rna_count(int rcount) {
         rna_count_ = rcount;
     }
 
-    void SIMD_DynTab_Metadata::rnas_resize(int resize) {
+    void DynTab_Metadata::rnas_resize(int resize) {
         rnas_.resize(resize);
     }
 
-    void SIMD_DynTab_Metadata::rnas_clear() {
+    void DynTab_Metadata::rnas_clear() {
         rnas_.clear();
     }
 
-    pProtein *SIMD_DynTab_Metadata::proteins(int idx) {
+    Protein_7* DynTab_Metadata::proteins(int idx) {
         return proteins_[idx];
     }
 
-    void SIMD_DynTab_Metadata::protein_add(int idx, pProtein *prot) {
+    void DynTab_Metadata::protein_add(int idx, Protein_7*prot) {
         //printf("Add proteins at %d\n",idx);
         proteins_[idx] = prot;
         protein_count_++;
     }
 
-    pProtein* SIMD_DynTab_Metadata::protein_next() {
-        pProtein* prot = *it_protein_;
+    Protein_7* DynTab_Metadata::protein_next() {
+      Protein_7* prot = *it_protein_;
         it_protein_++;
         return prot;
     }
 
-    void SIMD_DynTab_Metadata::protein_begin() {
+    void DynTab_Metadata::protein_begin() {
         it_protein_ = proteins_.begin();
     }
 
-    bool SIMD_DynTab_Metadata::protein_end() {
+    bool DynTab_Metadata::protein_end() {
         return it_protein_ == proteins_.end();
     }
 
-    int SIMD_DynTab_Metadata::proteins_count() {
+    int DynTab_Metadata::proteins_count() {
         return protein_count_;
     }
 
-    void SIMD_DynTab_Metadata::set_proteins_count(int pcount) {
+    void DynTab_Metadata::set_proteins_count(int pcount) {
         //protein_count_ = pcount;
     }
 
-    void SIMD_DynTab_Metadata::proteins_resize(int resize) {
+    void DynTab_Metadata::proteins_resize(int resize) {
         proteins_.resize(resize);
     }
 
-    void SIMD_DynTab_Metadata::proteins_clear() {
+    void DynTab_Metadata::proteins_clear() {
         proteins_.clear();
     }
 }

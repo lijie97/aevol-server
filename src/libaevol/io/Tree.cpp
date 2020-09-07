@@ -37,6 +37,7 @@
 //                            Project Files
 // =================================================================
 #include "Tree.h"
+#include "7/ExpManager_7.h"
 
 #include "7/Individual_7.h"
 #include "ExpManager.h"
@@ -200,7 +201,7 @@ void Tree::update_new_indiv(NewIndivEvent* evt) {
 //           evt->child->exp_m()->grid_height(),
 //           evt->y);
 
-    if (SIMD_Individual::standalone_simd) {
+    if (ExpManager_7::standalone_simd) {
         replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
                                                              evt->simd_child->exp_m_->grid_height()
                                                              + evt->y]->
@@ -215,7 +216,7 @@ void Tree::update_new_indiv(NewIndivEvent* evt) {
 }
 
 void Tree::update_end_replication(EndReplicationEvent* evt) {
-    if (SIMD_Individual::standalone_simd) {
+    if (ExpManager_7::standalone_simd) {
         replics_[Utils::mod(AeTime::time() - 1, tree_step_)][evt->x *
 
                                                          evt->simd_child->exp_m_->grid_height()
@@ -239,7 +240,7 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
       // Initialize the replication report corresponding to the new individual
 
       auto ievent = reinterpret_cast<NewIndivEvent*>(arg);
-       if (SIMD_Individual::standalone_simd) {
+       if (ExpManager_7::standalone_simd) {
            replics_[Utils::mod(AeTime::time() - 1, tree_step_)][ievent->x *
                                               ievent->simd_child->exp_m_->grid_height()
                                               + ievent->y]->
@@ -260,7 +261,7 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
     case END_REPLICATION : {
       auto ievent = reinterpret_cast<EndReplicationEvent*>(arg);
 
-            if (SIMD_Individual::standalone_simd) {
+            if (ExpManager_7::standalone_simd) {
                 //printf("EoR %d : %p -- %p\n",ievent->simd_child->indiv_id,ievent->simd_child, replics_[AeTime::time()][ievent->simd_child->indiv_id]);
                 replics_[Utils::mod(AeTime::time() - 1, tree_step_)][ievent->x *
                                                 ievent->simd_child->exp_m_->grid_height()

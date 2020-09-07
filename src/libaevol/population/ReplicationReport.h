@@ -122,9 +122,13 @@ class ReplicationReport : public Observer {
     void init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
     void signal_end_of_replication(Individual* indiv);
 
-    void init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id, int parent_id);
-    void init(LightTree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id, int parent_id);
-    void signal_end_of_replication(Internal_SIMD_Struct* indiv);
+    void init(Tree* tree,
+              Individual_7* offspring,
+              Individual_7* parent, int indiv_id, int parent_id);
+    void init(LightTree* tree,
+              Individual_7* offspring,
+              Individual_7* parent, int indiv_id, int parent_id);
+    void signal_end_of_replication(Individual_7* indiv);
 
     void signal_end_of_generation();
     void write_to_tree_file(gzFile tree_file);
@@ -132,8 +136,7 @@ class ReplicationReport : public Observer {
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
 
-
-    Internal_SIMD_Struct* simd_indiv_ = nullptr;
+  Individual_7* simd_indiv_ = nullptr;
 
 
   protected :

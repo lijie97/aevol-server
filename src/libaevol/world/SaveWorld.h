@@ -84,7 +84,7 @@ class SaveGridCell {
 #else
             std::unique_ptr<Habitat>&& habitat,
 #endif
-                 Internal_SIMD_Struct * indiv, std::shared_ptr<JumpingMT> mut_prng,
+               Individual_7* indiv, std::shared_ptr<JumpingMT> mut_prng,
                  std::shared_ptr<JumpingMT> stoch_prng,
                  std::shared_ptr<JumpingMT> reprod_prng, std::shared_ptr<JumpingMT> reprod_prng_simd, double w_max)
     {
@@ -116,7 +116,7 @@ class SaveGridCell {
 
   // Pointer to the individual in this cell
   Individual* individual_ = NULL;
-  Internal_SIMD_Struct* simd_individual_ = NULL;
+  Individual_7* simd_individual_ = NULL;
 #ifdef __REGUL
         std::unique_ptr<Habitat_R> habitat_ = nullptr;
 #else

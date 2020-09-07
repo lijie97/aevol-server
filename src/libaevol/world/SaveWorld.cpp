@@ -31,6 +31,7 @@
 //                              Includes
 // =================================================================
 #include "SaveWorld.h"
+#include "ExpManager_7.h"
 
 #if __cplusplus == 201103L
 #include "make_unique.h"
@@ -157,7 +158,7 @@ void SaveGridCell::save(gzFile backup_file,
 
 #ifndef __REGUL
       habitat_->save(backup_file, skip_phenotypic_target);
-      if (SIMD_Individual::standalone_simd && !create) {
+      if (ExpManager_7::standalone_simd && !create) {
         Individual * indiv = new Individual(exp_m_,
                                             exp_m_->world()->grid(x_,y_)->mut_prng(),
                                             exp_m_->world()->grid(x_,y_)->stoch_prng(),

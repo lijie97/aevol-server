@@ -16,20 +16,20 @@ namespace aevol {
 
 #define BLOCK_SIZE INT32_C(1024)
 class Dna;
-class Internal_SIMD_Struct;
-class SIMD_DnaFactory;
+class Individual_7;
+class DnaFactory;
 
-class Dna_SIMD {
+class Dna_7 {
  public:
-    Dna_SIMD(Dna* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory);
-    Dna_SIMD(Dna_SIMD* dna, Internal_SIMD_Struct* indiv, SIMD_DnaFactory* dna_factory);
-    Dna_SIMD(Dna* dna, SIMD_DnaFactory* dna_factory);
-    Dna_SIMD(int length, SIMD_DnaFactory* dna_factory);
-    ~Dna_SIMD();
+  Dna_7(Dna* dna, Individual_7* indiv, DnaFactory* dna_factory);
+  Dna_7(Dna_7* dna, Individual_7* indiv, DnaFactory* dna_factory);
+  Dna_7(Dna* dna, DnaFactory* dna_factory);
+  Dna_7(int length, DnaFactory* dna_factory);
+    ~Dna_7();
 
-    void set_indiv(Dna_SIMD* dna, Internal_SIMD_Struct* indiv);
-    void set_indiv(Dna* dna, SIMD_DnaFactory* dna_factory);
-    void set_indiv(int length, int parent_length, Internal_SIMD_Struct* indiv);
+    void set_indiv(Dna_7* dna, Individual_7* indiv);
+    void set_indiv(Dna* dna, DnaFactory* dna_factory);
+    void set_indiv(int length, int parent_length, Individual_7* indiv);
 
     inline char get_lead(int32_t pos) { return data_[Utils::mod(pos,length_ )]; }
 //return data_[pos + (((unsigned int32_t)(pos - length_) >> 31) -1) * length_];};
@@ -117,12 +117,12 @@ class Dna_SIMD {
 
     int32_t parent_length_;
     int32_t nb_blocks_;
-    Internal_SIMD_Struct* indiv_;
-    SIMD_DnaFactory* dna_factory_;
+    Individual_7* indiv_;
+    DnaFactory* dna_factory_;
 
 };
 
-int32_t Dna_SIMD::nb_blocks(int32_t length) {
+int32_t Dna_7::nb_blocks(int32_t length) {
   return length/BLOCK_SIZE + 1;
 }
 }

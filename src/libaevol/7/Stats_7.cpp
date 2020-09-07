@@ -13,7 +13,7 @@
 
 namespace aevol {
 
-Stats_SIMD::Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation, bool best_or_not) {
+Stats_7::Stats_7(ExpManager_7* simd_individual, int64_t generation, bool best_or_not) {
   simd_individual_ = simd_individual;
   is_indiv_ = best_or_not;
   generation_ = generation;
@@ -124,7 +124,7 @@ Stats_SIMD::Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation, boo
   }
 }
 
-void Stats_SIMD::compute_best() {
+void Stats_7::compute_best() {
 //    printf("Compute BEST\n");
   is_indiv_ = true;
 
@@ -166,7 +166,7 @@ void Stats_SIMD::compute_best() {
   is_computed_ = true;
 }
 
-void Stats_SIMD::compute_average() {
+void Stats_7::compute_average() {
   is_indiv_ = false;
   pop_size_ = simd_individual_->nb_indivs_;
 
@@ -236,7 +236,7 @@ void Stats_SIMD::compute_average() {
 }
 
 
-void Stats_SIMD::write_best() {
+void Stats_7::write_best() {
   if (is_indiv_ && !is_computed_)
     compute_best();
 
@@ -269,7 +269,7 @@ void Stats_SIMD::write_best() {
   }
 }
 
-void Stats_SIMD::write_average() {
+void Stats_7::write_average() {
   if (!is_indiv_ && !is_computed_)
     compute_average();
 
@@ -286,7 +286,7 @@ void Stats_SIMD::write_average() {
   }
 }
 
-    void Stats_SIMD::reinit(int64_t generation) {
+    void Stats_7::reinit(int64_t generation) {
       generation_ = generation;
 
       pop_size_ = 0;

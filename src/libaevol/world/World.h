@@ -149,7 +149,9 @@ class World
                              std::shared_ptr<JumpingMT> noise_prng);
 
   SaveWorld* make_save(ExpManager* exp_m, std::list<Individual*> indivs, bool share_phenotypic_target);
-  SaveWorld* make_save(ExpManager* exp_m, Internal_SIMD_Struct** indivs, Internal_SIMD_Struct* best_indiv);
+  SaveWorld* make_save(ExpManager* exp_m,
+                       Individual_7** indivs,
+                       Individual_7* best_indiv);
 
  protected :
   // =================================================================

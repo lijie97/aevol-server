@@ -43,6 +43,7 @@
 // =================================================================
 #include "7/Dna_7.h"
 #include "7/Individual_7.h"
+#include "7/ExpManager_7.h"
 #include "AeTime.h"
 #include "AncestorStats.h"
 #include "LightTree.h"
@@ -114,7 +115,8 @@ void LightTree::init_tree(int64_t time, std::list<Individual*> root_indiv) {
   }
 }
 
-void LightTree::update_tree(int64_t gen, Internal_SIMD_Struct** prev_internal_simd_struct){
+void LightTree::update_tree(int64_t gen,
+                            Individual_7** prev_internal_simd_struct){
   parentsNodes_.clear();
   // debug std::cout << "New generation : " << gen << '\n';
   std::unordered_map<int32_t, Node*> previous = allNodes_[gen-1];
@@ -137,8 +139,8 @@ void LightTree::update_tree(int64_t gen, Internal_SIMD_Struct** prev_internal_si
     if(prev_mrca != mrca_time_) {
       if(prev_mrca == 0) {
           Individual* to_set;
-          if (SIMD_Individual::standalone_simd) {
-            Internal_SIMD_Struct* simd_indiv = prev_internal_simd_struct[allNodes_[0].begin()->second->id_];
+          if (ExpManager_7::standalone_simd) {
+            Individual_7* simd_indiv = prev_internal_simd_struct[allNodes_[0].begin()->second->id_];
               int x = simd_indiv->indiv_id / exp_m_->world()->height();
               int y = simd_indiv->indiv_id % exp_m_->world()->height();
 
@@ -317,16 +319,17 @@ void LightTree::keep_indivs(std::list<Individual*> indivs) {
   saved_indivs_time_ = AeTime::time();//(*indivs.begin())->age();
 }
 
-void LightTree::keep_indivs(std::list<Internal_SIMD_Struct*> indivs, SIMD_DnaFactory* dna_factory) {
+void LightTree::keep_indivs(std::list<Individual_7*> indivs,
+                            DnaFactory* dna_factory) {
 #ifdef _OPENMP
       #pragma omp taskgroup
   {
 #endif
-      for(Internal_SIMD_Struct* indiv : indivs)
+      for(Individual_7* indiv : indivs)
 #ifdef _OPENMP
 #pragma omp task firstprivate(indiv)
 #endif
-        saved_simd_indivs_[indiv->indiv_id] = new Internal_SIMD_Struct(exp_m_,indiv,dna_factory);
+        saved_simd_indivs_[indiv->indiv_id] = new Individual_7(exp_m_,indiv,dna_factory);
 #ifdef _OPENMP
       }
 #endif
@@ -338,8 +341,8 @@ void LightTree::save_mrca_indiv() {
     FILE* org_file = fopen("mrca_dna.txt", "w");
     gzFile indiv_file = gzopen("mrca_indiv.ae", "w");
 
-    if (SIMD_Individual::standalone_simd) {
-    Internal_SIMD_Struct *mrca = saved_simd_indivs_.begin()->second;
+    if (ExpManager_7::standalone_simd) {
+      Individual_7*mrca = saved_simd_indivs_.begin()->second;
       fputs(mrca->dna_->to_char(), org_file);
 
       int x=0,y=0;
@@ -402,7 +405,7 @@ void LightTree::update(Observable& o, ObservableEvent e, void* arg) {
 
       // debug std::cout << "new indiv id : " << new_indiv->id() << " from parent : " << parent->id() << '\n';
       ReplicationReport* new_rep = new ReplicationReport();
-      if (SIMD_Individual::standalone_simd) {
+      if (ExpManager_7::standalone_simd) {
         //printf("Update with %d %d\n",ievent->indiv_id_,ievent->parent_id_);
         new_rep->
                 init(this, ievent->simd_child, ievent->simd_parent,ievent->indiv_id_,ievent->parent_id_);
@@ -455,7 +458,7 @@ void LightTree::prune(Node * dead_node) {
   int64_t tid_dead = dead_node->tid_;
   int32_t id_dead = dead_node->id_;
   delete dead_node;
-  if (SIMD_Individual::standalone_simd) {
+  if (ExpManager_7::standalone_simd) {
     if (tid_dead == saved_indivs_time_ && saved_simd_indivs_.size() > 1) {
       delete saved_simd_indivs_[id_dead];
       saved_simd_indivs_.erase(id_dead);

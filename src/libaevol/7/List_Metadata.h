@@ -5,6 +5,8 @@
 #ifndef AEVOL_LIST_METADATA_H
 #define AEVOL_LIST_METADATA_H
 
+
+#include "Rna_7.h"
 #include "Abstract_Metadata.h"
 #include "Dna_7.h"
 #include "Individual_7.h"
@@ -14,14 +16,14 @@ using std::list;
 
 namespace aevol {
 
-    using SIMD_Promoters1Strand = std::list<promoterStruct>;
-    using SIMD_Promoters2Strands = std::vector<SIMD_Promoters1Strand>;
+    using Promoters1Strand_7     = std::list<PromoterStruct>;
+    using Promoters2Strands_7    = std::vector<Promoters1Strand_7>;
 
-    class SIMD_List_Metadata  : public SIMD_Abstract_Metadata {
+    class List_Metadata : public Abstract_Metadata {
     public:
-        SIMD_List_Metadata(Internal_SIMD_Struct* indiv) : SIMD_Abstract_Metadata(indiv) { set_iterators(); };
+     List_Metadata(Individual_7* indiv) : Abstract_Metadata(indiv) { set_iterators(); };
 
-        SIMD_List_Metadata(Internal_SIMD_Struct* indiv, SIMD_List_Metadata* metadata) : SIMD_Abstract_Metadata(indiv,metadata) {
+     List_Metadata(Individual_7* indiv, List_Metadata* metadata) : Abstract_Metadata(indiv,metadata) {
 
             for (auto& strand: {LEADING, LAGGING}) {
                 for (auto& rna: metadata->promoters_list_[strand]) {
@@ -34,15 +36,15 @@ namespace aevol {
         };
 
 
-        ~SIMD_List_Metadata() override {
+        ~List_Metadata() override {
            promoters_list_.clear();
 
-           for (std::list<pRNA*>::iterator it_rna = rnas_.begin(); it_rna != rnas_.end(); it_rna++) {
+           for (std::list<Rna_7*>::iterator it_rna = rnas_.begin(); it_rna != rnas_.end(); it_rna++) {
                delete (*(it_rna));
            }
 
 
-            for (std::list<pProtein*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
+            for (std::list<Protein_7*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
                 delete (*(it_protein));
             }
         };
@@ -56,10 +58,10 @@ namespace aevol {
         };
 
         /*** Promoters ***/
-        promoterStruct* promoters(int idx) override;
-        void promoter_add(int idx, promoterStruct* prom) override;
+        PromoterStruct* promoters(int idx) override;
+        void promoter_add(int idx, PromoterStruct* prom) override;
 
-        promoterStruct* promoter_next() override ;
+        PromoterStruct* promoter_next() override ;
         void promoter_begin() override ;
         bool promoter_end() override ;
 
@@ -75,13 +77,13 @@ namespace aevol {
         void terminators_clear() override;
 
         /*** RNAs ***/
-        pRNA* rnas(int idx) override;
-        void rna_add(int idx, pRNA* rna) override;
+        Rna_7* rnas(int idx) override;
+        void rna_add(int idx, Rna_7* rna) override;
         void rna_add(int idx, int32_t t_begin, int32_t t_end,
                      int8_t t_leading_lagging, double t_e,
                      int32_t t_length) override ;
 
-        pRNA* rna_next() override ;
+        Rna_7* rna_next() override ;
         void rna_begin() override ;
         bool rna_end() override ;
 
@@ -92,10 +94,10 @@ namespace aevol {
         void rnas_clear() override;
 
         /*** Proteins ***/
-        pProtein* proteins(int idx) override;
-        void protein_add(int idx, pProtein* prot) override;
+        Protein_7* proteins(int idx) override;
+        void protein_add(int idx, Protein_7* prot) override;
 
-        pProtein* protein_next() override ;
+        Protein_7* protein_next() override ;
         void protein_begin() override ;
         bool protein_end() override ;
 
@@ -112,7 +114,7 @@ namespace aevol {
                            Position before_after_btw, // with regard to the strand's reading direction
                            int32_t pos1,
                            int32_t pos2,
-                           std::list<promoterStruct*>&  motif_list) override;
+                           std::list<PromoterStruct*>&  motif_list) override;
 
         /*** Terminator ***/
         /*int8_t is_terminator_leading(int pos);
@@ -121,7 +123,7 @@ namespace aevol {
                                     Position before_after_btw, // with regard to the strand's reading direction
                                     int32_t pos1,
                                     int32_t pos2,
-                                    std::list<promoterStruct*>& promoters_list);
+                                    std::list<PromoterStruct*>& promoters_list);
 */
         /*** Shine Dal + Start Codon ***/
         /*      int8_t is_shine_dal_start_prot_leading(int pos);
@@ -130,7 +132,7 @@ namespace aevol {
                                                     Position before_after_btw, // with regard to the strand's reading direction
                                                     int32_t pos1,
                                                     int32_t pos2,
-                                                    std::list<SIMD_Abstract_Metadata*>& promoters_list);
+                                                    std::list<Abstract_Metadata*>& promoters_list);
       */
         /*** Stop Codon ***/
 /*        int8_t is_stop_prot_leading(int pos);
@@ -139,7 +141,7 @@ namespace aevol {
                                    Position before_after_btw, // with regard to the strand's reading direction
                                    int32_t pos1,
                                    int32_t pos2,
-                                   std::list<SIMD_Abstract_Metadata*>& promoters_list);
+                                   std::list<Abstract_Metadata*>& promoters_list);
 */
         /** Search and update **/
         void remove_promoters_around(int32_t pos_1) override;
@@ -155,11 +157,11 @@ namespace aevol {
 
         void duplicate_promoters_included_in(int32_t pos_1,
                                              int32_t pos_2,
-                                             std::vector<std::list<promoterStruct*>>& duplicated_promoters) override;
+                                             std::vector<std::list<PromoterStruct*>>& duplicated_promoters) override;
         void extract_promoters_included_in(int32_t pos_1,
-                                           int32_t pos_2, std::vector<std::list<promoterStruct*>>& extracted_promoters) override;
-        void insert_promoters(std::vector<std::list<promoterStruct*>>& promoters_to_insert) override;
-        void insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
+                                           int32_t pos_2, std::vector<std::list<PromoterStruct*>>& extracted_promoters) override;
+        void insert_promoters(std::vector<std::list<PromoterStruct*>>& promoters_to_insert) override;
+        void insert_promoters_at(std::vector<std::list<PromoterStruct*>>& promoters_to_insert,
                                  int32_t pos) override;
 
         void invert_promoters_included_in(int32_t pos1,
@@ -167,10 +169,10 @@ namespace aevol {
 
 
         static void shift_promoters(
-                std::vector<std::list<promoterStruct*>>& promoters_to_shift,
+                std::vector<std::list<PromoterStruct*>>& promoters_to_shift,
                 int32_t delta_pos,
                 int32_t seq_length);
-        static void invert_promoters(std::vector<std::list<promoterStruct*>>& promoter_lists,
+        static void invert_promoters(std::vector<std::list<PromoterStruct*>>& promoter_lists,
                                      int32_t pos1,
                                      int32_t pos2);
 
@@ -197,36 +199,35 @@ namespace aevol {
 
         void promoters_included_in(int32_t pos_1,
                                    int32_t pos_2,
-                                   std::vector<std::list<promoterStruct*>>& promoters_list) override;
+                                   std::vector<std::list<PromoterStruct*>>& promoters_list) override;
 
         void extract_leading_promoters_starting_between(int32_t pos_1,
-                                                        int32_t pos_2, std::list<promoterStruct*>& extracted_promoters) override;
+                                                        int32_t pos_2, std::list<PromoterStruct*>& extracted_promoters) override;
 
         void extract_lagging_promoters_starting_between(int32_t pos_1,
                                                         int32_t pos_2,
-                                                        std::list<promoterStruct*>& extracted_promoters) override;
+                                                        std::list<PromoterStruct*>& extracted_promoters) override;
 
-
-        SIMD_Promoters2Strands promoters_list_ = {{},
+        Promoters2Strands_7 promoters_list_ = {{},
                                                   {}};
 
-        std::list<pProtein*> proteins_;
+        std::list<Protein_7*> proteins_;
     protected:
-        SIMD_Promoters1Strand::iterator it_promoter_;
+     Promoters1Strand_7::iterator it_promoter_;
         int it_promoter_pos_;
 
-        std::list<pRNA*>::iterator it_rna_;
-        std::list<pProtein*>::iterator it_protein_;
+        std::list<Rna_7*>::iterator it_rna_;
+        std::list<Protein_7*>::iterator it_protein_;
 
         std::set<int> terminator_lag_;
         std::set<int> terminator_lead_;
-        std::list<pRNA*> rnas_;
+        std::list<Rna_7*> rnas_;
 
         int32_t protein_count_ = 0;
 
         int cmp_rna = 0;
 
-        Internal_SIMD_Struct* indiv_;
+        Individual_7* indiv_;
     };
 }
 

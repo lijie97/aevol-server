@@ -13,16 +13,16 @@ namespace aevol {
         BESTFIT = 2
     };
 
-    class SIMD_DnaFactory {
+    class DnaFactory {
     public:
-        SIMD_DnaFactory(DnaFactory_Policy policy, int pool_size, int init_size) {
+     DnaFactory(DnaFactory_Policy policy, int pool_size, int init_size) {
             policy_ = policy;
             pool_size_ = pool_size;
             init(init_size);
         }
 
-        ~SIMD_DnaFactory() {
-            for (std::list<Dna_SIMD*>::iterator it_dna = list_unused_dna_.begin();
+        ~DnaFactory() {
+            for (std::list<Dna_7 *>::iterator it_dna = list_unused_dna_.begin();
                  it_dna != list_unused_dna_.end(); it_dna++) {
                 delete (*(it_dna));
             }
@@ -32,7 +32,7 @@ namespace aevol {
 
         void stats() {
             int total_length_ = 0;
-            for (std::list<Dna_SIMD*>::iterator it_dna = list_unused_dna_.begin();
+            for (std::list<Dna_7 *>::iterator it_dna = list_unused_dna_.begin();
                  it_dna != list_unused_dna_.end(); it_dna++) {
                 total_length_ += (*it_dna)->nb_block()*BLOCK_SIZE* sizeof(char);
             }
@@ -40,13 +40,13 @@ namespace aevol {
             printf("DNA_FACTORY_STATS -- Number of DNAs %ld - Combined size %d Mb\n",list_unused_dna_.size(),total_length_);
         }
 
-        Dna_SIMD *get_dna(int request_size);
+        Dna_7 *get_dna(int request_size);
 
-        void give_back(Dna_SIMD *dna);
+        void give_back(Dna_7 *dna);
 
 
     private:
-        std::list<Dna_SIMD *> list_unused_dna_;
+        std::list<Dna_7 *> list_unused_dna_;
         DnaFactory_Policy policy_;
         int pool_size_;
     };

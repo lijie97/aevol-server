@@ -31,7 +31,7 @@
 //                              Includes
 // =================================================================
 #include "Stats.h"
-
+#include "ExpManager_7.h"
 #include <string>
 
 #include <err.h>
@@ -159,7 +159,7 @@ Stats::~Stats() {
   delete [] stat_files_names_;
   stat_files_names_ = nullptr;
 
-  if (!SIMD_Individual::standalone_simd) {
+  if (!ExpManager_7::standalone_simd) {
     std::map<long long int, Individual *> unique_individual;
 
     for (auto g_indivs = indivs_.begin(); g_indivs != indivs_.end(); ++g_indivs) {
@@ -629,7 +629,7 @@ void Stats::add_indivs(int64_t gen, const std::list<Individual*> indivs) {
 }
 
 
-    void Stats::add_indivs(int64_t gen, Internal_SIMD_Struct** indivs) {
+    void Stats::add_indivs(int64_t gen, Individual_7** indivs) {
       std::list<Individual*> gen_indivs;
       //printf("At gen %ld AddIndivs %d\n",gen,exp_m_->nb_indivs());
       for (int i = 0; i < exp_m_->nb_indivs(); i++) {
@@ -920,7 +920,7 @@ void Stats::MoveTmpFiles(const std::string& destdir) {
           i++;
       }*/
 
-      if ((!SIMD_Individual::standalone_simd) || (SIMD_Individual::standalone_simd && exp_m_->check_simd())){
+      if ((!ExpManager_7::standalone_simd) || (ExpManager_7::standalone_simd && exp_m_->check_simd())){
           std::unordered_map<unsigned long long, Individual *> unique_individual;
 
           for (auto indiv : indivs_[gen]) {

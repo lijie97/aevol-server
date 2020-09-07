@@ -51,7 +51,7 @@ namespace aevol {
 // =================================================================
 class AncestorStats;
 class Individual;
-class Internal_SIMD_Struct;
+class Individual_7;
 class ExpManager;
 
 class Node {
@@ -106,7 +106,8 @@ class LightTree : public Observer
     // by creating the link parent/children
     // it also prune the tree
     // if ask it perform ancestor_stat
-    void update_tree(int64_t gen, Internal_SIMD_Struct** prev_internal_simd_struct = nullptr);
+    void update_tree(int64_t gen,
+                     Individual_7** prev_internal_simd_struct = nullptr);
 
     // write the Newick format tree
     void write_tree(int64_t t = -1);
@@ -117,7 +118,7 @@ class LightTree : public Observer
 
     void keep_indivs(std::list<Individual*> indivs);
 
-    void keep_indivs(std::list<Internal_SIMD_Struct*> indivs, SIMD_DnaFactory* dna_factory);
+    void keep_indivs(std::list<Individual_7*> indivs, DnaFactory* dna_factory);
 
     void save_mrca_indiv();
 
@@ -166,7 +167,7 @@ class LightTree : public Observer
 
     // list of all the Individual at the generation wented to stop the simulation
     std::unordered_map<int32_t, Individual*> saved_indivs_;
-    std::unordered_map<int32_t, Internal_SIMD_Struct*> saved_simd_indivs_;
+    std::unordered_map<int32_t, Individual_7*> saved_simd_indivs_;
     int64_t saved_indivs_time_;
 
     AncestorStats* anc_stat_;

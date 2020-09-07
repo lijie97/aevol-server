@@ -34,6 +34,8 @@
 #include "HabitatFactory.h"
 #include "ExpManager.h"
 
+#include "ExpManager_7.h"
+
 #if __cplusplus == 201103L
 #include "make_unique.h"
 #endif
@@ -476,7 +478,9 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
       return backup;
     }
 
-    SaveWorld* World::make_save(ExpManager* exp_m, Internal_SIMD_Struct** indivs, Internal_SIMD_Struct* best_indiv) {
+    SaveWorld* World::make_save(ExpManager* exp_m,
+                                Individual_7** indivs,
+                                Individual_7* best_indiv) {
       SaveWorld *backup = new SaveWorld();
       //random generator
       backup->prng_ = std::make_shared<JumpingMT>(*prng_);
@@ -501,7 +505,7 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
         for (int16_t x = 0; x < width(); x++) {
             for (int16_t y = 0; y < height(); y++) {
 
-                if (SIMD_Individual::standalone_simd) {
+                if (ExpManager_7::standalone_simd) {
                     backup->grid_[x][y] = new SaveGridCell(exp_m, x, y,
 #ifdef __REGUL
                                                            std::make_unique<Habitat_R>(grid_[x][y]->habitat(), true),

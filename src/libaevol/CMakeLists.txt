@@ -143,8 +143,15 @@ set(aevol_sources
   population/Selection.h
         7/Individual_7.cpp
         7/Individual_7.h
+        7/Rna_7.cpp
+        7/Rna_7.h
+        7/Protein_7.cpp
+        7/Protein_7.h
+        7/Promoter.cpp
+        7/Promoter.h
 
-  rng/JumpingMT.cpp
+
+        rng/JumpingMT.cpp
   rng/JumpingMT.h
   rng/JumpPoly.h
   #rng/MersenneTwister.cpp
@@ -158,6 +165,8 @@ set(aevol_sources
   stats/StatRecord.h
         7/Stats_7.cpp
         7/Stats_7.h
+        7/ExpManager_7.cpp
+        7/ExpManager_7.h
   stats/Stats.cpp
   stats/Stats.h
   utils//ObservableEvent.h
@@ -214,8 +223,8 @@ if ( ${with-raevol} )
           raevol/Protein_R.cpp
           raevol/Rna_R.h
           raevol/Rna_R.cpp 
-	  #"SIMD_Abstract Metadata.cpp" "SIMD_Abstract Metadata.h" SIMD_Map_Metadata.cpp SIMD_Map_Metadata.h
-	  )
+	  #"SIMD_Abstract Metadata.cpp" "SIMD_Abstract Metadata.h" Map_Metadata.cpp Map_Metadata.h
+            7/ExpManager_7.cpp 7/ExpManager_7.h 7/Promoter.cpp 7/Promoter.h 7/Rna_7.cpp 7/Rna_7.h 7/Protein_7.cpp 7/Protein_7.h)
 endif ()
 
 add_library(aevol ${aevol_sources})

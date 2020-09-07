@@ -40,6 +40,7 @@
 
 #include "7/Dna_7.h"
 #include "7/Individual_7.h"
+#include "7/ExpManager_7.h"
 #include "AeTime.h"
 #include "DnaReplicationReport.h"
 #include "ExpManager.h"
@@ -206,7 +207,9 @@ void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* pare
 //  indiv_->addObserver(tree, END_REPLICATION);
 }
 
-void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id,
+void ReplicationReport::init(Tree* tree,
+                             Individual_7* offspring,
+                             Individual_7* parent, int indiv_id,
                                 int parent_id)
 {
         dna_replic_report_.clear();
@@ -269,7 +272,9 @@ void ReplicationReport::init(Tree* tree, Internal_SIMD_Struct* offspring, Intern
         indiv_->addObserver(tree, END_REPLICATION);
     }
 
-    void ReplicationReport::init(LightTree* tree, Internal_SIMD_Struct* offspring, Internal_SIMD_Struct* parent, int indiv_id,
+    void ReplicationReport::init(LightTree* tree,
+                                 Individual_7* offspring,
+                                 Individual_7* parent, int indiv_id,
                                  int parent_id)
     {
 
@@ -317,7 +322,7 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
 }
 
 
-void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
+void ReplicationReport::signal_end_of_replication(Individual_7* indiv) {
       // TODO <david.parsons@inria.fr> tmp patch
       if (simd_indiv_ == NULL) simd_indiv_ = indiv;
 
@@ -335,7 +340,7 @@ void ReplicationReport::signal_end_of_replication(Internal_SIMD_Struct* indiv) {
  * Actions such as update the individuals' ranks can be done here.
  */
 void ReplicationReport::signal_end_of_generation() {
-    if (!SIMD_Individual::standalone_simd) {
+    if (!ExpManager_7::standalone_simd) {
         rank_ = indiv_->rank();
     }
 }
@@ -347,7 +352,7 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file)
   gzwrite(tree_file, &id_,         sizeof(id_));
 
     int32_t rankx = -1;
-  if (SIMD_Individual::standalone_simd) {
+  if (ExpManager_7::standalone_simd) {
       rankx = 0;
   } else {
       rankx = rank_;

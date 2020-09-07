@@ -33,6 +33,8 @@
 #include "Selection.h"
 
 #include "7/Dna_7.h"
+#include "7/ExpManager_7.h"
+
 #include "DnaMutator.h"
 //#include <math.h>
 
@@ -273,7 +275,7 @@ void Selection::step_to_next_generation() {
       reproducers[x][y] = do_local_competition(x, y);
 /*
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y] =
-          new Internal_SIMD_Struct(exp_m_,exp_m_->simd_individual->prev_internal_simd_struct
+          new Individual_7(exp_m_,exp_m_->simd_individual->prev_internal_simd_struct
           [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()],false);
 
       exp_m_->simd_individual->internal_simd_struct[x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;

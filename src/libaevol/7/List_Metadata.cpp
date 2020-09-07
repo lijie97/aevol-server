@@ -11,11 +11,11 @@
 #include <list>
 
 namespace aevol {
-    void SIMD_List_Metadata::lst_promoters(bool lorl,
+    void List_Metadata::lst_promoters(bool lorl,
                        Position before_after_btw, // with regard to the strand's reading direction
                        int32_t pos1,
                        int32_t pos2,
-                       std::list<promoterStruct*>&  motif_list) {
+                       std::list<PromoterStruct*>&  motif_list) {
         Strand strand_id;
         //if (lorl)
             strand_id = (lorl==LEADING) ? LEADING : LAGGING;
@@ -29,7 +29,7 @@ namespace aevol {
         if (before_after_btw != BEFORE) {
             it_begin = find_if(strand.begin(),
                                strand.end(),
-                               [pos1, strand_id](promoterStruct& p) {
+                               [pos1, strand_id](PromoterStruct& p) {
                                    if (strand_id == LEADING) {
                                        return p.pos >= pos1;
                                    }
@@ -42,7 +42,7 @@ namespace aevol {
         if (before_after_btw != AFTER) {
             it_end = find_if(it_begin,
                              strand.end(),
-                             [pos2, strand_id](promoterStruct& p) {
+                             [pos2, strand_id](PromoterStruct& p) {
                                  if (strand_id == LEADING) {
                                      return p.pos >= pos2;
                                  }
@@ -52,16 +52,16 @@ namespace aevol {
                              });
         }
 
-        std::list<promoterStruct*> promoters_1D;
+        std::list<PromoterStruct*> promoters_1D;
         for (auto it = it_begin; it != it_end; it++) {
-            promoterStruct* ptr = new promoterStruct(*it);
+          PromoterStruct* ptr = new PromoterStruct(*it);
             promoters_1D.push_back(ptr);
         }
 
         motif_list.insert(motif_list.end(), promoters_1D.begin(), promoters_1D.end());
     }
 
-    void SIMD_List_Metadata::remove_promoters_around(int32_t pos_1) {
+    void List_Metadata::remove_promoters_around(int32_t pos_1) {
         if (length() >= PROM_SIZE) {
             remove_leading_promoters_starting_between(Utils::mod(pos_1 - PROM_SIZE + 1,
                                                                  length()),
@@ -76,7 +76,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
+    void List_Metadata::remove_promoters_around(int32_t pos_1, int32_t pos_2) {
         if (Utils::mod(pos_1 - pos_2, length()) >= PROM_SIZE) {
             remove_leading_promoters_starting_between(Utils::mod(pos_1 - PROM_SIZE + 1,
                                                                  length()),
@@ -91,12 +91,12 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::remove_all_promoters() {
+    void List_Metadata::remove_all_promoters() {
         promoters_list_[LEADING].clear();
         promoters_list_[LAGGING].clear();
     }
 
-    void SIMD_List_Metadata::look_for_new_promoters_around(int32_t pos_1, int32_t pos_2) {
+    void List_Metadata::look_for_new_promoters_around(int32_t pos_1, int32_t pos_2) {
         if (length() >= PROM_SIZE) {
             look_for_new_leading_promoters_starting_between(
                     Utils::mod(pos_1 - PROM_SIZE + 1,
@@ -107,7 +107,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::look_for_new_promoters_around(int32_t pos) {
+    void List_Metadata::look_for_new_promoters_around(int32_t pos) {
         if (length() >= PROM_SIZE) {
             look_for_new_leading_promoters_starting_between(
                     Utils::mod(pos - PROM_SIZE + 1, length()),
@@ -118,7 +118,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::locate_promoters() {
+    void List_Metadata::locate_promoters() {
         int8_t dist; // Hamming distance of the sequence from the promoter consensus
 
         // Empty RNA list
@@ -145,16 +145,16 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::move_all_promoters_after(int32_t pos, int32_t delta_pos) {
+    void List_Metadata::move_all_promoters_after(int32_t pos, int32_t delta_pos) {
         move_all_leading_promoters_after(pos, delta_pos);
         move_all_lagging_promoters_after(pos, delta_pos);
     }
 
-    void SIMD_List_Metadata::duplicate_promoters_included_in(int32_t pos_1,
+    void List_Metadata::duplicate_promoters_included_in(int32_t pos_1,
                                          int32_t pos_2,
-                                         std::vector<std::list<promoterStruct*>>& duplicated_promoters) {
+                                         std::vector<std::list<PromoterStruct*>>& duplicated_promoters) {
         // 1) Get promoters to be duplicated
-        std::vector<std::list<promoterStruct*>> retrieved_promoters = {{},
+        std::vector<std::list<PromoterStruct*>> retrieved_promoters = {{},
                                                  {}};
         promoters_included_in(pos_1, pos_2, retrieved_promoters);
 
@@ -175,8 +175,8 @@ namespace aevol {
 
     }
 
-    void SIMD_List_Metadata::extract_promoters_included_in(int32_t pos_1,
-                                       int32_t pos_2, std::vector<std::list<promoterStruct*>>& extracted_promoters) {
+    void List_Metadata::extract_promoters_included_in(int32_t pos_1,
+                                       int32_t pos_2, std::vector<std::list<PromoterStruct*>>& extracted_promoters) {
         if (pos_2 - pos_1 < PROM_SIZE) {
             return;
         }
@@ -188,7 +188,7 @@ namespace aevol {
                                                    extracted_promoters[LAGGING]);
     }
 
-    void SIMD_List_Metadata::insert_promoters(std::vector<std::list<promoterStruct*>>& promoters_to_insert) {
+    void List_Metadata::insert_promoters(std::vector<std::list<PromoterStruct*>>& promoters_to_insert) {
         for (auto strand: {LEADING, LAGGING}) {
             if (promoters_to_insert[strand].size() <= 0) {
                 continue;
@@ -198,7 +198,7 @@ namespace aevol {
 
             auto pos = find_if(promoters_list_[strand].begin(),
                                promoters_list_[strand].end(),
-                               [from_pos, strand](promoterStruct& r) {
+                               [from_pos, strand](PromoterStruct& r) {
                                    if (strand == LEADING) {
                                        return r.pos >= from_pos;
                                    }
@@ -219,7 +219,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
+    void List_Metadata::insert_promoters_at(std::vector<std::list<PromoterStruct*>>& promoters_to_insert,
                              int32_t pos) {
         for (auto strand: {LEADING, LAGGING}) {
             if (promoters_to_insert[strand].size() <= 0) {
@@ -228,7 +228,7 @@ namespace aevol {
             // Get to the right position in individual's list (first promoter after the inserted segment)
             auto first = find_if(promoters_list_[strand].begin(),
                                  promoters_list_[strand].end(),
-                                 [pos, strand](promoterStruct& r) {
+                                 [pos, strand](PromoterStruct& r) {
                                      if (strand == LEADING) {
                                          return r.pos >= pos;
                                      }
@@ -252,7 +252,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::invert_promoters_included_in(int32_t pos1,
+    void List_Metadata::invert_promoters_included_in(int32_t pos1,
                                       int32_t pos2) {
         int32_t segment_length = pos2 - pos1;
 
@@ -260,7 +260,7 @@ namespace aevol {
             return;
         }
 
-        std::vector<std::list<promoterStruct*>> inverted_promoters = {{},
+        std::vector<std::list<PromoterStruct*>> inverted_promoters = {{},
                                                 {}};
 
         // 1) Extract the promoters completely included on the segment to be inverted
@@ -287,7 +287,7 @@ namespace aevol {
         }*/
 
         // 2) Invert segment's promoters
-        SIMD_List_Metadata::invert_promoters(inverted_promoters, pos1, pos2);
+        List_Metadata::invert_promoters(inverted_promoters, pos1, pos2);
 
 /*        if (indiv_->indiv_id == 37) {
 
@@ -313,12 +313,12 @@ namespace aevol {
         // 3) Reinsert the inverted promoters
         insert_promoters(inverted_promoters);
 
-        for (std::list<promoterStruct*>::iterator it_prom = inverted_promoters[LEADING].begin();
+        for (std::list<PromoterStruct*>::iterator it_prom = inverted_promoters[LEADING].begin();
              it_prom != inverted_promoters[LEADING].end(); it_prom++) {
             delete (*(it_prom));
         }
         inverted_promoters[LEADING].clear();
-        for (std::list<promoterStruct*>::iterator it_prom = inverted_promoters[LAGGING].begin();
+        for (std::list<PromoterStruct*>::iterator it_prom = inverted_promoters[LAGGING].begin();
              it_prom != inverted_promoters[LAGGING].end(); it_prom++) {
             delete (*(it_prom));
         }
@@ -326,8 +326,8 @@ namespace aevol {
     }
 
 
-    void SIMD_List_Metadata::shift_promoters(
-            std::vector<std::list<promoterStruct*>>& promoters_to_shift,
+    void List_Metadata::shift_promoters(
+            std::vector<std::list<PromoterStruct*>>& promoters_to_shift,
             int32_t delta_pos,
             int32_t seq_length) {
         for (auto& strand: {LEADING, LAGGING})
@@ -335,7 +335,7 @@ namespace aevol {
                 rna->pos = Utils::mod(rna->pos + delta_pos, seq_length);
     }
 
-    void SIMD_List_Metadata::invert_promoters(std::vector<std::list<promoterStruct*>>& promoter_lists,
+    void List_Metadata::invert_promoters(std::vector<std::list<PromoterStruct*>>& promoter_lists,
                                  int32_t pos1,
                                  int32_t pos2) {
         // Exchange LEADING and LAGGING lists
@@ -388,7 +388,7 @@ namespace aevol {
         printf("\n");*/
     }
 
-    void SIMD_List_Metadata::remove_leading_promoters_starting_between(int32_t pos_1,
+    void List_Metadata::remove_leading_promoters_starting_between(int32_t pos_1,
                                                    int32_t pos_2) {
         if (pos_1 > pos_2) {
             remove_leading_promoters_starting_after(pos_1);
@@ -400,7 +400,7 @@ namespace aevol {
             // STL Warning: don't erase the current iterator in the for-loop!
             auto init_loop = find_if(strand.begin(),
                                      strand.end(),
-                                     [pos_1](promoterStruct& r) {
+                                     [pos_1](PromoterStruct& r) {
                                          return r.pos >= pos_1;
                                      });
 
@@ -414,11 +414,11 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::remove_leading_promoters_starting_after(int32_t pos) {
+    void List_Metadata::remove_leading_promoters_starting_after(int32_t pos) {
         auto& strand = promoters_list_[LEADING];
 
         auto init_loop = find_if(strand.begin(), strand.end(),
-                                 [pos](promoterStruct& r) { return r.pos >= pos; });
+                                 [pos](PromoterStruct& r) { return r.pos >= pos; });
 
         for (auto it = init_loop,
                      nextit = it;
@@ -429,7 +429,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::remove_leading_promoters_starting_before(int32_t pos) {
+    void List_Metadata::remove_leading_promoters_starting_before(int32_t pos) {
         auto& strand = promoters_list_[LEADING];
         // Delete RNAs until we reach pos (or we reach the end of the list)
         for (auto it = strand.begin(),
@@ -441,7 +441,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::remove_lagging_promoters_starting_between(int32_t pos_1,
+    void List_Metadata::remove_lagging_promoters_starting_between(int32_t pos_1,
                                                    int32_t pos_2) {
         if (pos_1 == length()) pos_1 = 0;
         if (pos_2 == 0) pos_2 = length();
@@ -455,7 +455,7 @@ namespace aevol {
             // Delete RNAs until we pass pos_1 (or we reach the end of the list)
             auto init_loop = find_if(strand.begin(),
                                      strand.end(),
-                                     [pos_2](promoterStruct& r) {
+                                     [pos_2](PromoterStruct& r) {
                                          return r.pos < pos_2;
                                      });
 
@@ -469,7 +469,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::remove_lagging_promoters_starting_after(int32_t pos) {
+    void List_Metadata::remove_lagging_promoters_starting_after(int32_t pos) {
         auto& strand = promoters_list_[LAGGING];
         // Delete RNAs until we pass pos (or we reach the end of the list)
         for (auto it = strand.begin(),
@@ -481,13 +481,13 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::remove_lagging_promoters_starting_before(int32_t pos) {
+    void List_Metadata::remove_lagging_promoters_starting_before(int32_t pos) {
         auto& strand = promoters_list_[LAGGING];
         // Delete RNAs until we reach pos (or we reach the end of the list)
 
         auto init_loop = find_if(strand.begin(),
                                  strand.end(),
-                                 [pos](promoterStruct& r) { return r.pos < pos; });
+                                 [pos](PromoterStruct& r) { return r.pos < pos; });
 
         for (auto it = init_loop,
                      nextit = it;
@@ -498,9 +498,9 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::move_all_leading_promoters_after(int32_t pos, int32_t delta_pos) {
+    void List_Metadata::move_all_leading_promoters_after(int32_t pos, int32_t delta_pos) {
         auto& strand = promoters_list_[LEADING];
-        auto init_loop = find_if(strand.begin(), strand.end(), [pos](promoterStruct& r) {
+        auto init_loop = find_if(strand.begin(), strand.end(), [pos](PromoterStruct& r) {
             return r.pos >= pos;
         });
 
@@ -510,7 +510,7 @@ namespace aevol {
             (*rna).pos = Utils::mod((*rna).pos + delta_pos, length());
     }
 
-    void SIMD_List_Metadata::move_all_lagging_promoters_after(int32_t pos,int32_t delta_pos) {
+    void List_Metadata::move_all_lagging_promoters_after(int32_t pos,int32_t delta_pos) {
         auto& strand = promoters_list_[LAGGING];
         // Update RNAs until we pass pos (or we reach the end of the list)
         for (auto rna = strand.begin();
@@ -518,7 +518,7 @@ namespace aevol {
              ++rna)
             (*rna).pos = Utils::mod((*rna).pos + delta_pos, length());    }
 
-    void SIMD_List_Metadata::look_for_new_leading_promoters_starting_between(int32_t pos_1, int32_t pos_2) {
+    void List_Metadata::look_for_new_leading_promoters_starting_between(int32_t pos_1, int32_t pos_2) {
         if (pos_1 >= pos_2) {
             look_for_new_leading_promoters_starting_after(pos_1);
             look_for_new_leading_promoters_starting_before(pos_2);
@@ -536,7 +536,7 @@ namespace aevol {
 
                 auto first = find_if(strand.begin(),
                                      strand.end(),
-                                     [i](promoterStruct& r) { return r.pos >= i; });
+                                     [i](PromoterStruct& r) { return r.pos >= i; });
 
 
                 if (first == strand.end() or first->pos != i) {
@@ -546,7 +546,8 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::look_for_new_leading_promoters_starting_after(int32_t pos) {
+    void
+    List_Metadata::look_for_new_leading_promoters_starting_after(int32_t pos) {
 // Hamming distance of the sequence from the promoter consensus
         int8_t dist;
 
@@ -558,7 +559,7 @@ namespace aevol {
                 auto& strand = promoters_list_[LEADING];
                 auto first = find_if(strand.begin(),
                                      strand.end(),
-                                     [i](promoterStruct& r) {
+                                     [i](PromoterStruct& r) {
                                          return r.pos >= i;
                                      });
 
@@ -569,7 +570,8 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::look_for_new_leading_promoters_starting_before(int32_t pos) {
+    void
+    List_Metadata::look_for_new_leading_promoters_starting_before(int32_t pos) {
         // Hamming distance of the sequence from the promoter consensus
         int8_t dist;
 
@@ -583,7 +585,7 @@ namespace aevol {
 
                 first = find_if(first,
                                 strand.end(),
-                                [i](promoterStruct& r) { return r.pos >= i; });
+                                [i](PromoterStruct& r) { return r.pos >= i; });
 
                 if (first == strand.end() or first->pos != i) {
                     promoters_list_[LEADING].emplace(first, i, dist, true);
@@ -593,7 +595,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::look_for_new_lagging_promoters_starting_between(int32_t pos_1,int32_t pos_2) {
+    void List_Metadata::look_for_new_lagging_promoters_starting_between(int32_t pos_1,int32_t pos_2) {
         if (pos_1 >= pos_2) {
             look_for_new_lagging_promoters_starting_after(pos_1);
             look_for_new_lagging_promoters_starting_before(pos_2);
@@ -609,7 +611,7 @@ namespace aevol {
 
                 auto first = find_if(strand.begin(),
                                      strand.end(),
-                                     [i](promoterStruct& r) { return r.pos <= i; });
+                                     [i](PromoterStruct& r) { return r.pos <= i; });
 
                 if (first == strand.end() or first->pos != i) {
                     promoters_list_[LAGGING].emplace(first, i, dist, false);
@@ -618,7 +620,8 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::look_for_new_lagging_promoters_starting_after(int32_t pos) {
+    void
+    List_Metadata::look_for_new_lagging_promoters_starting_after(int32_t pos) {
 // Hamming distance of the sequence from the promoter consensus
         int8_t dist;
         auto& strand = promoters_list_[LAGGING];
@@ -630,7 +633,7 @@ namespace aevol {
                 // Look for the right place to insert the new promoter in the list
                 first = find_if(first,
                                 strand.end(),
-                                [i](promoterStruct& r) { return r.pos <= i; });
+                                [i](PromoterStruct& r) { return r.pos <= i; });
 
                 if (first == strand.end() or first->pos != i) {
                     promoters_list_[LAGGING].emplace(first, i, dist, false);
@@ -639,7 +642,8 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::look_for_new_lagging_promoters_starting_before(int32_t pos) {
+    void
+    List_Metadata::look_for_new_lagging_promoters_starting_before(int32_t pos) {
         int8_t dist;
 
         // rna list node used to find the new promoter's place in the list
@@ -653,7 +657,7 @@ namespace aevol {
                 // Look for the right place to insert the new promoter in the list
                 first = find_if(first,
                                 strand.end(),
-                                [i](promoterStruct& r) {
+                                [i](PromoterStruct& r) {
                                     return r.pos <= i;
                                 });
 
@@ -665,9 +669,9 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::promoters_included_in(int32_t pos_1,
+    void List_Metadata::promoters_included_in(int32_t pos_1,
                                int32_t pos_2,
-                               std::vector<std::list<promoterStruct*>>& promoters_list) {
+                               std::vector<std::list<PromoterStruct*>>& promoters_list) {
         if (pos_1 < pos_2) {
             int32_t seg_length = pos_2 - pos_1;
 
@@ -728,14 +732,14 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::extract_leading_promoters_starting_between(int32_t pos_1,
-                                                    int32_t pos_2, std::list<promoterStruct*>& extracted_promoters) {
+    void List_Metadata::extract_leading_promoters_starting_between(int32_t pos_1,
+                                                    int32_t pos_2, std::list<PromoterStruct*>& extracted_promoters) {
         // Find the first promoters in the interval
         auto& strand = promoters_list_[LEADING];
 
         auto first = find_if(strand.begin(),
                              strand.end(),
-                             [pos_1](promoterStruct& p) {
+                             [pos_1](PromoterStruct& p) {
                                  return p.pos >= pos_1;
                              });
 
@@ -747,12 +751,12 @@ namespace aevol {
 
         auto end = find_if(first,
                            strand.end(),
-                           [pos_2](promoterStruct& p) { return p.pos >= pos_2; });
+                           [pos_2](PromoterStruct& p) { return p.pos >= pos_2; });
 
         // Extract the promoters (remove them from the individual's list and put them in extracted_promoters)
-        std::list<promoterStruct*> promoters_1D;
+        std::list<PromoterStruct*> promoters_1D;
         for (auto it = first; it != end; it++) {
-            promoterStruct* ptr = new promoterStruct(*it);
+          PromoterStruct* ptr = new PromoterStruct(*it);
             promoters_1D.push_back(ptr);
         }
 
@@ -761,15 +765,15 @@ namespace aevol {
         strand.erase(first, end);
     }
 
-    void SIMD_List_Metadata::extract_lagging_promoters_starting_between(int32_t pos_1,
+    void List_Metadata::extract_lagging_promoters_starting_between(int32_t pos_1,
                                                     int32_t pos_2,
-                                                    std::list<promoterStruct*>& extracted_promoters) {
+                                                    std::list<PromoterStruct*>& extracted_promoters) {
         // Find the first promoters in the interval (if any)
         auto& strand = promoters_list_[LAGGING];
 
         auto first = find_if(strand.begin(),
                              strand.end(),
-                             [pos_2](promoterStruct& r) {
+                             [pos_2](PromoterStruct& r) {
                                  return r.pos < pos_2;
                              });
 
@@ -780,12 +784,12 @@ namespace aevol {
         // Find the last promoters in the interval
         auto end = find_if(first,
                            strand.end(),
-                           [pos_1](promoterStruct& r) { return r.pos < pos_1; });
+                           [pos_1](PromoterStruct& r) { return r.pos < pos_1; });
 
         // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
-        std::list<promoterStruct*> promoters_1D;
+        std::list<PromoterStruct*> promoters_1D;
         for (auto it = first; it != end; it++) {
-            promoterStruct* ptr = new promoterStruct(*it);
+          PromoterStruct* ptr = new PromoterStruct(*it);
             promoters_1D.push_back(ptr);
         }
 
@@ -793,7 +797,7 @@ namespace aevol {
         strand.erase(first, end);
     }
 
-    promoterStruct *SIMD_List_Metadata::promoters(int idx) {
+    PromoterStruct* List_Metadata::promoters(int idx) {
         //for (int i = 0; i <= idx; i++)
         if (idx >= promoters_list_[LEADING].size()) {
             auto it = promoters_list_[LAGGING].begin();
@@ -807,7 +811,7 @@ namespace aevol {
         }
     }
 
-    void SIMD_List_Metadata::promoter_add(int idx, promoterStruct *prom) {
+    void List_Metadata::promoter_add(int idx, PromoterStruct*prom) {
         if (prom->leading_or_lagging) {
             promoters_list_[LEADING].push_back(prom);
         } else {
@@ -815,9 +819,9 @@ namespace aevol {
         }
     }
 
-    promoterStruct *SIMD_List_Metadata::promoter_next() {
+    PromoterStruct* List_Metadata::promoter_next() {
 
-        promoterStruct* prom = &*(it_promoter_);
+      PromoterStruct* prom = &*(it_promoter_);
         it_promoter_++;
 
         if (it_promoter_ == promoters_list_[LEADING].end()) {
@@ -827,41 +831,41 @@ namespace aevol {
         return prom;
     }
 
-    void SIMD_List_Metadata::promoter_begin() {
+    void List_Metadata::promoter_begin() {
         it_promoter_ = promoters_list_[LEADING].begin();
 
         if (promoters_list_[LEADING].size() == 0) it_promoter_ = promoters_list_[LAGGING].begin();
     }
 
-    bool SIMD_List_Metadata::promoter_end() {
+    bool List_Metadata::promoter_end() {
         return it_promoter_ == promoters_list_[LAGGING].end();
     }
 
 
-    int SIMD_List_Metadata::promoter_count() {
+    int List_Metadata::promoter_count() {
         return promoters_list_[LEADING].size()+ promoters_list_[LAGGING].size();
     }
 
-    void SIMD_List_Metadata::set_promoters_count(int pcount) {
+    void List_Metadata::set_promoters_count(int pcount) {
         //exit(-10);
     }
 
 
-    int SIMD_List_Metadata::terminator_count(int LoL) {
+    int List_Metadata::terminator_count(int LoL) {
         if (LoL == LEADING)
             return (int) terminator_lead_.size();
         else
             return (int) terminator_lag_.size();
     }
 
-    void SIMD_List_Metadata::terminator_add(int LoL, int dna_pos) {
+    void List_Metadata::terminator_add(int LoL, int dna_pos) {
         if (LoL == LEADING)
             terminator_lead_.insert(dna_pos);
         else
             terminator_lag_.insert(dna_pos);
     }
 
-    int SIMD_List_Metadata::next_terminator(int LoL, int dna_pos) {
+    int List_Metadata::next_terminator(int LoL, int dna_pos) {
         if (LoL == LEADING) {
             auto it_rna_end = terminator_lead_.lower_bound(dna_pos);
 
@@ -885,73 +889,72 @@ namespace aevol {
 
     }
 
-    void SIMD_List_Metadata::terminators_clear() {
+    void List_Metadata::terminators_clear() {
         terminator_lead_.clear();
         terminator_lag_.clear();
     }
 
-    pRNA *SIMD_List_Metadata::rnas(int idx) {
+    Rna_7* List_Metadata::rnas(int idx) {
         auto it = rnas_.begin();
         std::advance(it, idx);
         return *(it);
     }
 
-    void SIMD_List_Metadata::rna_add(int idx, pRNA *rna) {
+    void List_Metadata::rna_add(int idx, Rna_7*rna) {
         rnas_.push_front(rna);
         it_rna_ = rnas_.begin();
     }
 
-    void SIMD_List_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
+    void List_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
                  int8_t t_leading_lagging, double t_e,
                  int32_t t_length) {
-        rnas_.push_back(new pRNA(t_begin, t_end,
+        rnas_.push_back(new Rna_7(t_begin, t_end,
                  t_leading_lagging, t_e,
                  t_length));
     }
 
-
-    pRNA *SIMD_List_Metadata::rna_next() {
-        pRNA* rna = *(it_rna_);
+    Rna_7* List_Metadata::rna_next() {
+      Rna_7* rna = *(it_rna_);
         it_rna_++;
         cmp_rna++;
         return rna;
     }
 
-    void SIMD_List_Metadata::rna_begin() {
+    void List_Metadata::rna_begin() {
         it_rna_ = rnas_.begin();
     }
 
-    bool SIMD_List_Metadata::rna_end() {
+    bool List_Metadata::rna_end() {
         return it_rna_ == rnas_.end();
     }
 
-    int SIMD_List_Metadata::rna_count() {
+    int List_Metadata::rna_count() {
         return rnas_.size();
     }
 
-    void SIMD_List_Metadata::set_rna_count(int rcount) {
+    void List_Metadata::set_rna_count(int rcount) {
         //rna_count_ = rcount;
     }
 
-    void SIMD_List_Metadata::rnas_resize(int resize) {
+    void List_Metadata::rnas_resize(int resize) {
         //rnas_.resize(resize);
     }
 
-    void SIMD_List_Metadata::rnas_clear() {
+    void List_Metadata::rnas_clear() {
         rnas_.clear();
     }
 
-    pProtein *SIMD_List_Metadata::proteins(int idx) {
+    Protein_7* List_Metadata::proteins(int idx) {
         auto it = proteins_.begin();
         std::advance(it, idx);
         return *(it);
     }
 
-    void SIMD_List_Metadata::protein_add(int idx, pProtein *prot) {
+    void List_Metadata::protein_add(int idx, Protein_7*prot) {
         proteins_.push_front(prot);
     }
 
-    void SIMD_List_Metadata::proteins_print() {
+    void List_Metadata::proteins_print() {
         int prot_idx=0;
         for (auto prot : proteins_) {
             printf("Protein %d : %p\n",prot_idx,prot);
@@ -959,33 +962,33 @@ namespace aevol {
         }
     }
 
-    pProtein *SIMD_List_Metadata::protein_next() {
-        pProtein* prot = *(it_protein_);
+    Protein_7* List_Metadata::protein_next() {
+      Protein_7* prot = *(it_protein_);
         it_protein_++;
         return prot;
     }
 
-    void SIMD_List_Metadata::protein_begin() {
+    void List_Metadata::protein_begin() {
         it_protein_ = proteins_.begin();
     }
 
-    bool SIMD_List_Metadata::protein_end() {
+    bool List_Metadata::protein_end() {
         return it_protein_ == proteins_.end();
     }
 
-    int SIMD_List_Metadata::proteins_count() {
+    int List_Metadata::proteins_count() {
         return proteins_.size();
     }
 
-    void SIMD_List_Metadata::set_proteins_count(int pcount) {
+    void List_Metadata::set_proteins_count(int pcount) {
         //protein_count_ = pcount;
     }
 
-    void SIMD_List_Metadata::proteins_resize(int resize) {
+    void List_Metadata::proteins_resize(int resize) {
         //proteins_.resize(resize);
     }
 
-    void SIMD_List_Metadata::proteins_clear() {
+    void List_Metadata::proteins_clear() {
         proteins_.clear();
     }
 }

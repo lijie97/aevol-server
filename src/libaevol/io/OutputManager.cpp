@@ -39,6 +39,7 @@
 #include <string>
 
 #include "ExpManager.h"
+#include "7/ExpManager_7.h"
 #include "AeTime.h"
 
 using std::string;
@@ -333,7 +334,7 @@ int64_t OutputManager::last_gener() {
       if (record_tree_ &&
           AeTime::time() > 0 &&
           (AeTime::time() % tree_->tree_step() != 0)) {
-          if (!SIMD_Individual::standalone_simd) {
+          if (!ExpManager_7::standalone_simd) {
               write_tree(AeTime::time());
           }
       }
@@ -348,7 +349,7 @@ int64_t OutputManager::last_gener() {
       // Write backup
       if (AeTime::time() % backup_step_ != 0) {
         stats_->flush();
-        if (!SIMD_Individual::standalone_simd) {
+        if (!ExpManager_7::standalone_simd) {
             exp_m_->WriteDynamicFiles();
             WriteLastGenerFile();
         }

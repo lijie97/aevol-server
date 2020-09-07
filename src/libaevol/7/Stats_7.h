@@ -6,20 +6,21 @@
 #define RAEVOL_CUDA_STATS_SIMD_H
 
 
+#include "ExpManager_7.h"
 #include <cstdint>
 #include <fstream>
 #include <limits>
 
 namespace aevol {
 
-    class SIMD_Individual;
+    class ExpManager_7;
 
-class Stats_SIMD {
+class Stats_7 {
  public:
-    Stats_SIMD(SIMD_Individual* simd_individual, int64_t generation,
+  Stats_7(ExpManager_7* simd_individual, int64_t generation,
                bool best_or_not);
 
-    ~Stats_SIMD() {
+    ~Stats_7() {
       if (is_indiv_) {
         statfile_best_.flush();
         statfile_best_.close();
@@ -41,7 +42,7 @@ class Stats_SIMD {
 
 
  protected:
-    SIMD_Individual* simd_individual_;
+  ExpManager_7* simd_individual_;
 
     int64_t generation_;
 

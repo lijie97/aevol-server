@@ -7,27 +7,32 @@
 
 #include "Dna_7.h"
 #include "Individual_7.h"
+#include "ExpManager_7.h"
 #include "ae_enums.h"
+#include "Promoter.h"
 
 #include <cstdint>
 #include <list>
 #include <vector>
 
 namespace aevol {
-    class promoterStruct;
+    class PromoterStruct;
+    class Rna_7;
+    class Protein_7;
 
-    class SIMD_Abstract_Metadata {
+    class Abstract_Metadata {
     public:
-        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv, SIMD_Abstract_Metadata* metadata) {
+     Abstract_Metadata(Individual_7* indiv,
+                       Abstract_Metadata* metadata) {
             indiv_ = indiv;
         }
 
-        SIMD_Abstract_Metadata(Internal_SIMD_Struct* indiv) {
+        Abstract_Metadata(Individual_7* indiv) {
             indiv_ = indiv;
         }
 
 
-        virtual ~SIMD_Abstract_Metadata() {};
+        virtual ~Abstract_Metadata() {};
         /** Getter **/
         /*** Promoters ***/
         inline int8_t is_promoter_leading(int pos) {
@@ -421,7 +426,7 @@ namespace aevol {
         virtual void lst_promoters(bool lorl,
                            Position before_after_btw, // with regard to the strand's reading direction
                            int32_t pos1,
-                           int32_t pos2, std::list<promoterStruct*>& motif_list) = 0;
+                           int32_t pos2, std::list<PromoterStruct*>& motif_list) = 0;
 
         /*** Terminator ***/
         /*virtual int8_t is_terminator_leading(int pos);
@@ -430,7 +435,7 @@ namespace aevol {
                            Position before_after_btw, // with regard to the strand's reading direction
                            int32_t pos1,
                            int32_t pos2,
-                           std::list<promoterStruct*>& promoters_list);
+                           std::list<PromoterStruct*>& promoters_list);
 */
         /*** Shine Dal + Start Codon ***/
         inline int8_t is_shine_dal_start_prot_leading(int pos) {
@@ -473,7 +478,7 @@ namespace aevol {
                            Position before_after_btw, // with regard to the strand's reading direction
                            int32_t pos1,
                            int32_t pos2,
-                           std::list<promoterStruct*>& promoters_list);
+                           std::list<PromoterStruct*>& promoters_list);
 */
         /*** Stop Codon ***/
 /*        virtual int8_t is_stop_prot_leading(int pos);
@@ -482,18 +487,18 @@ namespace aevol {
                                       Position before_after_btw, // with regard to the strand's reading direction
                                       int32_t pos1,
                                       int32_t pos2,
-                                      std::list<promoterStruct*>& promoters_list);
+                                      std::list<PromoterStruct*>& promoters_list);
 
 
 */
         /*** Promoters ***/
-        virtual promoterStruct* promoters(int idx) = 0;
-        virtual void promoter_add(int idx, promoterStruct* prom) = 0;
+        virtual PromoterStruct* promoters(int idx) = 0;
+        virtual void promoter_add(int idx, PromoterStruct* prom) = 0;
 
         virtual int promoter_count() = 0;
         virtual void set_promoters_count(int rcount) = 0;
 
-        virtual promoterStruct* promoter_next() = 0;
+        virtual PromoterStruct* promoter_next() = 0;
         virtual void promoter_begin() = 0;
         virtual bool promoter_end() = 0;
 
@@ -506,8 +511,8 @@ namespace aevol {
         virtual void terminators_clear() = 0;
 
         /*** RNAs ***/
-        virtual pRNA* rnas(int idx) = 0;
-        virtual void rna_add(int idx, pRNA* prot) = 0;
+        virtual Rna_7* rnas(int idx) = 0;
+        virtual void rna_add(int idx, Rna_7* prot) = 0;
         virtual void rna_add(int idx, int32_t t_begin, int32_t t_end, int8_t t_leading_lagging, double t_e,
                              int32_t t_length) = 0;
 
@@ -517,13 +522,13 @@ namespace aevol {
         virtual void rnas_resize(int resize) = 0;
         virtual void rnas_clear() = 0;
 
-        virtual pRNA* rna_next() = 0;
+        virtual Rna_7* rna_next() = 0;
         virtual void rna_begin() = 0;
         virtual bool rna_end() = 0;
 
         /*** Proteins ***/
-        virtual pProtein* proteins(int idx) = 0;
-        virtual void protein_add(int idx, pProtein* prot) = 0;
+        virtual Protein_7* proteins(int idx) = 0;
+        virtual void protein_add(int idx, Protein_7* prot) = 0;
 
         virtual int proteins_count() = 0;
         virtual void set_proteins_count(int pcount) = 0;
@@ -532,7 +537,7 @@ namespace aevol {
         virtual void proteins_clear() = 0;
 
 
-        virtual pProtein* protein_next() = 0;
+        virtual Protein_7* protein_next() = 0;
         virtual void protein_begin() = 0;
         virtual bool protein_end() = 0;
         /** Search and update **/
@@ -549,11 +554,11 @@ namespace aevol {
 
         virtual void duplicate_promoters_included_in(int32_t pos_1,
                                              int32_t pos_2,
-                                             std::vector<std::list<promoterStruct*>>& duplicated_promoters) = 0;
+                                             std::vector<std::list<PromoterStruct*>>& duplicated_promoters) = 0;
         virtual void extract_promoters_included_in(int32_t pos_1,
-                                           int32_t pos_2, std::vector<std::list<promoterStruct*>>& extracted_promoters) = 0;
-        virtual void insert_promoters(std::vector<std::list<promoterStruct*>>& promoters_to_insert) = 0;
-        virtual void insert_promoters_at(std::vector<std::list<promoterStruct*>>& promoters_to_insert,
+                                           int32_t pos_2, std::vector<std::list<PromoterStruct*>>& extracted_promoters) = 0;
+        virtual void insert_promoters(std::vector<std::list<PromoterStruct*>>& promoters_to_insert) = 0;
+        virtual void insert_promoters_at(std::vector<std::list<PromoterStruct*>>& promoters_to_insert,
                                  int32_t pos) = 0;
 
         virtual void invert_promoters_included_in(int32_t pos1,
@@ -561,10 +566,10 @@ namespace aevol {
 
 
         static void shift_promoters(
-                std::vector<std::list<promoterStruct*>>& promoters_to_shift,
+                std::vector<std::list<PromoterStruct*>>& promoters_to_shift,
                 int32_t delta_pos,
                 int32_t seq_length);
-        static void invert_promoters(std::vector<std::list<promoterStruct*>>& promoter_lists,
+        static void invert_promoters(std::vector<std::list<PromoterStruct*>>& promoter_lists,
                                      int32_t pos1,
                                      int32_t pos2);
 
@@ -591,14 +596,14 @@ namespace aevol {
 
         virtual void promoters_included_in(int32_t pos_1,
                                    int32_t pos_2,
-                                   std::vector<std::list<promoterStruct*>>& promoters_list) = 0;
+                                   std::vector<std::list<PromoterStruct*>>& promoters_list) = 0;
 
         virtual void extract_leading_promoters_starting_between(int32_t pos_1,
-                                                        int32_t pos_2, std::list<promoterStruct*>& extracted_promoters) = 0;
+                                                        int32_t pos_2, std::list<PromoterStruct*>& extracted_promoters) = 0;
 
         virtual void extract_lagging_promoters_starting_between(int32_t pos_1,
                                                         int32_t pos_2,
-                                                        std::list<promoterStruct*>& extracted_promoters) = 0;
+                                                        std::list<PromoterStruct*>& extracted_promoters) = 0;
 
 
         int32_t length() { return indiv_->dna_->length(); };
@@ -606,8 +611,7 @@ namespace aevol {
 
         int32_t rna_count_ = 0;
     protected:
-
-        Internal_SIMD_Struct* indiv_;
+     Individual_7* indiv_;
     };
 }
 
