@@ -182,31 +182,31 @@ void Stats_7::compute_average() {
   pop_size_ = simd_individual_->nb_indivs_;
 
   for (int indiv_id = 0; indiv_id < pop_size_; indiv_id++) {
-    fitness_ += simd_individual_->prev_internal_simd_struct[indiv_id]->fitness;
-    metabolic_error_ += simd_individual_->prev_internal_simd_struct[indiv_id]->metaerror;
+    fitness_ += simd_individual_->previous_individuals[indiv_id]->fitness;
+    metabolic_error_ += simd_individual_->previous_individuals[indiv_id]->metaerror;
 
-    amount_of_dna_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->length();
+    amount_of_dna_ += simd_individual_->previous_individuals[indiv_id]->dna_->length();
 
-    nb_coding_rnas_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_coding_RNAs;
-    nb_non_coding_rnas_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_non_coding_RNAs;
+    nb_coding_rnas_ += simd_individual_->previous_individuals[indiv_id]->nb_coding_RNAs;
+    nb_non_coding_rnas_ += simd_individual_->previous_individuals[indiv_id]->nb_non_coding_RNAs;
 
-    nb_functional_genes_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_func_genes;
-    nb_non_functional_genes_ += simd_individual_->prev_internal_simd_struct[indiv_id]->nb_non_func_genes;
+    nb_functional_genes_ += simd_individual_->previous_individuals[indiv_id]->nb_func_genes;
+    nb_non_functional_genes_ += simd_individual_->previous_individuals[indiv_id]->nb_non_func_genes;
 
-    nb_mut_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_mut_;
-    nb_rear_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_rear_;
-    nb_switch_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_swi_;
-    nb_indels_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_indels_;
-    nb_dupl_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_large_dupl_;
-    nb_del_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_large_del_;
-    nb_trans_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_large_trans_;
-    nb_inv_ += simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->nb_large_inv_;
+    nb_mut_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_mut_;
+    nb_rear_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_rear_;
+    nb_switch_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_swi_;
+    nb_indels_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_indels_;
+    nb_dupl_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_large_dupl_;
+    nb_del_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_large_del_;
+    nb_trans_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_large_trans_;
+    nb_inv_ += simd_individual_->previous_individuals[indiv_id]->dna_->nb_large_inv_;
 
-    dupl_rate_ += nb_dupl_ / simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->parent_length();
-    del_rate_ += nb_del_ / simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->parent_length();
+    dupl_rate_ += nb_dupl_ / simd_individual_->previous_individuals[indiv_id]->dna_->parent_length();
+    del_rate_ += nb_del_ / simd_individual_->previous_individuals[indiv_id]->dna_->parent_length();
     trans_rate_ +=
-        nb_trans_ / simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->parent_length();
-    inv_rate_ += nb_inv_ / simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->parent_length();
+        nb_trans_ / simd_individual_->previous_individuals[indiv_id]->dna_->parent_length();
+    inv_rate_ += nb_inv_ / simd_individual_->previous_individuals[indiv_id]->dna_->parent_length();
 
   }
 

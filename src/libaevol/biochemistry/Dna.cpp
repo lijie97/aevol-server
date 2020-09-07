@@ -1558,7 +1558,7 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2) {
 
 //  if (indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y() == 44)
 //    printf("----------------> Perform large deletion %d %d -- %d -- %d\n",pos_1,pos_2,length(),
-//           exp_m_->simd_individual->internal_simd_struct[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->length());
+//           exp_m_->simd_individual->current_individuals[indiv_->grid_cell_->x()*indiv_->exp_m_->world()->height()+indiv_->grid_cell_->y()]->dna_->length());
 
 
 // Delete segment going from pos_1 (included) to pos_2 (excluded)

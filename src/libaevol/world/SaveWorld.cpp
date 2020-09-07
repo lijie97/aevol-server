@@ -180,7 +180,7 @@ void SaveGridCell::save(gzFile backup_file,
         char* to_copy = simd_individual_->dna_->to_char();
 
 
-        //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+        //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,previous_individuals[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
         memcpy(dna_string, to_copy,
                (simd_individual_->dna_->length()+1) * sizeof(char));
 
@@ -217,7 +217,7 @@ void SaveGridCell::save(gzFile backup_file,
       char* to_copy = simd_individual_->dna_->to_char();
 
 
-      //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+      //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,previous_individuals[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
       memcpy(dna_string, to_copy,
              (simd_individual_->dna_->length()+1) * sizeof(char));
 

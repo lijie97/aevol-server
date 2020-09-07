@@ -520,7 +520,7 @@ void ExpManager::load(gzFile& exp_s_file,
               simd_individual->addObserver(tree(), NEW_INDIV);
               for (int16_t x = 0; x < grid_width(); x++) {
                   for (int16_t y = 0; y < grid_height(); y++) {
-                      simd_individual->internal_simd_struct[x * grid_height() + y]->addObserver(
+                      simd_individual->current_individuals[x * grid_height() + y]->addObserver(
                               tree(),
                               END_REPLICATION);
                   }
@@ -546,7 +546,7 @@ void ExpManager::load(gzFile& exp_s_file,
             simd_individual->addObserver(light_tree(), NEW_INDIV);
             for (int16_t x = 0; x < grid_width(); x++) {
                 for (int16_t y = 0; y < grid_height(); y++) {
-                    simd_individual->internal_simd_struct[x * grid_height() + y]->addObserver(
+                    simd_individual->current_individuals[x * grid_height() + y]->addObserver(
                             light_tree(),
                             END_REPLICATION);
                 }

@@ -84,8 +84,8 @@ class ExpManager_7 : public Observable{
 
   void set_stats(Stats* stats) { stats_ = stats; }
 
-  Individual_7** internal_simd_struct;
-  Individual_7** prev_internal_simd_struct;
+  Individual_7** current_individuals;
+  Individual_7** previous_individuals;
   Individual_7* best_indiv;
 
   int32_t* next_generation_reproducer_;

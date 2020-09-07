@@ -164,7 +164,7 @@ void LightTree::update_tree(int64_t gen,
               char* to_copy = simd_indiv->dna_->to_char();
 
 
-              //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+              //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,previous_individuals[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
               memcpy(dna_string, to_copy,
                      (simd_indiv->dna_->length()+1) * sizeof(char));
 
@@ -368,7 +368,7 @@ void LightTree::save_mrca_indiv() {
       char* to_copy = mrca->dna_->to_char();
 
 
-      //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,prev_internal_simd_struct[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
+      //printf("Copy DNA for indiv %d size %d (%d x %d)\n",indiv_id,previous_individuals[indiv_id]->dna_->length(),nb_blocks_,BLOCK_SIZE);
       memcpy(dna_string, to_copy,
              (mrca->dna_->length()+1) * sizeof(char));
 
