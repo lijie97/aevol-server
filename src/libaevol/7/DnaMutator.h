@@ -110,4 +110,4 @@ class DnaMutator {
 }
 
 
-#endif //RAEVOL_CUDA_DNAMUTATOR_H
+#endif

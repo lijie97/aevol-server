@@ -83,11 +83,6 @@ DnaMutator::DnaMutator(Individual * indiv, int x, int y) {
 void DnaMutator::generate_mutations() {
   generate_rearrangements();
   generate_small_mutations();
-
-/*    printf("%d Length %d -- DNAMutator -- Dupli %d Large_Del %d Trans %d Inv %d Swi %d Ins %d Del %d\n",
-      id_,length_,
-      nb_large_dupl_,nb_large_del_,nb_large_trans_,nb_large_inv_,nb_swi_,
-      nb_ins_,nb_del_);*/
 }
 
 void DnaMutator::generate_rearrangements() {
@@ -137,11 +132,6 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
 
   if (cpt_rear_>0) {
     random_value = mut_prng_->random(cpt_rear_);
-
-      /*printf("%ld -- Indiv %ld -- Mutation %d (%d %d %d %d %d) -- %d (%d %d %d %d) Length %d-- Value %d\n",
-             AeTime::time(),id_,cpt_rear_,nb_rear_,nb_large_inv_,nb_large_trans_,nb_large_del_,nb_large_dupl_,
-             cpt_mut_,nb_mut_,nb_swi_,nb_ins_,nb_del_,length_,random_value);*/
-
     cpt_rear_--;
 
 
@@ -169,14 +159,11 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
         pos_3 = mut_prng_->random(length_);
 
       int32_t genome_size_after = length_ + Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
-        //printf("Large Dupli %d %d %d -- %d (%d)\n",pos_1,pos_2,pos_3,genome_size_after,max_genome_length_);
       if (genome_size_after > max_genome_length_)
         return nullptr;
 
       mevent = new MutationEvent();
       mevent->duplication(pos_1,pos_2,pos_3);
-
-      //printf("Duplication Event %p\n",mevent);
 
       mutation_list_.push_back(mevent);
 
@@ -286,14 +273,6 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
     }
   } else if (cpt_mut_>0) {
     random_value = mut_prng_->random(cpt_mut_);
-/*    if (id_%(AeTime::time()*1024)==93) {
-      printf("Random value %d\n",random_value);
-    }*/
-/*
-      printf("%ld -- Indiv %ld -- Mutation %d (%d %d %d %d %d) -- %d (%d %d %d %d) Length %d -- Value %d\n",
-             AeTime::time(),id_,cpt_rear_,nb_rear_,nb_large_inv_,nb_large_trans_,nb_large_del_,nb_large_dupl_,
-             cpt_mut_,nb_mut_,nb_swi_,nb_ins_,nb_del_,length_,random_value);
-*/
     cpt_mut_--;
 
 
@@ -301,11 +280,6 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
       nb_swi_--;
 
       int32_t pos = mut_prng_->random(length_);
-/*
-      if (id_%(AeTime::time()*1024)==93) {
-        printf("SWITCH POS %d\n",pos);
-      }*/
-
       mevent = new MutationEvent();
       mevent->switch_pos(pos);
       mutation_list_.push_back(mevent);
@@ -391,9 +365,6 @@ MutationEvent* DnaMutator::generate_next_mutation(int32_t length) {
 
     }
   }
-
-/*  if (mevent != nullptr) printf("Mutation %d is type %d\n",id_,mevent->type());
-  else printf("%d -- Mutation is NULL\n",id_);*/
   return mevent;
 }
 

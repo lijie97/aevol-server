@@ -25,11 +25,8 @@
 // ****************************************************************************
 
 #include "Stats_7.h"
-
-#include "7/Dna_7.h"
 #include "7/Individual_7.h"
 
-#include <fcntl.h>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -177,15 +174,6 @@ void Stats_7::compute_best() {
   trans_rate_ = nb_trans_ / (double)( simd_individual_->best_indiv->dna_->parent_length());
   inv_rate_   = nb_inv_   / (double)( simd_individual_->best_indiv->dna_->parent_length());
 
-/*  nb_bases_in_0_CDS_;
-  nb_bases_in_0_functional_CDS_;
-  nb_bases_in_0_non_functional_CDS_;
-  nb_bases_in_0_RNA_;
-  nb_bases_in_0_coding_RNA_;
-  nb_bases_in_0_non_coding_RNA_;
-
-  nb_bases_non_essential_;
-  nb_bases_non_essential_including_nf_genes_;*/
   is_computed_ = true;
 }
 
@@ -220,15 +208,6 @@ void Stats_7::compute_average() {
         nb_trans_ / simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->parent_length();
     inv_rate_ += nb_inv_ / simd_individual_->prev_internal_simd_struct[indiv_id]->dna_->parent_length();
 
-/*  nb_bases_in_0_CDS_;
-  nb_bases_in_0_functional_CDS_;
-  nb_bases_in_0_non_functional_CDS_;
-  nb_bases_in_0_RNA_;
-  nb_bases_in_0_coding_RNA_;
-  nb_bases_in_0_non_coding_RNA_;
-
-  nb_bases_non_essential_;
-  nb_bases_non_essential_including_nf_genes_;*/
   }
 
   fitness_ /= pop_size_;
@@ -264,8 +243,6 @@ void Stats_7::write_best() {
     compute_best();
 
   if (is_indiv_ && is_computed_) {
-//      printf("FITNESS %e\n",fitness_);
-
     // Write best stats
     statfile_best_<<generation_;
     statfile_best_<<","<<fitness_;

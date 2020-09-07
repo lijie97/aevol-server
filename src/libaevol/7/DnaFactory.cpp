@@ -39,12 +39,10 @@ namespace aevol {
         int req_block = Dna_7::nb_blocks(request_size);
         if (policy_ == DnaFactory_Policy::FIRST) {
           Dna_7 *pop = nullptr;
-            //printf("DNA Factory -- Length %d -- %d\n",request_size,list_unused_dna_.size());
 
             #pragma omp critical(pop_dna)
             {
                 if (list_unused_dna_.empty()) {
-                    //printf("DnaFactory -- Empty Factory !!");
                     pop = new Dna_7(request_size,this);
                 } else {
                     pop = list_unused_dna_.front();
@@ -58,7 +56,6 @@ namespace aevol {
 #pragma omp critical(pop_dna)
             {
                 if (list_unused_dna_.empty()) {
-                    //printf("DnaFactory -- Empty Factory !!");
                     pop = new Dna_7(request_size,this);
                 } else {
                     std::list<Dna_7 *>::iterator found_it;
@@ -80,6 +77,7 @@ namespace aevol {
             }
             return pop;
         }
+        return nullptr;
     }
 
     void DnaFactory::give_back(Dna_7 *dna) {

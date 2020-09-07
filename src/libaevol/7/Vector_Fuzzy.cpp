@@ -37,11 +37,7 @@
 
 #include <iterator>
 #include <iostream>
-#ifndef __OPENMP_GPU
 #include <algorithm>
-#else
-#include "algorithm_cuda.h"
-#endif
 
 #include "Point.h"
 #include "macros.h"
@@ -72,20 +68,13 @@ ProteinConcentration Vector_Fuzzy::y(ProteinConcentration x, set<Point>::const_i
 
   // Get the first point having abscissa ≥ x
 
-#ifndef __OPENMP_GPU
   set<Point>::const_iterator p2 = points_.lower_bound(Point(x,0.0));
-//  find_if(begin, points_.end(),
-//            [x](const Point& m){return m.x >= x;});
-#else
-  std::set<Point>::const_iterator p2 = algorithm_cuda::find_if_point_1(begin,points_.end(),x);
-#endif
   assert(p2 != points_.end());
 
   if (p2->x == x) // If p2 has abscissa x, he's the guy
     return p2->y;
   else { // Otherwise interpolate
     set<Point>::const_iterator p1 = prev(p2);
-//    printf("P1 %lf -- P2 %lf\n",(*p1).x,(*p2).x);
     return p1->y +
       (x - p1->x) * ((p2->y - p1->y) /
                          (p2->x - p1->x));
@@ -152,24 +141,16 @@ void Vector_Fuzzy::simplify() {
        ++p)
     if (p->x == next(p)->x and p->x == next(p,2)->x) {
       auto tmp = prev(
-#ifndef __OPENMP_GPU
           find_if(p, points_.end(), [p](const Point& q){return q.x != p->x;})
-#else
-          algorithm_cuda::find_if_point_2(p,points_.end(),p)
-#endif
       );
       points_.erase(next(p),tmp);
     }
     else if (p->y == next(p)->y and p->y == next(p,2)->y) {
       auto tmp = prev(
-#ifndef __OPENMP_GPU
           find_if(p, points_.end(),
                        [p](const Point& q) {
                            return q.y != p->y;
                        })
-#else
-          algorithm_cuda::find_if_point_3(p,points_.end(),p)
-#endif
       );
       points_.erase(next(p), tmp);
     }
@@ -201,8 +182,6 @@ void Vector_Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration 
   p0 = p1 = points_.begin();
   p2 = prev(points_.end());
 
-//  printf("P0 [%f %f] P1 [%f %f] P2 [%f %f]\n",(*p0).x,(*p0).y,(*p1).x,(*p1).y,(*p2).x,(*p2).y);
-
   ProteinConcentration x0 = mean - width;
   ProteinConcentration x1 = mean;
   ProteinConcentration x2 = mean + width;
@@ -213,33 +192,18 @@ void Vector_Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration 
   p1 = create_interpolated_point(mean, p0);
   if (x2 <= X_MAX)  p2 = create_interpolated_point(x2, p1);
 
-//  print();
-
   // Update points with abscissas in (x0;x1)
-//        printf("Update points %lf %lf %lf\n",x0,mean,x2);
-//          printf("Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
   for (set<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
       p->y += (p->x - x0) / (x1 - x0) * height;
-      //printf("%f -> %f\n",p->x,p->y);
   }
 
-//  print();
   // Update points with abscissas in (x0;x1)
-//  printf("Update point of FUzzy %f %f %f : %d\n",std::next(p0)->x,std::next(p1)->x,std::next(p2)->x,std::next(p1)!=std::next(p2));
-//        if ((*std::next(p1)).x != (*std::next(p2)).x) {
-//            for (auto p = std::next(p1) ; p != std::next(p2) ; ++p) {
-//                printf("%f -> %f\n",(*p).x,(*p).y);
-//
-//            }
 
 
             for (set<Point>::iterator p = std::next(p1); p != std::next(p2); ++p) {
 
                 p->y += height * (x2 - p->x) / (x2 - x1);
             }
-//        }
-
-  // assert(invariant());
   return;
 }
 
@@ -290,7 +254,6 @@ void Vector_Fuzzy::sub(const AbstractFuzzy& f) {
           fs.print();
 
   for (const Point q: fs.points_) {
-//      printf("Interpolated %lf\n",q.x);
       create_interpolated_point(q.x);
   }
 
@@ -302,7 +265,6 @@ void Vector_Fuzzy::sub(const AbstractFuzzy& f) {
 
     void Vector_Fuzzy::sub(Vector_Fuzzy* f) {
         for (const Point q: f->points_) {
-//            printf("Interpolated %lf\n",q.x);
             create_interpolated_point(q.x);
         }
         for (std::set<Point>::iterator p = points_.begin(); p != points_.end(); ++p)
@@ -334,22 +296,12 @@ ProteinConcentration Vector_Fuzzy::get_geometric_area(ProteinConcentration x_sta
 
   // first point with abscissa ≥ x_start
   set<Point>::const_iterator begin =
-#ifndef __OPENMP_GPU
                                     find_if(points_.begin(), points_.end(),
                                               [x_start](const Point& p){return p.x >= x_start;});
-#else
-                                    algorithm_cuda::find_if_point_1(points_.begin(), points_.end(),
-                                              x_start);
-#endif
   // point following the last one with abscissa ≤ x_stop
   set<Point>::const_iterator end =
-#ifndef __OPENMP_GPU
                                     find_if(begin, points_.end(),
                                             [x_stop](const Point& p){return p.x > x_stop;});
-#else
-                                    algorithm_cuda::find_if_point_4(begin, points_.end(),
-                                            x_stop);
-#endif
   // area before begin
   ProteinConcentration first_part = trapezoid_area(Point(x_start, y(x_start)), *begin);
   // area after prev(end)
@@ -357,15 +309,6 @@ ProteinConcentration Vector_Fuzzy::get_geometric_area(ProteinConcentration x_sta
 
   return first_part + get_geometric_area(begin, end) + last_part;
 }
-
-// ProteinConcentration Vector_Fuzzy::geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const {
-//   // Precondition: X_MIN ≤ start_segment < end_segment ≤ X_MAX
-//   assert(X_MIN <= start_segment and start_segment < end_segment and end_segment <= X_MAX);
-
-//   Fuzzy copy(*this);
-
-//   return copy.geometric_area(copy.create_interpolated_point(start_segment), next(copy.create_interpolated_point(end_segment)));
-// }
 
 /// Probability function gets clipped either upwise ou downwise.
 ///
@@ -392,7 +335,6 @@ void Vector_Fuzzy::clip(clipping_direction direction, ProteinConcentration bound
       // insert interpolated point
       //           *after* p
 
-//        printf("Add CLIP point [%lf %lf]\n",x(*p, *next(p), bound),bound);
       points_.insert(next(p), Point(x(*p, *next(p), bound),
                                    bound));
       // could now fast forward over created point... TODO?
@@ -418,8 +360,6 @@ bool Vector_Fuzzy::is_identical_to(const AbstractFuzzy& f, ProteinConcentration 
        ++p, ++q)
     if (fabs(p->x - q->x) > tolerance * (fabs(p->x) + fabs(q->x)) or
         fabs(p->y - q->y) > tolerance * (fabs(p->y) + fabs(q->y))) {
-//        printf("TA [ %lf %lf ] [ %lf %lf ] = %lf\n",p->x,q->x,p->y,q->y,fabs((p->y + q->y) / 2.0 *
-//                                                                             (q->x - p->x)));
         return false;
     }
   return true;
@@ -502,9 +442,5 @@ void Vector_Fuzzy::print() const
   for (const Point& p : points_)
     printf("[%f : %f] ",p.x,p.y);
   printf("\n");
-//  for (int i = 0; i < 300; i++) {
-//      double py = y(i / 299.0);
-//      if (py != 0) printf("[%d : %e]\n", i, py);
-//  }
 }
 } // namespace aevol

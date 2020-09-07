@@ -26,28 +26,17 @@
 
 
 #include "Individual_7.h"
-
 #include "DnaMutator.h"
-#include "Dna_7.h"
 #include "ExpManager.h"
-#include "HybridFuzzy.h"
 #include "Stats_7.h"
-//#include "Abstract_Metadata.h"
 #include "7/DynTab_Metadata.h"
 #include "7/List_Metadata.h"
 #include "7/Map_Metadata.h"
-#include "7/Vector_Fuzzy.h"
 #include "7/Protein_7.h"
 
 #include "Fuzzy.h"
-#include "stdint.h"
-#include "stdio.h"
 
 #include <algorithm>
-#include <chrono>
-#include <err.h>
-#include <omp.h>
-#include <sys/stat.h>
 
 namespace aevol {
 
@@ -82,7 +71,6 @@ Individual_7::Individual_7(ExpManager* exp_m, double w_max,
   dna_factory_ = dna_factory;
 
 
-  //promoters.resize(clone->promoters.size());
   if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
       metadata_ = new Map_Metadata(this,dynamic_cast<Map_Metadata*>(clone->metadata_));
   else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
@@ -92,14 +80,10 @@ Individual_7::Individual_7(ExpManager* exp_m, double w_max,
 
   fitness = clone->fitness;
   metaerror = clone->metaerror;
-  //leading_prom_pos = clone->leading_prom_pos;
-  //lagging_prom_pos = clone->lagging_prom_pos;
 
 }
 
 Individual_7::~Individual_7() {
-  //printf("DESTRUCTOR SIMD INDIV -- Metadata %p\n",metadata_);
-
   dna_factory_->give_back(dna_);
 
 #ifndef PHENOTYPE_VECTOR

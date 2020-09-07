@@ -30,8 +30,8 @@
 
 #include <cstdint>
 #include <list>
+
 #include "Utils.h"
-//#include "Dna.h"
 #include "MutationEvent.h"
 
 namespace aevol {
@@ -54,8 +54,7 @@ class Dna_7 {
     void set_indiv(int length, int parent_length, Individual_7* indiv);
 
     inline char get_lead(int32_t pos) { return data_[Utils::mod(pos,length_ )]; }
-//return data_[pos + (((unsigned int32_t)(pos - length_) >> 31) -1) * length_];};
-    inline char get_lag(int32_t pos) { return data_[Utils::mod(pos,length_)]; } //return data_[pos + ((unsigned int32_t)(pos) >> 31) * length_];};
+    inline char get_lag(int32_t pos) { return data_[Utils::mod(pos,length_)]; }
 
     inline int nb_block() { return nb_blocks_; }
 
@@ -150,4 +149,4 @@ int32_t Dna_7::nb_blocks(int32_t length) {
 }
 
 
-#endif //RAEVOL_CUDA_DNA_SIMD_H
+#endif

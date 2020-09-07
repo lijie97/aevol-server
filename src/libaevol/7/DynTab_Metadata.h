@@ -60,8 +60,6 @@ namespace aevol {
             nb_block_dyntab_ = ((metadata->promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
             dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
 
-//            printf("Nb block %d (past %d) for a dyntab size of %d (past %d) -- Genome size %d -- Nb promoters %d\n",nb_block_dyntab_,metadata->nb_block_dyntab_,
-//                                                dyntab_size_,metadata->dyntab_size_,indiv->dna_->length(),metadata->count_promoters_);
             promoters_ = new PromoterStruct*[dyntab_size_];
 
             for (int prom_idx = 0; prom_idx < dyntab_size_; prom_idx++)
@@ -159,33 +157,6 @@ namespace aevol {
                                    int32_t pos2,
                                    std::list<PromoterStruct*>&  motif_list) override;
 
-        /*** Terminator ***/
-        /*int8_t is_terminator_leading(int pos);
-        int8_t is_terminator_lagging(int pos);
-        void lst_terminator(bool lorl,
-                                    Position before_after_btw, // with regard to the strand's reading direction
-                                    int32_t pos1,
-                                    int32_t pos2,
-                                    std::list<PromoterStruct*>& promoters_list);
-*/
-        /*** Shine Dal + Start Codon ***/
-  /*      int8_t is_shine_dal_start_prot_leading(int pos);
-        int8_t is_shine_dal_start_prot_lagging(int pos);
-        void lst_shine_dal_start_prot(bool lorl,
-                                              Position before_after_btw, // with regard to the strand's reading direction
-                                              int32_t pos1,
-                                              int32_t pos2,
-                                              std::list<Abstract_Metadata*>& promoters_list);
-*/
-        /*** Stop Codon ***/
-/*        int8_t is_stop_prot_leading(int pos);
-        int8_t is_stop_prot_lagging(int pos);
-        void lst_stop_prot(bool lorl,
-                                   Position before_after_btw, // with regard to the strand's reading direction
-                                   int32_t pos1,
-                                   int32_t pos2,
-                                   std::list<Abstract_Metadata*>& promoters_list);
-*/
         /** Search and update **/
         void remove_promoters_around(int32_t pos_1) override;
         void remove_promoters_around(int32_t pos_1, int32_t pos_2) override;
@@ -262,10 +233,6 @@ namespace aevol {
 
             nb_block_dyntab_ = ((promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
             dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
-
-//            printf("Nb block %d (past %d) for a dyntab size of %d (past %d) -- Genome size %d -- Nb promoters %d\n",
-//                   nb_block_dyntab_,old_nb_block_dyntab_,
-//                   dyntab_size_,old_dyntab_size_,indiv_->dna_->length(),count_promoters_);
 
             PromoterStruct** old_promoters_ = promoters_;
             promoters_ = new PromoterStruct*[dyntab_size_];

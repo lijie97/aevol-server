@@ -35,8 +35,6 @@
 #include "Protein_7.h"
 #include "Rna_7.h"
 #include "List_Metadata.h"
-#include "DynTab_Metadata.h"
-#include "Map_Metadata.h"
 
 
 #include <algorithm>
@@ -134,8 +132,6 @@ void ExpManager_7::selection(int indiv_id) {
   int16_t   count             = 0;
   double    sum_local_fit     = 0.0;
 
-  //int * indiv_index = new int[neighborhood_size];
-
   int32_t x = indiv_id / grid_height;
   int32_t y = indiv_id % grid_height;
 
@@ -151,41 +147,19 @@ void ExpManager_7::selection(int indiv_id) {
 
       local_meta_array[count] = prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror;
 
-      //printf("Local fit %e %d %d %d -> %e\n",local_fit_array[count],cur_x,cur_y,cur_x*grid_height+cur_y,
-      //       prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);
-
-
-      /*printf("Metaerror : %e -- %e\n", local_meta_array[count],
-             internal_simd_struct[cur_x * grid_height + cur_y]->metaerror);*/
       if (local_meta_array[count] != prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror) {
         printf("NONONNONONONN\n");
         exit(-1);
       }
       sum_local_fit += local_fit_array[count];
-
-
-      //indiv_index[count] = cur_x * grid_height + cur_y;
-      /*if (indiv_id == 0)
-          printf("SIMD Local SUM Fit %e -- Fitness %e (CPU %e)\n",sum_local_fit,local_fit_array[count],exp_m_->world()->grid(x,y)->local_fit_array[count]);*/
       count++;
     }
   }
 
   for(int16_t i = 0 ; i < neighborhood_size ; i++) {
     probs[i] = local_fit_array[i]/sum_local_fit;
-
-    /*printf("Local fit X %e %d %d %d -> %e\n",local_fit_array[i],cur_x,cur_y,cur_x*grid_height+cur_y,
-           prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);*/
-    //printf("%d -- prob[%d] : %e : fitness %e (%f) sum %e\n",indiv_id,i,probs[i],
-    //       local_fit_array[i],local_meta_array[i],sum_local_fit);
   }
 
-  //printf("SIMD PRNG\n");
-  /*        bool verbose = false;
-  if (indiv_id == 2)  {
-      printf("SIMD PRNG\n");
-      verbose = true;
-  }*/
   int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_simd_->roulette_random(probs, neighborhood_size);
 
   int16_t x_offset = (found_org / selection_scope_x) - 1;
@@ -199,31 +173,9 @@ void ExpManager_7::selection(int indiv_id) {
   next_generation_reproducer_[indiv_id] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                           ((y+y_offset+grid_height) % grid_height);
   dna_size[indiv_id] = prev_internal_simd_struct[cur_x*grid_height+cur_y]->dna_->length();
-
-
-
-  /*exp_m_->simd_individual->internal_simd_struct[indiv_id] =
-         new Individual_7(exp_m_,prev_internal_simd_struct
-         [((x+x_offset+grid_width)  % grid_width)*grid_height+
-          ((y+y_offset+grid_height) % grid_height)],false);
-
-
-  exp_m_->simd_individual->internal_simd_struct[indiv_id]->indiv_id = indiv_id;
-
-  exp_m_->simd_individual->internal_simd_struct[indiv_id]->parent_id =
-         ((x+x_offset+grid_width)  % grid_width)*grid_height+
-         ((y+y_offset+grid_height) % grid_height);*/
-
-
-  /*if (indiv_id==30 || indiv_id==61) {
-
-      printf("New indiv %d parent %d\n",indiv_id,next_generation_reproducer_[indiv_id]);
-  }*/
 }
 
 void ExpManager_7::check_selection(int indiv_id) {
-//        printf("Check selection !!!!\n");
-
   int32_t selection_scope_x = exp_m_->sel()->selection_scope_x();
   int32_t selection_scope_y = exp_m_->sel()->selection_scope_y();
 
@@ -255,12 +207,6 @@ void ExpManager_7::check_selection(int indiv_id) {
 
       local_meta_array[count] = prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror;
 
-      //printf("Local fit %e %d %d %d -> %e\n",local_fit_array[count],cur_x,cur_y,cur_x*grid_height+cur_y,
-      //       prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);
-
-
-      /*printf("Metaerror : %e -- %e\n", local_meta_array[count],
-             internal_simd_struct[cur_x * grid_height + cur_y]->metaerror);*/
       if (local_meta_array[count] != prev_internal_simd_struct[cur_x * grid_height + cur_y]->metaerror) {
         printf("NONONNONONONN\n");
         exit(-1);
@@ -269,27 +215,14 @@ void ExpManager_7::check_selection(int indiv_id) {
 
 
       indiv_index[count] = cur_x * grid_height + cur_y;
-      /*if (indiv_id == 0)
-          printf("SIMD Local SUM Fit %e -- Fitness %e (CPU %e)\n",sum_local_fit,local_fit_array[count],exp_m_->world()->grid(x,y)->local_fit_array[count]);*/
       count++;
     }
   }
 
   for(int16_t i = 0 ; i < neighborhood_size ; i++) {
     probs[i] = local_fit_array[i]/sum_local_fit;
-
-    /*printf("Local fit X %e %d %d %d -> %e\n",local_fit_array[i],cur_x,cur_y,cur_x*grid_height+cur_y,
-           prev_internal_simd_struct[cur_x*grid_height+cur_y]->fitness);*/
-    //printf("%d -- prob[%d] : %e : fitness %e (%f) sum %e\n",indiv_id,i,probs[i],
-    //       local_fit_array[i],local_meta_array[i],sum_local_fit);
   }
 
-  //printf("SIMD PRNG\n");
-  /*        bool verbose = false;
-  if (indiv_id == 2)  {
-      printf("SIMD PRNG\n");
-      verbose = true;
-  }*/
   int16_t found_org = exp_m_->world()->grid(x,y)->reprod_prng_simd_->roulette_random(probs, neighborhood_size);
 
   int16_t x_offset = (found_org / selection_scope_x) - 1;
@@ -313,44 +246,6 @@ void ExpManager_7::check_selection(int indiv_id) {
 
 
     for (int i = 0; i < neighborhood_size; i++) {
-/*                    if (i==0) {
-                        for (int ip = 0; ip < 300; ip++) {
-                            printf("PH[%d] = %e -- %e (%e) || %e -- %e\n",ip,
-                                   exp_m_->world()->grid(x, y)->loc_phenotype[ip],
-                                   prev_internal_simd_struct[indiv_index[i]]->phenotype[ip],
-                                   exp_m_->world()->grid(x, y)->loc_phenotype[ip] -
-                                   prev_internal_simd_struct[indiv_index[i]]->phenotype[ip],
-                                   ((HybridFuzzy*) exp_m_->world()->phenotypic_target_handler()->phenotypic_target().fuzzy())->points()[ip],
-                                   target[ip]
-                                );
-                        }
-
-                    }*/
-      /*int v_x = indiv_index[i] / grid_height;
-      int v_y = indiv_index[i] % grid_height;
-
-      printf(
-              "ERROR -- Individual %d (%d,%d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
-              indiv_index[i],v_x,v_y,
-              exp_m_->world()->grid(v_x, v_y)->individual()->dist_to_target_by_feature(
-                      METABOLISM),
-              prev_internal_simd_struct[indiv_index[i]]->metaerror,
-              exp_m_->world()->grid(v_x, v_y)->individual()->fitness(),
-              prev_internal_simd_struct[indiv_index[i]]->fitness);
-
-      printf("ID CPU %d SIMD %d -- PARENT ID CPU %d SIMD %d\n",
-             exp_m_->world()->grid(v_x, v_y)->individual()->id(),
-             prev_internal_simd_struct[indiv_index[i]]->indiv_id,
-             exp_m_->world()->grid(v_x, v_y)->individual()->parent_id_,
-             prev_internal_simd_struct[indiv_index[i]]->parent_id);
-
-      printf(
-              "Nb RNA SIMD/CPU %ld/%ld Protein %ld/%ld\n",
-              prev_internal_simd_struct[indiv_index[i]]->metadata_->rna_count(),
-              exp_m_->world()->grid(v_x, v_y)->individual()->rna_list().size(),
-              prev_internal_simd_struct[indiv_index[i]]->metadata_->proteins_count(),
-              exp_m_->world()->grid(v_x, v_y)->individual()->protein_list().size());*/
-
       if (i==8) {
         int v_x = indiv_index[i] / grid_height;
         int v_y = indiv_index[i] % grid_height;
@@ -376,14 +271,6 @@ void ExpManager_7::check_selection(int indiv_id) {
             exp_m_->world()->grid(v_x, v_y)->individual()->rna_list().size(),
             prev_internal_simd_struct[indiv_index[i]]->metadata_->proteins_count(),
             exp_m_->world()->grid(v_x, v_y)->individual()->protein_list().size());
-        /*
-         * //Metaerror %f/%f Fitness %e/%e DNA Size %d/%d
-        prev_internal_simd_struct[indiv_index[i]]->metaerror,
-        exp_m_->world()->grid(v_x, v_y)->individual()->dist_to_target_by_feature(
-                METABOLISM), internal_simd_struct[indiv_index[i]]->fitness,
-        exp_m_->world()->grid(v_x, v_y)->individual()->fitness(), dna_size[i],
-        exp_m_->world()->grid(v_x, v_y)->individual()->genetic_unit(
-                0).seq_length());*/
 
         int idx = 0;
 
@@ -405,12 +292,7 @@ void ExpManager_7::check_selection(int indiv_id) {
 
       }
 
-      /*
-       *  -- Metaerror %e %e (%e) -- LFIT %e %e)
-
-       */
       printf("%d -- (Probs %e %e -- Fit Array %e %e -- Sum Fit %e %e\n",i,
-          //exp_m_->world()->grid(x, y)->indiv_index[i], indiv_index[i],
              exp_m_->world()->grid(x,y)->probs[i],probs[i],
              exp_m_->world()->grid(x,y)->local_fit_array[i],local_fit_array[i],
              exp_m_->world()->grid(x,y)->sum_local_fit,sum_local_fit);
@@ -424,11 +306,6 @@ void ExpManager_7::check_selection(int indiv_id) {
   delete [] local_fit_array;
   delete [] local_meta_array;
   delete [] probs;
-
-
-/*        delete [] exp_m_->world()->grid(x,y)->probs;
-        delete [] exp_m_->world()->grid(x,y)->local_fit_array;*/
-
 }
 
 
@@ -442,7 +319,6 @@ void ExpManager_7::do_mutation(int indiv_id) {
     exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
         exp_m_->world()->grid(x, y)->mut_prng(),
         prev_internal_simd_struct[next_generation_reproducer_[indiv_id]]->dna_->length(),
-        //dna_size[indiv_id],
         exp_m_->exp_s()->mut_params()->duplication_rate(),
         exp_m_->exp_s()->mut_params()->deletion_rate(),
         exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -454,7 +330,6 @@ void ExpManager_7::do_mutation(int indiv_id) {
         exp_m_->exp_s()->min_genome_length(),
         exp_m_->exp_s()->max_genome_length(), indiv_id,x,y);
     exp_m_->dna_mutator_array_[indiv_id]->generate_mutations();
-    //printf("%d - has mutate or not %d\n",indiv_id,exp_m_->dna_mutator_array_[indiv_id]->hasMutate());
   }
 
   if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
@@ -467,7 +342,6 @@ void ExpManager_7::do_mutation(int indiv_id) {
     internal_simd_struct[indiv_id]->parent_id =
         next_generation_reproducer_[indiv_id];
     if (standalone_ && exp_m_->record_tree()) {
-      // printf("NEW_INDIV %d\n",indiv_id);
       int x = indiv_id / exp_m_->world()->height();
       int y = indiv_id % exp_m_->world()->height();
       NewIndivEvent *eindiv = new NewIndivEvent(internal_simd_struct[indiv_id],
@@ -538,13 +412,6 @@ ExpManager_7::~ExpManager_7() {
   delete stats_mean;
 
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-
-/*
-      if (internal_simd_struct[indiv_id] != nullptr) {
-          printf("Internal %d : %d \n", indiv_id, internal_simd_struct[indiv_id]->usage_count_);
-      }
-*/
-
     if (internal_simd_struct[indiv_id] != nullptr) {
 
 
@@ -599,18 +466,9 @@ ExpManager_7::~ExpManager_7() {
   }
 
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    /*   if (internal_simd_struct[indiv_id] != nullptr) {
-           printf("Still here %d : %d\n",internal_simd_struct[indiv_id]->global_id,
-                       internal_simd_struct[indiv_id]->usage_count_);
-       //}
-       //    delete internal_simd_struct[indiv_id];
-       }
-*/
     if (prev_internal_simd_struct[indiv_id] != nullptr) {
       if (prev_internal_simd_struct[indiv_id]->usage_count_ != -1) {
         prev_internal_simd_struct[indiv_id]->usage_count_ = -1;
-        /*printf("Still here %d -- %d : %d\n", indiv_id, prev_internal_simd_struct[indiv_id]->global_id,
-               prev_internal_simd_struct[indiv_id]->usage_count_);*/
 
         for (int rn = 0; rn < prev_internal_simd_struct[indiv_id]->metadata_->rna_count(); rn++) {
           delete prev_internal_simd_struct[indiv_id]->metadata_->rnas(rn);
@@ -628,20 +486,6 @@ ExpManager_7::~ExpManager_7() {
     }
   }
 
-/*    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-        *//*   if (internal_simd_struct[indiv_id] != nullptr) {
-               printf("Still here %d : %d\n",internal_simd_struct[indiv_id]->global_id,
-                           internal_simd_struct[indiv_id]->usage_count_);
-           //}
-           //    delete internal_simd_struct[indiv_id];
-           }
-   *//*
-        if (prev_internal_simd_struct[indiv_id] != nullptr) {
-            printf("WHAT Still here %d -- %d : %d\n",indiv_id,prev_internal_simd_struct[indiv_id]->global_id,
-                   prev_internal_simd_struct[indiv_id]->usage_count_);
-        }
-    }*/
-
   delete[] prev_internal_simd_struct;
   delete[] internal_simd_struct;
 
@@ -652,46 +496,11 @@ ExpManager_7::~ExpManager_7() {
   delete target;
 
   delete next_generation_reproducer_;
-
-
-
-  if (standalone_) {
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-      int x = indiv_id / exp_m_->world()->height();
-      int y = indiv_id % exp_m_->world()->height();
-
-      if (exp_m_->world()->grid(x, y)->individual()!= nullptr) {
-        if (exp_m_->world()->grid(x, y)->individual()->transcribed()) {
-          //exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-          //exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-          //delete exp_m_->world()->grid(x, y)->individual();
-        }
-      }
-    }
-  }
 }
 
 
 void ExpManager_7::start_stop_RNA(int indiv_id) {
-  //int nb_indiv = exp_m_->nb_indivs();
-  //int x, y;
-
-  //
-  //ExpManager* exp_m = exp_m_;
-
-  //#pragma omp parallel for collapse(2) default(shared)
-//#pragma omp parallel for
-
-//#pragma omp parallel
-//#pragma omp single
-//{
-//  #pragma omp parallel for //collapse(2) default(shared)
-  //internal_simd_struct[indiv_id]->promoters.resize(internal_simd_struct[indiv_id]->dna_->length()/3);
-
-//#pragma omp parallel for firstprivate(indiv_id)
   for (int dna_pos = 0; dna_pos < dna_size[indiv_id]; dna_pos++) {
-//#pragma omp task firstprivate(indiv_id,dna_pos)
-//      {
 #ifdef WITH_BITSET
     //printf("Looking for DNA of %d\n",indiv_id);
 
@@ -706,8 +515,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
         bool is_terminator_lag = internal_simd_struct[indiv_id]->dna_->bitset_->is_terminator(
             false, dna_pos);
 #else
-    //int x = indiv_id / exp_m->world()->height();
-    //int y = indiv_id % exp_m->world()->height();
 
     int len = dna_size[indiv_id];
     if (len >= PROM_SIZE) {
@@ -772,17 +579,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
                                                   10 + len
                                                 :
                   dna_pos + t_motif_id - 10] ? 1 : 0;
-
-          /*if (dna_pos == 22201 && indiv_id == 309 && AeTime::time() == 105) {
-            printf("Term @ 7 Motif ID %d : %c %c (%d %d) Error %d\n",t_motif_id,
-                   exp_m_->world()->grid(x, y)->individual()->genetic_unit(
-                       0).dna()->data()[dna_pos - t_motif_id < 0 ? dna_pos - t_motif_id +len : dna_pos - t_motif_id],
-                   exp_m_->world()->grid(x, y)->individual()->genetic_unit(
-                       0).dna()->data()[dna_pos + t_motif_id - 10 < 0 ? dna_pos + t_motif_id - 10 +len : dna_pos + t_motif_id - 10],
-                   dna_pos - t_motif_id < 0 ? dna_pos - t_motif_id +len : dna_pos - t_motif_id,
-                   dna_pos + t_motif_id - 10 < 0 ? dna_pos + t_motif_id - 10 +len : dna_pos + t_motif_id - 10,
-                   term_dist_lagging[t_motif_id]);
-          }*/
         }
       }
 
@@ -814,17 +610,11 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
       if (dist_lead <= 4) {
         PromoterStruct* nprom = new PromoterStruct(dna_pos, dist_lead,
                                                    true);
-
-//#pragma omp critical(add_to_promoters)
-
         int prom_idx;
 
         prom_idx = internal_simd_struct[indiv_id]->metadata_->promoter_count();
         internal_simd_struct[indiv_id]->metadata_->set_promoters_count(
             internal_simd_struct[indiv_id]->metadata_->promoter_count()+ 1);
-
-        /*if (indiv_id == 30)
-          printf("Adding promoters LEADING %d at %d\n",dna_pos,prom_idx);*/
 
         internal_simd_struct[indiv_id]->metadata_->promoter_add(prom_idx, nprom);
 
@@ -837,10 +627,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
                            term_dist_leading[1] +
                            term_dist_leading[2] +
                            term_dist_leading[3];
-      /*if (dna_pos >= 2536 && indiv_id == 915 && AeTime::time() == 26) {
-        printf("Distance for %d : %d\n",dna_pos,dist_term_lead);
-      }*/
-
 
       if (dist_term_lead == 4) {
 #else
@@ -877,17 +663,10 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
       if (dist_lag <= 4) {
         PromoterStruct* nprom = new PromoterStruct(dna_pos, dist_lag,
                                                    false);
-//#pragma omp critical(add_to_promoters)
-
         int prom_idx;
         prom_idx = internal_simd_struct[indiv_id]->metadata_->promoter_count();
         internal_simd_struct[indiv_id]->metadata_->set_promoters_count(
             internal_simd_struct[indiv_id]->metadata_->promoter_count() + 1);
-
-
-        /*if (indiv_id == 30)
-            printf("Adding promoters LAGGING %d at %d\n",dna_pos,prom_idx);*/
-
 
         internal_simd_struct[indiv_id]->metadata_->promoter_add(prom_idx, nprom);
         delete nprom;
@@ -908,55 +687,6 @@ void ExpManager_7::start_stop_RNA(int indiv_id) {
       }
     }
   }
-
-  /*if (indiv_id==30) {
-      printf("%d -- %d -- TOKEEP -- Prom list LEAD : ", time(), indiv_id);
-      for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-          if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-              if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-                  printf("%d ", internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-      }
-      printf("\n");
-      printf("%d -- %d -- TOKEEP -- Prom list LAG : ", time(), internal_simd_struct[indiv_id]->indiv_id);
-      for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-          if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-              if (!internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-                  printf("%d ", internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-      }
-      printf("\n");
-
-
-      printf("%d -- %d -- DIRECT -- Prom list LEAD : ", time(), internal_simd_struct[indiv_id]->indiv_id);
-      for (auto prom : ((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->promoters_list_[LEADING]) {
-          printf("%d ", prom.pos);
-      }
-      printf("\n");
-      printf("%d -- %d -- DIRECT -- Prom list LAG : ", time(), internal_simd_struct[indiv_id]->indiv_id);
-      for (auto prom : ((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->promoters_list_[LAGGING]) {
-          printf("%d ", prom.pos);
-      }
-      printf("\n");
-
-
-      printf("%d -- %d -- ADV-DIRECT -- Prom list LEAD : ", time(), internal_simd_struct[indiv_id]->indiv_id);
-      for (int prom_idx = 0; prom_idx < ((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->promoters_list_[LEADING].size(); prom_idx++) {
-          auto it =  ((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->promoters_list_[LEADING].begin();
-          std::advance(it, prom_idx);
-          printf("%d ", (*it).pos);
-      }
-      printf("\n");
-      printf("%d -- %d -- ADV-DIRECT -- Prom list LAG : ", time(), internal_simd_struct[indiv_id]->indiv_id);
-      for (int prom_idx = 0; prom_idx < ((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->promoters_list_[LAGGING].size(); prom_idx++) {
-          auto it =  ((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->promoters_list_[LAGGING].begin();
-          std::advance(it, prom_idx);
-          printf("%d ", (*it).pos);
-      }
-      printf("\n");
-  }*/
-
-//}
-//}
-//#pragma omp taskwait
 }
 
 
@@ -966,34 +696,6 @@ void ExpManager_7::opt_prom_compute_RNA(int indiv_id) {
     internal_simd_struct[indiv_id]->metadata_->rnas_clear();
     internal_simd_struct[indiv_id]->metadata_->terminators_clear();
   }
-
-/*        if (indiv_id==179) {
-            internal_simd_struct[indiv_id]->metadata_->promoter_begin();
-
-            for (int prom_idx = 0;
-                 prom_idx < (int) internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-                PromoterStruct *prom = internal_simd_struct[indiv_id]->metadata_->promoter_next();
-                printf("PROM #%d : %d\n",prom_idx,prom->pos);
-            }
-
-            if (indiv_id == 179) {
-                printf("%d -- %d -- AFTER -- Prom list LEAD : ",time(),indiv_id);
-                for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-                    if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-                        if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-                            printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-                }
-                printf("\n");
-                printf("%d -- %d -- AFTER -- Prom list LAG : ",time(),internal_simd_struct[indiv_id]->indiv_id);
-                for (int prom_idx = 0; prom_idx < internal_simd_struct[indiv_id]->metadata_->promoter_count(); prom_idx++) {
-                    if (internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx) != nullptr)
-                        if (!internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->leading_or_lagging)
-                            printf("%d ",internal_simd_struct[indiv_id]->metadata_->promoters(prom_idx)->pos);
-                }
-                printf("\n");
-            }
-        }*/
-
   if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
 
     internal_simd_struct[indiv_id]->metadata_->rnas_resize(
@@ -1028,9 +730,6 @@ void ExpManager_7::opt_prom_compute_RNA(int indiv_id) {
           int term_dist_leading = 0;
 
           int loop_size = 0;
-/*
-                        if (indiv_id == 632)
-                            printf("Search from promoter from %d\n",cur_pos);*/
 
           while (!terminator_found) {
             for (int t_motif_id = 0; t_motif_id < 4; t_motif_id++) {
@@ -1043,18 +742,12 @@ void ExpManager_7::opt_prom_compute_RNA(int indiv_id) {
 
             if (term_dist_leading == 4) {
               terminator_found = true;
-//                               if (indiv_id == 353)
-//                                    printf("==> FOUND FOR promoter from %d -- %d\n",cur_pos,loop_size);
             }
             else {
               cur_pos = Utils::mod(cur_pos + 1,dna_length);
 
               term_dist_leading = 0;
               if (cur_pos == start_pos) {
-
-//                                    if (indiv_id == 353)
-//                                        printf("NOT FOUND FOR promoter from %d -- %d\n",cur_pos,loop_size);
-
                 no_terminator = true;
                 terminator_found = true;
               }
@@ -1067,28 +760,10 @@ void ExpManager_7::opt_prom_compute_RNA(int indiv_id) {
           if (!no_terminator) {
 
             int32_t rna_end =
-                cur_pos;/* + 10 >= dna_length ?
-                                    cur_pos + 10 - dna_length :
-                                    cur_pos + 10;*/
-
+                cur_pos;
             int32_t rna_length = 0;
 
-//                            if (indiv_id == 307)
-//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
-
-//                            if (prom_pos
-//                                > rna_end)
-//                                rna_length = dna_length -
-//                                             prom_pos
-//                                             + rna_end;
-//                            else
-//                                rna_length = rna_end - prom_pos;
-
             rna_length = loop_size + TERM_SIZE -1;
-
-//                            rna_length -= 11;
-//                            if (indiv_id == 307)
-//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
 
             if (rna_length > 0) {
 
@@ -1127,13 +802,8 @@ void ExpManager_7::opt_prom_compute_RNA(int indiv_id) {
 
             if (term_dist_lagging == 4) {
               terminator_found = true;
-//                                if (indiv_id == 353)
-//                                    printf("==> FOUND FOR promoter %d from %d -- %d\n", prom_pos, cur_pos, loop_size);
             }
             else {
-//                                if (indiv_id == 353)
-//                                    printf("==> SEARCH FOR terminator prom %d : cur pos %d -- loop size %d\n", prom_pos, cur_pos, loop_size);
-
               cur_pos =
                   cur_pos - 1 < 0 ? dna_length + (cur_pos - 1)
                                   : cur_pos - 1;
@@ -1152,26 +822,7 @@ void ExpManager_7::opt_prom_compute_RNA(int indiv_id) {
             int32_t rna_end = Utils::mod(cur_pos - 10,dna_length);
 
             int32_t rna_length = 0;
-
-//                            if (indiv_id == 307)
-//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
-
-
-//                            if (prom_pos <
-//                                rna_end)
-//                                rna_length =
-//                                        prom_pos +
-//                                        dna_length - rna_end;
-//                            else
-//                                rna_length =
-//                                        prom_pos -
-//                                        rna_end;
-//
-//                            rna_length -= 21;
             rna_length = loop_size + TERM_SIZE -1;
-
-//                            if (indiv_id == 307)
-//                                printf("ADDING RNA %d -- %d __ %d == %d\n",prom_pos,rna_end,rna_length,cur_pos);
 
             if (rna_length >= 0) {
               int glob_rna_idx = -1;
@@ -1197,25 +848,15 @@ void ExpManager_7::opt_prom_compute_RNA(int indiv_id) {
 
 void ExpManager_7::compute_RNA(int indiv_id) {
 
-//#pragma omp parallel for schedule(dynamic)
   {
     internal_simd_struct[indiv_id]->metadata_->rnas_resize(
         internal_simd_struct[indiv_id]->metadata_->promoter_count());
-//#pragma omp parallel for firstprivate(indiv_id) schedule(dynamic)
 #ifdef WITH_FINETASKLOOP
 #pragma omp taskloop grainsize(rna_grain_size)
 #endif
     for (int rna_idx = 0; rna_idx <
                           (int) internal_simd_struct[indiv_id]->metadata_->promoter_count(); rna_idx++) {
-//#pragma omp task firstprivate(indiv_id, rna_idx)
       {
-        /*if (indiv_id == 345 && AeTime::time() == 47 &&
-            internal_simd_struct[indiv_id]->promoters[rna_idx]->pos == 4744) {
-          printf("Searching for an end with start pos %d LorL %d\n",
-                 internal_simd_struct[indiv_id]->promoters[rna_idx]->pos,
-                 internal_simd_struct[indiv_id]->promoters[rna_idx]->leading_or_lagging);
-        }*/
-
         if (internal_simd_struct[indiv_id]->metadata_->promoters(rna_idx) != nullptr) {
           if (internal_simd_struct[indiv_id]->metadata_->promoters(rna_idx)->leading_or_lagging) {
             if (internal_simd_struct[indiv_id]->metadata_->terminator_count(LEADING) != 0) {
@@ -1225,11 +866,6 @@ void ExpManager_7::compute_RNA(int indiv_id) {
                   internal_simd_struct[indiv_id]->metadata_->promoters(rna_idx)->pos + 22;
               k = k >= dna_size[indiv_id] ? k - dna_size[indiv_id] : k;
 
-/*        if ((indiv_id == 309 && AeTime::time() == 105) ||
-            (indiv_id == 915 && AeTime::time() == 26 && rna_idx == 11)) {
-          printf("Looking at %d\n",k);
-        }*/
-
               int32_t next_rna_end = internal_simd_struct[indiv_id]->metadata_->next_terminator(LEADING,k);
 
               int32_t rna_end =
@@ -1237,10 +873,6 @@ void ExpManager_7::compute_RNA(int indiv_id) {
                   next_rna_end + 10 - dna_size[indiv_id] :
                   next_rna_end + 10;
 
-              /*if (indiv_id == 309 && AeTime::time() == 105) {
-                printf("Looking for term from %d (start rna %d) : %d Computed end %d\n",k,internal_simd_struct[indiv_id]->promoters[rna_idx]->pos,
-                       *it_rna_end,rna_end);
-              }*/
               int32_t rna_length = 0;
 
               if (internal_simd_struct[indiv_id]->metadata_->promoters(rna_idx)->pos
@@ -1295,12 +927,6 @@ void ExpManager_7::compute_RNA(int indiv_id) {
                                         :
                   next_rna_end - 10;
 
-              /*if (indiv_id == 969 && AeTime::time() == 137) {
-                auto it_rn = it_rna_end;
-                it_rn++;
-                printf("Looking for term from %d (start rna %d) : %d Computed end %d (next end %d)\n",k,internal_simd_struct[indiv_id]->promoters[rna_idx]->pos,
-                       *it_rna_end,rna_end,*it_rn);
-              }*/
               int32_t rna_length = 0;
 
               if (internal_simd_struct[indiv_id]->metadata_->promoters(rna_idx)->pos <
@@ -1347,8 +973,6 @@ void ExpManager_7::compute_RNA(int indiv_id) {
 
 void ExpManager_7::start_protein(int indiv_id) {
   internal_simd_struct[indiv_id]->metadata_->rna_begin();
-//        if (indiv_id == 353)
-//            printf("RNA Count %d\n",internal_simd_struct[indiv_id]->metadata_->rna_count());
 
   for (int rna_idx = 0; rna_idx <
                         (int) internal_simd_struct[indiv_id]->metadata_->rna_count(); rna_idx++) {
@@ -1356,10 +980,6 @@ void ExpManager_7::start_protein(int indiv_id) {
 
       Rna_7* rna = internal_simd_struct[indiv_id]->metadata_->rna_next();
       int32_t dna_length = dna_size[indiv_id];
-
-//                if (indiv_id == 353)
-//                    printf("=======> Search protein START %d %d Length %d\n",rna->begin,rna->is_init_,
-//                    rna->length);
 
       if (rna->is_init_) {
         int c_pos = rna->begin;
@@ -1378,20 +998,13 @@ void ExpManager_7::start_protein(int indiv_id) {
           }
 
 
-//                        if (indiv_id == 353)
-//                            printf("=======> Search protein START %d [ %d => %d ]\n",rna->begin,
-//                                   c_pos,rna->end);
-
           int loop_size = 0;
           while (loop_size < rna->length) {
             bool start = false;
             int k_t;
 
-//                            if (indiv_id == 353) printf("Search for proteins %d\n",c_pos);
-
             if (rna->leading_lagging ==
                 0) {
-              //if (c_pos + 12 >= dna_length) {
               // Search for Shine Dalgarro + START codon on LEADING
               for (int k = 0; k < 9; k++) {
                 k_t = k >= 6 ? k + 4 : k;
@@ -1405,40 +1018,13 @@ void ExpManager_7::start_protein(int indiv_id) {
                 }
 
               }
-
-//                                if (indiv_id == 353)
-//                                    printf("%d => %d -- LEAD -- Search for proteins %d => %d\n",rna->begin,rna->end,c_pos,start);
-
-              /*} else {
-                  for (int k = 0; k < 9; k++) {
-                      k_t = k >= 6 ? k + 4 : k;
-
-                      if (internal_simd_struct[indiv_id]->dna_->data_[(c_pos + k_t)] ==
-                      SHINE_DAL_SEQ_LEAD[k]) {
-                          start = true;
-                      } else {
-                          start = false;
-                          break;
-                      }
-                  }
-              }*/
-
-              //start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_leading(c_pos);
             } else {
-              //if (c_pos - 12 < 0) {
               // Search for Shine Dalgarro + START codon on LAGGING
-//                                    if (indiv_id == 353) printf("Printing at %d : ",c_pos);
               for (int k = 0; k < 9; k++) {
                 k_t = k >= 6 ? k + 4 : k;
-                //t_pos = c_pos - k_t;
-
-//                                        if (indiv_id == 353)
-//                                            printf("%c",internal_simd_struct[indiv_id]->dna_->data_[Utils::mod((c_pos - k_t),dna_length)]);
 
                 if (internal_simd_struct[indiv_id]->dna_->data_[Utils::mod((c_pos - k_t),dna_length)] ==
                     SHINE_DAL_SEQ_LAG[k]) {
-                  //if (internal_simd_struct[indiv_id]->dna_->get_lag(t_pos) ==
-                  //    SHINE_DAL_SEQ_LAG[k]) {
                   start = true;
                 } else {
                   start = false;
@@ -1446,28 +1032,6 @@ void ExpManager_7::start_protein(int indiv_id) {
                 }
               }
 
-//                                if (indiv_id == 353)
-//                                    printf("\n");
-//
-//                                if (indiv_id == 353)
-//                                    printf("%d => %d --  LAG  -- Search for proteins %d => %d\n",rna->begin,rna->end,c_pos,start);
-              /*} else {
-                  for (int k = 0; k < 9; k++) {
-                      k_t = k >= 6 ? k + 4 : k;
-                      //t_pos = c_pos - k_t;
-
-                      if (internal_simd_struct[indiv_id]->dna_->data_[(c_pos - k_t)] ==
-                      SHINE_DAL_SEQ_LAG[k]) {
-                          //if (internal_simd_struct[indiv_id]->dna_->get_lag(t_pos) ==
-                          //    SHINE_DAL_SEQ_LAG[k]) {
-                          start = true;
-                      } else {
-                          start = false;
-                          break;
-                      }
-                  }
-              }*/
-              //start = internal_simd_struct[indiv_id]->metadata_->is_shine_dal_start_prot_lagging(c_pos);
             }
 
             if (start) {
@@ -1508,8 +1072,6 @@ void ExpManager_7::compute_protein(int indiv_id) {
 
   internal_simd_struct[indiv_id]->
       metadata_->proteins_resize(resize_to);
-
-  //printf("Resize Proteins %d\n",resize_to);
 
   Dna_7* dna = internal_simd_struct[indiv_id]->dna_;
   int32_t dna_length = dna->length();
@@ -1627,10 +1189,6 @@ void ExpManager_7::compute_protein(int indiv_id) {
               }
             }
 
-
-//                        if (indiv_id == 910)
-//                            printf("Search LEAD terminator at %d : J %d Length %d\n",start_protein_pos,j,rna->length);
-
             if (is_protein) {
               int prot_length = -1;
 
@@ -1646,9 +1204,6 @@ void ExpManager_7::compute_protein(int indiv_id) {
 
               if (prot_length >= 3) {
                 int32_t glob_prot_idx = -1;
-//                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LEAD  [%d => %d] from RNA [%d => %d]\n",
-//                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
-//                                       rna->begin,rna->end);
                 glob_prot_idx = internal_simd_struct[indiv_id]->metadata_->proteins_count();
                 internal_simd_struct[indiv_id]->metadata_->set_proteins_count(
                     internal_simd_struct[indiv_id]->metadata_->proteins_count() +
@@ -1695,11 +1250,6 @@ void ExpManager_7::compute_protein(int indiv_id) {
               }
             }
 
-
-//                        if (indiv_id == 910)
-//                            printf("Search LAG terminator at %d : J %d Length %d\n",start_protein_pos,j,rna->length);
-
-
             if (is_protein) {
               int prot_length = -1;
               if (start_prot - 13 > t_k) {
@@ -1714,9 +1264,6 @@ void ExpManager_7::compute_protein(int indiv_id) {
               if (prot_length >= 3) {
                 int32_t glob_prot_idx = -1;
 
-//                                if (indiv_id==392 && AeTime::time() > 9348) printf("Add protein LAG  [%d => %d] from RNA [%d => %d] Basal %lf\n",
-//                                       Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
-//                                        rna->begin,rna->end,rna->e);
                 glob_prot_idx = internal_simd_struct[indiv_id]->metadata_->proteins_count();
                 internal_simd_struct[indiv_id]->metadata_->set_proteins_count(
                     internal_simd_struct[indiv_id]->metadata_->proteins_count() +
@@ -1756,7 +1303,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
       int end_pos = prot->protein_end;
       if (prot->leading_lagging ==
           0) {
-        //c_pos += 13;
         end_pos -= 3;
 
         c_pos =
@@ -1764,7 +1310,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
                                         : c_pos;
         end_pos = end_pos < 0 ? dna_size[indiv_id] + end_pos : end_pos;
       } else {
-        //c_pos -= 13;
         end_pos += 3;
 
         end_pos =
@@ -1987,15 +1532,12 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
   std::map<int32_t, Protein_7*> lookup;
 
   internal_simd_struct[indiv_id]->metadata_->protein_begin();
-  //((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->proteins_print();
 
   for (int protein_idx = 0; protein_idx <
                             (int) internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
     {
-      //internal_simd_struct[indiv_id]->metadata_->protein_begin();
 
       Protein_7* prot  = internal_simd_struct[indiv_id]->metadata_->protein_next();
-//                printf("Protein %d Indiv %d : %p %p\n",protein_idx,indiv_id,prot,internal_simd_struct[indiv_id]->metadata_->proteins(protein_idx));
       if (prot->is_init_ && prot->leading_lagging==0) {
         if (lookup.find(prot->protein_start) ==
             lookup.end()) {
@@ -2003,8 +1545,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           prot->is_init_ = false;
-//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
-//                               prot->e,lookup[prot->protein_start]->e);
         }
       }
     }
@@ -2013,15 +1553,12 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
   lookup.clear();
 
   internal_simd_struct[indiv_id]->metadata_->protein_begin();
-  //((List_Metadata*)internal_simd_struct[indiv_id]->metadata_)->proteins_print();
 
   for (int protein_idx = 0; protein_idx <
                             (int) internal_simd_struct[indiv_id]->metadata_->proteins_count(); protein_idx++) {
     {
-      //internal_simd_struct[indiv_id]->metadata_->protein_begin();
 
       Protein_7* prot  = internal_simd_struct[indiv_id]->metadata_->protein_next();
-//                printf("Protein %d Indiv %d : %p %p\n",protein_idx,indiv_id,prot,internal_simd_struct[indiv_id]->metadata_->proteins(protein_idx));
       if (prot->is_init_ && prot->leading_lagging==1) {
         if (lookup.find(prot->protein_start) ==
             lookup.end()) {
@@ -2029,8 +1566,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           prot->is_init_ = false;
-//                        printf("Protein %d is already there, fuz it with another one %f : %f\n",prot->protein_start,
-//                               prot->e,lookup[prot->protein_start]->e);
         }
       }
     }
@@ -2075,7 +1610,6 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
 
   std::sort(protein_vector.begin(), protein_vector.end(),
             [](Protein_7*a, Protein_7*b) { return *a < *b;});
-//        if (indiv_id == 392 &&AeTime::time() > 9349) printf("Add Triangle SIMD\n");
   for (auto prot : protein_vector) {
     if (fabs(
         prot->w) >=
@@ -2192,11 +1726,6 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
         else
           inhib_phenotype->add_triangle(prot->m, prot->w, prot->h *
                                                           prot->e);
-//                    if (indiv_id == 392 &&AeTime::time() > 9349) {
-//                        printf("Add triangle %lf %lf %lf (%lf %lf)\n", prot->m, prot->w, prot->h *
-//                                                                                         prot->e, prot->h, prot->e);
-//                        printf("Geom %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
-//                    }
 #endif
       }
     }
@@ -2217,41 +1746,20 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
                 internal_simd_struct[indiv_id]->phenotype[fuzzy_idx] = 0;
         }
 #else
-//        if (indiv_id == 392 &&AeTime::time() > 9349) {
-//            printf("Geom %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
-//        }
 
   activ_phenotype->clip(AbstractFuzzy::max,   Y_MAX);
   inhib_phenotype->clip(AbstractFuzzy::min, - Y_MAX);
 
-//        if (indiv_id == 392 &&AeTime::time() > 9349) {
-//            printf("Geom CLIPA %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
-//        }
-
   activ_phenotype->simplify();
   inhib_phenotype->simplify();
-
-//        if (indiv_id == 392 &&AeTime::time() > 9349) {
-//            printf("Geom SIMPLIFYA %lf %lf\n",activ_phenotype->get_geometric_area(),inhib_phenotype->get_geometric_area());
-//        }
-
   internal_simd_struct[indiv_id]->phenotype = new Vector_Fuzzy();
   internal_simd_struct[indiv_id]->phenotype->add(activ_phenotype);
   internal_simd_struct[indiv_id]->phenotype->add(inhib_phenotype);
-//        if (indiv_id == 392 &&AeTime::time() > 9349) {
-//            printf("Geom ADD %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
-//        }
 
   internal_simd_struct[indiv_id]->phenotype->clip(AbstractFuzzy::min, Y_MIN);
 
-//        if (indiv_id == 392 &&AeTime::time() > 9349) {
-//            printf("Geom CLIP %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
-//        }
   internal_simd_struct[indiv_id]->phenotype->simplify();
 
-//        if (indiv_id == 392 &&AeTime::time() > 9349) {
-//            printf("Geom SIMPLIFY %lf\n", internal_simd_struct[indiv_id]->phenotype->get_geometric_area());
-//        }
   delete activ_phenotype;
   delete inhib_phenotype;
 #endif
@@ -2335,8 +1843,7 @@ void ExpManager_7::compute_fitness(int indiv_id, double selection_pressure) {
 #else
   Vector_Fuzzy* delta = new Vector_Fuzzy(*internal_simd_struct[indiv_id]->phenotype);
   delta->sub(target);
-//        if (indiv_id==157) {        printf("Delta SIMD\n");
-//            delta->print();}
+
   internal_simd_struct[indiv_id]->metaerror = delta->get_geometric_area();
   delete delta;
 #endif
@@ -2352,20 +1859,15 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
   {
     nb_clones_ = 0;
   }
-//#pragma omp parallel
-//    {
+
 #pragma omp for schedule(dynamic)
   for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 1) {
     {
       for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
-//                    printf("COMPUTE INDIV %d -- Begin\n",indiv_id);
         if (standalone_ && optim_prom && !exp_m_->check_simd()) {
           selection(indiv_id);
         } else if (!standalone_ && optim_prom) {
-          //if (exp_m_->check_simd()) check_selection(indiv_id);
         } else if (optim_prom && standalone() && exp_m_->check_simd()) {
-//                        printf("Check selection\n");
-          //check_selection(indiv_id);
         }
 
 
@@ -2415,12 +1917,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
           exp_m_->tree()->update_end_replication(eindiv);
           delete eindiv;
         }
-        //printf("COMPUTE INDIV %d -- End\n",indiv_id);
-
-//                    if (indiv_id == 906 && AeTime::time()>4742 && AeTime::time() < 4745) {
-//                        printf("DNA  :: %s\n",internal_simd_struct[indiv_id]->dna_->data());
-//                    }
-
       }
     }
   }
@@ -2431,8 +1927,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
     if (optim_prom && exp_m_->record_tree())
       exp_m_->tree()->update_end_generation();
   }
-
-//#pragma omp barrier
 
   if (optim_prom) {
 #pragma omp for schedule(static)
@@ -2479,18 +1973,15 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
       }
 
       prev_internal_simd_struct[indiv_id] = internal_simd_struct[indiv_id];
-      //internal_simd_struct[indiv_id]->clearAllObserver();
       internal_simd_struct[indiv_id] = nullptr;
     }
 
-//#pragma omp barrier
 #pragma omp single
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       prev_internal_simd_struct[indiv_id]->clearAllObserver();
     }
   }
 
-//#pragma omp barrier
 #pragma omp single
   {
     // Search for the best
@@ -2517,7 +2008,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 #endif
   }
 
-//#pragma omp barrier
   bool without_stats = true;
   if (!without_stats) {
 
@@ -2615,7 +2105,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
 
 
-//#pragma omp barrier
   if (!first_gener_) {
 #pragma omp single
     {
@@ -2657,10 +2146,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
         exp_m_->output_m()->tree()->write_to_tree_file(tree_file_name);
       }
 
-
-//#pragma omp barrier
-
-
     }
   }
 
@@ -2671,10 +2156,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
       printf("Backup... OK\n");
 
-
-
-
-      //#pragma omp for schedule(dynamic)
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
         int x = indiv_id / exp_m_->world()->height();
         int y = indiv_id % exp_m_->world()->height();
@@ -2682,7 +2163,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
         exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
         exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
         delete exp_m_->world()->grid(x, y)->individual();
-        //exp_m_->world()->grid(x, y)->set_individual(nullptr);
 
         Individual *indiv = new Individual(exp_m_,
                                            exp_m_->world()->grid(x, y)->mut_prng(),
@@ -2870,7 +2350,6 @@ void ExpManager_7::check_individual(int i, int x, int y) {
         }
       }
 
-      //for (idx = 0; idx < (int) (internal_simd_struct[i]->proteins.size()); idx++) {
       if (!found)
         printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n", idx,
                prev_internal_simd_struct[i]->metadata_->proteins(idx)->protein_start,
@@ -3188,27 +2667,6 @@ void ExpManager_7::check_result() {
         }
         printf("\n");
 
-
-//                prev_internal_simd_struct[i]->phenotype->print();
-//                exp_m_->world()->grid(x, y)->individual()->phenotype()->print();
-//
-//                exp_m_->world()->grid(x, y)->individual()->phenotype()->
-//                        is_identical_to(*prev_internal_simd_struct[i]->phenotype,0.000000000000001);
-//
-//                AbstractFuzzy* delta = new Fuzzy(*prev_internal_simd_struct[i]->phenotype);
-//                delta->sub(*(target));
-//
-//                AbstractFuzzy* delta2 = FuzzyFactory::fuzzyFactory->create_fuzzy((*(exp_m_->world()->grid(x, y)->individual()->phenotype())));
-//                delta2->sub(*(target));
-//
-//                delta->is_identical_to(*delta2,0.000000000000001);
-//
-//                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(),delta2->get_geometric_area());
-//
-//                printf("DELTA :: %lf -- %lf\n",delta->get_geometric_area(0.0,1.0),delta2->get_geometric_area(0.0,1.0));
-
-//                printf("=========> Metaerror %lf -- %lf\n",prev_internal_simd_struct[i]->phenotype->get_geometric_area(),
-//                       exp_m_->world()->grid(x, y)->individual()->phenotype()->get_geometric_area());
         exit(-1);
       }
 

@@ -146,34 +146,6 @@ namespace aevol {
                                    int32_t pos1,
                                    int32_t pos2,
                                    std::list<PromoterStruct*>&  motif_list) override;
-
-        /*** Terminator ***/
-        /*int8_t is_terminator_leading(int pos);
-        int8_t is_terminator_lagging(int pos);
-        void lst_terminator(bool lorl,
-                                    Position before_after_btw, // with regard to the strand's reading direction
-                                    int32_t pos1,
-                                    int32_t pos2,
-                                    std::list<PromoterStruct*>& promoters_list);
-*/
-        /*** Shine Dal + Start Codon ***/
-  /*      int8_t is_shine_dal_start_prot_leading(int pos);
-        int8_t is_shine_dal_start_prot_lagging(int pos);
-        void lst_shine_dal_start_prot(bool lorl,
-                                              Position before_after_btw, // with regard to the strand's reading direction
-                                              int32_t pos1,
-                                              int32_t pos2,
-                                              std::list<Abstract_Metadata*>& promoters_list);
-*/
-        /*** Stop Codon ***/
-/*        int8_t is_stop_prot_leading(int pos);
-        int8_t is_stop_prot_lagging(int pos);
-        void lst_stop_prot(bool lorl,
-                                   Position before_after_btw, // with regard to the strand's reading direction
-                                   int32_t pos1,
-                                   int32_t pos2,
-                                   std::list<Abstract_Metadata*>& promoters_list);
-*/
         /** Search and update **/
         void remove_promoters_around(int32_t pos_1) override;
         void remove_promoters_around(int32_t pos_1, int32_t pos_2) override;
@@ -283,4 +255,4 @@ namespace aevol {
 }
 
 
-#endif //AEVOL_SIMD_MAP_METADATA_H
+#endif

@@ -450,15 +450,6 @@ namespace aevol {
                            int32_t pos1,
                            int32_t pos2, std::list<PromoterStruct*>& motif_list) = 0;
 
-        /*** Terminator ***/
-        /*virtual int8_t is_terminator_leading(int pos);
-        virtual int8_t is_terminator_lagging(int pos);
-        virtual void lst_terminator(bool lorl,
-                           Position before_after_btw, // with regard to the strand's reading direction
-                           int32_t pos1,
-                           int32_t pos2,
-                           std::list<PromoterStruct*>& promoters_list);
-*/
         /*** Shine Dal + Start Codon ***/
         inline int8_t is_shine_dal_start_prot_leading(int pos) {
             int32_t len = indiv_->dna_->length();
@@ -497,23 +488,7 @@ namespace aevol {
             }
             return start;
         }
-/*        virtual void lst_shine_dal_start_prot(bool lorl,
-                           Position before_after_btw, // with regard to the strand's reading direction
-                           int32_t pos1,
-                           int32_t pos2,
-                           std::list<PromoterStruct*>& promoters_list);
-*/
-        /*** Stop Codon ***/
-/*        virtual int8_t is_stop_prot_leading(int pos);
-        virtual int8_t is_stop_prot_lagging(int pos);
-        virtual void lst_stop_prot(bool lorl,
-                                      Position before_after_btw, // with regard to the strand's reading direction
-                                      int32_t pos1,
-                                      int32_t pos2,
-                                      std::list<PromoterStruct*>& promoters_list);
 
-
-*/
         /*** Promoters ***/
         virtual PromoterStruct* promoters(int idx) = 0;
         virtual void promoter_add(int idx, PromoterStruct* prom) = 0;
@@ -638,4 +613,4 @@ namespace aevol {
     };
 }
 
-#endif //AEVOL_SIMD_METADATA_H
+#endif

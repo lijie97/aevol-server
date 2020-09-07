@@ -40,10 +40,8 @@ namespace aevol {
                        int32_t pos2,
                        std::list<PromoterStruct*>&  motif_list) {
         Strand strand_id;
-        //if (lorl)
+
             strand_id = (lorl==LEADING) ? LEADING : LAGGING;
-        //else
-        //    strand_id = LAGGING;
 
         auto strand = promoters_list_[strand_id];
         auto it_begin = strand.begin();
@@ -190,8 +188,6 @@ namespace aevol {
 
                 // Set RNA's position as it's position on the duplicated segment
                 duplicated_promoters[strand].back()->pos = Utils::mod(duplicated_promoters[strand].back()->pos -pos_1, length());
-
-                //delete (rna);
             }
         }
 
@@ -289,49 +285,8 @@ namespace aevol {
         // 1) Extract the promoters completely included on the segment to be inverted
         extract_promoters_included_in(pos1, pos2, inverted_promoters);
 
-/*        if (indiv_->indiv_id == 37) {
-
-            printf("Before look for 1+2\n");
-
-            printf("%d -- %d -- EXTRACTED -- Prom list LEAD : ", AeTime::time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < inverted_promoters[LEADING].size(); prom_idx++) {
-                auto it =  inverted_promoters[LEADING].begin();
-                std::advance(it, prom_idx);
-                printf("%d ", (*it)->pos);
-            }
-            printf("\n");
-            printf("%d -- %d -- EXTRACTED -- Prom list LAG : ", AeTime::time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < inverted_promoters[LAGGING].size(); prom_idx++) {
-                auto it =  inverted_promoters[LAGGING].begin();
-                std::advance(it, prom_idx);
-                printf("%d ", (*it)->pos);
-            }
-            printf("\n");
-        }*/
-
         // 2) Invert segment's promoters
         List_Metadata::invert_promoters(inverted_promoters, pos1, pos2);
-
-/*        if (indiv_->indiv_id == 37) {
-
-            printf("Before look for 1+2\n");
-
-            printf("%d -- %d -- INVERTED -- Prom list LEAD : ", AeTime::time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < inverted_promoters[LEADING].size(); prom_idx++) {
-                auto it =  inverted_promoters[LEADING].begin();
-                std::advance(it, prom_idx);
-                printf("%d ", (*it)->pos);
-            }
-            printf("\n");
-            printf("%d -- %d -- INVERTED -- Prom list LAG : ", AeTime::time(), indiv_->indiv_id);
-            for (int prom_idx = 0; prom_idx < inverted_promoters[LAGGING].size(); prom_idx++) {
-                auto it =  inverted_promoters[LAGGING].begin();
-                std::advance(it, prom_idx);
-                printf("%d ", (*it)->pos);
-            }
-            printf("\n");
-        }*/
-
 
         // 3) Reinsert the inverted promoters
         insert_promoters(inverted_promoters);
@@ -363,52 +318,13 @@ namespace aevol {
                                  int32_t pos2) {
         // Exchange LEADING and LAGGING lists
         promoter_lists[LEADING].swap(promoter_lists[LAGGING]);
-
-        //if (indiv_->indiv_id == 37) {
-
-
-
-            /*printf("%d -- SWAP -- Prom list LEAD : ", AeTime::time());
-            for (int prom_idx = 0; prom_idx < promoter_lists[LEADING].size(); prom_idx++) {
-                auto it =  promoter_lists[LEADING].begin();
-                std::advance(it, prom_idx);
-                printf("%d ", (*it)->pos);
-            }
-            printf("\n");
-            printf("%d -- SWAP -- Prom list LAG : ", AeTime::time());
-            for (int prom_idx = 0; prom_idx < promoter_lists[LAGGING].size(); prom_idx++) {
-                auto it =  promoter_lists[LAGGING].begin();
-                std::advance(it, prom_idx);
-                printf("%d ", (*it)->pos);
-            }
-            printf("\n");*/
-        //}
-
         // Update the position and strand of each promoter to be inverted...
         for (auto strand: {LEADING, LAGGING})
             for (auto rna: promoter_lists[strand]) {
-                //printf("Update %d : %d %d %d // %d\n",(pos1 + pos2 - rna->pos - 1),pos1,pos2,rna->pos,strand);
                 rna->pos = pos1 + pos2 - rna->pos - 1;
                 rna->leading_or_lagging = (strand==LEADING);
-                //printf("Update DD %d : %d %d %d // %d\n",(pos1 + pos2 - rna->pos - 1),pos1,pos2,rna->pos,strand);
             }
 
-
-
-/*        printf("%d -- UPDATED_LIST -- Prom list LEAD : ", AeTime::time());
-        for (int prom_idx = 0; prom_idx < promoter_lists[LEADING].size(); prom_idx++) {
-            auto it =  promoter_lists[LEADING].begin();
-            std::advance(it, prom_idx);
-            printf("%d ", (*it)->pos);
-        }
-        printf("\n");
-        printf("%d -- UPDATED_LIST -- Prom list LAG : ", AeTime::time());
-        for (int prom_idx = 0; prom_idx < promoter_lists[LAGGING].size(); prom_idx++) {
-            auto it =  promoter_lists[LAGGING].begin();
-            std::advance(it, prom_idx);
-            printf("%d ", (*it)->pos);
-        }
-        printf("\n");*/
     }
 
     void List_Metadata::remove_leading_promoters_starting_between(int32_t pos_1,
@@ -722,8 +638,6 @@ namespace aevol {
                 }
                 else if (!is_near_end_of_genome) // => && is_near_beginning_of_genome
                 {
-                    // promoters(leading, between, pos_1, pos_2 + dna_->length() - PROM_SIZE + 1,
-                    //                                         promoters_list[LEADING]);
                     lst_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 +
                                                        length(),
                               promoters_list[LEADING]);
@@ -742,8 +656,6 @@ namespace aevol {
                 }
                 else // is_near_end_of_genome && is_near_beginning_of_genome
                 {
-                    // promoters(leading, between, pos_1, pos_2 + dna_->length() - PROM_SIZE + 1,
-                    //                                         promoters_list[LEADING]);
                     lst_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 +
                                                        length(),
                               promoters_list[LEADING]);
@@ -821,7 +733,6 @@ namespace aevol {
     }
 
     PromoterStruct* List_Metadata::promoters(int idx) {
-        //for (int i = 0; i <= idx; i++)
         if (idx >= promoters_list_[LEADING].size()) {
             auto it = promoters_list_[LAGGING].begin();
             std::advance(it, idx-promoters_list_[LEADING].size());
@@ -829,7 +740,6 @@ namespace aevol {
         } else {
             auto it = promoters_list_[LEADING].begin();
             std::advance(it,idx);
-            //printf(" [POS %d] ",idx);
             return &*(it);
         }
     }

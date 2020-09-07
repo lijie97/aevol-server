@@ -104,4 +104,4 @@ class Individual_7 : public Observable {
 
 
 }
-#endif //RAEVOL_CUDA_SIMD_INDIVIDUAL_H
+#endif
