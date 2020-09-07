@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef RAEVOL_CUDA_DNAMUTATOR_H
-#define RAEVOL_CUDA_DNAMUTATOR_H
+#ifndef AEVOL_DNAMUTATOR_H
+#define AEVOL_DNAMUTATOR_H
 
 #include "Individual.h"
 #include "JumpingMT.h"

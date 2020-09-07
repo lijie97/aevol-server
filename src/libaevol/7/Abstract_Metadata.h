@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_SIMD_METADATA_H
-#define AEVOL_SIMD_METADATA_H
+#ifndef AEVOL_ABSTRACT_METADATA_H
+#define AEVOL_ABSTRACT_METADATA_H
 
 #include "Dna_7.h"
 #include "Individual_7.h"

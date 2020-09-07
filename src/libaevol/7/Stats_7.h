@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef RAEVOL_CUDA_STATS_SIMD_H
-#define RAEVOL_CUDA_STATS_SIMD_H
+#ifndef AEVOL_STATS_7_H
+#define AEVOL_STATS_7_H
 
 
 #include "ExpManager_7.h"

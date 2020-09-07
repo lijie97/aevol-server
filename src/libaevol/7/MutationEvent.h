@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef RAEVOL_CUDA_MUTATIONEVENT_H
-#define RAEVOL_CUDA_MUTATIONEVENT_H
+#ifndef AEVOL_MUTATIONEVENT_H
+#define AEVOL_MUTATIONEVENT_H
 
 
 #include <cstdint>

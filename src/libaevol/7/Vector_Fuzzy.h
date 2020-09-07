@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_VECTOR_FUZZY_H_
-#define AEVOL_VECTOR_FUZZY_H_
+#ifndef AEVOL_VECTOR_FUZZY_H
+#define AEVOL_VECTOR_FUZZY_H
 
 #include <set>
 

@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef RAEVOL_CUDA_DNA_SIMD_H
-#define RAEVOL_CUDA_DNA_SIMD_H
+#ifndef AEVOL_DNA_7_H
+#define AEVOL_DNA_7_H
 
 
 #include <cstdint>
