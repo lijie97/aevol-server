@@ -115,7 +115,7 @@ enum Position {
   AFTER
 };
 
-enum SIMDMetadataFlavor {
+enum MetadataFlavor {
     STD_MAP = 0,
     DYN_TAB = 1,
     STD_LIST = 2

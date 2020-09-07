@@ -816,39 +816,48 @@ void Dna_7::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
     // and shift them to their new positions
     if (len_B >= PROM_SIZE) {
         indiv_->metadata_->extract_promoters_included_in(pos_B, pos_C, promoters_B);
-        if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+        if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+            MetadataFlavor::STD_MAP)
           Map_Metadata::shift_promoters(promoters_B, len_D + len_C,
                                    length());
-        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB)
           DynTab_Metadata::shift_promoters(promoters_B, len_D + len_C,
                                                    length());
-        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST)
           List_Metadata::shift_promoters(promoters_B, len_D + len_C,
                                                   length());
     }
     if (len_C >= PROM_SIZE) {
         indiv_->metadata_->extract_promoters_included_in(pos_C, pos_D, promoters_C);
 
-        if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+        if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+            MetadataFlavor::STD_MAP)
           Map_Metadata::shift_promoters(promoters_C, len_D - len_B,
                                    length());
-        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB)
           DynTab_Metadata::shift_promoters(promoters_C, len_D - len_B,
                                                length());
-        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST)
           List_Metadata::shift_promoters(promoters_C, len_D - len_B,
                                                   length());
     }
     if (len_D >= PROM_SIZE) {
         indiv_->metadata_->extract_promoters_included_in(pos_D, pos_E, promoters_D);
 
-        if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+        if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+            MetadataFlavor::STD_MAP)
           Map_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                    length());
-        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB)
           DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                length());
-        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+        else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST)
           List_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                   length());
     }
@@ -1000,22 +1009,26 @@ void Dna_7::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
         indiv_->metadata_->extract_promoters_included_in(pos_D, pos_E, promoters_D);
     }
     // 3a) Invert promoters of segments B and C
-      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
+      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+        MetadataFlavor::STD_MAP) {
         Map_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
 
         Map_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
-      } else  if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
+      } else  if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB) {
         DynTab_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
 
         DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
-      } else  if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+      } else  if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST) {
         List_Metadata::invert_promoters(promoters_B, pos_B, pos_C);
 
         List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
       }
 
     // 3b) Shift these promoters positions
-      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
+      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+          MetadataFlavor::STD_MAP) {
         Map_Metadata::shift_promoters(promoters_B, len_D,
                                                length());
 
@@ -1024,7 +1037,8 @@ void Dna_7::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
         Map_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                                 length());
-      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB) {
         DynTab_Metadata::shift_promoters(promoters_B, len_D,
                                              length());
 
@@ -1033,7 +1047,8 @@ void Dna_7::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
         DynTab_Metadata::shift_promoters(promoters_D, -len_B - len_C,
                                              length());
-      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST) {
         List_Metadata::shift_promoters(promoters_B, len_D,
                                                 length());
 
@@ -1203,22 +1218,26 @@ void Dna_7::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
 
     // 3a) Invert promoters of segments C and D
-      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
+      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+        MetadataFlavor::STD_MAP) {
         Map_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
 
         Map_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
-      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB) {
         DynTab_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
 
         DynTab_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
-      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST) {
         List_Metadata::invert_promoters(promoters_C, pos_C, pos_D);
 
         List_Metadata::invert_promoters(promoters_D, pos_D, pos_E);
       }
 
       // 3b) Shift these promoters positions
-      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP) {
+      if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+          MetadataFlavor::STD_MAP) {
         Map_Metadata::shift_promoters(promoters_B, len_C + len_D,
                                                 length());
 
@@ -1227,7 +1246,8 @@ void Dna_7::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
         Map_Metadata::shift_promoters(promoters_D, -len_B,
                                                 length());
-      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB) {
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB) {
         DynTab_Metadata::shift_promoters(promoters_B, len_C + len_D,
                                              length());
 
@@ -1236,7 +1256,8 @@ void Dna_7::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
 
         DynTab_Metadata::shift_promoters(promoters_D, -len_B,
                                              length());
-      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST) {
+      } else if (indiv_->exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST) {
         List_Metadata::shift_promoters(promoters_B, len_C + len_D,
                                                 length());
 

@@ -46,11 +46,14 @@ Individual_7::Individual_7(ExpManager* exp_m, double w_max,
         exp_m_ = exp_m;
         w_max_ = w_max;
 
-        if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+        if (exp_m_->exp_s()->get_simd_metadata_flavor() ==
+            MetadataFlavor::STD_MAP)
             metadata_ = new Map_Metadata(this);
-        else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+        else if (exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::DYN_TAB)
             metadata_ = new DynTab_Metadata(this);
-        else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+        else if (exp_m_->exp_s()->get_simd_metadata_flavor() ==
+                 MetadataFlavor::STD_LIST)
             metadata_ = new List_Metadata(this);
 
         dna_factory_ = dna_factory;
@@ -71,11 +74,13 @@ Individual_7::Individual_7(ExpManager* exp_m, double w_max,
   dna_factory_ = dna_factory;
 
 
-  if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+  if (exp_m_->exp_s()->get_simd_metadata_flavor() == MetadataFlavor::STD_MAP)
       metadata_ = new Map_Metadata(this,dynamic_cast<Map_Metadata*>(clone->metadata_));
-  else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::DYN_TAB)
+  else if (exp_m_->exp_s()->get_simd_metadata_flavor() ==
+           MetadataFlavor::DYN_TAB)
       metadata_ = new DynTab_Metadata(this,dynamic_cast<DynTab_Metadata*>(clone->metadata_));
-  else if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_LIST)
+  else if (exp_m_->exp_s()->get_simd_metadata_flavor() ==
+           MetadataFlavor::STD_LIST)
       metadata_ = new List_Metadata(this,dynamic_cast<List_Metadata*>(clone->metadata_));
 
   fitness = clone->fitness;
@@ -99,7 +104,7 @@ Individual_7::~Individual_7() {
  * We need some index for the promoter optimization
  */
 void Individual_7::rebuild_index() {
-        if (exp_m_->exp_s()->get_simd_metadata_flavor() == SIMDMetadataFlavor::STD_MAP)
+        if (exp_m_->exp_s()->get_simd_metadata_flavor() == MetadataFlavor::STD_MAP)
             dynamic_cast<Map_Metadata*>(metadata_)->rebuild_index();
 }
 
