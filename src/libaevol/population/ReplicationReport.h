@@ -75,9 +75,7 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ReplicationReport() {
-
-    }
+    virtual ~ReplicationReport() = default;
 
     // =================================================================
     //                              Accessors
