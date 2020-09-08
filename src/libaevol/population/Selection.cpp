@@ -865,36 +865,38 @@ void Selection::compute_local_prob_reprod() {
   }
 }
 
-
-
-Individual* Selection::do_replication(Individual* parent, unsigned long long index,
-                                      int8_t &type_mutate,
-                                      int16_t x, int16_t y ) {
-  // ===========================================================================
-  //  1) Copy parent
-  // ===========================================================================
-  #ifdef __NO_X
-    #ifndef __REGUL
-      Individual* new_indiv = new Individual(parent, index,
-        exp_m_->world()->grid(x,y)->mut_prng(),
-        exp_m_->world()->grid(x,y)->stoch_prng() );
-    #else
-      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index,
-        exp_m_->world()->grid(x,y)->mut_prng(),
-        exp_m_->world()->grid(x,y)->stoch_prng() );
-    #endif
-  #elif defined __X11
-    #ifndef __REGUL
-      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index,
-        exp_m_->world()->grid(x,y)->mut_prng(),
-        exp_m_->world()->grid(x,y)->stoch_prng() );
-    #else
-      Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index,
-        exp_m_->world()->grid(x,y)->mut_prng(),
-        exp_m_->world()->grid(x,y)->stoch_prng() );
-    #endif
+Individual* Selection::do_replication(Individual* parent,
+                                      unsigned long long index,
+                                      int8_t& type_mutate,
+                                      int16_t x,
+                                      int16_t y) {
+// ===========================================================================
+//  1) Copy parent
+// ===========================================================================
+#ifdef __NO_X
+  #ifndef __REGUL
+  Individual* new_indiv =
+      new Individual(parent, index, exp_m_->world()->grid(x, y)->mut_prng(),
+                     exp_m_->world()->grid(x, y)->stoch_prng());
+  #else
+  Individual_R* new_indiv =
+      new Individual_R(dynamic_cast<Individual_R*>(parent), index,
+                       exp_m_->world()->grid(x, y)->mut_prng(),
+                       exp_m_->world()->grid(x, y)->stoch_prng());
   #endif
-
+#elif defined __X11
+  #ifndef __REGUL
+  Individual_X11* new_indiv =
+      new Individual_X11(dynamic_cast<Individual_X11*>(parent), index,
+                         exp_m_->world()->grid(x, y)->mut_prng(),
+                         exp_m_->world()->grid(x, y)->stoch_prng());
+  #else
+  Individual_R_X11* new_indiv =
+      new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index,
+                           exp_m_->world()->grid(x, y)->mut_prng(),
+                           exp_m_->world()->grid(x, y)->stoch_prng());
+  #endif
+#endif
 
   // Set the new individual's location on the grid
 #pragma omp critical(placeindiv)
@@ -904,23 +906,24 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   //NewIndivEvent *eindiv = new NewIndivEvent(new_indiv,parent, x, y);
   //notifyObservers(NEW_INDIV, eindiv);
 
-
-  delete exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y];
+  delete exp_m_->dna_mutator_array_[x * exp_m_->world()->height() + y];
   //exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(new_indiv,x,y);
-  exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y] = new DnaMutator(
-            exp_m_->world()->grid(x, y)->mut_prng(),
-            parent->amount_of_dna(),
-            exp_m_->exp_s()->mut_params()->duplication_rate(),
-            exp_m_->exp_s()->mut_params()->deletion_rate(),
-            exp_m_->exp_s()->mut_params()->translocation_rate(),
-            exp_m_->exp_s()->mut_params()->inversion_rate(),
-            exp_m_->exp_s()->mut_params()->point_mutation_rate(),
-            exp_m_->exp_s()->mut_params()->small_insertion_rate(),
-            exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-            exp_m_->exp_s()->mut_params()->max_indel_size(),
-            exp_m_->exp_s()->min_genome_length(),
-            exp_m_->exp_s()->max_genome_length(),x*exp_m_->world()->height()+y,x,y);
-  exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->generate_mutations();
+  exp_m_->dna_mutator_array_[x * exp_m_->world()->height() + y] =
+      new DnaMutator(exp_m_->world()->grid(x, y)->mut_prng(),
+                     parent->amount_of_dna(),
+                     exp_m_->exp_s()->mut_params()->duplication_rate(),
+                     exp_m_->exp_s()->mut_params()->deletion_rate(),
+                     exp_m_->exp_s()->mut_params()->translocation_rate(),
+                     exp_m_->exp_s()->mut_params()->inversion_rate(),
+                     exp_m_->exp_s()->mut_params()->point_mutation_rate(),
+                     exp_m_->exp_s()->mut_params()->small_insertion_rate(),
+                     exp_m_->exp_s()->mut_params()->small_deletion_rate(),
+                     exp_m_->exp_s()->mut_params()->max_indel_size(),
+                     exp_m_->exp_s()->min_genome_length(),
+                     exp_m_->exp_s()->max_genome_length(),
+                     x * exp_m_->world()->height() + y, x, y);
+  exp_m_->dna_mutator_array_[x * exp_m_->world()->height() + y]
+      ->generate_mutations();
 
   bool mutate = true;
 
@@ -928,81 +931,31 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
   if (not new_indiv->allow_plasmids()) {
     const GeneticUnit* chromosome = &new_indiv->genetic_unit_list().front();
 
-#ifdef __TRACING__
-    auto t1 = high_resolution_clock::now();
-#endif
-
-
-
-/*    if (x*exp_m_->world()->height()+y == 44 || x*exp_m_->world()->height()+y == 43)
-      printf("Size before mutation %d (parent %d) : %d parent %d vanilla %d parent vanilla %d : %p %p\n",
-             x*exp_m_->world()->height()+y,
-
-             parent->grid_cell()->x()*exp_m_->world()->
-                 height()+parent->grid_cell()->y(),
-
-             exp_m_->simd_individual->current_individuals
-             [x*exp_m_->world()->height()+y]->dna_->length(),
-
-             exp_m_->simd_individual->previous_individuals
-             [parent->grid_cell()->x()*exp_m_->world()->
-                 height()+parent->grid_cell()->y()]->dna_->length(),
-
-             chromosome->dna()->length(),
-            parent->genetic_unit(0).dna()->length(),new_indiv,parent);*/
-
-/*    if (x*exp_m_->world()->height()+y == 44 || x*exp_m_->world()->height()+y == 43)
-      printf("Size AFTER mutation %d (parent %d) : %d parent %d vanilla %d parent vanilla %d: %p %p\n",
-             x*exp_m_->world()->height()+y,
-
-             parent->grid_cell()->x()*exp_m_->world()->
-                 height()+parent->grid_cell()->y(),
-
-             exp_m_->simd_individual->current_individuals
-             [x*exp_m_->world()->height()+y]->dna_->length(),
-
-             exp_m_->simd_individual->previous_individuals
-             [parent->grid_cell()->x()*exp_m_->world()->
-                 height()+parent->grid_cell()->y()]->dna_->length(),
-
-             chromosome->dna()->length(),
-             parent->genetic_unit(0).dna()->length(),
-            new_indiv,parent);*/
-#ifdef __TRACING__
-    auto t2 = high_resolution_clock::now();
-	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	  	  ae_logger::addLog(SEARCH_START_RNA,duration);
-#endif
-
-/*    if (x*exp_m_->world()->height()+y==93) {
-      printf("Indiv 93 has mutate %d\n",exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate());
-    }*/
-
-//printf("%d -- Indiv %d has mutate ? %d\n",time(),x*exp_m_->world()->height()+y,exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate());
 #ifdef __DETECT_CLONE
-    if (! exp_m_->dna_mutator_array_[x*exp_m_->world()->height()+y]->hasMutate()) {
+    if (!exp_m_->dna_mutator_array_[x * exp_m_->world()->height() + y]
+             ->hasMutate()) {
 
       bool firstClone;
 
-#pragma omp critical(firstclone)
-    {
-      firstClone = parent->number_of_clones_ == 0;
+  #pragma omp critical(firstclone)
+      {
+        firstClone = parent->number_of_clones_ == 0;
 
-      firstClone ? type_mutate = 2 : type_mutate = 0;
+        firstClone ? type_mutate = 2 : type_mutate = 0;
 
-      parent->number_of_clones_++;
-    }
+        parent->number_of_clones_++;
+      }
       delete new_indiv;
       mutate = false;
-#ifdef __NO_X
-      #ifndef __REGUL
+  #ifdef __NO_X
+    #ifndef __REGUL
       new_indiv = parent;
     #else
       new_indiv = dynamic_cast<Individual_R*>(parent);
     #endif
-#elif defined __X11
-      #ifndef __REGUL
-      new_indiv = dynamic_cast<Individual_X11 *>(parent);
+  #elif defined __X11
+    #ifndef __REGUL
+      new_indiv = dynamic_cast<Individual_X11*>(parent);
     #else
       new_indiv = dynamic_cast<Individual_R_X11*>(parent);
     #endif
@@ -1047,22 +1000,18 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
     }
 #endif
 
-//    printf("Number of mutations %ld\n", dynamic_cast<Individual*>(new_indiv)->dna_simd_.mutation_list.size());
+    //#pragma omp critical(newindivevent)
 
-//#pragma omp critical(newindivevent)
-
-
-  }
-  else { // For each GU, apply mutations
+  } else { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
-    bool inverse_order = (exp_m_->world()->grid(x,y)->reprod_prng_->random((int32_t) 2) < 0.5);
+    bool inverse_order =
+        (exp_m_->world()->grid(x, y)->reprod_prng_->random((int32_t)2) < 0.5);
 
     if (not inverse_order) { // Apply mutations in normal GU order
       for (const auto& gen_unit: new_indiv->genetic_unit_list()) {
         gen_unit.dna()->perform_mutations(parent->id());
       }
-    }
-    else { // Apply mutations in inverse GU order
+    } else { // Apply mutations in inverse GU order
       const auto& gul = new_indiv->genetic_unit_list();
       for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
         gen_unit->dna()->perform_mutations(parent->id());
@@ -1072,11 +1021,11 @@ Individual* Selection::do_replication(Individual* parent, unsigned long long ind
 
 #ifdef __DETECT_CLONE
   if (mutate) {
-#ifdef __REGUL
+  #ifdef __REGUL
     new_indiv->init_indiv();
-#else
+  #else
     new_indiv->Evaluate();
-#endif
+  #endif
     type_mutate = 1;
   }
 #endif

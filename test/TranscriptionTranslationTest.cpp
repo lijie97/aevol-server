@@ -243,20 +243,6 @@ void TranscriptionTranslationTest::check_genome(const string& dir, int generatio
 
     expect_equal(expected_proteins, actual_proteins);
   }
-  // (very dirty) Get rid of last line (added twice)
-//  expected_proteins.pop_back();
-
-
-  // cout << "*************** EXPECTED ********************" << endl;
-  // for (auto prot_line : expected_proteins) {
-  //   cout << prot_line << endl;
-  // }
-  // cout << "**************** ACTUAL *********************" << endl;
-  // for (auto prot_line : actual_proteins) {
-  //   cout << prot_line << endl;
-  // }
-
-//  expect_equal(expected_proteins, actual_proteins);
 }
 
 TEST_F(TranscriptionTranslationTest, TestIndivVirus6) {

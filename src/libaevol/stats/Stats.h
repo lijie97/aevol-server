@@ -126,12 +126,6 @@ class Stats
     void delete_indivs(int64_t gen);
 
 
-#ifdef __KSTAR
-    ExpManager * exp_m_;
-    FILE**** stat_files_;
-    char**** stat_files_names_;
-#endif
-
  protected :
     // =================================================================
     //                           Protected Methods
@@ -153,7 +147,6 @@ class Stats
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-#ifndef __KSTAR
     ExpManager * exp_m_;
 
         // 3D tables of stat files (FILE*) and their names (char*)
@@ -165,7 +158,6 @@ class Stats
         // The files themselves are also NULL because we don't fopen() them.
     FILE**** stat_files_;
     char**** stat_files_names_;
-#endif
 
     //indivs
     std::map<int64_t, std::list<Individual*>> indivs_;

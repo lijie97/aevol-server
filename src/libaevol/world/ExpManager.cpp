@@ -963,7 +963,7 @@ Individual* ExpManager::indiv_by_id(int32_t id) const {
 }
 
 Individual* ExpManager::indiv_by_rank(int32_t rank) const {
-  return world_->indiv_by_id(rank);
+  return world_->indiv_by_rank(rank);
 }
 
 /**

@@ -551,36 +551,34 @@ void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
 // =================================================================
 //                             Constructors
 // =================================================================
-/*!
-  \brief Create a new genetic unit for indiv with a random DNA sequence of length length
 
-  Promoters will be looked for on the whole sequence but no further process
-  will be performed.
+/*!
+  \brief Delegate constructor.
+
+  Does the brunt of the initializing work, so that other constructors
+  can call it and focus on their own specific work.
 */
-GeneticUnit::GeneticUnit(Individual* indiv,
-                         int32_t length,
-                         std::shared_ptr<JumpingMT> prng) {
+
+GeneticUnit::GeneticUnit(Individual* indiv) {
   indiv_ = indiv;
 #ifdef __REGUL
   indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
 #endif
   exp_m_ = indiv->exp_m();
 
-  transcribed_ = false;
-  translated_ = false;
+  transcribed_                       = false;
+  translated_                        = false;
   phenotypic_contributions_computed_ = false;
-  non_coding_computed_ = false;
-  distance_to_target_computed_ = false;
-  fitness_computed_ = false;
+  non_coding_computed_               = false;
+  distance_to_target_computed_       = false;
+  fitness_computed_                  = false;
 
   min_gu_length_ = -1;
   max_gu_length_ = -1;
 
-  dna_ = new Dna(this, length, prng);
-
   // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  activ_contribution_      = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  inhib_contribution_      = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotypic_contribution_ = NULL;
   // NB : phenotypic_contribution_ is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -588,48 +586,52 @@ GeneticUnit::GeneticUnit(Individual* indiv,
   // dist_to_target_per_segment_ depends on the segmentation of the environment
   // and will hence be newed at evaluation time
   dist_to_target_per_segment_ = NULL;
+  dist_to_target_by_feature_  = new double[NB_FEATURES];
+  fitness_by_feature_         = new double[NB_FEATURES];
 
-  dist_to_target_by_feature_ = new double[NB_FEATURES];
-  fitness_by_feature_ = new double[NB_FEATURES];
-
-  for (int8_t i = 0; i < NB_FEATURES; i++) {
-    dist_to_target_by_feature_[i] = 0.0;
-    fitness_by_feature_[i] = 0.0;
+  for (int8_t feat = 0; feat < NB_FEATURES; ++feat) {
+    dist_to_target_by_feature_[feat] = 0.0;
+    fitness_by_feature_[feat]        = 0.0;
   }
+}
+
+/*!
+  \brief Create a new random genetic unit.
+
+  Create a new GU for indiv `indiv` with a random DNA sequence
+  of length `length`.
+  Promoters will be looked for on the whole sequence but no further process
+  will be performed.
+*/
+GeneticUnit::GeneticUnit(Individual* indiv,
+                         int32_t length,
+                         std::shared_ptr<JumpingMT> prng)
+    : GeneticUnit(indiv) {
+
+  dna_ = new Dna(this, length, prng);
 
   // Look for promoters
   locate_promoters();
-
   init_statistical_data();
 }
 
-/// Create a new genetic unit for `indiv` with sequence `seq` of size
-/// `length` [and containing promoters `prom_list`]
-///
-///  Promoters will be looked for if prom_list is not provided (this
-///  may take some time).
-///
-/// WARNING:
-///   seq will be used directly which means the caller must not delete it
-///   The same goes for prom_list if it is provided.
+/*!
+  \brief Create a new genetic unit from an explicit sequence.
+
+  Create a GU for individual `indiv` with sequence `seq` of size
+  `length` [and containing promoters `prom_list`].
+  Promoters will be looked for if prom_list is not provided (this may
+  take some time).
+
+ WARNING:
+   seq will be used directly which means the caller must not delete it
+   The same goes for prom_list if it is provided.
+*/
 GeneticUnit::GeneticUnit(Individual* indiv,
                          char* seq,
                          int32_t length,
-                         const Promoters2Strands& prom_list /* = {{},{}} */) {
-  exp_m_ = indiv->exp_m();
-  indiv_ = indiv;
-#ifdef __REGUL
-  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
-#endif
-  transcribed_ = false;
-  translated_ = false;
-  phenotypic_contributions_computed_ = false;
-  non_coding_computed_ = false;
-  distance_to_target_computed_ = false;
-  fitness_computed_ = false;
-
-  min_gu_length_ = -1;
-  max_gu_length_ = -1;
+                         const Promoters2Strands& prom_list /* = {{},{}} */)
+    : GeneticUnit(indiv) {
 
   dna_ = new Dna(this, seq, length);
 
@@ -638,53 +640,27 @@ GeneticUnit::GeneticUnit(Individual* indiv,
     // Copy rna lists
     rna_list_ = prom_list;
     Dna::set_GU(rna_list_, this);
-  }
-  else {
-    for (auto& strand: {LEADING, LAGGING})
+  } else {
+    for (auto& strand: {LEADING, LAGGING}) {
       assert(rna_list_[strand].empty());
-
+    }
     // Look for promoters
     locate_promoters();
-  }
-
-  // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  phenotypic_contribution_ = NULL;
-  // NB : phenotypic_contribution_ is only an indicative value,
-  //      it is not used for the whole phenotype computation
-
-  // Initialize all the fitness-related stuff
-  dist_to_target_per_segment_ = NULL;
-
-  dist_to_target_by_feature_ = new double[NB_FEATURES];
-  fitness_by_feature_ = new double[NB_FEATURES];
-
-  for (int8_t i = 0; i < NB_FEATURES; i++) {
-    dist_to_target_by_feature_[i] = 0.0;
-    fitness_by_feature_[i] = 0.0;
   }
 
   init_statistical_data();
 }
 
-
 /*!
   \brief Copy constructor.
 
   Copies the DNA and recomputes all the rest.
-  It is slower than copying as much as possible and regenerate only what is necessary but it works whatever the state of the model GU.
+  It is slower than copying as much as possible and regenerate only what
+  is necessary but it works whatever the state of the model GU.
 */
-GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model) {
-  exp_m_ = indiv->exp_m();
-  indiv_ = indiv;
-#ifdef __REGUL
-  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
-#endif
-  transcribed_ = false;
-  translated_ = false;
-  phenotypic_contributions_computed_ = false;
-  non_coding_computed_ = false;
+GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model)
+    : GeneticUnit(indiv) {
+
   distance_to_target_computed_ = model.distance_to_target_computed_;
   fitness_computed_ = model.fitness_computed_;
 
@@ -694,21 +670,6 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model) {
   // Copy DNA
   dna_ = new Dna(this, *(model.dna_));
 
-  // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  phenotypic_contribution_ = NULL;
-  // NB : phenotypic_contribution_ is only an indicative value, not used for the whole phenotype computation
-  dist_to_target_per_segment_ = NULL;
-  dist_to_target_by_feature_  = new double [NB_FEATURES];
-  fitness_by_feature_         = new double [NB_FEATURES];
-
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-  {
-    dist_to_target_by_feature_[i] = 0.0;
-    fitness_by_feature_[i]        = 0.0;
-  }
-
   // Compute everything
   init_statistical_data();
   locate_promoters();
@@ -717,24 +678,14 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model) {
   compute_phenotypic_contribution();
 }
 
-/**
- * Reproduction constructor
- *
- * Create a new genetic unit copying the DNA sequence and the promoter list
- * from the provided `parent`
+/*!
+  \brief Reproduction constructor.
+
+   Create a new genetic unit copying the DNA sequence and the promoter list
+   from the provided `parent`.
  */
-GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent) {
-  exp_m_ = indiv->exp_m();
-  indiv_ = indiv;
-#ifdef __REGUL
-  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
-#endif
-  transcribed_ = false;
-  translated_ = false;
-  phenotypic_contributions_computed_ = false;
-  non_coding_computed_ = false;
-  distance_to_target_computed_ = false;
-  fitness_computed_ = false;
+GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
+    : GeneticUnit(indiv) {
 
   min_gu_length_ = parent->min_gu_length_;
   max_gu_length_ = parent->max_gu_length_;
@@ -744,6 +695,9 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent) {
 
   // Copy promoter list (rna_list_)
   // Note that the length of the RNA will have to be recomputed (do_transcription)
+
+  // TODO(theotime): check what the comment above means, since there is
+  // no subsequent call to do_transcription here.
   for (auto& strand: {LEADING, LAGGING}) {
     for (auto& rna: parent->rna_list_[strand]) {
 #ifndef __REGUL
@@ -755,112 +709,45 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent) {
     }
   }
 
-  // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  phenotypic_contribution_ = NULL;
-  // NB : phenotypic_contribution_ is only an indicative value, not used for the whole phenotype computation
-
-  // Initialize all the fitness-related stuff
-  dist_to_target_per_segment_ = NULL;
-
-  dist_to_target_by_feature_ = new double[NB_FEATURES];
-  fitness_by_feature_ = new double[NB_FEATURES];
-
-  for (int8_t i = 0; i < NB_FEATURES; i++) {
-    dist_to_target_by_feature_[i] = 0.0;
-    fitness_by_feature_[i] = 0.0;
-  }
-
   init_statistical_data();
 }
 
-GeneticUnit::GeneticUnit(Individual* indiv, gzFile backup_file) {
-  exp_m_ = indiv->exp_m();
-  indiv_ = indiv;
-#ifdef __REGUL
-  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
-#endif
+/*!
+  \brief Create a new genetic unit for indiv from a backup.
 
-  transcribed_ = false;
-  translated_ = false;
-  phenotypic_contributions_computed_ = false;
-  non_coding_computed_ = false;
-  distance_to_target_computed_ = false;
-  fitness_computed_ = false;
+  Promoters will be looked for on the whole sequence but no further process
+  will be performed.
+*/
+
+GeneticUnit::GeneticUnit(Individual* indiv, gzFile backup_file)
+    : GeneticUnit(indiv) {
 
   dna_ = new Dna(this, backup_file);
 
   gzread(backup_file, &min_gu_length_, sizeof(min_gu_length_));
   gzread(backup_file, &max_gu_length_, sizeof(max_gu_length_));
 
-  // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  phenotypic_contribution_ = NULL;
-  // NB : phenotypic_contribution_ is only an indicative value, not used for the whole phenotype computation
-
-  // Initialize all the fitness-related stuff
-  dist_to_target_per_segment_ = NULL;
-
-  dist_to_target_by_feature_ = new double[NB_FEATURES];
-  fitness_by_feature_ = new double[NB_FEATURES];
-
-  for (int8_t i = 0; i < NB_FEATURES; i++) {
-    dist_to_target_by_feature_[i] = 0.0;
-    fitness_by_feature_[i] = 0.0;
-  }
-
-
   // Look for promoters
   locate_promoters();
-
   init_statistical_data();
 }
 
 /*!
-  \brief Create a new genetic unit for indiv with a sequence saved in a text file
+  \brief Create a new genetic unit from a sequence saved as text.
+
+  Create a new GU for individual `indiv` with a sequence saved in a text file
+  named `organism_file_name`.
 
   Promoters will be looked for on the whole sequence but no further process
   will be performed.
 */
-GeneticUnit::GeneticUnit(Individual* indiv, char* organism_file_name) {
-  exp_m_ = indiv->exp_m();
-  indiv_ = indiv;
-#ifdef __REGUL
-  indiv_r_ = dynamic_cast<Individual_R*>(indiv_);
-#endif
-
-  transcribed_ = false;
-  translated_ = false;
-  phenotypic_contributions_computed_ = false;
-  non_coding_computed_ = false;
-  distance_to_target_computed_ = false;
-  fitness_computed_ = false;
+GeneticUnit::GeneticUnit(Individual* indiv, char* organism_file_name)
+    : GeneticUnit(indiv) {
 
   dna_ = new Dna(this, organism_file_name);
 
-  // Create empty fuzzy sets for the phenotypic contributions
-  activ_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  inhib_contribution_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
-  phenotypic_contribution_ = NULL;
-  // NB : phenotypic_contribution_ is only an indicative value,
-  //      it is not used for the whole phenotype computation
-
-  // Initialize all the fitness-related stuff
-  dist_to_target_per_segment_ = NULL;
-
-  dist_to_target_by_feature_ = new double[NB_FEATURES];
-  fitness_by_feature_ = new double[NB_FEATURES];
-
-  for (int8_t i = 0; i < NB_FEATURES; i++) {
-    dist_to_target_by_feature_[i] = 0.0;
-    fitness_by_feature_[i] = 0.0;
-  }
-
   // Look for promoters
   locate_promoters();
-
   init_statistical_data();
 }
 
@@ -3997,105 +3884,6 @@ void GeneticUnit::init_statistical_data(
   beginning_neutral_regions_ = NULL;
   end_neutral_regions_ = NULL;
 }
-/*
-void GeneticUnit::copy_parent(const GeneticUnit* parent, bool env_will_changed) {
-  // Copy protein list
-  for (auto strand: {LEADING, LAGGING}) {
-    for (const auto& protein : parent->protein_list_[strand]) {
-      protein_list_[strand].emplace_back(&this,protein);
-      protein_list_[strand].back().set_local_id(protein.get_local_id());
-
-      for (auto rna : protein.rna_list()) {
-        for (auto& local_rna: rna_list_[strand]) {
-          if (rna->get_local_id() == local_rna->get_local_id()) {
-            protein_list_[strand].back().add_RNA(local_rna);
-            local_rna.add_transcribed_protein(&protein_list_[strand].back());
-            break;
-          }
-        }
-      }
-    }
-
-    for (auto& local_rna: rna_list_[strand]) {
-      for (auto& rna: parent->rna_list_[strand]) {
-        if (local_rna.get_local_id() == rna.local_id()) {
-          local_rna._nb_influences = rna._nb_influences;
-          local_rna._protein_list = rna._protein_list;
-          local_rna._enhancing_coef_list = rna._enhancing_coef_list;
-          local_rna._operating_coef_list = rna._operating_coef_list;
-          break;
-        }
-      }
-    }
-  }
-
-  nb_coding_RNAs_ = parent->nb_coding_RNAs_;
-  nb_non_coding_RNAs_ = parent->nb_non_coding_RNAs_;
-  overall_size_coding_RNAs_ = parent->overall_size_coding_RNAs_;
-  overall_size_non_coding_RNAs_ = parent->overall_size_non_coding_RNAs_;
-  nb_genes_activ_ = parent->nb_genes_activ_;
-  nb_genes_inhib_ = parent->nb_genes_inhib_;
-  nb_fun_genes_ = parent->nb_fun_genes_;
-  nb_non_fun_genes_ = parent->nb_non_fun_genes_;
-  overall_size_fun_genes_ = parent->overall_size_fun_genes_;
-  overall_size_non_fun_genes_ = parent->overall_size_non_fun_genes_;
-
-  nb_bases_in_0_CDS_ = parent->nb_bases_in_0_CDS_;
-  nb_bases_in_0_functional_CDS_ = parent->nb_bases_in_0_functional_CDS_;
-  nb_bases_in_0_non_functional_CDS_ = parent->nb_bases_in_0_non_functional_CDS_;
-  nb_bases_in_0_RNA_ = parent->nb_bases_in_0_RNA_;
-  nb_bases_in_0_coding_RNA_ = parent->nb_bases_in_0_coding_RNA_;
-  nb_bases_in_0_non_coding_RNA_ = parent->nb_bases_in_0_non_coding_RNA_;
-  nb_bases_non_essential_ = parent->nb_bases_non_essential_;
-  nb_bases_non_essential_including_nf_genes_ = parent->nb_bases_non_essential_including_nf_genes_;
-
-  nb_neutral_regions_ = parent->nb_neutral_regions_;
-
-  modularity_ = parent->modularity_;
-
-  if (nb_neutral_regions_ >
-      0) // as unlikely as it seems, there may be no neutral region
-  {
-    beginning_neutral_regions_ = new int32_t[nb_neutral_regions_];
-    end_neutral_regions_ = new int32_t[nb_neutral_regions_];
-    // transfer from tmp to attributes
-    for (int32_t i = 0; i < nb_neutral_regions_; i++) {
-      beginning_neutral_regions_[i] = parent->beginning_neutral_regions_[i];
-      end_neutral_regions_[i] = parent->end_neutral_regions_[i];
-    }
-  }
-  else // nb_neutral_regions_ == 0
-  {
-    beginning_neutral_regions_ = NULL;
-    end_neutral_regions_ = NULL;
-  }
-
-  if (!env_will_changed) {
-    for (int8_t i = 0; i < NB_FEATURES; i++) {
-      dist_to_target_by_feature_[i] = parent->dist_to_target_by_feature_[i];
-      fitness_by_feature_[i] = parent->fitness_by_feature_[i];
-    }
-
-    activ_contribution_ = FuzzyFactory::create_fuzzy(parent->activ_contribution_);
-    inhib_contribution_ = FuzzyFactory::create_fuzzy(parent->inhib_contribution_);
-    phenotypic_contribution_ = FuzzyFactory::create_fuzzy(parent->phenotypic_contribution_);
-
-    // Copy boolean
-    transcribed_ = true;
-    translated_ = true;
-    phenotypic_contributions_computed_ = true;
-    non_coding_computed_ = true;
-    distance_to_target_computed_ = true;
-    fitness_computed_ = true;
-  } else {
-    transcribed_ = true;
-    translated_ = true;
-    phenotypic_contributions_computed_ = false;
-    non_coding_computed_ = true;
-    distance_to_target_computed_ = false;
-    fitness_computed_ = false;
-  }
-}*/
 
 void GeneticUnit::clear_transcribed_proteins() {
   for (auto strand: {LEADING, LAGGING}) {

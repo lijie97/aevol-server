@@ -571,6 +571,10 @@ std::shared_ptr<JumpingMT> Individual::stoch_prng() const {
   return stoch_prng_;
 }
 
+const std::shared_ptr<MutationParams>& Individual::mut_params() const {
+  return mut_params_;
+}
+
 /*!
   Returns the number of genetic units
 */

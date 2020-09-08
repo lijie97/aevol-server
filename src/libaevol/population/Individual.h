@@ -153,6 +153,8 @@ class Individual : public Observable {
 
   std::shared_ptr<JumpingMT> stoch_prng() const;
 
+  const std::shared_ptr<MutationParams>& mut_params() const;
+
   const std::list<GeneticUnit>& genetic_unit_list() const;
 
   std::list<GeneticUnit>& genetic_unit_list_nonconst();
