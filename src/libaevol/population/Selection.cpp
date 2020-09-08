@@ -380,18 +380,19 @@ void Selection::step_to_next_generation() {
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
       y = index % grid_height;
-
+      if (exp_m_->record_tree() || exp_m_->light_tree()) {
 #pragma omp critical
         {
-            //EndReplicationEvent *eindiv = new EndReplicationEvent(
-//                    world->indiv_at(x, y), x, y);
-            // Tell observers the replication is finished
-            //->notifyObservers(END_REPLICATION, eindiv);
-            exp_m_->tree()->report_by_index(AeTime::time(),x *
-                                                                 grid_height
-                                                                 + y)->signal_end_of_replication(world->indiv_at(x, y));
-            //delete eindiv;
+          //EndReplicationEvent *eindiv = new EndReplicationEvent(
+          //                    world->indiv_at(x, y), x, y);
+          // Tell observers the replication is finished
+          //->notifyObservers(END_REPLICATION, eindiv);
+          exp_m_->tree()
+              ->report_by_index(AeTime::time(), x * grid_height + y)
+              ->signal_end_of_replication(world->indiv_at(x, y));
+          //delete eindiv;
         }
+      }
     }
 
     for (int16_t x = 0; x < grid_width; x++)
@@ -450,7 +451,9 @@ void Selection::step_to_next_generation() {
     exp_m_->update_best();
 
     // Notify observers of the end of the generation
-    exp_m_->tree()->signal_end_of_generation();
+  if (exp_m_->record_tree() || exp_m_->light_tree()) {
+      exp_m_->tree()->signal_end_of_generation();
+    }
 
 
 #ifdef WITH_PERF_TRACES
@@ -866,15 +869,18 @@ Individual* Selection::do_replication(Individual* parent,
       new_indiv = dynamic_cast<Individual_R_X11*>(parent);
     #endif
 #endif
-
-#pragma omp critical(placeindiv)
+if (exp_m_->record_tree() || exp_m_->light_tree()) {
+  #pragma omp critical(placeindiv)
         {
-      NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
-      //notifyObservers(NEW_INDIV, eindiv);
+          NewIndivEvent* eindiv = new NewIndivEvent(
+              new_indiv, parent, x, y, index,
+              exp_m_->simd_individual->next_generation_reproducer_[index]);
+          //notifyObservers(NEW_INDIV, eindiv);
 
           exp_m_->tree()->update_new_indiv(eindiv);
-      delete eindiv;
-    }
+          delete eindiv;
+        }
+      }
 
       // Notify observers that a new individual was created from <parent>
 #pragma omp critical(placeindiv)
@@ -887,12 +893,16 @@ Individual* Selection::do_replication(Individual* parent,
 #endif
     } else {
 #endif
-    {
-      NewIndivEvent* eindiv = new NewIndivEvent(new_indiv,parent,x,y,index,exp_m_->simd_individual->next_generation_reproducer_[index]);
-      //notifyObservers(NEW_INDIV, eindiv);
-      exp_m_->tree()->update_new_indiv(eindiv);
-      delete eindiv;
-    }
+    if (exp_m_->record_tree() || exp_m_->light_tree()) {
+        {
+          NewIndivEvent* eindiv = new NewIndivEvent(
+              new_indiv, parent, x, y, index,
+              exp_m_->simd_individual->next_generation_reproducer_[index]);
+          //notifyObservers(NEW_INDIV, eindiv);
+          exp_m_->tree()->update_new_indiv(eindiv);
+          delete eindiv;
+        }
+      }
 #ifdef WITH_PERF_TRACES
       auto t_start = std::chrono::steady_clock::now();
 #endif
