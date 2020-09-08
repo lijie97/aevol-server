@@ -208,7 +208,7 @@ namespace aevol {
                 for (int motif_id = 0; motif_id < 22; motif_id++) {
                         prom_dist_leading[motif_id] =
                                 PROM_SEQ_LEAD[motif_id] ==
-                                indiv_->dna_->data_[(pos + motif_id) + ((((unsigned int32_t)((pos + motif_id) - len)) >> 31) -1 )* len]
+                                indiv_->dna_->data_[(pos + motif_id) + ((((uint32_t)((pos + motif_id) - len)) >> 31) -1 )* len]
                                 ? 0 : 1;
                 }
 
@@ -402,7 +402,7 @@ namespace aevol {
                 for (int motif_id = 0; motif_id < 22; motif_id++) {
                         prom_dist[motif_id] =
                                 PROM_SEQ_LAG[motif_id] ==
-                                indiv_->dna_->data_[ (pos - motif_id) + (((unsigned int32_t)((pos - motif_id))) >> 31) * len]
+                                indiv_->dna_->data_[ (pos - motif_id) + (((uint32_t)((pos - motif_id))) >> 31) * len]
                                 ? 0 : 1;
                 }
 
@@ -458,7 +458,7 @@ namespace aevol {
             for (int k = 0; k < 9; k++) {
                 int k_t = k >= 6 ? k + 4 : k;
 
-                if (indiv_->dna_->data_[(pos + k_t) + ((((unsigned int32_t)((pos + k_t) - len)) >> 31) -1 )* len] ==
+                if (indiv_->dna_->data_[(pos + k_t) + ((((uint32_t)((pos + k_t) - len)) >> 31) -1 )* len] ==
                     SHINE_DAL_SEQ_LEAD[k]) {
                     start[k] = true;
                 } else {
@@ -478,7 +478,7 @@ namespace aevol {
             for (int k = 0; k < 9; k++) {
                 int k_t = k >= 6 ? k + 4 : k;
 
-                if (indiv_->dna_->data_[(pos - k_t) + (((unsigned int32_t)((pos - k_t))) >> 31) * len] ==
+                if (indiv_->dna_->data_[(pos - k_t) + (((uint32_t)((pos - k_t))) >> 31) * len] ==
                     SHINE_DAL_SEQ_LAG[k]) {
                     start = true;
                 } else {
