@@ -113,6 +113,10 @@ class Habitat
     compound_amount_ = compound_amount;
   };
 
+  void set_phenotypic_target_handler(PhenotypicTargetHandler* phenotypic_target_handler) {
+    phenotypic_target_handler_ = phenotypic_target_handler;
+  };
+
  protected :
   // ==========================================================================
   //                            Protected Methods

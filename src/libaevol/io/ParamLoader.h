@@ -44,6 +44,7 @@
 
 #include <zlib.h>
 
+#include "IOJson.h"
 #include "ParameterLine.h"
 #include "MutationParams.h"
 #include "JumpingMT.h"
@@ -90,6 +91,8 @@ class ParamLoader {
             char* chromosome = nullptr, int32_t lchromosome = 0,
             char* plasmid = nullptr, int32_t lplasmid = 0);
   void print_to_file(FILE* file);
+
+  friend  IOJson::IOJson(const std::string &param_in, const std::string &chromosome);
 
   // =========================================================================
   //                                  Getters

@@ -74,7 +74,7 @@ GridCell::GridCell(int16_t x, int16_t y,
 #ifdef __REGUL
                    std::unique_ptr<Habitat_R>&& habitat,
 #else
-        std::unique_ptr<Habitat>&& habitat,
+                   std::unique_ptr<Habitat> habitat,
 #endif
                    Individual* indiv, std::shared_ptr<JumpingMT> mut_prng,
                    std::shared_ptr<JumpingMT> stoch_prng)

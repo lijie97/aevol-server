@@ -30,7 +30,9 @@
 #include <getopt.h>
 #include <cstdlib>
 #include <cstdio>
-
+#include "IOJson.h"
+#include <string>
+#include <assert.h>
 
 // =================================================================
 //                            Project Files
@@ -42,18 +44,25 @@ using namespace aevol;
 // Command-line option variables
 static char* triangles_file_name  = nullptr;
 static char* sequence_file_name  = nullptr;
-static bool best_only = true;
+static char* json_file_name = nullptr;
+static bool all_indiv = false;
+static bool by_index = false;
+static bool x_axis = false;
+static bool y_axis = false;
 static int16_t gu = -1;
 static int32_t timestep = -1;
+static int32_t ind = -1;
+static int16_t x_pos = -1;
+static int16_t y_pos = -1;
 
 // Helper functions
 void print_help(char* prog_path);
 void interpret_cmd_line_options(int argc, char* argv[]);
 
-void analyse_indiv(Individual* indiv, FILE* triangles_file, FILE* sequence_file,
-                   int16_t gu, const PhenotypicTarget& phenotypicTarget);
-void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
-                FILE* triangles_file, const PhenotypicTarget& phenotypicTarget);
+json analyse_indiv(Individual* indiv, FILE* triangles_file, FILE* sequence_file,
+                   FILE* json_file, int16_t gu, const PhenotypicTarget& phenotypicTarget);
+void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_file,
+                const PhenotypicTarget& phenotypicTarget);
 
 
 
@@ -61,9 +70,18 @@ void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
 
+  assert(x_axis == y_axis);
+  //make sure that no more than one option is selected
+  int nb_option = 0;
+  if(all_indiv){nb_option++;}
+  if(by_index){nb_option++;}
+  if(x_axis){nb_option++;}
+  assert(nb_option <= 1);
+
   // Open the files
   FILE* triangles_file = nullptr;
   FILE* sequence_file = nullptr;
+  FILE* json_file = nullptr;
 
   if (triangles_file_name != nullptr) {
     triangles_file = fopen(triangles_file_name, "w");
@@ -93,27 +111,55 @@ int main(int argc, char* argv[]) {
   if (sequence_file_name != nullptr) {
     sequence_file = fopen(sequence_file_name,"w");
   }
+  if (json_file_name != nullptr) {
+    json_file = fopen(json_file_name,"w");
+  }
 
   auto exp_manager = new ExpManager();
   exp_manager->load(timestep, false, false);
 
+  IOJson* io_json = new IOJson(exp_manager);
+  json gu_list = json::array();
+
+  if(by_index){
+      assert(ind >= 0 && ind < exp_manager->grid_width() * exp_manager->grid_height());
+  }
+  if(x_axis){
+      //we already know that x_axis = y_axis
+      assert(x_pos >= 0 && x_pos < exp_manager->grid_width());
+      assert(y_pos >= 0 && y_pos < exp_manager->grid_height());
+  }
 
   // The best individual is already known because it is the last in the list
   // Thus we do not need to know anything about the environment and to evaluate
   // the individuals
 
   // Parse the individuals
-  if (best_only) {
-    Individual* best = exp_manager->best_indiv();
-    best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-    analyse_indiv(best, triangles_file, sequence_file, gu, best->habitat().phenotypic_target());
+  if(by_index)
+  {
+      Individual* indiv = exp_manager->indiv_by_id(ind);
+      gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
+      io_json->addIndividual(*indiv, gu_list);
+  }
+  else if(x_axis){
+      Individual* indiv = exp_manager->indiv_by_position(x_pos, y_pos);
+      gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
+      io_json->addIndividual(*indiv, gu_list);
+  }
+  else if (all_indiv) {
+    for (const auto& indiv: exp_manager->indivs()) {
+      indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
+
+      gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
+      io_json->addIndividual(*indiv, gu_list);
+    }
   }
   else
   {
-    for (const auto& indiv: exp_manager->indivs()) {
-      indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-      analyse_indiv(indiv, triangles_file, sequence_file, gu, indiv->habitat().phenotypic_target());
-    }
+    Individual* best = exp_manager->best_indiv();
+    best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
+    gu_list = analyse_indiv(best, triangles_file, sequence_file, json_file, gu, best->habitat().phenotypic_target()); // list of GU of the individual
+    io_json->addIndividual(*best, gu_list);
   }
 
   if (sequence_file_name != nullptr) {
@@ -122,9 +168,14 @@ int main(int argc, char* argv[]) {
   if (triangles_file_name != nullptr) {
     fclose(triangles_file);
   }
+  if (json_file_name != nullptr) {
+    io_json->write(json_file_name);
+    fclose(json_file);
+  }
 
   delete [] triangles_file_name;
   delete [] sequence_file_name;
+  delete [] json_file_name;
 
   delete exp_manager;
 
@@ -132,22 +183,32 @@ int main(int argc, char* argv[]) {
 }
 
 // Parsing an individual
-inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
-                          FILE* sequence_file, int16_t gu,
+inline json analyse_indiv(Individual* indiv, FILE* triangles_file,
+                          FILE* sequence_file, FILE* json_file, int16_t gu,
                           const PhenotypicTarget & phenotypicTarget) {
+
+  json gu_list = json::array();
+
   if (gu == -1) { // We want to treat all genetic units
     int32_t gen_unit_number = 0;
     for (auto& gen_unit: indiv->genetic_unit_list_nonconst()) {
-      if (triangles_file != nullptr) {
+
+      // Get the sequence of the GU
+      std::string dna = gen_unit.dna()->data();
+      int32_t length = gen_unit.dna()->length();
+      dna.resize(length);
+      json a_gu;
+      a_gu["seq"] = dna;
+      gu_list.emplace_back(a_gu);
+
+      if(triangles_file != nullptr) {
         analyse_gu(&gen_unit, gen_unit_number, triangles_file,
                    phenotypicTarget);
       }
       if (sequence_file != nullptr) {
+        const char* dna = gen_unit.dna()->data();
         // The sequences of different GUs are separated by a space
         if (gen_unit_number > 0) fprintf(sequence_file, " ");
-
-        const char* dna = gen_unit.dna()->data();
-        int32_t length = gen_unit.dna()->length();
         fprintf(sequence_file, "%.*s", length, dna);
       }
 
@@ -156,16 +217,23 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   }
   else { // User has specified a genetic unit
     GeneticUnit* gen_unit = &indiv->genetic_unit_nonconst(gu);
-    if (triangles_file != nullptr) {
-      analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget);
+
+    // Get the sequence of the GU
+    std::string dna = gen_unit->dna()->data();
+    int32_t length = gen_unit->dna()->length();
+    dna.resize(length);
+    json a_gu;
+    a_gu["seq"] = dna;
+    gu_list.emplace_back(a_gu);
+
+    if(triangles_file != nullptr) {
+        analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget);
     }
     if (sequence_file != nullptr) {
       const char* dna = gen_unit->dna()->data();
-      int32_t length = gen_unit->dna()->length();
       fprintf(sequence_file, "%.*s", length, dna);
     }
   }
-
   // We go to next line in each file
   if (triangles_file != nullptr) {
     fprintf(triangles_file, "\n");
@@ -173,6 +241,10 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   if (sequence_file != nullptr) {
     fprintf(sequence_file, "\n");
   }
+  if (json_file != nullptr) {
+  }
+
+  return gu_list;
 }
 
 // Parsing a GU
@@ -183,13 +255,14 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
   auto llrnas = gen_unit->rna_list();
   auto lrnas = llrnas[LEADING];
   lrnas.splice(lrnas.end(), llrnas[LAGGING]);
-
   // Parse this list
   int rna_nb = 0;
+  int i = 0;
+
   for (const auto& rna: lrnas) {
+
     for (const auto& protein: rna.transcribed_proteins()) {
       double mean = protein->mean();
-
       int nfeat = -1;
       for (size_t i = 0 ;
            i <= static_cast<size_t>(phenotypicTarget.nb_segments()) - 1 ;
@@ -203,28 +276,26 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
 
       char *dummy;
       fprintf(triangles_file,
-              "%lld %s %s %" PRId32 " %" PRId32 " %" PRId32
-                  " %s %f %f %f %f %d %" PRId32 " %" PRId32 " %f\n",
-              gen_unit->indiv()->id(),
-              gen_unit_number != 0 ? "PLASMID" :
-              "CHROM  ",
-              protein->strand() == LEADING ? "LEADING" :
-              "LAGGING",
-              protein->first_translated_pos(),
-              protein->length(),
-              protein->last_translated_pos(),
-              dummy = protein->AA_sequence('_'),
-              mean,
-              protein->width(),
-              protein->height(),
-              protein->concentration(),
-              nfeat,
-              rna.promoter_pos(),
-              rna.transcript_length(),
-              rna.basal_level());
-      delete dummy;
+        "%" PRId32 " %s %s %" PRId32 " %" PRId32 " %" PRId32
+        " %s %f %f %f %f %d %" PRId32 " %" PRId32 " %f\n",
+        gen_unit->indiv()->id(),
+        gen_unit_number != 0 ? "PLASMID" :
+        "CHROM  ",
+        protein->strand() == LEADING ? "LEADING" :
+        "LAGGING",
+        protein->first_translated_pos(),
+        protein->length(),
+        protein->last_translated_pos(),
+        dummy = protein->AA_sequence('_'),
+        mean,
+        protein->width(),
+        protein->height(),
+        protein->concentration(),
+        nfeat,
+        rna.promoter_pos(),
+        rna.transcript_length(),
+        rna.basal_level());
     }
-    rna_nb++;
   }
 }
 
@@ -253,7 +324,7 @@ void print_help(char* prog_path) {
     printf("\n");
     printf("Usage : %s -h\n", prog_name);
     printf("   or : %s -V or --version\n", prog_name);
-    printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-U NUM_GU] [-a]\n",
+    printf("   or : %s [-t TIMESTEP] [-S SEQ_FILE] [-T TRIANGLE_FILE] [-J JSON_FILE] [-U NUM_GU] [-a] [-x X -y Y]\n",
            prog_name);
     printf("\nOptions\n");
     printf("  -h, --help\n\tprint this help, then exit\n");
@@ -264,10 +335,16 @@ void print_help(char* prog_path) {
     printf("\textract sequences into file SEQ_FILE\n");
     printf("  -T TRIANGLE_FILE\n");
     printf("\textract phenotypic data into file TRIANGLE_FILE\n");
+    printf("  -J JSON_FILE\n");
+    printf("\textract phenotypic data into file JSON_FILE\n");
     printf("  -U NUM_GU\n");
     printf("\tonly treat genetic unit #NUM_GU (default: treat all genetic units)\n");
     printf("  -a\n");
     printf("\ttreat all the individuals (default: treat only the best)\n");
+    printf("  -i IND\n");
+    printf("\tonly treat individual #IND (default: treat only the best)\n");
+    printf("  -x X -y Y\n");
+    printf("\tonly treat individual at position X, Y on the grid\n");
 
 
     printf("\n\
@@ -316,7 +393,7 @@ or extract -b -p populations/pop_020000.ae -s seq_020000_best\n");
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char * options_list = "hVt:aU:S:T:";
+  const char * options_list = "hVt:aU:S:T:J:i:x:y:";
   static struct option long_options_list[] = {
       {"help",      no_argument,        nullptr, 'h'},
       {"version",   no_argument,        nullptr, 'V'},
@@ -325,6 +402,10 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       {"gu",        required_argument,  nullptr, 'U'},
       {"sequence",  required_argument,  nullptr, 'S'},
       {"triangles", required_argument,  nullptr, 'T'},
+      {"json",      required_argument,  nullptr, 'J'},
+      {"index",     required_argument,  nullptr, 'i'},
+      {"xaxis",     required_argument,  nullptr, 'x'},
+      {"yaxis",     required_argument,  nullptr, 'y'},
       {0, 0, 0, 0}
   };
 
@@ -346,7 +427,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         break;
       }
       case 'a' : {
-        best_only = false;
+        all_indiv = true;
         break;
       }
       case 'U' : {
@@ -363,6 +444,26 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         sprintf(triangles_file_name, "%s", optarg);
         break;
       }
+      case 'J' : {
+        json_file_name = new char[strlen(optarg) + 1];
+        sprintf(json_file_name, "%s", optarg);
+        break;
+      }
+      case 'i' : {
+        ind = atoi(optarg);
+        by_index = true;
+        break;
+      }
+      case 'x' : {
+        x_pos = atoi(optarg);
+        x_axis = true;
+        break;
+      }
+      case 'y' : {
+        y_pos = atol(optarg);
+        y_axis = true;
+        break;
+      }
     }
   }
 
@@ -373,7 +474,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
 
   // If neither the sequence_file_name nor the triangles_file_name was provided,
   // we will output only the sequence in a default-named file
-  if (sequence_file_name == nullptr && triangles_file_name == nullptr) {
+  if (sequence_file_name == nullptr && triangles_file_name == nullptr && json_file_name == nullptr) {
     sequence_file_name = new char[255];
     strcpy(sequence_file_name, "sequence");
   }

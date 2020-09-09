@@ -64,14 +64,13 @@ static int64_t timestep = -1;
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
-  
+
   // ----------------------
   //  Prepare the outputs
   // ----------------------
   char directory_name[255];
   snprintf(directory_name, 255, "analysis-generation_" TIMESTEP_FORMAT,
-      timestep);
-  
+           timestep);
   // Check whether the directory already exists and is writable
   if (access(directory_name, F_OK) == 0) {
     if (access(directory_name, X_OK | W_OK) != 0) {
@@ -112,20 +111,20 @@ int main(int argc, char* argv[]) {
   wanted_rank = indiv_tmp->rank();
 
   IndivAnalysis wanted_indiv(*indiv_tmp);
-    wanted_indiv.set_grid_cell(indiv_tmp->grid_cell());
+  wanted_indiv.set_grid_cell(indiv_tmp->grid_cell());
   wanted_indiv.grid_cell()->set_individual((Individual*)&wanted_indiv);;
   indiv_tmp = nullptr;
   // Now that we have the index and rank of the indiv of interest, we can
   // generate the output file name and hence open that file
-  char filename[512];
-  snprintf(filename, 512, "%s/robustness-summary-%" PRId64 "-i%" PRId32 "-r%" PRId32,
-      directory_name, timestep, wanted_index, wanted_rank);
+  char filename[255];
+  snprintf(filename, 255, "%s/robustness-summary-%" PRId64 "-i%" PRId32 "-r%" PRId32,
+           directory_name, timestep, wanted_index, wanted_rank);
   FILE* output_summary = fopen(filename, "w");
   if (output_summary == nullptr) {
     Utils::ExitWithUsrMsg(std::string("Could not open file ") + filename);
   }
-  snprintf(filename, 512, "%s/robustness-detailed-%" PRId64 "-i%" PRId32 "-r%" PRId32,
-      directory_name, timestep, wanted_index, wanted_rank);
+  snprintf(filename, 255, "%s/robustness-detailed-%" PRId64 "-i%" PRId32 "-r%" PRId32,
+           directory_name, timestep, wanted_index, wanted_rank);
   FILE* output_detailed = fopen(filename, "w");
   if (output_detailed == nullptr) {
     Utils::ExitWithUsrMsg(std::string("Could not open file ") + filename);
@@ -133,8 +132,8 @@ int main(int argc, char* argv[]) {
 
   fprintf(output_summary, "###############################################################################\n");
   fprintf(output_summary, "#  Summary of the mutants generated from individual with rank %" PRId32
-  " and index %" PRId32 " at timestep %" PRId64 " \n",
-      wanted_rank, wanted_index, timestep);
+                          " and index %" PRId32 " at timestep %" PRId64 " \n",
+          wanted_rank, wanted_index, timestep);
   fprintf(output_summary, "###############################################################################\n");
   fprintf(output_summary, "#  1.  Timestep\n");
   fprintf(output_summary, "#  2.  Proportion of mutants that are better than their parent\n");
@@ -148,8 +147,8 @@ int main(int argc, char* argv[]) {
 
   fprintf(output_detailed, "###############################################################################\n");
   fprintf(output_detailed, "#  Mutants generated from individual with rank %" PRId32
-  " and index %" PRId32 " at timestep %" PRId64 " \n",
-      wanted_rank, wanted_index, timestep);
+                           " and index %" PRId32 " at timestep %" PRId64 " \n",
+          wanted_rank, wanted_index, timestep);
   fprintf(output_detailed, "###############################################################################\n");
   fprintf(output_detailed, "#  1.  Parent id\n");
   fprintf(output_detailed, "#  2.  Parent metabolic error\n");
@@ -241,33 +240,33 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   while ((option = getopt_long(argc, argv, options_list, long_options_list,
                                NULL)) != -1) {
     switch (option) {
-      case 'h' :
-        print_help(argv[0]);
-        exit(EXIT_SUCCESS);
-      case 'V' :
-        Utils::PrintAevolVersion();
-        exit(EXIT_SUCCESS);
-      case 't' :
-        timestep = atol(optarg);
-        break;
-      case 'n' :
-        nb_children = atol(optarg);
-        break;
-      case 'R' :
-        if (wanted_index != -1) {
-          Utils::ExitWithUsrMsg("Options -R and -I are incompatible");
-        }
-        wanted_rank = atol(optarg);
-        break;
-      case 'I' :
-        if (wanted_rank != -1) {
-          Utils::ExitWithUsrMsg("Options -R and -I are incompatible");
-        }
-        wanted_index = atol(optarg);
-        break;
-      default :
-        // An error message is printed in getopt_long, we just need to exit
-        exit(EXIT_FAILURE);
+    case 'h' :
+      print_help(argv[0]);
+      exit(EXIT_SUCCESS);
+    case 'V' :
+      Utils::PrintAevolVersion();
+      exit(EXIT_SUCCESS);
+    case 't' :
+      timestep = atol(optarg);
+      break;
+    case 'n' :
+      nb_children = atol(optarg);
+      break;
+    case 'R' :
+      if (wanted_index != -1) {
+        Utils::ExitWithUsrMsg("Options -R and -I are incompatible");
+      }
+      wanted_rank = atol(optarg);
+      break;
+    case 'I' :
+      if (wanted_rank != -1) {
+        Utils::ExitWithUsrMsg("Options -R and -I are incompatible");
+      }
+      wanted_index = atol(optarg);
+      break;
+    default :
+      // An error message is printed in getopt_long, we just need to exit
+      exit(EXIT_FAILURE);
     }
   }
 

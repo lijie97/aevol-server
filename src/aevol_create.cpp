@@ -36,6 +36,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <assert.h>
 
 #include <getopt.h>
 
@@ -59,16 +60,24 @@ void interpret_cmd_line_options(int argc, char* argv[]);
 static char* param_file_name = nullptr;
 static char* chromosome_file_name = nullptr;
 static char* plasmid_file_name = nullptr;
+static char* json_file_name = nullptr;
+static ParamLoader* my_param_loader = nullptr;
+static IOJson* my_iojson = nullptr;
 
 
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
 
-  // Create a param loader for the parameter file
-  ParamLoader* my_param_loader = new ParamLoader(param_file_name);
-  delete[] param_file_name;
+  if(param_file_name != nullptr) {
+    // Create a param loader for the parameter file
+    my_param_loader = new ParamLoader(param_file_name);
+  }
+  else if(json_file_name != nullptr) {
+    my_iojson = new IOJson(json_file_name);
+    assert(chromosome_file_name == nullptr || my_iojson->getNbrIndividuals() == 0);
 
+  }
 
   // Initialize the experiment manager
   ExpManager* exp_manager = new ExpManager();
@@ -103,6 +112,13 @@ int main(int argc, char* argv[]) {
     fclose(chromosome_file);
   }
 
+  if(json_file_name != nullptr && my_iojson->getNbrIndividuals() != 0) {
+    std::string str = my_iojson->getIndividualSequence(0,0);
+    chromosome = new char[str.length()+1];
+    strcpy(chromosome, str.c_str());
+    lchromosome = strlen(chromosome);
+  }
+
   int32_t lplasmid = -1;
   char* plasmid;
 
@@ -130,20 +146,32 @@ int main(int argc, char* argv[]) {
     fclose(plasmid_file);
   }
 
-  if (lchromosome > -1) {
-    if (lplasmid > -1) {
-      my_param_loader->load(exp_manager, true, chromosome, lchromosome, plasmid,
-                            lplasmid);
+  if(param_file_name != nullptr) {
+    if (lchromosome > -1) {
+      if (lplasmid > -1) {
+        my_param_loader->load(exp_manager, true, chromosome, lchromosome,
+                              plasmid, lplasmid);
+      } else {
+        my_param_loader->load(exp_manager, true, chromosome, lchromosome);
+      }
+    } else {
+      my_param_loader->load(exp_manager, true);
     }
-    else {
-      my_param_loader->load(exp_manager, true, chromosome, lchromosome);
+    delete my_param_loader;
+  }
+  if(json_file_name != nullptr) {
+    if (lchromosome > -1) {
+      if (lplasmid > -1) {
+        my_iojson->load(exp_manager, true, chromosome, lchromosome,
+                              plasmid, lplasmid);
+      } else {
+        my_iojson->load(exp_manager, true, chromosome, lchromosome);
+      }
+    } else {
+      my_iojson->load(exp_manager, true);
     }
+    delete my_iojson;
   }
-  else {
-    my_param_loader->load(exp_manager, true);
-  }
-  delete my_param_loader;
-
 
   //~ ((ExpManager_X11*)exp_manager)->toggle_display_on_off();
   //~ exp_manager->display();
@@ -151,9 +179,12 @@ int main(int argc, char* argv[]) {
 
 
   // 8) Save the experiment
+  if(exp_manager->indivs().front()==nullptr){printf("null\n");}
   exp_manager->Save(true);
 
   delete exp_manager;
+  delete[] param_file_name;
+  delete[] json_file_name;
 }
 
 
@@ -207,13 +238,14 @@ void print_help(char* prog_path) {
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char* options_list = "hVf:C:P:";
+  const char* options_list = "hVf:C:P:J:";
   static struct option long_options_list[] = {
       {"help",       no_argument,       nullptr, 'h'},
       {"version",    no_argument,       nullptr, 'V'},
       {"file",       required_argument, nullptr, 'f'},
       {"chromosome", required_argument, nullptr, 'C'},
       {"plasmid",    required_argument, nullptr, 'P'},
+      {"json",       required_argument, nullptr, 'J'},
       {0, 0, 0, 0}
   };
 
@@ -245,6 +277,11 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         strcpy(plasmid_file_name, optarg);
         break;
       }
+      case 'J': {
+        json_file_name = new char[strlen(optarg) + 1];
+        strcpy(json_file_name, optarg);
+        break;
+      }
       default : {
         // An error message is printed in getopt_long, we just need to exit
         exit(EXIT_FAILURE);
@@ -252,8 +289,10 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
     }
   }
 
+  assert(param_file_name == nullptr || json_file_name == nullptr);
+
   // Set undefined command line parameters to default values
-  if (param_file_name == nullptr) {
+  if (param_file_name == nullptr && json_file_name == nullptr) {
     param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME) + 1];
     sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
   }
