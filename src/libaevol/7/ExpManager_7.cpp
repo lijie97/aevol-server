@@ -2113,7 +2113,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
           err(EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR);
         }
 
-        printf("Tree SIMD backup: %ld\n", AeTime::time());
         char tree_file_name[50];
 
         sprintf(tree_file_name, "tree/tree_" TIMESTEP_FORMAT ".ae", AeTime::time());
