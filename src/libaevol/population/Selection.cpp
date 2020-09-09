@@ -264,12 +264,12 @@ void Selection::step_to_next_generation() {
       y = index % grid_height;
       reproducers[x][y] = do_local_competition(x, y);
 /*
-      exp_m_->simd_individual->current_individuals[x*exp_m_->world()->height()+y] =
-          new Individual_7(exp_m_,exp_m_->simd_individual->previous_individuals
+      exp_m_->exp_m_7_->current_individuals[x*exp_m_->world()->height()+y] =
+          new Individual_7(exp_m_,exp_m_->exp_m_7_->previous_individuals
           [reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y()],false);
 
-      exp_m_->simd_individual->current_individuals[x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;
-      exp_m_->simd_individual->current_individuals[x*exp_m_->world()->height()+y]->parent_id =
+      exp_m_->exp_m_7_->current_individuals[x*exp_m_->world()->height()+y]->indiv_id = x*exp_m_->world()->height()+y;
+      exp_m_->exp_m_7_->current_individuals[x*exp_m_->world()->height()+y]->parent_id =
           reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y();*/
 
     }
@@ -874,7 +874,7 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
         {
           NewIndivEvent* eindiv = new NewIndivEvent(
               new_indiv, parent, x, y, index,
-              exp_m_->simd_individual->next_generation_reproducer_[index]);
+              exp_m_->exp_m_7_->next_generation_reproducer_[index]);
           //notifyObservers(NEW_INDIV, eindiv);
 
           exp_m_->tree()->update_new_indiv(eindiv);
@@ -897,7 +897,7 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
         {
           NewIndivEvent* eindiv = new NewIndivEvent(
               new_indiv, parent, x, y, index,
-              exp_m_->simd_individual->next_generation_reproducer_[index]);
+              exp_m_->exp_m_7_->next_generation_reproducer_[index]);
           //notifyObservers(NEW_INDIV, eindiv);
           exp_m_->tree()->update_new_indiv(eindiv);
           delete eindiv;
@@ -1184,7 +1184,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     /*     world->grid(x,y)->local_meta_array = local_meta_array;
        world->grid(x,y)->loc_phenotype = loc_phenotype;*/
 
-    exp_m_->simd_individual->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
+    exp_m_->exp_m_7_->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                             ((y+y_offset+grid_height) % grid_height);
 
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,

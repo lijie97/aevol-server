@@ -169,7 +169,7 @@ class ExpManager : public Observer {
     DnaMutator** dna_mutator_array_ = nullptr;
 
     // SIMD Stuff
-    ExpManager_7* simd_individual = nullptr;
+    ExpManager_7* exp_m_7_ = nullptr;
     int grain_size = 1;
  protected:
   // =======================================================================

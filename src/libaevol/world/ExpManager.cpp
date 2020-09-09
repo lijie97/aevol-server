@@ -119,7 +119,7 @@ ExpManager::ExpManager()
 // ===========================================================================
 ExpManager::~ExpManager() noexcept
 {
-  delete simd_individual;
+  delete exp_m_7_;
   delete exp_s_;
   delete output_m_;
   delete world_;
@@ -378,7 +378,7 @@ void ExpManager::step_to_next_generation() {
 #endif
 
 /*  bool simd_first = false;
-  if (simd_individual == nullptr) {
+  if (exp_m_7_ == nullptr) {
     simd_first = true;
   }*/
 
@@ -387,7 +387,7 @@ void ExpManager::step_to_next_generation() {
         t1 = high_resolution_clock::now();
 #endif
 
-        if (!simd_individual->standalone() || (simd_individual->standalone()&&check_simd())) {
+        if (!exp_m_7_->standalone() || (exp_m_7_->standalone()&&check_simd())) {
             exp_s_->step_to_next_generation();
         }
 
@@ -407,16 +407,16 @@ void ExpManager::step_to_next_generation() {
 #endif
 
 /*  if (simd_first) {
-    simd_individual->check_result();
+    exp_m_7_->check_result();
   } else {*/
 #ifdef WITH_STANDALONE_SIMD
     }
 #endif
-    if (simd_individual->standalone())
-        simd_individual->run_a_step(w_max_,selection_pressure(),true);
+    if (exp_m_7_->standalone())
+      exp_m_7_->run_a_step(w_max_,selection_pressure(),true);
 
     if (check_simd_) {
-        simd_individual->check_result();
+      exp_m_7_->check_result();
     }
   //}
 #ifdef WITH_STANDALONE_SIMD
@@ -428,7 +428,7 @@ void ExpManager::step_to_next_generation() {
         auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
 #endif
 
-        if ((!simd_individual->standalone()) || (simd_individual->standalone() && check_simd())) {
+        if ((!exp_m_7_->standalone()) || (exp_m_7_->standalone() && check_simd())) {
 #ifdef __PERF_LOG__
             t1 = high_resolution_clock::now();
 #endif
@@ -501,9 +501,9 @@ void ExpManager::load(gzFile& exp_s_file,
     }
 
     if (to_be_run) {
-        simd_individual = new ExpManager_7(this);
-        simd_individual->protein_grain_size = grain_size;
-        simd_individual->rna_grain_size = grain_size;
+      exp_m_7_                     = new ExpManager_7(this);
+      exp_m_7_->protein_grain_size = grain_size;
+      exp_m_7_->rna_grain_size = grain_size;
     }
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
@@ -511,21 +511,21 @@ void ExpManager::load(gzFile& exp_s_file,
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
     if (to_be_run) {
-        simd_individual->set_stats(output_m_->stats());
+      exp_m_7_->set_stats(output_m_->stats());
     }
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (ExpManager_7::standalone_simd) {
           if (to_be_run) {
-              simd_individual->addObserver(tree(), NEW_INDIV);
+            exp_m_7_->addObserver(tree(), NEW_INDIV);
               for (int16_t x = 0; x < grid_width(); x++) {
                   for (int16_t y = 0; y < grid_height(); y++) {
-                      simd_individual->current_individuals[x * grid_height() + y]->addObserver(
+                    exp_m_7_->current_individuals[x * grid_height() + y]->addObserver(
                               tree(),
                               END_REPLICATION);
                   }
               }
-              simd_individual->addObserver(tree(), END_GENERATION);
+              exp_m_7_->addObserver(tree(), END_GENERATION);
           }
       } else {
           sel()->addObserver(tree(), NEW_INDIV);
@@ -543,15 +543,15 @@ void ExpManager::load(gzFile& exp_s_file,
   if (record_light_tree()){
     if (ExpManager_7::standalone_simd) {
         if (to_be_run) {
-            simd_individual->addObserver(light_tree(), NEW_INDIV);
+          exp_m_7_->addObserver(light_tree(), NEW_INDIV);
             for (int16_t x = 0; x < grid_width(); x++) {
                 for (int16_t y = 0; y < grid_height(); y++) {
-                    simd_individual->current_individuals[x * grid_height() + y]->addObserver(
+                  exp_m_7_->current_individuals[x * grid_height() + y]->addObserver(
                             light_tree(),
                             END_REPLICATION);
                 }
             }
-            simd_individual->addObserver(light_tree(), END_GENERATION);
+            exp_m_7_->addObserver(light_tree(), END_GENERATION);
         }
     } else {
       sel()->addObserver(light_tree(), NEW_INDIV);
@@ -713,11 +713,11 @@ void ExpManager::run_evolution() {
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
 
-      if (simd_individual->standalone())
-          simd_individual->run_a_step(w_max_,selection_pressure(),false);
+      if (exp_m_7_->standalone())
+        exp_m_7_->run_a_step(w_max_,selection_pressure(),false);
 
       if (check_simd_)
-          simd_individual->check_result();
+        exp_m_7_->check_result();
 
       bool finished=false;
         // For each generation
@@ -735,12 +735,12 @@ void ExpManager::run_evolution() {
                                         AeTime::time());
                                 if (!first_run) {
                                     if (ExpManager_7::standalone_simd) {
-                                        simd_individual->dna_factory_->stats();
+                                      exp_m_7_->dna_factory_->stats();
                                         printf(
                                                 "  Best individual's distance to target (metabolic) : %f (clones %d)\n",
-                                                //simd_individual->best_indiv->indiv_id,
-                                                simd_individual->best_indiv->metaerror,
-                                                simd_individual->nb_clones_);
+                                                //exp_m_7_->best_indiv->indiv_id,
+                                          exp_m_7_->best_indiv->metaerror,
+                                          exp_m_7_->nb_clones_);
                                     } else {
                                         printf("  Best individual's distance to target (metabolic) : %f\n",
                                                 //best_indiv()->id(),
@@ -810,7 +810,7 @@ void ExpManager::run_evolution() {
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
 
-  if (!simd_individual->standalone()) {
+  if (!exp_m_7_->standalone()) {
     FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
     fputs(best_indiv()->genetic_unit_sequence(0), org_file);
     fclose(org_file);
