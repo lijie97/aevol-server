@@ -228,9 +228,6 @@ namespace aevol {
         }
 
         void reallocate_promoters() {
-            int old_dyntab_size_ = dyntab_size_;
-            int old_nb_block_dyntab_ = nb_block_dyntab_;
-
             nb_block_dyntab_ = ((promoter_count() * DYNTAB_BLOCK_MUL) / DYNTAB_BLOCK_SIZE) + 1;
             dyntab_size_ = nb_block_dyntab_ * DYNTAB_BLOCK_SIZE;
 
