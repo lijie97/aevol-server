@@ -2169,7 +2169,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
         exp_m_->world()->grid(x, y)->set_individual(indiv);
       }
-      
+
       // Create missing directories
       exp_m_->WriteDynamicFiles();
 
