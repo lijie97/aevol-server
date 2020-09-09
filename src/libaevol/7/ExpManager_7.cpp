@@ -2126,9 +2126,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
   if (!first_gener_ && ExpManager_7::standalone() && !exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
 #pragma omp single
     {
-
-      printf("Backup... OK\n");
-
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
         int x = indiv_id / exp_m_->world()->height();
         int y = indiv_id % exp_m_->world()->height();
@@ -2172,9 +2169,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
         exp_m_->world()->grid(x, y)->set_individual(indiv);
       }
-
-
-      printf("Write FILES\n");
+      
       // Create missing directories
       exp_m_->WriteDynamicFiles();
 
