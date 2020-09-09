@@ -172,7 +172,7 @@ class ExpManager : public Observer {
     ExpManager_7* exp_m_7_ = nullptr;
 
   /// Which individual will be placed in each GridCell
-  int32_t* next_generation_reproducer_;
+  int32_t* next_generation_reproducer_ = nullptr;
 
     int grain_size = 1;
  protected:
