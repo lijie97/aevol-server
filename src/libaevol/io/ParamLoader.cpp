@@ -90,9 +90,6 @@ namespace aevol {
 // =================================================================
 static const int8_t STRAIN_NAME_DEFAULT_SIZE  = 20;
 static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
-#ifndef LOGIN_NAME_MAX
-#define LOGIN_NAME_MAX 256
-#endif
 
 const char kTabChar = 0x09;
 

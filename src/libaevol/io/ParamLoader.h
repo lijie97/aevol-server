@@ -57,6 +57,11 @@
 #include "raevol/Protein_R.h"
 #endif
 
+#ifndef LOGIN_NAME_MAX
+#define LOGIN_NAME_MAX 256
+#endif
+
+
 namespace aevol {
 // =================================================================
 //                          Class declarations
