@@ -52,15 +52,12 @@ bool ExpManager_7::standalone_simd = true;
 ExpManager_7::ExpManager_7(ExpManager* exp_m) {
   printf("  Loading SIMD Controller...");
 
-  standalone_ = standalone_simd;
   exp_m_ = exp_m;
 
   nb_indivs_ = exp_m_->nb_indivs();
 
   current_individuals       = new Individual_7*[exp_m_->nb_indivs()];
   previous_individuals      = new Individual_7*[exp_m_->nb_indivs()];
-
-  next_generation_reproducer_ = new int32_t[exp_m_->nb_indivs()];
 
   // Allocate Dna_7
   int max_size_dna = -1;
@@ -86,7 +83,7 @@ ExpManager_7::ExpManager_7(ExpManager* exp_m) {
     current_individuals[indiv_id]->parent_id = indiv_id;
     previous_individuals[indiv_id] = current_individuals[indiv_id];
     current_individuals[indiv_id]->global_id = AeTime::time() * 1024 + indiv_id;
-    next_generation_reproducer_[indiv_id] = indiv_id;
+    exp_m_->next_generation_reproducer_[indiv_id] = indiv_id;
   }
 
   dna_size = new int[exp_m_->nb_indivs()];
@@ -172,7 +169,7 @@ void ExpManager_7::selection(int indiv_id) {
   delete [] probs;
 
 
-  next_generation_reproducer_[indiv_id] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
+  exp_m_->next_generation_reproducer_[indiv_id] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                           ((y+y_offset+grid_height) % grid_height);
   dna_size[indiv_id] =
       previous_individuals[cur_x*grid_height+cur_y]->dna_->length();
@@ -239,14 +236,14 @@ void ExpManager_7::check_selection(int indiv_id) {
                  ((y+y_offset+grid_height) % grid_height);
 
 
-  if (found_id != next_generation_reproducer_[indiv_id]) {
+  if (found_id != exp_m_->next_generation_reproducer_[indiv_id]) {
 
 
     printf("For individual %d: Selection is diff SIMD %d CPU %d (Meta error %f -- %f || Fitness %e -- %e) \n",
-           indiv_id, found_id, next_generation_reproducer_[indiv_id],
-        previous_individuals[next_generation_reproducer_[indiv_id]]->metaerror,
+           indiv_id, found_id, exp_m_->next_generation_reproducer_[indiv_id],
+        previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]]->metaerror,
         previous_individuals[found_id]->metaerror,
-        previous_individuals[next_generation_reproducer_[indiv_id]]->fitness,
+        previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]]->fitness,
         previous_individuals[found_id]->fitness);
 
 
@@ -316,7 +313,7 @@ void ExpManager_7::check_selection(int indiv_id) {
 
 
 void ExpManager_7::do_mutation(int indiv_id) {
-  if (standalone_ && !exp_m_->check_simd()) {
+  if (ExpManager_7::standalone() && !exp_m_->check_simd()) {
 
     int x = indiv_id / exp_m_->world()->height();
     int y = indiv_id % exp_m_->world()->height();
@@ -324,7 +321,7 @@ void ExpManager_7::do_mutation(int indiv_id) {
 
     exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
         exp_m_->world()->grid(x, y)->mut_prng(),
-        previous_individuals[next_generation_reproducer_[indiv_id]]->dna_->length(),
+        previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]]->dna_->length(),
         exp_m_->exp_s()->mut_params()->duplication_rate(),
         exp_m_->exp_s()->mut_params()->deletion_rate(),
         exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -340,19 +337,19 @@ void ExpManager_7::do_mutation(int indiv_id) {
 
   if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
     current_individuals[indiv_id] =
-        new Individual_7(exp_m_, previous_individuals[next_generation_reproducer_[indiv_id]],dna_factory_);
+        new Individual_7(exp_m_, previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]],dna_factory_);
 
     current_individuals[indiv_id]->global_id = AeTime::time()*1024+indiv_id;
     current_individuals[indiv_id]->indiv_id = indiv_id;
     current_individuals[indiv_id]->parent_id =
-        next_generation_reproducer_[indiv_id];
-    if (standalone_ && exp_m_->record_tree()) {
+        exp_m_->next_generation_reproducer_[indiv_id];
+    if (ExpManager_7::standalone() && exp_m_->record_tree()) {
       int x = indiv_id / exp_m_->world()->height();
       int y = indiv_id % exp_m_->world()->height();
       NewIndivEvent *eindiv = new NewIndivEvent(
           current_individuals[indiv_id],
-          previous_individuals[next_generation_reproducer_[indiv_id]],
-                                                x, y,indiv_id,next_generation_reproducer_[indiv_id]);
+          previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]],
+                                                x, y,indiv_id,exp_m_->next_generation_reproducer_[indiv_id]);
 
       exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
@@ -362,7 +359,7 @@ void ExpManager_7::do_mutation(int indiv_id) {
 #ifdef WITH_PERF_TRACES
     auto t_start = std::chrono::steady_clock::now();
 #endif
-    if (standalone_ && !exp_m_->check_simd())
+    if (ExpManager_7::standalone() && !exp_m_->check_simd())
       current_individuals[indiv_id]->dna_->apply_mutations_standalone();
     else
       current_individuals[indiv_id]->dna_->apply_mutations();
@@ -377,21 +374,17 @@ void ExpManager_7::do_mutation(int indiv_id) {
 #pragma omp atomic
     nb_clones_++;
 
-    int32_t parent_id;
-    if (standalone_)
-      parent_id = next_generation_reproducer_[indiv_id];
-    else
-      parent_id = next_generation_reproducer_[indiv_id];
+    int32_t parent_id = exp_m_->next_generation_reproducer_[indiv_id];
 
     current_individuals[indiv_id] = previous_individuals[parent_id];
 
-    if (standalone_ && exp_m_->record_tree()) {
+    if (ExpManager_7::standalone() && exp_m_->record_tree()) {
       int x = indiv_id / exp_m_->world()->height();
       int y = indiv_id % exp_m_->world()->height();
       NewIndivEvent *eindiv = new NewIndivEvent(
           current_individuals[indiv_id],
-          previous_individuals[next_generation_reproducer_[indiv_id]],
-                                                x, y,indiv_id,next_generation_reproducer_[indiv_id]);
+          previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]],
+                                                x, y,indiv_id,exp_m_->next_generation_reproducer_[indiv_id]);
       exp_m_->tree()->update_new_indiv(eindiv);
       delete eindiv;
     }
@@ -496,8 +489,6 @@ ExpManager_7::~ExpManager_7() {
   delete dna_factory_;
 
   delete target;
-
-  delete next_generation_reproducer_;
 }
 
 
@@ -923,7 +914,7 @@ void ExpManager_7::compute_RNA(int indiv_id) {
               if (rna_length >= 0) {
 
 
-                int glob_rna_idx = -1;
+                int glob_rna_idx;
 #pragma omp critical
                 {
                   glob_rna_idx =
@@ -1846,9 +1837,9 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
   for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 1) {
     {
       for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
-        if (standalone_ && optim_prom && !exp_m_->check_simd()) {
+        if (ExpManager_7::standalone() && optim_prom && !exp_m_->check_simd()) {
           selection(indiv_id);
-        } else if (!standalone_ && optim_prom) {
+        } else if (!ExpManager_7::standalone() && optim_prom) {
         } else if (optim_prom && standalone() && exp_m_->check_simd()) {
         }
 
@@ -1864,7 +1855,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
           exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
               exp_m_->world()->grid(x, y)->mut_prng(),
-              previous_individuals[next_generation_reproducer_[indiv_id]]->dna_->length(),
+              previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]]->dna_->length(),
               exp_m_->exp_s()->mut_params()->duplication_rate(),
               exp_m_->exp_s()->mut_params()->deletion_rate(),
               exp_m_->exp_s()->mut_params()->translocation_rate(),
@@ -1889,7 +1880,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
           compute_fitness(indiv_id, selection_pressure);
         }
 
-        if (standalone_ && optim_prom && exp_m_->record_tree()) {
+        if (ExpManager_7::standalone() && optim_prom && exp_m_->record_tree()) {
           int x = indiv_id / exp_m_->world()->height();
           int y = indiv_id % exp_m_->world()->height();
 
@@ -1930,7 +1921,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
       previous_individuals[indiv_id] = current_individuals[indiv_id];
       current_individuals[indiv_id] = nullptr;
     }
-  } else if (standalone_ && (!optim_prom)) {
+  } else if (ExpManager_7::standalone() && (!optim_prom)) {
 
   } else {
 #pragma omp for schedule(static)
@@ -2092,12 +2083,12 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 #pragma omp single
     {
 
-      if (standalone_ && exp_m_->record_light_tree()) {
-        if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+      if (ExpManager_7::standalone() && exp_m_->record_light_tree()) {
+        if (ExpManager_7::standalone() && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
             AeTime::time() > 0) {
         }
 
-        if (standalone_ && exp_m_->record_light_tree() && AeTime::time() > 0) {
+        if (ExpManager_7::standalone() && exp_m_->record_light_tree() && AeTime::time() > 0) {
           exp_m_->output_m()->light_tree()->update_tree(AeTime::time(),
                                                         previous_individuals);
 
@@ -2107,14 +2098,14 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
           }
         }
 
-        if (standalone_ && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
+        if (ExpManager_7::standalone() && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
             AeTime::time() > 0) {
         }
 
       }
 
 
-      if (standalone_ && exp_m_->record_tree() && AeTime::time() %  exp_m_->tree_step() == 0 &&
+      if (ExpManager_7::standalone() && exp_m_->record_tree() && AeTime::time() %  exp_m_->tree_step() == 0 &&
           AeTime::time() > 0) {
         int status;
         status = mkdir(TREE_DIR, 0755);
@@ -2134,7 +2125,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
   }
 
 
-  if (!first_gener_ && standalone_ && !exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
+  if (!first_gener_ && ExpManager_7::standalone() && !exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
 #pragma omp single
     {
 
@@ -2202,7 +2193,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
     }
   }
 
-  if (AeTime::time() == exp_m_->end_step() && standalone_ && !exp_m_->check_simd()) {
+  if (AeTime::time() == exp_m_->end_step() && ExpManager_7::standalone() && !exp_m_->check_simd()) {
 #pragma omp for schedule(static)
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       int x = indiv_id / exp_m_->world()->height();

@@ -76,7 +76,7 @@ class ExpManager_7 : public Observable{
   void check_dna();
   void check_struct();
   void check_individual(int indiv_id, int x, int y);
-  bool standalone() const { return standalone_; }
+  static bool standalone() { return standalone_simd; }
 
 
   void build_phenotypic_target(PhenotypicTargetHandler* phenotypic_target_handler);
@@ -87,8 +87,6 @@ class ExpManager_7 : public Observable{
   Individual_7** current_individuals;
   Individual_7** previous_individuals;
   Individual_7* best_indiv;
-
-  int32_t* next_generation_reproducer_;
 
   int32_t nb_indivs_;
   int32_t nb_clones_;
@@ -107,7 +105,6 @@ class ExpManager_7 : public Observable{
 #else
   Vector_Fuzzy* target;
 #endif
-  bool standalone_;
   bool first_gener_ = true;
 
   Stats_7* stats_best = nullptr;

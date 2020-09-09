@@ -170,6 +170,10 @@ class ExpManager : public Observer {
 
     // SIMD Stuff
     ExpManager_7* exp_m_7_ = nullptr;
+
+  /// Which individual will be placed in each GridCell
+  int32_t* next_generation_reproducer_;
+
     int grain_size = 1;
  protected:
   // =======================================================================
@@ -228,6 +232,8 @@ class ExpManager : public Observer {
 
 
         double w_max_ = 0;
+
+
 };
 
 // ===========================================================================

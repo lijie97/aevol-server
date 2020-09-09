@@ -252,13 +252,7 @@ void Selection::step_to_next_generation() {
     }
 
     // Do local competitions
-#ifdef _OPENMP
-#ifndef __OPENMP_GPU
-//#pragma omp parallel for schedule(dynamic) private(x,y)
-#else
-#pragma omp target teams distribute parallel for schedule(static,1) private(x,y)
-#endif
-#endif
+    #pragma omp parallel for schedule(dynamic) private(x,y)
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
       y = index % grid_height;
@@ -305,21 +299,8 @@ void Selection::step_to_next_generation() {
 
   std::vector<Individual*> to_evaluate;
 
-#ifdef _OPENMP
-#ifndef __OPENMP_GPU
-//  #pragma omp parallel
-//#pragma omp single
-  {
-#endif
-#endif
 
-#ifdef _OPENMP
-#ifndef __OPENMP_GPU
 #pragma omp parallel for schedule(dynamic) private(x,y,what)
-#else
-#pragma omp target teams distribute parallel for schedule(static,1) private(x,y,what)
-#endif
-#endif
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
     y = index % grid_height;
@@ -331,11 +312,7 @@ void Selection::step_to_next_generation() {
     if (what == 1 || what == 2) {
 #endif
 
-#ifdef _OPENMP
-#ifndef __OPENMP_GPU
 #pragma omp critical(updateindiv)
-#endif
-#endif
       {
         to_evaluate.push_back(pop_grid[x][y]->individual());
       }
@@ -344,20 +321,9 @@ void Selection::step_to_next_generation() {
 #endif
 
   }
-#ifdef _OPENMP
-  #ifndef __OPENMP_GPU
-//#pragma omp barrier
-  #endif
-#endif
   t1 = high_resolution_clock::now();
 
-#ifdef _OPENMP
-#ifndef __OPENMP_GPU
 #pragma omp parallel for schedule(dynamic)
-#else
-#pragma omp target teams distribute parallel for schedule(static,1)
-#endif
-#endif
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
 #ifdef __REGUL
     if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
@@ -369,13 +335,6 @@ void Selection::step_to_next_generation() {
     run_life(to_evaluate[i]);
 #endif
   }
-
-#ifdef _OPENMP
-#ifndef __OPENMP_GPU
-  }
-#endif
-#endif
-
 
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
@@ -874,7 +833,7 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
         {
           NewIndivEvent* eindiv = new NewIndivEvent(
               new_indiv, parent, x, y, index,
-              exp_m_->exp_m_7_->next_generation_reproducer_[index]);
+              exp_m_->next_generation_reproducer_[index]);
           //notifyObservers(NEW_INDIV, eindiv);
 
           exp_m_->tree()->update_new_indiv(eindiv);
@@ -897,7 +856,7 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
         {
           NewIndivEvent* eindiv = new NewIndivEvent(
               new_indiv, parent, x, y, index,
-              exp_m_->exp_m_7_->next_generation_reproducer_[index]);
+              exp_m_->next_generation_reproducer_[index]);
           //notifyObservers(NEW_INDIV, eindiv);
           exp_m_->tree()->update_new_indiv(eindiv);
           delete eindiv;
@@ -1184,7 +1143,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     /*     world->grid(x,y)->local_meta_array = local_meta_array;
        world->grid(x,y)->loc_phenotype = loc_phenotype;*/
 
-    exp_m_->exp_m_7_->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
+    exp_m_->next_generation_reproducer_[x*grid_height+y] = ((x+x_offset+grid_width)  % grid_width)*grid_height+
                                             ((y+y_offset+grid_height) % grid_height);
 
   return world->indiv_at((x+x_offset+grid_width)  % grid_width,

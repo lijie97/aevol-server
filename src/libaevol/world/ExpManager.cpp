@@ -107,6 +107,10 @@ ExpManager::ExpManager()
   // ------------------------------------------------------------- Quit signal
   quit_signal_received_ = false;
 
+
+  // ------------------------ Which Individuals will reproduce in each GridCell
+
+
 #ifdef __PROXY_POW_APPROX
 #ifdef __REGUL
   Rna_R::load_lookup_table();
@@ -127,6 +131,8 @@ ExpManager::~ExpManager() noexcept
   delete world_;
 
   delete [] dna_mutator_array_;
+
+  delete next_generation_reproducer_;
 
   //delete FuzzyFactory::fuzzyFactory;
 }
@@ -151,6 +157,7 @@ void ExpManager::InitializeWorld(int16_t grid_width,
   world_->set_mut_prng(mut_prng);
   world_->set_stoch_prng(stoch_prng);
   world_->InitGrid(grid_width, grid_height, habitat, share_phenotypic_target);
+  next_generation_reproducer_ = new int32_t[nb_indivs()];
 }
 
 /*!
@@ -408,9 +415,6 @@ void ExpManager::step_to_next_generation() {
         auto ta = high_resolution_clock::now();
 #endif
 
-/*  if (simd_first) {
-    exp_m_7_->check_result();
-  } else {*/
 #ifdef WITH_STANDALONE_SIMD
     }
 #endif
@@ -430,7 +434,7 @@ void ExpManager::step_to_next_generation() {
         auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
 #endif
 
-        if ((!exp_m_7_->standalone()) || (exp_m_7_->standalone() && check_simd())) {
+        if ((!ExpManager_7::standalone()) || (ExpManager_7::standalone() && check_simd())) {
 #ifdef __PERF_LOG__
             t1 = high_resolution_clock::now();
 #endif
@@ -684,6 +688,8 @@ void ExpManager::load(int64_t t0,
  * Run the simulation
  */
 void ExpManager::run_evolution() {
+  next_generation_reproducer_ = new int32_t[nb_indivs()];
+
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
   WriteSetupFiles();
