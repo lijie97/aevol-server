@@ -83,7 +83,6 @@ ExpManager_7::ExpManager_7(ExpManager* exp_m) {
     current_individuals[indiv_id]->parent_id = indiv_id;
     previous_individuals[indiv_id] = current_individuals[indiv_id];
     current_individuals[indiv_id]->global_id = AeTime::time() * 1024 + indiv_id;
-    exp_m_->next_generation_reproducer_[indiv_id] = indiv_id;
   }
 
   dna_size = new int[exp_m_->nb_indivs()];

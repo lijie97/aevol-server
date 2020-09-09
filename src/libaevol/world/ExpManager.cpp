@@ -690,6 +690,12 @@ void ExpManager::load(int64_t t0,
 void ExpManager::run_evolution() {
   next_generation_reproducer_ = new int32_t[nb_indivs()];
 
+  if (ExpManager_7::standalone()) {
+    for (int indiv_id = 0; indiv_id < nb_indivs(); indiv_id++) {
+      next_generation_reproducer_[indiv_id] = indiv_id;
+    }
+
+  }
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
   WriteSetupFiles();
