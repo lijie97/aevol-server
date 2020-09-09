@@ -119,7 +119,9 @@ ExpManager::ExpManager()
 // ===========================================================================
 ExpManager::~ExpManager() noexcept
 {
-  delete exp_m_7_;
+  if (ExpManager_7::standalone_simd) {
+    delete exp_m_7_;
+  }
   delete exp_s_;
   delete output_m_;
   delete world_;
@@ -500,19 +502,24 @@ void ExpManager::load(gzFile& exp_s_file,
         dna_mutator_array_[i] = nullptr;
     }
 
-    if (to_be_run) {
-      exp_m_7_                     = new ExpManager_7(this);
-      exp_m_7_->protein_grain_size = grain_size;
-      exp_m_7_->rna_grain_size = grain_size;
+  if (ExpManager_7::standalone_simd) {
+      if (to_be_run) {
+        exp_m_7_                     = new ExpManager_7(this);
+        exp_m_7_->protein_grain_size = grain_size;
+        exp_m_7_->rna_grain_size     = grain_size;
+      }
     }
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
+  if (ExpManager_7::standalone_simd) {
+
     if (to_be_run) {
       exp_m_7_->set_stats(output_m_->stats());
     }
+  }
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (ExpManager_7::standalone_simd) {
@@ -712,12 +719,12 @@ void ExpManager::run_evolution() {
 
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
+      if (ExpManager_7::standalone_simd) {
+        exp_m_7_->run_a_step(w_max_, selection_pressure(), false);
 
-      if (exp_m_7_->standalone())
-        exp_m_7_->run_a_step(w_max_,selection_pressure(),false);
-
-      if (check_simd_)
-        exp_m_7_->check_result();
+        if (check_simd_)
+          exp_m_7_->check_result();
+      }
 
       bool finished=false;
         // For each generation

@@ -50,7 +50,6 @@ bool ExpManager_7::standalone_simd = true;
 #endif
 
 ExpManager_7::ExpManager_7(ExpManager* exp_m) {
-
   printf("  Loading SIMD Controller...");
 
   standalone_ = standalone_simd;
