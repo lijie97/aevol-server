@@ -9,23 +9,6 @@ add_subdirectory(SFMT-src-1.4)
 # ============================================================================
 find_package(ZLIB REQUIRED)
 
-
-# ============================================================================
-# Add PWD to include directories
-# ============================================================================
-include_directories(".")
-include_directories("./mutation")
-include_directories("./phenotype")
-include_directories("./biochemistry")
-include_directories("./rng")
-include_directories("./world")
-include_directories("./population")
-include_directories("./stats")
-include_directories("./cuda")
-include_directories("./io")
-include_directories("./gui")
-include_directories("./utils")
-include_directories("./7")
 # ============================================================================
 # Add targets add their dependencies
 # ============================================================================
@@ -63,6 +46,9 @@ set(aevol_sources
 
   io/Dump.cpp
   io/Dump.h
+  io/IOJson.cpp
+  io/IOJson.h
+  io/json.hpp
   io/LightTree.cpp
   io/LightTree.h
   io/Logging.cpp
@@ -79,7 +65,7 @@ set(aevol_sources
 #  io/GeneTree.h
 #  io/GeneTreeNode.cpp
 #  io/GeneTreeNode.h
-  
+
   mutation/Deletion.cpp
   mutation/Deletion.h
         7/DnaMutator.cpp
@@ -206,9 +192,9 @@ set(aevol_sources
         7/Vector_Fuzzy.h
         7/Vector_Fuzzy.cpp
   )
-  
+
 if ( ${with-raevol} )
-    set(aevol_sources ${aevol_sources} 
+    set(aevol_sources ${aevol_sources}
           raevol/Habitat_R.h
           raevol/Habitat_R.cpp
           raevol/Individual_R.h
@@ -222,7 +208,7 @@ if ( ${with-raevol} )
           raevol/Protein_R.h
           raevol/Protein_R.cpp
           raevol/Rna_R.h
-          raevol/Rna_R.cpp 
+          raevol/Rna_R.cpp
 	  #"SIMD_Abstract Metadata.cpp" "SIMD_Abstract Metadata.h" Map_Metadata.cpp Map_Metadata.h
             7/ExpManager_7.cpp 7/ExpManager_7.h 7/Promoter.cpp 7/Promoter.h 7/Rna_7.cpp 7/Rna_7.h 7/Protein_7.cpp 7/Protein_7.h)
 endif ()

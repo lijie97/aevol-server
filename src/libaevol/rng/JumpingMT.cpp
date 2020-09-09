@@ -66,6 +66,7 @@ JumpingMT::JumpingMT(const uint32_t& simple_seed)
 {
   sfmt_ = new sfmt_t();
   sfmt_init_gen_rand(sfmt_, simple_seed);
+  initial_seed_ = simple_seed;
 
   // Jump to get rid of the initializatino skew
   jump();
@@ -79,6 +80,7 @@ JumpingMT::JumpingMT(const JumpingMT & model)
   sfmt_ = new sfmt_t();
   memcpy(sfmt_->state, model.sfmt_->state, SFMT_N*sizeof(sfmt_->state[0]));
   sfmt_->idx = model.sfmt_->idx;
+  initial_seed_ = model.initial_seed();
 }
 
 /*!
@@ -89,6 +91,8 @@ JumpingMT::JumpingMT(gzFile backup_file)
   sfmt_ = new sfmt_t();
   gzread(backup_file, sfmt_->state, SFMT_N * sizeof(sfmt_->state[0]));
   gzread(backup_file, &(sfmt_->idx), sizeof(sfmt_->idx));
+  gzread(backup_file, &initial_seed_, sizeof(initial_seed_));
+
 }
 
 // =================================================================
@@ -343,6 +347,7 @@ void JumpingMT::save(gzFile backup_file) const
 
   gzwrite(backup_file, sfmt_->state, SFMT_N * sizeof(sfmt_->state[0]));
   gzwrite(backup_file, &(sfmt_->idx), sizeof(sfmt_->idx));
+  gzwrite(backup_file, &initial_seed_, sizeof(initial_seed_));
 }
 
 

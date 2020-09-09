@@ -90,9 +90,6 @@ namespace aevol {
 // =================================================================
 static const int8_t STRAIN_NAME_DEFAULT_SIZE  = 20;
 static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
-#ifndef LOGIN_NAME_MAX
-#define LOGIN_NAME_MAX 256
-#endif
 
 const char kTabChar = 0x09;
 
@@ -964,7 +961,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
          param_file_name_, cur_line, _env_gaussians_list.size() );
         exit( EXIT_FAILURE );
       }
-      
+
     #else
           std_env_gaussians.push_back(
         Gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
@@ -1357,7 +1354,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     else if (strcmp(line->words[0], "NB_ENVIRONMENTS") == 0)
     {
       int16_t nb_env = atoi( line->words[1] );
-      
+
       if( nb_env < 1 )
       {
         printf( "ERROR in param file \"%s\" on line %" PRId32 " : you must have at least one environment\n", param_file_name_, cur_line );
@@ -1372,12 +1369,12 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
         _env_gaussians_list.clear();
       }
 
-      
+
       if( _env_signals_list.size() > 0 )
       {
         _env_signals_list.clear();
       }
-      
+
 
       for( int16_t i = 0; i < nb_env; i++)
       {
@@ -1387,7 +1384,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else if (strcmp(line->words[0], "CREATE_SIGNAL") == 0)
     {
-      int signal_lenght = line->nb_words - 1;     
+      int signal_lenght = line->nb_words - 1;
 
       std::list<Codon*> codon_list;
       Codon* codon = NULL;
@@ -1636,7 +1633,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   #endif
 
   // Move the gaussian list from the parameters to the phen target handler
-  #ifndef __REGUL  
+  #ifndef __REGUL
   phenotypic_target_handler.set_gaussians(std_env_gaussians);
   #else
   phenotypic_target_handler.set_gaussians(_env_gaussians_list);
@@ -1692,7 +1689,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   #endif
 
   if (verbose) {
-    #ifndef __REGUL 
+    #ifndef __REGUL
     printf("Entire geometric area of the phenotypic target : %f\n",
            phenotypic_target_handler.get_geometric_area());
     #else

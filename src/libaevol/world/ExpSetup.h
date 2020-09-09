@@ -74,7 +74,11 @@ class ExpSetup {
   Selection * sel() const { return sel_; }
 
   // --------------------------------------------------------------- Transfer
-  double repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
+  bool with_HT() const { return with_HT_; };
+  bool repl_HT_with_close_points( void ) const { return repl_HT_with_close_points_; };
+  double HT_ins_rate() const { return HT_ins_rate_; };
+  double HT_repl_rate() const { return HT_repl_rate_; };
+  double repl_HT_detach_rate() const { return repl_HT_detach_rate_; };
 
   // --------------------------------------------------------------- Plasmids
   // See comments in ExpManager.h on how plasmids are handled
@@ -82,6 +86,8 @@ class ExpSetup {
   double prob_plasmid_HT() const { return prob_plasmid_HT_; }
   double tune_donor_ability() const { return tune_donor_ability_; }
   double tune_recipient_ability() const { return tune_recipient_ability_; }
+  bool   donor_cost() const { return donor_cost_; }
+  bool   recipient_cost() const { return recipient_cost_; }
   bool   swap_GUs() const { return swap_GUs_; }
 
   // -------------------------------------------------------------- Secretion
@@ -309,6 +315,7 @@ inline int ExpSetup::get_nb_indiv_age( void ) const
 {
   return _nb_indiv_age;
 }
+
 #endif
 
 // =====================================================================

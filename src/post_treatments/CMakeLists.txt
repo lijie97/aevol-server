@@ -2,29 +2,10 @@
 # Tell cmake about subdirectories to look into
 # ============================================================================
 
-
 # ============================================================================
 # Find packages
 # ============================================================================
 find_package(ZLIB REQUIRED)
-
-# ============================================================================
-# Add PWD to include directories
-# ============================================================================
-include_directories(".")
-include_directories("../libaevol")
-include_directories("../libaevol/mutation")
-include_directories("../libaevol/phenotype")
-include_directories("../libaevol/biochemistry")
-include_directories("../libaevol/rng")
-include_directories("../libaevol/world")
-include_directories("../libaevol/population")
-include_directories("../libaevol/stats")
-include_directories("../libaevol/cuda")
-include_directories("../libaevol/io")
-include_directories("../libaevol/gui")
-include_directories("../libaevol/utils")
-include_directories("../libaevol/7")
 
 # ============================================================================
 # libaevol-post is a library that contains classes shared by several
@@ -70,6 +51,14 @@ target_link_libraries(aevol_post_soft_lineage PUBLIC aevol)
 add_executable(aevol_post_robustness aevol_post_robustness.cpp)
 target_link_libraries(aevol_post_robustness PUBLIC aevol libaevol-post)
 
+add_executable(aevol_post_test_json aevol_post_test_json.cpp)
+target_link_libraries(aevol_post_test_json PUBLIC aevol libaevol-post)
+
+add_executable(aevol_post_robustness_json aevol_post_robustness_json.cpp)
+target_link_libraries(aevol_post_robustness_json PUBLIC aevol libaevol-post)
+
+add_executable(aevol_post_lineage_json aevol_post_lineage_json.cpp)
+target_link_libraries(aevol_post_lineage_json PUBLIC aevol libaevol-post)
 # ============================================================================
 # Set behaviour on make install
 # ============================================================================

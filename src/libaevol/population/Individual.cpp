@@ -356,6 +356,9 @@ Individual::Individual(const Individual& other) {
 
   // Plasmids settings
   allow_plasmids_ = other.allow_plasmids_;
+
+
+  grid_cell_ = other.grid_cell_;
 }
 
 /**
@@ -444,6 +447,8 @@ Individual::Individual(const Individual* parent, int32_t id,
 
   // Initialize statistical data
   modularity_ = -1;
+
+  grid_cell_ = parent->grid_cell_;
 }
 
 Individual* Individual::CreateIndividual(ExpManager* exp_m,
