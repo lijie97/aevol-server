@@ -949,7 +949,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
           allow_plasmids_,
           plasmid_initial_gene_,
           plasmid_initial_length_,
-          strain_name_.data(),
+          const_cast<char*>(strain_name_.data()),
           prng_,
           true);
       indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
@@ -998,7 +998,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
             allow_plasmids_,
             plasmid_initial_gene_,
             plasmid_initial_length_,
-            strain_name_.data(),
+            const_cast<char*>(strain_name_.data()),
             prng_,
             true);
         indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
@@ -1033,7 +1033,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
           allow_plasmids_,
           plasmid_initial_gene_,
           plasmid_initial_length_,
-          strain_name_.data(),
+          const_cast<char*>(strain_name_.data()),
           prng_,
           false);
       indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
@@ -1079,7 +1079,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
             allow_plasmids_,
             plasmid_initial_gene_,
             plasmid_initial_length_,
-            strain_name_.data(),
+            const_cast<char*>(strain_name_.data()),
             prng_,
             false);
         indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
