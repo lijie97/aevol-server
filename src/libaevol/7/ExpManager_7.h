@@ -97,6 +97,9 @@ class ExpManager_7 : public Observable{
 
   DnaFactory* dna_factory_;
 
+  long cumulate_size = 0;
+  long cumulate_diff = 0;
+
  private:
   ExpManager* exp_m_;
   int* dna_size;

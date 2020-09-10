@@ -354,7 +354,7 @@ void ExpManager_7::do_mutation(int indiv_id) {
       delete eindiv;
     }
 
-
+    auto size_before = current_individuals[indiv_id]->dna_->length_;
 #ifdef WITH_PERF_TRACES
     auto t_start = std::chrono::steady_clock::now();
 #endif
@@ -366,6 +366,13 @@ void ExpManager_7::do_mutation(int indiv_id) {
     auto t_end = std::chrono::steady_clock::now();
                 apply_mutation[indiv_id] = t_end.time_since_epoch().count() - t_start.time_since_epoch().count();
 #endif
+    auto size_after = current_individuals[indiv_id]->dna_->length_;
+
+#pragma omp atomic
+    cumulate_size += size_after;
+
+#pragma omp atomic
+    cumulate_diff += std::abs(size_after-size_before);
   } else {
 
 
@@ -1830,6 +1837,8 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 #pragma omp single
   {
     nb_clones_ = 0;
+    cumulate_size = 0;
+    cumulate_diff = 0;
   }
 
 #pragma omp for schedule(dynamic)

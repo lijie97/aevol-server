@@ -460,7 +460,7 @@ void ExpManager::step_to_next_generation() {
 #else
 
 #ifdef __PERF_LOG__
-        std::cout << "PERFLOG," << AeTime::time() << "," << duration_2 << "," << duration_simd << std::endl;
+        std::cout << "PERFLOG," << AeTime::time() << "," << duration_simd << ","<< exp_m_7_->cumulate_size << "," << exp_m_7_->cumulate_diff <<std::endl;
 #endif
 
 #endif
