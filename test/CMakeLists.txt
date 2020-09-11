@@ -1,9 +1,6 @@
 # Google Test headers
 add_subdirectory(googletest)
 
-# We need zlib
-find_package(ZLIB REQUIRED)
-
 # Libraries to link unit tests against
 set(test_libs
   aevol

@@ -171,6 +171,12 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.65.0 COMPONENTS filesystem)
 
 # ============================================================================
+# Look for Zlib
+# ============================================================================
+find_package(ZLIB REQUIRED)
+
+
+# ============================================================================
 # Get GNU standard installation directories (GNUInstallDirs module)
 # ============================================================================
 include(GNUInstallDirs)
