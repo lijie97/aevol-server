@@ -335,10 +335,8 @@ void ExpManager::step_to_next_generation() {
     auto ta = high_resolution_clock::now();
 #endif
 
-#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
     {
-#endif
         world_->ApplyHabitatVariation();
 
         // Take a step in time
@@ -395,29 +393,30 @@ void ExpManager::step_to_next_generation() {
 #ifdef __PERF_LOG__
         t1 = high_resolution_clock::now();
 #endif
-
+  }
         if (!exp_m_7_->standalone() || (exp_m_7_->standalone()&&check_simd())) {
             exp_s_->step_to_next_generation();
         }
 
-
+#pragma omp single
+        {
 #ifdef __CUDACC__
-        t2 = high_resolution_clock::now();
+          t2 = high_resolution_clock::now();
 #else
+  #ifdef __PERF_LOG__
+          auto t2 = high_resolution_clock::now();
+  #endif
+#endif
+
 #ifdef __PERF_LOG__
-        auto t2 = high_resolution_clock::now();
-#endif
-#endif
+          auto duration_2 =
+              std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1)
+                  .count();
 
-#ifdef __PERF_LOG__
-        auto duration_2 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-
-        auto ta = high_resolution_clock::now();
+          auto ta = high_resolution_clock::now();
 #endif
+        }
 
-#ifdef WITH_STANDALONE_SIMD
-    }
-#endif
     if (exp_m_7_->standalone())
       exp_m_7_->run_a_step(w_max_,selection_pressure(),true);
 
@@ -425,10 +424,8 @@ void ExpManager::step_to_next_generation() {
       exp_m_7_->check_result();
     }
   //}
-#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
     {
-#endif
 #ifdef __PERF_LOG__
         auto tb = high_resolution_clock::now();
         auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
@@ -464,9 +461,7 @@ void ExpManager::step_to_next_generation() {
 #endif
 
 #endif
-#ifdef WITH_STANDALONE_SIMD
     }
-#endif
 }
 
 /*!
@@ -740,13 +735,9 @@ void ExpManager::run_evolution() {
 
       bool finished=false;
         // For each generation
-#ifdef WITH_STANDALONE_SIMD
 #pragma omp parallel
-#endif
                 while (!finished) {
-#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
-#endif
                         {
                             if (AeTime::time() % 100 == 0) {
                                 printf(
@@ -794,20 +785,17 @@ void ExpManager::run_evolution() {
                         }
                         // Take one step in the evolutionary loop
                         step_to_next_generation();
-#ifdef WITH_STANDALONE_SIMD
 #pragma omp single
                         {
-#endif
 #ifdef __TRACING__
+                        };
                             t2 = high_resolution_clock::now();
                                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
                                 ae_logger::addLog(SELECTION,duration);
                                 ae_logger::flush(AeTime::time());
 #endif
                         }
-#ifdef WITH_STANDALONE_SIMD
                 }
-#endif
 #ifdef __TRACING__
   t_t2 = high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();

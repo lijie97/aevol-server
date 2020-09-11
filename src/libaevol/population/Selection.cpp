@@ -130,7 +130,24 @@ int mutator = 0;
 //                            Public Methods
 // =================================================================
 void Selection::step_to_next_generation() {
+  int32_t* nb_offsprings;
+  // Create proxies
+  World* world = exp_m_->world();
+  int16_t grid_width  = world->width();
+  int16_t grid_height = world->height();
+  int32_t pop_size = grid_width*grid_height;
 
+  GridCell*** pop_grid = exp_m_->grid();
+
+  Individual *** reproducers;
+  int16_t x, y;
+  int8_t what;
+  high_resolution_clock::time_point t1,t2;
+
+  std::list<Individual*> new_generation;
+
+#pragma omp single
+  {
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic
@@ -172,27 +189,16 @@ void Selection::step_to_next_generation() {
     exit(EXIT_FAILURE);
   }
 */
-  // Create proxies
-  World* world = exp_m_->world();
-  int16_t grid_width  = world->width();
-  int16_t grid_height = world->height();
-  int32_t pop_size = grid_width*grid_height;
-
-  GridCell*** pop_grid = exp_m_->grid();
 
   // create a temporary grid to store the reproducers
-  Individual *** reproducers = new Individual ** [grid_width];
+  reproducers = new Individual ** [grid_width];
   for (int16_t i = 0 ; i < grid_width ; i++) {
     reproducers[i] = new Individual* [grid_height];
   }
 
-  int16_t x, y;
-  int8_t what;
-  high_resolution_clock::time_point t1,t2;
 
   //std::unordered_map<unsigned long long, Individual*> unique_individual;
 
-  std::list<Individual*> new_generation;
 
   if (selection_scope_ == SCOPE_GLOBAL) {
     delete[] prob_reprod_;
@@ -215,7 +221,7 @@ void Selection::step_to_next_generation() {
 
     delete[] fitnesses;
 
-    int32_t* nb_offsprings = new int32_t[pop_size];
+    nb_offsprings = new int32_t[pop_size];
     exp_m_->world()->grid(0,0)->reprod_prng_->multinomial_drawing(nb_offsprings, prob_reprod_, pop_size, pop_size);
 
     int index = 0;
@@ -250,7 +256,7 @@ void Selection::step_to_next_generation() {
         exit(-1);
 #endif
     }
-
+  }
     // Do local competitions
     #pragma omp parallel for schedule(dynamic) private(x,y)
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
@@ -269,33 +275,35 @@ void Selection::step_to_next_generation() {
     }
   }
 
-  // TODO : Why is that not *after* the creation of the new population ?
-  // Add the compound secreted by the individuals
-  if (exp_m_->with_secretion()) {
-    for (int16_t x = 0; x < grid_width; x++) {
-      for (int16_t y = 0; y < grid_height; y++) {
-        pop_grid[x][y]->set_compound_amount(
-            pop_grid[x][y]->compound_amount() +
-            pop_grid[x][y]->individual()->fitness_by_feature(SECRETION));
+#pragma omp single
+  {
+    // TODO : Why is that not *after* the creation of the new population ?
+    // Add the compound secreted by the individuals
+    if (exp_m_->with_secretion()) {
+      for (int16_t x = 0; x < grid_width; x++) {
+        for (int16_t y = 0; y < grid_height; y++) {
+          pop_grid[x][y]->set_compound_amount(
+              pop_grid[x][y]->compound_amount() +
+              pop_grid[x][y]->individual()->fitness_by_feature(SECRETION));
+        }
       }
+
+      // Diffusion and degradation of compound in the habitat
+      world->update_secretion_grid();
     }
 
-    // Diffusion and degradation of compound in the habitat
-    world->update_secretion_grid();
-  }
-
-
-  // Create the new generation
-  std::list<Individual*> old_generation = exp_m_->indivs();
+    // Create the new generation
+    std::list<Individual*> old_generation = exp_m_->indivs();
 
 #ifdef __DETECT_CLONE
-  mutator = 0;
-  for (auto indiv : old_generation) {
-    //indiv->number_of_clones_ = 0;
-    //unique_individual[indiv->id()] = indiv;
-    (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
-  }
+    mutator = 0;
+    for (auto indiv: old_generation) {
+      //indiv->number_of_clones_ = 0;
+      //unique_individual[indiv->id()] = indiv;
+      (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
+    }
 #endif
+  }
 
   std::vector<Individual*> to_evaluate;
 
@@ -321,7 +329,11 @@ void Selection::step_to_next_generation() {
 #endif
 
   }
-  t1 = high_resolution_clock::now();
+
+#pragma omp single
+  {
+    t1 = high_resolution_clock::now();
+  }
 
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
@@ -336,6 +348,8 @@ void Selection::step_to_next_generation() {
 #endif
   }
 
+#pragma omp single
+  {
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
       y = index % grid_height;
@@ -358,16 +372,16 @@ void Selection::step_to_next_generation() {
       for (int16_t y = 0; y < grid_height; y++)
         new_generation.push_back(pop_grid[x][y]->individual());
 
-  // delete the temporary grid and the parental generation
-  for (int16_t x = 0; x < grid_width; x++) {
-    for (int16_t y = 0; y < grid_height; y++) {
-      reproducers[x][y] = nullptr;
+    // delete the temporary grid and the parental generation
+    for (int16_t x = 0; x < grid_width; x++) {
+      for (int16_t y = 0; y < grid_height; y++) {
+        reproducers[x][y] = nullptr;
+      }
+      delete[] reproducers[x];
     }
-    delete[] reproducers[x];
-  }
-  delete[] reproducers;
+    delete[] reproducers;
 
-/*#ifndef __DETECT_CLONE
+    /*#ifndef __DETECT_CLONE
 #ifdef __OPENMP_TASK
   #pragma omp parallel
   #pragma omp single
@@ -392,12 +406,12 @@ void Selection::step_to_next_generation() {
     // Compute the rank of each individual
 
     new_generation.sort([](Individual* lhs, Individual* rhs) {
-        return lhs->fitness() < rhs->fitness();
+      return lhs->fitness() < rhs->fitness();
     });
 
     int rank = 1;
 
-    for (Individual* indiv : new_generation) {
+    for (Individual* indiv: new_generation) {
       indiv->set_rank(rank++);
     }
 
@@ -410,19 +424,20 @@ void Selection::step_to_next_generation() {
     exp_m_->update_best();
 
     // Notify observers of the end of the generation
-  if (exp_m_->record_tree() || exp_m_->light_tree()) {
+    if (exp_m_->record_tree() || exp_m_->light_tree()) {
       exp_m_->tree()->signal_end_of_generation();
     }
 
-
 #ifdef WITH_PERF_TRACES
-        std::ofstream perf_traces_file_;
-        perf_traces_file_.open("vanilla_perf_traces.csv",std::ofstream::app);
-        for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-            perf_traces_file_<<AeTime::time()<<","<<indiv_id<<","<<apply_mutation[indiv_id]<<std::endl;
-        }
-        perf_traces_file_.close();
+    std::ofstream perf_traces_file_;
+    perf_traces_file_.open("vanilla_perf_traces.csv", std::ofstream::app);
+    for (int indiv_id = 0; indiv_id < (int)exp_m_->nb_indivs(); indiv_id++) {
+      perf_traces_file_ << AeTime::time() << "," << indiv_id << ","
+                        << apply_mutation[indiv_id] << std::endl;
+    }
+    perf_traces_file_.close();
 #endif
+  }
 /*#ifdef __DETECT_CLONE
 //    int number_of_clones = 0;
 #ifdef __OPENMP_TASK
