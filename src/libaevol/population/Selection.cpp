@@ -357,7 +357,6 @@ void Selection::step_to_next_generation() {
       x = index / grid_height;
       y = index % grid_height;
       if (exp_m_->record_tree() || exp_m_->light_tree()) {
-#pragma omp critical
         {
           //EndReplicationEvent *eindiv = new EndReplicationEvent(
           //                    world->indiv_at(x, y), x, y);
