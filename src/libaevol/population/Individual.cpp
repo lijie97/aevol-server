@@ -1316,42 +1316,18 @@ void Individual::compute_phenotype() {
   for (const auto& gen_unit: genetic_unit_list_) {
     phenotype_activ_->add(*gen_unit.activ_contribution());
     phenotype_inhib_->add(*gen_unit.inhib_contribution());
-
-/*    if (grid_cell()->x()*exp_m()->world()->height()+grid_cell()->y() == 894)
-      for (int i = 213; i <= 227; i++) {
-        printf("VANILLA -- X[%d] = %f\n",i,((HybridFuzzy*)phenotype_activ_)->points()[i]);
-      }*/
   }
-
-
-
-//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
-//            printf("Geom %lf %lf\n", phenotype_activ()->get_geometric_area(),phenotype_inhib()->get_geometric_area());
-//        }
-
 
         phenotype_activ_->clip(AbstractFuzzy::max,   Y_MAX);
   phenotype_inhib_->clip(AbstractFuzzy::min, - Y_MAX);
 
-//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
-//            printf("Geom CLIPA %lf %lf\n", phenotype_activ()->get_geometric_area(),phenotype_inhib()->get_geometric_area());
-//        }
-
   phenotype_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   phenotype_->add(*phenotype_activ_);
   phenotype_->add(*phenotype_inhib_);
-//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
-//            printf("Geom ADD %lf\n", phenotype()->get_geometric_area());
-//        }
-  phenotype_->clip(AbstractFuzzy::min, Y_MIN);
-//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
-//            printf("Geom CLIP %lf\n", phenotype()->get_geometric_area());
-//        }
-  phenotype_->simplify();
 
-//      if (grid_cell()->x() == 12 && grid_cell()->y() == 8 &&AeTime::time()>9349) {
-//            printf("Geom SIMPLIFY %lf\n", phenotype()->get_geometric_area());
-//        }
+  phenotype_->clip(AbstractFuzzy::min, Y_MIN);
+
+  phenotype_->simplify();
 }
 
 void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
@@ -1382,22 +1358,12 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
 
-//    if (grid_cell()->x() == 4 && grid_cell()->y() == 29) {
-//        printf("Delta VAN\n");
-//        delta->print();
-//    }
-
-
   for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
 
     dist_to_target_by_segment_[i] = delta->get_geometric_area(
       segments[i]->start, segments[i]->stop);
 
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_by_segment_[i];
-
-//      if (grid_cell()->x() == 4 && grid_cell()->y() == 29)
-//          printf("Segment %ld [%f %f] : Geom %f--  Feature %d : %f\n",i,segments[i]->start,segments[i]->stop,
-//             dist_to_target_by_segment_[i],segments[i]->feature,dist_to_target_by_feature_[segments[i]->feature]);
   }
 
   delete delta;
@@ -1413,9 +1379,6 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
 void Individual::compute_fitness(const PhenotypicTarget& target) {
   if (fitness_computed_) return; // Fitness has already been computed, nothing to do.
   fitness_computed_ = true;
-
-  /*if (id_ % 1024 == 1)
-    printf("computing fitness\n");*/
 
 #ifdef NORMALIZED_FITNESS
   for (int8_t i = 0 ; i < NB_FEATURES ; i++) {
@@ -1458,11 +1421,6 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
       fitness_by_feature_[i] = exp(
           -exp_m_->selection_pressure() * dist_to_target_by_feature_[i]);
 
-      /*if (id_ % 1024 == 1)
-        printf("dist to target by feat %d : %e --  %f (%f)\n",i,
-               fitness_by_feature_[i],
-               dist_to_target_by_feature_[i],
-               exp_m_->selection_pressure());*/
     }
   }
 

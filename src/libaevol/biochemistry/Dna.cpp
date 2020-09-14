@@ -3508,22 +3508,11 @@ void Dna::apply_mutations() {
           segment_length =
               Utils::mod(repl->pos_2() - repl->pos_1() - 1, length_) + 1;
 
-//          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
-//            printf(
-//                "%d -- %d -- Duplication pos_1 %d pos_2 %d pos_3 %d seg_lengh %d\n",
-//                    AeTime::time(),indiv()->id(), repl->pos_1(), repl->pos_2(), repl->pos_3(),
-//                segment_length);
-//            printf("Size before %d\n",length_);
-//          }*/
-
           mut = new Duplication(repl->pos_1(), repl->pos_2(), repl->pos_3(),
                                 segment_length);
           do_duplication(repl->pos_1(), repl->pos_2(), repl->pos_3());
 
 
-/*          if (indiv_->grid_cell()->x()*exp_m_->world()->height()+indiv_->grid_cell()->y()==49) {
-            printf("Size after %d\n",length_);
-          }*/
           break;
         case TRANSLOCATION:
           segment_length = repl->pos_2() - repl->pos_1();

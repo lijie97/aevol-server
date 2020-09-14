@@ -1125,7 +1125,6 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     case FITNESS_PROPORTIONATE : {
       for(int16_t i = 0 ; i < neighborhood_size ; i++) {
         probs[i] = local_fit_array[i]/sum_local_fit;
-         // if (0 == x*grid_height+y) printf("%d : %e %e\n",i,local_fit_array[i],sum_local_fit);
       }
 
       break;
@@ -1137,11 +1136,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   }
 
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
-    /*bool verbose = false;
-    if (2 == x*grid_height+y) {
-        printf("PRNG CPU\n");
-        verbose = true;
-    }*/
+    /*bool verbose = false;*/
   int16_t found_org = world->grid(x,y)->reprod_prng_->roulette_random(probs, neighborhood_size);
 
   int16_t x_offset = (found_org / selection_scope_x_) - 1;

@@ -342,7 +342,6 @@ void ExpManager::step_to_next_generation() {
         // Take a step in time
         AeTime::plusplus();
 
-        //if (AeTime::time() == 14) {
         // Create the corresponding new generation
 #ifdef __PERF_LOG__
         auto t1 = high_resolution_clock::now();
