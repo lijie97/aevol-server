@@ -180,6 +180,7 @@ class Selection : public Observable
     double* fitness_sum_tab_;
     // --------------------------- Probability of reproduction of each organism
 
+  Individual *** reproducers;
 
 
     unsigned long long unique_id = 16000;

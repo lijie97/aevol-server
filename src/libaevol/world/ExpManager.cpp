@@ -735,7 +735,7 @@ void ExpManager::run_evolution() {
 
       bool finished=false;
         // For each generation
-#pragma omp parallel
+#pragma omp parallel default(shared)
                 while (!finished) {
 #pragma omp single
                         {

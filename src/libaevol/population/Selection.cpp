@@ -139,7 +139,6 @@ void Selection::step_to_next_generation() {
 
   GridCell*** pop_grid = exp_m_->grid();
 
-  Individual *** reproducers;
   int16_t x, y;
   int8_t what;
   high_resolution_clock::time_point t1,t2;
@@ -245,20 +244,24 @@ void Selection::step_to_next_generation() {
 
         fitness_sum_tab_ = new double[number_of_phenotypic_target_models];
       for (int env_id = 0; env_id < number_of_phenotypic_target_models; env_id++) {
-        fitness_sum_tab_[env_id] = 0;
-        for (int i = 0; i < exp_m_->world()->width(); i++)
-          for (int j = 0; j < exp_m_->world()->height(); j++) {
-            fitness_sum_tab_[env_id] += dynamic_cast<Individual_R*>(world->indiv_at(i, j))->fitness(env_id);
-          }
-      }
+          fitness_sum_tab_[env_id] = 0;
+          for (int i = 0; i < exp_m_->world()->width(); i++)
+            for (int j = 0; j < exp_m_->world()->height(); j++) {
+              fitness_sum_tab_[env_id] +=
+                  dynamic_cast<Individual_R*>(world->indiv_at(i, j))
+                      ->fitness(env_id);
+            }
+        }
 #else
         printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
         exit(-1);
 #endif
     }
   }
+  }
+
     // Do local competitions
-    #pragma omp parallel for schedule(dynamic) private(x,y)
+    #pragma omp for schedule(dynamic) private(x,y)
     for (int32_t index = 0; index < grid_width * grid_height; index++) {
       x = index / grid_height;
       y = index % grid_height;
@@ -273,7 +276,7 @@ void Selection::step_to_next_generation() {
           reproducers[x][y]->grid_cell()->x()*exp_m_->world()->height()+reproducers[x][y]->grid_cell()->y();*/
 
     }
-  }
+
 
 #pragma omp single
   {
@@ -308,7 +311,7 @@ void Selection::step_to_next_generation() {
   std::vector<Individual*> to_evaluate;
 
 
-#pragma omp parallel for schedule(dynamic) private(x,y,what)
+#pragma omp for schedule(dynamic)  private(x,y,what)
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
     y = index % grid_height;
