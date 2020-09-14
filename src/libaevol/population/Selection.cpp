@@ -363,6 +363,21 @@ void Selection::step_to_next_generation() {
           // Tell observers the replication is finished
           //->notifyObservers(END_REPLICATION, eindiv);
           world->indiv_at(x, y)->compute_non_coding();
+          //delete eindiv;
+        }
+      }
+    }
+
+    for (int32_t index = 0; index < grid_width * grid_height; index++) {
+      x = index / grid_height;
+      y = index % grid_height;
+      if (exp_m_->record_tree() || exp_m_->light_tree()) {
+        {
+          //EndReplicationEvent *eindiv = new EndReplicationEvent(
+          //                    world->indiv_at(x, y), x, y);
+          // Tell observers the replication is finished
+          //->notifyObservers(END_REPLICATION, eindiv);
+//          world->indiv_at(x, y)->compute_non_coding();
           exp_m_->tree()
               ->report_by_index(AeTime::time(), x * grid_height + y)
               ->signal_end_of_replication(world->indiv_at(x, y));
