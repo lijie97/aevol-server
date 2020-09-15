@@ -36,6 +36,7 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
   }
 
   i = 0;
+  signals_models_.resize(handler->signals_models_.size());
   for (auto signal_protein : handler->signals_models_) {
     pProtein* prot = new pProtein(signal_protein);
     signals_models_[i] = prot;

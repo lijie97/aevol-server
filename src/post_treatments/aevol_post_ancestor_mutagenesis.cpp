@@ -204,7 +204,12 @@ char mutation_type_name[24];
 
   aevol::AeTime::plusplus();
   while ((time() <= t_end) && (((time() < end) || (end == -1)))) {
+#ifdef __REGUL
+    printf("Mutagenesis is not supported by RAevol yet\n");
+    exit(-1);
+#else
     rep = new ReplicationReport(lineage_file, &indiv);
+#endif
     index = rep->id(); // who we are building...
     indiv.Reevaluate();
 

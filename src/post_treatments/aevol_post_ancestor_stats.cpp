@@ -215,7 +215,12 @@ int main(int argc, char* argv[]) {
   //  Prepare the initial ancestor and write its stats
   // ==================================================
   GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
+#ifdef __REGUL
+  auto* indiv = dynamic_cast<Individual_R*>(grid_cell->individual());
+#else
   auto* indiv = grid_cell->individual();
+#endif
+
 #ifdef __REGUL
     std::ofstream fitmeta;
     fitmeta.open("ancestor_composed_fitness.csv",std::ofstream::trunc);

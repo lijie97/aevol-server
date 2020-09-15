@@ -63,15 +63,23 @@ class ReplicationReport : public Observer {
     //                             Constructors
     // =================================================================
     ReplicationReport() = default;
-    ReplicationReport(Individual* indiv,
+#ifdef __REGUL
+    ReplicationReport(Individual_R* indiv,
+                      const Individual_R* parent,
+                      Individual_R* donor = NULL);
+#else
+  ReplicationReport(Individual* indiv,
                       const Individual* parent,
                       Individual* donor = NULL);
-
+#endif
     // Creates a completely independent copy of the original report
     ReplicationReport(const ReplicationReport& other);
 
-    ReplicationReport(gzFile tree_file, Individual * indiv);
-
+#ifdef __REGUL
+    ReplicationReport(gzFile tree_file, Individual_R * indiv);
+#else
+  ReplicationReport(gzFile tree_file, Individual * indiv);
+#endif
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -80,7 +88,11 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline Individual * indiv() const;
+#ifdef __REGUL
+    inline Individual_R * indiv() const;
+#else
+  inline Individual * indiv() const;
+#endif
     unsigned long long id() { return id_; };
     int32_t rank() { return rank_; };
     inline int32_t  genome_size() const;
@@ -103,7 +115,11 @@ class ReplicationReport : public Observer {
       return dna_replic_report_;
     }
 
-    void            set_indiv(Individual * indiv);
+#ifdef __REGUL
+    void            set_indiv(Individual_R * indiv);
+#else
+  void            set_indiv(Individual * indiv);
+#endif
     inline void     set_parent_id(unsigned long long parent_id);
     inline void     set_parent_metabolic_error(double parent_metabolic_error);
     inline void     set_parent_secretion_error(double parent_secretion_error);
@@ -116,7 +132,12 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
+#ifdef __REGUL
+    void init(Tree* tree, Individual_R* offspring, Individual_R* parent, int indiv_id, int parent_id);
+    void init(LightTree* tree, Individual_R* offspring, Individual_R* parent, int indiv_id, int parent_id);
+    void signal_end_of_replication(Individual_R* indiv);
+#else
+  void init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
     void init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
     void signal_end_of_replication(Individual* indiv);
 
@@ -145,8 +166,11 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    Individual* indiv_ = nullptr;
-
+#ifdef __REGUL
+    Individual_R* indiv_ = nullptr;
+#else
+Individual* indiv_ = nullptr;
+#endif
     unsigned long long id_ = 0;
     unsigned long long parent_id_ = 0;
 
@@ -182,7 +206,11 @@ class ReplicationReport : public Observer {
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
+#ifdef __REGUL
+inline Individual_R *ReplicationReport::indiv() const
+#else
 inline Individual *ReplicationReport::indiv() const
+#endif
 {
   return indiv_;
 }
@@ -234,7 +262,11 @@ inline double ReplicationReport::mean_align_score() const
   return mean_align_score_;
 }
 
+#ifdef __REGUL
+inline void ReplicationReport::set_indiv(Individual_R * indiv)
+#else
 inline void ReplicationReport::set_indiv(Individual * indiv)
+#endif
 {
   indiv_ = indiv;
 }

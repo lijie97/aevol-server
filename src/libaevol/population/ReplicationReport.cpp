@@ -65,10 +65,15 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-
+#ifdef __REGUL
+ReplicationReport::ReplicationReport(Individual_R* indiv,
+                                     const Individual_R* parent,
+                                     Individual_R* donor /*= NULL*/)
+#else
 ReplicationReport::ReplicationReport(Individual* indiv,
                                      const Individual* parent,
                                      Individual* donor /*= NULL*/)
+#endif
 {
   indiv_ = indiv;
 
@@ -136,7 +141,11 @@ ReplicationReport::ReplicationReport(const ReplicationReport& other) :
 }
 
 
+#ifdef __REGUL
+ReplicationReport::ReplicationReport(gzFile tree_file, Individual_R* indiv)
+#else
 ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
+#endif
 {
   indiv_ = indiv;
 
@@ -180,7 +189,11 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
  * This should be called as soon as a replication is started (just after calling
  * the offspring constructor and before doing the mutations)
  */
+#ifdef __REGUL
+void ReplicationReport::init(Tree* tree, Individual_R* offspring, Individual_R* parent, int indiv_id, int parent_id)
+#else
 void ReplicationReport::init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
+#endif
 {
 
     dna_replic_report_.clear();
@@ -246,7 +259,11 @@ void ReplicationReport::init(Tree* tree,
       //simd_indiv_->addObserver(tree, END_REPLICATION);
 }
 
-    void ReplicationReport::init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
+#ifdef __REGUL
+    void ReplicationReport::init(LightTree* tree, Individual_R* offspring, Individual_R* parent, int indiv_id, int parent_id)
+#else
+void ReplicationReport::init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id)
+#endif
     {
 
         indiv_ = offspring;
@@ -307,7 +324,11 @@ void ReplicationReport::init(Tree* tree,
  * Method called at the end of the replication of an individual.
  * Actions such as finalize the calculation of average values can be done here.
  */
-void ReplicationReport::signal_end_of_replication(Individual* indiv) {
+#ifdef __REGUL
+void ReplicationReport::signal_end_of_replication(Individual_R* indiv) {
+#else
+  void ReplicationReport::signal_end_of_replication(Individual* indiv) {
+#endif
   // TODO <david.parsons@inria.fr> tmp patch
   if (indiv_ == NULL) indiv_ = indiv;
 
