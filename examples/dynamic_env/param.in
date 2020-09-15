@@ -10,7 +10,6 @@ WORLD_SIZE              32 32
 INIT_METHOD             ONE_GOOD_GENE CLONE
 CHROMOSOME_INITIAL_LENGTH   5000
 FUZZY_FLAVOR   1
-INDIV_MIXING WELL_MIXED
 
 ##### 2. Selection ################
 SELECTION_SCHEME        fitness_proportionate   750
@@ -30,8 +29,8 @@ INVERSION_RATE          5e-6
 
 ##### 7. Recording ################
 BACKUP_STEP             1000
-RECORD_TREE             true
-MORE_STATS              true
+RECORD_TREE             false
+MORE_STATS              false
 TREE_STEP               1000
 
 ####################################################################################

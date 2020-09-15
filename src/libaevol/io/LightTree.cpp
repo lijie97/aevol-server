@@ -101,7 +101,8 @@ LightTree::~LightTree() noexcept {
 //                            Public Methods
 // =================================================================
 
-void LightTree::init_tree(int64_t time, std::list<Individual*> root_indiv) {
+
+  void LightTree::init_tree(int64_t time, std::list<Individual*> root_indiv) {
   if(time > 0) {
     read_from_tree_file();
   }
@@ -300,17 +301,28 @@ void LightTree::read_from_tree_file() {
     link_nodes(i);
   }
 }
-
-void LightTree::keep_indivs(std::list<Individual*> indivs) {
+#ifdef __REGUL
+void LightTree::keep_indivs(std::list<Individual_R*> indivs) {
+#else
+  void LightTree::keep_indivs(std::list<Individual*> indivs) {
+#endif
   #ifdef _OPENMP
   #pragma omp taskgroup
   {
   #endif
-  for(Individual* indiv : indivs)
+#ifdef __REGUL
+  for(Individual_R* indiv : indivs)
+#else
+    for(Individual* indiv : indivs)
+#endif
     #ifdef _OPENMP
     #pragma omp task firstprivate(indiv)
     #endif
-    saved_indivs_[indiv->id()] = new Individual(*indiv);
+#ifdef __REGUL
+    saved_indivs_[indiv->id()] = new Individual_R(*indiv);
+#else
+  saved_indivs_[indiv->id()] = new Individual(*indiv);
+#endif
   #ifdef _OPENMP
   }
   #endif

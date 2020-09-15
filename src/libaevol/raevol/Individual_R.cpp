@@ -328,7 +328,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
     _dist_sum = 0;
 
 
-  if (id_==389) {
+  if (id_==120) {
     for (auto prot: protein_list_)
       printf("%d -- CPU -- Protein %d : %lf\n", id_, prot->first_translated_pos(),
              prot->concentration());
@@ -366,7 +366,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
         if (eval->find(i) != eval->end()) {
             //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
             eval_step(habitat, i);
-            if (id_==389)
+            if (id_==120)
             printf("%d -- CPU -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
                    _dist_sum,dist_to_target_by_feature_[METABOLISM],
                    habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
@@ -728,6 +728,12 @@ void Individual_R::update_phenotype( void )
   for (auto& prot : protein_list_) {
     if ( ((Protein_R*)prot)->is_functional() )
     {
+      if (id_==120)
+        printf("Add triangle %lf %lf %lf (%lf %lf)\n",((Protein_R*)prot)->mean(),
+               ((Protein_R*)prot)->width(),
+               ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
+               ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );
+
       if ( ((Protein_R*)prot)->height() > 0 )
       {
 //    	  added=true;
@@ -735,10 +741,11 @@ void Individual_R::update_phenotype( void )
                                          ((Protein_R*)prot)->width(),
                                          ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration() );
 
-/*        printf("Add triangle ACTIV %f %f %f (%f %f)\n",((Protein_R*)prot)->mean(),
-               ((Protein_R*)prot)->width(),
-               ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
-               ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );*/
+//        if (id_==120)
+//          printf("Add triangle ACTIV %f %f %f (%f %f)\n",((Protein_R*)prot)->mean(),
+//                 ((Protein_R*)prot)->width(),
+//                 ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
+//                 ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );
       }
       else
       {
@@ -746,10 +753,6 @@ void Individual_R::update_phenotype( void )
                                          ((Protein_R*)prot)->width(),
                                          ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration() );
 
-  /*      printf("Add triangle INHIB %f %f %f (%f %f)\n",((Protein_R*)prot)->mean(),
-               ((Protein_R*)prot)->width(),
-               ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
-               ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );*/
       }
     }
   }

@@ -155,7 +155,12 @@ int main(int argc, char* argv[]) {
 
   aevol::AeTime::plusplus();
   while ((time() <= t_end) && (((time() < end) || (end == -1)))) {
+#ifdef __REGUL
+    printf("Robustness is not supported by RAevol\n");
+    exit(-1);
+#else
     rep = new ReplicationReport(lineage_file, &indiv);
+#endif
     index = rep->id(); // who we are building...
     indiv.Reevaluate();
 

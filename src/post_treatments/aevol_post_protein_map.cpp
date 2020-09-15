@@ -192,7 +192,13 @@ int main(int argc, char* argv[]) {
   aevol::AeTime::plusplus();
   while (time() <= t_end)
   {
+#ifdef __REGUL
+    printf("Protein map is not supported yet\n");
+    exit(-1);
+#else
     rep = new ReplicationReport(lineage_file, indiv);
+#endif
+
     index = rep->id(); // who we are building...
 
     if (verbose)

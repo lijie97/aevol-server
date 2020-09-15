@@ -188,7 +188,12 @@ int main(int argc, char** argv)
     " for the lineage (index %" PRId32 ")...", time(), index);
 
     if (time() != t0) {
+#ifdef __REGUL
+      printf("Coalescence is not supported yet for RAevol\n");
+      exit(-1);
+#else
       rep_f = new ReplicationReport(lineage_file, indiv);
+#endif
       index = rep_f->id(); // who we are building...
               //printf("Update index %d\n",index);
 

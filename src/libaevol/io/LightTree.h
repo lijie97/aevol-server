@@ -101,7 +101,6 @@ class LightTree : public Observer
     // =================================================================
 
     void init_tree(int64_t time, std::list<Individual*> root_indiv);
-
     // for the generation gen, the methode link the nodes with the generation gen-1
     // by creating the link parent/children
     // it also prune the tree

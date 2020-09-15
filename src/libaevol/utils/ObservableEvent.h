@@ -27,6 +27,7 @@
 #ifndef AEVOL_OBSERVABLEEVENT_H_
 #define AEVOL_OBSERVABLEEVENT_H_
 
+
 /**
  *
  */
@@ -46,6 +47,18 @@ class Individual_7;
 
 class NewIndivEvent {
  public:
+#ifdef __REGUL
+  NewIndivEvent(Individual_R* childx, Individual_R* parentx, int xx, int yx, int indiv_id, int parent_id) {
+    child = childx;
+    parent = parentx;
+    simd_parent = nullptr;
+    simd_child = nullptr;
+    indiv_id_ = indiv_id;
+    parent_id_ = parent_id;
+    x = xx;
+    y = yx;
+  }
+#else
     NewIndivEvent(Individual* childx, Individual* parentx, int xx, int yx, int indiv_id, int parent_id) {
       child = childx;
       parent = parentx;
@@ -56,6 +69,8 @@ class NewIndivEvent {
       x = xx;
       y = yx;
     }
+#endif
+
 
     NewIndivEvent(Individual_7* childx,
                   Individual_7* parentx, int xx, int yx, int indiv_id, int parent_id) {
@@ -70,7 +85,10 @@ class NewIndivEvent {
         y = yx;
     }
 
-
+#ifdef __REGUL
+  Individual_R* child;
+  Individual_R* parent;
+#else
     Individual* child;
     Individual* parent;
     Individual_7* simd_child;
@@ -87,7 +105,11 @@ class NewIndivEvent {
 
 class EndReplicationEvent {
  public:
-    EndReplicationEvent(Individual* childx, int xx, int yx) {
+#ifdef __REGUL
+    EndReplicationEvent(Individual_R* childx, int xx, int yx) {
+#else
+      EndReplicationEvent(Individual* childx, int xx, int yx) {
+#endif
       child = childx;
       x = xx;
       y = yx;

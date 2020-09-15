@@ -183,13 +183,13 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
 
 //    printf("O[%d] %f %f %f\n",i,operator_activity,_operating_coef_list[i],_protein_list[i]->concentration_);
     operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
-    if (gen_unit_->indiv()->id()==389)
+    if (gen_unit_->indiv()->id()==120)
       printf("CPU -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",first_transcribed_pos(),_protein_list[i]->first_translated_pos(),
              _protein_list[i]->concentration_,  _enhancing_coef_list[i], _operating_coef_list[i]);
   }
 
 
-  if (gen_unit_->indiv()->id()==389)
+  if (gen_unit_->indiv()->id()==120)
     printf("CPU -- RNA %d Enhancer %lf Operator %lf\n",first_transcribed_pos(),enhancer_activity,operator_activity);
 /*#else
   ProteinConcentration enhancer_tab[_nb_influences];

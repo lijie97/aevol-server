@@ -341,14 +341,13 @@ void Selection::step_to_next_generation() {
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
 #ifdef __REGUL
-    if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
-        phenotypic_target_handler_nonconst())->hasChanged()) ||
-        !to_evaluate[i]->evaluated_) {
+    if (!to_evaluate[i]->evaluated_) {
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
     }
 #else
     run_life(to_evaluate[i]);
 #endif
+
   }
 
 #pragma omp single
@@ -432,7 +431,6 @@ void Selection::step_to_next_generation() {
     for (Individual* indiv: new_generation) {
       indiv->set_rank(rank++);
     }
-
     // randomly migrate some organisms, if necessary
     world->MixIndivs();
 
@@ -480,6 +478,7 @@ void Selection::step_to_next_generation() {
   }
 #endif
 #endif*/
+
 
 }
 
@@ -879,6 +878,9 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
       {
         exp_m_->world()->PlaceIndiv(new_indiv, x, y, false);
       }
+
+//      printf("%d -- CPU -- Indiv %d (Parent %d) has NOT mutate ? DNA Size %d\n",time(),x*exp_m_->world()->height()+y,new_indiv->parent_id_,
+//             new_indiv->genetic_unit_seq_length(0));
 
 #ifdef WITH_PERF_TRACES
         apply_mutation[index] = -1;
