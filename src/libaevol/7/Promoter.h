@@ -27,6 +27,7 @@
 #ifndef AEVOL_PROMOTER_H
 #define AEVOL_PROMOTER_H
 
+#include <cstdint>
 #include <map>
 
 namespace aevol {
