@@ -55,6 +55,7 @@
   #include "ExpManager.h"
 #endif
 
+#include "ExpManager_7.h"
 #include "macros.h"
 
 using namespace aevol;
@@ -94,7 +95,7 @@ int main(int argc, char* argv[]) {
     signal(SIGUSR1, catch_usr1);
   #endif
 
-
+  ExpManager_7::standalone_simd = true;
   // Print warning for debug mode
   #ifdef DEBUG
     printf("aevol is being run in DEBUG mode\n");
@@ -199,7 +200,7 @@ void print_help(char* prog_path) {
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char* options_list = "hVb:e:n:vwxp:";
+  const char* options_list = "hVb:e:n:vwxp:6:";
   static struct option long_options_list[] = {
       {"help",          no_argument,       nullptr, 'h'},
       {"version",       no_argument,       nullptr, 'V'},
@@ -210,6 +211,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       {"wait",          no_argument,       nullptr, 'w'},
       {"noX",           no_argument,       nullptr, 'x'},
       {"parallel",      required_argument, nullptr, 'p'},
+      {"aevol_6",       no_argument,       nullptr, '6'},
       {0, 0, 0, 0}
   };
 
@@ -256,6 +258,10 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         // pause_on_startup = true;
         break;
       }
+    case '6' : {
+      ExpManager_7::standalone_simd = false;
+      break;
+    }
       case 'x' : {
         #ifdef __NO_X
         printf("%s: error: Program was compiled with __NO_X option, "

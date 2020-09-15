@@ -33,7 +33,6 @@ set(with-triangle OFF CACHE BOOL "Whether to enable triangle phenotypic target (
 set(with-raevol OFF CACHE BOOL "Whether to enable R-Aevol (Gene regulation) version")
 set(with-detectclone ON CACHE BOOL "Whether to enable clones and not recompute them")
 set(with-floatconcentration OFF CACHE BOOL "Whether to enable the encoding of concentration has float (and not double)")
-set(with-simd ON CACHE BOOL "Whether to switch to the SIMD implementation of (R-)Aevol")
 set(with-perf-traces OFF CACHE BOOL "Whether to activate performance traces of (R-)Aevol")
 set(search-type "OLD" CACHE STRING "Which SIMD pattern search version of (R-)Aevol")
 
@@ -148,10 +147,6 @@ endif ()
 
 if ( ${with-floatconcentration} )
     add_definitions(-D__FLOAT_CONCENTRATION)
-endif ()
-
-if ( ${with-simd} )
-    add_definitions(-DWITH_STANDALONE_SIMD)
 endif ()
 
 
