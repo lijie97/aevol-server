@@ -130,12 +130,6 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list, int id )
     operate = affinity_with_protein( operator_position, prot );
 
     if (enhance != 0.0 || operate != 0.0) {
-//      if (id==389) printf("Add Affinity for RNA %d with Protein %d : E %lf O %lf\n",
-//             first_transcribed_pos(),i,enhance,operate);
-
-       if (id==68 && AeTime::time() == 4) 
-        printf("CPU -- Affinity between RNA %d and Protein %d : %lf %lf\n",
-               first_transcribed_pos(),prot->shine_dal_pos(),enhance,operate);
 
       _protein_list.insert(itprot,(Protein_R*) prot);
 
@@ -187,14 +181,9 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
 
 //    printf("O[%d] %f %f %f\n",i,operator_activity,_operating_coef_list[i],_protein_list[i]->concentration_);
     operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
-  //  if (gen_unit_->indiv()->id()==70 && AeTime::time() == 1595)
-  //    printf("CPU -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",first_transcribed_pos(),_protein_list[i]->first_translated_pos(),
-  //           _protein_list[i]->concentration_,  _enhancing_coef_list[i], _operating_coef_list[i]);
   }
 
 
-//  if (gen_unit_->indiv()->id()==137)
-//    printf("CPU -- RNA %d Enhancer %lf Operator %lf\n",first_transcribed_pos(),enhancer_activity,operator_activity);
 /*#else
   ProteinConcentration enhancer_tab[_nb_influences];
   ProteinConcentration operator_tab[_nb_influences];
@@ -413,12 +402,6 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
       temp = 1;
 
       for (int8_t j = 0; j < 5; j++) {
-        // if (gen_unit_->indiv()->id()==660) {
-        //   printf("Individual %d Protein %d\n",gen_unit_->indiv()->id(),prot->shine_dal_pos());
-        //   printf("Codon[%d] (i %d j %d) %d out of %d\n",i+j,i,j,prot->_cod_tab[i+j],MAX_CODON);
-        //   printf("Protein Length %d\n",prot->length());
-        // }
-
         temp *= gen_unit_->exp_m()->exp_s()->_binding_matrix[quadon_tab[j]][prot->_cod_tab[
             i + j]];
       }
