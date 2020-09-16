@@ -29,6 +29,7 @@
 
 
 #include <cstdint>
+#include "Rna_7.h"
 
 namespace aevol {
 
@@ -57,7 +58,7 @@ class Protein_7 {
   Protein_7(Protein_R* prot_sig);
 
 
-  Protein_7(pProtein* prot);
+  Protein_7(Protein_7* prot);
 #endif
 
   bool operator<(const Protein_7& other);
@@ -73,15 +74,20 @@ class Protein_7 {
   bool is_functional;
 
   bool is_init_ = false;
+
+
+  int8_t codon_list[64] = {};
+  int16_t nb_codons_ = 0;
+
 #ifdef __REGUL
   bool is_TF_;
 
-  double initial_e_ = -1;
   double    delta_concentration_;
   bool      inherited_ = false;
   bool      signal_;
-  std::list<pRNA*> rna_list_;
 #endif
+  std::list<Rna_7*> rna_list_;
+  double initial_e_ = -1;
 };
 }
 

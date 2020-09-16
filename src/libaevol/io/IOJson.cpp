@@ -342,11 +342,20 @@ IOJson::IOJson(const std::string & filename) {
     phenotypic_target_handler->set_var_sigma(input_file_["param_in"]["env"]["variation"].value("env_var_sigma",0));
     phenotypic_target_handler->set_var_tau(input_file_["param_in"]["env"]["variation"].value("env_var_tau",0));
 
+#ifdef __REGUL
+    Habitat_R* habitat = new Habitat_R();
+    habitat->set_phenotypic_target_handler(phenotypic_target_handler);
+    std::unique_ptr<Habitat_R> habitat_ptr = std::unique_ptr<Habitat_R>(habitat);
+    GridCell* grid_cell = new GridCell(x,y,std::move(habitat_ptr),&individual,mut_prng_ptr,stoch_prng_ptr);
 
+#else
     Habitat* habitat = new Habitat();
     habitat->set_phenotypic_target_handler(phenotypic_target_handler);
     std::unique_ptr<Habitat> habitat_ptr = std::unique_ptr<Habitat>(habitat);
     GridCell* grid_cell = new GridCell(x,y,std::move(habitat_ptr),&individual,mut_prng_ptr,stoch_prng_ptr);
+
+#endif
+
     grid_cell->set_individual(&individual);
     individual.set_grid_cell(grid_cell);
     int16_t height = input_file_["param_in"]["world_size"][0];
@@ -723,20 +732,8 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
   exp_s->set_max_genome_length(max_genome_length_);
 
 #ifdef __REGUL
-  if (env_var_method_ == ONE_AFTER_ANOTHER)
-    exp_s->set_with_heredity(false);
-  else
-    exp_s->set_with_heredity(_with_heredity);
-
-  exp_s->set_degradation_rate(_degradation_rate);
-  exp_s->set_nb_degradation_step(_nb_degradation_step);
-  exp_s->set_nb_indiv_age(_nb_indiv_age);
-  exp_s->set_list_eval_step(_list_eval_step);
-  exp_s->set_protein_presence_limit(_protein_presence_limit);
-  exp_s->set_hill_shape(pow( _hill_shape_theta, _hill_shape_n ));
-  exp_s->set_hill_shape_n( _hill_shape_n );
-
-  exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,prng_);
+  printf("IOJSON Not working yet with RAevol\n");
+  exit(-11);
 #endif
 
   if (FuzzyFactory::fuzzyFactory == NULL)
@@ -750,7 +747,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
 #endif
 
   // Shorthand for phenotypic target handler
-#ifndef __REGULdeletion_proportion
+#ifndef __REGUL
   PhenotypicTargetHandler& phenotypic_target_handler =
       habitat.phenotypic_target_handler_nonconst();
 #else
@@ -762,9 +759,9 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
 #ifndef __REGUL
   phenotypic_target_handler.set_gaussians(env_add_gaussian_);
 #else
-  phenotypic_target_handler.set_gaussians(_env_gaussians_list);
-  phenotypic_target_handler.set_signals_models(_signals_models);
-  phenotypic_target_handler.set_signals(_env_signals_list);
+//  phenotypic_target_handler.set_gaussians(_env_gaussians_list);
+//  phenotypic_target_handler.set_signals_models(_signals_models);
+//  phenotypic_target_handler.set_signals(_env_signals_list);
 #endif
 
   // Copy the sampling
@@ -791,7 +788,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
     phenotypic_target_handler.set_var_prng(std::make_shared<JumpingMT>(env_var_seed_));
     phenotypic_target_handler.set_var_sigma_tau(env_var_sigma_, env_var_tau_);
 #ifdef __REGUL
-    phenotypic_target_handler.set_switch_probability(_env_switch_probability);
+//    phenotypic_target_handler.set_switch_probability(_env_switch_probability);
 #endif
   }
 
@@ -810,8 +807,8 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
 #ifndef __REGUL
   phenotypic_target_handler.BuildPhenotypicTarget();
 #else
-  printf("Init phenotypic target with %d\n",_nb_indiv_age);
-  phenotypic_target_handler.InitPhenotypicTargetsAndModels( _nb_indiv_age );
+//  printf("Init phenotypic target with %d\n",_nb_indiv_age);
+//  phenotypic_target_handler.InitPhenotypicTargetsAndModels( _nb_indiv_age );
 #endif
 
   if (verbose) {
@@ -819,7 +816,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
     printf("Entire geometric area of the phenotypic target : %f\n",
            phenotypic_target_handler.get_geometric_area());
 #else
-    phenotypic_target_handler.print_geometric_areas();
+//    phenotypic_target_handler.print_geometric_areas();
 #endif
   }
 
@@ -871,6 +868,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
                                         strain_name_.data(),
                                         0);
 #else
+    double w_max_=0.333;
     Individual_R * indiv = new Individual_R(exp_m,
                                          mut_prng,
                                          stoch_prng,
@@ -880,7 +878,7 @@ void IOJson::load(ExpManager * exp_m, bool verbose,
                                          max_genome_length_,
                                          allow_plasmids_,
                                          id_new_indiv++,
-                                         strain_name_,
+                                         strain_name_.data(),
                                          0);
 
 #endif

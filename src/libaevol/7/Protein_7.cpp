@@ -26,9 +26,15 @@
 
 
 #include "Protein_7.h"
+#ifdef __REGUL
+#include "raevol/Protein_R.h"
+#endif
+
+namespace aevol {
+#ifdef __REGUL
 Protein_7::Protein_7(Protein_R* prot_sig) {
   protein_length = prot_sig->length();
-  e = prot_sig->concentration();
+  e              = prot_sig->concentration();
 
   signal_ = prot_sig->is_signal();
 
@@ -38,8 +44,7 @@ Protein_7::Protein_7(Protein_R* prot_sig) {
     codon_list[i] = prot_sig->_cod_tab[i];
 }
 
-
-Protein_7::Protein_7(pProtein* prot) {
+Protein_7::Protein_7(Protein_7* prot) {
   protein_start   = prot->protein_start;
   protein_end     = prot->protein_end;
   protein_length  = prot->protein_length;
@@ -54,4 +59,7 @@ Protein_7::Protein_7(pProtein* prot) {
 
   initial_e_ = prot->initial_e_;
   inherited_ = true;
+}
+#endif
+
 }

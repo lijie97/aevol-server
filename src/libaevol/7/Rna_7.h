@@ -32,7 +32,11 @@
 #include <list>
 #include <cstdint>
 
+#include "ae_enums.h"
+#include "Individual_7.h"
+#include "ExpManager.h"
 namespace aevol {
+class Protein_7;
 
 class AffinityFactor {
  public:
@@ -41,6 +45,8 @@ class AffinityFactor {
     enhancer_factor = efactor;
     operator_factor = ofactor;
   }
+
+  double concentration();
 
   double protein_concentration;
   double enhancer_factor;
@@ -103,12 +109,11 @@ class Rna_7 {
              (begin - PROM_SIZE)  % ( length );
     }
   }
+  double compute_synthesis_rate(Individual_7* indiv);
 
-  double affinity_with_protein( int32_t index, pProtein *protein,
-                                     Internal_SIMD_Struct* indiv,
+  double affinity_with_protein( int32_t index, Protein_7* protein,
+                                     Individual_7* indiv,
                                ExpManager* exp_m);
-
-  double synthesis_rate;
 #endif
 
 

@@ -377,9 +377,15 @@ void Selection::step_to_next_generation() {
           // Tell observers the replication is finished
           //->notifyObservers(END_REPLICATION, eindiv);
 //          world->indiv_at(x, y)->compute_non_coding();
+#ifdef __REGUL
+          exp_m_->tree()
+              ->report_by_index(AeTime::time(), x * grid_height + y)
+          ->signal_end_of_replication(dynamic_cast<Individual_R*>(world->indiv_at(x, y)));
+#else
           exp_m_->tree()
               ->report_by_index(AeTime::time(), x * grid_height + y)
               ->signal_end_of_replication(world->indiv_at(x, y));
+#endif
           //delete eindiv;
         }
       }
@@ -863,9 +869,16 @@ Individual* Selection::do_replication(Individual* parent,
 if (exp_m_->record_tree() || exp_m_->light_tree()) {
   #pragma omp critical(placeindiv)
         {
+#ifdef __REGUL
+          NewIndivEvent* eindiv = new NewIndivEvent(
+              dynamic_cast<Individual_R*>(new_indiv), dynamic_cast<Individual_R*>(parent), x, y, index,
+              exp_m_->next_generation_reproducer_[index]);
+#else
           NewIndivEvent* eindiv = new NewIndivEvent(
               new_indiv, parent, x, y, index,
               exp_m_->next_generation_reproducer_[index]);
+
+#endif
           //notifyObservers(NEW_INDIV, eindiv);
 
           exp_m_->tree()->update_new_indiv(eindiv);
@@ -889,9 +902,15 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
 #endif
     if (exp_m_->record_tree() || exp_m_->light_tree()) {
         {
+#ifdef __REGUL
           NewIndivEvent* eindiv = new NewIndivEvent(
-              new_indiv, parent, x, y, index,
+              dynamic_cast<Individual_R*>(new_indiv), dynamic_cast<Individual_R*>(parent), x, y, index,
               exp_m_->next_generation_reproducer_[index]);
+#else
+        NewIndivEvent* eindiv = new NewIndivEvent(
+            new_indiv, parent, x, y, index,
+            exp_m_->next_generation_reproducer_[index]);
+#endif
           //notifyObservers(NEW_INDIV, eindiv);
           exp_m_->tree()->update_new_indiv(eindiv);
           delete eindiv;

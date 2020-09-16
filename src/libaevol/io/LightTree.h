@@ -115,8 +115,11 @@ class LightTree : public Observer
 
     void read_from_tree_file();
 
-    void keep_indivs(std::list<Individual*> indivs);
-
+#ifdef __REGUL
+    void keep_indivs(std::list<Individual_R*> indivs);
+#else
+  void keep_indivs(std::list<Individual*> indivs);
+#endif
     void keep_indivs(std::list<Individual_7*> indivs, DnaFactory* dna_factory);
 
     void save_mrca_indiv();

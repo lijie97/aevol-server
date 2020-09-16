@@ -196,7 +196,7 @@ void SaveGridCell::save(gzFile backup_file,
       }
 #else
       (dynamic_cast<Habitat_R*> (habitat_.get()))->save(backup_file, skip_phenotypic_target);
-    if (SIMD_Individual::standalone_simd) {
+    if (ExpManager_7::standalone_simd) {
       Individual * indiv = new Individual(exp_m_,
                                           exp_m_->world()->grid(x_,y_)->mut_prng(),
                                           exp_m_->world()->grid(x_,y_)->stoch_prng(),

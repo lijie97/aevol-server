@@ -115,8 +115,13 @@ int main(int argc, char* argv[]) {
 
   aevol::AeTime::plusplus();
   while ((time() <= t_end) && (((time() < end) || (end == -1)))) {
+#ifdef __REGUL
+    rep = nullptr;
+    printf("Not supported with RAEvol\n");
+    exit(-11);
+#else
     rep = new ReplicationReport(lineage_file, &indiv);
-
+#endif
 
     // 2) Replay replication (create current individual's child)
     GeneticUnit& gen_unit = indiv.genetic_unit_nonconst(0);
