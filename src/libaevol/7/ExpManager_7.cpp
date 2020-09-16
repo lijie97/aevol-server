@@ -93,7 +93,7 @@ ExpManager_7::ExpManager_7(ExpManager* exp_m) {
 #ifdef __REGUL
   phenotypic_target_handler_ = new SIMD_PhenotypicTargetHandler_R(
         dynamic_cast<PhenotypicTargetHandler_R*>(exp_m->world()->phenotypic_target_handler()),
-        exp_m->exp_s(),exp_m->check_simd());
+        exp_m->exp_s());
 #else
 #ifdef PHENOTYPE_VECTOR
   target = new double[PHENOTYPE_VECTOR_SIZE];
@@ -1297,7 +1297,7 @@ void ExpManager_7::compute_protein(int indiv_id) {
                     current_individuals[indiv_id]->metadata_->proteins_count() +
                     1);
                 ((List_Metadata*)current_individuals[indiv_id]->metadata_)->protein_add(
-                    glob_prot_idx, 
+                    glob_prot_idx,
                         new Protein_7(Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
                         prot_length/3,
                         rna->leading_lagging,
@@ -1373,8 +1373,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
                 '1')
               value += 1 << (CODON_SIZE - i - 1);
           }
-
-          // if (indiv_id == 660) printf("Protein %d :: Add codon %d : %d\n",prot->protein_start,codon_idx,value);
           prot->codon_list[codon_idx] = value;
 
           codon_idx++;
@@ -1594,12 +1592,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
-          // if (indiv_id==190 && AeTime::time() == 1936) {
-          //          printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
-          //          for (auto rna : lookup[prot->protein_start]->rna_list_) {
-          //            printf("OLD [%d %d]\n",rna->begin,rna->end);
-          //          }
-          // }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
@@ -2100,13 +2092,12 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
 //    }
 //  }
 
-  current_individuals[indiv_id]->metadata_->protein_begin();
-  for (int j = 0; j < current_individuals[indiv_id]->metadata_->proteins_count(); j++) {
-    Protein_7* prot =
-        current_individuals[indiv_id]->metadata_->protein_next();
-    if (!prot->signal_) {
-      if (prot->is_init_) {
-        prot->delta_concentration_ = 0;
+==== BASE ====
+  internal_simd_struct[indiv_id]->metadata_->rna_begin();
+  for (int x = 0; x < internal_simd_struct[indiv_id]->metadata_->rna_count(); x++) {
+    pRNA* rna = internal_simd_struct[indiv_id]->metadata_->rna_next();
+    if (rna != nullptr) {
+      if (rna->is_coding_) {
 
         for (auto rna: prot->rna_list_) {
           double synthesis_rate = rna->compute_synthesis_rate(current_individuals[indiv_id]);
@@ -2121,10 +2112,22 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
           // }
         }
 
-        prot->delta_concentration_ -=
-            exp_m_->exp_s()->get_degradation_rate() * prot->e;
-        prot->delta_concentration_ *=
-            1.0 / exp_m_->exp_s()->get_nb_degradation_step();
+==== BASE ====
+        ProteinConcentration enhancer_activity_pow_n =
+            enhancer_activity == 0
+                ? 0
+                : pow(enhancer_activity, exp_m_->exp_s()->get_hill_shape_n());
+        ProteinConcentration operator_activity_pow_n =
+            operator_activity == 0
+                ? 0
+                : pow(operator_activity, exp_m_->exp_s()->get_hill_shape_n());
+        rna->synthesis_rate =
+            rna->e *
+            (exp_m_->exp_s()->get_hill_shape() /
+             (operator_activity_pow_n + exp_m_->exp_s()->get_hill_shape())) *
+            (1 + ((1 / rna->e) - 1) * (enhancer_activity_pow_n /
+                                       (enhancer_activity_pow_n +
+                                        exp_m_->exp_s()->get_hill_shape())));
       }
     }
   }
@@ -2656,7 +2659,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
         indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
         indiv->compute_statistical_data();
         indiv->EvaluateInContext(exp_m_->world()->grid(x, y)->habitat());
-        
+
 
         exp_m_->world()->grid(x, y)->set_individual(indiv);
       }
