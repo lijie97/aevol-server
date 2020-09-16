@@ -15,7 +15,7 @@
 #include <vector>
 
 namespace aevol {
-class pProtein;
+class Protein_7;
 
 class SIMD_PhenotypicTargetHandler_R {
  public:
@@ -23,7 +23,7 @@ class SIMD_PhenotypicTargetHandler_R {
 
   void ApplyVariation();
 
-  std::vector<pProtein*> signals_models_;
+  std::vector<Protein_7*> signals_models_;
   std::vector<std::list<int16_t>> env_signals_list_;
 
   Vector_Fuzzy** targets_fuzzy_;

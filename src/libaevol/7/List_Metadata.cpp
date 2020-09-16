@@ -934,4 +934,12 @@ namespace aevol {
     void List_Metadata::proteins_clear() {
         proteins_.clear();
     }
+
+void List_Metadata::add_inherited_proteins() {
+  for (auto prot : inherited_proteins_) {
+    int glob_prot_idx = proteins_count();
+    set_proteins_count(proteins_count() + 1);
+    protein_add(glob_prot_idx, prot);
+  }
+}
 }

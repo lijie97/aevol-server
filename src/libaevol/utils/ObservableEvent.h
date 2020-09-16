@@ -42,7 +42,12 @@ enum ObservableEvent {
 
 namespace  aevol {
 
+#ifdef __REGUL
+class Individual_R;
+#else
 class Individual;
+#endif
+
 class Individual_7;
 
 class NewIndivEvent {
@@ -91,6 +96,8 @@ class NewIndivEvent {
 #else
     Individual* child;
     Individual* parent;
+#endif
+
     Individual_7* simd_child;
     Individual_7* simd_parent;
 
@@ -122,7 +129,11 @@ class EndReplicationEvent {
         y = yx;
     }
 
+#ifdef __REGUL
+    Individual_R* child;
+#else
     Individual* child;
+#endif
     Individual_7* simd_child;
 
     int x;

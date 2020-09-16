@@ -140,6 +140,7 @@ class ReplicationReport : public Observer {
   void init(Tree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
     void init(LightTree* tree, Individual* offspring, Individual* parent, int indiv_id, int parent_id);
     void signal_end_of_replication(Individual* indiv);
+#endif
 
     void init(Tree* tree,
               Individual_7* offspring,

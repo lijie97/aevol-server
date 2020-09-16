@@ -211,6 +211,8 @@ class PhenotypicTargetHandler
     noise_sampling_log_ = sampling_log;
   }
 
+  /// PRNG used for variation
+  std::shared_ptr<JumpingMT> var_prng_;
  protected :
   // ==========================================================================
   //                            Protected Methods
@@ -237,8 +239,6 @@ class PhenotypicTargetHandler
   // ---------------------------------------------------------------- Variation
   /// Variation method
   PhenotypicTargetVariationMethod var_method_;
-  /// PRNG used for variation
-  std::shared_ptr<JumpingMT> var_prng_;
   /// Autoregressive mean variation sigma parameter
   double var_sigma_;
   /// Autoregressive mean variation tau parameter

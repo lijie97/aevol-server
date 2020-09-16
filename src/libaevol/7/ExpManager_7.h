@@ -32,6 +32,7 @@
 #include "DnaFactory.h"
 #include "Observable.h"
 #include "PhenotypicTargetHandler.h"
+#include "raevol/SIMD_PhenotypicTargetHandler_R.h"
 #include "Vector_Fuzzy.h"
 
 namespace aevol {
@@ -69,7 +70,7 @@ class ExpManager_7 : public Observable{
   void compute_protein(int indiv_id);
   void translate_protein(int indiv_id, double w_max);
   void compute_phenotype(int indiv_id);
-  void compute_fitness(int indiv_id, double selection_pressure);
+  void compute_fitness(int indiv_id, double selection_pressure, int env_id = -1);
 
 
   void check_result();
@@ -106,6 +107,9 @@ class ExpManager_7 : public Observable{
 
   long cumulate_size = 0;
   long cumulate_diff = 0;
+
+  double* fitness_sum_tab_;
+
 
  private:
   ExpManager* exp_m_;

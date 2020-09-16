@@ -216,7 +216,13 @@ namespace aevol {
                                                   {}};
 
         std::list<Protein_7*> proteins_;
-    protected:
+#ifdef __REGUL
+  std::list<Protein_7*> inherited_proteins_;
+  std::vector<Protein_7*> signal_proteins_;
+#endif
+
+
+ protected:
      Promoters1Strand_7::iterator it_promoter_;
         int it_promoter_pos_;
 

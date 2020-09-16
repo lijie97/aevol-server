@@ -64,6 +64,10 @@ class Individual_7 : public Observable {
   double fitness;
   double metaerror;
 
+
+  double* fitness_by_env_id_;
+  double* metaerror_by_env_id_;
+
   Dna_7* dna_;
 
   int32_t indiv_id;
