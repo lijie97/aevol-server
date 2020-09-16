@@ -130,8 +130,8 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list, int id )
     operate = affinity_with_protein( operator_position, prot );
 
     if (enhance != 0.0 || operate != 0.0) {
-      if (id==389) printf("Add Affinity for RNA %d with Protein %d : E %lf O %lf\n",
-             first_transcribed_pos(),i,enhance,operate);
+//      if (id==389) printf("Add Affinity for RNA %d with Protein %d : E %lf O %lf\n",
+//             first_transcribed_pos(),i,enhance,operate);
 
       _protein_list.insert(itprot,(Protein_R*) prot);
 
@@ -183,14 +183,14 @@ ProteinConcentration Rna_R::get_synthesis_rate( void )
 
 //    printf("O[%d] %f %f %f\n",i,operator_activity,_operating_coef_list[i],_protein_list[i]->concentration_);
     operator_activity  += _operating_coef_list[i] * _protein_list[i]->concentration_;
-    if (gen_unit_->indiv()->id()==120)
-      printf("CPU -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",first_transcribed_pos(),_protein_list[i]->first_translated_pos(),
-             _protein_list[i]->concentration_,  _enhancing_coef_list[i], _operating_coef_list[i]);
+//    if (gen_unit_->indiv()->id()==120)
+//      printf("CPU -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",first_transcribed_pos(),_protein_list[i]->first_translated_pos(),
+//             _protein_list[i]->concentration_,  _enhancing_coef_list[i], _operating_coef_list[i]);
   }
 
 
-  if (gen_unit_->indiv()->id()==120)
-    printf("CPU -- RNA %d Enhancer %lf Operator %lf\n",first_transcribed_pos(),enhancer_activity,operator_activity);
+//  if (gen_unit_->indiv()->id()==120)
+//    printf("CPU -- RNA %d Enhancer %lf Operator %lf\n",first_transcribed_pos(),enhancer_activity,operator_activity);
 /*#else
   ProteinConcentration enhancer_tab[_nb_influences];
   ProteinConcentration operator_tab[_nb_influences];
