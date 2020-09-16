@@ -71,6 +71,11 @@ namespace aevol {
             for (std::list<Protein_7*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
                 delete (*(it_protein));
             }
+
+
+          for (std::list<Protein_7*>::iterator it_protein = inherited_proteins_.begin(); it_protein != inherited_proteins_.end(); it_protein++) {
+            delete (*(it_protein));
+          }
         };
 
         void add_inherited_proteins();
