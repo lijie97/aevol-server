@@ -58,8 +58,8 @@ class Individual_7 : public Observable {
   double phenotype[PHENOTYPE_VECTOR_SIZE];
   double delta[PHENOTYPE_VECTOR_SIZE];
 #else
-  Vector_Fuzzy* phenotype;
-  Vector_Fuzzy* delta;
+  Vector_Fuzzy* phenotype = nullptr;
+  Vector_Fuzzy* delta = nullptr;
 #endif
   double fitness;
   double metaerror;

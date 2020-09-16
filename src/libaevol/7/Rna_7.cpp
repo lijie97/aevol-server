@@ -96,8 +96,8 @@ double Rna_7::compute_synthesis_rate(Individual_7* indiv) {
 //               affinity.concentration(), affinity.enhancer_factor, affinity.operator_factor);
     }
 
-    if (indiv->indiv_id==389)
-      printf("SIMD -- RNA %d Enhancer %lf Operator %lf\n",begin,enhancer_activity,operator_activity);
+//    if (indiv->indiv_id==0)
+//      printf("SIMD -- RNA %d Enhancer %lf Operator %lf\n",begin,enhancer_activity,operator_activity);
 
     ProteinConcentration enhancer_activity_pow_n =
         enhancer_activity == 0

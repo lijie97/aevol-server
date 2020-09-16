@@ -2071,7 +2071,7 @@ void ExpManager_7::finalize_network(int indiv_id, double selection_pressure) {
   if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST) {
     current_individuals[indiv_id]->metaerror =
         current_individuals[indiv_id]->metaerror /
-        (double)(phenotypic_target_handler_->nb_indiv_age_);
+        (double)(phenotypic_target_handler_->nb_eval_);
   }
   else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER) {
     for (int env_id = 0; env_id < phenotypic_target_handler_->nb_eval_; env_id++) {
@@ -2130,6 +2130,10 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
 
         // If we have to evaluate the individual at this age
         evaluate_network(indiv_id,selection_pressure,env_i);
+                if ((indiv_id==0))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+                         current_individuals[indiv_id]->metaerror,
+               current_individuals[indiv_id]->metaerror_by_env_id_[0],
+                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 
@@ -2154,6 +2158,10 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       // If we have to evaluate the individual at this age
       if (eval->find(i+1) != eval->end()) {
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
+        if ((indiv_id==0))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+                         current_individuals[indiv_id]->metaerror,
+               current_individuals[indiv_id]->metaerror_by_env_id_[0],
+                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 
