@@ -650,7 +650,7 @@ double Individual::dist_to_target_by_feature(
 
 /// TODO
 double Individual::fitness() const {
-  assert(fitness_computed_);
+//  assert(fitness_computed_);
 
   return fitness_;
 }

@@ -2010,15 +2010,26 @@ void ExpManager_7::compute_network(int indiv_id, double selection_pressure) {
           Protein_7* prot =
               current_individuals[indiv_id]->metadata_->protein_next();
           if (prot != nullptr) {
-            enhance = rna->affinity_with_protein(enhancer_position, prot, current_individuals[indiv_id], exp_m_);
-            operate = rna->affinity_with_protein(operator_position, prot, current_individuals[indiv_id], exp_m_);
+            if (prot->is_init_) {
+              enhance = rna->affinity_with_protein(
+                  enhancer_position, prot, current_individuals[indiv_id],
+                  exp_m_);
+              operate = rna->affinity_with_protein(
+                  operator_position, prot, current_individuals[indiv_id],
+                  exp_m_);
 
-            if (enhance != 0.0 || operate != 0.0) {
+              if (enhance != 0.0 || operate != 0.0) {
 
-              rna->affinity_list.push_back(AffinityFactor(prot->e,enhance,operate));
-              prot->is_TF_ = true;
+                rna->affinity_list.push_back(
+                    AffinityFactor(prot, enhance, operate));
+                prot->is_TF_ = true;
 
-              rna->nb_influences_ ++;
+                rna->nb_influences_++;
+
+//                if (indiv_id == 137)
+//                  printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
+//                         rna->begin, prot->protein_start, enhance, operate);
+              }
             }
           }
         }
@@ -2087,11 +2098,23 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
 
   // Apply the changes in concentrations we have just computed
 
+
+//  if (indiv_id==137)
+//    ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print();
+
   current_individuals[indiv_id]->metadata_->protein_begin();
   for (int j = 0; j < current_individuals[indiv_id]->metadata_->proteins_count(); j++) {
     Protein_7* prot =
         current_individuals[indiv_id]->metadata_->protein_next();
-    if (!prot->signal_) prot->e += prot->delta_concentration_;
+//    printf("SIMD -- Protein %d : %d %d\n",prot->protein_start,prot->signal_,prot->is_init_);
+    if (!prot->signal_) {
+      if (prot->is_init_) {
+//        if (indiv_id == 137)
+//          printf("SIMD -- Protein %d : %lf + %lf\n", prot->protein_start,
+//                 prot->e, prot->delta_concentration_);
+        prot->e += prot->delta_concentration_;
+      }
+    }
   }
 }
 
@@ -2160,6 +2183,9 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
 
   current_individuals[indiv_id]->metaerror = 0;
 
+//  if (indiv_id==137)
+//    ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print();
+
   if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER) {
     for (int16_t env_i = 0; env_i < phenotypic_target_handler_->nb_env_; env_i++) {
 
@@ -2180,7 +2206,7 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
 
         // If we have to evaluate the individual at this age
         evaluate_network(indiv_id,selection_pressure,env_i);
-                if ((indiv_id==0))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+                if ((indiv_id==995))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
                          current_individuals[indiv_id]->metaerror,
                current_individuals[indiv_id]->metaerror_by_env_id_[0],
                          phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
@@ -2208,10 +2234,10 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       // If we have to evaluate the individual at this age
       if (eval->find(i+1) != eval->end()) {
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
-        if ((indiv_id==0))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
-                         current_individuals[indiv_id]->metaerror,
-               current_individuals[indiv_id]->metaerror_by_env_id_[0],
-                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
+//        if ((indiv_id==995))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+//                         current_individuals[indiv_id]->metaerror,
+//               current_individuals[indiv_id]->metaerror_by_env_id_[0],
+//                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 
@@ -2833,68 +2859,68 @@ void ExpManager_7::check_result() {
       }
 
 
-      int idx = 0, fidx = 0;
-      for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
-        bool found = false;
-        fidx = 0;
-
-        for (int pidx = 0; pidx < previous_individuals[i]->metadata_->proteins_count(); pidx++) {
-          if (previous_individuals[i]->metadata_->proteins(pidx)->is_init_) {
-            if ((previous_individuals[i]->metadata_->proteins(pidx)->e ==
-                 prot->concentration()) &&
-                (previous_individuals[i]->metadata_->proteins(pidx)->protein_end ==
-                 prot->last_STOP_base_pos()))
-              if ((previous_individuals[i]->metadata_->proteins(pidx)->protein_length ==
-                   prot->length()) &&
-                  (previous_individuals[i]->metadata_->proteins(pidx)->protein_start ==
-                   prot->first_translated_pos())) {
-                found = true;
-                fidx = pidx;
-                break;
-              } else {
-                fidx = pidx;
-              }
-
-          }
-        }
-
-        if (!found) {
-          printf("==================-------------------------======================\n");
-          printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
-                 idx,
-                 prot->first_translated_pos(), prot->last_translated_pos(),
-                 prot->last_STOP_base_pos(),
-                 prot->length(), prot->strand(),
-                 prot->mean(), prot->width(), prot->height(), prot->is_functional(),
-                 prot->concentration());
-
-          if (fidx < previous_individuals[i]->metadata_->proteins_count())
-            printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
-                   fidx,
-                previous_individuals[i]->metadata_->proteins(fidx)->protein_start,
-                previous_individuals[i]->metadata_->proteins(fidx)->protein_end,
-                previous_individuals[i]->metadata_->proteins(fidx)->protein_length,
-                previous_individuals[i]->metadata_->proteins(fidx)->leading_lagging,
-                previous_individuals[i]->metadata_->proteins(fidx)->m,
-                previous_individuals[i]->metadata_->proteins(fidx)->w,
-                previous_individuals[i]->metadata_->proteins(fidx)->h,
-                previous_individuals[i]->metadata_->proteins(fidx)->is_functional,
-                previous_individuals[i]->metadata_->proteins(fidx)->e
-            );
-          printf("==================-------------------------======================\n");
-        }
-        idx++;
-      }
-
-
-      for (int j = 0; j < previous_individuals[i]->dna_->length(); j++) {
-        if (previous_individuals[i]->dna_->data_[j] !=
-            exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).dna()->data()[j]) {
-          printf("%ld -- %d -- DNA is different at %d !!!\n", AeTime::time(), i, j);
-
-          exit(-1);
-        }
-      }
+//      int idx = 0, fidx = 0;
+//      for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
+//        bool found = false;
+//        fidx = 0;
+//
+//        for (int pidx = 0; pidx < previous_individuals[i]->metadata_->proteins_count(); pidx++) {
+//          if (previous_individuals[i]->metadata_->proteins(pidx)->is_init_) {
+//            if ((previous_individuals[i]->metadata_->proteins(pidx)->e ==
+//                 prot->concentration()) &&
+//                (previous_individuals[i]->metadata_->proteins(pidx)->protein_end ==
+//                 prot->last_STOP_base_pos()))
+//              if ((previous_individuals[i]->metadata_->proteins(pidx)->protein_length ==
+//                   prot->length()) &&
+//                  (previous_individuals[i]->metadata_->proteins(pidx)->protein_start ==
+//                   prot->first_translated_pos())) {
+//                found = true;
+//                fidx = pidx;
+//                break;
+//              } else {
+//                fidx = pidx;
+//              }
+//
+//          }
+//        }
+//
+//        if (!found) {
+//          printf("==================-------------------------======================\n");
+//          printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
+//                 idx,
+//                 prot->first_translated_pos(), prot->last_translated_pos(),
+//                 prot->last_STOP_base_pos(),
+//                 prot->length(), prot->strand(),
+//                 prot->mean(), prot->width(), prot->height(), prot->is_functional(),
+//                 prot->concentration());
+//
+//          if (fidx < previous_individuals[i]->metadata_->proteins_count())
+//            printf("Proteins SIMD %d Start %d (end %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f\n",
+//                   fidx,
+//                previous_individuals[i]->metadata_->proteins(fidx)->protein_start,
+//                previous_individuals[i]->metadata_->proteins(fidx)->protein_end,
+//                previous_individuals[i]->metadata_->proteins(fidx)->protein_length,
+//                previous_individuals[i]->metadata_->proteins(fidx)->leading_lagging,
+//                previous_individuals[i]->metadata_->proteins(fidx)->m,
+//                previous_individuals[i]->metadata_->proteins(fidx)->w,
+//                previous_individuals[i]->metadata_->proteins(fidx)->h,
+//                previous_individuals[i]->metadata_->proteins(fidx)->is_functional,
+//                previous_individuals[i]->metadata_->proteins(fidx)->e
+//            );
+//          printf("==================-------------------------======================\n");
+//        }
+//        idx++;
+//      }
+//
+//
+//      for (int j = 0; j < previous_individuals[i]->dna_->length(); j++) {
+//        if (previous_individuals[i]->dna_->data_[j] !=
+//            exp_m_->world()->grid(x, y)->individual()->genetic_unit(0).dna()->data()[j]) {
+//          printf("%ld -- %d -- DNA is different at %d !!!\n", AeTime::time(), i, j);
+//
+//          exit(-1);
+//        }
+//      }
 
       int prot_size = (int) exp_m_->world()->grid(x, y)->individual()->protein_list().size();
       if (((previous_individuals[i]->metadata_->rna_count() !=

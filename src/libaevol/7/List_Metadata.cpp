@@ -890,7 +890,7 @@ namespace aevol {
     void List_Metadata::proteins_print() {
         int prot_idx=0;
         for (auto prot : proteins_) {
-            printf("Protein %d : %p\n",prot_idx,prot);
+            if (prot->is_init_) printf("SIMD -- Protein %d : %lf\n",prot->protein_start,prot->e);
             prot_idx++;
         }
     }
