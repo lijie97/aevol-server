@@ -84,7 +84,7 @@ class Protein_7 {
 
   double    delta_concentration_;
   bool      inherited_ = false;
-  bool      signal_;
+  bool      signal_ = false;
 #endif
   std::list<Rna_7*> rna_list_;
   double initial_e_ = -1;

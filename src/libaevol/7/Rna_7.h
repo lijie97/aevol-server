@@ -40,15 +40,15 @@ class Protein_7;
 
 class AffinityFactor {
  public:
-  AffinityFactor(double pconcentration, double efactor, double ofactor) {
-    protein_concentration = pconcentration;
+  AffinityFactor(Protein_7* prot, double efactor, double ofactor) {
+    protein = prot;
     enhancer_factor = efactor;
     operator_factor = ofactor;
   }
 
   double concentration();
 
-  double protein_concentration;
+  Protein_7* protein;
   double enhancer_factor;
   double operator_factor;
 };

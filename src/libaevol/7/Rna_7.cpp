@@ -91,12 +91,12 @@ double Rna_7::compute_synthesis_rate(Individual_7* indiv) {
       operator_activity +=
           affinity.operator_factor * affinity.concentration();
 
-//      if (indiv->indiv_id==389)
+//      if (indiv->indiv_id==137)
 //        printf("SIMD -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",begin,affinity.protein->protein_start,
 //               affinity.concentration(), affinity.enhancer_factor, affinity.operator_factor);
     }
 
-//    if (indiv->indiv_id==0)
+//    if (indiv->indiv_id==137)
 //      printf("SIMD -- RNA %d Enhancer %lf Operator %lf\n",begin,enhancer_activity,operator_activity);
 
     ProteinConcentration enhancer_activity_pow_n =
@@ -120,6 +120,6 @@ double Rna_7::compute_synthesis_rate(Individual_7* indiv) {
   return 0;
 }
 
-double AffinityFactor::concentration() { return protein_concentration; };
+double AffinityFactor::concentration() { return protein->e; };
 #endif
 }

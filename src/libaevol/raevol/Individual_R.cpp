@@ -328,11 +328,11 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
     _dist_sum = 0;
 
 
-  if (id_==0) {
-    for (auto prot: protein_list_)
-      printf("%d -- CPU -- Protein %d : %lf\n", id_, prot->first_translated_pos(),
-             prot->concentration());
-  }
+//  if (id_==137) {
+//    for (auto prot: protein_list_)
+//      printf("%d -- CPU -- Protein %d : %lf\n", id_, prot->first_translated_pos(),
+//             prot->concentration());
+//  }
     std::set<int> *eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
            // printf("Evaluate for %d\n",exp_m_->exp_s()->get_nb_indiv_age());
@@ -366,10 +366,10 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
         if (eval->find(i) != eval->end()) {
             //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
             eval_step(habitat, i);
-            if (id_==0)
-            printf("%d -- CPU -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
-                   _dist_sum,dist_to_target_by_feature_[METABOLISM],
-                   habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
+//            if (id_==995)
+//            printf("%d -- CPU -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
+//                   _dist_sum,dist_to_target_by_feature_[METABOLISM],
+//                   habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
         }
     }
 
@@ -563,7 +563,13 @@ void Individual_R::update_concentrations( void )
 	// Apply the changes in concentrations we have just computed
 //        int j = 0;
   for (auto& prot : protein_list_) {
-		if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->update_concentration();
+		if (!((Protein_R*)prot)->is_signal()) {
+
+//                  if (id_==137)
+//                    printf("CPU -- Protein %d : %lf + %lf\n",prot->shine_dal_pos(),prot->concentration(),((Protein_R*)prot)->_delta_concentration);
+
+                  ((Protein_R*)prot)->update_concentration();
+                }
 
 //    if (id_ == 3) printf("Protein %d :: %lf DELTA %lf\n",j,prot->concentration(),((Protein_R*)prot)->_delta_concentration);
 //    j++;
@@ -728,11 +734,11 @@ void Individual_R::update_phenotype( void )
   for (auto& prot : protein_list_) {
     if ( ((Protein_R*)prot)->is_functional() )
     {
-      if (id_==120)
-        printf("Add triangle %lf %lf %lf (%lf %lf)\n",((Protein_R*)prot)->mean(),
-               ((Protein_R*)prot)->width(),
-               ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
-               ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );
+//      if (id_==120)
+//        printf("Add triangle %lf %lf %lf (%lf %lf)\n",((Protein_R*)prot)->mean(),
+//               ((Protein_R*)prot)->width(),
+//               ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
+//               ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );
 
       if ( ((Protein_R*)prot)->height() > 0 )
       {
