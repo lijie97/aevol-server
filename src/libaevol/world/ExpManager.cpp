@@ -733,16 +733,16 @@ void ExpManager::run_evolution() {
       }
 
       bool finished=false;
-      int64_t time = AeTime::time();
+//      int64_t time = AeTime::time();
         // For each generation
-#pragma omp parallel firstprivate(time) default(shared)
+#pragma omp parallel default(shared)
                 while (!finished) {
 #pragma omp single
                         {
-                            if (time % 100 == 0) {
+                            if (AeTime::time() % 100 == 0) {
                                 printf(
                                         "============================== %" PRId64 " ==============================\n",
-                                        time);
+                                        AeTime::time());
                                 if (!first_run) {
                                     if (ExpManager_7::standalone_simd) {
                                       exp_m_7_->dna_factory_->stats();
@@ -778,18 +778,21 @@ void ExpManager::run_evolution() {
 
 
                         }
-                    if (with_mrca_ && record_light_tree()) {
-                                /*if (AeTime::time() == t_end_) {
-                                    output_m_->light_tree()->keep_indivs(indivs());
-                                }*/
-                      if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
-                        finished = true;
-                    } else if (time >= t_end_ or quit_signal_received())
-                      finished = true;
 
-                        time++;
                         // Take one step in the evolutionary loop
                         step_to_next_generation();
+
+#pragma omp single
+                  {
+                    if (with_mrca_ && record_light_tree()) {
+                      /*if (AeTime::time() == t_end_) {
+                          output_m_->light_tree()->keep_indivs(indivs());
+                      }*/
+                      if (output_m_->mrca_time() >= t_end_ or quit_signal_received())
+                        finished = true;
+                    } else if (AeTime::time() >= t_end_ or quit_signal_received())
+                      finished = true;
+                        }
 
                 }
 #ifdef __TRACING__
