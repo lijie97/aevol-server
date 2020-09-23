@@ -53,3 +53,6 @@ examples/*/**
 # but consider param.in files
 !examples/**/param.in
 !examples/**/README
+
+# ignore IDE files and folders
+.vscode
