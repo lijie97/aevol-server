@@ -98,6 +98,12 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   _hill_shape        = std::pow( _hill_shape_theta, _hill_shape_n );
 
   _list_eval_step    = new std::set<int>();
+
+  for (int i=0; i < MAX_QUADON; i++) {
+		for (int j=0; j < MAX_CODON; j++) {
+      _binding_matrix[i][j] = 0.0;
+    }
+  }
 #endif
 }
   

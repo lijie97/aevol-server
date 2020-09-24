@@ -1406,7 +1406,7 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
 
         while (count_loop <
                prot->protein_length &&
-               codon_idx < 64) {
+               codon_idx < 64*3) {
           value = 0;
           for (int8_t i = 0; i < 3; i++) {
             t_pos = c_pos + i;
@@ -1414,6 +1414,8 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
                 '1')
               value += 1 << (CODON_SIZE - i - 1);
           }
+
+          // if (indiv_id == 660) printf("Protein %d :: Add codon %d : %d\n",prot->protein_start,codon_idx,value);
           prot->codon_list[codon_idx] = value;
 
           codon_idx++;
@@ -1428,7 +1430,7 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         // LAGGING
         while (count_loop <
                prot->protein_length &&
-               codon_idx < 64) {
+               codon_idx < 64*3) {
           value = 0;
           for (int8_t i = 0; i < 3; i++) {
             t_pos = c_pos - i;
@@ -1436,6 +1438,8 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
                 '1')
               value += 1 << (CODON_SIZE - i - 1);
           }
+
+          // if (indiv_id == 660) printf("Protein %d :: Add codon %d : %d\n",prot->protein_start,codon_idx,value);
           prot->codon_list[codon_idx] = value;
           codon_idx++;
 
@@ -1444,6 +1448,13 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
           c_pos -= 3;
           c_pos = c_pos < 0 ? c_pos + dna_size[indiv_id] : c_pos;
         }
+      }
+
+      if (count_loop < prot->protein_length && codon_idx==64*3) {
+        std::ofstream last_gener_file("log_silent_error",
+                                    std::ofstream::out);
+        last_gener_file << "Stop translating protein before end (length is greater than 196" << std::endl;
+        last_gener_file.close();
       }
 
       double M = 0.0;
@@ -2026,9 +2037,9 @@ void ExpManager_7::compute_network(int indiv_id, double selection_pressure) {
 
                 rna->nb_influences_++;
 
-//                if (indiv_id == 137)
-//                  printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
-//                         rna->begin, prot->protein_start, enhance, operate);
+                if (indiv_id == 70)
+                  printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
+                         rna->begin, prot->protein_start, enhance, operate);
               }
             }
           }
@@ -2109,9 +2120,9 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
 //    printf("SIMD -- Protein %d : %d %d\n",prot->protein_start,prot->signal_,prot->is_init_);
     if (!prot->signal_) {
       if (prot->is_init_) {
-//        if (indiv_id == 137)
-//          printf("SIMD -- Protein %d : %lf + %lf\n", prot->protein_start,
-//                 prot->e, prot->delta_concentration_);
+        // if (indiv_id == 70)
+        //   printf("SIMD -- Protein %d : %lf + %lf\n", prot->protein_start,
+        //          prot->e, prot->delta_concentration_);
         prot->e += prot->delta_concentration_;
       }
     }
@@ -2206,10 +2217,10 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
 
         // If we have to evaluate the individual at this age
         evaluate_network(indiv_id,selection_pressure,env_i);
-                if ((indiv_id==995))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
-                         current_individuals[indiv_id]->metaerror,
-               current_individuals[indiv_id]->metaerror_by_env_id_[0],
-                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
+              //   if ((indiv_id==995))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+              //            current_individuals[indiv_id]->metaerror,
+              //  current_individuals[indiv_id]->metaerror_by_env_id_[0],
+              //            phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 
@@ -2232,12 +2243,12 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       }
 
       // If we have to evaluate the individual at this age
-      if (eval->find(i+1) != eval->end()) {
+      if (eval->find(i+1) != eval->end() ||( (indiv_id == 70) && (AeTime::time()>=1570))) {
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
-//        if ((indiv_id==995))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
-//                         current_individuals[indiv_id]->metaerror,
-//               current_individuals[indiv_id]->metaerror_by_env_id_[0],
-//                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
+        // if ((indiv_id==70))  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+        //                  current_individuals[indiv_id]->metaerror,
+        //        current_individuals[indiv_id]->metaerror_by_env_id_[0],
+        //                  phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 

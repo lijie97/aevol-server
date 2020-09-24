@@ -133,9 +133,9 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list, int id )
 //      if (id==389) printf("Add Affinity for RNA %d with Protein %d : E %lf O %lf\n",
 //             first_transcribed_pos(),i,enhance,operate);
 
-//      if (id==137)
-//        printf("Affinity between RNA %d and Protein %d : %lf %lf\n",
-//               first_transcribed_pos(),prot->shine_dal_pos(),enhance,operate);
+      // if (id==70)
+      //   printf("CPU -- Affinity between RNA %d and Protein %d : %lf %lf\n",
+      //          first_transcribed_pos(),prot->shine_dal_pos(),enhance,operate);
 
       _protein_list.insert(itprot,(Protein_R*) prot);
 
@@ -413,6 +413,12 @@ ProteinConcentration Rna_R::affinity_with_protein( int32_t index, Protein *prote
       temp = 1;
 
       for (int8_t j = 0; j < 5; j++) {
+        // if (gen_unit_->indiv()->id()==660) {
+        //   printf("Individual %d Protein %d\n",gen_unit_->indiv()->id(),prot->shine_dal_pos());
+        //   printf("Codon[%d] (i %d j %d) %d out of %d\n",i+j,i,j,prot->_cod_tab[i+j],MAX_CODON);
+        //   printf("Protein Length %d\n",prot->length());
+        // }
+
         temp *= gen_unit_->exp_m()->exp_s()->_binding_matrix[quadon_tab[j]][prot->_cod_tab[
             i + j]];
       }
