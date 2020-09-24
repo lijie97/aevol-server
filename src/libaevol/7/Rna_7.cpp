@@ -66,6 +66,11 @@ double Rna_7::affinity_with_protein( int32_t index, Protein_7 *protein, Individu
       temp = 1;
 
       for (int8_t j = 0; j < 5; j++) {
+        // if (protein->codon_list[i+j]>=MAX_CODON) {
+        //   printf("Individual %d Protein %d Init %d\n",indiv->indiv_id,protein->protein_start,protein->is_init_);
+        //   printf("Codon[%d] (i %d j %d) %d out of %d\n",i+j,i,j,protein->codon_list[i+j],MAX_CODON);
+        //   printf("Protein Length %d\n",protein->protein_length);
+        // }
         temp *= exp_m->exp_s()->get_binding_matrix(quadon_tab[j],
                                                    protein->codon_list[i + j]);
       }

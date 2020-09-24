@@ -387,6 +387,11 @@ inline void ExpSetup::set_list_eval_step( std::set<int> list_eval_step )
 #ifdef __REGUL
 inline ProteinConcentration ExpSetup::get_binding_matrix( int row, int column ) const
 {
+  if (row >= MAX_QUADON || column >= MAX_CODON) {
+    printf("OUT OF BOUND BINDING R %d C %d\n",row,column);
+    exit(-1);
+  }
+
   return _binding_matrix[row][column];
 }
 #endif
