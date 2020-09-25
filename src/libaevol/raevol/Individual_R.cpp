@@ -363,10 +363,10 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
         }*/
 
         // If we have to evaluate the individual at this age
-        if (eval->find(i) != eval->end() ||( (id_ == 70) && (AeTime::time()>=1570))){
+        if (eval->find(i) != eval->end()) {// ||( (id_ == 70) && (AeTime::time()>=1570))){
             //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
             eval_step(habitat, i);
-            // if (id_==70)
+            // if (id_==70 && AeTime::time() == 1595)
             // printf("%d -- CPU -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
             //        _dist_sum,dist_to_target_by_feature_[METABOLISM],
             //        habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
@@ -565,8 +565,8 @@ void Individual_R::update_concentrations( void )
   for (auto& prot : protein_list_) {
 		if (!((Protein_R*)prot)->is_signal()) {
 
-                  // if (id_==70)
-                  //   printf("CPU -- Protein %d : %lf + %lf\n",prot->shine_dal_pos(),prot->concentration(),((Protein_R*)prot)->_delta_concentration);
+                  if (id_==70 && AeTime::time() == 1595)
+                    printf("CPU -- Protein %d : %lf + %lf\n",prot->shine_dal_pos(),prot->concentration(),((Protein_R*)prot)->_delta_concentration);
 
                   ((Protein_R*)prot)->update_concentration();
                 }

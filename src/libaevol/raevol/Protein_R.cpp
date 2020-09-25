@@ -241,8 +241,13 @@ void Protein_R::compute_delta_concentration( ExpManager* exp_m )
         printf("12608 RNA %d synthesis of %d is %f %f\n",rna->get_id(),get_id(),
                _delta_concentration,rna->get_synthesis_rate());*/
 
-      _delta_concentration += _rna_R_list[i]->get_synthesis_rate();
-      ///if (_id == 34483) printf("Prot %ld synthesis by %ld at rate %e\n",_id,rna->get_id(),rna->get_synthesis_rate());
+      double synthesis_rate = _rna_R_list[i]->get_synthesis_rate();
+      // if (gen_unit_->indiv()->id() == 70 && AeTime::time() == 1595) printf("CPU -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",shine_dal_pos_,_rna_R_list[i]->first_transcribed_pos(),
+      //                      synthesis_rate,_delta_concentration);
+
+      _delta_concentration += synthesis_rate;
+
+      // if (gen_unit_->indiv()->id() == 70 && AeTime::time() == 1595) printf("DELTA AFTER %lf : %lf\n",_delta_concentration,synthesis_rate);
 
 //      if (indiv()->id() == 389) printf("UPDATE_NETWORK_SYN_UPDATE Protein CPU %d :: %lf DELTA %lf - %lf -- %d\n",
 //                                                                   first_translated_pos(),concentration(),_delta_concentration,_rna_R_list[i]->get_synthesis_rate(),
