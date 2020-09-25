@@ -560,27 +560,6 @@ ExpManager_7::~ExpManager_7() {
     delete exp_m_->dna_mutator_array_[indiv_id];
   }
 
-  for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    if (previous_individuals[indiv_id] != nullptr) {
-      if (previous_individuals[indiv_id]->usage_count_ != -1) {
-        previous_individuals[indiv_id]->usage_count_ = -1;
-
-        for (int rn = 0; rn < previous_individuals[indiv_id]->metadata_->rna_count(); rn++) {
-          delete previous_individuals[indiv_id]->metadata_->rnas(rn);
-        }
-
-        previous_individuals[indiv_id]->metadata_->rnas_clear();
-        for (int rn = 0; rn < previous_individuals[indiv_id]->metadata_->proteins_count(); rn++) {
-          delete previous_individuals[indiv_id]->metadata_->proteins(rn);
-        }
-        previous_individuals[indiv_id]->metadata_->proteins_clear();
-
-        delete previous_individuals[indiv_id];
-        previous_individuals[indiv_id] = nullptr;
-      }
-    }
-  }
-
   delete[] previous_individuals;
   delete[] current_individuals;
 
@@ -2688,7 +2667,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 #endif
 
         int32_t nb_blocks_ =
-            previous_individuals[indiv_id]->dna_->length() / BLOCK_SIZE + 1;
+            previous_individuals[indiv_id]->dna_->nb_block();
         char *dna_string = new char[nb_blocks_ * BLOCK_SIZE];
         memset(dna_string, 0,
                (previous_individuals[indiv_id]->dna_->length() + 1) * sizeof(char));
@@ -2701,13 +2680,13 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
                (previous_individuals[indiv_id]->dna_->length() + 1) * sizeof(char));
 
 
-        indiv->genetic_unit_list_.clear();
         indiv->add_GU(dna_string,
                       previous_individuals[indiv_id]->dna_->length());
         indiv->genetic_unit_nonconst(0).set_min_gu_length(exp_m_->exp_s()->min_genome_length());
         indiv->genetic_unit_nonconst(0).set_max_gu_length(exp_m_->exp_s()->max_genome_length());
-        indiv->EvaluateInContext(exp_m_->world()->grid(x, y)->habitat());
         indiv->compute_statistical_data();
+        indiv->EvaluateInContext(exp_m_->world()->grid(x, y)->habitat());
+        
 
         exp_m_->world()->grid(x, y)->set_individual(indiv);
       }

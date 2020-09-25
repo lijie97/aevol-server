@@ -1716,7 +1716,7 @@ void Individual::save(gzFile backup_file) const {
 
   // Write plasmids settings
   int8_t tmp_allow_plasmids = allow_plasmids_;
-  gzwrite(backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids));
+ gzwrite(backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids));
 
   // Write genetic units
   int16_t nb_gen_units = genetic_unit_list_.size();
