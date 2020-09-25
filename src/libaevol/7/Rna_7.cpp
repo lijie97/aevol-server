@@ -96,9 +96,9 @@ double Rna_7::compute_synthesis_rate(Individual_7* indiv) {
       operator_activity +=
           affinity.operator_factor * affinity.concentration();
 
-//      if (indiv->indiv_id==137)
-//        printf("SIMD -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",begin,affinity.protein->protein_start,
-//               affinity.concentration(), affinity.enhancer_factor, affinity.operator_factor);
+     if (indiv->indiv_id==70&& AeTime::time() == 1595)
+       printf("SIMD -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",begin,affinity.protein->protein_start,
+              affinity.concentration(), affinity.enhancer_factor, affinity.operator_factor);
     }
 
 //    if (indiv->indiv_id==137)
