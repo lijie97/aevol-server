@@ -345,7 +345,7 @@ void JumpingMT::multinomial_drawing(int32_t* destination, double* source, int32_
 void JumpingMT::save(gzFile backup_file) const
 {
 
-  gzwrite(backup_file, sfmt_->state, SFMT_N * sizeof(sfmt_->state[0]));
+ gzwrite(backup_file, sfmt_->state, SFMT_N * sizeof(sfmt_->state[0]));
   gzwrite(backup_file, &(sfmt_->idx), sizeof(sfmt_->idx));
   gzwrite(backup_file, &initial_seed_, sizeof(initial_seed_));
 }
