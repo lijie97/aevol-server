@@ -54,6 +54,19 @@ target_link_libraries(aevol_post_robustness_json PUBLIC aevol libaevol-post)
 
 add_executable(aevol_post_lineage_json aevol_post_lineage_json.cpp)
 target_link_libraries(aevol_post_lineage_json PUBLIC aevol libaevol-post)
+
+add_executable(aevol_post_neutral_mut_acc aevol_post_neutral_mut_acc.cpp)
+target_link_libraries(aevol_post_neutral_mut_acc PUBLIC aevol libaevol-post)
+
+add_executable(aevol_post_change_size_neutral_mut aevol_post_change_size_neutral_mut.cpp)
+target_link_libraries(aevol_post_change_size_neutral_mut PUBLIC aevol libaevol-post)
+
+add_executable(aevol_post_robustness_bias aevol_post_robustness_bias.cpp)
+target_link_libraries(aevol_post_robustness_bias PUBLIC aevol libaevol-post)
+
+add_executable(aevol_post_testJSON testJSON.cpp)
+target_link_libraries(aevol_post_testJSON PUBLIC aevol libaevol-post)
+
 # ============================================================================
 # Set behaviour on make install
 # ============================================================================

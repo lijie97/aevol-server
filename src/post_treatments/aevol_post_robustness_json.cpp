@@ -65,9 +65,9 @@ int main(int argc, char* argv[]) {
   iojson->setRecordTree(false);
 
   /* Analyse each individuals of the json file */
-   for(auto &indiv: iojson->getIndividuals()) {
-    IndivAnalysis wanted_indiv(indiv);
-    wanted_indiv.set_grid_cell(indiv.grid_cell());
+   for(Individual* indiv: iojson->getIndividuals()) {
+    IndivAnalysis wanted_indiv(*indiv);
+    wanted_indiv.set_grid_cell(indiv->grid_cell());
     wanted_indiv.grid_cell()->set_individual((Individual*)&wanted_indiv);
     wanted_indiv.Evaluate();
     wanted_indiv.compute_statistical_data();

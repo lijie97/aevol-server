@@ -102,9 +102,9 @@ void interpret_cmd_line_options(int argc, char **argv) {
 
 int main(int argc, char ** argv) {
   seed_prng = 456465;
-  number_replications = 1000000;
+  number_replications = 1000;
   genomeFile = "input.json";
-  print_every = 10000;
+  print_every = 100;
   std::ofstream summary_file("summary.txt");
   interpret_cmd_line_options(argc, argv);
 
@@ -115,16 +115,16 @@ int main(int argc, char ** argv) {
 
   IOJson inputJson(genomeFile);
 
-  Individual individual = inputJson.individuals().front();
-  individual.clear_everything_except_dna_and_promoters();
-  individual.compute_phenotype();
-  Robustness_bias_output out(individual, "indiv.csv", "mutation.csv");
+  Individual* individual = inputJson.getIndividuals().front();
+  individual->clear_everything_except_dna_and_promoters();
+  individual->compute_phenotype();
+  Robustness_bias_output out(*individual, "indiv.csv", "mutation.csv");
 
   for (unsigned int id = 1; id <= number_replications; ++id) {
     std::vector<MutationEvent *> mutations;
     std::vector<bool> is_neutral;
-    Individual * child = new_child(&individual, mutations, is_neutral);
-    out.record_replication(id, *child, individual, mutations, is_neutral);
+    Individual* child = new_child(individual, mutations, is_neutral);
+    out.record_replication(id, *child, *individual, mutations, is_neutral);
     delete child;
     if (id%print_every == 0){
       out.print_summary(std::cout);

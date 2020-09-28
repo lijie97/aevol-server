@@ -153,8 +153,8 @@ Individual *neutral_mutation_closer_to(Individual *individual, int32_t size_want
   return child;
 }
 
-Individual * run_to_size(int32_t wanted_size, const Individual & indiv) {
-  auto *individual = new Individual(indiv);
+Individual * run_to_size(int32_t wanted_size, Individual* indiv) {
+  auto *individual = new Individual(*indiv);
   auto *expSetup = new ExpSetup(nullptr);
   FuzzyFactory::fuzzyFactory = new FuzzyFactory(expSetup);
   individual->clear_everything_except_dna_and_promoters();
@@ -173,8 +173,8 @@ Individual * run_to_size(int32_t wanted_size, const Individual & indiv) {
   return  individual;
 }
 
-Individual * run_generations(unsigned int nb_generations, const Individual & indiv) {
-  auto *individual = new Individual(indiv);
+Individual * run_generations(unsigned int nb_generations, Individual* indiv) {
+  auto *individual = new Individual(*indiv);
   auto *expSetup = new ExpSetup(nullptr);
   FuzzyFactory::fuzzyFactory = new FuzzyFactory(expSetup);
   individual->clear_everything_except_dna_and_promoters();
