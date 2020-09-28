@@ -21,7 +21,7 @@ Individual *new_child(Individual *individual, std::vector<MutationEvent *> &muta
 
 Individual *neutral_mutation(Individual *individual);
 
-Individual * run_generations(unsigned int nb_generations, const Individual & indiv);
-Individual * run_to_size(int32_t wanted_size, const Individual & indiv);
+Individual * run_generations(unsigned int nb_generations, Individual* indiv);
+Individual * run_to_size(int32_t wanted_size, Individual* indiv);
 
 #endif //AEVOL_NEUTRAL_MUTATION_EXP_H

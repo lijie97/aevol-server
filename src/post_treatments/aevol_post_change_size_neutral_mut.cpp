@@ -127,14 +127,13 @@ int main(int argc, char ** argv) {
   out::init("result.txt", "mutation.txt");
 
   if (wanted_size == 0) {
-    wanted_size = inputJson.individuals()[0].amount_of_dna() + delta;
+    wanted_size = inputJson.getIndividuals()[0]->amount_of_dna() + delta;
   }
 
-  Individual * indiv = run_to_size(wanted_size, inputJson.individuals()[0]);
-  std::vector<Individual> indiv_vector;
-  indiv_vector.emplace_back(*indiv);
+  Individual * indiv = run_to_size(wanted_size, inputJson.getIndividuals()[0]);
+  std::vector<Individual*> indiv_vector;
+  indiv_vector.push_back(indiv);
 
-  inputJson.individuals().clear();
   inputJson.setIndividuals(indiv_vector);
 
   inputJson.write(outputFile);

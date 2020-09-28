@@ -115,11 +115,11 @@ int main(int argc, char ** argv) {
 
   out::init("result.txt", "mutation.txt");
 
-  run_generations(number_generation, inputJson.individuals()[0]);
+  run_generations(number_generation, inputJson.getIndividuals()[0]);
 //  std::vector<Individual> indiv_vector;
 //  indiv_vector.emplace_back(*indiv);
 
-//  inputJson.individuals().clear();
+//  inputJson.getIndividuals().clear();
 //  inputJson.setIndividuals(indiv_vector);
 
 //  inputJson.write(outputFile);

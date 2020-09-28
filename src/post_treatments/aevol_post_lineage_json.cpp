@@ -42,7 +42,7 @@ void print_help(char* prog_path);
 json extract_gu(IndivAnalysis* indiv);
 
 // Command-line option variables
-static char* json_file_name = "json";
+static char* json_file_name = "lineage.json";
 static char* lineage_file_name = nullptr;
 static int32_t begin = 0; //< First generation to analyse
 static int32_t end = -1; //< Last generation to analyse
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
   IndivAnalysis indiv(*(grid_cell->individual()));
 
   if (begin == 0) {
-    iojson->addIndividual(indiv,extract_gu(&indiv));
+    iojson->addIndividual(&indiv,extract_gu(&indiv));
   }
 
   // ==========================================================================
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
       gen_unit.dna()->undergo_this_mutation(*mut);
 
       if (period == -1) {
-        iojson->addIndividual(indiv,extract_gu(&indiv));
+        iojson->addIndividual(&indiv,extract_gu(&indiv));
       }
     }
 
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
       gen_unit.dna()->undergo_this_mutation(*mut);
 
       if (period == -1) {
-        iojson->addIndividual(indiv,extract_gu(&indiv));
+        iojson->addIndividual(&indiv,extract_gu(&indiv));
       }
     }
 
@@ -154,14 +154,14 @@ int main(int argc, char* argv[]) {
       gen_unit.dna()->undergo_this_mutation(*mut);
 
       if (period == -1) {
-        iojson->addIndividual(indiv,extract_gu(&indiv));
+        iojson->addIndividual(&indiv,extract_gu(&indiv));
       }
     }
 
     if (period != -1) {
       if ((time() >= begin) && ((time() < end) || (end == -1)) &&
           (((time() - begin) % period) == 0)) {
-        iojson->addIndividual(indiv, extract_gu(&indiv));
+        iojson->addIndividual(&indiv, extract_gu(&indiv));
       }
     }
 
