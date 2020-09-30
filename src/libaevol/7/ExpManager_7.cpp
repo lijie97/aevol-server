@@ -1022,7 +1022,7 @@ void ExpManager_7::start_protein(int indiv_id) {
 
 
           int loop_size = 0;
-          while (loop_size < rna->length) {
+          while (loop_size+DO_TRANSLATION_LOOP < rna->length) {
             bool start = false;
             int k_t;
 
@@ -1241,8 +1241,12 @@ void ExpManager_7::compute_protein(int indiv_id) {
                     rna->e,rna
                 ));
 
-
                 rna->is_coding_ = true;
+
+                 if (indiv_id==190 && AeTime::time() == 1936) {
+                   printf("Add protein %d => %d on RNA [%d => %d] (LEAD) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
+                          rna->begin,rna->end,rna->e);
+                 }
               }
 
               break;
@@ -1300,6 +1304,11 @@ void ExpManager_7::compute_protein(int indiv_id) {
                         rna->e,rna
                     ));
                 rna->is_coding_ = true;
+
+                 if (indiv_id==190 && AeTime::time() == 1936) {
+                   printf("Add protein %d => %d on RNA [%d => %d] (LAG) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
+                          rna->begin,rna->end,rna->e);
+                 }
               }
               break;
             }
@@ -1585,10 +1594,21 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
+          if (indiv_id==190 && AeTime::time() == 1936) {
+                   printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
+                   for (auto rna : lookup[prot->protein_start]->rna_list_) {
+                     printf("OLD [%d %d]\n",rna->begin,rna->end);
+                   }
+          }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
           prot->is_init_ = false;
+          if (indiv_id==190 && AeTime::time() == 1936) {
+                   for (auto rna : prot->rna_list_) {
+                     printf("NEW [%d %d]\n",rna->begin,rna->end);
+                   }
+          }
         }
       }
     }
@@ -1611,9 +1631,22 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
+          if (indiv_id==190 && AeTime::time() == 1936) {
+                   printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
+                   for (auto rna : lookup[prot->protein_start]->rna_list_) {
+                     printf("OLD [%d %d]\n",rna->begin,rna->end);
+                   }
+          }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
+
+           if (indiv_id==190 && AeTime::time() == 1936) {
+                   for (auto rna : prot->rna_list_) {
+                     printf("NEW [%d %d]\n",rna->begin,rna->end);
+                   }
+          
+          }
           prot->is_init_ = false;
         }
       }
@@ -2155,8 +2188,8 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
 
   current_individuals[indiv_id]->metaerror = 0;
 
-//  if (indiv_id==137)
-//    ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print();
+  if (indiv_id==190 && AeTime::time() == 1936) 
+   ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print();
 
   if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER) {
     for (int16_t env_i = 0; env_i < phenotypic_target_handler_->nb_env_; env_i++) {
@@ -2178,10 +2211,10 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
 
         // If we have to evaluate the individual at this age
         evaluate_network(indiv_id,selection_pressure,env_i);
-              //   if (indiv_id==70 && AeTime::time() == 1595)  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
-              //            current_individuals[indiv_id]->metaerror,
-              //  current_individuals[indiv_id]->metaerror_by_env_id_[0],
-              //            phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
+                if (indiv_id==190 && AeTime::time() == 1936)  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+                         current_individuals[indiv_id]->metaerror,
+               current_individuals[indiv_id]->metaerror_by_env_id_[0],
+                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 
@@ -2203,13 +2236,17 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
         update_network(indiv_id,selection_pressure);
       }
 
+
+  if (indiv_id==190 && AeTime::time() == 1936) 
+   ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print();
+
       // If we have to evaluate the individual at this age
       if (eval->find(i+1) != eval->end()) {// ||( (indiv_id == 70) && (AeTime::time()>=1570))) {
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
-        // if (indiv_id==70 && AeTime::time() == 1595)  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
-        //                  current_individuals[indiv_id]->metaerror,
-        //        current_individuals[indiv_id]->metaerror_by_env_id_[0],
-        //                  phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
+        if (indiv_id==190 && AeTime::time() == 1936)  printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
+                         current_individuals[indiv_id]->metaerror,
+               current_individuals[indiv_id]->metaerror_by_env_id_[0],
+                         phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
       }
     }
 
@@ -2861,10 +2898,10 @@ void ExpManager_7::check_result() {
 //      }
 
       int prot_size = (int) exp_m_->world()->grid(x, y)->individual()->protein_list().size();
-      if (((previous_individuals[i]->metadata_->rna_count() !=
+      if ((((previous_individuals[i]->metadata_->rna_count() !=
             count_rna_cpu) ||
            (count_prot != prot_size))
-          || ((i_fit_1 != i_fit_2 && dna_size[i] > 300))) {
+          || ((i_fit_1 != i_fit_2))) && dna_size[i] > 300) {
         validated_generation = false;
 
 
@@ -2909,18 +2946,18 @@ void ExpManager_7::check_result() {
 
         for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
           bool found = false;
-          for (int pidx = 0; pidx < (int) (previous_individuals[i]->metadata_->rna_count());
-               pidx++) {
-            if ((rna->promoter_pos() ==
-                 previous_individuals[i]->metadata_->rnas(pidx)->begin) &&
-                (rna->transcript_length() ==
-                 previous_individuals[i]->metadata_->rnas(pidx)->length)){
-              found = true;
-              break;
-            }
-          }
+          // for (int pidx = 0; pidx < (int) (previous_individuals[i]->metadata_->rna_count());
+          //      pidx++) {
+          //   if ((rna->promoter_pos() ==
+          //        previous_individuals[i]->metadata_->rnas(pidx)->begin) &&
+          //       (rna->transcript_length() ==
+          //        previous_individuals[i]->metadata_->rnas(pidx)->length)){
+          //     found = true;
+          //     break;
+          //   }
+          // }
 
-          if (i == 392) found = false;
+          // if (i == 392) found = false;
 
           if (!found)
             printf("RNA CPU %d Start %d Stop %d Leading/Lagging %d Length %d Basal %lf\n", idx,
@@ -2932,17 +2969,17 @@ void ExpManager_7::check_result() {
         idx = 0;
         for (idx = 0; idx < (int) (previous_individuals[i]->metadata_->rna_count()); idx++) {
           bool found = false;
-          for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
-            if ((rna->promoter_pos() ==
-                 previous_individuals[i]->metadata_->rnas(idx)->begin) &&
-                (rna->transcript_length() ==
-                 previous_individuals[i]->metadata_->rnas(idx)->length)) {
-              found = true;
-              break;
-            }
-          }
+          // for (auto rna : exp_m_->world()->grid(x, y)->individual()->rna_list()) {
+          //   if ((rna->promoter_pos() ==
+          //        previous_individuals[i]->metadata_->rnas(idx)->begin) &&
+          //       (rna->transcript_length() ==
+          //        previous_individuals[i]->metadata_->rnas(idx)->length)) {
+          //     found = true;
+          //     break;
+          //   }
+          // }
 
-          if (i == 392) found = false;
+          // if (i == 392) found = false;
 
           if (!found)
             printf("RNA SIMD %d Start %d Stop %d Leading/Lagging %d Length %d  Basal %lf\n", idx, previous_individuals[i]->metadata_->rnas(idx)->begin,
@@ -2959,19 +2996,19 @@ void ExpManager_7::check_result() {
         for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
           bool found = false;
 
-          for (int pidx = 0; pidx < previous_individuals[i]->metadata_->proteins_count(); pidx++) {
-            if (previous_individuals[i]->metadata_->proteins(pidx)->is_init_) {
-              if ((previous_individuals[i]->metadata_->proteins(pidx)->e ==
-                   prot->concentration()) &&
-                  (previous_individuals[i]->metadata_->proteins(pidx)->protein_end ==
-                   prot->last_STOP_base_pos())) {
-                found = true;
-                break;
-              }
-            }
-          }
+          // for (int pidx = 0; pidx < previous_individuals[i]->metadata_->proteins_count(); pidx++) {
+          //   if (previous_individuals[i]->metadata_->proteins(pidx)->is_init_) {
+          //     if ((previous_individuals[i]->metadata_->proteins(pidx)->e ==
+          //          prot->concentration()) &&
+          //         (previous_individuals[i]->metadata_->proteins(pidx)->protein_end ==
+          //          prot->last_STOP_base_pos())) {
+          //       found = true;
+          //       break;
+          //     }
+          //   }
+          // }
 
-          if (i == 392) found = false;
+          // if (i == 392) found = false;
 
           if (!found) {
             printf("Proteins CPU %d Start %d (end %d stop %d) Length %d Leading/Lagging %d M/W/H %f/%f/%f Func %d -- Concentration %f RNA : \n",
@@ -2995,17 +3032,17 @@ void ExpManager_7::check_result() {
 
             bool found = false;
 
-            for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
-              if ((previous_individuals[i]->metadata_->proteins(idx)->e ==
-                   prot->concentration()) &&
-                  (previous_individuals[i]->metadata_->proteins(idx)->protein_end ==
-                   prot->last_STOP_base_pos())) {
-                found = true;
-                break;
-              }
-            }
+            // for (auto prot : exp_m_->world()->grid(x, y)->individual()->protein_list()) {
+            //   if ((previous_individuals[i]->metadata_->proteins(idx)->e ==
+            //        prot->concentration()) &&
+            //       (previous_individuals[i]->metadata_->proteins(idx)->protein_end ==
+            //        prot->last_STOP_base_pos())) {
+            //     found = true;
+            //     break;
+            //   }
+            // }
 
-            if (i == 392) found = false;
+            // if (i == 392) found = false;
 
             //for (idx = 0; idx < (int) (current_individuals[i]->proteins.size()); idx++) {
             if (!found) {
@@ -3021,36 +3058,45 @@ void ExpManager_7::check_result() {
                      previous_individuals[i]->metadata_->proteins(idx)->is_functional,
                      previous_individuals[i]->metadata_->proteins(idx)->e
               );
+
+                    for (auto rna : previous_individuals[i]->metadata_->proteins(idx)->rna_list_) {
+                      printf("[%d => %d]\n",rna->begin,rna->end);
+                    }
+            
               validated_generation = false;
             }
             prot_cpt_b++;
           }
         }
 
-        printf("Start prot LEAD : ");
-        for (int pidx = 0; pidx < (int) (previous_individuals[i]->metadata_->rna_count());
-             pidx++) {
-          if (previous_individuals[i]->metadata_->rnas(pidx)->leading_lagging == 0) {
-            for (int pos :
-                 previous_individuals[i]->metadata_->rnas(pidx)->start_prot) {
-              printf("%d ",pos);
-            }
-          }
-        }
-        printf("\n");
+        // printf("Start prot LEAD : ");
+        // for (int pidx = 0; pidx < (int) (previous_individuals[i]->metadata_->rna_count());
+        //      pidx++) {
+        //   if (previous_individuals[i]->metadata_->rnas(pidx)->leading_lagging == 0) {
+        //     for (int pos :
+        //          previous_individuals[i]->metadata_->rnas(pidx)->start_prot) {
+        //       printf("%d ",pos);
+        //     }
+        //   }
+        // }
+        // printf("\n");
 
 
-        printf("Start prot LAG : ");
-        for (int pidx = 0; pidx < (int) (previous_individuals[i]->metadata_->rna_count());
-             pidx++) {
-          if (previous_individuals[i]->metadata_->rnas(pidx)->leading_lagging == 1) {
-            for (int pos :
-                 previous_individuals[i]->metadata_->rnas(pidx)->start_prot) {
-              printf("%d ",pos);
-            }
-          }
-        }
-        printf("\n");
+        // printf("Start prot LAG : ");
+        // for (int pidx = 0; pidx < (int) (previous_individuals[i]->metadata_->rna_count());
+        //      pidx++) {
+        //   if (previous_individuals[i]->metadata_->rnas(pidx)->leading_lagging == 1) {
+        //     for (int pos :
+        //          previous_individuals[i]->metadata_->rnas(pidx)->start_prot) {
+        //       printf("%d ",pos);
+        //     }
+        //   }
+        // }
+        // printf("\n");
+
+        // exp_m_->world()->grid(x, y)->individual()->phenotype()->print();
+
+        // previous_individuals[i]->phenotype->print();
 
         exit(-1);
       }
