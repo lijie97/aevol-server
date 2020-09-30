@@ -34,6 +34,8 @@ src/post_treatments/aevol_misc_view_generation
 src/post_treatments/aevol_misc_view
 *.o
 
+# ignore local build folders
+*build*/
 
 # ignore the files that are generated from the user guide source
 doc/user_guide/user_manual.aux
@@ -56,3 +58,4 @@ examples/*/**
 
 # ignore IDE files and folders
 .vscode
+.idea/

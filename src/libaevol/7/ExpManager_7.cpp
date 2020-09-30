@@ -412,41 +412,14 @@ ExpManager_7::~ExpManager_7() {
   delete stats_best;
   delete stats_mean;
 
-  for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    if (current_individuals[indiv_id] != nullptr) {
-
-
-      if (current_individuals[indiv_id]->usage_count_ > 0)
-        current_individuals[indiv_id]->usage_count_--;
-      else {
-        if (current_individuals[indiv_id]->usage_count_ != -1) {
-          current_individuals[indiv_id]->usage_count_ = -1;
-
-          for (int rn = 0; rn < current_individuals[indiv_id]->metadata_->rna_count(); rn++) {
-            delete current_individuals[indiv_id]->metadata_->rnas(rn);
-          }
-
-          current_individuals[indiv_id]->metadata_->rnas_clear();
-          for (int rn = 0; rn < current_individuals[indiv_id]->metadata_->proteins_count(); rn++) {
-            delete current_individuals[indiv_id]->metadata_->proteins(rn);
-          }
-          current_individuals[indiv_id]->metadata_->proteins_clear();
-
-          delete current_individuals[indiv_id];
-          current_individuals[indiv_id] = nullptr;
-        }
-      }
-    }
-  }
+  /* No need to delete current_individuals, at the end of a generation all the
+   * element of the table are nullptr
+   */
 
   for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    if (previous_individuals[indiv_id] != nullptr) {
       if (previous_individuals[indiv_id]->usage_count_ > 0)
         previous_individuals[indiv_id]->usage_count_--;
       else {
-        if (previous_individuals[indiv_id]->usage_count_ != -1) {
-          previous_individuals[indiv_id]->usage_count_ = -1;
-
           for (int rn = 0; rn < previous_individuals[indiv_id]->metadata_->rna_count(); rn++) {
             delete previous_individuals[indiv_id]->metadata_->rnas(rn);
           }
@@ -459,19 +432,9 @@ ExpManager_7::~ExpManager_7() {
 
           delete previous_individuals[indiv_id];
           previous_individuals[indiv_id] = nullptr;
-        }
       }
-    }
 
     delete exp_m_->dna_mutator_array_[indiv_id];
-  }
-
-  for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    delete previous_individuals[indiv_id];
-    previous_individuals[indiv_id] = nullptr;
-
-    delete current_individuals[indiv_id];
-    current_individuals[indiv_id] = nullptr;    
   }
 
   delete[] previous_individuals;
@@ -1902,51 +1865,17 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
 #pragma omp critical(indiv_list)
       {
-        if (previous_individuals[indiv_id]->usage_count_ == 1) {
-          previous_individuals[indiv_id]->usage_count_ = -1;
+        if (previous_individuals[indiv_id]->usage_count_ == 1)
           toDelete = true;
-        } else
+        else
           previous_individuals[indiv_id]->usage_count_--;
       }
-
       if (toDelete) {
         delete previous_individuals[indiv_id];
       }
 
       previous_individuals[indiv_id] = current_individuals[indiv_id];
       current_individuals[indiv_id] = nullptr;
-    }
-  } else if (ExpManager_7::standalone() && (!optim_prom)) {
-
-  } else {
-#pragma omp for schedule(static)
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-      bool toDelete = false;
-
-#pragma omp critical(indiv_list)
-      {
-        if (previous_individuals[indiv_id] !=
-            current_individuals[indiv_id]) {
-          if (previous_individuals[indiv_id]->usage_count_ == 1) {
-            previous_individuals[indiv_id]->usage_count_ = -1;
-            toDelete = true;
-          } else
-            previous_individuals[indiv_id]->usage_count_--;
-        }
-      }
-
-      if (toDelete) {
-        previous_individuals[indiv_id]->clearAllObserver();
-        delete previous_individuals[indiv_id];
-      }
-
-      previous_individuals[indiv_id] = current_individuals[indiv_id];
-      current_individuals[indiv_id] = nullptr;
-    }
-
-#pragma omp single
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-      previous_individuals[indiv_id]->clearAllObserver();
     }
   }
 
