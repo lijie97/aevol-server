@@ -44,9 +44,8 @@ namespace aevol {
         }
 
         ~DnaFactory() {
-            for (std::list<Dna_7 *>::iterator it_dna = list_unused_dna_.begin();
-                 it_dna != list_unused_dna_.end(); it_dna++) {
-                delete (*(it_dna));
+            for (auto* it_dna : list_unused_dna_) {
+                delete it_dna;
             }
         }
 
