@@ -466,14 +466,6 @@ ExpManager_7::~ExpManager_7() {
     delete exp_m_->dna_mutator_array_[indiv_id];
   }
 
-  for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-    delete previous_individuals[indiv_id];
-    previous_individuals[indiv_id] = nullptr;
-
-    delete current_individuals[indiv_id];
-    current_individuals[indiv_id] = nullptr;    
-  }
-
   delete[] previous_individuals;
   delete[] current_individuals;
 
