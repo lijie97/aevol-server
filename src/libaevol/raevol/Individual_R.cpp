@@ -329,6 +329,11 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
     _dist_sum = 0;
 
 
+ if (id_==190 && AeTime::time() == 1936) {
+   for (auto prot: protein_list_)
+     printf("%d -- CPU -- Protein %d : %lf\n", id_, prot->first_translated_pos(),
+            prot->concentration());
+ }
     std::set<int> *eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
            // printf("Evaluate for %d\n",exp_m_->exp_s()->get_nb_indiv_age());

@@ -1592,6 +1592,12 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
+          if (indiv_id==190 && AeTime::time() == 1936) {
+                   printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
+                   for (auto rna : lookup[prot->protein_start]->rna_list_) {
+                     printf("OLD [%d %d]\n",rna->begin,rna->end);
+                   }
+          }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
