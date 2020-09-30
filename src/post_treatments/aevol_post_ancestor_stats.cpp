@@ -916,7 +916,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   // =====================
   //  Parse command line
   // =====================
-  const char * short_options = "hVF:vM";
+  const char * short_options = "hVFvM";
   static struct option long_options[] = {
     {"help",                no_argument, NULL, 'h'},
     {"version",             no_argument, NULL, 'V'},
