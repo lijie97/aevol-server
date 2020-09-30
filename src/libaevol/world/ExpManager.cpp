@@ -132,7 +132,7 @@ ExpManager::~ExpManager() noexcept
 
   delete [] dna_mutator_array_;
 
-  delete next_generation_reproducer_;
+  delete [] next_generation_reproducer_;
 
   //delete FuzzyFactory::fuzzyFactory;
 }

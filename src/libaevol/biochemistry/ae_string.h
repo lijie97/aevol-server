@@ -113,9 +113,9 @@ class ae_string {
   //                          Protected Attributes
   // =================================================================
 
-  char* data_;
-  int32_t length_;
-  int32_t nb_blocks_;
+  char* data_ = nullptr;
+  int32_t length_ = -1;
+  int32_t nb_blocks_ = -1;
 };
 
 

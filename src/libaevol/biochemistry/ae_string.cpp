@@ -231,8 +231,8 @@ void ae_string::replace(int32_t pos, char* seq, int32_t seq_length) {
 void ae_string::save(gzFile backup_file) {
   gzwrite(backup_file, &nb_blocks_, sizeof(nb_blocks_));
   gzwrite(backup_file, &length_, sizeof(length_));
-  gzwrite(backup_file, &data_[0],
-          static_cast<unsigned int>((length_ + 1) * sizeof(data_[0])));
+  gzwrite(backup_file, data_,
+         static_cast<unsigned int>((length_ + 1) * sizeof(data_[0])));
 }
 
 

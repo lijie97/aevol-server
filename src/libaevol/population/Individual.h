@@ -550,8 +550,8 @@ class Individual : public Observable {
   //           The reason for this change is that we now need an identifier for the individuals
   //           as soon as they are created (the rank is only known when all the individuals have been evaluated).
   //           The rank will now be handled in a specific new attribute. (1 for the worst indiv, POP_SIZE for the best)
-  unsigned long long id_;   // [0 ; POP_SIZE[
-  unsigned long long long_id_;   // [0 ; POP_SIZE[
+  unsigned long long id_ = -1;   // [0 ; POP_SIZE[
+  unsigned long long long_id_ = -1;   // [0 ; POP_SIZE[
 
   int32_t rank_; // [1 ; POP_SIZE]
 
@@ -585,7 +585,7 @@ class Individual : public Observable {
   double* fitness_by_feature_;
 
   // THE fitness
-  double fitness_;
+  double fitness_ = -1;
 
   // When using structured population, this is the cell the individual is in
 
@@ -598,38 +598,38 @@ class Individual : public Observable {
   std::list<const Rna*> rna_list_;
 
   // Generic probes
-  int32_t* int_probes_; // Array of 5 int32_t values to be used as one wishes
-  double* double_probes_; // Array of 5 double values to be used as one wishes
+  int32_t* int_probes_ = nullptr; // Array of 5 int32_t values to be used as one wishes
+  double* double_probes_ = nullptr; // Array of 5 double values to be used as one wishes
 
   // Mutation rates etc...
   std::shared_ptr<MutationParams> mut_params_;
 
   // ----------------------------------------------- Phenotypic stochasticity
-  bool with_stochasticity_;
+  bool with_stochasticity_ = false;
 
   // Artificial chemistry
-  double w_max_;
+  double w_max_ = -1;
 
   // Genome size constraints
-  int32_t min_genome_length_;
-  int32_t max_genome_length_;
+  int32_t min_genome_length_ = -1;
+  int32_t max_genome_length_ = -1;
 
   // Plasmids settings
-  bool allow_plasmids_;
+  bool allow_plasmids_ = false;
 
 
   // --------------------------------------------------
   // "State" of the individual
   // --------------------------------------------------
   // We keep trace of what we have already computed to avoid double computation (mainly in post-treaments)
-  bool transcribed_;
-  bool translated_;
-  bool folded_;
-  bool phenotype_computed_;
-  bool distance_to_target_computed_;
-  bool fitness_computed_;
+  bool transcribed_ = false;
+  bool translated_ = false;
+  bool folded_ = false;
+  bool phenotype_computed_ = false;
+  bool distance_to_target_computed_ = false;
+  bool fitness_computed_ = false;
 
-  bool placed_in_population_; // TODO: spatial ?
+  bool placed_in_population_ = true; // TODO: spatial ?
 
 
 
@@ -644,7 +644,7 @@ class Individual : public Observable {
   // Mutation/Rearrangement statistics are managed in the replication report
 
 
-  double modularity_; // Ratio between the pairwise distance between genes whose corresponding
+  double modularity_ = -1; // Ratio between the pairwise distance between genes whose corresponding
   // phenotypic triangles overlap and the average intergenic distance
   // (ignoring non-functional genes)void compute_phenotype();
 
