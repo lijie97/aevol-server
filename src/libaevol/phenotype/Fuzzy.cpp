@@ -107,8 +107,28 @@ ProteinConcentration Fuzzy::x(const Point& p1, const Point& p2, ProteinConcentra
   assert(p1.y != p2.y);
   ProteinConcentration x = p1.x + (y - p1.y) * (p2.x - p1.x) /
                                  (p2.y - p1.y);
-  assert((p2.x <= x and x <= p1.x) or
-         (p1.x <= x and x <= p2.x));
+  // if ((p2.x < x and p1.x < x) or
+  //        (p1.x > x and p2.x > x)) {
+  //          printf("P1 %.32e %.32e P2 %.14e %.32e X %.32e Y %.32e\n",p1.x,p1.y,p2.x,p2.y,x,y);
+  //        }
+
+  // assert((p2.x <= x and x <= p1.x) or
+  //        (p1.x <= x and x <= p2.x));
+
+  if (p1.x < p2.x) {
+    if (x < p1.x)
+      x = p1.x;
+
+    if (x > p2.x)
+      x = p2.x;
+  } else if (p2.x < p1.x) {
+    if (x < p2.x)
+      x = p2.x;
+
+    if (x > p1.x)
+      x = p1.x;
+  }
+
   return x;
 }
 
