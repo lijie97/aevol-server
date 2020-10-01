@@ -80,10 +80,11 @@ namespace aevol {
         return nullptr;
     }
 
-    void DnaFactory::give_back(Dna_7 *dna) {
-        #pragma omp critical(pop_dna)
-        {
-            list_unused_dna_.push_back(dna);
-        }
-    }
+void DnaFactory::give_back(Dna_7 *dna) {
+  dna->reset_stat();
+#pragma omp critical(pop_dna)
+  {
+    list_unused_dna_.push_back(dna);
+  }
 }
+    }

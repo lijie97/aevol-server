@@ -1301,7 +1301,15 @@ void Dna_7::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
       indiv_->metadata_->look_for_new_promoters_around(len_ACDB);
   }
 }
-
-
+void Dna_7::reset_stat() {
+  nb_swi_ = 0;
+  nb_indels_= 0;
+  nb_mut_= 0;
+  nb_large_dupl_= 0;
+  nb_large_del_= 0;
+  nb_large_trans_= 0;
+  nb_large_inv_= 0;
+  nb_rear_= 0;
+}
 
 }
