@@ -2302,7 +2302,7 @@ void ExpManager_7::setup_individuals(double w_max, double selection_pressure) {
   write_stat();
 }
 
-void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim_prom) {
+void ExpManager_7::run_a_step(double w_max, double selection_pressure) {
 #pragma omp single
   {
     nb_clones_ = 0;
@@ -2333,41 +2333,16 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
 #pragma omp for schedule(dynamic)
   for (int indiv_id = 0; indiv_id < nb_indivs_; indiv_id++) {
-        if (optim_prom && !exp_m_->check_simd()) {
-          selection(indiv_id);
-        }
+    if (!exp_m_->check_simd())
+      selection(indiv_id);
 
-        if (optim_prom) {
-          do_mutation(indiv_id);
-          opt_prom_compute_RNA(indiv_id);
-        } else {
-          int x = indiv_id / exp_m_->world()->height();
-          int y = indiv_id % exp_m_->world()->height();
-          delete exp_m_->dna_mutator_array_[indiv_id];
+    do_mutation(indiv_id);
+    opt_prom_compute_RNA(indiv_id);
 
-          exp_m_->dna_mutator_array_[indiv_id] = new DnaMutator(
-              exp_m_->world()->grid(x, y)->mut_prng(),
-              previous_individuals[exp_m_->next_generation_reproducer_[indiv_id]]->dna_->length(),
-              exp_m_->exp_s()->mut_params()->duplication_rate(),
-              exp_m_->exp_s()->mut_params()->deletion_rate(),
-              exp_m_->exp_s()->mut_params()->translocation_rate(),
-              exp_m_->exp_s()->mut_params()->inversion_rate(),
-              exp_m_->exp_s()->mut_params()->point_mutation_rate(),
-              exp_m_->exp_s()->mut_params()->small_insertion_rate(),
-              exp_m_->exp_s()->mut_params()->small_deletion_rate(),
-              exp_m_->exp_s()->mut_params()->max_indel_size(),
-              exp_m_->exp_s()->min_genome_length(),
-              exp_m_->exp_s()->max_genome_length(), indiv_id, x, y);
-          exp_m_->dna_mutator_array_[indiv_id]->setMutate(true);
-
-          start_stop_RNA(indiv_id);
-          compute_RNA(indiv_id);
-        }
-
-        if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
-          start_protein(indiv_id);
-          compute_protein(indiv_id);
-          translate_protein(indiv_id, w_max);
+    if (exp_m_->dna_mutator_array_[indiv_id]->hasMutate()) {
+      start_protein(indiv_id);
+      compute_protein(indiv_id);
+      translate_protein(indiv_id, w_max);
 #ifdef __REGUL
 //           current_individuals[indiv_id]->metadata_->protein_begin();
 //                       for (int j = 0; j < current_individuals[indiv_id]
@@ -2384,22 +2359,22 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
                         solve_network(indiv_id,selection_pressure);
 #else
-          compute_phenotype(indiv_id);
-          compute_fitness(indiv_id, selection_pressure);
+      compute_phenotype(indiv_id);
+      compute_fitness(indiv_id, selection_pressure);
 #endif
         }
 
-        if (optim_prom && exp_m_->record_tree()) {
-          int x = indiv_id / exp_m_->world()->height();
-          int y = indiv_id % exp_m_->world()->height();
+    if (exp_m_->record_tree()) {
+      int x = indiv_id / exp_m_->world()->height();
+      int y = indiv_id % exp_m_->world()->height();
 
-          EndReplicationEvent *eindiv = new EndReplicationEvent(current_individuals[indiv_id], x, y);
-          // Tell observers the replication is finished
-          exp_m_->tree()->update_end_replication(eindiv);
-          delete eindiv;
-        }
+      auto* eindiv =
+          new EndReplicationEvent(current_individuals[indiv_id], x, y);
+      // Tell observers the replication is finished
+      exp_m_->tree()->update_end_replication(eindiv);
+      delete eindiv;
+    }
   }
-
 
 #pragma omp single
   {
@@ -2407,7 +2382,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
       exp_m_->tree()->update_end_generation();
   }
 
-  if (optim_prom) {
 #pragma omp for schedule(static)
     for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
       bool toDelete = false;
@@ -2424,13 +2398,11 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
       }
 
       previous_individuals[indiv_id] = current_individuals[indiv_id];
-      current_individuals[indiv_id] = nullptr;
+      current_individuals[indiv_id]  = nullptr;
     }
-  }
 
 #pragma omp single
   {
-
     write_stat();
 // Traces
 #ifdef WITH_PERF_TRACES
@@ -2446,19 +2418,17 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 #pragma omp single
     {
       if (exp_m_->record_light_tree()) {
-        if (AeTime::time() > 0) {
-          exp_m_->output_m()->light_tree()->update_tree(AeTime::time(),
-                                                        previous_individuals);
+        exp_m_->output_m()->light_tree()->update_tree(AeTime::time(),
+                                                      previous_individuals);
 
-          if (AeTime::time() % exp_m_->backup_step() == 0) {
-            std::cout << "writing light tree for gen : " << AeTime::time() << '\n';
-            exp_m_->output_m()->write_light_tree(AeTime::time());
-          }
+        if (AeTime::time() % exp_m_->backup_step() == 0) {
+          std::cout << "writing light tree for gen : " << AeTime::time()
+                    << '\n';
+          exp_m_->output_m()->write_light_tree(AeTime::time());
         }
       }
 
-      if (ExpManager_7::standalone() && exp_m_->record_tree() && AeTime::time() %  exp_m_->tree_step() == 0 &&
-          AeTime::time() > 0) {
+      if (exp_m_->record_tree() && AeTime::time() %  exp_m_->tree_step() == 0) {
         int status;
         status = mkdir(TREE_DIR, 0755);
         if ((status == -1) && (errno != EEXIST))
@@ -2475,7 +2445,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
     }
 
 
-  if (ExpManager_7::standalone() && !exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
+  if (!exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
 #pragma omp single
     {
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {

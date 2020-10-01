@@ -60,7 +60,7 @@ class ExpManager_7 : public Observable{
   ~ExpManager_7();
 
   void setup_individuals(double w_max, double selection_pressure);
-  void run_a_step(double w_max, double selection_pressure,bool optim_prom = false);
+  void run_a_step(double w_max, double selection_pressure);
 
   void do_mutation(int indiv_id);
 
