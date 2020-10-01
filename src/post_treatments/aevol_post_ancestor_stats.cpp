@@ -452,7 +452,7 @@ int main(int argc, char* argv[]) {
         delete [] str2;
         gzclose(lineage_file);
         if (trace_mutations)
-          gzclose(lineage_file);
+          fclose(fixed_mutations_file);
         delete indiv;
         delete stored_indiv;
         delete exp_manager_backup;
