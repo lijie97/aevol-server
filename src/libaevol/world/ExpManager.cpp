@@ -405,7 +405,7 @@ void ExpManager::step_to_next_generation() {
         t1 = high_resolution_clock::now();
 #endif
   }
-        if (!exp_m_7_->standalone() || (exp_m_7_->standalone()&&check_simd())) {
+        if (!ExpManager_7::standalone() || (ExpManager_7::standalone() && check_simd())) {
             exp_s_->step_to_next_generation();
         }
 
@@ -428,8 +428,8 @@ void ExpManager::step_to_next_generation() {
 #endif
         }
 
-    if (exp_m_7_->standalone())
-      exp_m_7_->run_a_step(w_max_,selection_pressure(),true);
+    if (ExpManager_7::standalone())
+      exp_m_7_->run_a_step(w_max_, selection_pressure());
 
     if (check_simd_) {
       exp_m_7_->check_result();
@@ -442,7 +442,7 @@ void ExpManager::step_to_next_generation() {
         auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
 #endif
 
-        if ((!ExpManager_7::standalone()) || (ExpManager_7::standalone() && check_simd())) {
+        if (!ExpManager_7::standalone() || (ExpManager_7::standalone() && check_simd())) {
 #ifdef __PERF_LOG__
             t1 = high_resolution_clock::now();
 #endif
