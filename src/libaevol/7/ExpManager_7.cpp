@@ -1770,10 +1770,10 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
 #else
         if (prot->h > 0)
           activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
-                                                          prot->e,false);
+                                                          prot->e);
         else
           inhib_phenotype->add_triangle(prot->m, prot->w, prot->h *
-                                                          prot->e,false);
+                                                          prot->e);
 #endif
       }
     }
@@ -2054,7 +2054,7 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
 if (AeTime::time() == 85303)
         for (int idx = 0; idx < (int) (current_individuals[indiv_id]->metadata_->rna_count()); idx++) {
             printf("%d -- RNA SIMD %d (%p) Start %d Stop %d Leading/Lagging %d Length %d  Basal %lf\n", indiv_id,
-              idx, 
+              idx,
                 current_individuals[indiv_id]->metadata_->rnas(idx),
                 current_individuals[indiv_id]->metadata_->rnas(idx)->begin,
                 current_individuals[indiv_id]->metadata_->rnas(idx)->end,
@@ -2267,7 +2267,7 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       // If we have to evaluate the individual at this age
       if (eval->find(i+1) != eval->end() || (indiv_id==543 && AeTime::time() == 5895)) {// ||( (indiv_id == 70) && (AeTime::time()>=1570))) {
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
-          if (AeTime::time() == 80356) 
+          if (AeTime::time() == 80356)
             printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
                          current_individuals[indiv_id]->metaerror,
                current_individuals[indiv_id]->metaerror_by_env_id_[0],
@@ -2287,6 +2287,20 @@ void ExpManager_7::update_phenotype( int indiv_id ) {
 }
 #endif
 
+void ExpManager_7::setup_individuals(double w_max, double selection_pressure) {
+  for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
+    start_stop_RNA(indiv_id);
+    compute_RNA(indiv_id);
+    start_protein(indiv_id);
+    compute_protein(indiv_id);
+    translate_protein(indiv_id, w_max);
+    compute_phenotype(indiv_id);
+    compute_fitness(indiv_id, selection_pressure);
+  }
+
+  stats_best = new Stats_7(this, AeTime::time(), true);
+  write_stat();
+}
 
 void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim_prom) {
 #pragma omp single
@@ -2318,16 +2332,10 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
   }
 
 #pragma omp for schedule(dynamic)
-  for (int g_indiv_id = 0; g_indiv_id < exp_m_->nb_indivs(); g_indiv_id += 1) {
-    {
-      for (int indiv_id = g_indiv_id; indiv_id < g_indiv_id + 1; indiv_id++) {
-        if (ExpManager_7::standalone() && optim_prom && !exp_m_->check_simd()) {
+  for (int indiv_id = 0; indiv_id < nb_indivs_; indiv_id++) {
+        if (optim_prom && !exp_m_->check_simd()) {
           selection(indiv_id);
-        } else if (!ExpManager_7::standalone() && optim_prom) {
-        } else if (optim_prom && standalone() && exp_m_->check_simd()) {
         }
-
-
 
         if (optim_prom) {
           do_mutation(indiv_id);
@@ -2381,7 +2389,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 #endif
         }
 
-        if (ExpManager_7::standalone() && optim_prom && exp_m_->record_tree()) {
+        if (optim_prom && exp_m_->record_tree()) {
           int x = indiv_id / exp_m_->world()->height();
           int y = indiv_id % exp_m_->world()->height();
 
@@ -2390,14 +2398,12 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
           exp_m_->tree()->update_end_replication(eindiv);
           delete eindiv;
         }
-      }
-    }
   }
 
 
 #pragma omp single
   {
-    if (optim_prom && exp_m_->record_tree())
+    if (exp_m_->record_tree())
       exp_m_->tree()->update_end_generation();
   }
 
@@ -2424,20 +2430,9 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 
 #pragma omp single
   {
-    // Search for the best
-    double best_fitness = previous_individuals[0]->fitness;
-    int idx_best = 0;
-    for (int indiv_id = 1; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-      if (previous_individuals[indiv_id]->fitness > best_fitness) {
-        idx_best = indiv_id;
-        best_fitness = previous_individuals[indiv_id]->fitness;
-      }
-    }
 
-    best_indiv = previous_individuals[idx_best];
-
-
-    // Traces
+    write_stat();
+// Traces
 #ifdef WITH_PERF_TRACES
     std::ofstream perf_traces_file_;
             perf_traces_file_.open("simd_perf_traces.csv", std::ofstream::app);
@@ -2448,114 +2443,10 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
 #endif
   }
 
-  bool without_stats = true;
-  if (!without_stats) {
-
-#pragma omp for schedule(static)
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-      previous_individuals[indiv_id]->reset_stats();
-      previous_individuals[indiv_id]->metadata_->rna_begin();
-      for (int i = 0; i < previous_individuals[indiv_id]->metadata_->rna_count(); i++) {
-        Rna_7*rna = previous_individuals[indiv_id]->metadata_->rna_next();
-        if (rna != nullptr) {
-          if (rna->is_coding_)
-            previous_individuals[indiv_id]->nb_coding_RNAs++;
-          else
-            previous_individuals[indiv_id]->nb_non_coding_RNAs++;
-        }
-      }
-
-
-      for (int i = 0; i < previous_individuals[indiv_id]->metadata_->proteins_count(); i++) {
-        Protein_7*prot =
-            previous_individuals[indiv_id]->metadata_->proteins(i);
-        if (prot != nullptr) {
-          if (prot->is_functional) {
-            previous_individuals[indiv_id]->nb_func_genes++;
-          } else {
-            previous_individuals[indiv_id]->nb_non_func_genes++;
-          }
-          if (prot->h > 0) {
-            previous_individuals[indiv_id]->nb_genes_activ++;
-          } else {
-            previous_individuals[indiv_id]->nb_genes_inhib++;
-          }
-        }
-      }
-    }
-
-
 #pragma omp single
     {
-      // Stats
-      if (!optim_prom) {
-        stats_best = new Stats_7(this, AeTime::time(), true);
-        stats_mean = new Stats_7(this, AeTime::time(), false);
-      } else {
-        stats_best->reinit(AeTime::time());
-        stats_mean->reinit(AeTime::time());
-      }
-
-      stats_best->write_best();
-      stats_mean->write_average();
-    }
-  } else {
-    // ONLY BEST
-    // Stats
-#pragma omp single
-    {
-      if (!optim_prom) {
-        stats_best = new Stats_7(this, AeTime::time(), true);
-      } else {
-        stats_best->reinit(AeTime::time());
-      }
-
-      best_indiv->reset_stats();
-      best_indiv->metadata_->rna_begin();
-      for (int i = 0; i < best_indiv->metadata_->rna_count(); i++) {
-        Rna_7*rna = best_indiv->metadata_->rna_next();
-        if (rna != nullptr) {
-          if (rna->is_coding_)
-            best_indiv->nb_coding_RNAs++;
-          else
-            best_indiv->nb_non_coding_RNAs++;
-        }
-      }
-
-
-      for (int i = 0; i < best_indiv->metadata_->proteins_count(); i++) {
-        Protein_7*prot = best_indiv->metadata_->proteins(i);
-        if (prot != nullptr) {
-          if (prot->is_functional) {
-            best_indiv->nb_func_genes++;
-          } else {
-            best_indiv->nb_non_func_genes++;
-          }
-          if (prot->h > 0) {
-            best_indiv->nb_genes_activ++;
-          } else {
-            best_indiv->nb_genes_inhib++;
-          }
-        }
-      }
-
-
-      stats_best->write_best();
-    }
-  }
-
-
-
-  if (!first_gener_) {
-#pragma omp single
-    {
-
-      if (ExpManager_7::standalone() && exp_m_->record_light_tree()) {
-        if (ExpManager_7::standalone() && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
-            AeTime::time() > 0) {
-        }
-
-        if (ExpManager_7::standalone() && exp_m_->record_light_tree() && AeTime::time() > 0) {
+      if (exp_m_->record_light_tree()) {
+        if (AeTime::time() > 0) {
           exp_m_->output_m()->light_tree()->update_tree(AeTime::time(),
                                                         previous_individuals);
 
@@ -2564,13 +2455,7 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
             exp_m_->output_m()->write_light_tree(AeTime::time());
           }
         }
-
-        if (ExpManager_7::standalone() && exp_m_->record_light_tree() && AeTime::time() % exp_m_->backup_step() == 0 &&
-            AeTime::time() > 0) {
-        }
-
       }
-
 
       if (ExpManager_7::standalone() && exp_m_->record_tree() && AeTime::time() %  exp_m_->tree_step() == 0 &&
           AeTime::time() > 0) {
@@ -2588,10 +2473,9 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
       }
 
     }
-  }
 
 
-  if (!first_gener_ && ExpManager_7::standalone() && !exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
+  if (ExpManager_7::standalone() && !exp_m_->check_simd() && AeTime::time() % exp_m_->backup_step() == 0) {
 #pragma omp single
     {
       for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
@@ -2662,27 +2546,53 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
       last_gener_file << AeTime::time() << std::endl;
       last_gener_file.close();
     }
-  } else {
-#pragma omp single
-    {
-      first_gener_ = false;
+  }
+}
+
+void ExpManager_7::write_stat() {
+  stats_best->reinit(AeTime::time());
+
+  // Search for the best
+  double best_fitness = previous_individuals[0]->fitness;
+  int idx_best = 0;
+  for (int indiv_id = 1; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
+    if (previous_individuals[indiv_id]->fitness > best_fitness) {
+      idx_best = indiv_id;
+      best_fitness = previous_individuals[indiv_id]->fitness;
+    }
+  }
+  best_indiv = previous_individuals[idx_best];
+
+  best_indiv->reset_stats();
+  best_indiv->metadata_->rna_begin();
+  for (int i = 0; i < best_indiv->metadata_->rna_count(); i++) {
+    Rna_7*rna = best_indiv->metadata_->rna_next();
+    if (rna != nullptr) {
+      if (rna->is_coding_)
+        best_indiv->nb_coding_RNAs++;
+      else
+        best_indiv->nb_non_coding_RNAs++;
     }
   }
 
-  if (AeTime::time() == exp_m_->end_step() && ExpManager_7::standalone() && !exp_m_->check_simd()) {
-#pragma omp for schedule(static)
-    for (int indiv_id = 0; indiv_id < (int) exp_m_->nb_indivs(); indiv_id++) {
-      int x = indiv_id / exp_m_->world()->height();
-      int y = indiv_id % exp_m_->world()->height();
 
-      exp_m_->world()->grid(x, y)->individual()->clear_everything_except_dna_and_promoters();
-      exp_m_->world()->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-      delete exp_m_->world()->grid(x, y)->individual();
+  for (int i = 0; i < best_indiv->metadata_->proteins_count(); i++) {
+    Protein_7*prot = best_indiv->metadata_->proteins(i);
+    if (prot != nullptr) {
+      if (prot->is_functional) {
+        best_indiv->nb_func_genes++;
+      } else {
+        best_indiv->nb_non_func_genes++;
+      }
+      if (prot->h > 0) {
+        best_indiv->nb_genes_activ++;
+      } else {
+        best_indiv->nb_genes_inhib++;
+      }
     }
   }
 
-
-
+  stats_best->write_best();
 }
 
 
@@ -3098,7 +3008,7 @@ void ExpManager_7::check_result() {
                     for (auto rna : previous_individuals[i]->metadata_->proteins(idx)->rna_list_) {
                       printf("[%d => %d]\n",rna->begin,rna->end);
                     }
-            
+
               validated_generation = false;
             }
             prot_cpt_b++;

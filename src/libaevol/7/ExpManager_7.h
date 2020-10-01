@@ -59,6 +59,7 @@ class ExpManager_7 : public Observable{
 
   ~ExpManager_7();
 
+  void setup_individuals(double w_max, double selection_pressure);
   void run_a_step(double w_max, double selection_pressure,bool optim_prom = false);
 
   void do_mutation(int indiv_id);
@@ -72,6 +73,7 @@ class ExpManager_7 : public Observable{
   void compute_phenotype(int indiv_id);
   void compute_fitness(int indiv_id, double selection_pressure, int env_id = -1);
 
+  void write_stat();
 
   void check_result();
   void check_dna();
