@@ -406,7 +406,7 @@ void ExpManager_7::check_selection(int indiv_id) {
 
 
 void ExpManager_7::do_mutation(int indiv_id) {
-  if (ExpManager_7::standalone() && !exp_m_->check_simd()) {
+  if (!exp_m_->check_simd()) {
 
     int x = indiv_id / exp_m_->world()->height();
     int y = indiv_id % exp_m_->world()->height();
@@ -462,14 +462,7 @@ void ExpManager_7::do_mutation(int indiv_id) {
 #endif
     auto size_after = current_individuals[indiv_id]->dna_->length_;
 
-#pragma omp atomic
-    cumulate_size += size_after;
-
-#pragma omp atomic
-    cumulate_diff += std::abs(size_after-size_before);
   } else {
-
-
 
 #pragma omp atomic
     nb_clones_++;
@@ -2272,9 +2265,6 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure) {
 #pragma omp single
   {
     nb_clones_ = 0;
-    cumulate_size = 0;
-    cumulate_diff = 0;
-
 
     if (exp_m_->sel()->fitness_func() == FITNESS_GLOBAL_SUM) {
 #ifdef __REGUL
@@ -2925,8 +2915,6 @@ void ExpManager_7::check_result() {
                                  ->rna_list_) {
                 printf("[%d => %d]\n", rna->begin, rna->end);
               }
-
-              validated_generation = false;
             }
             prot_cpt_b++;
           }

@@ -524,12 +524,7 @@ void ExpManager::load(gzFile& exp_s_file,
   fflush(stdout);
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
-  if (ExpManager_7::standalone_simd) {
 
-    if (to_be_run) {
-      exp_m_7_->set_stats(output_m_->stats());
-    }
-  }
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (ExpManager_7::standalone_simd) {
