@@ -1195,13 +1195,13 @@ void ExpManager_7::compute_protein(int indiv_id) {
                 current_individuals[indiv_id]->metadata_->set_proteins_count(
                     current_individuals[indiv_id]->metadata_->proteins_count() +
                     1);
-                current_individuals[indiv_id]->metadata_->protein_add(
-                    glob_prot_idx, new Protein_7(
+                ((List_Metadata*)current_individuals[indiv_id]->metadata_)->protein_add(
+                    glob_prot_idx, 
                         Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
                         prot_length/3,
                         rna->leading_lagging,
                         rna->e
-                    ));
+                    );
                 rna->is_coding_ = true;
               }
               break;

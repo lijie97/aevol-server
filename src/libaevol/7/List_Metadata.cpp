@@ -841,7 +841,7 @@ namespace aevol {
     void List_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
                  int8_t t_leading_lagging, double t_e,
                  int32_t t_length) {
-        rnas_.push_back(new Rna_7(t_begin, t_end,
+        rnas_.emplace_back(new Rna_7(t_begin, t_end,
                  t_leading_lagging, t_e,
                  t_length));
     }
@@ -885,6 +885,16 @@ namespace aevol {
 
     void List_Metadata::protein_add(int idx, Protein_7*prot) {
         proteins_.push_front(prot);
+    }
+
+    void List_Metadata::protein_add(int idx, int32_t t_protein_start,
+            int32_t t_protein_end,
+            int32_t t_protein_length,
+            int8_t t_leading_lagging,
+            double t_e) {
+
+        proteins_.emplace_back(new Protein_7(t_protein_start,t_protein_end,t_protein_length,t_leading_lagging,t_e));
+
     }
 
     void List_Metadata::proteins_print() {
