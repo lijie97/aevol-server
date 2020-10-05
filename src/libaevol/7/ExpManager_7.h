@@ -109,11 +109,6 @@ class ExpManager_7 : public Observable{
   long cumulate_diff = 0;
 
   double* fitness_sum_tab_;
-
-
- private:
-  ExpManager* exp_m_;
-  int* dna_size;
 #ifdef __REGUL
   Vector_Fuzzy** targets;
 SIMD_PhenotypicTargetHandler_R* phenotypic_target_handler_;

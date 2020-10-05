@@ -1305,10 +1305,10 @@ void ExpManager_7::compute_protein(int indiv_id) {
                     ));
                 rna->is_coding_ = true;
 
-                //  if (indiv_id==190 && AeTime::time() == 1936) {
-                //    printf("Add protein %d => %d on RNA [%d => %d] (LAG) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
-                //           rna->begin,rna->end,rna->e);
-                //  }
+                 if (indiv_id==190 && AeTime::time() == 1936) {
+                   printf("Add protein %d => %d on RNA [%d => %d] (LAG) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
+                          rna->begin,rna->end,rna->e);
+                 }
               }
               break;
             }
@@ -1373,6 +1373,8 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
                 '1')
               value += 1 << (CODON_SIZE - i - 1);
           }
+
+          // if (indiv_id == 660) printf("Protein %d :: Add codon %d : %d\n",prot->protein_start,codon_idx,value);
           prot->codon_list[codon_idx] = value;
 
           codon_idx++;
@@ -1801,13 +1803,8 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
         }
 #else
 bool verbose = false;
-        // if (indiv_id==68 && AeTime::time() == 4)
-        //   verbose = true;
-      //           if (indiv_id==68 && AeTime::time() == 4)
-      //  printf("Add triangle %lf %lf %lf (%lf %lf)\n",
-      //       prot->m, prot->w, prot->h *prot->e, prot->h,prot->e);
-       
-
+        if (indiv_id==543 && AeTime::time() == 5895)
+          verbose = true;
         if (prot->h > 0)
           activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
                                                           prot->e,verbose);
@@ -1844,13 +1841,13 @@ bool verbose = false;
   current_individuals[indiv_id]->phenotype->add(activ_phenotype);
   current_individuals[indiv_id]->phenotype->add(inhib_phenotype);
 
-    // if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE CLIP\n"); current_individuals[indiv_id]->phenotype->print();}
+    if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE CLIP\n"); current_individuals[indiv_id]->phenotype->print();}
 
   current_individuals[indiv_id]->phenotype->clip(AbstractFuzzy::min, Y_MIN);
-    // if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE SIMPLIFY\n"); current_individuals[indiv_id]->phenotype->print();}
+    if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE SIMPLIFY\n"); current_individuals[indiv_id]->phenotype->print();}
 
   current_individuals[indiv_id]->phenotype->simplify();
-    // if (indiv_id==543 && AeTime::time() == 5895)  current_individuals[indiv_id]->phenotype->print();
+    if (indiv_id==543 && AeTime::time() == 5895)  current_individuals[indiv_id]->phenotype->print();
 
   delete activ_phenotype;
   delete inhib_phenotype;
@@ -2049,9 +2046,9 @@ void ExpManager_7::compute_network(int indiv_id, double selection_pressure) {
 
                 rna->nb_influences_++;
 
-                //  if (indiv_id==68 && AeTime::time() == 4) 
-                //   printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
-                //          rna->begin, prot->protein_start, enhance, operate);
+                 if (indiv_id==543 && AeTime::time() == 5895)  
+                  printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
+                         rna->begin, prot->protein_start, enhance, operate);
               }
             }
           }
@@ -2098,24 +2095,25 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
 //    }
 //  }
 
-==== BASE ====
-  internal_simd_struct[indiv_id]->metadata_->rna_begin();
-  for (int x = 0; x < internal_simd_struct[indiv_id]->metadata_->rna_count(); x++) {
-    pRNA* rna = internal_simd_struct[indiv_id]->metadata_->rna_next();
-    if (rna != nullptr) {
-      if (rna->is_coding_) {
+  current_individuals[indiv_id]->metadata_->protein_begin();
+  for (int j = 0; j < current_individuals[indiv_id]->metadata_->proteins_count(); j++) {
+    Protein_7* prot =
+        current_individuals[indiv_id]->metadata_->protein_next();
+    if (!prot->signal_) {
+      if (prot->is_init_) {
+        prot->delta_concentration_ = 0;
 
         for (auto rna: prot->rna_list_) {
           double synthesis_rate = rna->compute_synthesis_rate(current_individuals[indiv_id]);
 
-          // if (indiv_id==68 && AeTime::time() == 4)  printf("SIMD -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",prot->protein_start,
-          //                   rna->begin,
-          //                   synthesis_rate,prot->delta_concentration_);
+          if (indiv_id==543 && AeTime::time() == 5895)  printf("SIMD -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",prot->protein_start,
+                            rna->begin,
+                            synthesis_rate,prot->delta_concentration_);
           prot->delta_concentration_ += synthesis_rate;
 
-          // if (indiv_id==68 && AeTime::time() == 4)  {
-          //   printf("DELTA AFTER %lf : %lf\n",prot->delta_concentration_,synthesis_rate);
-          // }
+          if (indiv_id==543 && AeTime::time() == 5895)  {
+            printf("DELTA AFTER %lf : %lf\n",prot->delta_concentration_,synthesis_rate);
+          }
         }
 
 ==== BASE ====
@@ -2278,13 +2276,13 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       }
 
 
-  if (indiv_id==68 && AeTime::time() == 4) 
+  if (indiv_id==543 && AeTime::time() == 5895) 
    ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print(i+1);
 
       // If we have to evaluate the individual at this age
       if (eval->find(i+1) != eval->end() || (indiv_id==543 && AeTime::time() == 5895)) {// ||( (indiv_id == 70) && (AeTime::time()>=1570))) {
-        evaluate_network(indiv_id,selection_pressure, i);
-          if (indiv_id==68 && AeTime::time() == 4) {
+        evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
+          if (indiv_id==543 && AeTime::time() == 5895) 
             printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
                          current_individuals[indiv_id]->metaerror,
                current_individuals[indiv_id]->metaerror_by_env_id_[0],

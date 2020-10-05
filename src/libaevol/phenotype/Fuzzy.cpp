@@ -233,13 +233,13 @@ void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, 
           //printf("Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
   for (list<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
       p->y += (p->x - x0) / (x1 - x0) * height;
-      if (verbose) printf("CPU == %f -> %f\n",p->x,p->y);
+      if (verbose) printf("%f -> %f\n",p->x,p->y);
   }
 
   // Update points with abscissas in (x0;x1)
   for (list<Point>::iterator p = std::next(p1) ; p != std::next(p2) ; ++p) {
       p->y += height * (x2 - p->x) / (x2 - x1);
-      if (verbose) printf("CPU == %f -> %f\n",p->x,p->y);
+      if (verbose) printf("%f -> %f\n",p->x,p->y);
   }
 
   // assert(invariant());
