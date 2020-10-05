@@ -147,6 +147,7 @@ void Selection::step_to_next_generation() {
 
 #pragma omp single
   {
+    to_evaluate.clear();
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic

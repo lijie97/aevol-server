@@ -127,6 +127,11 @@ namespace aevol {
         /*** Proteins ***/
         Protein_7* proteins(int idx) override;
         void protein_add(int idx, Protein_7* prot) override;
+        void protein_add(int idx, int32_t t_protein_start,
+            int32_t t_protein_end,
+            int32_t t_protein_length,
+            int8_t t_leading_lagging,
+            double t_e);
 
         Protein_7* protein_next() override ;
         void protein_begin() override ;

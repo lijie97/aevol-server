@@ -44,9 +44,10 @@ namespace aevol {
         }
 
         ~DnaFactory() {
-            for (auto* it_dna : list_unused_dna_) {
+            for (auto&& it_dna : list_unused_dna_) {
                 delete it_dna;
             }
+            list_unused_dna_.clear();
         }
 
         void init(int init_size);

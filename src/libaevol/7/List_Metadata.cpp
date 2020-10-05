@@ -841,7 +841,7 @@ namespace aevol {
     void List_Metadata::rna_add(int idx, int32_t t_begin, int32_t t_end,
                  int8_t t_leading_lagging, double t_e,
                  int32_t t_length) {
-        rnas_.push_back(new Rna_7(t_begin, t_end,
+        rnas_.emplace_back(new Rna_7(t_begin, t_end,
                  t_leading_lagging, t_e,
                  t_length));
     }
@@ -887,29 +887,17 @@ namespace aevol {
         proteins_.push_front(prot);
     }
 
-    void List_Metadata::proteins_print(int step ) {
-        std::vector<Protein_7*> protein_vector;
-        protein_begin();
-        for (int protein_idx = 0; protein_idx < proteins_count(); protein_idx++) {
-            Protein_7* prot = protein_next();
-            if (prot->is_init_) {
-            if (prot->leading_lagging==0)
-                protein_vector.push_back(prot);
-            }
-        }
+    void List_Metadata::protein_add(int idx, int32_t t_protein_start,
+            int32_t t_protein_end,
+            int32_t t_protein_length,
+            int8_t t_leading_lagging,
+            double t_e) {
 
-  protein_begin();
-  for (int protein_idx = 0; protein_idx < proteins_count(); protein_idx++) {
-    Protein_7* prot = protein_next();
-    if (prot->is_init_) {
-      if (prot->leading_lagging==1)
-        protein_vector.push_back(prot);
+        proteins_.emplace_back(new Protein_7(t_protein_start,t_protein_end,t_protein_length,t_leading_lagging,t_e));
+
     }
-  }
 
-  std::sort(protein_vector.begin(), protein_vector.end(),
-            [](Protein_7*a, Protein_7*b) { return (a)->protein_start < (b)->protein_start;});
-
+    void List_Metadata::proteins_print() {
         int prot_idx=0;
         for (auto prot : protein_vector) {
             if (prot->is_init_)
