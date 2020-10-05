@@ -231,13 +231,13 @@ void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, 
           //printf("Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
   for (list<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
       p->y += (p->x - x0) / (x1 - x0) * height;
-      //printf("%f -> %f\n",p->x,p->y);
+      if (verbose) printf("%f -> %f\n",p->x,p->y);
   }
 
   // Update points with abscissas in (x0;x1)
   for (list<Point>::iterator p = std::next(p1) ; p != std::next(p2) ; ++p) {
       p->y += height * (x2 - p->x) / (x2 - x1);
-      //printf("%f -> %f\n",p->x,p->y);
+      if (verbose) printf("%f -> %f\n",p->x,p->y);
   }
 
   // assert(invariant());
@@ -534,12 +534,8 @@ void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
 
 void Fuzzy::print() const
 {
-//  for (const Point& p : points_)
-//    printf("[%f : %f] ",p.x,p.y);
-//  printf("\n");
-  for (int i = 0; i < 300; i++) {
-      double py = y(i / 299.0);
-      if (py != 0) printf("[%d : %e]\n", i, py);
-  }
+  for (const Point& p : points_)
+    printf("[%f : %e] ",p.x,p.y);
+  printf("\n");
 }
 } // namespace aevol

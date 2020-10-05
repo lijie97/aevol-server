@@ -111,6 +111,7 @@ void Individual_7::rebuild_index() {
     bool Protein_7::operator<(const Protein_7& other){
         return (h <  other.h)
                || (h == other.h && m < other.m)
-               || (h == other.h && m == other.m && w < other.w);
+               || (h == other.h && m == other.m && w < other.w)
+               || (h == other.h && m == other.m && w < other.w && protein_start < other.protein_start);
     }
 }

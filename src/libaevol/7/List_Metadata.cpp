@@ -887,10 +887,33 @@ namespace aevol {
         proteins_.push_front(prot);
     }
 
-    void List_Metadata::proteins_print() {
+    void List_Metadata::proteins_print(int step ) {
+        std::vector<Protein_7*> protein_vector;
+        protein_begin();
+        for (int protein_idx = 0; protein_idx < proteins_count(); protein_idx++) {
+            Protein_7* prot = protein_next();
+            if (prot->is_init_) {
+            if (prot->leading_lagging==0)
+                protein_vector.push_back(prot);
+            }
+        }
+
+  protein_begin();
+  for (int protein_idx = 0; protein_idx < proteins_count(); protein_idx++) {
+    Protein_7* prot = protein_next();
+    if (prot->is_init_) {
+      if (prot->leading_lagging==1)
+        protein_vector.push_back(prot);
+    }
+  }
+
+  std::sort(protein_vector.begin(), protein_vector.end(),
+            [](Protein_7*a, Protein_7*b) { return (a)->protein_start < (b)->protein_start;});
+
         int prot_idx=0;
-        for (auto prot : proteins_) {
-            if (prot->is_init_) printf("SIMD -- Protein %d : %lf\n",prot->protein_start,prot->e);
+        for (auto prot : protein_vector) {
+            if (prot->is_init_)
+                printf("%d -- SIMD -- Protein %d : %.18e\n",step,prot->protein_start,prot->e);
             prot_idx++;
         }
     }

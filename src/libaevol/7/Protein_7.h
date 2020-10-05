@@ -63,15 +63,15 @@ class Protein_7 {
 
   bool operator<(const Protein_7& other);
 
-  int32_t protein_start;
-  int32_t protein_end;
-  int32_t protein_length;
-  int8_t leading_lagging; // 0 = leading, 1 = lagging
-  double m;
-  double w;
-  double h;
-  double e;
-  bool is_functional;
+  int32_t protein_start = -1;
+  int32_t protein_end = -1;
+  int32_t protein_length = -1;
+  int8_t leading_lagging = -1; // 0 = leading, 1 = lagging
+  double m = -1.0;
+  double w = -1.0;
+  double h = -1.0;
+  double e = -1.0;
+  bool is_functional = false;
 
   bool is_init_ = false;
 

@@ -764,7 +764,8 @@ void Protein::recompute_concentration() {
     bool Protein::operator<(const Protein & other){
       return (height_ <  other.height_)
              || (height_ == other.height_ && mean_ < other.mean_)
-             || (height_ == other.height_ && mean_ == other.mean_ && width_ < other.width_);
+             || (height_ == other.height_ && mean_ == other.mean_ && width_ < other.width_)
+             || (height_ == other.height_ && mean_ == other.mean_ && width_ < other.width_ && shine_dal_pos_ < other.shine_dal_pos_);
     }
 
 // =================================================================

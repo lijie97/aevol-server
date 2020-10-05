@@ -195,6 +195,7 @@ void Vector_Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration 
   // Update points with abscissas in (x0;x1)
   for (set<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
       p->y += (p->x - x0) / (x1 - x0) * height;
+            if (verbose) printf("%f -> %f\n",p->x,p->y);
   }
 
   // Update points with abscissas in (x0;x1)
@@ -203,6 +204,7 @@ void Vector_Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration 
             for (set<Point>::iterator p = std::next(p1); p != std::next(p2); ++p) {
 
                 p->y += height * (x2 - p->x) / (x2 - x1);
+                      if (verbose) printf("%f -> %f\n",p->x,p->y);
             }
   return;
 }
@@ -440,7 +442,7 @@ void Vector_Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y) {
 void Vector_Fuzzy::print() const
 {
   for (const Point& p : points_)
-    printf("[%f : %f] ",p.x,p.y);
+    printf("[%f : %e] ",p.x,p.y);
   printf("\n");
 }
 } // namespace aevol
