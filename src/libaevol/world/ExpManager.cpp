@@ -337,7 +337,17 @@ void ExpManager::step_to_next_generation() {
 
 #pragma omp single
     {
+      #ifdef __REGUL
+      if (!exp_m_7_->standalone() || (exp_m_7_->standalone()&&check_simd())) {
         world_->ApplyHabitatVariation();
+      }
+
+      if (exp_m_7_->standalone())
+        exp_m_7_->phenotypic_target_handler_->ApplyVariation();
+
+      #else
+        world_->ApplyHabitatVariation();
+      #endif
 
         // Take a step in time
         AeTime::plusplus();
