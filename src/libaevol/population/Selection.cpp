@@ -310,9 +310,12 @@ void Selection::step_to_next_generation() {
   to_evaluate.clear();
   }
 
+<<<<<<< HEAD
   
 
 
+=======
+>>>>>>> [Selection] Proper fix for the management of individual to compute without memory leak/segmentation fault and without ugly fixes (previous commit).
 #pragma omp for schedule(dynamic)  private(x,y,what)
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
@@ -327,7 +330,7 @@ void Selection::step_to_next_generation() {
 
 #pragma omp critical(updateindiv)
       {
-        to_evaluate.push_back(pop_grid[x][y]->individual());
+        to_evaluate.push_back(index);
       }
 #ifdef __DETECT_CLONE
     }
@@ -340,14 +343,29 @@ void Selection::step_to_next_generation() {
     t1 = high_resolution_clock::now();
   }
 
+<<<<<<< HEAD
 #pragma omp for schedule(dynamic)
+=======
+#pragma omp for schedule(dynamic) private(x,y)
+>>>>>>> [Selection] Proper fix for the management of individual to compute without memory leak/segmentation fault and without ugly fixes (previous commit).
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
+    x = to_evaluate[i] / grid_height;
+    y = to_evaluate[i] % grid_height;
+
+    Individual* l_indiv = world->indiv_at(x,y);
 #ifdef __REGUL
+<<<<<<< HEAD
     if (!to_evaluate[i]->evaluated_) {
       run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
+=======
+    if ((dynamic_cast<PhenotypicTargetHandler_R*>(l_indiv->grid_cell()->habitat().
+        phenotypic_target_handler_nonconst())->hasChanged()) ||
+        !to_evaluate[i]->evaluated_) {
+      run_life(dynamic_cast<Individual_R*>(l_indiv));
+>>>>>>> [Selection] Proper fix for the management of individual to compute without memory leak/segmentation fault and without ugly fixes (previous commit).
     }
 #else
-    run_life(to_evaluate[i]);
+    run_life(l_indiv);
 #endif
 
   }
@@ -363,7 +381,7 @@ void Selection::step_to_next_generation() {
           //                    world->indiv_at(x, y), x, y);
           // Tell observers the replication is finished
           //->notifyObservers(END_REPLICATION, eindiv);
-          world->indiv_at(x, y)->compute_statistical_data();
+          // world->indiv_at(x, y)->compute_statistical_data();
           world->indiv_at(x, y)->compute_non_coding();
           //delete eindiv;
         }
@@ -965,6 +983,18 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
   return new_indiv;
 }
 
+<<<<<<< HEAD
+=======
+void Selection::run_life(Individual* new_indiv) {
+  // Evaluate new individual
+  new_indiv->Evaluate();
+
+  // Compute statistics
+  new_indiv->compute_statistical_data();
+
+}
+
+>>>>>>> [Selection] Proper fix for the management of individual to compute without memory leak/segmentation fault and without ugly fixes (previous commit).
 #ifdef __REGUL
 void Selection::run_life(Individual_R* new_indiv) {
 
