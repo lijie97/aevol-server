@@ -362,6 +362,7 @@ void Selection::step_to_next_generation() {
           //                    world->indiv_at(x, y), x, y);
           // Tell observers the replication is finished
           //->notifyObservers(END_REPLICATION, eindiv);
+          world->indiv_at(x, y)->compute_statistical_data();
           world->indiv_at(x, y)->compute_non_coding();
           //delete eindiv;
         }
@@ -946,7 +947,7 @@ void Selection::run_life(Individual* new_indiv) {
   new_indiv->Evaluate();
 
   // Compute statistics
-  new_indiv->compute_statistical_data();
+ // new_indiv->compute_statistical_data();
 
 }
 
