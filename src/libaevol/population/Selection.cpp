@@ -308,9 +308,6 @@ void Selection::step_to_next_generation() {
 #endif
   }
 
-  std::vector<Individual*> to_evaluate;
-
-
 #pragma omp for schedule(dynamic)  private(x,y,what)
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
@@ -325,7 +322,7 @@ void Selection::step_to_next_generation() {
 
 #pragma omp critical(updateindiv)
       {
-        to_evaluate.push_back(pop_grid[x][y]->individual());
+        to_evaluate.push_back(index);
       }
 #ifdef __DETECT_CLONE
     }
@@ -338,16 +335,20 @@ void Selection::step_to_next_generation() {
     t1 = high_resolution_clock::now();
   }
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp for schedule(dynamic) private(x,y)
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
+    x = to_evaluate[i] / grid_height;
+    y = to_evaluate[i] % grid_height;
+
+    Individual* l_indiv = world->indiv_at(x,y);
 #ifdef __REGUL
-    if ((dynamic_cast<PhenotypicTargetHandler_R*>(&to_evaluate[i]->grid_cell()->habitat().
+    if ((dynamic_cast<PhenotypicTargetHandler_R*>(l_indiv->grid_cell()->habitat().
         phenotypic_target_handler_nonconst())->hasChanged()) ||
         !to_evaluate[i]->evaluated_) {
-      run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
+      run_life(dynamic_cast<Individual_R*>(l_indiv));
     }
 #else
-    run_life(to_evaluate[i]);
+    run_life(l_indiv);
 #endif
   }
 
@@ -362,7 +363,7 @@ void Selection::step_to_next_generation() {
           //                    world->indiv_at(x, y), x, y);
           // Tell observers the replication is finished
           //->notifyObservers(END_REPLICATION, eindiv);
-          world->indiv_at(x, y)->compute_statistical_data();
+          // world->indiv_at(x, y)->compute_statistical_data();
           world->indiv_at(x, y)->compute_non_coding();
           //delete eindiv;
         }
@@ -947,7 +948,7 @@ void Selection::run_life(Individual* new_indiv) {
   new_indiv->Evaluate();
 
   // Compute statistics
- // new_indiv->compute_statistical_data();
+  new_indiv->compute_statistical_data();
 
 }
 
