@@ -199,10 +199,11 @@ int main(int argc, char* argv[]) {
     fprintf(fixed_mutations_file, "#  12. repl_seg_len     (replaced segment length for repl_HT, -1 for the others)\n");
     fprintf(fixed_mutations_file, "#  13. GU_length        (before the event)\n");
     fprintf(fixed_mutations_file, "#  14. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n");
+    fprintf(fixed_mutations_file, "#  15. Impact of the mutation on fitness (positive value = higher fitness after = beneficial mutation) \n");
     fprintf(fixed_mutations_file, "####################################################################################################################\n");
     fprintf(fixed_mutations_file, "#\n");
     fprintf(fixed_mutations_file, "# Header for R\n");
-    fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact\n");
+    fprintf(fixed_mutations_file, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact_on_gap impact_on_fitness\n");
 
   }
 
@@ -321,6 +322,8 @@ int main(int argc, char* argv[]) {
   int32_t unitlen_before;
   double metabolic_error_before;
   double impact_on_metabolic_error;
+  double fitness_before;
+  double impact_on_fitness;
   char mut_descr_string[255];
 
   bool check_now = false;
@@ -373,6 +376,7 @@ int main(int argc, char* argv[]) {
       if (trace_mutations) {
         // Store initial values before the mutation
         metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+	fitness_before = indiv->fitness();
         unitlen_before = gen_unit.dna()->length();
       }
 
@@ -387,11 +391,14 @@ int main(int argc, char* argv[]) {
             indiv->dist_to_target_by_feature(METABOLISM) -
             metabolic_error_before;
 
+	impact_on_fitness =
+	  indiv->fitness()-fitness_before;
+
         mut->generic_description_string(mut_descr_string);
         fprintf(fixed_mutations_file,
-                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f\n",
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %.15f\n",
                 time(), 0, mut_descr_string, unitlen_before,
-                impact_on_metabolic_error);
+                impact_on_metabolic_error,impact_on_fitness);
       }
     }
 
@@ -399,6 +406,7 @@ int main(int argc, char* argv[]) {
       if (trace_mutations) {
         // Store initial values before the mutation
         metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+	fitness_before = indiv->fitness();
         unitlen_before = gen_unit.dna()->length();
       }
 
@@ -413,11 +421,14 @@ int main(int argc, char* argv[]) {
             indiv->dist_to_target_by_feature(METABOLISM) -
             metabolic_error_before;
 
+	impact_on_fitness =
+	  indiv->fitness()-fitness_before;
+
         mut->generic_description_string(mut_descr_string);
         fprintf(fixed_mutations_file,
-                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f\n",
+                "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %.15f\n",
                 time(), 0, mut_descr_string, unitlen_before,
-                impact_on_metabolic_error);
+                impact_on_metabolic_error,impact_on_fitness);
       }
     }
 
