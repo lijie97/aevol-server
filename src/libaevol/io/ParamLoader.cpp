@@ -108,7 +108,7 @@ ParamLoader::ParamLoader(const char* file_name)
   env_noise_seed_ = 0;
 
   // ------------------------------------------------------------ Constraints
-  min_genome_length_  = 10;
+  min_genome_length_  = 1;
   max_genome_length_  = 10000000;
   w_max_              = 0.033333333;
 
