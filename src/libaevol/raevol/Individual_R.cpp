@@ -800,12 +800,12 @@ void Individual_R::update_phenotype( void )
 
     phenotype_->add(*phenotype_activ_);
     phenotype_->add(*phenotype_inhib_);
-                if (id_==543 && AeTime::time() == 5895) {printf("BEFORE CLIP\n"); phenotype_->print();}
+                // if (id_==543 && AeTime::time() == 5895) {printf("BEFORE CLIP\n"); phenotype_->print();}
 
     phenotype_->clip(AbstractFuzzy::min, Y_MIN);
-    if (id_==543 && AeTime::time() == 5895) {printf("BEFORE SIMPLIFY\n"); phenotype_->print();}
+    // if (id_==543 && AeTime::time() == 5895) {printf("BEFORE SIMPLIFY\n"); phenotype_->print();}
     phenotype_->simplify();
-if (id_==543 && AeTime::time() == 5895) {phenotype_->print();}
+// if (id_==543 && AeTime::time() == 5895) {phenotype_->print();}
 //  _phenotype->simplify();
 }
 

@@ -311,7 +311,7 @@ void Selection::step_to_next_generation() {
   to_evaluate.clear();
   }
 
-  
+
 
 
 #pragma omp for schedule(dynamic)  private(x,y,what)
