@@ -186,6 +186,8 @@ class Selection : public Observable
     unsigned long long unique_id = 16000;
 
     long apply_mutation[1024];
+
+    std::vector<Individual*> to_evaluate;
 };
 
 

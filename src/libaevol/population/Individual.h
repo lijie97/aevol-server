@@ -556,11 +556,11 @@ class Individual : public Observable {
   int32_t rank_; // [1 ; POP_SIZE]
 
   // Total activation (resp. inhibition) of metabolic functions
-  AbstractFuzzy* phenotype_activ_;
-  AbstractFuzzy* phenotype_inhib_;
+  AbstractFuzzy* phenotype_activ_ = nullptr;
+  AbstractFuzzy* phenotype_inhib_ = nullptr;
 
   // The phenotype, roughly corresponding to the sum of activ and inhib
-  Phenotype* phenotype_;
+  Phenotype* phenotype_ = nullptr;
 
   // Array containing the partial area of the "gap" (difference between the
   // phenotype and the target) for each phenotypic target segment.

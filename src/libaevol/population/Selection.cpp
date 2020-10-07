@@ -306,9 +306,11 @@ void Selection::step_to_next_generation() {
       (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
     }
 #endif
+
+  to_evaluate.clear();
   }
 
-  std::vector<Individual*> to_evaluate;
+  
 
 
 #pragma omp for schedule(dynamic)  private(x,y,what)
@@ -338,7 +340,7 @@ void Selection::step_to_next_generation() {
     t1 = high_resolution_clock::now();
   }
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp for schedule(dynamic)
   for (int i = 0; i < (int) to_evaluate.size(); i++) {
 #ifdef __REGUL
     if (!to_evaluate[i]->evaluated_) {
