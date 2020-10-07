@@ -187,8 +187,6 @@ class Selection : public Observable
 
     long apply_mutation[1024];
 
-
-
   std::vector<int32_t> to_evaluate;
 };
 

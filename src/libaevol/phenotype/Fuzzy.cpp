@@ -162,6 +162,8 @@ ProteinConcentration Fuzzy::x(const Point& p1, const Point& p2, ProteinConcentra
 /// test with points_ starting/ending with constant
 void Fuzzy::simplify() {
   // assert(invariant());
+  if (points_.size() <= 3)
+    return;
 
   for (list<Point>::iterator p = points_.begin();
        p != points_.end() and p != prev(points_.end()) and p != prev(points_.end(), 2);

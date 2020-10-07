@@ -951,8 +951,6 @@ void GeneticUnit::do_translation() {
 #endif
 
           if (protein != protein_strand.end()) {
-
-              double pcon = protein->concentration();
               (&*protein)->add_RNA(&rna);
 
             rna.add_transcribed_protein(&*protein);

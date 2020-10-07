@@ -126,10 +126,12 @@ ExpManager::~ExpManager() noexcept
   if (ExpManager_7::standalone_simd) {
     delete exp_m_7_;
   }
-  delete exp_s_;
   delete output_m_;
   delete world_;
 
+
+  delete exp_s_;
+  
   delete [] dna_mutator_array_;
 
   delete [] next_generation_reproducer_;

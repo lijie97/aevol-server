@@ -742,9 +742,16 @@ void Individual_R::update_phenotype( void )
   //   * _phenotype_inhib for the proteins inhibitting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
 
-  phenotype_activ_->reset();
-  phenotype_inhib_->reset();
-  phenotype_->reset();
+  delete phenotype_activ_;
+  delete phenotype_inhib_;
+  delete phenotype_;
+  // printf("%d -- Delete phenotype\n",id_);
+
+  phenotype_activ_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  phenotype_inhib_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  phenotype_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  // printf("%d -- Allocate phenotype : %u %u %u\n",id_,((Fuzzy*)phenotype_activ_)->points().size(),
+  //     ((Fuzzy*)phenotype_inhib_)->points().size(),((Fuzzy*)phenotype_)->points().size());
 
   for (auto& prot : protein_list_) {
     if ( ((Protein_R*)prot)->is_functional() )
@@ -790,12 +797,12 @@ void Individual_R::update_phenotype( void )
 
     phenotype_->add(*phenotype_activ_);
     phenotype_->add(*phenotype_inhib_);
-                if (id_==543 && AeTime::time() == 5895) {printf("BEFORE CLIP\n"); phenotype_->print();}
+                // if (id_==543 && AeTime::time() == 5895) {printf("BEFORE CLIP\n"); phenotype_->print();}
 
     phenotype_->clip(AbstractFuzzy::min, Y_MIN);
-    if (id_==543 && AeTime::time() == 5895) {printf("BEFORE SIMPLIFY\n"); phenotype_->print();}
+    // if (id_==543 && AeTime::time() == 5895) {printf("BEFORE SIMPLIFY\n"); phenotype_->print();}
     phenotype_->simplify();
-if (id_==543 && AeTime::time() == 5895) {phenotype_->print();}
+// if (id_==543 && AeTime::time() == 5895) {phenotype_->print();}
 //  _phenotype->simplify();
 }
 

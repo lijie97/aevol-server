@@ -307,7 +307,12 @@ void Selection::step_to_next_generation() {
       (&indiv->genetic_unit_list().front())->dna()->set_hasMutate(false);
     }
 #endif
+
+  to_evaluate.clear();
   }
+
+
+
 
 #pragma omp for schedule(dynamic)  private(x,y,what)
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
