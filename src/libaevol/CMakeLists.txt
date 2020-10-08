@@ -24,8 +24,6 @@ set(aevol_sources
         7/Dna_7.h
   biochemistry/Dna.cpp
   biochemistry/Dna.h
-  biochemistry/DnaReplicationReport.cpp
-  biochemistry/DnaReplicationReport.h
   biochemistry/GeneticUnit.cpp
   biochemistry/GeneticUnit.h
   biochemistry/Protein.cpp
@@ -55,6 +53,10 @@ set(aevol_sources
   io/ParamLoader.h
   io/Tree.cpp
   io/Tree.h
+  io/DnaReplicationReport.cpp
+  io/DnaReplicationReport.h
+  io/ReplicationReport.cpp
+  io/ReplicationReport.h
 #  io/GeneTree.cpp
 #  io/GeneTree.h
 #  io/GeneTreeNode.cpp
@@ -117,8 +119,6 @@ set(aevol_sources
   population/Individual.h
   population/IndividualFactory.cpp
   population/IndividualFactory.h
-  population/ReplicationReport.cpp
-  population/ReplicationReport.h
   population/Selection.cpp
   population/Selection.h
         7/Individual_7.cpp
