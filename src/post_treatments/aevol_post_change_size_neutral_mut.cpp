@@ -46,8 +46,9 @@ void print_help(char *prog_path) {
   printf("Usage : %s -h or --help\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
   printf("\nOptions\n");
-  printf("  -S, --Size\n\twanted size\n");
+  printf("  -l, --length\n\twanted sequence length\n");
   printf("  -d, --delta\n\twanted modification of the size\n");
+  printf("  -s, --seed\n\trandom generator seed\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
   printf("  -V, --version\n\tprint version number, then exit\n");
 }
@@ -57,7 +58,7 @@ void interpret_cmd_line_options(int argc, char **argv) {
   static struct option long_options[] = {{"help", no_argument, nullptr, 'h'},
                                          {"version", no_argument, nullptr, 'V'},
                                          {"verbose", no_argument, nullptr, 'v'},
-                                         {"Size", required_argument, nullptr, 'S'},
+                                         {"length", required_argument, nullptr, 'l'},
                                          {"delta", required_argument, nullptr, 'd'},
                                          {"seed", required_argument, nullptr, 's'},
                                          {"file", required_argument, nullptr, 'f'},
@@ -77,7 +78,7 @@ void interpret_cmd_line_options(int argc, char **argv) {
     case 'v':
       verbose = true;
       break;
-    case 'S':
+    case 'l':
       wanted_size = atol(optarg);
       break;
     case 'd':
@@ -115,7 +116,7 @@ int main(int argc, char ** argv) {
 
   std::cout << argv[0] << " started with :" << std::endl;
   if (wanted_size != 0) {
-    std::cout << " - wanted_size = " << wanted_size << std::endl;
+    std::cout << " - wanted_sequence_length = " << wanted_size << std::endl;
   } else {
     std::cout << " - delta = " << delta << std::endl;
   }
