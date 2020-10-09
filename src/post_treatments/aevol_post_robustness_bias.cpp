@@ -101,7 +101,6 @@ void interpret_cmd_line_options(int argc, char **argv) {
 }
 
 int main(int argc, char ** argv) {
-  seed_prng = 456465;
   number_replications = 1000;
   genomeFile = "input.json";
   print_every = 100;
@@ -115,7 +114,11 @@ int main(int argc, char ** argv) {
 
   IOJson inputJson(genomeFile);
 
-  Individual* individual = inputJson.getIndividuals().front();
+  auto mut_prng   = std::make_shared<JumpingMT>(seed_prng);
+  auto stoch_prng = std::make_shared<JumpingMT>(seed_prng);
+  Individual ancestor = Individual(inputJson.getIndividuals().front(), 0, mut_prng, stoch_prng);
+
+  Individual* individual = new Individual(ancestor);
   individual->clear_everything_except_dna_and_promoters();
   individual->compute_phenotype();
   Robustness_bias_output out(*individual, "indiv.csv", "mutation.csv");
