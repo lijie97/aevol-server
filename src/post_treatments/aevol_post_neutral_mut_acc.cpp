@@ -115,7 +115,10 @@ int main(int argc, char ** argv) {
 
   out::init("result.txt", "mutation.txt");
 
-  run_generations(number_generation, inputJson.getIndividuals()[0]);
+  auto mut_prng   = std::make_shared<JumpingMT>(seed_prng);
+  auto stoch_prng = std::make_shared<JumpingMT>(seed_prng);
+  Individual ancestor = Individual(inputJson.getIndividuals()[0], 0, mut_prng, stoch_prng);
+  run_generations(number_generation, &ancestor);
 //  std::vector<Individual> indiv_vector;
 //  indiv_vector.emplace_back(*indiv);
 
