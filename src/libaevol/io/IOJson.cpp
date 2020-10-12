@@ -33,7 +33,7 @@ void IOJson::init() {
   env_noise_seed_ = 0;
 
   // ------------------------------------------------------------ Constraints
-  min_genome_length_  = 10;
+  min_genome_length_  = 1;
   max_genome_length_  = 10000000;
   max_triangle_width_ = 0.033333333;
 
