@@ -147,7 +147,6 @@ void Selection::step_to_next_generation() {
 
 #pragma omp single
   {
-    to_evaluate.clear();
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic
@@ -313,13 +312,7 @@ void Selection::step_to_next_generation() {
 
 
 
-
 #pragma omp for schedule(dynamic)  private(x,y,what)
-  for (int32_t index = 0; index < grid_width * grid_height; index++) {
-    x = index / grid_height;
-    y = index % grid_height;
-
-    do_replication(reproducers[x][y],
                    x * grid_height + y, what, x, y);
 
 #ifdef __DETECT_CLONE
