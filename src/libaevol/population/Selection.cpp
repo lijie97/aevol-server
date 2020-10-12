@@ -147,6 +147,7 @@ void Selection::step_to_next_generation() {
 
 #pragma omp single
   {
+    to_evaluate.clear();
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic
@@ -310,9 +311,12 @@ void Selection::step_to_next_generation() {
   to_evaluate.clear();
   }
 
+<<<<<<< HEAD
   
 
 
+=======
+>>>>>>> cdd2810d1e5062c2a42e1967ce97ccb625bd9fcd
 #pragma omp for schedule(dynamic)  private(x,y,what)
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
