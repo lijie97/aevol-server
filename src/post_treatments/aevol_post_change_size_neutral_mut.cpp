@@ -16,7 +16,7 @@
 bool verbose = false;
 uint32_t seed_prng = 0;
 std::string inputFile = "input.json";
-std::string outputFile = "output.json";
+std::string outputFile = "directional_neutral_mut.json";
 unsigned int wanted_size = 0;
 int delta = 0;
 
@@ -51,6 +51,8 @@ void print_help(char *prog_path) {
   printf("  -s, --seed\n\trandom generator seed\n");
   printf("  -h, --help\n\tprint this help, then exit\n");
   printf("  -V, --version\n\tprint version number, then exit\n");
+  printf("  -f, --input_file_name\n\tdefault is input.json\n");
+  printf("  -o, --output_file_name\n\tdefault is directional_neutral_mut.json\n");
 }
 
 void interpret_cmd_line_options(int argc, char **argv) {
@@ -135,7 +137,7 @@ int main(int argc, char ** argv) {
   auto stoch_prng = std::make_shared<JumpingMT>(seed_prng);
   Individual ancestor = Individual(inputJson.getIndividuals()[0], 0, mut_prng, stoch_prng);
 
-  Individual * indiv = run_to_size(wanted_size, &ancestor);
+  Individual* indiv = run_to_size(wanted_size, &ancestor);
   std::vector<Individual*> indiv_vector;
   indiv_vector.push_back(indiv);
 
