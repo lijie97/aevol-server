@@ -899,7 +899,7 @@ namespace aevol {
         int prot_idx=0;
         for (auto prot : proteins_) {
             if (prot->is_init_)
-                printf("SIMD -- Protein %d : %.18e\n",prot->protein_start,prot->e);
+                printf("%d -- SIMD -- Protein %d : %.18e\n",step,prot->protein_start,prot->e);
             prot_idx++;
         }
     }
