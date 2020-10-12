@@ -1602,7 +1602,7 @@ void Individual::do_folding() {
     gen_unit.compute_phenotypic_contribution();
 }
 
-void Individual::Evaluate() {
+void Individual::Evaluate(bool no_signal) {
   EvaluateInContext(grid_cell_->habitat());
 }
 

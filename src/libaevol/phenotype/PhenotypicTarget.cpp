@@ -88,12 +88,12 @@ PhenotypicTarget::~PhenotypicTarget() {
 // ============================================================================
 //                                   Methods
 // ============================================================================
-void PhenotypicTarget::set_segmentation(int8_t nb_segments,
+void PhenotypicTarget::set_segmentation(int16_t nb_segments,
                                         double *boundaries,
                                         PhenotypicFeature *features,
                                         bool separate_segments) {
   // Delete the data to be replaced
-  for (int8_t i = 0 ; i < nb_segments_ ; i++)
+  for (int16_t i = 0 ; i < nb_segments_ ; i++)
     delete segments_[i];
   delete[] segments_;
 
@@ -101,7 +101,7 @@ void PhenotypicTarget::set_segmentation(int8_t nb_segments,
   nb_segments_  = nb_segments;
   segments_     = new PhenotypicSegment * [nb_segments_];
 
-  for (int8_t i = 0 ; i < nb_segments_; i++)
+  for (int16_t i = 0 ; i < nb_segments_; i++)
     segments_[i] = new PhenotypicSegment(boundaries[i], boundaries[i+1], features[i]);
 
   // TODO <dpa>: Manage separate_segments

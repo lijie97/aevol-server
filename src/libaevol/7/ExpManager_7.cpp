@@ -976,7 +976,7 @@ void ExpManager_7::compute_RNA(int indiv_id) {
                       current_individuals[indiv_id]->metadata_->rna_count() + 1);
                 }
 
-                current_individuals[indiv_id]->metadata_->rna_add(rna_idx, new Rna_7(current_individuals[indiv_id]->metadata_->promoters(rna_idx)->pos,
+                current_individuals[indiv_id]->metadata_->rna_add(glob_rna_idx, new Rna_7(current_individuals[indiv_id]->metadata_->promoters(rna_idx)->pos,
                     rna_end,
                     !current_individuals[indiv_id]->metadata_->promoters(rna_idx)->leading_or_lagging,
                     1.0 -
@@ -1346,7 +1346,7 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
       }
 
       int8_t value = 0;
-      int8_t codon_idx = 0;
+      int16_t codon_idx = 0;
       int32_t count_loop = 0;
 
       if (prot->leading_lagging ==
@@ -1364,7 +1364,8 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
               value += 1 << (CODON_SIZE - i - 1);
           }
 
-          // if (indiv_id == 660) printf("Protein %d :: Add codon %d : %d\n",prot->protein_start,codon_idx,value);
+          // if (indiv_id == 660) 
+          if (AeTime::time() == 85303) printf("Protein %d :: Add codon %d : %d\n",prot->protein_start,codon_idx,value);
           prot->codon_list[codon_idx] = value;
 
           codon_idx++;
@@ -1399,10 +1400,11 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         }
       }
 
-      if (count_loop < prot->protein_length && codon_idx==64*3) {
+      if (codon_idx>=64*3) {
         std::ofstream last_gener_file("aevol_run.log",
                                     std::ofstream::out);
         last_gener_file << "Stop translating protein before end (length is greater than 196" << std::endl;
+        std::cout << "Stop translating protein before end (length is greater than 196" << std::endl;
         last_gener_file.close();
       }
 
@@ -2051,6 +2053,17 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
 //      }
 //    }
 //  }
+if (AeTime::time() == 85303)
+        for (int idx = 0; idx < (int) (current_individuals[indiv_id]->metadata_->rna_count()); idx++) {
+            printf("%d -- RNA SIMD %d (%p) Start %d Stop %d Leading/Lagging %d Length %d  Basal %lf\n", indiv_id,
+              idx, 
+                current_individuals[indiv_id]->metadata_->rnas(idx),
+                current_individuals[indiv_id]->metadata_->rnas(idx)->begin,
+                current_individuals[indiv_id]->metadata_->rnas(idx)->end,
+                current_individuals[indiv_id]->metadata_->rnas(idx)->leading_lagging,
+                current_individuals[indiv_id]->metadata_->rnas(idx)->length,
+                current_individuals[indiv_id]->metadata_->rnas(idx)->e);
+        }
 
   current_individuals[indiv_id]->metadata_->protein_begin();
   for (int j = 0; j < current_individuals[indiv_id]->metadata_->proteins_count(); j++) {
@@ -2058,9 +2071,26 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
         current_individuals[indiv_id]->metadata_->protein_next();
     if (!prot->signal_) {
       if (prot->is_init_) {
+        if (AeTime::time() == 85303) printf("%d -- Compute Protein Concentration %d (%p) : \n",indiv_id,prot->protein_start,prot);
+
         prot->delta_concentration_ = 0;
 
         for (auto rna: prot->rna_list_) {
+
+
+      if (rna->begin == 1616 && AeTime::time() == 85303)
+            printf("%d -- RNA SIMD (%p) Start %d Stop %d Leading/Lagging %d Length %d  Basal %lf Init %d Coding %d\n", indiv_id,
+                rna,
+                rna->begin,
+                rna->end,
+                rna->leading_lagging,
+                rna->length,
+                rna->e,
+                rna->is_init_,
+                rna->is_coding_);
+
+          if (AeTime::time() == 85303)
+            printf("Compute RNA synthesis %d (%p) : \n",rna->begin,rna);
           double synthesis_rate = rna->compute_synthesis_rate(current_individuals[indiv_id]);
 
           if (indiv_id==543 && AeTime::time() == 5895)  printf("SIMD -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",prot->protein_start,
@@ -2140,7 +2170,7 @@ void ExpManager_7::evaluate_network(int indiv_id, double selection_pressure, int
 }
 
 void ExpManager_7::finalize_network(int indiv_id, double selection_pressure) {
-   double sum_meta = current_individuals[indiv_id]->metaerror;
+   //double sum_meta = current_individuals[indiv_id]->metaerror;
 
   if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST) {
     current_individuals[indiv_id]->metaerror =
@@ -2239,7 +2269,7 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       // If we have to evaluate the individual at this age
       if (eval->find(i+1) != eval->end() || (indiv_id==543 && AeTime::time() == 5895)) {// ||( (indiv_id == 70) && (AeTime::time()>=1570))) {
         evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
-          if (indiv_id==543 && AeTime::time() == 5895) 
+          if (AeTime::time() == 80356) 
             printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
                          current_individuals[indiv_id]->metaerror,
                current_individuals[indiv_id]->metaerror_by_env_id_[0],
@@ -2333,17 +2363,17 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
           compute_protein(indiv_id);
           translate_protein(indiv_id, w_max);
 #ifdef __REGUL
-          current_individuals[indiv_id]->metadata_->protein_begin();
-                      for (int j = 0; j < current_individuals[indiv_id]
-                                              ->metadata_->proteins_count();
-                           j++) {
-                        Protein_7* prot = current_individuals[indiv_id]
-                                             ->metadata_->protein_next();
+//           current_individuals[indiv_id]->metadata_->protein_begin();
+//                       for (int j = 0; j < current_individuals[indiv_id]
+//                                               ->metadata_->proteins_count();
+//                            j++) {
+//                         Protein_7* prot = current_individuals[indiv_id]
+//                                              ->metadata_->protein_next();
 
-//                        if (indiv_id == 22)
-//                          printf("INACT -- Protein %d :: %lf\n", j,
-//                                 prot->e);
-                      }
+// //                        if (indiv_id == 22)
+// //                          printf("INACT -- Protein %d :: %lf\n", j,
+// //                                 prot->e);
+//                       }
 
 
                         solve_network(indiv_id,selection_pressure);
