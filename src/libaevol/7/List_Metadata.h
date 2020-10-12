@@ -145,7 +145,7 @@ namespace aevol {
         void proteins_resize(int resize) override;
         void proteins_clear() override;
 
-        void proteins_print();
+        void proteins_print(int step = -1);
 
         /*** Promoters ***/
         void lst_promoters(bool lorl,

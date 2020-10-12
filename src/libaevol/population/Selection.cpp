@@ -347,8 +347,8 @@ void Selection::step_to_next_generation() {
 
     Individual* l_indiv = world->indiv_at(x,y);
 #ifdef __REGUL
-    if (!to_evaluate[i]->evaluated_) {
-      run_life(dynamic_cast<Individual_R*>(to_evaluate[i]));
+    if (!l_indiv->evaluated_) {
+      run_life(dynamic_cast<Individual_R*>(l_indiv));
     }
 #else
     run_life(l_indiv);
