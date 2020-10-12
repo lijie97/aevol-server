@@ -56,8 +56,8 @@ void out::init(const char *name_result,
   mutation_file << "################################################################################\n";
   mutation_file << "#\n";
   mutation_file << "# Header for R\n";
-  mutation_file << "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len"
-                   " repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg"
+  mutation_file << "gener,gen_unit,mut_type,pos_0,pos_1,pos_2,pos_3,invert,align_score,align_score_2,seg_len"
+                   ",repl_seg_len,GU_len,impact,nbgenesatbreak,nbgenesinseg,nbgenesinreplseg"
                 << std::endl;
 }
 
@@ -124,21 +124,21 @@ int32_t mutation_event_length_mutation(MutationEvent &mutationEvent,
 void out::record_mutation_event(MutationEvent &mutationEvent,
                                 unsigned int number_generation,
                                 unsigned int size) {
-  mutation_file << number_generation << " ";
-  mutation_file << 0 << " ";  // GeneticUnit
-  mutation_file << mutationEvent.type() << " ";
-  mutation_file << mutationEvent.pos_1() << " ";
-  mutation_file << mutation_event_pos_2(mutationEvent) << " ";
-  mutation_file << mutation_event_pos_3(mutationEvent) << " ";
-  mutation_file << mutation_event_pos_4(mutationEvent) << " ";
-  mutation_file << mutation_event_invert(mutationEvent) << " ";
-  mutation_file << 0 << " "; // align_score
-  mutation_file << 0 << " "; // align_score2
-  mutation_file << mutation_event_length_mutation(mutationEvent, size) << " ";
-  mutation_file << -1 << " "; // rep_seg_length
-  mutation_file << size << " ";
-  mutation_file << 0 << " "; // Impact of the mutation on the metabolic error
-  mutation_file << 0 << " "; // Nb of coding RNAs possibly disrupted by the breakpoints
-  mutation_file << 0 << " "; // Nb of coding RNAs included in the segment
+  mutation_file << number_generation << ",";
+  mutation_file << 0 << ",";  // GeneticUnit
+  mutation_file << mutationEvent.type() << ",";
+  mutation_file << mutationEvent.pos_1() << ",";
+  mutation_file << mutation_event_pos_2(mutationEvent) << ",";
+  mutation_file << mutation_event_pos_3(mutationEvent) << ",";
+  mutation_file << mutation_event_pos_4(mutationEvent) << ",";
+  mutation_file << mutation_event_invert(mutationEvent) << ",";
+  mutation_file << 0 << ","; // align_score
+  mutation_file << 0 << ","; // align_score2
+  mutation_file << mutation_event_length_mutation(mutationEvent, size) << ",";
+  mutation_file << -1 << ","; // rep_seg_length
+  mutation_file << size << ",";
+  mutation_file << 0 << ","; // Impact of the mutation on the metabolic error
+  mutation_file << 0 << ","; // Nb of coding RNAs possibly disrupted by the breakpoints
+  mutation_file << 0 << ","; // Nb of coding RNAs included in the segment
   mutation_file << 0 << std::endl; // Nb of coding RNAs that were completely included in the replaced segment
 }
