@@ -891,17 +891,17 @@ namespace aevol {
             int32_t t_protein_end,
             int32_t t_protein_length,
             int8_t t_leading_lagging,
-            double t_e) {
+            double t_e, Rna_7* rna) {
 
-        proteins_.emplace_back(new Protein_7(t_protein_start,t_protein_end,t_protein_length,t_leading_lagging,t_e));
+        proteins_.emplace_back(new Protein_7(t_protein_start,t_protein_end,t_protein_length,t_leading_lagging,t_e,rna));
 
     }
 
     void List_Metadata::proteins_print() {
         int prot_idx=0;
-        for (auto prot : protein_vector) {
+        for (auto prot : proteins_) {
             if (prot->is_init_)
-                printf("%d -- SIMD -- Protein %d : %.18e\n",step,prot->protein_start,prot->e);
+                printf("SIMD -- Protein %d : %.18e\n",prot->protein_start,prot->e);
             prot_idx++;
         }
     }
@@ -936,6 +936,7 @@ namespace aevol {
         proteins_.clear();
     }
 
+#ifdef __REGUL
 void List_Metadata::add_inherited_proteins() {
   for (auto prot : inherited_proteins_) {
     int glob_prot_idx = proteins_count();
@@ -943,4 +944,5 @@ void List_Metadata::add_inherited_proteins() {
     protein_add(glob_prot_idx, prot);
   }
 }
+#endif
 }

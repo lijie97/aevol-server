@@ -1298,7 +1298,7 @@ void ExpManager_7::compute_protein(int indiv_id) {
                     1);
                 ((List_Metadata*)current_individuals[indiv_id]->metadata_)->protein_add(
                     glob_prot_idx, 
-                        Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
+                        new Protein_7(Utils::mod(start_prot-13,dna_length), Utils::mod(t_k,dna_length),
                         prot_length/3,
                         rna->leading_lagging,
                         rna->e,rna
