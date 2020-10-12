@@ -432,7 +432,7 @@ class Individual : public Observable {
   /**
    * Main evaluation method
    */
-  virtual void Evaluate();
+  virtual void Evaluate(bool no_signal = true);
 
   /**
    * Evaluate within the provided context

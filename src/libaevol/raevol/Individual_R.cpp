@@ -674,7 +674,7 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
   return quadon[0]+quadon[1]+quadon[2]+quadon[3];
 }
 
-void Individual_R::save( gzFile backup_file )
+void Individual_R::save( gzFile backup_file ) const
 {
   Individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).

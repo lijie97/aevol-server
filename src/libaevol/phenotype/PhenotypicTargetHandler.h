@@ -54,7 +54,7 @@ namespace aevol {
 // ============================================================================
 //                          Class declarations
 // ============================================================================
-
+class ExpSetup;
 
 
 
@@ -118,7 +118,7 @@ class PhenotypicTargetHandler
     return var_method_;
   }
 
-  virtual double mean_environmental_area() const {
+  virtual double mean_environmental_area(ExpSetup* exp_s = nullptr) const {
     return phenotypic_target_->area_by_feature(METABOLISM);
   }
 
@@ -167,7 +167,7 @@ class PhenotypicTargetHandler
   void set_sampling(int16_t val){
     sampling_ = val;
   }
-  virtual void set_segmentation(int8_t nb_segments,
+  virtual void set_segmentation(int16_t nb_segments,
                         double* boundaries,
                         PhenotypicFeature * features,
                         bool separate_segments = false) {
