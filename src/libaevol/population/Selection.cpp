@@ -311,12 +311,9 @@ void Selection::step_to_next_generation() {
   to_evaluate.clear();
   }
 
-<<<<<<< HEAD
   
 
 
-=======
->>>>>>> cdd2810d1e5062c2a42e1967ce97ccb625bd9fcd
 #pragma omp for schedule(dynamic)  private(x,y,what)
   for (int32_t index = 0; index < grid_width * grid_height; index++) {
     x = index / grid_height;
@@ -891,7 +888,6 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
 
 #endif
           //notifyObservers(NEW_INDIV, eindiv);
-
           exp_m_->tree()->update_new_indiv(eindiv);
           delete eindiv;
         }

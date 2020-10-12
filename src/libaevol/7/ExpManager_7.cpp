@@ -2601,12 +2601,8 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
                                            indiv_id,
                                            "",
                                            0);
-<<<<<<< HEAD
 #endif
 
-=======
-                                           
->>>>>>> cdd2810d1e5062c2a42e1967ce97ccb625bd9fcd
         int32_t nb_blocks_ =
             previous_individuals[indiv_id]->dna_->nb_block();
         char *dna_string = new char[nb_blocks_ * BLOCK_SIZE];
