@@ -85,7 +85,8 @@ double Rna_7::affinity_with_protein( int32_t index, Protein_7 *protein, Individu
 }
 
 double Rna_7::compute_synthesis_rate(Individual_7* indiv) {
-  if (is_coding_) {
+  
+  if (is_init_) {
 
     double enhancer_activity = 0;
     double operator_activity = 0;
@@ -96,7 +97,7 @@ double Rna_7::compute_synthesis_rate(Individual_7* indiv) {
       operator_activity +=
           affinity.operator_factor * affinity.concentration();
 
-     if (indiv->indiv_id==70&& AeTime::time() == 1595)
+     if (AeTime::time() == 85303)
        printf("SIMD -- RNA %d Protein %d (%lf) :: Enhancer %lf Operator %lf\n",begin,affinity.protein->protein_start,
               affinity.concentration(), affinity.enhancer_factor, affinity.operator_factor);
     }

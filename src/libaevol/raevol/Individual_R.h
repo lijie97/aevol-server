@@ -134,7 +134,7 @@ class Individual_R : public virtual Individual
     int8_t  get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos );
     //int8_t  new_get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos );
     //int8_t  old_get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos );
-    virtual void    save( gzFile backup_file );
+    virtual void    save( gzFile backup_file ) const;
     void    clear_everything_except_dna_and_promoters();
 
     inline std::vector<Protein_R*> get_inherited_protein_list( void) const;

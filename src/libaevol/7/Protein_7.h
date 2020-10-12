@@ -76,11 +76,11 @@ class Protein_7 {
   bool is_init_ = false;
 
 
-  int8_t codon_list[64*3] = {};
+  int8_t codon_list[64*4] = {};
   int16_t nb_codons_ = 0;
 
 #ifdef __REGUL
-  bool is_TF_;
+  bool is_TF_ = false;
 
   double    delta_concentration_;
   bool      inherited_ = false;

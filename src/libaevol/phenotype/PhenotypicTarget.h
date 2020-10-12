@@ -101,7 +101,7 @@ class PhenotypicTarget
 // ==========================================================================
   //                                 Setters
   // ==========================================================================
-  void set_segmentation(int8_t nb_segments,
+  void set_segmentation(int16_t nb_segments,
                         double* boundaries,
                         PhenotypicFeature * features,
                         bool separate_segments);
