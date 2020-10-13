@@ -1242,11 +1242,6 @@ void ExpManager_7::compute_protein(int indiv_id) {
                 ));
 
                 rna->is_coding_ = true;
-
-                 if (indiv_id==190 && AeTime::time() == 1936) {
-                   printf("Add protein %d => %d on RNA [%d => %d] (LEAD) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
-                          rna->begin,rna->end,rna->e);
-                 }
               }
 
               break;
@@ -1304,11 +1299,6 @@ void ExpManager_7::compute_protein(int indiv_id) {
                         rna->e,rna
                     ));
                 rna->is_coding_ = true;
-
-                 if (indiv_id==190 && AeTime::time() == 1936) {
-                   printf("Add protein %d => %d on RNA [%d => %d] (LAG) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
-                          rna->begin,rna->end,rna->e);
-                 }
               }
               break;
             }
@@ -1594,21 +1584,10 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
-          if (indiv_id==190 && AeTime::time() == 1936) {
-                   printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
-                   for (auto rna : lookup[prot->protein_start]->rna_list_) {
-                     printf("OLD [%d %d]\n",rna->begin,rna->end);
-                   }
-          }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
           prot->is_init_ = false;
-          if (indiv_id==190 && AeTime::time() == 1936) {
-                   for (auto rna : prot->rna_list_) {
-                     printf("NEW [%d %d]\n",rna->begin,rna->end);
-                   }
-          }
         }
       }
     }
@@ -1631,22 +1610,9 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
-          if (indiv_id==190 && AeTime::time() == 1936) {
-                   printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
-                   for (auto rna : lookup[prot->protein_start]->rna_list_) {
-                     printf("OLD [%d %d]\n",rna->begin,rna->end);
-                   }
-          }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
-
-           if (indiv_id==190 && AeTime::time() == 1936) {
-                   for (auto rna : prot->rna_list_) {
-                     printf("NEW [%d %d]\n",rna->begin,rna->end);
-                   }
-          
-          }
           prot->is_init_ = false;
         }
       }
@@ -1802,15 +1768,12 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
         exit(5);
         }
 #else
-bool verbose = false;
-        if (indiv_id==543 && AeTime::time() == 5895)
-          verbose = true;
         if (prot->h > 0)
           activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
-                                                          prot->e,verbose);
+                                                          prot->e,false);
         else
           inhib_phenotype->add_triangle(prot->m, prot->w, prot->h *
-                                                          prot->e,verbose);
+                                                          prot->e,false);
 #endif
       }
     }
@@ -1840,14 +1803,8 @@ bool verbose = false;
   current_individuals[indiv_id]->phenotype = new Vector_Fuzzy();
   current_individuals[indiv_id]->phenotype->add(activ_phenotype);
   current_individuals[indiv_id]->phenotype->add(inhib_phenotype);
-
-    if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE CLIP\n"); current_individuals[indiv_id]->phenotype->print();}
-
   current_individuals[indiv_id]->phenotype->clip(AbstractFuzzy::min, Y_MIN);
-    if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE SIMPLIFY\n"); current_individuals[indiv_id]->phenotype->print();}
-
   current_individuals[indiv_id]->phenotype->simplify();
-    if (indiv_id==543 && AeTime::time() == 5895)  current_individuals[indiv_id]->phenotype->print();
 
   delete activ_phenotype;
   delete inhib_phenotype;
