@@ -2247,14 +2247,32 @@ void ExpManager_7::update_phenotype( int indiv_id ) {
 #endif
 
 void ExpManager_7::setup_individuals(double w_max, double selection_pressure) {
+  if (exp_m_->sel()->fitness_func() == FITNESS_GLOBAL_SUM) {
+#ifdef __REGUL
+    fitness_sum_tab_ = new double[phenotypic_target_handler_->nb_env_];
+    for (int env_id = 0; env_id < phenotypic_target_handler_->nb_env_; env_id++) {
+      fitness_sum_tab_[env_id] = 0;
+      for (int indiv_id = 0; indiv_id < exp_m_->nb_indivs(); indiv_id++)
+        fitness_sum_tab_[env_id] += previous_individuals[indiv_id]->fitness_by_env_id_[env_id];
+    }
+#else
+    printf("Fitness local sum is not supported for Aevol (only R-Aevol)\n");
+      exit(-1);
+#endif
+  }
+
   for (int indiv_id = 0; indiv_id < nb_indivs_; ++indiv_id) {
     start_stop_RNA(indiv_id);
     compute_RNA(indiv_id);
     start_protein(indiv_id);
     compute_protein(indiv_id);
     translate_protein(indiv_id, w_max);
+#ifdef __REGUL
+    solve_network(indiv_id,selection_pressure);
+#else
     compute_phenotype(indiv_id);
     compute_fitness(indiv_id, selection_pressure);
+#endif
   }
 
   stats_best = new Stats_7(this, AeTime::time(), true);
