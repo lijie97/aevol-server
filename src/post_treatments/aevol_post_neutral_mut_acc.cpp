@@ -113,7 +113,9 @@ int main(int argc, char ** argv) {
   std::cout << " - output file = " << outputFile << std::endl;
   IOJson inputJson(inputFile);
 
-  out::init("result.txt", "mutation.txt");
+  std::string result = "result_seed_" + std::to_string(seed_prng) + ".txt";
+  std::string mutation = "mutation_seed_" + std::to_string(seed_prng) + ".csv";
+  out::init(result.c_str(), mutation.c_str());
 
   auto mut_prng   = std::make_shared<JumpingMT>(seed_prng);
   auto stoch_prng = std::make_shared<JumpingMT>(seed_prng);
