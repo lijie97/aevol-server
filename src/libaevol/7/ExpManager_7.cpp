@@ -1364,8 +1364,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
               value += 1 << (CODON_SIZE - i - 1);
           }
 
-          // if (indiv_id == 660) 
-          if (AeTime::time() == 85303) printf("Protein %d :: Add codon %d : %d\n",prot->protein_start,codon_idx,value);
           prot->codon_list[codon_idx] = value;
 
           codon_idx++;
