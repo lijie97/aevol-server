@@ -885,15 +885,7 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
           NewIndivEvent* eindiv = new NewIndivEvent(
               new_indiv, parent, x, y, index,
               exp_m_->next_generation_reproducer_[index]);
-<<<<<<< HEAD
-=======
 
-#endif
-          //notifyObservers(NEW_INDIV, eindiv);
->>>>>>> [RAevol7] Fix merge issue with aevol_7 branch
-
-#endif
-          //notifyObservers(NEW_INDIV, eindiv);
           exp_m_->tree()->update_new_indiv(eindiv);
           delete eindiv;
         }

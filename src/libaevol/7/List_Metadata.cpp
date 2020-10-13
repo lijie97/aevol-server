@@ -891,9 +891,9 @@ namespace aevol {
             int32_t t_protein_end,
             int32_t t_protein_length,
             int8_t t_leading_lagging,
-            double t_e) {
+            double t_e, Rna_7* rna) {
 
-        proteins_.emplace_back(new Protein_7(t_protein_start,t_protein_end,t_protein_length,t_leading_lagging,t_e));
+        proteins_.emplace_back(new Protein_7(t_protein_start,t_protein_end,t_protein_length,t_leading_lagging,t_e,rna));
 
     }
 
