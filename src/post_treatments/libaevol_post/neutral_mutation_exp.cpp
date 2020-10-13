@@ -135,7 +135,7 @@ Individual *neutral_mutation_closer_to(Individual *individual, int32_t size_want
       child->clear_everything_except_dna_and_promoters();
       child->compute_phenotype();
       if (individual->phenotype()->is_identical_to(*child->phenotype(), 0) &&
-          std::abs(size_wanted - individual->amount_of_dna()) >
+          std::abs(size_wanted - individual->amount_of_dna()) >=
               std::abs(size_wanted - child->amount_of_dna())) {
         break;
       } else {

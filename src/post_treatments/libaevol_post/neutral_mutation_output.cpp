@@ -105,12 +105,12 @@ int32_t mutation_event_invert(MutationEvent &mutationEvent) {
 int32_t mutation_event_length_mutation(MutationEvent &mutationEvent,
                                        unsigned int size) {
   if (mutationEvent.type() == MutationEventType::DELETION
-      || mutationEvent.type() == MutationEventType::DUPLICATION) {
-    if (mutationEvent.pos_2() > mutationEvent.pos_1()) {
-      return mutationEvent.pos_2() - mutationEvent.pos_1();
-    } else {
-      return mutationEvent.pos_1() + size - mutationEvent.pos_2();
-    }
+      || mutationEvent.type() == MutationEventType::DUPLICATION
+      || mutationEvent.type() == MutationEventType::INVERSION
+      || mutationEvent.type() == MutationEventType::TRANSLOCATION){
+    int intern_mut_size = std::max(mutationEvent.pos_1()-mutationEvent.pos_2() , mutationEvent.pos_2()-mutationEvent.pos_1()); //length of the segment that do not cover the origin
+    int extern_mut_size = size - std::max(mutationEvent.pos_1(),mutationEvent.pos_2()) + std::min(mutationEvent.pos_1(),mutationEvent.pos_2()); //length of the segment covering the origin
+    return std::min(intern_mut_size, extern_mut_size);
   } else {
     if (mutationEvent.type() == MutationEventType::SMALL_INSERTION
         || mutationEvent.type() == MutationEventType::SMALL_DELETION) {
