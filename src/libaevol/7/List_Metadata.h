@@ -71,10 +71,17 @@ namespace aevol {
             for (std::list<Protein_7*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
                 delete (*(it_protein));
             }
+
+#ifdef __REGUL
+          for (std::list<Protein_7*>::iterator it_protein = inherited_proteins_.begin(); it_protein != inherited_proteins_.end(); it_protein++) {
+            delete (*(it_protein));
+          }
+#endif
         };
 
+#ifdef __REGUL
         void add_inherited_proteins();
-
+#endif
         /** Getter **/
 
         void set_iterators() {
@@ -126,7 +133,7 @@ namespace aevol {
             int32_t t_protein_end,
             int32_t t_protein_length,
             int8_t t_leading_lagging,
-            double t_e);
+            double t_e, Rna_7* rna);
 
         Protein_7* protein_next() override ;
         void protein_begin() override ;

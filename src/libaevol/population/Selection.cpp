@@ -888,7 +888,6 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
 
 #endif
           //notifyObservers(NEW_INDIV, eindiv);
-
           exp_m_->tree()->update_new_indiv(eindiv);
           delete eindiv;
         }
@@ -969,7 +968,6 @@ if (exp_m_->record_tree() || exp_m_->light_tree()) {
 
   return new_indiv;
 }
-
 
 #ifdef __REGUL
 void Selection::run_life(Individual_R* new_indiv) {
