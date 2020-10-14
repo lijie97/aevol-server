@@ -140,8 +140,6 @@ namespace aevol {
     }
 
     void List_Metadata::locate_promoters() {
-        //int8_t dist; // Hamming distance of the sequence from the promoter consensus
-
         // Empty RNA list
         for (auto& strand: promoters_list_) {
             strand.clear();

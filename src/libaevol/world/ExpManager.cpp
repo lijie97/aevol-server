@@ -405,7 +405,7 @@ void ExpManager::step_to_next_generation() {
         t1 = high_resolution_clock::now();
 #endif
   }
-        if (!exp_m_7_->standalone() || (exp_m_7_->standalone()&&check_simd())) {
+        if (!ExpManager_7::standalone() || (ExpManager_7::standalone() && check_simd())) {
             exp_s_->step_to_next_generation();
         }
 
@@ -428,8 +428,8 @@ void ExpManager::step_to_next_generation() {
 #endif
         }
 
-    if (exp_m_7_->standalone())
-      exp_m_7_->run_a_step(w_max_,selection_pressure(),true);
+    if (ExpManager_7::standalone())
+      exp_m_7_->run_a_step(w_max_, selection_pressure());
 
     if (check_simd_) {
       exp_m_7_->check_result();
@@ -442,7 +442,7 @@ void ExpManager::step_to_next_generation() {
         auto duration_simd = std::chrono::duration_cast<std::chrono::microseconds>(tb - ta).count();
 #endif
 
-        if ((!ExpManager_7::standalone()) || (ExpManager_7::standalone() && check_simd())) {
+        if (!ExpManager_7::standalone() || (ExpManager_7::standalone() && check_simd())) {
 #ifdef __PERF_LOG__
             t1 = high_resolution_clock::now();
 #endif
@@ -524,12 +524,7 @@ void ExpManager::load(gzFile& exp_s_file,
   fflush(stdout);
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
-  if (ExpManager_7::standalone_simd) {
 
-    if (to_be_run) {
-      exp_m_7_->set_stats(output_m_->stats());
-    }
-  }
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (ExpManager_7::standalone_simd) {
@@ -738,7 +733,7 @@ void ExpManager::run_evolution() {
       output_m_->stats()->add_indivs(AeTime::time(), indivs());
 
       if (ExpManager_7::standalone_simd) {
-        exp_m_7_->run_a_step(w_max_, selection_pressure(), false);
+        exp_m_7_->setup_individuals(w_max_, selection_pressure());
 
         if (check_simd_)
           exp_m_7_->check_result();
@@ -817,8 +812,20 @@ void ExpManager::run_evolution() {
 #ifdef __CUDACC__
   cudaProfilerStop();
 #endif
+  if (ExpManager_7::standalone() && check_simd_) {
+    for (int indiv_id = 0; indiv_id < (int)nb_indivs(); indiv_id++) {
+      int x = indiv_id / world_->height();
+      int y = indiv_id % world_->height();
 
-//  output_m_->flush();
+      world_->grid(x, y)
+          ->individual()
+          ->clear_everything_except_dna_and_promoters();
+      world_->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+      delete world_->grid(x, y)->individual();
+    }
+  }
+
+  //  output_m_->flush();
 //  if(with_mrca_ && record_light_tree())
 //    output_m_->light_tree()->save_mrca_indiv();
 //  if(anc_stat_ && record_light_tree())

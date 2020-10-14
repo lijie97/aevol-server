@@ -59,7 +59,8 @@ class ExpManager_7 : public Observable{
 
   ~ExpManager_7();
 
-  void run_a_step(double w_max, double selection_pressure,bool optim_prom = false);
+  void setup_individuals(double w_max, double selection_pressure);
+  void run_a_step(double w_max, double selection_pressure);
 
   void do_mutation(int indiv_id);
 
@@ -72,6 +73,7 @@ class ExpManager_7 : public Observable{
   void compute_phenotype(int indiv_id);
   void compute_fitness(int indiv_id, double selection_pressure, int env_id = -1);
 
+  void write_stat();
 
   void check_result();
   void check_dna();
@@ -90,8 +92,6 @@ class ExpManager_7 : public Observable{
   void update_phenotype( int indiv_id );
 #endif
 
-  void set_stats(Stats* stats) { stats_ = stats; }
-
   Individual_7** current_individuals;
   Individual_7** previous_individuals;
   Individual_7* best_indiv;
@@ -104,9 +104,6 @@ class ExpManager_7 : public Observable{
   int protein_grain_size = 32;
 
   DnaFactory* dna_factory_;
-
-  long cumulate_size = 0;
-  long cumulate_diff = 0;
 
   double* fitness_sum_tab_;
 #ifdef __REGUL
@@ -124,17 +121,8 @@ SIMD_PhenotypicTargetHandler_R* phenotypic_target_handler_;
   ExpManager* exp_m_;
   int* dna_size;
 
-  bool first_gener_ = true;
-
   Stats_7* stats_best = nullptr;
   Stats_7* stats_mean = nullptr;
-
-
-
-  long apply_mutation[1024];
-
-
-  Stats* stats_;
 
   void selection(int indiv_id);
 

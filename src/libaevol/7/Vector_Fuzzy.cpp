@@ -421,7 +421,10 @@ bool Vector_Fuzzy::is_increasing() const {
 ///
 // TODO <david.parsons@inria.fr> Not sure if it's useful.
 void Vector_Fuzzy::reset() {
-  for (Point p: points_)
+  for (const Point& p: points_)
+    // set are ordered data structure and then only generate const iterator
+    // But y attribute of Point is marked as mutable, i.e. still mutable even
+    // through a const reference
     p.y = 0;
 
   // assert(invariant());
