@@ -58,7 +58,6 @@ void print_help(char *prog_path) {
 }
 
 void interpret_cmd_line_options(int argc, char **argv) {
-  const char *short_options = "hVv";
   static struct option long_options[] = {{"help", no_argument, nullptr, 'h'},
                                          {"version", no_argument, nullptr, 'V'},
                                          {"verbose", no_argument, nullptr, 'v'},
@@ -70,7 +69,7 @@ void interpret_cmd_line_options(int argc, char **argv) {
                                          {0, 0, 0, 0}};
 
   int option;
-  while ((option = getopt_long(argc, argv, short_options, long_options,
+  while ((option = getopt_long(argc, argv, "hVvl:d:s:f:o:", long_options,
                                nullptr)) != -1) {
     switch (option) {
     case 'h' :
