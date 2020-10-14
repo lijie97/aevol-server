@@ -30,9 +30,9 @@ class IOJson {
 
   const std::string &getStrainName() const;
   void setStrainName(const std::string &strainName);
-  const vector<Individual> &getIndividuals() const;
-  void setIndividuals(const vector<Individual> &individuals);
-  void addIndividual(Individual &indiv, json gu_list);
+  const vector<Individual*> getIndividuals() const;
+  void setIndividuals(const vector<Individual*> &individuals);
+  void addIndividual(Individual *indiv, json gu_list);
   uint32_t getSeed() const;
   void setSeed(uint32_t seed);
   int getInitPopSize() const;
@@ -129,7 +129,7 @@ class IOJson {
   int fuzzy_flavor_;
   double HT_ins_rate_;
   double HT_repl_rate_;
-  std::vector<Individual> individuals_;
+  std::vector<Individual *> individuals_;
   int init_method_;
   int init_pop_size_;
   double inversion_proportion_;
@@ -349,6 +349,7 @@ class IOJson {
   bool isWellMixed() const;
   void setWellMixed(bool wellMixed);
   std::string getIndividualSequence(int32_t index, int32_t gu) const;
+  void setIndividualSequence(int32_t index, int32_t gu, const char* seq);
   int32_t getNbrIndividuals() const;
  private:
   int world_heigth_;

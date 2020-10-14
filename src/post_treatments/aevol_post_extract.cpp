@@ -139,19 +139,19 @@ int main(int argc, char* argv[]) {
   {
       Individual* indiv = exp_manager->indiv_by_id(ind);
       gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
-      io_json->addIndividual(*indiv, gu_list);
+      io_json->addIndividual(indiv, gu_list);
   }
   else if(x_axis){
       Individual* indiv = exp_manager->indiv_by_position(x_pos, y_pos);
       gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
-      io_json->addIndividual(*indiv, gu_list);
+      io_json->addIndividual(indiv, gu_list);
   }
   else if (all_indiv) {
     for (const auto& indiv: exp_manager->indivs()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
 
       gu_list = analyse_indiv(indiv, triangles_file, sequence_file, json_file, gu, indiv->habitat().phenotypic_target());
-      io_json->addIndividual(*indiv, gu_list);
+      io_json->addIndividual(indiv, gu_list);
     }
   }
   else
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
     Individual* best = exp_manager->best_indiv();
     best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
     gu_list = analyse_indiv(best, triangles_file, sequence_file, json_file, gu, best->habitat().phenotypic_target()); // list of GU of the individual
-    io_json->addIndividual(*best, gu_list);
+    io_json->addIndividual(best, gu_list);
   }
 
   if (sequence_file_name != nullptr) {

@@ -318,7 +318,7 @@ IOJson::IOJson(const std::string & filename) {
     mut_param->set_inversion_rate(indiv.value("inversion_rate",inversion_rate_));
     mut_param->set_point_mutation_rate(indiv.value("point_mutation_rate",point_mutation_rate_));
     mut_param->set_max_indel_size(indiv.value("max_indel_size",max_indel_size_));
-    Individual individual(new ExpManager(), mut_prng_ptr, stoch_prng_ptr, mut_params_ptr, max_triangle_width,
+    Individual *individual = new Individual(new ExpManager(), mut_prng_ptr, stoch_prng_ptr, mut_params_ptr, max_triangle_width,
                           minimum_size, max_size, allow_plasmids, id, strain_name.c_str(), age);
     auto *expSetup = new ExpSetup(nullptr);
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(expSetup);
@@ -352,16 +352,13 @@ IOJson::IOJson(const std::string & filename) {
     Habitat* habitat = new Habitat();
     habitat->set_phenotypic_target_handler(phenotypic_target_handler);
     std::unique_ptr<Habitat> habitat_ptr = std::unique_ptr<Habitat>(habitat);
-    GridCell* grid_cell = new GridCell(x,y,std::move(habitat_ptr),&individual,mut_prng_ptr,stoch_prng_ptr);
-
-#endif
-
-    grid_cell->set_individual(&individual);
-    individual.set_grid_cell(grid_cell);
+    GridCell* grid_cell = new GridCell(x,y,std::move(habitat_ptr),individual,mut_prng_ptr,stoch_prng_ptr);
+    grid_cell->set_individual(individual);
+    individual->set_grid_cell(grid_cell);
     int16_t height = input_file_["param_in"]["world_size"][0];
     int16_t width = input_file_["param_in"]["world_size"][1];
     std::shared_ptr<JumpingMT> prng_ptr = std::make_shared<JumpingMT>(seed);
-    individual.exp_m()->InitializeWorld(width,height,prng_ptr,mut_prng_ptr,stoch_prng_ptr,*habitat,true);
+    individual->exp_m()->InitializeWorld(width,height,prng_ptr,mut_prng_ptr,stoch_prng_ptr,*habitat,true);
 
     json gu_list = indiv["GU"];
     for (auto & a_gu : gu_list) {
@@ -370,12 +367,12 @@ IOJson::IOJson(const std::string & filename) {
       //a_gu.value("seq","0").c_str();
       char *genome = new char[genome_str.length() + 1];
       strcpy(genome, genome_str.c_str());
-      individual.add_GU(genome, strlen(genome));
-      individual.genetic_unit_nonconst(0).set_min_gu_length(0);
-      individual.genetic_unit_nonconst(0).set_max_gu_length(1000000);
+      individual->add_GU(genome, strlen(genome));
+      individual->genetic_unit_nonconst(0).set_min_gu_length(0);
+      individual->genetic_unit_nonconst(0).set_max_gu_length(1000000);
     }
     addIndividual(individual,gu_list);
-
+#endif
   }
 }
 
@@ -1857,24 +1854,31 @@ void IOJson::write(const std::string &filename) const {
   std::ofstream file(filename);
   file << json_file_.dump(2) << std::endl;
 }
-void IOJson::addIndividual(Individual &indiv, json gu_list) {
+void IOJson::addIndividual(Individual *indiv, json gu_list) {
     individuals_.push_back(indiv);
     json my_indiv;
     my_indiv["GU"] = gu_list;
-    my_indiv["id"] = indiv.id();
-    my_indiv["generation"] = indiv.age();
-    if(indiv.grid_cell() != nullptr) {
-      my_indiv["x_pos"] = indiv.grid_cell_->x();
-      my_indiv["y_pos"] = indiv.grid_cell_->y();
+    my_indiv["id"] = indiv->id();
+    my_indiv["generation"] = indiv->age();
+    if(indiv->grid_cell() != nullptr) {
+      my_indiv["x_pos"] = indiv->grid_cell_->x();
+      my_indiv["y_pos"] = indiv->grid_cell_->y();
     }
     json_file_["indivs"].push_back(my_indiv);
 
 }
-const vector<Individual> & IOJson::getIndividuals() const{
+const vector<Individual*> IOJson::getIndividuals() const{
   return individuals_;
+}
+
+void IOJson::setIndividuals(const vector<Individual*> &individuals){
+  individuals_ = individuals;
 }
 std::string IOJson::getIndividualSequence(int32_t index, int32_t gu) const{
   return json_file_["indivs"][index]["GU"][gu]["seq"];
+}
+void IOJson::setIndividualSequence(int32_t index, int32_t gu, const char* seq){
+  json_file_["indivs"][index]["GU"][gu]["seq"] = seq;
 }
 int32_t IOJson::getNbrIndividuals() const {
   return json_file_["indivs"].size();

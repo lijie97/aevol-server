@@ -34,13 +34,13 @@
 namespace aevol {
 
 enum MutationEventType {
-    DO_SWITCH           = 0,
-    SMALL_INSERTION      = 1,
-    SMALL_DELETION = 2,
-    DUPLICATION               = 3,
-    TRANSLOCATION         = 4,
-    INVERSION        = 5,
-    DELETION         = 6
+    DO_SWITCH         = 0,
+    SMALL_INSERTION   = 1,
+    SMALL_DELETION    = 2,
+    DUPLICATION       = 3,
+    DELETION          = 4,
+    TRANSLOCATION     = 5,
+    INVERSION         = 6
 };
 
 class MutationEvent {
