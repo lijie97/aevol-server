@@ -349,6 +349,7 @@ class IOJson {
   bool isWellMixed() const;
   void setWellMixed(bool wellMixed);
   std::string getIndividualSequence(int32_t index, int32_t gu) const;
+  void setIndividualSequence(int32_t index, int32_t gu, const char* seq);
   int32_t getNbrIndividuals() const;
  private:
   int world_heigth_;

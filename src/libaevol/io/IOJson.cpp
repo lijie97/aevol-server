@@ -1877,6 +1877,9 @@ void IOJson::setIndividuals(const vector<Individual*> &individuals){
 std::string IOJson::getIndividualSequence(int32_t index, int32_t gu) const{
   return json_file_["indivs"][index]["GU"][gu]["seq"];
 }
+void IOJson::setIndividualSequence(int32_t index, int32_t gu, const char* seq){
+  json_file_["indivs"][index]["GU"][gu]["seq"] = seq;
+}
 int32_t IOJson::getNbrIndividuals() const {
   return json_file_["indivs"].size();
 }
