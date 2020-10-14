@@ -372,7 +372,7 @@ IOJson::IOJson(const std::string & filename) {
       individual->genetic_unit_nonconst(0).set_max_gu_length(1000000);
     }
     addIndividual(individual,gu_list);
-
+#endif
   }
 }
 
