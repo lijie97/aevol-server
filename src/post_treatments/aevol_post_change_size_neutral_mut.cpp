@@ -140,11 +140,7 @@ int main(int argc, char ** argv) {
   Individual ancestor = Individual(inputJson.getIndividuals()[0], 0, mut_prng, stoch_prng);
 
   Individual* indiv = run_to_size(wanted_size, &ancestor);
-  std::vector<Individual*> indiv_vector;
-  indiv_vector.push_back(indiv);
-
-  inputJson.setIndividuals(indiv_vector);
-
+  inputJson.setIndividualSequence(0,0,indiv->genetic_unit_sequence(0));
   inputJson.write(outputFile);
   return 0;
 }
