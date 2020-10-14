@@ -128,8 +128,6 @@ void ExpManager_7::selection(int indiv_id) {
   int16_t neighborhood_size = selection_scope_x * selection_scope_y;
 
   FitnessFunction fitness_function = exp_m_->sel()->fitness_func();
-  int32_t fitness_function_scope_x = exp_m_->sel()->fitness_function_scope_x();
-  int32_t fitness_function_scope_y = exp_m_->sel()->fitness_function_scope_y();
 
   double *  local_fit_array   = new double[neighborhood_size];
   double *  local_meta_array   = new double[neighborhood_size];
@@ -143,7 +141,9 @@ void ExpManager_7::selection(int indiv_id) {
   int cur_x,cur_y;
 
 #ifdef __REGUL
-  double ** fitness_sum_local_tab_;
+  double** fitness_sum_local_tab_;
+  int32_t fitness_function_scope_x = exp_m_->sel()->fitness_function_scope_x();
+  int32_t fitness_function_scope_y = exp_m_->sel()->fitness_function_scope_y();
 #endif
 
   if (fitness_function == FITNESS_LOCAL_SUM) {
@@ -448,7 +448,6 @@ void ExpManager_7::do_mutation(int indiv_id) {
       delete eindiv;
     }
 
-    auto size_before = current_individuals[indiv_id]->dna_->length_;
 #ifdef WITH_PERF_TRACES
     auto t_start = std::chrono::steady_clock::now();
 #endif
@@ -460,7 +459,6 @@ void ExpManager_7::do_mutation(int indiv_id) {
     auto t_end = std::chrono::steady_clock::now();
                 apply_mutation[indiv_id] = t_end.time_since_epoch().count() - t_start.time_since_epoch().count();
 #endif
-    auto size_after = current_individuals[indiv_id]->dna_->length_;
 
   } else {
 
