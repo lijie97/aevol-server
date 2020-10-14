@@ -13,10 +13,12 @@
 #include <string>
 #include <vector>
 
+#include <sys/stat.h>
+
 bool verbose = false;
 uint32_t seed_prng = 0;
 std::string inputFile = "input.json";
-std::string outputFile = "directional_neutral_mut.json";
+std::string outputFile = "none";
 unsigned int wanted_size = 0;
 int delta = 0;
 
@@ -52,7 +54,7 @@ void print_help(char *prog_path) {
   printf("  -h, --help\n\tprint this help, then exit\n");
   printf("  -V, --version\n\tprint version number, then exit\n");
   printf("  -f, --input_file_name\n\tdefault is input.json\n");
-  printf("  -o, --output_file_name\n\tdefault is directional_neutral_mut.json\n");
+  printf("  -o, --output_file_name\n");
 }
 
 void interpret_cmd_line_options(int argc, char **argv) {
@@ -127,9 +129,11 @@ int main(int argc, char ** argv) {
   std::cout << " - output file = " << outputFile << std::endl;
   IOJson inputJson(inputFile);
 
-  std::string result = "result_seed_" + std::to_string(seed_prng) + ".txt";
-  std::string mutation = "mutation_seed_" + std::to_string(seed_prng) + ".csv";
-  out::init(result.c_str(), mutation.c_str());
+  std::string folder_name = "directional_neutral_mutation_accumulation";
+  int folder = mkdir(folder_name.c_str(), 0755);
+  std::string summary = folder_name + "/" + inputFile.substr(0, inputFile.size()-5) + "_summary_seed_" + std::to_string(seed_prng) + ".csv";
+  std::string mutation = folder_name + "/" + inputFile.substr(0, inputFile.size()-5) + "_mutation_seed_" + std::to_string(seed_prng) + ".csv";
+  out::init(summary.c_str(), mutation.c_str());
 
   if (wanted_size == 0) {
     wanted_size = inputJson.getIndividuals()[0]->amount_of_dna() + delta;
@@ -140,7 +144,16 @@ int main(int argc, char ** argv) {
   Individual ancestor = Individual(inputJson.getIndividuals()[0], 0, mut_prng, stoch_prng);
 
   Individual* indiv = run_to_size(wanted_size, &ancestor);
-  inputJson.setIndividualSequence(0,0,indiv->genetic_unit_sequence(0));
+
+  std::string genetic_seq = indiv->genetic_unit_sequence(0);
+  inputJson.setIndividualSequence(0,0, genetic_seq.c_str());
+
+  if (outputFile == "none"){
+    outputFile = inputFile.substr(0, inputFile.size()-5) + "_" + std::to_string(genetic_seq.length()) + "bp_seed_" + std::to_string(seed_prng) + ".json";
+  }
+  outputFile = folder_name + "/" + outputFile;
+  std::cout << outputFile;
   inputJson.write(outputFile);
+
   return 0;
 }
