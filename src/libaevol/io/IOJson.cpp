@@ -285,7 +285,7 @@ IOJson::IOJson(const std::string & filename) {
   }
   setEnvAddGaussian(env_gaussian_tmp);
   //setMaxTriangleWidth(input_file_["param_in"]["max_triangle_width"]);
-  setMaxTriangleWidth(0.1);
+  setMaxTriangleWidth(input_file_["param_in"]["constraints"]["max_triangle_width"]);
 
   setBackupStep(input_file_["param_in"]["output"]["backup_step"]);
   setRecordTree(input_file_["param_in"]["output"].value("record_tree", false));
@@ -299,8 +299,7 @@ IOJson::IOJson(const std::string & filename) {
     bool allow_plasmids = indiv.value("allow_plasmids",allow_plasmids_);
     uint32_t id = indiv.value("id", 0);
     int minimum_size = indiv.value("min_genome_length", min_genome_length_);
-    //double max_triangle_width = indiv.value("max_triangle_width", max_triangle_width_);
-    double max_triangle_width = 0.1;
+    //double max_triangle_width = input_file_["param_in"]["constraints"]["max_triangle_width"];
     int age  = indiv.value("generation", 0);
     //int age  = indiv.value("generation", 0);
     std::string strain_name = indiv.value("strain_name", strain_name_);
@@ -318,7 +317,7 @@ IOJson::IOJson(const std::string & filename) {
     mut_param->set_inversion_rate(indiv.value("inversion_rate",inversion_rate_));
     mut_param->set_point_mutation_rate(indiv.value("point_mutation_rate",point_mutation_rate_));
     mut_param->set_max_indel_size(indiv.value("max_indel_size",max_indel_size_));
-    Individual *individual = new Individual(new ExpManager(), mut_prng_ptr, stoch_prng_ptr, mut_params_ptr, max_triangle_width,
+    Individual *individual = new Individual(new ExpManager(), mut_prng_ptr, stoch_prng_ptr, mut_params_ptr, max_triangle_width_,
                           minimum_size, max_size, allow_plasmids, id, strain_name.c_str(), age);
     auto *expSetup = new ExpSetup(nullptr);
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(expSetup);
@@ -595,9 +594,10 @@ IOJson::IOJson(ExpManager * exp_m) {
 
   setFuzzyFlavor(exp_s->get_fuzzy_flavor());
 
-  //------------------------------------------------------------------ Parameter for SIMD
+  //------------------------------------------------------------------ Constraints
   setMinGenomeLength(exp_s->min_genome_length());
   setMaxGenomeLength(exp_s->max_genome_length());
+  setMaxTriangleWidth(world->indiv_by_id(0)->w_max());
 
   //------------------------------------------------------------------ Alignements
   setDeletionProportion(param_mut->deletion_proportion());
@@ -650,7 +650,7 @@ IOJson::IOJson(ExpManager * exp_m) {
   setAllowPlasmids(exp_m->best_indiv()->allow_plasmids());
 
   setSeed(world->prng()->initial_seed());
-
+  
   json_file_["indivs"];
 
 }
@@ -1267,8 +1267,8 @@ void IOJson::setEnvAddGaussian(const list<Gaussian> &envAddGaussian) {
 
 double IOJson::getMaxTriangleWidth() const { return max_triangle_width_; }
 void IOJson::setMaxTriangleWidth(double maxTriangleWidth) {
-  max_triangle_width_                          = maxTriangleWidth;
-  json_file_["param_in"]["max_triangle_width"] = maxTriangleWidth;
+  max_triangle_width_                                         = maxTriangleWidth;
+  json_file_["param_in"]["constraints"]["max_triangle_width"] = maxTriangleWidth;
 }
 
 int IOJson::getBackupStep() const { return backup_step_; }
