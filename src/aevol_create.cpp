@@ -49,6 +49,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #include "ExpManager.h"
 #include "ParamLoader.h"
 
+#include "aevol_version.h"
 
 using namespace aevol;
 
@@ -68,6 +69,9 @@ static IOJson* my_iojson = nullptr;
 
 int main(int argc, char* argv[]) {
   interpret_cmd_line_options(argc, argv);
+
+  // Print the hash and date of the commit used to compile this executable
+  printf("Running aevol version %s\n", version_string);
 
   if(param_file_name != nullptr) {
     // Create a param loader for the parameter file
