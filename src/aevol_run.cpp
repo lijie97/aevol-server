@@ -58,6 +58,8 @@
 #include "ExpManager_7.h"
 #include "macros.h"
 
+#include "aevol_version.h"
+
 using namespace aevol;
 
 #ifndef __NO_X
@@ -101,7 +103,11 @@ int main(int argc, char* argv[]) {
     printf("aevol is being run in DEBUG mode\n");
   #endif
 
+
   interpret_cmd_line_options(argc, argv);
+
+  // Print the hash and date of the commit used to compile this executable
+  printf("Running aevol version %s\n", version_string);
 
   // =================================================================
   //                          Load the simulation

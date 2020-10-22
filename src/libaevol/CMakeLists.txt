@@ -14,6 +14,8 @@ set(aevol_sources
   aevol.h
   macros.h
 
+  aevol_version.h
+
   biochemistry/ae_string.cpp
   biochemistry/ae_string.h
   biochemistry/Alignment.cpp
@@ -202,10 +204,30 @@ if ( ${with-raevol} )
           raevol/Protein_R.h
           raevol/Protein_R.cpp
           raevol/Rna_R.h
-          raevol/Rna_R.cpp 
+          raevol/Rna_R.cpp
 	  #"SIMD_Abstract Metadata.cpp" "SIMD_Abstract Metadata.h" SIMD_Map_Metadata.cpp SIMD_Map_Metadata.h
             raevol/SIMD_PhenotypicTargetHandler_R.cpp raevol/SIMD_PhenotypicTargetHandler_R.h)
 endif ()
+
+# ============================================================================
+# Generate version file aevol_version.cpp
+# ============================================================================
+
+configure_file(aevol_version.cpp.in ${CMAKE_BINARY_DIR}/src/libaevol/aevol_version.cpp.in @ONLY)
+
+# configure further at build time (always built as run_always.txt is never actually created)
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/src/libaevol/aevol_version.cpp run_always.txt
+    COMMAND ${CMAKE_COMMAND}
+        -DAEVOL_DIR=${PROJECT_SOURCE_DIR}
+        -DAEVOL_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -DAEVOL_BINARY_DIR=${CMAKE_BINARY_DIR}
+        -P ${CMAKE_SOURCE_DIR}/CMakeScripts/aevol_version.cmake
+    COMMENT "Generating aevol_version.cpp"
+)
+
+list(APPEND aevol_sources
+    ${CMAKE_BINARY_DIR}/src/libaevol/aevol_version.cpp)
 
 add_library(aevol ${aevol_sources})
 
