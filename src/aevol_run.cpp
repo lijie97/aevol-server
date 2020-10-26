@@ -98,11 +98,6 @@ int main(int argc, char* argv[]) {
   #endif
 
   ExpManager_7::standalone_simd = true;
-  // Print warning for debug mode
-  #ifdef DEBUG
-    printf("aevol is being run in DEBUG mode\n");
-  #endif
-
 
   interpret_cmd_line_options(argc, argv);
 
