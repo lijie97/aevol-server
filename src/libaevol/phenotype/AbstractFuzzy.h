@@ -48,7 +48,7 @@ class AbstractFuzzy
   //                                 Getters
   // ==========================================================================
 
-  virtual ProteinConcentration get_geometric_area() const = 0;
+  virtual ProteinConcentration get_geometric_area(bool verbose = false) const = 0;
   virtual ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const = 0;
 
   virtual bool is_identical_to(const AbstractFuzzy& fs, ProteinConcentration tolerance) const = 0;

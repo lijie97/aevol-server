@@ -93,7 +93,7 @@ ExpManager_7::ExpManager_7(ExpManager* exp_m) {
 #ifdef __REGUL
   phenotypic_target_handler_ = new SIMD_PhenotypicTargetHandler_R(
         dynamic_cast<PhenotypicTargetHandler_R*>(exp_m->world()->phenotypic_target_handler()),
-        exp_m->exp_s());
+        exp_m->exp_s(),exp_m->check_simd());
 #else
 #ifdef PHENOTYPE_VECTOR
   target = new double[PHENOTYPE_VECTOR_SIZE];
@@ -1305,10 +1305,10 @@ void ExpManager_7::compute_protein(int indiv_id) {
                     ));
                 rna->is_coding_ = true;
 
-                 if (indiv_id==190 && AeTime::time() == 1936) {
-                   printf("Add protein %d => %d on RNA [%d => %d] (LAG) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
-                          rna->begin,rna->end,rna->e);
-                 }
+                //  if (indiv_id==190 && AeTime::time() == 1936) {
+                //    printf("Add protein %d => %d on RNA [%d => %d] (LAG) %lf\n",Utils::mod(start_prot+13,dna_length), Utils::mod(t_k,dna_length),
+                //           rna->begin,rna->end,rna->e);
+                //  }
               }
               break;
             }
@@ -1594,21 +1594,21 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
-          if (indiv_id==190 && AeTime::time() == 1936) {
-                   printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
-                   for (auto rna : lookup[prot->protein_start]->rna_list_) {
-                     printf("OLD [%d %d]\n",rna->begin,rna->end);
-                   }
-          }
+          // if (indiv_id==190 && AeTime::time() == 1936) {
+          //          printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
+          //          for (auto rna : lookup[prot->protein_start]->rna_list_) {
+          //            printf("OLD [%d %d]\n",rna->begin,rna->end);
+          //          }
+          // }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
           prot->is_init_ = false;
-          if (indiv_id==190 && AeTime::time() == 1936) {
-                   for (auto rna : prot->rna_list_) {
-                     printf("NEW [%d %d]\n",rna->begin,rna->end);
-                   }
-          }
+          // if (indiv_id==190 && AeTime::time() == 1936) {
+          //          for (auto rna : prot->rna_list_) {
+          //            printf("NEW [%d %d]\n",rna->begin,rna->end);
+          //          }
+          // }
         }
       }
     }
@@ -1631,22 +1631,22 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
         } else {
           lookup[prot->protein_start]->e += prot->e;
           lookup[prot->protein_start]->initial_e_ += prot->initial_e_;
-          if (indiv_id==190 && AeTime::time() == 1936) {
-                   printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
-                   for (auto rna : lookup[prot->protein_start]->rna_list_) {
-                     printf("OLD [%d %d]\n",rna->begin,rna->end);
-                   }
-          }
+          // if (indiv_id==190 && AeTime::time() == 1936) {
+          //          printf("Sum protein %d => %d with RNA (LEAD) : \n",prot->protein_start, prot->protein_end);
+          //          for (auto rna : lookup[prot->protein_start]->rna_list_) {
+          //            printf("OLD [%d %d]\n",rna->begin,rna->end);
+          //          }
+          // }
           lookup[prot->protein_start]->rna_list_.insert(
               lookup[prot->protein_start]->rna_list_.end(),
               prot->rna_list_.begin(),prot->rna_list_.end());
 
-           if (indiv_id==190 && AeTime::time() == 1936) {
-                   for (auto rna : prot->rna_list_) {
-                     printf("NEW [%d %d]\n",rna->begin,rna->end);
-                   }
+          //  if (indiv_id==190 && AeTime::time() == 1936) {
+          //          for (auto rna : prot->rna_list_) {
+          //            printf("NEW [%d %d]\n",rna->begin,rna->end);
+          //          }
           
-          }
+          // }
           prot->is_init_ = false;
         }
       }
@@ -1803,8 +1803,13 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
         }
 #else
 bool verbose = false;
-        if (indiv_id==543 && AeTime::time() == 5895)
-          verbose = true;
+        // if (indiv_id==68 && AeTime::time() == 4)
+        //   verbose = true;
+      //           if (indiv_id==68 && AeTime::time() == 4)
+      //  printf("Add triangle %lf %lf %lf (%lf %lf)\n",
+      //       prot->m, prot->w, prot->h *prot->e, prot->h,prot->e);
+       
+
         if (prot->h > 0)
           activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
                                                           prot->e,verbose);
@@ -1841,13 +1846,13 @@ bool verbose = false;
   current_individuals[indiv_id]->phenotype->add(activ_phenotype);
   current_individuals[indiv_id]->phenotype->add(inhib_phenotype);
 
-    if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE CLIP\n"); current_individuals[indiv_id]->phenotype->print();}
+    // if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE CLIP\n"); current_individuals[indiv_id]->phenotype->print();}
 
   current_individuals[indiv_id]->phenotype->clip(AbstractFuzzy::min, Y_MIN);
-    if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE SIMPLIFY\n"); current_individuals[indiv_id]->phenotype->print();}
+    // if (indiv_id==543 && AeTime::time() == 5895)  {printf("BEFORE SIMPLIFY\n"); current_individuals[indiv_id]->phenotype->print();}
 
   current_individuals[indiv_id]->phenotype->simplify();
-    if (indiv_id==543 && AeTime::time() == 5895)  current_individuals[indiv_id]->phenotype->print();
+    // if (indiv_id==543 && AeTime::time() == 5895)  current_individuals[indiv_id]->phenotype->print();
 
   delete activ_phenotype;
   delete inhib_phenotype;
@@ -1919,6 +1924,19 @@ void ExpManager_7::compute_fitness(int indiv_id, double selection_pressure, int 
         current_individuals[indiv_id]->metaerror_by_env_id_[env_id] = delta->get_geometric_area();
       else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER)
         current_individuals[indiv_id]->metaerror_by_env_id_[env_id] += delta->get_geometric_area();
+ 
+//  if (indiv_id==68 && AeTime::time() == 4) {
+//     printf("Delta : %lf\n",delta->get_geometric_area(true));
+//     // delta->print();
+
+//     printf("Phenotype \n");
+//     current_individuals[indiv_id]->phenotype->get_geometric_area(true);
+//       // current_individuals[indiv_id]->phenotype->print();
+
+//     printf("Target %d :: ID %d\n",env_id,phenotypic_target_handler_->list_env_id_[env_id]);
+//     phenotypic_target_handler_->targets_fuzzy_[env_id]->get_geometric_area(true);
+//       // phenotypic_target_handler_->targets_fuzzy_[env_id]->print();
+//  }
 
       delete delta;
 
@@ -1951,6 +1969,12 @@ void ExpManager_7::compute_fitness(int indiv_id, double selection_pressure, int 
 #else
   Vector_Fuzzy* delta = new Vector_Fuzzy(*current_individuals[indiv_id]->phenotype);
   delta->sub(target);
+
+//  if (indiv_id==68 && AeTime::time() == 4) {
+//   printf("Delta SIMD : \n");
+//     delta->print();
+//  }
+
 
   current_individuals[indiv_id]->metaerror = delta->get_geometric_area();
   delete delta;
@@ -2027,9 +2051,9 @@ void ExpManager_7::compute_network(int indiv_id, double selection_pressure) {
 
                 rna->nb_influences_++;
 
-                 if (indiv_id==543 && AeTime::time() == 5895)  
-                  printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
-                         rna->begin, prot->protein_start, enhance, operate);
+                //  if (indiv_id==68 && AeTime::time() == 4) 
+                //   printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
+                //          rna->begin, prot->protein_start, enhance, operate);
               }
             }
           }
@@ -2087,14 +2111,14 @@ void ExpManager_7::update_network(int indiv_id, double selection_pressure) {
         for (auto rna: prot->rna_list_) {
           double synthesis_rate = rna->compute_synthesis_rate(current_individuals[indiv_id]);
 
-          if (indiv_id==543 && AeTime::time() == 5895)  printf("SIMD -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",prot->protein_start,
-                            rna->begin,
-                            synthesis_rate,prot->delta_concentration_);
+          // if (indiv_id==68 && AeTime::time() == 4)  printf("SIMD -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",prot->protein_start,
+          //                   rna->begin,
+          //                   synthesis_rate,prot->delta_concentration_);
           prot->delta_concentration_ += synthesis_rate;
 
-          if (indiv_id==543 && AeTime::time() == 5895)  {
-            printf("DELTA AFTER %lf : %lf\n",prot->delta_concentration_,synthesis_rate);
-          }
+          // if (indiv_id==68 && AeTime::time() == 4)  {
+          //   printf("DELTA AFTER %lf : %lf\n",prot->delta_concentration_,synthesis_rate);
+          // }
         }
 
         prot->delta_concentration_ -=
@@ -2144,6 +2168,7 @@ void ExpManager_7::evaluate_network(int indiv_id, double selection_pressure, int
   //     }
   // }
 
+  // printf("Compute fitness %d : ID %d\n",env_id,phenotypic_target_handler_->list_env_id_[env_id]);
   compute_fitness(indiv_id,selection_pressure,env_id);
 
   if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
@@ -2244,17 +2269,19 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       }
 
 
-  if (indiv_id==543 && AeTime::time() == 5895) 
+  if (indiv_id==68 && AeTime::time() == 4) 
    ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print(i+1);
 
       // If we have to evaluate the individual at this age
       if (eval->find(i+1) != eval->end() || (indiv_id==543 && AeTime::time() == 5895)) {// ||( (indiv_id == 70) && (AeTime::time()>=1570))) {
-        evaluate_network(indiv_id,selection_pressure, phenotypic_target_handler_->list_env_id_[i]);
-          if (indiv_id==543 && AeTime::time() == 5895) 
+        evaluate_network(indiv_id,selection_pressure, i);
+          if (indiv_id==68 && AeTime::time() == 4) {
             printf("%d -- Evaluate Network at %d :: %lf %lf -- %lf\n",indiv_id,i+1,
                          current_individuals[indiv_id]->metaerror,
                current_individuals[indiv_id]->metaerror_by_env_id_[0],
                          phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
+            //current_individuals[indiv_id]->phenotype->print();
+          }
       }
     }
 
@@ -2276,6 +2303,12 @@ void ExpManager_7::run_a_step(double w_max, double selection_pressure,bool optim
     cumulate_size = 0;
     cumulate_diff = 0;
 
+//     printf("%d -- B -- ENV AT START-----------------------------------------------------------------------\n", AeTime::time());
+//     fflush(stdout);
+//       phenotypic_target_handler_->targets_fuzzy_by_id_[1]->get_geometric_area(true);
+//       fflush(stdout);
+// printf("E -- ENV AT START-----------------------------------------------------------------------\n");
+// fflush(stdout);
 
     if (exp_m_->sel()->fitness_func() == FITNESS_GLOBAL_SUM) {
 #ifdef __REGUL
@@ -2914,8 +2947,8 @@ void ExpManager_7::check_result() {
 
 
         printf(
-            "X-X-ERROR -- %ld -- Individual %d  -- %d %d --(P %d / %d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
-            AeTime::time(), i, x,y,exp_m_->world()->grid(x, y)->individual()->parent_id_,
+            "X-X-ERROR -- %ld -- Individual %d (%d) -- %d %d --(P %d / %d): Metaerror (CPU/GPU) : %e/%e || Fitness (CPU/GPU) : %e/%e \n",
+            AeTime::time(), i, exp_m_->world()->grid(x, y)->individual()->id(), x,y,exp_m_->world()->grid(x, y)->individual()->parent_id_,
                previous_individuals[i]->parent_id,
             exp_m_->world()->grid(x, y)->individual()->dist_to_target_by_feature(
                 METABOLISM),

@@ -233,13 +233,13 @@ void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, 
           //printf("Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
   for (list<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
       p->y += (p->x - x0) / (x1 - x0) * height;
-      if (verbose) printf("%f -> %f\n",p->x,p->y);
+      if (verbose) printf("CPU == %f -> %f\n",p->x,p->y);
   }
 
   // Update points with abscissas in (x0;x1)
   for (list<Point>::iterator p = std::next(p1) ; p != std::next(p2) ; ++p) {
       p->y += height * (x2 - p->x) / (x2 - x1);
-      if (verbose) printf("%f -> %f\n",p->x,p->y);
+      if (verbose) printf("CPU == %f -> %f\n",p->x,p->y);
   }
 
   // assert(invariant());
@@ -290,26 +290,27 @@ void Fuzzy::sub(const AbstractFuzzy& f) {
 ///
 /// The area of a crossed trapezoid can be computed just the same as a
 /// normal one if the bases are counted algebrically (±).
-ProteinConcentration trapezoid_area(const Point& p1, const Point& p2) {
-//    printf("TA [ %lf %lf ] [ %lf %lf ] = %lf\n",p1.x,p2.x,p1.y,p2.y,fabs((p1.y + p2.y) / 2.0 *
-//                                                                    (p2.x - p1.x)));
+ProteinConcentration trapezoid_area(const Point& p1, const Point& p2, bool verbose) {
+  // if (verbose)
+  //  printf("TA [ %e %e ] [ %e %e ] = %lf\n",p1.x,p2.x,p1.y,p2.y,fabs((p1.y + p2.y) / 2.0 *
+  //                                                                  (p2.x - p1.x)));
   return fabs((p1.y + p2.y) / 2.0 *
               (p2.x - p1.x));
 }
 
-ProteinConcentration Fuzzy::get_geometric_area() const {
-  return get_geometric_area(points_.begin(), points_.end());
+ProteinConcentration Fuzzy::get_geometric_area(bool verbose) const {
+  return get_geometric_area(points_.begin(), points_.end(), verbose);
 }
 
 /// Get integral of the absolute of probability function.
 ///
 ProteinConcentration Fuzzy::get_geometric_area(list<Point>::const_iterator begin,
-                             list<Point>::const_iterator end) const {
+                             list<Point>::const_iterator end, bool verbose) const {
   // Precondition would be along the lines of:
   // assert(points_.begin() <= begin < end < points_.end());
   ProteinConcentration area = 0;
   for (list<Point>::const_iterator p = begin ; next(p) != end ; ++p)
-    area += trapezoid_area(*p, *next(p));
+    area += trapezoid_area(*p, *next(p), verbose);
   return area;
 }
 

@@ -63,11 +63,6 @@ namespace aevol {
         ~List_Metadata() override {
            promoters_list_.clear();
 
-           for (std::list<Rna_7*>::iterator it_rna = rnas_.begin(); it_rna != rnas_.end(); it_rna++) {
-               delete (*(it_rna));
-           }
-
-
             for (std::list<Protein_7*>::iterator it_protein = proteins_.begin(); it_protein != proteins_.end(); it_protein++) {
                 delete (*(it_protein));
             }
@@ -77,6 +72,13 @@ namespace aevol {
             delete (*(it_protein));
           }
 #endif
+
+           for (std::list<Rna_7*>::iterator it_rna = rnas_.begin(); it_rna != rnas_.end(); it_rna++) {
+               delete (*(it_rna));
+           }
+
+
+
         };
 
 #ifdef __REGUL

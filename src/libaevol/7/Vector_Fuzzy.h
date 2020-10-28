@@ -120,9 +120,9 @@ class Vector_Fuzzy : public AbstractFuzzy
   // ==========================================================================
   const std::set<Point>& points() const {return points_;}
 
-  ProteinConcentration get_geometric_area() const;
+  ProteinConcentration get_geometric_area(bool verbose = false) const;
   ProteinConcentration get_geometric_area(std::set<Point>::const_iterator begin,
-                            std::set<Point>::const_iterator end) const;
+                            std::set<Point>::const_iterator end, bool verbose = false) const;
   ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const;
   ProteinConcentration y(ProteinConcentration x, std::set<Point>::const_iterator begin) const;
   ProteinConcentration y(ProteinConcentration x) const;

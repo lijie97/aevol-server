@@ -19,7 +19,7 @@ class Protein_7;
 
 class SIMD_PhenotypicTargetHandler_R {
  public:
-  SIMD_PhenotypicTargetHandler_R(PhenotypicTargetHandler_R* handler, ExpSetup* exp_s);
+  SIMD_PhenotypicTargetHandler_R(PhenotypicTargetHandler_R* handler, ExpSetup* exp_s, bool check_simd = false);
 
   void ApplyVariation();
 
@@ -39,6 +39,8 @@ class SIMD_PhenotypicTargetHandler_R {
  protected:
   std::vector<std::list<Gaussian>> env_gaussians_list_;
 
+  PhenotypicTargetHandler_R* handler_;
+
 
   double env_switch_probability_;
   int16_t sampling_;
@@ -47,6 +49,8 @@ class SIMD_PhenotypicTargetHandler_R {
   std::shared_ptr<JumpingMT> var_prng_;
 
   bool hasChanged_ = false;
+
+  bool check_simd_ = false;
 };
 
 }
