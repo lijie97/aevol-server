@@ -52,7 +52,7 @@ class HybridFuzzy : public AbstractFuzzy
   // ==========================================================================
   ProteinConcentration* points() const { return _points; };
 
-  ProteinConcentration get_geometric_area() const;
+  ProteinConcentration get_geometric_area(bool verbose = false) const;
 
   ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const;
 

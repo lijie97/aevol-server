@@ -133,7 +133,7 @@ void Rna_R::set_influences( std::list<Protein*>& protein_list, int id )
 //      if (id==389) printf("Add Affinity for RNA %d with Protein %d : E %lf O %lf\n",
 //             first_transcribed_pos(),i,enhance,operate);
 
-       if (id==543 && AeTime::time() == 5895) 
+       if (id==68 && AeTime::time() == 4) 
         printf("CPU -- Affinity between RNA %d and Protein %d : %lf %lf\n",
                first_transcribed_pos(),prot->shine_dal_pos(),enhance,operate);
 

@@ -156,7 +156,7 @@ void HybridFuzzy::sub( const AbstractFuzzy& f, bool verbose)
 #endif
 }
 
-ProteinConcentration HybridFuzzy::get_geometric_area( ) const
+ProteinConcentration HybridFuzzy::get_geometric_area(bool verbose) const
 {
   return get_geometric_area(X_MIN,X_MAX);
 }

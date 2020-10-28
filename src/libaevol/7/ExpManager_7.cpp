@@ -93,7 +93,7 @@ ExpManager_7::ExpManager_7(ExpManager* exp_m) {
 #ifdef __REGUL
   phenotypic_target_handler_ = new SIMD_PhenotypicTargetHandler_R(
         dynamic_cast<PhenotypicTargetHandler_R*>(exp_m->world()->phenotypic_target_handler()),
-        exp_m->exp_s());
+        exp_m->exp_s(),exp_m->check_simd());
 #else
 #ifdef PHENOTYPE_VECTOR
   target = new double[PHENOTYPE_VECTOR_SIZE];
@@ -1580,14 +1580,6 @@ void ExpManager_7::translate_protein(int indiv_id, double w_max) {
               prot->rna_list_.begin(),prot->rna_list_.end());
           prot->is_init_ = false;
         }
-      }
-    }
-  }
-
-  lookup.clear();
-
-  current_individuals[indiv_id]->metadata_->protein_begin();
-
   for (int protein_idx = 0; protein_idx <
                             (int)current_individuals[indiv_id]->metadata_->proteins_count(); protein_idx++) {
     {
@@ -1877,6 +1869,19 @@ void ExpManager_7::compute_fitness(int indiv_id, double selection_pressure, int 
         current_individuals[indiv_id]->metaerror_by_env_id_[env_id] = delta->get_geometric_area();
       else if (phenotypic_target_handler_->var_method_ == ONE_AFTER_ANOTHER)
         current_individuals[indiv_id]->metaerror_by_env_id_[env_id] += delta->get_geometric_area();
+ 
+//  if (indiv_id==68 && AeTime::time() == 4) {
+//     printf("Delta : %lf\n",delta->get_geometric_area(true));
+//     // delta->print();
+
+//     printf("Phenotype \n");
+//     current_individuals[indiv_id]->phenotype->get_geometric_area(true);
+//       // current_individuals[indiv_id]->phenotype->print();
+
+//     printf("Target %d :: ID %d\n",env_id,phenotypic_target_handler_->list_env_id_[env_id]);
+//     phenotypic_target_handler_->targets_fuzzy_[env_id]->get_geometric_area(true);
+//       // phenotypic_target_handler_->targets_fuzzy_[env_id]->print();
+//  }
 
       delete delta;
 
@@ -1920,6 +1925,12 @@ void ExpManager_7::compute_fitness(int indiv_id, double selection_pressure, int 
   //   printf("SIMD -- Delta %lf\n",delta->get_geometric_area());
   //   // delta->print();
   // }
+
+//  if (indiv_id==68 && AeTime::time() == 4) {
+//   printf("Delta SIMD : \n");
+//     delta->print();
+//  }
+
 
   current_individuals[indiv_id]->metaerror = delta->get_geometric_area();
   delete delta;
@@ -1996,9 +2007,9 @@ void ExpManager_7::compute_network(int indiv_id, double selection_pressure) {
 
                 rna->nb_influences_++;
 
-                 if (indiv_id==543 && AeTime::time() == 5895)  
-                  printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
-                         rna->begin, prot->protein_start, enhance, operate);
+                //  if (indiv_id==68 && AeTime::time() == 4) 
+                //   printf("SIMD -- Affinity between RNA %d and Protein %d : %lf %lf\n",
+                //          rna->begin, prot->protein_start, enhance, operate);
               }
             }
           }
@@ -2084,14 +2095,14 @@ if (AeTime::time() == 85303)
             printf("Compute RNA synthesis %d (%p) : \n",rna->begin,rna);
           double synthesis_rate = rna->compute_synthesis_rate(current_individuals[indiv_id]);
 
-          if (indiv_id==543 && AeTime::time() == 5895)  printf("SIMD -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",prot->protein_start,
-                            rna->begin,
-                            synthesis_rate,prot->delta_concentration_);
+          // if (indiv_id==68 && AeTime::time() == 4)  printf("SIMD -- Protein %d synthesis by RNA %d at rate %lf : DELTA BEFORE %f :: ",prot->protein_start,
+          //                   rna->begin,
+          //                   synthesis_rate,prot->delta_concentration_);
           prot->delta_concentration_ += synthesis_rate;
 
-          if (indiv_id==543 && AeTime::time() == 5895)  {
-            printf("DELTA AFTER %lf : %lf\n",prot->delta_concentration_,synthesis_rate);
-          }
+          // if (indiv_id==68 && AeTime::time() == 4)  {
+          //   printf("DELTA AFTER %lf : %lf\n",prot->delta_concentration_,synthesis_rate);
+          // }
         }
 
         prot->delta_concentration_ -=
@@ -2141,6 +2152,7 @@ void ExpManager_7::evaluate_network(int indiv_id, double selection_pressure, int
   //     }
   // }
 
+  // printf("Compute fitness %d : ID %d\n",env_id,phenotypic_target_handler_->list_env_id_[env_id]);
   compute_fitness(indiv_id,selection_pressure,env_id);
 
   if (phenotypic_target_handler_->var_method_ == SWITCH_IN_A_LIST)
@@ -2241,7 +2253,7 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
       }
 
 
-  if (indiv_id==543 && AeTime::time() == 5895) 
+  if (indiv_id==68 && AeTime::time() == 4) 
    ((List_Metadata*)current_individuals[indiv_id]->metadata_)->proteins_print(i+1);
 
       // If we have to evaluate the individual at this age
@@ -2252,6 +2264,8 @@ void ExpManager_7::solve_network(int indiv_id, double selection_pressure) {
                          current_individuals[indiv_id]->metaerror,
                current_individuals[indiv_id]->metaerror_by_env_id_[0],
                          phenotypic_target_handler_->targets_fuzzy_by_id_[0]->get_geometric_area());
+            //current_individuals[indiv_id]->phenotype->print();
+          }
       }
     }
 

@@ -8,7 +8,7 @@
 
 namespace aevol {
 
-SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetHandler_R *handler, ExpSetup* exp_s) {
+SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetHandler_R *handler, ExpSetup* exp_s, bool check_simd) {
 
   var_method_ = handler->var_method();
 
@@ -48,7 +48,8 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
   env_switch_probability_ = handler->env_switch_probability_;
   nb_indiv_age_ = handler->_nb_indiv_age;
 
-  var_prng_ = handler->var_prng_;
+  if (!check_simd)
+    var_prng_ = std::make_shared<JumpingMT>(*(handler->var_prng_));
 
   sampling_ = handler->sampling();
 
@@ -65,7 +66,10 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
         for (const Gaussian& g: env_gaussians_list_.at(env_id)) {
           gi++;
           new_point.y += g.compute_y(new_point.x);
+          // printf("SIMD -- %d -- Compute point %e %e\n",env_id,new_point.x,new_point.y);
         }
+        // printf("SIMD -- %d -- Add point %e %e\n",env_id,new_point.x,new_point.y);
+
         targets_fuzzy_by_id_[env_id]->add_point(new_point.x, new_point.y);
       }
     }
@@ -90,19 +94,23 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
       for (int age = 0; age < nb_indiv_age_; age++) {
         targets_fuzzy_[age] = targets_fuzzy_by_id_[handler->phenotypic_targets_[age]->get_id()];
         list_env_id_[age] = handler->phenotypic_targets_[age]->get_id();
-        printf("Init Env at age %d is %d\n",age,handler->phenotypic_targets_[age]->get_id());
+        // printf("Init Env at age %d is %d\n",age,handler->phenotypic_targets_[age]->get_id());
+         
       }
+      targets_fuzzy_by_id_[1]->get_geometric_area(true);
     }
 
     nb_eval_ = exp_s->get_list_eval_step()->size();
   }
 
+  handler_ = handler;
+  check_simd_ = check_simd;
 
 }
 
 void SIMD_PhenotypicTargetHandler_R::ApplyVariation() {
 
-printf("ApplyVar\n");
+// printf("ApplyVar\n");
   switch (var_method_) {
   case NO_VAR :
     return;
@@ -120,24 +128,35 @@ printf("ApplyVar\n");
 
     hasChanged_ = false;
 
-    for (int16_t i = 0; i < nb_indiv_age_ ; i++) {
-        // if we have to change of environment :
-        double env_chang = var_prng_->random();
+    if (check_simd_) {
+      for (int age = 0; age < nb_indiv_age_; age++) {
+        targets_fuzzy_[age] = targets_fuzzy_by_id_[handler_->phenotypic_targets_[age]->get_id()];
+        list_env_id_[age] = handler_->phenotypic_targets_[age]->get_id();
+        // printf("SIMD -- Copy Env at age %d is %d : %lf VS CPU %lf\n",age,handler_->phenotypic_targets_[age]->get_id(),
+        //   targets_fuzzy_by_id_[ list_env_id_[age]]->get_geometric_area(), handler_->phenotypic_targets_[age]->fuzzy()->get_geometric_area());
+      }
+            // targets_fuzzy_by_id_[1]->get_geometric_area(true);
 
-        if (env_chang < env_switch_probability_) {
-          //we have to change to a new env that have an id different from the old one
-          while (id_new_env == id_old_env) {
-            id_new_env = var_prng_->random(nb_env_);
+    } else {
+      for (int16_t i = 0; i < nb_indiv_age_ ; i++) {
+          // if we have to change of environment :
+          double env_chang = var_prng_->random();
+
+          if (env_chang < env_switch_probability_) {
+            //we have to change to a new env that have an id different from the old one
+            while (id_new_env == id_old_env) {
+              id_new_env = var_prng_->random(nb_env_);
+            }
+            //The environment has changed
+            id_old_env = id_new_env;
           }
-          //The environment has changed
-          id_old_env = id_new_env;
-        }
 
-        list_env_id_[i] = id_new_env;
-        targets_fuzzy_[i] = targets_fuzzy_by_id_[id_new_env];
-        printf("ENV at Age %d is %d\n",i,id_new_env);
-        if (list_env_id_[i] != list_of_old_target_id[i])
-          hasChanged_ = true;
+          list_env_id_[i] = id_new_env;
+          targets_fuzzy_[i] = targets_fuzzy_by_id_[id_new_env];
+          // printf("SIMD -- ENV at Age %d is %d\n",i,id_new_env);
+          if (list_env_id_[i] != list_of_old_target_id[i])
+            hasChanged_ = true;
+      }
     }
     break; }
   case ONE_AFTER_ANOTHER:

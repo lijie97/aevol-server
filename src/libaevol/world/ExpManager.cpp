@@ -512,19 +512,23 @@ void ExpManager::load(gzFile& exp_s_file,
         dna_mutator_array_[i] = nullptr;
     }
 
-  if (ExpManager_7::standalone_simd) {
-      if (to_be_run) {
-        exp_m_7_                     = new ExpManager_7(this);
-        exp_m_7_->protein_grain_size = grain_size;
-        exp_m_7_->rna_grain_size     = grain_size;
-      }
-    }
+
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
   output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
 
+    if (ExpManager_7::standalone_simd) {
+      if (to_be_run) {
+        exp_m_7_                     = new ExpManager_7(this);
+        exp_m_7_->protein_grain_size = grain_size;
+        exp_m_7_->rna_grain_size     = grain_size;
+        exp_m_7_->set_stats(output_m_->stats());
+      }
+  }
+
+    
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (ExpManager_7::standalone_simd) {

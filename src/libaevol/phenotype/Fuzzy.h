@@ -110,9 +110,9 @@ class Fuzzy : public AbstractFuzzy
   // ==========================================================================
   const std::list<Point>& points() const {return points_;}
 
-  ProteinConcentration get_geometric_area() const;
+  ProteinConcentration get_geometric_area(bool verbose = false) const;
   ProteinConcentration get_geometric_area(std::list<Point>::const_iterator begin,
-                            std::list<Point>::const_iterator end) const;
+                            std::list<Point>::const_iterator end, bool verbose = false) const;
   ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const;
   ProteinConcentration y(ProteinConcentration x, std::list<Point>::const_iterator begin, bool verbose = false) const;
   ProteinConcentration y(ProteinConcentration x, bool verbose = false) const;
@@ -153,6 +153,6 @@ class Fuzzy : public AbstractFuzzy
           std::list<Point>::iterator start, bool verbose = false);
 };
 
-ProteinConcentration trapezoid_area(const Point& p1, const Point& p2);
+ProteinConcentration trapezoid_area(const Point& p1, const Point& p2, bool verbose = false);
 } // namespace aevol
 #endif // AEVOL_FUZZY_H_

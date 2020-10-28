@@ -1066,6 +1066,9 @@ void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
        [](Protein *a, Protein *b) { return *a < *b;});
   for(auto prot : protein_vector) {
     if (prot->is_functional()) {
+      bool verbose = false;
+      if (indiv()->id()==68 && AeTime::time()==4)
+        verbose = true;
 
         ((prot->height() > 0) ? activ_contribution_ : inhib_contribution_)
               ->add_triangle(prot->mean(), prot->width(),
@@ -1122,6 +1125,9 @@ void GeneticUnit::compute_distance_to_target(const PhenotypicTarget& target) {
   for (int8_t i = 0; i < target.nb_segments(); i++) {
     dist_to_target_per_segment_[i] = delta->get_geometric_area(
       segments[i]->start, segments[i]->stop);
+    
+
+    
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_per_segment_[i];
   }
 

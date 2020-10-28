@@ -207,9 +207,11 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
             }
             //The environment has changed
             id_old_env = id_new_env;
+
           }
         }
         addEnv(i,id_new_env);
+                // printf("CPU -- ENV at Age %d is %d : %lf\n",i,id_new_env,phenotypic_targets_[i]->fuzzy()->get_geometric_area());
       //  printf("Computing first env %d : %d\n",i,id_new_env);
       }
 
@@ -420,7 +422,7 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
 
   for (int16_t i = 0 ; i < nb_env ; i++) {
     gzread(backup_file, &id, sizeof(id));
-    //printf("Restore %d : %d\n",i,id);
+    // printf("Restore %d : %d\n",i,id);
     addEnv(i,id);
   }
 }
@@ -471,7 +473,10 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int16_t id) {
       for (const Gaussian& g: env_gaussians_list_.at(id)) {
         gi++;
         new_point.y += g.compute_y(new_point.x);
+        // printf("CPU -- %d -- Compute point %e %e\n",id,new_point.x,new_point.y);
       }
+
+        // printf("CPU -- %d -- Add point %e %e\n",id,new_point.x,new_point.y);
       phenotypic_target->fuzzy()->add_point(new_point.x, new_point.y);
     }
   }
@@ -544,6 +549,7 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargets(int16_t nb_indiv_age) {
 void PhenotypicTargetHandler_R::addEnv( int time, int16_t env_id ) {
   assert(env_id >= 0 && env_id <= (int) phenotypic_target_models_.size());
   phenotypic_targets_[time] = phenotypic_target_models_.at(env_id);
+  // printf("Add env CPU %d at %d\n",env_id,time);
 }
 
 void PhenotypicTargetHandler_R::changeEnv( int16_t ind, int16_t env_id ) {

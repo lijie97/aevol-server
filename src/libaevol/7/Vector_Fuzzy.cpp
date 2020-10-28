@@ -328,15 +328,14 @@ void Vector_Fuzzy::sub(const AbstractFuzzy& f, bool verbose) {
         // assert(invariant());
     }
 
-ProteinConcentration Vector_Fuzzy::get_geometric_area() const {
-  // print();
-  return get_geometric_area(points_.begin(), points_.end());
+ProteinConcentration Vector_Fuzzy::get_geometric_area(bool verbose) const {
+  return get_geometric_area(points_.begin(), points_.end(),verbose);
 }
 
 /// Get integral of the absolute of probability function.
 ///
 ProteinConcentration Vector_Fuzzy::get_geometric_area(set<Point>::const_iterator begin,
-                             set<Point>::const_iterator end) const {
+                             set<Point>::const_iterator end, bool verbose) const {
   // Precondition would be along the lines of:
   // assert(points_.begin() <= begin < end < points_.end());
     // printf("Geom Area (SIZE %u): [begin %lf] [end %lf] :: \n",
@@ -344,7 +343,7 @@ ProteinConcentration Vector_Fuzzy::get_geometric_area(set<Point>::const_iterator
 
   ProteinConcentration area = 0;
   for (set<Point>::const_iterator p = begin ; next(p) != end ; ++p)
-    area += trapezoid_area(*p, *next(p));
+    area += trapezoid_area(*p, *next(p), verbose);
   return area;
 }
 
