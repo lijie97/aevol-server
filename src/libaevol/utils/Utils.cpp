@@ -33,7 +33,7 @@
 #include "Utils.h"
 
 #include "JumpingMT.h"
-
+#include "aevol_version.h"
 
 using std::string;
 using std::cout;
@@ -104,9 +104,8 @@ void Utils::ExitWithUsrMsg(const string& msg) {
 /**
  * Print aevol version number
  */
-void Utils::PrintAevolVersion()
-{
-  printf("aevol %s\n", VERSION);
+void Utils::PrintAevolVersion() {
+  printf("aevol %s\n", aevol::version_string);
 }
 
 // ============================================================================
