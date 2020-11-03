@@ -98,12 +98,12 @@ class Fuzzy : public AbstractFuzzy
   void simplify();
   void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose = false);
   void add(const AbstractFuzzy& f);
-  void sub(const AbstractFuzzy& f);
+  void sub(const AbstractFuzzy& f, bool verbose = false);
   void add_point(ProteinConcentration x, ProteinConcentration y);
 
   void clip(clipping_direction direction, ProteinConcentration bound);
   // TODO: should be made protected
-  std::list<Point>::iterator create_interpolated_point(ProteinConcentration x);
+  std::list<Point>::iterator create_interpolated_point(ProteinConcentration x, bool verbose = false);
 
   // ==========================================================================
   //                                 Getters
@@ -114,8 +114,8 @@ class Fuzzy : public AbstractFuzzy
   ProteinConcentration get_geometric_area(std::list<Point>::const_iterator begin,
                             std::list<Point>::const_iterator end) const;
   ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const;
-  ProteinConcentration y(ProteinConcentration x, std::list<Point>::const_iterator begin) const;
-  ProteinConcentration y(ProteinConcentration x) const;
+  ProteinConcentration y(ProteinConcentration x, std::list<Point>::const_iterator begin, bool verbose = false) const;
+  ProteinConcentration y(ProteinConcentration x, bool verbose = false) const;
   // get_x should be moved out of fuzzy class as it really applies to pair of points
   ProteinConcentration x(const Point& left, const Point& right, ProteinConcentration y) const;
   bool is_identical_to(const AbstractFuzzy& fs, ProteinConcentration tolerance) const;
@@ -150,7 +150,7 @@ class Fuzzy : public AbstractFuzzy
 
   std::list<Point>::iterator create_interpolated_point(
           ProteinConcentration x,
-          std::list<Point>::iterator start);
+          std::list<Point>::iterator start, bool verbose = false);
 };
 
 ProteinConcentration trapezoid_area(const Point& p1, const Point& p2);

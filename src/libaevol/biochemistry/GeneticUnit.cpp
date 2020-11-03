@@ -1056,6 +1056,12 @@ void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
     }
   }
 
+        bool verbose = false;
+        // if (AeTime::time() ==447 &&  indiv_->grid_cell()->x() * indiv_->exp_m()->grid_height() + indiv_->grid_cell()->y()==966) {
+        //   verbose = true;
+        // }
+
+
   sort(protein_vector.begin(), protein_vector.end(),
        [](Protein *a, Protein *b) { return *a < *b;});
   for(auto prot : protein_vector) {
@@ -1063,9 +1069,14 @@ void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
 
         ((prot->height() > 0) ? activ_contribution_ : inhib_contribution_)
               ->add_triangle(prot->mean(), prot->width(),
-                             prot->height() * prot->concentration());
+                             prot->height() * prot->concentration(),verbose);
     }
   }
+
+  //   if (AeTime::time()==3 && indiv_id == 781) {
+  //   activ_contribution_->print();
+  //   inhib_contribution_->print();
+  // }
 
   // It is not necessary to add a lower bound to activ_contribution_ as there can be no negative y
   // The same goes for the upper bound for inhib_contribution_

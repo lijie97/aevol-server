@@ -131,7 +131,8 @@ set(aevol_sources
         7/Protein_7.h
         7/Promoter.cpp
         7/Promoter.h
-
+	7/List_Fuzzy.cpp
+	7/List_Fuzzy.h
 
         rng/JumpingMT.cpp
   rng/JumpingMT.h

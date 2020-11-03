@@ -1344,8 +1344,17 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
 
   // Compute the difference between the (whole) phenotype and the target
   AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy(*phenotype_);
-  delta->sub(*(target.fuzzy()));
-
+  bool verbose = false;
+  // if ((id_ == 966) && AeTime::time()==447) {
+  //     printf("Target %lf :: I %lf\n",target.fuzzy()->get_geometric_area(),delta->get_geometric_area());
+  //     verbose = true;
+  // }
+  
+  delta->sub(*(target.fuzzy()),verbose);
+  // if (id_ == 966 && AeTime::time()==447) {
+  //     printf("Delta %lf\n",delta->get_geometric_area());
+  //     // delta->print();
+  // }
   PhenotypicSegment ** segments = target.segments();
   delete [] dist_to_target_by_segment_;
   dist_to_target_by_segment_ = new double [target.nb_segments()];

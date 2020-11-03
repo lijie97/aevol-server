@@ -37,7 +37,7 @@ class AbstractFuzzy
   virtual void simplify() = 0;
   virtual void add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose = false)  = 0;
   virtual void add(const AbstractFuzzy& f)  = 0;
-  virtual void sub(const AbstractFuzzy& f) = 0;
+  virtual void sub(const AbstractFuzzy& f, bool verbose = false) = 0;
   virtual void add_point(ProteinConcentration x, ProteinConcentration y) = 0;
 
   /// `clipping_direction` is only used for `clip` function's keyword.

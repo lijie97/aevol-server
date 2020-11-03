@@ -59,7 +59,7 @@ namespace aevol {
 ///
 /// TODO: use it! (vld, 2014-12-19)
 ///
-ProteinConcentration Fuzzy::y(ProteinConcentration x, list<Point>::const_iterator begin) const {
+ProteinConcentration Fuzzy::y(ProteinConcentration x, list<Point>::const_iterator begin, bool verbose) const {
   assert(x >= X_MIN and x <= X_MAX);
   assert(points_.size() >= 2);
 
@@ -73,14 +73,15 @@ ProteinConcentration Fuzzy::y(ProteinConcentration x, list<Point>::const_iterato
     return p2->y;
   else { // Otherwise interpolate
     list<Point>::const_iterator p1 = prev(p2);
+    // if (verbose) printf("Compute Y for %lf : P1 [%lf] Begin [%lf]\n",x,p1->x,p2->x);
     return p1->y +
       (x - p1->x) * ((p2->y - p1->y) /
                          (p2->x - p1->x));
   }
 }
 
-ProteinConcentration Fuzzy::y(ProteinConcentration x) const {
-  return y(x, points_.begin());
+ProteinConcentration Fuzzy::y(ProteinConcentration x, bool verbose) const {
+  return y(x, points_.begin(), verbose);
 }
 
 /// Get abscissa of point interpolated between `p1` and `p2`, at
@@ -187,6 +188,8 @@ void Fuzzy::simplify() {
 void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose) {
   // assert(invariant());
 
+  // if (verbose) printf("Start ADD_TRIANGLE %f %f %f\n",mean,width,height);
+  // if (verbose) print();
   assert(width > 0.0);
   assert(X_MIN <= mean and mean <= X_MAX);
   assert(W_MIN <= width); // the maximum width depends on each individual
@@ -208,23 +211,34 @@ void Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, 
 
   // TODO: bugfix? if points on borders X_MIN,MAX, should not the ordinate be appropriately set?
   // TODO: create_interpolated_point should return an ITERATOR to point list
-  if (x0 >= X_MIN)  p0 = create_interpolated_point(x0);
-  p1 = create_interpolated_point(mean, p0);
-  if (x2 <= X_MAX)  p2 = create_interpolated_point(x2, p1);
+  //  if (verbose) printf("CPU -- [ADD_TRIANGLE] Add Point mean %lf\n",mean);
 
+  // if (verbose) printf("CPU -- [ADD_TRIANGLE] Add Point end %lf\n",x2);
+
+  if (x0 >= X_MIN)  p0 = create_interpolated_point(x0,verbose);
+// if (verbose) {printf("After p0\n"); print();}
+  p1 = create_interpolated_point(mean, p0,verbose);
+  // if (verbose) {printf("After p1\n"); print();}
+  if (x2 <= X_MAX)  p2 = create_interpolated_point(x2, p1,verbose);
+// if (verbose) print();
   // Update points with abscissas in (x0;x1)
-          //printf("Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
+          // if (verbose) printf("Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
+            // if (verbose) printf("CPU -- Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
+
   for (list<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
+    // double old_y = p->y;
       p->y += (p->x - x0) / (x1 - x0) * height;
-      if (verbose) printf("%f -> %f\n",p->x,p->y);
+      // if (verbose) printf("CPU -- [%f] : %f -> %f\n",p->x,old_y, p->y);
   }
 
   // Update points with abscissas in (x0;x1)
   for (list<Point>::iterator p = std::next(p1) ; p != std::next(p2) ; ++p) {
+    double old_y = p->y;
       p->y += height * (x2 - p->x) / (x2 - x1);
-      if (verbose) printf("%f -> %f\n",p->x,p->y);
+      // if (verbose) printf("[%f] : %f -> %f\n",p->x,old_y, p->y);
   }
-
+  // if (verbose) print();
+// if (verbose) printf("CPU -- End ADD_TRIANGLE %f %f %f\n",mean,width,height);
   // assert(invariant());
   return;
 }
@@ -256,15 +270,22 @@ void Fuzzy::add(const AbstractFuzzy& f) {
 /// Substract to the current fuzzy set.
 ///
 /// TODO: Dumb version (?), to be completed.
-void Fuzzy::sub(const AbstractFuzzy& f) {
+void Fuzzy::sub(const AbstractFuzzy& f, bool verbose) {
   const Fuzzy fs = (Fuzzy&)(f);
   // assert(invariant());
+  // if (verbose) print();
 
-  for (const Point& q: fs.points_)
+  for (const Point& q: fs.points_) {
+                // if (verbose)   printf("Add point %lf\n",q.x);
+
     create_interpolated_point(q.x);
+  }
 
-  for (Point& p: points_)
-    p.y -= fs.y(p.x);
+  for (Point& p: points_) {
+    // if (verbose)   printf("SET Y for %lf : %lf - %lf\n",p.x,p.y,fs.y(p.x));
+
+    p.y -= fs.y(p.x,verbose);
+  }
 
   // assert(invariant());
 }
@@ -274,8 +295,8 @@ void Fuzzy::sub(const AbstractFuzzy& f) {
 /// The area of a crossed trapezoid can be computed just the same as a
 /// normal one if the bases are counted algebrically (±).
 ProteinConcentration trapezoid_area(const Point& p1, const Point& p2) {
-//    printf("TA [ %lf %lf ] [ %lf %lf ] = %lf\n",p1.x,p2.x,p1.y,p2.y,fabs((p1.y + p2.y) / 2.0 *
-//                                                                    (p2.x - p1.x)));
+  //  printf("TA [ %lf %lf ] [ %lf %lf ] = %lf\n",p1.x,p2.x,p1.y,p2.y,fabs((p1.y + p2.y) / 2.0 *
+                                                                  //  (p2.x - p1.x)));
   return fabs((p1.y + p2.y) / 2.0 *
               (p2.x - p1.x));
 }
@@ -416,8 +437,8 @@ void Fuzzy::load(gzFile backup_file) {
   // assert(invariant());
 }
 
-list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x) {
-  return create_interpolated_point(x, points_.begin());
+list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x, bool verbose) {
+  return create_interpolated_point(x, points_.begin(),verbose);
 }
 
 /// Find first point before abscissa `x`, starting from `start`.
@@ -425,7 +446,7 @@ list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x) {
 /// `start_point` must refer to a point before abscissa `x`
 ///
 /// idempotent: creating existing point returns existing point
-list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x, std::list<Point>::iterator start) {
+list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x, std::list<Point>::iterator start, bool verbose) {
   // assert(invariant());
   assert(x >= X_MIN and x <= X_MAX);
 
@@ -440,13 +461,15 @@ list<Point>::iterator Fuzzy::create_interpolated_point(ProteinConcentration x, s
   if (prev(p)->x == x) {
     // point already in points_
     // assert(invariant());
+      // if (verbose) printf("Will UPDadd P [%lf : %lf] with hint %lf\n",x, y(x),p->x);
+
     return prev(p);
   }
   // insert point before p
   // assert(invariant());
-
+  // if (verbose) printf("Will add P [%lf : %lf] with hint %lf\n",x, y(x),p->x);
 //        printf("Add INTER point [%lf %lf]\n",x,y(x));
-  return points_.insert(p, Point(x, y(x)));
+  return points_.insert(p, Point(x, y(x,verbose)));
 }
 
 /// Check that list of `points_`' abscissas is (strictly) increasing.
@@ -502,7 +525,7 @@ void Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y)
 void Fuzzy::print() const
 {
   for (const Point& p : points_)
-    printf("[%f : %e] ",p.x,p.y);
+    printf("[%f : %f]\n",p.x,p.y);
   printf("\n");
 }
 } // namespace aevol

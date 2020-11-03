@@ -140,7 +140,7 @@ void HybridFuzzy::add( const AbstractFuzzy& f )
 #endif
 }
 
-void HybridFuzzy::sub( const AbstractFuzzy& f )
+void HybridFuzzy::sub( const AbstractFuzzy& f, bool verbose)
 {
   const HybridFuzzy to_sub = (HybridFuzzy&)(f);
 #ifdef __BLAS__

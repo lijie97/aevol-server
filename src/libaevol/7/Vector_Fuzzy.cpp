@@ -62,27 +62,47 @@ namespace aevol {
 ///
 /// TODO: use it! (vld, 2014-12-19)
 ///
-ProteinConcentration Vector_Fuzzy::y(ProteinConcentration x, set<Point>::const_iterator begin) const {
+ProteinConcentration Vector_Fuzzy::y(ProteinConcentration x, set<Point>::const_iterator begin, bool verbose) const {
   assert(x >= X_MIN and x <= X_MAX);
   assert(points_.size() >= 2);
 
   // Get the first point having abscissa ≥ x
+  assert(begin != points_.end());
+  // assert(begin->x <= x);
 
-  set<Point>::const_iterator p2 = points_.lower_bound(Point(x,0.0));
-  assert(p2 != points_.end());
+  if (begin->x == x) {// If p2 has abscissa x, he's the guy
+    // printf("\n");
+    // if (verbose) printf("Found Y %lf\n",begin->y);
+    return begin->y;
+  }else { // Otherwise interpolate
+    set<Point>::const_iterator p1 = begin;
+    set<Point>::const_iterator p2 = next(begin);
+    // if (begin == points_.begin()) {
+    //    p1 = begin; 
+    //    p2 = next(begin);
+    // }
+    
+    // if (verbose) 
+    //   printf("SIMD -- Compute Y for %lf => %lf: P1 [%lf : %lf] P2 [%lf :: %lf] Begin [%lf :: %lf]\n",
+    //                     x,p1->y +
+    //   (x - p1->x) * ((p2->y - p1->y) /
+    //                      (p2->x - p1->x)),
+    //                     p1->x,p1->y,p2->x,p2->y,begin->x,begin->y);
 
-  if (p2->x == x) // If p2 has abscissa x, he's the guy
-    return p2->y;
-  else { // Otherwise interpolate
-    set<Point>::const_iterator p1 = prev(p2);
     return p1->y +
       (x - p1->x) * ((p2->y - p1->y) /
                          (p2->x - p1->x));
   }
 }
 
-ProteinConcentration Vector_Fuzzy::y(ProteinConcentration x) const {
-  return y(x, points_.begin());
+ProteinConcentration Vector_Fuzzy::y(ProteinConcentration x, bool verbose) const {
+  set<Point>::iterator p2 = points_.lower_bound(Point(x,0.0));
+  if (p2 != points_.begin()) p2 = prev(p2);
+  // printf("Passing through y(x) : ");
+  // fflush(stdout);
+  // if (verbose) printf("SIMD -- Look for Y with X %lf and hint %lf\n",x,p2->x);
+
+  return y(x, p2, verbose);
 }
 
 /// Get abscissa of point interpolated between `p1` and `p2`, at
@@ -166,6 +186,8 @@ void Vector_Fuzzy::simplify() {
 /// \param height ordinate of the apex
 void Vector_Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration width, ProteinConcentration height, bool verbose) {
   // assert(invariant());
+// if (verbose) printf("SIMD -- Start ADD_TRIANGLE %f %f %f\n",mean,width,height);
+// if (verbose) print();
 
   assert(width > 0.0);
   assert(X_MIN <= mean and mean <= X_MAX);
@@ -188,24 +210,44 @@ void Vector_Fuzzy::add_triangle(ProteinConcentration mean, ProteinConcentration 
 
   // TODO: bugfix? if points on borders X_MIN,MAX, should not the ordinate be appropriately set?
   // TODO: create_interpolated_point should return an ITERATOR to point set
-  if (x0 >= X_MIN)  p0 = create_interpolated_point(x0);
-  p1 = create_interpolated_point(mean, p0);
-  if (x2 <= X_MAX)  p2 = create_interpolated_point(x2, p1);
+  // print();
+  if (x0 >= X_MIN)  p0 = create_interpolated_point(x0,verbose);
+  
+  Point p1x(x1,0.0);
+  
+  set<Point>::iterator p0n = points_.lower_bound(p1x);
+  if (p0n!=points_.begin()) p0n = prev(p0n);
 
+  // if (verbose) print();
+  // if (verbose) printf("SIMD -- [ADD_TRIANGLE] Add Point mean %lf hint p0n %lf\n",mean,p0n->x);
+
+  p1 = create_interpolated_point(mean, p0n,verbose);
+
+  set<Point>::const_iterator p1n = points_.lower_bound(Point(x2,0.0));
+  if (p1n!=points_.begin()) p1n = prev(p1n);
+
+  // if (verbose) print();
+  // if (verbose) printf("SIMD -- [ADD_TRIANGLE] Add Point end %lf hint p0n %lf\n",x2,p1n->x);
+  
+  if (x2 <= X_MAX)  p2 = create_interpolated_point(x2, p1n,verbose);
+  // if (verbose) print();
   // Update points with abscissas in (x0;x1)
+  // if (verbose) printf("SIMD -- Update point of FUzzy %f %f %f\n",p0->x,p1->x,p2->x);
   for (set<Point>::iterator p = p0 ; p != std::next(p1) ; ++p) {
+    // double old_y = p->y;
       p->y += (p->x - x0) / (x1 - x0) * height;
-            if (verbose) printf("%f -> %f\n",p->x,p->y);
+            // if (verbose) printf("SIMD -- [%f] : %f -> %f\n",p->x,old_y, p->y);
   }
 
   // Update points with abscissas in (x0;x1)
 
-
-            for (set<Point>::iterator p = std::next(p1); p != std::next(p2); ++p) {
-
-                p->y += height * (x2 - p->x) / (x2 - x1);
-                      if (verbose) printf("%f -> %f\n",p->x,p->y);
-            }
+  for (set<Point>::iterator p = std::next(p1); p != std::next(p2); ++p) {
+    double old_y = p->y;
+    p->y += height * (x2 - p->x) / (x2 - x1);
+    // if (verbose) printf("SIMD -- [%f] : %f -> %f\n",p->x,old_y,p->y);
+  }
+  // if (verbose) print();
+  // if (verbose) printf("SIMD -- End ADD_TRIANGLE %f %f %f\n",mean,width,height);
   return;
 }
 
@@ -249,11 +291,11 @@ void Vector_Fuzzy::add(const AbstractFuzzy& f) {
 /// Substract to the current fuzzy set.
 ///
 /// TODO: Dumb version (?), to be completed.
-void Vector_Fuzzy::sub(const AbstractFuzzy& f) {
+void Vector_Fuzzy::sub(const AbstractFuzzy& f, bool verbose) {
   const Vector_Fuzzy fs = (Vector_Fuzzy&)(f);
   // assert(invariant());
 
-          fs.print();
+          // fs.print();
 
   for (const Point q: fs.points_) {
       create_interpolated_point(q.x);
@@ -265,17 +307,29 @@ void Vector_Fuzzy::sub(const AbstractFuzzy& f) {
   // assert(invariant());
 }
 
-    void Vector_Fuzzy::sub(Vector_Fuzzy* f) {
+    void Vector_Fuzzy::sub(Vector_Fuzzy* f, bool verbose) {
+
+      // if (verbose) print();
+
+        std::set<int> look;
         for (const Point q: f->points_) {
-            create_interpolated_point(q.x);
+            // if (verbose)   printf("Add point %lf\n",q.x);
+            auto itr = create_interpolated_point(q.x,verbose);
+            (*itr).y += q.y;
+            look.insert(q.x);
         }
-        for (std::set<Point>::iterator p = points_.begin(); p != points_.end(); ++p)
-            (*p).y -= f->y((*p).x);
+
+        for (std::set<Point>::iterator p = points_.begin(); p != points_.end(); ++p) {
+          // if (verbose)   printf("SET Y for %lf : %lf - %lf\n",(*p).x,(*p).y,f->y((*p).x));
+          if (look.find((*p).x) == look.end())
+            (*p).y -= f->y((*p).x,verbose);
+        }
 
         // assert(invariant());
     }
 
 ProteinConcentration Vector_Fuzzy::get_geometric_area() const {
+  // print();
   return get_geometric_area(points_.begin(), points_.end());
 }
 
@@ -285,6 +339,9 @@ ProteinConcentration Vector_Fuzzy::get_geometric_area(set<Point>::const_iterator
                              set<Point>::const_iterator end) const {
   // Precondition would be along the lines of:
   // assert(points_.begin() <= begin < end < points_.end());
+    // printf("Geom Area (SIZE %u): [begin %lf] [end %lf] :: \n",
+    //       points_.size(),begin->x,end->x);
+
   ProteinConcentration area = 0;
   for (set<Point>::const_iterator p = begin ; next(p) != end ; ++p)
     area += trapezoid_area(*p, *next(p));
@@ -297,14 +354,18 @@ ProteinConcentration Vector_Fuzzy::get_geometric_area(ProteinConcentration x_sta
   assert(X_MIN <= x_start and x_start < x_stop and x_stop <= X_MAX);
 
   // first point with abscissa ≥ x_start
-  set<Point>::const_iterator begin =
-                                    find_if(points_.begin(), points_.end(),
-                                              [x_start](const Point& p){return p.x >= x_start;});
+  set<Point>::const_iterator begin = points_.lower_bound(Point(x_start,0.0));
+                                    // find_if(points_.begin(), points_.end(),
+                                    //           [x_start](const Point& p){return p.x >= x_start;});
   // point following the last one with abscissa ≤ x_stop
-  set<Point>::const_iterator end =
-                                    find_if(begin, points_.end(),
-                                            [x_stop](const Point& p){return p.x > x_stop;});
+  set<Point>::const_iterator end = points_.upper_bound(Point(x_stop,0.0));
+                                    // find_if(begin, points_.end(),
+                                    //         [x_stop](const Point& p){return p.x > x_stop;});
   // area before begin
+  // printf("Geom Area (SIZE %u): [Start %lf Stop %ld] :: [begin %lf] [end %lf] :: \n",
+  //         points_.size(),x_start,x_stop,begin->x,end->x);
+  // print();
+
   ProteinConcentration first_part = trapezoid_area(Point(x_start, y(x_start)), *begin);
   // area after prev(end)
   ProteinConcentration last_part = trapezoid_area(*prev(end), Point(x_stop, y(x_stop)));
@@ -392,8 +453,12 @@ void Vector_Fuzzy::load(gzFile backup_file) {
   // assert(invariant());
 }
 
-set<Point>::iterator Vector_Fuzzy::create_interpolated_point(ProteinConcentration x) {
-  return create_interpolated_point(x, points_.begin());
+set<Point>::iterator Vector_Fuzzy::create_interpolated_point(ProteinConcentration x, bool verbose) {
+  set<Point>::iterator p2 = points_.lower_bound(Point(x,0.0));
+  if (p2 != points_.begin()) p2 = prev(p2);
+
+  // if (verbose) printf("SIMD -- Have found prev of X (%lf) : %lf\n",x,p2->x);
+  return create_interpolated_point(x, p2,verbose);
 }
 
 /// Find first point before abscissa `x`, starting from `start`.
@@ -401,12 +466,14 @@ set<Point>::iterator Vector_Fuzzy::create_interpolated_point(ProteinConcentratio
 /// `start_point` must refer to a point before abscissa `x`
 ///
 /// idempotent: creating existing point returns existing point
-set<Point>::iterator Vector_Fuzzy::create_interpolated_point(ProteinConcentration x, std::set<Point>::iterator start) {
+set<Point>::iterator Vector_Fuzzy::create_interpolated_point(ProteinConcentration x, 
+                    std::set<Point>::iterator start, bool verbose) {
   // assert(invariant());
   assert(x >= X_MIN and x <= X_MAX);
-
-  auto result = points_.insert(Point(x, y(x)));
-  return result.first;
+  Point p = Point(x, y(x,start,verbose));
+  // if (verbose) printf("SIMD -- Will add P [%lf : %lf] with hint %lf\n",p.x,p.y,start->x);
+  auto result = points_.insert(start, p);
+  return result;
 }
 
 /// Check that set of `points_`' abscissas is (strictly) increasing.
@@ -445,7 +512,7 @@ void Vector_Fuzzy::add_point(ProteinConcentration x, ProteinConcentration y) {
 void Vector_Fuzzy::print() const
 {
   for (const Point& p : points_)
-    printf("[%f : %e] ",p.x,p.y);
+    printf("[%f : %f]\n",p.x,p.y);
   printf("\n");
 }
 } // namespace aevol

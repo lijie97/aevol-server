@@ -26,7 +26,7 @@
 
 
 #include "ExpManager_7.h"
-
+#include "Vector_Fuzzy.h"
 #include "7/Stats_7.h"
 #include "Abstract_Metadata.h"
 #include "DnaMutator.h"
@@ -1753,18 +1753,23 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
         double geom_inhib_round = roundf(geom_inhib * 10000);
 
         if ((geom_active_round != fgeom_active_round) || (geom_inhib_round != fgeom_inhib_round)) {
-        printf("After adding triangle (%lf %lf %lf) : Active %.10lf/%.10lf Inhib %.10lf/%.10lf\n",prot->m,prot->w,prot->h*prot->e,
+        printf("SIMD -- After adding triangle (%lf %lf %lf) : Active %.10lf/%.10lf Inhib %.10lf/%.10lf\n",prot->m,prot->w,prot->h*prot->e,
         geom_active,fgeom_active,
         geom_inhib,fgeom_inhib);
         exit(5);
         }
 #else
+        bool verbose = false;
+        // if (AeTime::time() == 447 && indiv_id==966) {
+        //   verbose = true;
+        // }
+
         if (prot->h > 0)
           activ_phenotype->add_triangle(prot->m, prot->w, prot->h *
-                                                          prot->e);
+                                                          prot->e, verbose);
         else
           inhib_phenotype->add_triangle(prot->m, prot->w, prot->h *
-                                                          prot->e);
+                                                          prot->e, verbose);
 #endif
       }
     }
@@ -1786,11 +1791,16 @@ void ExpManager_7::compute_phenotype(int indiv_id) {
         }
 #else
 
+  // if (AeTime::time()==3 && indiv_id == 781) {
+  //   activ_phenotype->print();
+  //   inhib_phenotype->print();
+  // }
+
   activ_phenotype->clip(AbstractFuzzy::max,   Y_MAX);
   inhib_phenotype->clip(AbstractFuzzy::min, - Y_MAX);
 
-  // activ_phenotype->simplify();
-  // inhib_phenotype->simplify();
+  activ_phenotype->simplify();
+  inhib_phenotype->simplify();
   current_individuals[indiv_id]->phenotype = new Vector_Fuzzy();
   current_individuals[indiv_id]->phenotype->add(activ_phenotype);
   current_individuals[indiv_id]->phenotype->add(inhib_phenotype);
@@ -1898,7 +1908,18 @@ void ExpManager_7::compute_fitness(int indiv_id, double selection_pressure, int 
         }
 #else
   Vector_Fuzzy* delta = new Vector_Fuzzy(*current_individuals[indiv_id]->phenotype);
-  delta->sub(target);
+  bool verbose = false;
+  // if (indiv_id==966 && AeTime::time() == 447) {
+  //   verbose = true;
+  //   printf("SIMD -- Target %lf I %lf\n",target->get_geometric_area(),delta->get_geometric_area());
+  // }
+  delta->sub(target,verbose);
+  
+  // if (indiv_id==966 && AeTime::time() == 447) {
+    
+  //   printf("SIMD -- Delta %lf\n",delta->get_geometric_area());
+  //   // delta->print();
+  // }
 
   current_individuals[indiv_id]->metaerror = delta->get_geometric_area();
   delete delta;
