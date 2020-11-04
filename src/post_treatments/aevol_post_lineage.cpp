@@ -276,7 +276,9 @@ int main(int argc, char** argv) {
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  const Individual& initial_ancestor = *(exp_manager->indiv_by_id(indices[0]));
+  int32_t orig_x = indices[0] / exp_manager->world()->width();
+  int32_t orig_y = indices[0] / exp_manager->world()->height();
+  const Individual& initial_ancestor = *(exp_manager->world()->indiv_at(orig_x, orig_y));
 
   // Write file "header"
   gzwrite(lineage_file, &t0, sizeof(t0));
@@ -321,7 +323,6 @@ int main(int argc, char** argv) {
   std::ofstream of;
   of.open("lignée_old.txt");
 
-  char* dna_4704;
   for (int64_t i = 0 ; i < t_end - t0 ; i++) {
     // Where are we in time...
     int64_t t = t0 + i + 1;
@@ -348,7 +349,10 @@ int main(int argc, char** argv) {
       exp_manager_backup->load(t, true, false);
 
       // Copy the ancestor from the backup
-      stored_indiv = exp_manager_backup->indiv_by_id(indices[i + 1]);
+      int x = indices[i+1] / exp_manager_backup->world()->width();
+      int y = indices[i+1] % exp_manager_backup->world()->height();
+      stored_indiv = exp_manager_backup->world()->indiv_at(x,y);
+
       stored_gen_unit = stored_indiv->genetic_unit_list().cbegin();
     }
 
