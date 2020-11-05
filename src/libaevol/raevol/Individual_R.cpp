@@ -329,18 +329,18 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
     _dist_sum = 0;
 
 
- if (id_==543 && AeTime::time() == 5895){
-   std::vector<Protein*> protein_vector;
-        for (auto prot: protein_list_)
-                protein_vector.push_back(prot);
+//  if (id_==543 && AeTime::time() == 5895){
+//    std::vector<Protein*> protein_vector;
+//         for (auto prot: protein_list_)
+//                 protein_vector.push_back(prot);
 
-  std::sort(protein_vector.begin(), protein_vector.end(),
-            [](Protein*a, Protein*b) { return a->shine_dal_pos() < b->shine_dal_pos();});
+//   std::sort(protein_vector.begin(), protein_vector.end(),
+//             [](Protein*a, Protein*b) { return a->shine_dal_pos() < b->shine_dal_pos();});
 
-   for (auto prot: protein_vector)
-     printf("%d -- CPU -- Protein %d : %.18e\n", 0, prot->first_translated_pos(),
-            prot->concentration());
- }
+//    for (auto prot: protein_vector)
+//      printf("%d -- CPU -- Protein %d : %.18e\n", 0, prot->first_translated_pos(),
+//             prot->concentration());
+//  }
     std::set<int> *eval = exp_m_->exp_s()->get_list_eval_step();
     // i is thus the age of the individual
            // printf("Evaluate for %d\n",exp_m_->exp_s()->get_nb_indiv_age());
@@ -359,18 +359,18 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
             one_step();
         }
 
- if (id_==68 && AeTime::time() == 4){
-   std::vector<Protein*> protein_vector;
-        for (auto prot: protein_list_)
-                protein_vector.push_back(prot);
+//  if (id_==68 && AeTime::time() == 4){
+//    std::vector<Protein*> protein_vector;
+//         for (auto prot: protein_list_)
+//                 protein_vector.push_back(prot);
 
-  std::sort(protein_vector.begin(), protein_vector.end(),
-            [](Protein*a, Protein*b) { return a->shine_dal_pos() < b->shine_dal_pos();});
+//   std::sort(protein_vector.begin(), protein_vector.end(),
+//             [](Protein*a, Protein*b) { return a->shine_dal_pos() < b->shine_dal_pos();});
 
-   for (auto prot: protein_vector)
-     printf("%d -- CPU -- Protein %d : %.18e\n", i, prot->first_translated_pos(),
-            prot->concentration());
- }
+//    for (auto prot: protein_vector)
+//      printf("%d -- CPU -- Protein %d : %.18e\n", i, prot->first_translated_pos(),
+//             prot->concentration());
+//  }
 
         /*for (const auto& prot : protein_list_) {
           printf("AT %d ID %d Concentration of %d is %lf\n",AeTime::time(),id(),
@@ -378,16 +378,18 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat, bool no_signal) {
         }*/
 
         // If we have to evaluate the individual at this age
-        if (eval->find(i) != eval->end() || (id_==543 && AeTime::time() == 5895)) {// ||( (id_ == 70) && (AeTime::time()>=1570))){
+        if (eval->find(i) != eval->end()) {//|| (id_==543 && AeTime::time() == 5895)) {// ||( (id_ == 70) && (AeTime::time()>=1570))){
             //if (id_ % 1024 == 1) printf("Eval at %d\n",i);
             eval_step(habitat, i);
-            if (id_==68 && AeTime::time() == 4) {
-            printf("%d -- CPU -- Evaluate Network at %d :: %lf %lf -- %lf\n",id_,i,
-                   _dist_sum,dist_to_target_by_feature_[METABOLISM],
-                   habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
-              // phenotype_->print();
-              // habitat.phenotypic_target( i ).fuzzy()->print();
-            }
+            // if (id_==68 && AeTime::time() == 4) {
+            // if (AeTime::time() == 1 && id_ == 41) {
+            //   printf("%d -- CPU -- Evaluate Network at %d (env id %d) :: %lf %lf -- %lf\n",id_,i,
+            //       habitat.phenotypic_target( i ).get_id(),
+            //        _dist_sum,dist_to_target_by_feature_[METABOLISM],
+            //        habitat.phenotypic_target( i ).fuzzy()->get_geometric_area());
+            //   // phenotype_->print();
+            //   // habitat.phenotypic_target( i ).fuzzy()->print();
+            // }
         }
     }
 
@@ -587,6 +589,7 @@ void Individual_R::update_concentrations( void )
 		if (!((Protein_R*)prot)->is_signal()) {
 
                   // if (id_==70 && AeTime::time() == 1595)
+                  // if (id_==188 && AeTime::time() == 524)
                   //   printf("CPU -- Protein %d : %lf + %lf\n",prot->shine_dal_pos(),prot->concentration(),((Protein_R*)prot)->_delta_concentration);
 
                   ((Protein_R*)prot)->update_concentration();
@@ -759,11 +762,36 @@ void Individual_R::update_phenotype( void )
   // printf("%d -- Allocate phenotype : %u %u %u\n",id_,((Fuzzy*)phenotype_activ_)->points().size(),
   //     ((Fuzzy*)phenotype_inhib_)->points().size(),((Fuzzy*)phenotype_)->points().size());
 
-  for (auto& prot : protein_list_) {
+  std::vector<Protein *> protein_vector;
+  for (auto prot : protein_list_) { 
+      protein_vector.emplace_back(prot);
+        //protein_vector.back()->concentration_ = 0.0;
+      //for (auto rna : prot.rna_list()) {
+      //    protein_vector.back()->add_RNA(rna);
+      //}
+    // }
+  }
+
+        bool verbose = false;
+        // if (AeTime::time() ==447 &&  indiv_->grid_cell()->x() * indiv_->exp_m()->grid_height() + indiv_->grid_cell()->y()==966) {
+        //   verbose = true;
+        // }
+
+
+  sort(protein_vector.begin(), protein_vector.end(),
+       [](Protein *a, Protein *b) { return *a < *b;});
+  for(auto prot : protein_vector) {
     if ( ((Protein_R*)prot)->is_functional() )
     {
-      // if (id_==68 && AeTime::time() == 4)
+      // if (id_==524 && AeTime::time() == 188)
       //  printf("Add triangle %lf %lf %lf (%lf %lf)\n",((Protein_R*)prot)->mean(),
+      //         ((Protein_R*)prot)->width(),
+      //         ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
+      //         ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );
+
+      // if (id_==41 && AeTime::time() == 1)
+      //  printf("CPU -- Add triangle %lf %lf %lf (%lf %lf)\n",
+      //         ((Protein_R*)prot)->mean(),
       //         ((Protein_R*)prot)->width(),
       //         ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(),
       //         ((Protein_R*)prot)->height(), ((Protein_R*)prot)->concentration() );
@@ -772,8 +800,8 @@ void Individual_R::update_phenotype( void )
       {
 //    	  added=true;
         bool verbose = false;
-        if (id_==543 && AeTime::time() == 5895)
-          verbose = true;
+        // if (id_==543 && AeTime::time() == 5895)
+        //   verbose = true;
         phenotype_activ_->add_triangle(  ((Protein_R*)prot)->mean(),
                                          ((Protein_R*)prot)->width(),
                                          ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(), verbose );
@@ -787,19 +815,25 @@ void Individual_R::update_phenotype( void )
       else
       {
         bool verbose = false;
-        if (id_==543 && AeTime::time() == 5895)
-          verbose = true;
+        // if (id_==543 && AeTime::time() == 5895)
+        //   verbose = true;
         phenotype_inhib_->add_triangle(  ((Protein_R*)prot)->mean(),
                                          ((Protein_R*)prot)->width(),
                                          ((Protein_R*)prot)->height() * ((Protein_R*)prot)->concentration(), verbose );
 
       }
+
+      // if (id_==41 && AeTime::time() == 1)
+      //   printf("CPU -- Phenotype : %lf %lf\n",phenotype_activ_->get_geometric_area(),phenotype_inhib_->get_geometric_area());
     }
   }
 
 
     phenotype_activ_->clip(AbstractFuzzy::max,   Y_MAX);
     phenotype_inhib_->clip(AbstractFuzzy::min, - Y_MAX);
+
+    phenotype_activ_->simplify();
+    phenotype_inhib_->simplify();
 
     phenotype_->add(*phenotype_activ_);
     phenotype_->add(*phenotype_inhib_);
@@ -810,6 +844,8 @@ void Individual_R::update_phenotype( void )
     phenotype_->simplify();
 // if (id_==543 && AeTime::time() == 5895) {phenotype_->print();}
 //  _phenotype->simplify();
+//  if (id_==524 && AeTime::time() == 188)
+//         printf("CPU -- Phenotype : %lf %lf :: %lf\n",phenotype_activ_->get_geometric_area(),phenotype_inhib_->get_geometric_area(),phenotype_->get_geometric_area());
 }
 
 void    Individual_R::clear_everything_except_dna_and_promoters() {

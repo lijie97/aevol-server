@@ -345,7 +345,7 @@ IOJson::IOJson(const std::string & filename) {
     Habitat_R* habitat = new Habitat_R();
     habitat->set_phenotypic_target_handler(phenotypic_target_handler);
     std::unique_ptr<Habitat_R> habitat_ptr = std::unique_ptr<Habitat_R>(habitat);
-    GridCell* grid_cell = new GridCell(x,y,std::move(habitat_ptr),&individual,mut_prng_ptr,stoch_prng_ptr);
+    GridCell* grid_cell = new GridCell(x,y,std::move(habitat_ptr),individual,mut_prng_ptr,stoch_prng_ptr);
 
 #else
     Habitat* habitat = new Habitat();

@@ -311,17 +311,17 @@ void Vector_Fuzzy::sub(const AbstractFuzzy& f, bool verbose) {
 
       // if (verbose) print();
 
-        std::set<int> look;
+        // std::set<int> look;
         for (const Point q: f->points_) {
             // if (verbose)   printf("Add point %lf\n",q.x);
             auto itr = create_interpolated_point(q.x,verbose);
-            (*itr).y += q.y;
-            look.insert(q.x);
+            // (*itr).y += q.y;
+            // look.insert(q.x);
         }
 
         for (std::set<Point>::iterator p = points_.begin(); p != points_.end(); ++p) {
           // if (verbose)   printf("SET Y for %lf : %lf - %lf\n",(*p).x,(*p).y,f->y((*p).x));
-          if (look.find((*p).x) == look.end())
+          // if (look.find((*p).x) == look.end())
             (*p).y -= f->y((*p).x,verbose);
         }
 
@@ -342,8 +342,11 @@ ProteinConcentration Vector_Fuzzy::get_geometric_area(set<Point>::const_iterator
     //       points_.size(),begin->x,end->x);
 
   ProteinConcentration area = 0;
-  for (set<Point>::const_iterator p = begin ; next(p) != end ; ++p)
-    area += trapezoid_area(*p, *next(p), verbose);
+  for (set<Point>::const_iterator p = begin ; next(p) != end ; ++p) {
+    double tmp =  trapezoid_area(*p, *next(p), verbose);
+    area += tmp;
+    if (verbose) printf("Trapezoid %lf => %lf : %lf (SUM %lf)\n",(*p).x,(*next(p)).x,tmp,area);
+  }
   return area;
 }
 

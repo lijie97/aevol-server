@@ -313,6 +313,11 @@ void Selection::step_to_next_generation() {
 
 
 #pragma omp for schedule(dynamic)  private(x,y,what)
+  for (int32_t index = 0; index < grid_width * grid_height; index++) {
+    x = index / grid_height;
+    y = index % grid_height;
+
+    do_replication(reproducers[x][y],
                    x * grid_height + y, what, x, y);
 
 #ifdef __DETECT_CLONE

@@ -119,7 +119,7 @@ class List_Fuzzy : public AbstractFuzzy
   // ==========================================================================
   const std::list<Point>& points() const {return points_;}
 
-  ProteinConcentration get_geometric_area() const;
+  ProteinConcentration get_geometric_area(bool verbose=false) const;
   ProteinConcentration get_geometric_area(std::list<Point>::const_iterator begin,
                             std::list<Point>::const_iterator end) const;
   ProteinConcentration get_geometric_area(ProteinConcentration start_segment, ProteinConcentration end_segment) const;

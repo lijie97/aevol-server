@@ -1067,12 +1067,21 @@ void GeneticUnit::compute_phenotypic_contribution(int indiv_id) {
   for(auto prot : protein_vector) {
     if (prot->is_functional()) {
       bool verbose = false;
-      if (indiv()->id()==68 && AeTime::time()==4)
-        verbose = true;
+      // if (indiv()->id()==68 && AeTime::time()==4)
+      //   verbose = true;
+      // if (indiv()->id()==41 && AeTime::time() == 1)
+      //  printf("CPU -- Add triangle %lf %lf %lf (%lf %lf)\n",prot->mean(),
+      //         prot->width(),
+      //         prot->height() * prot->concentration(),
+      //         prot->height(), prot->concentration() );
 
         ((prot->height() > 0) ? activ_contribution_ : inhib_contribution_)
               ->add_triangle(prot->mean(), prot->width(),
                              prot->height() * prot->concentration(),verbose);
+
+
+      // if (indiv()->id()==41 && AeTime::time() == 1)
+      //   printf("CPU -- Phenotype : %lf %lf\n",activ_contribution_->get_geometric_area(),inhib_contribution_->get_geometric_area());
     }
   }
 

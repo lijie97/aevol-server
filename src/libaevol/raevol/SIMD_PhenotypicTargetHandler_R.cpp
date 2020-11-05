@@ -97,7 +97,7 @@ SIMD_PhenotypicTargetHandler_R::SIMD_PhenotypicTargetHandler_R(PhenotypicTargetH
         // printf("Init Env at age %d is %d\n",age,handler->phenotypic_targets_[age]->get_id());
          
       }
-      targets_fuzzy_by_id_[1]->get_geometric_area(true);
+      // targets_fuzzy_by_id_[1]->get_geometric_area(true);
     }
 
     nb_eval_ = exp_s->get_list_eval_step()->size();

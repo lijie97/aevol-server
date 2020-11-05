@@ -524,7 +524,6 @@ void ExpManager::load(gzFile& exp_s_file,
         exp_m_7_                     = new ExpManager_7(this);
         exp_m_7_->protein_grain_size = grain_size;
         exp_m_7_->rna_grain_size     = grain_size;
-        exp_m_7_->set_stats(output_m_->stats());
       }
   }
 
@@ -816,18 +815,21 @@ void ExpManager::run_evolution() {
 #ifdef __CUDACC__
   cudaProfilerStop();
 #endif
-  if (ExpManager_7::standalone() && check_simd_) {
-    for (int indiv_id = 0; indiv_id < (int)nb_indivs(); indiv_id++) {
-      int x = indiv_id / world_->height();
-      int y = indiv_id % world_->height();
+   //
+   // I do not think this is required, the world destructor must clean up this
+   //
+  // if (ExpManager_7::standalone() && check_simd_) {
+  //   for (int indiv_id = 0; indiv_id < (int)nb_indivs(); indiv_id++) {
+  //     int x = indiv_id / world_->height();
+  //     int y = indiv_id % world_->height();
 
-      world_->grid(x, y)
-          ->individual()
-          ->clear_everything_except_dna_and_promoters();
-      world_->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
-      delete world_->grid(x, y)->individual();
-    }
-  }
+  //     world_->grid(x, y)
+  //         ->individual()
+  //         ->clear_everything_except_dna_and_promoters();
+  //     world_->grid(x, y)->individual()->genetic_unit_list_nonconst().clear();
+  //     delete world_->grid(x, y)->individual();
+  //   }
+  // }
 
   //  output_m_->flush();
 //  if(with_mrca_ && record_light_tree())

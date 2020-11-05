@@ -339,7 +339,7 @@ void List_Fuzzy::sub(const AbstractFuzzy& f, bool verbose) {
         // assert(invariant());
     }
 
-ProteinConcentration List_Fuzzy::get_geometric_area() const {
+ProteinConcentration List_Fuzzy::get_geometric_area(bool verbose) const {
   // print();
   return get_geometric_area(points_.begin(), points_.end());
 }
