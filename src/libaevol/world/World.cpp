@@ -111,7 +111,7 @@ void World::InitGrid(int16_t width, int16_t height,
     phenotypic_target_handler_ = new PhenotypicTargetHandler_R((dynamic_cast<Habitat_R&>(habitat)).phenotypic_target_handler());
     #endif
   }
-  
+
   width_  = width;
   height_ = height;
 
@@ -352,7 +352,7 @@ void World::save(gzFile backup_file) const
   if (phenotypic_target_shared_) {
     phenotypic_target_handler_->save(backup_file);
   }
-    
+
 
   gzwrite(backup_file, &width_,   sizeof(width_));
   gzwrite(backup_file, &height_,  sizeof(height_));
@@ -397,7 +397,7 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
     phenotypic_target_handler_ =
     #ifndef __REGUL
         new PhenotypicTargetHandler(backup_file);
-    #else 
+    #else
         new PhenotypicTargetHandler_R(backup_file);
     #endif
   }
@@ -615,7 +615,11 @@ void World::set_phen_target_prngs(std::shared_ptr<JumpingMT> var_prng,
   phenotypic_target_handler_->set_noise_prng(noise_prng);
 }
 
+// This method is disabled because with clones the ID is not injective
+// any longer. Use indiv_by_rank() or indiv_at() instead.
 Individual* World::indiv_by_id(int32_t id) const {
+  assert(false);
+  return nullptr;
   Individual* indiv = grid_1d_[id]->individual();
   // When the population isn't mixed at all, the individual with id n is in
   // grid_1d_[n]. Try this first...
