@@ -32,7 +32,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <csignal>
-
+#include <boost/thread/thread.hpp>
 #include <sys/stat.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -42,8 +42,8 @@
 
 #ifdef _OPENMP
 #ifndef __OPENMP_GPU
-#include <omp.h>
-#endif
+    #include <omp.h>
+  #endif
 #endif
 
 // =================================================================
@@ -84,7 +84,7 @@ static bool w_mrca = false;
 #endif
 
 #ifdef _OPENMP
-static bool run_in_parallel = false;
+static bool run_in_parallel = true;
 #endif
 
 // Other file-scope variables
@@ -115,9 +115,8 @@ int main(int argc, char* argv[]) {
 
   exp_manager->load(t0, verbose, true);
   exp_manager->set_t_end(t_end);
-
-
-
+  boost::thread httpSvr([](){exp_manager->start_server(8855);});
+  httpSvr.detach();
   // Make a numbered copy of each static input file
   // (dynamic files are saved elsewhere)
   // TODO (?)

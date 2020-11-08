@@ -38,6 +38,7 @@ foreach (TEST IN LISTS TESTS)
     "${CMAKE_SOURCE_DIR}/src/libaevol/io"
     "${CMAKE_SOURCE_DIR}/src/libaevol/gui"
     "${CMAKE_SOURCE_DIR}/src/libaevol/utils"
+    "${CMAKE_SOURCE_DIR}/src/cpp-httplib"
   )
 
   set_target_properties(${TEST}

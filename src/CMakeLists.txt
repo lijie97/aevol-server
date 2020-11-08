@@ -23,6 +23,7 @@ if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     add_executable(aevol_propagate aevol_propagate.cpp)
     target_link_libraries(aevol_propagate PUBLIC aevol ${Boost_LIBRARIES})
+    target_link_libraries(aevol_run PUBLIC aevol ${Boost_LIBRARIES})
 endif()
 
 # ============================================================================

@@ -107,6 +107,8 @@ class ExpManager : public Observer {
   double secretion_contrib_to_fitness() const { return exp_s()->secretion_contrib_to_fitness(); }
   double secretion_cost() const { return exp_s()->secretion_cost(); }
 
+  void start_server(int_fast16_t port);
+
   // Accessors to population stuff
   std::list<Individual*> indivs() const { return world()->indivs(); }
   std::list<std::pair<Individual*, ReplicationReport*>> indivs_annotated()

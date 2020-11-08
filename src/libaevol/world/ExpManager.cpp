@@ -54,8 +54,8 @@
 #include "raevol/cuda_struct.h"
 #include "raevol/Individual_R.h"
 #endif
-#include<chrono>
-
+#include <chrono>
+#include <httplib.h>
 #include <iostream>
 #include <unordered_map>
 using namespace std;
@@ -1012,6 +1012,49 @@ std::list<std::pair<Individual*, ReplicationReport*>>
   }
   return annotated_list;
 }
+void ExpManager::start_server(int_fast16_t port) {
 
+  httplib::Server svr;
+  cout << "Server Started, binding port on " << port << endl;
+  svr.Get("/api/world_info", [this](const httplib::Request &, httplib::Response &res) {
+
+    cout << "world_info" << endl;
+    std::ostringstream stringStream;
+    // stringStream << "generation:" << this->best_indiv()->genetic_unit_list().front().rna_list()[LEADING].size();
+    stringStream << "{\"generation\":" << AeTime::time() << ","
+                 << "\"mutation_point_rate\":" << exp_s()->mut_params()->point_mutation_rate() << ","
+                 << "\"small_insertion_rate\":" << exp_s()->mut_params()->small_insertion_rate() << ","
+                 << "\"small_deletion_rate\":" << exp_s()->mut_params()->small_deletion_rate() << ","
+                 << "\"duplication_rate\":" << exp_s()->mut_params()->duplication_rate() << ","
+                 << "\"deletion_rate\":" << exp_s()->mut_params()->deletion_rate() << ","
+                 << "\"translocation_rate\":" << exp_s()->mut_params()->translocation_rate() << ","
+                 << "\"inversion_rate\":" << exp_s()->mut_params()->inversion_rate() << ","
+                 << "\"selection_strength\":" << exp_s()->sel()->selection_pressure() << "}";
+    std::string copyOfStr = stringStream.str();
+
+    res.set_content(copyOfStr, "application/json");
+  });
+  svr.Get("/api/grid", [this](const httplib::Request &, httplib::Response &res){
+    cout << "grid" << endl;
+    std::ostringstream stringStream;
+
+    int16_t height = this->grid_height();
+    int16_t width = this->grid_width();
+
+    stringStream << "[";
+    for (int i = 0; i < height; ++i) {
+      stringStream << "[";
+      for (int j = 0; j < width; ++j) {
+        stringStream << (world()->total_fitness_grid())[i][j] << ((j < width - 1)?",":"");
+      }
+      stringStream << ((i < height - 1)?"],":"]");
+    }
+    stringStream << "]";
+    string copyOfStr = stringStream.str();
+    res.set_content(copyOfStr, "application/json");
+  });
+
+  svr.listen("0.0.0.0", port);
+}
 
 } // namespace aevol

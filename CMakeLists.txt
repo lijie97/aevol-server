@@ -19,7 +19,7 @@ set(AUTHORIZED_MTPERIOD 607 1279 2281 4253 11213 19937 44497 86243 132049 216091
 
 set(with-post-treatments ON CACHE BOOL "Whether to build post-treatments")
 
-set(with-x OFF CACHE BOOL "Whether to enable graphical outputs")
+set(with-x ON CACHE BOOL "Whether to enable graphical outputs")
 set(with-omp ON CACHE BOOL "Whether to enable OpenMP parallelization")
 
 set(enable-profiling OFF CACHE BOOL "Whether to enable profiling")
@@ -79,6 +79,7 @@ if(APPLE)
         CMAKE_OSX_DEPLOYMENT_TARGET
         CMAKE_OSX_SYSROOT
         Boost_FILESYSTEM_LIBRARY_RELEASE
+        Boost_SYSTEM_LIBRARY_RELEASE
         Boost_INCLUDE_DIR
     )
 endif()
@@ -163,7 +164,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.65.0 COMPONENTS filesystem)
+find_package(Boost 1.65.0 COMPONENTS system filesystem thread)
 
 # ============================================================================
 # Look for Zlib
@@ -226,6 +227,7 @@ include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/gui")
 include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/utils")
 include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/7")
 include_directories("${CMAKE_SOURCE_DIR}/src/libaevol/SFMT-src-1.4")
+include_directories("${CMAKE_SOURCE_DIR}/src/cpp-httplib")
 
 
 # ============================================================================
