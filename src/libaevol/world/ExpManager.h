@@ -45,6 +45,9 @@
 #include "ObservableEvent.h"
 #include "SaveWorld.h"
 
+namespace httplib{
+  class Server;
+}
 namespace aevol {
 // =================================================================
 //                          Class declarations
@@ -108,7 +111,10 @@ class ExpManager : public Observer {
   double secretion_cost() const { return exp_s()->secretion_cost(); }
 
   void start_server(int_fast16_t port);
-
+  void cgi_grid(httplib::Server &);
+  void cgi_best_rna(httplib::Server &);
+  void cgi_best_dna(httplib::Server &);
+  void cgi_world_info(httplib::Server &);
   // Accessors to population stuff
   std::list<Individual*> indivs() const { return world()->indivs(); }
   std::list<std::pair<Individual*, ReplicationReport*>> indivs_annotated()

@@ -38,6 +38,7 @@
 #include "7/Stats_7.h"
 #include "Individual.h"
 
+#include <httplib.h>
 #include <cerrno>
 #include <err.h>
 #include <iostream>
@@ -55,7 +56,6 @@
 #include "raevol/Individual_R.h"
 #endif
 #include <chrono>
-#include <httplib.h>
 #include <iostream>
 #include <unordered_map>
 using namespace std;
@@ -131,7 +131,7 @@ ExpManager::~ExpManager() noexcept
 
 
   delete exp_s_;
-  
+
   delete [] dna_mutator_array_;
 
   delete [] next_generation_reproducer_;
@@ -527,7 +527,7 @@ void ExpManager::load(gzFile& exp_s_file,
       }
   }
 
-    
+
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
       if (ExpManager_7::standalone_simd) {
@@ -1016,24 +1016,101 @@ void ExpManager::start_server(int_fast16_t port) {
 
   httplib::Server svr;
   cout << "Server Started, binding port on " << port << endl;
-  svr.Get("/api/world_info", [this](const httplib::Request &, httplib::Response &res) {
+  cgi_world_info(svr);
+  cgi_grid(svr);
+  cgi_best_rna(svr);
+  cgi_best_dna(svr);
+  svr.listen("0.0.0.0", port);
+}
 
-    cout << "world_info" << endl;
-    std::ostringstream stringStream;
-    // stringStream << "generation:" << this->best_indiv()->genetic_unit_list().front().rna_list()[LEADING].size();
-    stringStream << "{\"generation\":" << AeTime::time() << ","
-                 << "\"mutation_point_rate\":" << exp_s()->mut_params()->point_mutation_rate() << ","
-                 << "\"small_insertion_rate\":" << exp_s()->mut_params()->small_insertion_rate() << ","
-                 << "\"small_deletion_rate\":" << exp_s()->mut_params()->small_deletion_rate() << ","
-                 << "\"duplication_rate\":" << exp_s()->mut_params()->duplication_rate() << ","
-                 << "\"deletion_rate\":" << exp_s()->mut_params()->deletion_rate() << ","
-                 << "\"translocation_rate\":" << exp_s()->mut_params()->translocation_rate() << ","
-                 << "\"inversion_rate\":" << exp_s()->mut_params()->inversion_rate() << ","
-                 << "\"selection_strength\":" << exp_s()->sel()->selection_pressure() << "}";
-    std::string copyOfStr = stringStream.str();
+void ExpManager::cgi_world_info(httplib::Server& svr) {
+  svr.Get("/api/world-info",
+          [this](const httplib::Request&, httplib::Response& res) {
+            cout << "world-info" << endl;
+            std::ostringstream stringStream;
+            // stringStream << "generation:" << this->best_indiv()->genetic_unit_list().front().rna_list()[LEADING].size();
+            stringStream << "{\"generation\":" << AeTime::time() << ","
+                         << "\"mutation_point_rate\":"
+                         << exp_s()->mut_params()->point_mutation_rate() << ","
+                         << "\"small_insertion_rate\":"
+                         << exp_s()->mut_params()->small_insertion_rate() << ","
+                         << "\"small_deletion_rate\":"
+                         << exp_s()->mut_params()->small_deletion_rate() << ","
+                         << "\"duplication_rate\":"
+                         << exp_s()->mut_params()->duplication_rate() << ","
+                         << "\"deletion_rate\":"
+                         << exp_s()->mut_params()->deletion_rate() << ","
+                         << "\"translocation_rate\":"
+                         << exp_s()->mut_params()->translocation_rate() << ","
+                         << "\"inversion_rate\":"
+                         << exp_s()->mut_params()->inversion_rate() << ","
+                         << "\"selection_strength\":"
+                         << exp_s()->sel()->selection_pressure() << "}";
+            std::string copyOfStr = stringStream.str();
 
-    res.set_content(copyOfStr, "application/json");
+            res.set_content(copyOfStr, "application/json");
+          });
+}
+
+void ExpManager::cgi_best_rna(httplib::Server& svr) {
+  svr.Get("/api/best-rna", [this](const httplib::Request&,
+                                  httplib::Response& res) {
+    cout << "rna" << endl;
+    string str;
+    const GeneticUnit& best = best_indiv()->genetic_unit_list().front();
+    str = "{\"leading-count\":" + to_string(best.rna_list()[LEADING].size()) +
+          ",\"lagging-count\":" + to_string(best.rna_list()[LAGGING].size()) +
+          ",\"leadings\":[";
+    const auto& rna_lists = best.rna_list();
+    for (const auto& rna: rna_lists[LEADING]) {
+      str += "[" + to_string(rna.first_transcribed_pos()) + "," +
+             to_string(rna.last_transcribed_pos()) + "],";
+    }
+    str = str.substr(0, str.size() - 1);
+    str += "],\"laggings\":[";
+    for (const auto& rna: rna_lists[LAGGING]) {
+      str += "[" + to_string(rna.first_transcribed_pos()) + "," +
+             to_string(rna.last_transcribed_pos()) + "],";
+    }
+    str = str.substr(0, str.size() - 1);
+    str += "]}";
+    res.set_content(str, "application/json");
   });
+}
+
+void ExpManager::cgi_best_dna(httplib::Server& svr) {
+  svr.Get("/api/best-dna", [this](const httplib::Request&,
+                                  httplib::Response& res) {
+    cout << "dna" << endl;
+    string str;
+
+    auto &genetic_unit_list_ = best_indiv()->genetic_unit_list();
+    GeneticUnit* gen_unit = const_cast<GeneticUnit*>(&genetic_unit_list_.front());
+    int32_t genome_length = gen_unit->dna()->length();
+
+    list<Protein>& leadingList = gen_unit->protein_list(LEADING);
+    list<Protein>& laggingList = gen_unit->protein_list(LAGGING);
+    str = "{\"chromosome-size\":" + to_string(genome_length) +
+          ",\"leading-count\":" + to_string(leadingList.size()) +
+          ",\"lagging-count\":" + to_string(laggingList.size()) +
+          ",\"leadings\":[";
+    for (const auto& dna: leadingList) {
+      str += "[" + to_string(dna.first_translated_pos()) + "," +
+             to_string(dna.last_translated_pos()) + "],";
+    }
+    str = str.substr(0, str.size() - 1);
+    str += "],\"laggings\":[";
+    for (const auto& dna: laggingList) {
+      str += "[" + to_string(dna.first_translated_pos()) + "," +
+             to_string(dna.last_translated_pos()) + "],";
+    }
+    str = str.substr(0, str.size() - 1);
+    str += "]}";
+    res.set_content(str, "application/json");
+  });
+}
+
+void ExpManager::cgi_grid(httplib::Server& svr) {
   svr.Get("/api/grid", [this](const httplib::Request &, httplib::Response &res){
     cout << "grid" << endl;
     std::ostringstream stringStream;
@@ -1053,8 +1130,6 @@ void ExpManager::start_server(int_fast16_t port) {
     string copyOfStr = stringStream.str();
     res.set_content(copyOfStr, "application/json");
   });
-
-  svr.listen("0.0.0.0", port);
 }
 
 } // namespace aevol
