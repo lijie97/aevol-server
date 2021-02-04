@@ -99,7 +99,6 @@ ExpManager::ExpManager()
   // ---------------------------------------------------------- Output manager
   output_m_ = new OutputManager(this);
 
-
   // -------------------------------- Timestep up to which we want to simulate
   t_end_ = 0;
 
@@ -107,7 +106,7 @@ ExpManager::ExpManager()
   // ------------------------------------------------------------- Quit signal
   quit_signal_received_ = false;
 
-
+  paused_ = false;
   // ------------------------ Which Individuals will reproduce in each GridCell
 
 
@@ -328,6 +327,7 @@ void ExpManager::save_copy(char* dir, int64_t time) const
 
 
 void ExpManager::step_to_next_generation() {
+  // cout  << 1 << endl;
   // TODO <david.parsons@inria.fr> Apply phenotypic target variation and noise
 #ifdef __PERF_LOG__
     auto t1 = high_resolution_clock::now();
@@ -741,7 +741,6 @@ void ExpManager::run_evolution() {
         if (check_simd_)
           exp_m_7_->check_result();
       }
-
       bool finished=false;
 //      int64_t time = AeTime::time();
         // For each generation
@@ -790,7 +789,11 @@ void ExpManager::run_evolution() {
                         }
 
                         // Take one step in the evolutionary loop
-                        step_to_next_generation();
+                        // while (prepared_);
+                    while (paused_){
+                      std::this_thread::sleep_for(1s);
+                    };
+                    step_to_next_generation();
 
 #pragma omp single
                   {
@@ -1020,7 +1023,25 @@ void ExpManager::start_server(int_fast16_t port) {
   cgi_grid(svr);
   cgi_best_rna(svr);
   cgi_best_dna(svr);
+  cgi_best_protein(svr);
+  cgi_play(svr);
+  cgi_pause(svr);
+  cgi_dna_text(svr);
   svr.listen("0.0.0.0", port);
+}
+
+  void ExpManager::cgi_play(httplib::Server& svr){
+  svr.Post("/api/play", [this](const httplib::Request&, httplib::Response& res){
+    cout << "play" << endl;
+    paused_ = false;
+  });
+}
+
+void ExpManager::cgi_pause(httplib::Server& svr) {
+  svr.Post("/api/pause", [this](const httplib::Request&, httplib::Response& res){
+    cout << "pause" << endl;
+    paused_ = true;
+  });
 }
 
 void ExpManager::cgi_world_info(httplib::Server& svr) {
@@ -1087,7 +1108,6 @@ void ExpManager::cgi_best_dna(httplib::Server& svr) {
     auto &genetic_unit_list_ = best_indiv()->genetic_unit_list();
     GeneticUnit* gen_unit = const_cast<GeneticUnit*>(&genetic_unit_list_.front());
     int32_t genome_length = gen_unit->dna()->length();
-
     list<Protein>& leadingList = gen_unit->protein_list(LEADING);
     list<Protein>& laggingList = gen_unit->protein_list(LAGGING);
     str = "{\"chromosome-size\":" + to_string(genome_length) +
@@ -1110,6 +1130,62 @@ void ExpManager::cgi_best_dna(httplib::Server& svr) {
   });
 }
 
+void ExpManager::cgi_fuzzy(httplib::Server& svr) {
+  svr.Get("/api/grid", [this](const httplib::Request &, httplib::Response &res){
+//    auto &phenotype = *best_indiv()->phenotype();
+//    phenotype.
+    auto &phenotype = *best_indiv()->phenotypic_target().fuzzy();
+    //phenotype
+    string str = "";
+    // TODO
+    res.set_content(str, "application/json");
+  });
+}
+
+void ExpManager::cgi_best_protein(httplib::Server& svr) {
+  svr.Get("/api/best-protein", [this](const httplib::Request &, httplib::Response &res){
+    string str = "{\"protein\":[";
+    auto &protein_list = best_indiv()->protein_list();
+
+    for (auto& protein: protein_list) {
+      str += "[" + to_string(protein->height()) + "," + to_string(protein->width()) + "," + to_string((protein->mean())) +"],";
+    }
+    str = str.substr(0, str.size() - 1);
+    str += "],\"result\":[";
+    auto &points = ((Fuzzy*)best_indiv()->phenotype())->points();
+    for (auto& point: points) {
+      str += "[" + to_string(point.x) + "," + to_string(point.y) + "],";
+    }
+    str = str.substr(0, str.size() - 1);
+    str += "]}";
+
+    res.set_content(str, "application/json");
+  });
+}
+
+void ExpManager::cgi_dna_text(httplib::Server& svr) {
+  svr.Get("/api/dna-text", [this](const httplib::Request & req, httplib::Response &res){
+    cout << "dna-text" << endl;
+    string str = "{\"dna\":\"";
+    int x, y;
+
+    if (req.has_param("x") && req.has_param("y")){
+      x = stoi(req.get_param_value("x"));
+      y = stoi(req.get_param_value("y"));
+      if (0<=x && x < world_->width() && 0<=y && y<world_->height())
+        str += indiv_by_position(x,y)->genetic_unit_sequence(0);
+      else
+        str += "null";
+    }
+    else{
+      str += best_indiv()->genetic_unit_sequence(0);
+    }
+    str += "\"}";
+    res.set_content(str, "application/json");
+  });
+}
+
+
 void ExpManager::cgi_grid(httplib::Server& svr) {
   svr.Get("/api/grid", [this](const httplib::Request &, httplib::Response &res){
     cout << "grid" << endl;
@@ -1126,6 +1202,7 @@ void ExpManager::cgi_grid(httplib::Server& svr) {
       }
       stringStream << ((i < height - 1)?"],":"]");
     }
+    // FIX
     stringStream << "]";
     string copyOfStr = stringStream.str();
     res.set_content(copyOfStr, "application/json");

@@ -35,7 +35,8 @@
 #include <cstdlib>
 #include <cassert>
 #include <list>
-
+#include <mutex>
+#include <atomic>
 #include "AeTime.h"
 #include "JumpingMT.h"
 #include "ExpSetup.h"
@@ -115,6 +116,12 @@ class ExpManager : public Observer {
   void cgi_best_rna(httplib::Server &);
   void cgi_best_dna(httplib::Server &);
   void cgi_world_info(httplib::Server &);
+  void cgi_fuzzy(httplib::Server &);
+  void cgi_best_protein(httplib::Server &);
+  void cgi_play(httplib::Server &);
+  void cgi_pause(httplib::Server &);
+  void cgi_environement(httplib::Server &);
+  void cgi_dna_text(httplib::Server &);
   // Accessors to population stuff
   std::list<Individual*> indivs() const { return world()->indivs(); }
   std::list<std::pair<Individual*, ReplicationReport*>> indivs_annotated()
@@ -124,7 +131,7 @@ class ExpManager : public Observer {
   Individual* indiv_by_id(int32_t id) const;
   Individual* indiv_by_rank(int32_t rank) const;
   Individual* indiv_by_position(int16_t x, int16_t y) const;
-
+  std::atomic_bool paused_;
   // Accessors to output manager stuff
   int64_t	backup_step() const { return output_m()->backup_step(); }
   int64_t	end_step() const { return t_end_; }
