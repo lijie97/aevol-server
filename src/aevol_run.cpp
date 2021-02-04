@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <csignal>
+#include <thread>
 #include <boost/thread/thread.hpp>
 #include <sys/stat.h>
 #include <getopt.h>
@@ -70,6 +71,7 @@ using namespace aevol;
 void print_help(char* prog_path);
 void interpret_cmd_line_options(int argc, char* argv[]);
 
+void show_display_toggle();
 // Command-line option variables
 // static bool pause_on_startup = false;
 static bool verbose = false;
@@ -82,6 +84,8 @@ static bool w_mrca = false;
 #ifndef __NO_X
   static bool show_display_on_startup = true;
 #endif
+
+static bool start_server = false;
 
 #ifdef _OPENMP
 static bool run_in_parallel = true;
@@ -112,31 +116,46 @@ int main(int argc, char* argv[]) {
   #else
     exp_manager = new ExpManager();
   #endif
-
-  exp_manager->load(t0, verbose, true);
-  exp_manager->set_t_end(t_end);
-  boost::thread httpSvr([](){exp_manager->start_server(8855);});
-  httpSvr.detach();
+  std::thread* httpSvr;
+  if (start_server){
+    exp_manager->load(t0, verbose, true);
+    exp_manager->set_t_end(t_end);
+    #ifndef __NO_X
+    show_display_toggle();
+    #endif
+    httpSvr = new std::thread([](){exp_manager->start_server(8855);});
+    httpSvr->detach();
+    exp_manager->run_evolution();
+  }
+  else {
+    exp_manager->load(t0, verbose, true);
+    exp_manager->set_t_end(t_end);
+    #ifndef __NO_X
+    show_display_toggle();
+    #endif
+    exp_manager->run_evolution();
+  }
   // Make a numbered copy of each static input file
   // (dynamic files are saved elsewhere)
   // TODO (?)
 
-  #ifndef __NO_X
-    if (show_display_on_startup) {
-      ((ExpManager_X11*) exp_manager)->toggle_display_on_off();
-    }
-  #endif
+
 
   // =================================================================
   //                         Run the simulation
   // =================================================================
-  exp_manager->run_evolution();
 
 
+  std::cin.get();
   delete exp_manager;
   //~ return EXIT_SUCCESS;
-}
 
+}
+void show_display_toggle() {
+  if (show_display_on_startup) {
+    ((ExpManager_X11*) exp_manager)->toggle_display_on_off();
+  }
+}
 
 #ifndef __NO_X
   void catch_usr1(int sig_num) {
@@ -195,12 +214,13 @@ void print_help(char* prog_path) {
   printf("  -v, --verbose\n\tbe verbose\n");
   printf("  -w, --wait\n\tpause after loading\n");
   printf("  -x, --noX\n\tdon't display X outputs upon start\n");
+  printf("  -s, --server\n\trun aevol with http server");
   printf("\tsend SIGUSR1 to switch X output on/off\n");
 }
 
 void interpret_cmd_line_options(int argc, char* argv[]) {
   // Define allowed options
-  const char* options_list = "hVb:e:n:vwxp:6:";
+  const char* options_list = "hVb:e:n:vwxp:6s";
   static struct option long_options_list[] = {
       {"help",          no_argument,       nullptr, 'h'},
       {"version",       no_argument,       nullptr, 'V'},
@@ -212,6 +232,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
       {"noX",           no_argument,       nullptr, 'x'},
       {"parallel",      required_argument, nullptr, 'p'},
       {"aevol_6",       no_argument,       nullptr, '6'},
+      {"server",        no_argument,       nullptr, 's'},
       {0, 0, 0, 0}
   };
 
@@ -220,6 +241,7 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
   while ((option =
               getopt_long(argc, argv, options_list, long_options_list, nullptr))
          != -1) {
+    std::cout << option << std::endl;
     switch (option) {
       case 'h' : {
         print_help(argv[0]);
@@ -271,6 +293,10 @@ void interpret_cmd_line_options(int argc, char* argv[]) {
         show_display_on_startup = false;
         #endif
 
+        break;
+      }
+      case 's':{
+        start_server = true;
         break;
       }
       case 'p' : {
